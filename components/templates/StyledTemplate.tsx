@@ -73,7 +73,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                                 <div key={exp.id} className="break-inside-avoid">
                                     <div className="flex justify-between items-baseline font-bold text-gray-800 mb-1">
                                         <div className="flex-1">
-                                            <span className="italic">{exp.role}</span>, {exp.company}
+                                            <span>{exp.role}</span>, <span className="italic text-gray-500">{exp.company}{exp.location && ` • ${exp.location}`}</span>
                                         </div>
                                         <div className="text-right whitespace-nowrap text-sm bg-white pl-2">
                                             {formatDate(exp.startDate)} – {formatDate(exp.endDate)}
@@ -81,19 +81,17 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                                     </div>
                                     <ul className="list-disc ml-5 space-y-1 text-gray-700">
                                         {exp.description.split('\n').map((line, i) => (
-                                            line.trim().startsWith('•') || line.trim().startsWith('-') ? (
-                                                <li key={i} className="pl-1">{line.replace(/^[•-]\s*/, '')}</li>
-                                            ) : line.trim() ? (
-                                                <div key={i} className="list-none -ml-5 mb-2 italic text-gray-600 block">
-                                                    {line}
-                                                </div>
-                                            ) : null
+                                            line.trim() && (
+                                                <li key={i} className="pl-1 text-justify">
+                                                    {line.replace(/^[•-]\s*/, '')}
+                                                </li>
+                                            )
                                         ))}
                                     </ul>
                                 </div>
                             ))}
                         </div>
-                    </section>
+                    </section >
                 );
             case 'education':
                 return data.education && data.education.length > 0 && (
@@ -122,16 +120,18 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                                 <div key={exp.id} className="break-inside-avoid">
                                     <div className="flex justify-between items-baseline font-bold text-gray-800 mb-1">
                                         <div className="flex-1">
-                                            <span className="italic">{exp.role}</span>, {exp.company}
+                                            <span>{exp.role}</span>, <span className="italic text-gray-500">{exp.company}</span>
                                         </div>
-                                        <div className="text-right whitespace-nowrap text-sm bg-white pl-2">
+                                        <div className="text-right whitespace-nowrap text-sm bg-white pl-2 font-normal text-gray-600">
                                             {formatDate(exp.startDate)} – {formatDate(exp.endDate)}
                                         </div>
                                     </div>
                                     <ul className="list-disc ml-5 space-y-1 text-gray-700">
                                         {exp.description.split('\n').map((line, i) => (
                                             line.trim() && (
-                                                <li key={i} className="pl-1">{line.replace(/^[•-]\s*/, '')}</li>
+                                                <li key={i} className="pl-1 text-justify">
+                                                    {line.replace(/^[•-]\s*/, '')}
+                                                </li>
                                             )
                                         ))}
                                     </ul>
@@ -161,20 +161,15 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                 return data.keyAchievements && (
                     <section key="achievements" style={{ marginBottom: sectionGap }}>
                         <SectionHeader title="Career Highlights" />
-                        <div className="space-y-2">
-                            {data.keyAchievements.split('\n').map((line, i) => {
-                                if (!line.trim()) return null;
-                                const parts = line.split(':');
-                                const title = parts.length > 1 ? parts[0] + ':' : '';
-                                const content = parts.length > 1 ? parts.slice(1).join(':') : line;
-                                return (
-                                    <div key={i} className="text-justify">
-                                        {title && <span className="font-bold mr-1">{title}</span>}
-                                        <span>{content}</span>
-                                    </div>
-                                );
-                            })}
-                        </div>
+                        <ul className="list-disc ml-5 space-y-1 text-gray-700">
+                            {data.keyAchievements.split('\n').map((line, i) => (
+                                line.trim() && (
+                                    <li key={i} className="pl-1 text-justify">
+                                        {line.replace(/^[\s•\-\*]+/, '')}
+                                    </li>
+                                )
+                            ))}
+                        </ul>
                     </section>
                 );
             case 'projects':
@@ -231,6 +226,11 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
         'languages'
     ];
 
+    // Deduplicate and normalize section order handling aliases
+    const uniqueSectionOrder = Array.from(new Set(sectionOrder.map(s =>
+        s === 'achievements' ? 'keyAchievements' : s
+    )));
+
     return (
         <div
             className="w-[210mm] min-h-[297mm] bg-white text-gray-800 mx-auto"
@@ -247,7 +247,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
             {/* Header */}
             <div className={`${textAlignment}`} style={{ marginBottom: headerGap }}>
                 <h1
-                    className="uppercase tracking-widest text-4xl mb-4 text-gray-800"
+                    className="uppercase tracking-widest text-4xl mb-1 text-gray-800"
                     style={{
                         fontSize: `${fontSizes?.header || 28}pt`,
                         color: accentColor
@@ -256,17 +256,17 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                     {data.fullName || "YOUR NAME"}
                 </h1>
 
-                <div className={`flex flex-wrap text-gray-600 uppercase tracking-wider text-xs mb-6 ${flexAlignment}`} style={{ gap: headerItemGap }}>
+                <div className={`flex flex-wrap text-gray-600 uppercase tracking-wider text-xs mb-3 ${flexAlignment}`} style={{ gap: headerItemGap }}>
                     {data.location && <span>{data.location}</span>}
                     {data.location && data.phone && <span>|</span>}
                     {data.phone && <span>{data.phone}</span>}
                     {data.phone && data.email && <span>|</span>}
                     {data.email && <a href={`mailto:${data.email}`}>{data.email}</a>}
                     {data.email && data.linkedin && <span>|</span>}
-                    {data.linkedin && <a href={data.linkedin} target="_blank" rel="noopener noreferrer">LINKEDIN PROFILE</a>}
+                    {data.linkedin && <a href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`} target="_blank" rel="noopener noreferrer">{data.linkedin.replace(/^https?:\/\/(www\.)?/, '')}</a>}
                 </div>
 
-                <div className="border-t border-b border-gray-400 py-3 mb-6">
+                <div className="border-t border-b border-gray-400 py-1.5 mb-4">
                     <p className="uppercase tracking-[0.2em] font-bold text-gray-700 text-sm" style={{ fontSize: `${fontSizes?.jobTitle || 11}pt` }}>
                         {data.jobTitle || "PROFESSIONAL TITLE"}
                     </p>
@@ -274,7 +274,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
             </div>
 
             {/* Dynamic Content */}
-            {sectionOrder.map(section => renderSection(section))}
+            {uniqueSectionOrder.map(section => renderSection(section))}
         </div>
     );
 }

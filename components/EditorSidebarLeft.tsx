@@ -64,7 +64,7 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
         { id: 'executive', name: 'Executive', color: 'bg-slate-800' },
         { id: 'classic', name: 'Classic', color: 'bg-stone-600' },
         { id: 'wonsulting', name: 'Ivy League', color: 'bg-slate-900' },
-        { id: 'styled', name: 'Executive', color: 'bg-blue-100' },
+        { id: 'styled', name: 'Styled Professional', color: 'bg-blue-100' },
         { id: 'smart', name: 'Smart', color: 'bg-gray-200' },
         { id: 'elegant', name: 'Elegant', color: 'bg-indigo-900' },
         { id: 'minimalist', name: 'Minimalist', color: 'bg-gray-100' },

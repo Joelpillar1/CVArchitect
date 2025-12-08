@@ -1,16 +1,26 @@
 import React from 'react';
-import { Plus, FileText, TrendingUp, Eye, ArrowRight, Clock, Bookmark } from 'lucide-react';
+import { Plus, FileText, TrendingUp, Eye, ArrowRight, Clock, Bookmark, Trash2, AlertTriangle } from 'lucide-react';
 import { SavedTemplate, TemplateType } from '../types';
 
 interface OverviewProps {
   onCreateNew: () => void;
   savedTemplates: SavedTemplate[];
   onLoadTemplate: (template: SavedTemplate) => void;
+  onDeleteTemplate: (id: string) => void;
   userName?: string;
 }
 
-export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, userName }: OverviewProps) {
+export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, onDeleteTemplate, userName }: OverviewProps) {
+  const [confirmDeleteId, setConfirmDeleteId] = React.useState<string | null>(null);
   const recentTemplates = savedTemplates.slice(0, 5);
+  const templateToDelete = savedTemplates.find(t => t.id === confirmDeleteId);
+
+  const handleDelete = () => {
+    if (confirmDeleteId) {
+      onDeleteTemplate(confirmDeleteId);
+      setConfirmDeleteId(null);
+    }
+  };
 
   const getBaseTemplateName = (base: TemplateType) => {
     switch (base) {
@@ -101,6 +111,15 @@ export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, 
                   </div>
                 </div>
 
+                {/* Delete Button */}
+                <button
+                  onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(template.id); }}
+                  className="absolute top-2 right-2 z-20 bg-white/90 backdrop-blur-sm text-gray-400 w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-50 hover:text-red-600 transition-all"
+                  title="Delete Template"
+                >
+                  <Trash2 size={14} />
+                </button>
+
                 <div className="absolute inset-0 bg-brand-dark/0 group-hover:bg-brand-dark/10 transition-colors duration-300" />
                 <div className="absolute bottom-4 left-4 right-4 translate-y-12 group-hover:translate-y-0 transition-transform duration-300">
                   <button className="w-full bg-brand-green text-brand-dark font-semibold py-3 rounded-lg shadow-lg text-sm">Resume Editing</button>
@@ -117,6 +136,40 @@ export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, 
           ))}
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      {confirmDeleteId && templateToDelete && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-brand-dark/50 backdrop-blur-sm" onClick={() => setConfirmDeleteId(null)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full animate-fadeIn">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-brand-dark">Delete Template</h3>
+                <p className="text-sm text-gray-500 mt-2">
+                  Are you sure you want to delete the template tagged as "{templateToDelete.tag}"? This action cannot be undone.
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-8">
+              <button
+                onClick={() => setConfirmDeleteId(null)}
+                className="px-4 py-2 rounded-lg font-semibold text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 rounded-lg font-semibold text-sm text-white bg-red-600 hover:bg-red-700 transition-colors"
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

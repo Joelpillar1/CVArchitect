@@ -238,6 +238,11 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
         'languages'
     ];
 
+    // Deduplicate and normalize section order handling aliases
+    const uniqueSectionOrder = Array.from(new Set(sectionOrder.map(s =>
+        s === 'achievements' ? 'keyAchievements' : s
+    )));
+
     return (
         <div
             className="w-[210mm] min-h-[297mm] bg-white text-gray-800 relative mx-auto"
@@ -296,7 +301,7 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
             </div>
 
             {/* Dynamic Content */}
-            {sectionOrder.map(section => renderSection(section))}
+            {uniqueSectionOrder.map(section => renderSection(section))}
         </div>
     );
 }

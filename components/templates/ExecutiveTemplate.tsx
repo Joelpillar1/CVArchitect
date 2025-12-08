@@ -45,16 +45,15 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
         return data.keyAchievements && data.keyAchievements.trim() && (
           <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
             <h2 className={getSectionHeaderClass()} style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: data.accentColor || '#000000' }}>Key Achievements</h2>
-            <div className="text-gray-700 leading-relaxed space-y-2">
+            <ul className="list-disc ml-6 space-y-2 text-gray-700 leading-relaxed">
               {data.keyAchievements.split('\n').map((line, i) => (
                 line.trim() && (
-                  <div key={i} className="flex gap-3 items-start">
-                    <span className="shrink-0 mt-2 w-1.5 h-1.5 rounded-full bg-gray-800"></span>
-                    <div className="flex-1">{line.replace(/^[\s•\-\*]+/, '')}</div>
-                  </div>
+                  <li key={i} className="pl-1">
+                    {line.replace(/^[\s•\-\*]+/, '')}
+                  </li>
                 )
               ))}
-            </div>
+            </ul>
           </section>
         );
 
@@ -71,13 +70,13 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
                       {formatDate(exp.startDate)} - {formatDate(exp.endDate)}
                     </span>
                   </div>
-                  <div className="font-bold uppercase tracking-wider text-sm mb-4" style={{ color: data.accentColor || '#000000' }}>
-                    {exp.company}
-                    {exp.location && <span className="text-gray-500 normal-case tracking-normal"> • {exp.location}</span>}
+                  <div className="text-sm mb-4 text-gray-600 italic">
+                    <span className="font-semibold">{exp.company}</span>
+                    {exp.location && <span> • {exp.location}</span>}
                   </div>
-                  <ul className="list-disc list-outside ml-4 space-y-1 text-gray-700">
+                  <ul className="list-disc list-outside ml-6 space-y-1 text-gray-700">
                     {parseDescriptionBullets(exp.description).map((line, i) => (
-                      <li key={i}>{line}</li>
+                      <li key={i} className="pl-1">{line}</li>
                     ))}
                   </ul>
                 </div>
@@ -226,7 +225,7 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
       </div>
 
       {/* Dynamic Sections */}
-      {(data.sectionOrder || ['summary', 'skills', 'achievements', 'experience', 'projects', 'certifications', 'education', 'additionalInfo', 'references']).map(id => (
+      {[...new Set((data.sectionOrder || ['summary', 'skills', 'achievements', 'experience', 'projects', 'certifications', 'education', 'additionalInfo', 'references']).map(s => s === 'keyAchievements' ? 'achievements' : s))].map(id => (
         <React.Fragment key={id}>
           {renderSection(id)}
         </React.Fragment>

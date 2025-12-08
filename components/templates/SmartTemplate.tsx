@@ -234,6 +234,11 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
         'languages'
     ];
 
+    // Deduplicate and normalize section order handling aliases
+    const uniqueSectionOrder = Array.from(new Set(sectionOrder.map(s =>
+        s === 'achievements' ? 'keyAchievements' : s
+    )));
+
     return (
         <div
             className="w-[210mm] min-h-[297mm] bg-white text-gray-800 mx-auto"
@@ -292,7 +297,7 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
             </div>
 
             {/* Dynamic Content */}
-            {sectionOrder.map(section => renderSection(section))}
+            {uniqueSectionOrder.map(section => renderSection(section))}
         </div>
     );
 }

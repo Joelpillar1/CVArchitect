@@ -92,7 +92,7 @@ export default function Templates({ onSelect, data }: TemplatesProps) {
         },
         {
             id: 'styled',
-            name: "The Executive",
+            name: "Styled Professional",
             description: "A sophisticated, high-end template with distinctive blue section headers and serif typography. Ideal for senior roles.",
             bg: "bg-[#FFFFFF]"
         },

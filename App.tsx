@@ -622,6 +622,7 @@ export default function App() {
             onCreateNew={() => setCurrentView(View.TEMPLATES)}
             savedTemplates={savedTemplates}
             onLoadTemplate={handleLoadSavedTemplate}
+            onDeleteTemplate={handleDeleteSavedTemplate}
             userName={userProfile?.full_name || user?.email?.split('@')[0]}
           />
         );
