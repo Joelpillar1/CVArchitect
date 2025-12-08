@@ -1,5 +1,7 @@
 # CV Architect - AI-Powered Resume Builder
 
+An AI-powered resume builder and career architectural platform helping professionals create ATS-optimized CVs, generate cover letters, and track job applications.
+
 A modern, professional resume builder with AI enhancement capabilities powered by Google Gemini.
 
 ## Features
