@@ -1,0 +1,387 @@
+import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
+import { ResumeData, TemplateType } from '../types';
+import { UserSubscription } from '../types/pricing';
+import { SubscriptionManager } from '../utils/subscriptionManager';
+import { canAccessTemplate } from '../utils/pricingConfig';
+import { ChevronLeft, Maximize2, Minimize2, Download, User, Briefcase, GraduationCap, Award, Layout as LayoutIcon, Target, CheckCircle } from 'lucide-react';
+import FormSection from './FormSection';
+import ResumePreview from './ResumePreview';
+import EditorSidebarRight from './EditorSidebarRight';
+import EditorSidebarLeft from './EditorSidebarLeft';
+import VanguardTemplate from './templates/VanguardTemplate';
+import ElevateResume from './templates/ElevateResume';
+import PrimeProfile from './templates/PrimeProfile';
+import ImpactTemplate from './templates/ImpactTemplate';
+import FreeTemplate from './templates/FreeTemplate';
+import SimpleProTemplate from './templates/SimpleProTemplate';
+import DevTemplate from './templates/DevTemplate';
+import EliteTemplate from './templates/EliteTemplate';
+import ApexTemplate from './templates/ApexTemplate';
+import ModernTemplate from './templates/ModernTemplate';
+import ExecutiveTemplate from './templates/ExecutiveTemplate';
+import ClassicTemplate from './templates/ClassicTemplate';
+import MinimalistTemplate from './templates/MinimalistTemplate';
+import WonsultingTemplate from './templates/WonsultingTemplate';
+import StyledTemplate from './templates/StyledTemplate';
+import SmartTemplate from './templates/SmartTemplate';
+import ElegantTemplate from './templates/ElegantTemplate';
+import CreditDisplay from './CreditDisplay';
+
+interface EditorProps {
+  data: ResumeData;
+  onChange: (data: ResumeData) => void;
+  template: TemplateType;
+  onTemplateChange: (template: TemplateType) => void;
+  onBack: () => void;
+  onSave?: (data?: ResumeData) => void;
+  onSaveAsTemplate: (data?: ResumeData) => void;
+  currentResumeId?: string | null;
+  showWelcomeModal?: boolean;
+  onCloseWelcomeModal?: () => void;
+  auditResult?: { score: number; keywords: string[]; issues: string[] } | null;
+  userSubscription: UserSubscription;
+  onAIAction: (action: 'ai_rewrite' | 'cv_regeneration' | 'cover_letter' | 'bullet_optimization') => boolean;
+  onShowPaywall?: (feature: 'templates' | 'job-match' | 'general' | 'credits' | 'export') => void;
+}
+
+export type EditorTab = 'personal' | 'summary' | 'education' | 'experience' | 'achievements' | 'skills' | 'certifications' | 'additionalInfo' | 'references' | 'design' | 'job-match';
+
+import { analyzeResume } from './utils/resumeAnalytics';
+
+import CoverLetterModal from './CoverLetterModal';
+import { FileText as FileTextIcon } from 'lucide-react';
+
+export default function Editor({ data, onChange, template, onTemplateChange, onBack, onSave, onSaveAsTemplate, currentResumeId, showWelcomeModal, onCloseWelcomeModal, auditResult, userSubscription, onAIAction, onShowPaywall }: EditorProps) {
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [activeTab, setActiveTab] = useState<EditorTab>('personal');
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [showCoverLetterModal, setShowCoverLetterModal] = useState(false);
+  const [coverLetterContent, setCoverLetterContent] = useState<string>('');
+  const [isPrintingCoverLetter, setIsPrintingCoverLetter] = useState(false);
+
+  // Real-time analytics for header
+  const analytics = React.useMemo(() => analyzeResume(data), [data]);
+
+  // Helper to determine color based on score
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return 'text-green-600 bg-green-50 ring-green-500/20';
+    if (score >= 50) return 'text-yellow-600 bg-yellow-50 ring-yellow-500/20';
+    return 'text-gray-600 bg-gray-50 ring-gray-500/20';
+  };
+
+  React.useEffect(() => {
+    document.title = `${data.fullName} - Resume`;
+    return () => {
+      document.title = 'CV Architect';
+    };
+  }, [data.fullName]);
+
+  const handleDownload = () => {
+    const subscriptionManager = new SubscriptionManager(userSubscription);
+    if (!canAccessTemplate(userSubscription.planId, template)) {
+      onShowPaywall?.('export');
+      return;
+    }
+
+    setIsDownloading(true);
+    // Ensure we are printing resume, not cover letter
+    setIsPrintingCoverLetter(false);
+
+    // Update document title for the PDF filename
+    const originalTitle = document.title;
+    document.title = `${data.fullName.replace(/\s+/g, '_')}_Resume`;
+
+    // Trigger browser print dialog
+    setTimeout(() => {
+      window.print();
+      document.title = originalTitle;
+      setIsDownloading(false);
+    }, 100);
+  };
+
+  const handleCoverLetterDownload = (content: string) => {
+    const subscriptionManager = new SubscriptionManager(userSubscription);
+    // Optional: Check export permissions for Cover Letter too, if desired
+    if (!canAccessTemplate(userSubscription.planId, template)) {
+      onShowPaywall?.('export');
+      return;
+    }
+
+    setCoverLetterContent(content);
+    setIsPrintingCoverLetter(true);
+
+    const originalTitle = document.title;
+    document.title = `${data.fullName.replace(/\s+/g, '_')}_Cover_Letter`;
+
+    setTimeout(() => {
+      window.print();
+      document.title = originalTitle;
+      setIsPrintingCoverLetter(false);
+    }, 100);
+  };
+
+  const renderPrintTemplate = () => {
+    if (isPrintingCoverLetter) {
+      return (
+        <div className="p-8 max-w-[210mm] mx-auto bg-white text-black font-sans leading-relaxed whitespace-pre-wrap">
+          {coverLetterContent}
+        </div>
+      );
+    }
+
+    switch (template) {
+      case 'vanguard': return <VanguardTemplate data={data} />;
+      case 'elevate': return <ElevateResume data={data} />;
+      case 'prime': return <PrimeProfile data={data} />;
+      case 'impact': return <ImpactTemplate data={data} />;
+      case 'free': return <FreeTemplate data={data} />;
+      case 'simplepro': return <SimpleProTemplate data={data} />;
+      case 'dev': return <DevTemplate data={data} />;
+      case 'elite': return <EliteTemplate data={data} />;
+      case 'apex': return <ApexTemplate data={data} />;
+      case 'modern': return <ModernTemplate data={data} />;
+      case 'executive': return <ExecutiveTemplate data={data} />;
+      case 'classic': return <ClassicTemplate data={data} />;
+      case 'minimalist': return <MinimalistTemplate data={data} />;
+      case 'wonsulting': return <WonsultingTemplate data={data} />;
+      case 'styled': return <StyledTemplate data={data} />;
+      case 'smart': return <SmartTemplate data={data} />;
+      case 'elegant': return <ElegantTemplate data={data} />;
+      default: return <VanguardTemplate data={data} />;
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-screen w-full bg-brand-bg">
+      {/* Global Header */}
+      <div className="h-16 border-b border-brand-border flex items-center justify-between px-4 bg-brand-bg shrink-0 z-20">
+        <div className="flex items-center gap-4">
+          <button onClick={onBack} className="p-2 hover:bg-brand-secondary rounded-full transition-colors">
+            <ChevronLeft size={20} className="text-gray-600" />
+          </button>
+          <div className="flex items-center gap-3 text-sm">
+            <span className="text-gray-500">Home</span>
+            <span className="text-gray-300">/</span>
+            <span className="text-gray-500">Template</span>
+            <span className="text-gray-300">/</span>
+            <span className="font-semibold text-brand-dark">My Resume</span>
+
+
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {/* Real-time Scores */}
+          <div className="flex items-center gap-3 mr-4 border-r border-gray-200 pr-4 h-8 hidden md:flex">
+            <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ring-1 ring-inset transition-all ${getScoreColor(analytics.atsScore)}`}>
+              <Target size={14} className="opacity-80" />
+              <span>ATS Score: {analytics.atsScore}</span>
+            </div>
+            {analytics.jobMatchScore > 0 && data.jobDescription && data.jobDescription.trim().length > 20 && (
+              <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ring-1 ring-inset transition-all ${getScoreColor(analytics.jobMatchScore)}`}>
+                <Briefcase size={14} className="opacity-80" />
+                <span>Job Match: {analytics.jobMatchScore}%</span>
+              </div>
+            )}
+          </div>
+
+          <CreditDisplay
+            userSubscription={userSubscription}
+            onUpgradeClick={() => onShowPaywall?.('general')}
+          />
+          <button
+            onClick={() => setShowCoverLetterModal(true)}
+            className="flex items-center gap-2 px-3 py-2 border border-brand-border rounded-lg text-sm font-medium text-brand-dark hover:bg-brand-secondary transition-colors"
+          >
+            <FileTextIcon size={16} />
+            <span className="hidden sm:inline">Cover Letter</span>
+          </button>
+          <button
+            onClick={handleDownload}
+            disabled={isDownloading}
+            className="flex items-center gap-2 px-4 py-2 border border-brand-border rounded-lg text-sm font-medium text-brand-dark hover:bg-brand-secondary transition-colors"
+          >
+            <Download size={16} />
+            Download
+          </button>
+          <button className="flex items-center gap-2 px-4 py-2 bg-brand-green text-brand-dark rounded-lg text-sm font-bold hover:bg-brand-greenHover transition-colors shadow-sm">
+            <LayoutIcon size={16} />
+            Share
+          </button>
+        </div>
+      </div>
+
+      {/* Main Workspace */}
+      <div className="flex flex-1 overflow-hidden">
+
+        {/* Left Panel: Accordion Editor */}
+        <div className={`
+          w-96 border-r border-brand-border bg-brand-bg flex flex-col transition-all duration-300
+          ${isFullscreen ? 'w-0 opacity-0 overflow-hidden' : ''}
+        `}>
+          <EditorSidebarLeft
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            data={data}
+            onChange={onChange}
+            currentTemplate={template}
+            onTemplateChange={onTemplateChange}
+            userSubscription={userSubscription}
+            onAIAction={onAIAction}
+            onShowPaywall={onShowPaywall}
+            auditResult={auditResult}
+          />
+        </div>
+
+        {/* Middle Panel: Canvas/Preview */}
+        <div className="flex-1 bg-brand-bg overflow-y-auto flex justify-center p-8 relative">
+          {/* Floating Toolbar for Fullscreen (Optional, since header has controls) */}
+          <div className="absolute top-4 right-4 z-10">
+            <button
+              onClick={() => setIsFullscreen(!isFullscreen)}
+              className="p-2 bg-white rounded-lg shadow-sm border border-gray-200 text-gray-500 hover:text-gray-900"
+            >
+              {isFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+            </button>
+          </div>
+
+          <div className="w-full max-w-[210mm] transition-transform duration-300 origin-top" style={{ transform: 'scale(0.9)' }}>
+            <ResumePreview data={data} template={template} />
+          </div>
+        </div>
+
+        {/* Right Panel: Design Tools */}
+        <div className={`
+          hidden lg:flex transition-all duration-300
+          ${isFullscreen ? 'w-0 opacity-0 overflow-hidden' : ''}
+        `}>
+          <EditorSidebarRight
+            data={data}
+            onChange={onChange}
+            onSave={onSave}
+            onSaveAsTemplate={onSaveAsTemplate}
+            currentResumeId={currentResumeId}
+            userSubscription={userSubscription}
+            onAIAction={onAIAction}
+          />
+        </div>
+
+      </div>
+
+      {/* Hidden Print Container */}
+      {/* Hidden Print Container - Rendered via Portal to escape app layout constraints */}
+      {createPortal(
+        <div className="hidden print:block absolute top-0 left-0 w-full h-auto bg-white z-[9999] print:w-full print:max-w-[210mm]">
+          <table className="w-full">
+            <thead>
+              <tr>
+                <td>
+                  {/* Top Margin Spacer (repeats on every page) */}
+                  <div style={{ height: '10mm' }}></div>
+                </td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div
+                    className="print-resume"
+                    style={{
+                      fontFamily: data.font || 'Inter, sans-serif',
+                      fontSize: `${data.fontSizes?.body || 10.5}pt`,
+                      lineHeight: data.lineHeight || 1.4,
+                    }}
+                  >
+                    {renderPrintTemplate()}
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td>
+                  {/* Bottom Margin Spacer (repeats on every page) */}
+                  <div style={{ height: '10mm' }}></div>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>,
+        document.body
+      )}
+      {/* Welcome / AI Audit Modal */}
+      {showWelcomeModal && onCloseWelcomeModal && createPortal(
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-slideUp">
+            {/* Header */}
+            <div className="bg-brand-dark p-6 text-white relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-brand-green/20 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
+              <h2 className="text-2xl font-bold relative z-10">Initial AI Audit</h2>
+              <p className="text-gray-300 text-sm relative z-10">Based on your target role: <span className="text-brand-green font-semibold">{data.jobTitle}</span></p>
+            </div>
+
+            {/* Body */}
+            <div className="p-8">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <p className="text-gray-500 font-medium mb-1">Resume Score</p>
+                  <div className="text-4xl font-extrabold text-brand-dark">{auditResult?.score || 65}<span className="text-gray-300 text-2xl">/100</span></div>
+                </div>
+                <div className="w-20 h-20 rounded-full border-4 border-brand-green flex items-center justify-center bg-green-50">
+                  <Target className="text-brand-green w-8 h-8" />
+                </div>
+              </div>
+
+              <div className="space-y-4 mb-8">
+                <div className="flex items-start gap-3 p-3 bg-red-50 rounded-lg border border-red-100">
+                  <div className="mt-0.5 text-red-500"><CheckCircle size={18} /></div>
+                  <div>
+                    <h4 className="font-bold text-gray-800 text-sm">Missing Keywords</h4>
+                    <p className="text-xs text-gray-600">
+                      {auditResult?.keywords ? `Missing: ${auditResult.keywords.join(", ")}` : "We found 3 critical keywords missing for this role."}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 bg-orange-50 rounded-lg border border-orange-100">
+                  <div className="mt-0.5 text-orange-500"><LayoutIcon size={18} /></div>
+                  <div>
+                    <h4 className="font-bold text-gray-800 text-sm">Formatting Issues</h4>
+                    <p className="text-xs text-gray-600">
+                      {auditResult?.issues?.[0] || "Your summary section needs better structure."}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={onCloseWelcomeModal}
+                className="w-full py-4 bg-brand-green hover:opacity-90 text-brand-dark font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+              >
+                Fix Issues Now <ChevronLeft className="rotate-180" size={20} />
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      <CoverLetterModal
+        isOpen={showCoverLetterModal}
+        onClose={() => setShowCoverLetterModal(false)}
+        resumeData={data}
+        onDeductCredit={() => {
+          const check = onAIAction('cover_letter');
+          if (!check && onShowPaywall) {
+            // onAIAction handles showing paywall internally in App.tsx typically, 
+            // but returning false means denied.
+            // App.tsx handleAIAction already shows paywall if needed.
+            return false;
+          }
+          return check;
+        }}
+        onDownload={handleCoverLetterDownload}
+      />
+    </div>
+  );
+}

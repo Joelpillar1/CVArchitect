@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@media print {
+    @page {
+        margin: 0;
+        size: auto;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Reset layout for print */
+    html,
+    body {
+        height: auto !important;
+        overflow: visible !important;
+        width: 100% !important;
+    }
+
+    /* Target the print wrapper in Editor.tsx */
+    .print-resume {
+        width: 100% !important;
+        max-width: 210mm !important;
+        /* Force standard width */
+        margin: 0 auto !important;
+        overflow: visible !important;
+        background-color: white !important;
+    }
+
+    /* Ensure text doesn't get cut off */
+    .print-resume * {
+        max-width: 100% !important;
+        white-space: normal !important;
+        /* Allow wrapping */
+        overflow: visible !important;
+    }
+
+    /* Hide scrollbars and UI elements */
+    ::-webkit-scrollbar {
+        display: none;
+    }
+}

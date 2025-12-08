@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CV Architect - The #1 AI Resume Builder for 2025</title>
+  <meta name="description"
+    content="Stop getting rejected by ATS robots. CV Architect uses advanced AI to rewrite your resume, beat the ATS scanners, and help you land interviews 3x faster. Join thousands of hired professionals.">
+  <meta name="keywords"
+    content="ai resume builder, ats optimization, free resume template, cv maker, resume rewrite ai, cover letter generator, job application tool">
+  <meta name="author" content="CV Architect">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://cvarchitect.app/">
+  <meta property="og:title" content="CV Architect | The Resume Builder That Actually Gets You Hired">
+  <meta property="og:description"
+    content="75% of resumes are rejected by robots before a human ever sees them. We fixed that. Build an ATS-proof resume in minutes with our AI technology.">
+  <meta property="og:image" content="https://cvarchitect.app/images/social-preview.png">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://cvarchitect.app/">
+  <meta property="twitter:title" content="CV Architect | The Resume Builder That Actually Gets You Hired">
+  <meta property="twitter:description"
+    content="75% of resumes are rejected by robots before a human ever sees them. We fixed that. Build an ATS-proof resume in minutes with our AI technology.">
+  <meta property="twitter:image" content="https://cvarchitect.app/images/social-preview.png">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700;900&family=Open+Sans:wght@300;400;600;700;800&family=Lato:wght@300;400;700;900&family=Montserrat:wght@300;400;500;600;700;800;900&family=Merriweather:wght@300;400;700;900&family=Fira+Code&display=swap"
+    rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <style>
+    body {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Custom Scrollbar for a cleaner feel */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #E1E1E1;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #C1C1C1;
+    }
+
+
+    /* Hide print-resume during normal viewing */
+    .print-resume {
+      display: none;
+    }
+
+    /* Resume section helpers for page breaks */
+    .resume-section {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .resume-page-break {
+      page-break-after: always;
+      break-after: page;
+    }
+
+    /* Page break indicator for preview */
+    .resume-page::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(to right, #e5e7eb 0%, #9ca3af 50%, #e5e7eb 100%);
+      opacity: 0.5;
+    }
+
+    .resume-page:last-child::after {
+      display: none;
+    }
+
+    @media print {
+
+      /* Page setup */
+      @page {
+        margin: 0;
+        size: A4 portrait;
+      }
+
+      @media print {
+        .resume-page {
+          zoom: 1 !important;
+          transform: none !important;
+        }
+      }
+
+      /* Hide app chrome, show only resume (do not collapse layout) */
+      body * {
+        visibility: hidden !important;
+      }
+
+      .print-resume,
+      .print-resume * {
+        visibility: visible !important;
+      }
+
+      /* Print-only resume container */
+      .print-resume {
+        display: block !important;
+        position: static !important;
+        /* important: keep natural flow */
+        left: auto !important;
+        top: auto !important;
+        width: 210mm !important;
+        /* A4 width */
+        height: auto !important;
+        /* allow natural height */
+        min-height: auto !important;
+        max-height: none !important;
+        padding: 0 8mm;
+        /* internal margins */
+        margin: 0 auto !important;
+        background: white !important;
+        overflow: visible !important;
+        /* allow content to flow */
+        transform: none !important;
+        /* remove any scaling */
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      /* Ensure all parent containers allow overflow */
+      html,
+      body,
+      #root {
+        width: 100% !important;
+        height: auto !important;
+        min-height: auto !important;
+        max-height: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        background: white !important;
+        transform: none !important;
+      }
+
+      /* Hide page break indicators in print */
+      .resume-page::after {
+        display: none !important;
+      }
+
+      /* Force page breaks between resume pages */
+      .resume-page {
+        page-break-after: always;
+        break-after: page;
+        margin: 0 !important;
+        box-shadow: none !important;
+      }
+
+      .resume-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+
+      /* Page break helpers: keep only your own classes here */
+      .break-inside-avoid,
+      .resume-section {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+
+      /* Keep headers with content - STRICT */
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      .section-header {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+
+      /* Allow content to break naturally line-by-line */
+      .resume-content>div:not(hr),
+      .resume-content>section,
+      .break-inside-avoid {
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+      }
+
+      /* Allow long sections to break */
+      section {
+        break-inside: auto;
+      }
+
+      /* Prevent orphans and widows (keep at least 2 lines) */
+      p,
+      li {
+        orphans: 2;
+        widows: 2;
+      }
+
+      /* Prevent orphans and widows */
+      p,
+      li {
+        orphans: 3;
+        widows: 3;
+      }
+
+      /* Hide scrollbars */
+      ::-webkit-scrollbar {
+        display: none;
+      }
+    }
+  </style>
+  <script type="importmap">
+{
+  "imports": {
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react-dom/client": "https://aistudiocdn.com/react-dom@^19.2.0/client",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0"
+  }
+}
+</script>
+  <link rel="stylesheet" href="/index.css">
+</head>
+
+<body class="bg-brand-bg text-brand-dark selection:bg-brand-green selection:text-brand-dark">
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+
+</html>
