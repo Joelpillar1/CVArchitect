@@ -175,7 +175,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
   };
 
   return (
-    <div className="flex flex-col h-screen w-full bg-brand-bg">
+    <div className="flex flex-col h-screen h-[100dvh] w-full bg-brand-bg">
       {/* Global Header */}
       <div className="h-16 border-b border-brand-border flex items-center justify-between px-4 bg-brand-bg shrink-0 z-20">
         <div className="flex items-center gap-4">
@@ -315,7 +315,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
       </div>
 
       {/* Mobile Bottom Navigation */}
-      <div className="md:hidden h-16 bg-white border-t border-brand-border flex items-center justify-around shrink-0 z-30">
+      <div className="md:hidden h-16 bg-white border-t border-brand-border flex items-center justify-around shrink-0 z-30 sticky bottom-0 pb-safe">
         <button
           onClick={() => setActiveMobileTab('editor')}
           className={`flex flex-col items-center gap-1 p-2 ${activeMobileTab === 'editor' ? 'text-brand-green' : 'text-gray-400'}`}
