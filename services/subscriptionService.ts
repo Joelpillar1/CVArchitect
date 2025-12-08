@@ -273,19 +273,61 @@ export const subscriptionService = {
         return data as Subscription;
     },
 
+
     /**
-     * Get subscription stats
+     * Get usage logs (granular history)
+     */
+    async getUsageLogs(userId: string, limit: number = 20): Promise<UsageTrackingLog[]> {
+        const { data, error } = await supabase
+            .from('usage_logs')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(limit);
+
+        if (error) throw error;
+
+        return data.map(log => ({
+            timestamp: new Date(log.created_at),
+            action: log.action,
+            creditsCost: log.credits_cost,
+            remainingCredits: log.remaining_credits
+        }));
+    },
+
+    /**
+     * Perform an action with credit deduction and logging via RPC
+     */
+    async performAction(userId: string, action: string, cost: number): Promise<{ success: boolean; newCredits: number }> {
+        const { data, error } = await supabase.rpc('deduct_credits_with_log', {
+            p_user_id: userId,
+            p_cost: cost,
+            p_action: action
+        });
+
+        if (error) throw error;
+
+        return {
+            success: data.success,
+            newCredits: data.new_credits
+        };
+    },
+
+    /**
+     * Get subscription stats with detailed history
      */
     async getSubscriptionStats(userId: string): Promise<{
         subscription: Subscription | null;
         usage: Record<string, number>;
         billingHistory: BillingHistoryItem[];
+        usageLogs: UsageTrackingLog[];
         daysRemaining: number | null;
     }> {
-        const [subscription, usage, billingHistory] = await Promise.all([
+        const [subscription, usage, billingHistory, usageLogs] = await Promise.all([
             this.getSubscription(userId),
             this.getAllUsage(userId),
             this.getBillingHistory(userId, 5),
+            this.getUsageLogs(userId, 50)
         ]);
 
         let daysRemaining: number | null = null;
@@ -299,7 +341,35 @@ export const subscriptionService = {
             subscription,
             usage,
             billingHistory,
+            usageLogs,
             daysRemaining,
         };
     },
+
+    /**
+     * Get usage totals
+     */
+    async getUsageTotals(userId: string): Promise<{ totalActions: number; totalCreditsUsed: number }> {
+        const { data, error } = await supabase.rpc('get_usage_summary', { p_user_id: userId });
+
+        if (error) {
+            console.error("Error fetching usage summary:", error);
+            return { totalActions: 0, totalCreditsUsed: 0 };
+        }
+
+        // RPC returns an array of rows, we expect one row
+        const result = Array.isArray(data) ? data[0] : data;
+
+        return {
+            totalActions: result?.total_actions || 0,
+            totalCreditsUsed: result?.total_credits_used || 0
+        };
+    },
 };
+
+export interface UsageTrackingLog {
+    timestamp: Date;
+    action: string;
+    creditsCost: number;
+    remainingCredits: number;
+}

@@ -106,7 +106,7 @@ export default function MyTemplates({ templates, onLoadTemplate, onDeleteTemplat
                     {/* Delete Button */}
                     <button
                       onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(template.id); }}
-                      className="absolute top-2 left-2 z-20 bg-white/90 backdrop-blur-sm text-gray-400 w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-50 hover:text-red-600 transition-all"
+                      className="absolute top-2 left-2 z-40 bg-white/90 backdrop-blur-sm text-gray-400 w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-50 hover:text-red-600 transition-all"
                       title="Delete Template"
                     >
                       <Trash2 size={14} />

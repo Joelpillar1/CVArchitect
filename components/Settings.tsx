@@ -413,12 +413,12 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                   <div className="text-center p-6 bg-blue-50 rounded-xl">
                     <p className="text-sm text-blue-600 font-semibold mb-2">Total AI Actions</p>
-                    <p className="text-4xl font-bold text-blue-700">{userSubscription.usageHistory.length}</p>
+                    <p className="text-4xl font-bold text-blue-700">{userSubscription.usageStats?.totalActions || 0}</p>
                   </div>
                   <div className="text-center p-6 bg-green-50 rounded-xl">
                     <p className="text-sm text-green-600 font-semibold mb-2">Credits Used</p>
                     <p className="text-4xl font-bold text-green-700">
-                      {userSubscription.usageHistory.reduce((sum, record) => sum + record.creditsCost, 0)}
+                      {userSubscription.usageStats?.totalCreditsUsed || 0}
                     </p>
                   </div>
                   <div className="text-center p-6 bg-purple-50 rounded-xl">
@@ -431,7 +431,7 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
 
                 <h4 className="font-bold text-brand-dark mb-4">Recent Activity</h4>
                 <div className="space-y-3">
-                  {userSubscription.usageHistory.slice(-10).reverse().map((record, index) => (
+                  {userSubscription.usageHistory.slice(0, 10).map((record, index) => (
                     <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-brand-green/20 rounded-lg flex items-center justify-center">

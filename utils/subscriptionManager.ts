@@ -220,7 +220,7 @@ export class SubscriptionManager {
             creditsCost,
             remainingCredits: this.subscription.credits,
         };
-        this.subscription.usageHistory.push(record);
+        this.subscription.usageHistory.unshift(record);
     }
 
     /**

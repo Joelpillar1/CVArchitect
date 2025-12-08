@@ -108,9 +108,13 @@ export default function App() {
   // Load user subscription
   useEffect(() => {
     if (user) {
-      // 1. Fetch subscription from DB
+      // 1. Fetch subscription and usage logs from DB
       import('./services/subscriptionService').then(({ subscriptionService }) => {
-        subscriptionService.getSubscription(user.id).then(sub => {
+        Promise.all([
+          subscriptionService.getSubscription(user.id),
+          subscriptionService.getUsageLogs(user.id),
+          subscriptionService.getUsageTotals(user.id)
+        ]).then(([sub, logs, stats]) => {
           if (sub) {
             // Map DB subscription to Client state
             setUserSubscription({
@@ -118,7 +122,8 @@ export default function App() {
               planId: sub.plan_id as PlanId,
               credits: sub.ai_credits,
               isActive: sub.status === 'active',
-              usageHistory: [], // We could fetch this too if needed, but starting empty is okay for now
+              usageHistory: logs,
+              usageStats: stats,
               subscriptionStart: new Date(sub.current_period_start),
               subscriptionEnd: sub.current_period_end ? new Date(sub.current_period_end) : undefined
             });
@@ -271,31 +276,63 @@ export default function App() {
       return false;
     }
 
+    // Get cost before deducting for display/logic
+    // (We could improve this by exposing getCost from manager)
+    // For now, let's just proceed. The manager will deduct and return new state.
+
+    // HOWEVER, for real-time persistence with usage logs, we should use the service.
+    // The manager updates local state synchronousy, which is good for UI.
+    // But we need to use the service RPC to handle the actual DB transaction properly.
+
     const previousCredits = subscriptionManager.getCreditBalance();
-    const result = subscriptionManager.deductCredit(action);
+    const result = subscriptionManager.deductCredit(action); // Updates local in-memory
+
     if (!result.success) {
       setPaywallFeature('credits');
       setShowPaywall(true);
       return false;
     }
 
-    // Update subscription state locally
-    setUserSubscription(subscriptionManager.getSubscription());
+    const cost = previousCredits - result.remainingCredits;
 
-    // Persist to backend
-    if (user) {
-      const cost = previousCredits - result.remainingCredits;
-      if (cost > 0) {
-        subscriptionService.deductCredits(user.id, cost)
-          .then(updatedSub => {
-            // Optional: sync exact server state
-            // setUserSubscription(prev => ({ ...prev, credits: updatedSub.ai_credits }));
-          })
-          .catch(err => {
-            console.error('Failed to sync credits with server:', err);
-            // Optional: Revert local state if critical
-          });
-      }
+    // Use RPC to persist and log
+    if (user && cost > 0) {
+      subscriptionService.performAction(user.id, action, cost)
+        .then(res => {
+          if (res.success) {
+            // Since we're tracking a new log, let's append it to our local state so the UI updates instantly
+            // without needing a full refetch
+            setUserSubscription(prev => ({
+              ...prev,
+              credits: res.newCredits,
+              usageHistory: [
+                {
+                  timestamp: new Date(),
+                  action: action,
+                  creditsCost: cost,
+                  remainingCredits: res.newCredits
+                },
+                ...prev.usageHistory
+              ],
+              usageStats: prev.usageStats ? {
+                totalActions: prev.usageStats.totalActions + 1,
+                totalCreditsUsed: prev.usageStats.totalCreditsUsed + cost
+              } : {
+                totalActions: 1,
+                totalCreditsUsed: cost
+              }
+            }));
+          }
+        })
+        .catch(err => {
+          console.error('Failed to sync credits with server:', err);
+          // Optional: Revert local state if critical
+          // setUserSubscription(prev => ({ ...prev, credits: previousCredits }));
+          showToast('Failed to process credits. Please check connection.', 'error');
+        });
+    } else {
+      // Guest users: just update local state
+      setUserSubscription(subscriptionManager.getSubscription());
     }
 
     return true;

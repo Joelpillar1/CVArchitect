@@ -235,7 +235,7 @@ export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivac
           style={{ fontFamily: 'Graphik, sans-serif' }}
         >
           <span className="block mb-2">Getting <span className="text-brand-green inline-block relative">
-            "Unfortunate"
+            "Unfortunately"
             <svg className="absolute w-full h-2 bottom-0 left-0 text-brand-green/30" viewBox="0 0 100 10" preserveAspectRatio="none">
               <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="3" fill="none" />
             </svg>
@@ -984,7 +984,7 @@ export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivac
             <motion.div variants={fadeInUp} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 flex flex-col hover:shadow-lg transition-shadow">
               <h3 className="text-lg font-semibold mb-2 text-gray-600">Lifetime</h3>
               <div className="mb-2">
-                <span className="text-4xl font-extrabold text-brand-dark">$69</span>
+                <span className="text-4xl font-extrabold text-brand-dark">$97</span>
                 <span className="text-gray-500 text-base block mt-1">one-time</span>
               </div>
               <p className="text-xs text-gray-500 mb-6 font-medium">Pay once, use forever</p>

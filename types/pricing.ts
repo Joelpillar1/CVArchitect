@@ -71,6 +71,10 @@ export interface UserSubscription {
     subscriptionEnd?: Date;
     isActive: boolean;
     usageHistory: UsageRecord[];
+    usageStats?: {
+        totalActions: number;
+        totalCreditsUsed: number;
+    };
 }
 
 export interface UsageRecord {

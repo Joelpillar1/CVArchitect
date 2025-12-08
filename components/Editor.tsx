@@ -4,7 +4,7 @@ import { ResumeData, TemplateType } from '../types';
 import { UserSubscription } from '../types/pricing';
 import { SubscriptionManager } from '../utils/subscriptionManager';
 import { canAccessTemplate } from '../utils/pricingConfig';
-import { ChevronLeft, Maximize2, Minimize2, Download, User, Briefcase, GraduationCap, Award, Layout as LayoutIcon, Target, CheckCircle } from 'lucide-react';
+import { ChevronLeft, Maximize2, Minimize2, Download, User, Briefcase, GraduationCap, Award, Layout as LayoutIcon, Target, CheckCircle, Monitor, Edit3, Palette } from 'lucide-react';
 import FormSection from './FormSection';
 import ResumePreview from './ResumePreview';
 import EditorSidebarRight from './EditorSidebarRight';
@@ -54,11 +54,33 @@ import { FileText as FileTextIcon } from 'lucide-react';
 
 export default function Editor({ data, onChange, template, onTemplateChange, onBack, onSave, onSaveAsTemplate, currentResumeId, showWelcomeModal, onCloseWelcomeModal, auditResult, userSubscription, onAIAction, onShowPaywall }: EditorProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [activeMobileTab, setActiveMobileTab] = useState<'editor' | 'preview' | 'design'>('editor');
   const [activeTab, setActiveTab] = useState<EditorTab>('personal');
   const [isDownloading, setIsDownloading] = useState(false);
   const [showCoverLetterModal, setShowCoverLetterModal] = useState(false);
   const [coverLetterContent, setCoverLetterContent] = useState<string>('');
   const [isPrintingCoverLetter, setIsPrintingCoverLetter] = useState(false);
+  const [zoom, setZoom] = useState(0.5);
+
+  // Auto-adjust initial zoom based on screen width
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) setZoom(0.45);
+      else if (window.innerWidth < 768) setZoom(0.6);
+      else if (window.innerWidth < 1024) setZoom(0.7);
+      else setZoom(0.8);
+    };
+    handleResize(); // Set initial
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.1, 1.5));
+  const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.1, 0.3));
+
+  // A4 Dimensions in px (approx)
+  const A4_WIDTH_PX = 794; // 210mm
+  const A4_HEIGHT_PX = 1123; // 297mm
 
   // Real-time analytics for header
   const analytics = React.useMemo(() => analyzeResume(data), [data]);
@@ -160,20 +182,18 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
           <button onClick={onBack} className="p-2 hover:bg-brand-secondary rounded-full transition-colors">
             <ChevronLeft size={20} className="text-gray-600" />
           </button>
-          <div className="flex items-center gap-3 text-sm">
+          <div className="hidden md:flex items-center gap-3 text-sm">
             <span className="text-gray-500">Home</span>
             <span className="text-gray-300">/</span>
             <span className="text-gray-500">Template</span>
             <span className="text-gray-300">/</span>
             <span className="font-semibold text-brand-dark">My Resume</span>
-
-
           </div>
         </div>
 
         <div className="flex items-center gap-3">
           {/* Real-time Scores */}
-          <div className="flex items-center gap-3 mr-4 border-r border-gray-200 pr-4 h-8 hidden md:flex">
+          <div className="hidden md:flex items-center gap-3 mr-4 border-r border-gray-200 pr-4 h-8">
             <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ring-1 ring-inset transition-all ${getScoreColor(analytics.atsScore)}`}>
               <Target size={14} className="opacity-80" />
               <span>ATS Score: {analytics.atsScore}</span>
@@ -192,22 +212,27 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
           />
           <button
             onClick={() => setShowCoverLetterModal(true)}
-            className="flex items-center gap-2 px-3 py-2 border border-brand-border rounded-lg text-sm font-medium text-brand-dark hover:bg-brand-secondary transition-colors"
+            className="hidden sm:flex items-center gap-2 px-3 py-2 border border-brand-border rounded-lg text-sm font-medium text-brand-dark hover:bg-brand-secondary transition-colors"
           >
             <FileTextIcon size={16} />
-            <span className="hidden sm:inline">Cover Letter</span>
+            <span className="hidden md:inline">Cover Letter</span>
           </button>
+          {/* Mobile Cover Letter Icon */}
+          <button onClick={() => setShowCoverLetterModal(true)} className="sm:hidden p-2 text-gray-500 hover:text-brand-dark">
+            <FileTextIcon size={20} />
+          </button>
+
           <button
             onClick={handleDownload}
             disabled={isDownloading}
-            className="flex items-center gap-2 px-4 py-2 border border-brand-border rounded-lg text-sm font-medium text-brand-dark hover:bg-brand-secondary transition-colors"
+            className="flex items-center gap-2 px-3 md:px-4 py-2 border border-brand-border rounded-lg text-sm font-medium text-brand-dark hover:bg-brand-secondary transition-colors"
           >
             <Download size={16} />
-            Download
+            <span className="hidden sm:inline">Download</span>
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-brand-green text-brand-dark rounded-lg text-sm font-bold hover:bg-brand-greenHover transition-colors shadow-sm">
+          <button className="flex items-center gap-2 px-3 md:px-4 py-2 bg-brand-green text-brand-dark rounded-lg text-sm font-bold hover:bg-brand-greenHover transition-colors shadow-sm">
             <LayoutIcon size={16} />
-            Share
+            <span className="hidden sm:inline">Share</span>
           </button>
         </div>
       </div>
@@ -217,8 +242,9 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
 
         {/* Left Panel: Accordion Editor */}
         <div className={`
-          w-96 border-r border-brand-border bg-brand-bg flex flex-col transition-all duration-300
-          ${isFullscreen ? 'w-0 opacity-0 overflow-hidden' : ''}
+          border-r border-brand-border bg-brand-bg flex-col transition-all duration-300
+          ${isFullscreen ? 'w-0 opacity-0 overflow-hidden' : 'w-full md:w-96'}
+          ${activeMobileTab === 'editor' ? 'flex' : 'hidden md:flex'}
         `}>
           <EditorSidebarLeft
             activeTab={activeTab}
@@ -235,26 +261,45 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
         </div>
 
         {/* Middle Panel: Canvas/Preview */}
-        <div className="flex-1 bg-brand-bg overflow-y-auto flex justify-center p-8 relative">
-          {/* Floating Toolbar for Fullscreen (Optional, since header has controls) */}
-          <div className="absolute top-4 right-4 z-10">
-            <button
-              onClick={() => setIsFullscreen(!isFullscreen)}
-              className="p-2 bg-white rounded-lg shadow-sm border border-gray-200 text-gray-500 hover:text-gray-900"
-            >
-              {isFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-            </button>
+        <div className={`
+          flex-1 bg-brand-bg overflow-auto relative flex flex-col items-center py-8
+          ${activeMobileTab === 'preview' ? 'flex' : 'hidden md:flex'}
+        `}>
+          {/* Zoom Controls Overlay */}
+          <div className="fixed bottom-20 left-1/2 -translate-x-1/2 md:absolute md:top-4 md:right-4 md:left-auto md:translate-x-0 md:bottom-auto z-20 flex items-center gap-2 bg-white/90 backdrop-blur border border-gray-200 p-1.5 rounded-lg shadow-lg">
+            <button onClick={handleZoomOut} className="p-1.5 hover:bg-gray-100 rounded text-gray-600"><Minimize2 size={16} /></button>
+            <span className="text-xs font-mono w-10 text-center">{Math.round(zoom * 100)}%</span>
+            <button onClick={handleZoomIn} className="p-1.5 hover:bg-gray-100 rounded text-gray-600"><Maximize2 size={16} /></button>
           </div>
 
-          <div className="w-full max-w-[210mm] transition-transform duration-300 origin-top" style={{ transform: 'scale(0.9)' }}>
-            <ResumePreview data={data} template={template} />
+          {/* Resume Container with layout-enforcing wrapper */}
+          <div
+            style={{
+              width: `${A4_WIDTH_PX * zoom}px`,
+              height: `${A4_HEIGHT_PX * zoom}px`,
+              transition: 'width 0.2s, height 0.2s'
+            }}
+            className="relative shrink-0 transition-all duration-200"
+          >
+            <div
+              style={{
+                transform: `scale(${zoom})`,
+                transformOrigin: 'top left',
+                width: '210mm',
+                height: '297mm'
+              }}
+              className="absolute top-0 left-0 bg-white shadow-2xl"
+            >
+              <ResumePreview data={data} template={template} />
+            </div>
           </div>
         </div>
 
         {/* Right Panel: Design Tools */}
         <div className={`
-          hidden lg:flex transition-all duration-300
-          ${isFullscreen ? 'w-0 opacity-0 overflow-hidden' : ''}
+          transition-all duration-300
+          ${isFullscreen ? 'w-0 opacity-0 overflow-hidden' : 'w-full lg:w-80'}
+          ${activeMobileTab === 'design' ? 'flex' : 'hidden lg:flex'}
         `}>
           <EditorSidebarRight
             data={data}
@@ -267,6 +312,31 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
           />
         </div>
 
+      </div>
+
+      {/* Mobile Bottom Navigation */}
+      <div className="md:hidden h-16 bg-white border-t border-brand-border flex items-center justify-around shrink-0 z-30">
+        <button
+          onClick={() => setActiveMobileTab('editor')}
+          className={`flex flex-col items-center gap-1 p-2 ${activeMobileTab === 'editor' ? 'text-brand-green' : 'text-gray-400'}`}
+        >
+          <Edit3 size={20} />
+          <span className="text-[10px] font-medium">Editor</span>
+        </button>
+        <button
+          onClick={() => setActiveMobileTab('preview')}
+          className={`flex flex-col items-center gap-1 p-2 ${activeMobileTab === 'preview' ? 'text-brand-green' : 'text-gray-400'}`}
+        >
+          <Monitor size={20} />
+          <span className="text-[10px] font-medium">Preview</span>
+        </button>
+        <button
+          onClick={() => setActiveMobileTab('design')}
+          className={`flex flex-col items-center gap-1 p-2 ${activeMobileTab === 'design' ? 'text-brand-green' : 'text-gray-400'}`}
+        >
+          <Palette size={20} />
+          <span className="text-[10px] font-medium">Design</span>
+        </button>
       </div>
 
       {/* Hidden Print Container */}

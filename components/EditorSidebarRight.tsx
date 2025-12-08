@@ -19,7 +19,7 @@ export default function EditorSidebarRight({ data, onChange, onSave, onSaveAsTem
     const [activeTab, setActiveTab] = useState<'design' | 'job-match'>('design');
 
     return (
-        <div className="w-80 bg-brand-bg border-l border-brand-border flex flex-col h-full overflow-hidden shrink-0 animate-fadeIn">
+        <div className="w-full bg-brand-bg border-l border-brand-border flex flex-col h-full overflow-hidden shrink-0 animate-fadeIn">
             {/* Tabs */}
             <div className="p-4 border-b border-brand-border">
                 <div className="flex bg-brand-secondary p-1 rounded-lg">
