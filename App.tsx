@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Layout, FileText, Settings as SettingsIcon, Home, ChevronRight, ChevronLeft, Menu, X, LogOut, Bookmark } from 'lucide-react';
 import { ResumeData, INITIAL_DATA, TemplateType, SavedTemplate } from './types';
 import Editor from './components/Editor';
@@ -19,6 +20,7 @@ import Onboarding from './components/Onboarding';
 import TemplateOnboardingModal from './components/TemplateOnboardingModal';
 import PaywallModal from './components/PaywallModal';
 import PricingModal from './components/PricingModal';
+import PricingPage from './components/PricingPage';
 import { UserSubscription, PlanId } from './types/pricing';
 import { SubscriptionManager, createDefaultSubscription, upgradePlan } from './utils/subscriptionManager';
 import { subscriptionService } from './services/subscriptionService';
@@ -565,9 +567,9 @@ export default function App() {
           <LandingPage
             onGetStarted={handleGetStarted}
             onSignIn={() => setCurrentView(View.SIGN_IN)}
-            onNavigateToPrivacy={() => setCurrentView(View.PRIVACY)}
-            onNavigateToTerms={() => setCurrentView(View.TERMS)}
-            onNavigateToContact={() => setCurrentView(View.CONTACT)}
+            onNavigateToPrivacy={() => navigate('/privacy')}
+            onNavigateToTerms={() => navigate('/terms')}
+            onNavigateToContact={() => navigate('/contact')}
           />
         );
       case View.SIGN_IN:
@@ -743,8 +745,8 @@ export default function App() {
                 showToast('Subscription cancelled. You will retain access until the end of your billing period.', 'info');
               }
             }}
-            onNavigateToPrivacy={() => setCurrentView(View.PRIVACY)}
-            onNavigateToTerms={() => setCurrentView(View.TERMS)}
+            onNavigateToPrivacy={() => navigate('/privacy')}
+            onNavigateToTerms={() => navigate('/terms')}
           />
         );
       case View.PRIVACY:
@@ -758,9 +760,9 @@ export default function App() {
           <LandingPage
             onGetStarted={handleGetStarted}
             onSignIn={() => setCurrentView(View.SIGN_IN)}
-            onNavigateToPrivacy={() => setCurrentView(View.PRIVACY)}
-            onNavigateToTerms={() => setCurrentView(View.TERMS)}
-            onNavigateToContact={() => setCurrentView(View.CONTACT)}
+            onNavigateToPrivacy={() => navigate('/privacy')}
+            onNavigateToTerms={() => navigate('/terms')}
+            onNavigateToContact={() => navigate('/contact')}
           />
         );
     }
@@ -770,23 +772,49 @@ export default function App() {
     // Removed toast props
   };
 
-  // Standalone pages (no dashboard layout)
-  if (
-    currentView === View.LANDING ||
-    currentView === View.SIGN_IN ||
-    currentView === View.SIGN_UP ||
-    currentView === View.FORGOT_PASSWORD ||
-    currentView === View.RESET_PASSWORD ||
-    currentView === View.ONBOARDING ||
-    currentView === View.PRIVACY ||
-    currentView === View.TERMS ||
-    currentView === View.CONTACT
-  ) {
-    return <AppWrapper {...wrapperProps}><div className="min-h-screen w-full bg-brand-bg">{renderContent()}</div></AppWrapper>;
+  // React Router Hooks
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Standalone Route Handling
+  if (location.pathname === '/privacy') {
+    return (
+      <AppWrapper {...wrapperProps}>
+        <div className="min-h-screen w-full bg-brand-bg">
+          <PrivacyPolicy onBack={() => navigate('/')} />
+        </div>
+      </AppWrapper>
+    );
   }
 
-  if (currentView === View.EDITOR) {
-    return <AppWrapper {...wrapperProps}><div className="h-screen w-screen overflow-hidden bg-brand-bg font-sans text-brand-dark">{renderContent()}</div></AppWrapper>;
+  if (location.pathname === '/terms') {
+    return (
+      <AppWrapper {...wrapperProps}>
+        <div className="min-h-screen w-full bg-brand-bg">
+          <TermsOfService onBack={() => navigate('/')} />
+        </div>
+      </AppWrapper>
+    );
+  }
+
+  if (location.pathname === '/contact') {
+    return (
+      <AppWrapper {...wrapperProps}>
+        <div className="min-h-screen w-full bg-brand-bg">
+          <Contact onBack={() => navigate('/')} />
+        </div>
+      </AppWrapper>
+    );
+  }
+
+  if (location.pathname === '/pricing') {
+    return (
+      <AppWrapper {...wrapperProps}>
+        <div className="min-h-screen w-full bg-brand-bg">
+          <PricingPage />
+        </div>
+      </AppWrapper>
+    );
   }
 
   // Show loading screen while checking auth
@@ -799,6 +827,22 @@ export default function App() {
         </div>
       </div>
     );
+  }
+
+  // Standalone pages (no dashboard layout) - Legacy View Handling
+  if (
+    currentView === View.LANDING ||
+    currentView === View.SIGN_IN ||
+    currentView === View.SIGN_UP ||
+    currentView === View.FORGOT_PASSWORD ||
+    currentView === View.RESET_PASSWORD ||
+    currentView === View.ONBOARDING
+  ) {
+    return <AppWrapper {...wrapperProps}><div className="min-h-screen w-full bg-brand-bg">{renderContent()}</div></AppWrapper>;
+  }
+
+  if (currentView === View.EDITOR) {
+    return <AppWrapper {...wrapperProps}><div className="h-screen w-screen overflow-hidden bg-brand-bg font-sans text-brand-dark">{renderContent()}</div></AppWrapper>;
   }
 
   return (
