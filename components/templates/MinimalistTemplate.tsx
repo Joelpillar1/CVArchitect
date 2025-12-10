@@ -14,12 +14,12 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
 
     // Helper for section headers with background
     const SectionHeader = ({ title }: { title: string }) => (
-        <div className={`bg-[#F4F7FA] ${bodyAlignmentClass} py-1 mt-0 mb-4 break-inside-avoid px-4`}>
+        <div className={`bg-[#F4F7FA] ${bodyAlignmentClass} py-1.5 mb-4 px-4 -mx-4 rounded-sm`}>
             <h2
-                className="uppercase tracking-[0.15em] font-normal font-serif"
+                className="uppercase tracking-[0.15em] font-normal font-serif text-sm"
                 style={{
-                    fontSize: `${fontSizes?.sectionTitle || 11}pt`,
-                    color: accentColor
+                    color: accentColor,
+                    fontSize: `${fontSizes?.sectionTitle || 11}pt`
                 }}
             >
                 {title}
@@ -57,8 +57,9 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
                         <SectionHeader title="Areas of Expertise" />
                         <div className={`grid ${data.skillsColumnCount === 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-x-4 gap-y-2 ${bodyAlignmentClass}`}>
                             {data.skills.split(',').map((skill, index) => (
-                                <div key={index} className="text-black">
-                                    {skill.trim()}
+                                <div key={index} className="text-black flex items-start">
+                                    <span className="mr-2 text-gray-400">•</span>
+                                    <span>{skill.trim()}</span>
                                 </div>
                             ))}
                         </div>
