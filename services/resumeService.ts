@@ -1,4 +1,4 @@
-import { supabase } from '../utils/supabase';
+import { supabase } from '../lib/supabase';
 import { ResumeData } from '../types';
 
 export interface SavedResume {
@@ -8,72 +8,79 @@ export interface SavedResume {
     content: ResumeData;
     created_at: string;
     updated_at: string;
-    is_public: boolean;
 }
 
 export const resumeService = {
-    async createResume(userId: string, title: string, content: ResumeData) {
-        const { data, error } = await supabase
-            .from('resumes')
-            .insert([
-                { user_id: userId, title, content }
-            ])
-            .select()
-            .single();
+    async getResumes(userId: string): Promise<SavedResume[]> {
+        try {
+            const { data, error } = await supabase
+                .from('resumes')
+                .select('*')
+                .eq('user_id', userId)
+                .order('updated_at', { ascending: false });
 
-        if (error) throw error;
-        return data as SavedResume;
-    },
-
-    async getResumes(userId: string) {
-        const { data, error } = await supabase
-            .from('resumes')
-            .select('*')
-            .eq('user_id', userId)
-            .order('updated_at', { ascending: false });
-
-        if (error) throw error;
-        return data as SavedResume[];
-    },
-
-    async getResume(id: string) {
-        const { data, error } = await supabase
-            .from('resumes')
-            .select('*')
-            .eq('id', id)
-            .single();
-
-        if (error) throw error;
-        return data as SavedResume;
-    },
-
-    async updateResume(id: string, content: ResumeData, title?: string) {
-        const updates: any = {
-            content,
-            updated_at: new Date().toISOString(),
-        };
-
-        if (title) {
-            updates.title = title;
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.error('Error fetching resumes:', error);
+            return [];
         }
-
-        const { data, error } = await supabase
-            .from('resumes')
-            .update(updates)
-            .eq('id', id)
-            .select()
-            .single();
-
-        if (error) throw error;
-        return data as SavedResume;
     },
 
-    async deleteResume(id: string) {
-        const { error } = await supabase
-            .from('resumes')
-            .delete()
-            .eq('id', id);
+    async saveResume(userId: string, title: string, content: ResumeData): Promise<string> {
+        try {
+            const { data, error } = await supabase
+                .from('resumes')
+                .insert({
+                    user_id: userId,
+                    title,
+                    content,
+                })
+                .select()
+                .single();
 
-        if (error) throw error;
-    }
+            if (error) throw error;
+            return data.id;
+        } catch (error) {
+            console.error('Error saving resume:', error);
+            throw error;
+        }
+    },
+
+    async updateResume(resumeId: string, title: string, content: ResumeData): Promise<void> {
+        try {
+            const { error } = await supabase
+                .from('resumes')
+                .update({
+                    title,
+                    content,
+                    updated_at: new Date().toISOString(),
+                })
+                .eq('id', resumeId);
+
+            if (error) throw error;
+        } catch (error) {
+            console.error('Error updating resume:', error);
+            throw error;
+        }
+    },
+
+    async deleteResume(resumeId: string): Promise<void> {
+        try {
+            const { error } = await supabase
+                .from('resumes')
+                .delete()
+                .eq('id', resumeId);
+
+            if (error) throw error;
+        } catch (error) {
+            console.error('Error deleting resume:', error);
+            throw error;
+        }
+    },
+
+    // Alias for saveResume (some parts of the app call it createResume)
+    async createResume(userId: string, title: string, content: ResumeData): Promise<string> {
+        return this.saveResume(userId, title, content);
+    },
 };

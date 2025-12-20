@@ -1,18 +1,7 @@
-import OpenAI from 'openai';
 import { ResumeData } from '../../types';
+import { callAIText, callAIJSON } from '../../services/aiService';
 
-// Initialize OpenAI
-const getOpenAI = () => {
-    const apiKey = (import.meta as any).env?.VITE_OPENAI_API_KEY || '';
-    if (!apiKey) {
-        console.warn('VITE_OPENAI_API_KEY not found. AI features will not work.');
-        return null;
-    }
-    return new OpenAI({
-        apiKey: apiKey,
-        dangerouslyAllowBrowser: true // Required for client-side usage
-    });
-};
+// No more direct OpenAI client - using secure Edge Functions instead
 
 export const enhanceDescription = async (
     description: string,
@@ -23,9 +12,6 @@ export const enhanceDescription = async (
         totalCount: number;
     }
 ): Promise<string> => {
-    const openai = getOpenAI();
-    if (!openai) throw new Error('OpenAI API key missing');
-
     const { index = 0, totalCount = 1 } = context || {};
     const isRecent = index <= 1; // Top 2 jobs
     const isOld = index >= 5; // Older jobs
@@ -46,39 +32,72 @@ export const enhanceDescription = async (
     }
 
     try {
-        const prompt = `You are a strict, senior hiring manager who hates "AI-sounding" resumes. Rewrite the following job description for a "${role}" position at "${company}".
-        
-        Current Description:
-        "${description}"
-        
-        # STRATEGY: "Intentional Imperfection & Human Variety"
-        1. **Analyze Seniority**: Infer if this is Junior, Mid, or Senior based on the title "${role}". Adjust tone accordingly (Junior = Execution, Senior = Strategy).
-        2. **Semantic Variation (CRITICAL)**: Do NOT use the same opening verb twice. Do NOT use the same sentence structure twice. 
-        3. **Bullet Point Archetypes**:
-           - Use a mix of "Quantifiable Result" bullets (X% increase).
-           - Use "Problem/Solution" bullets (Resolved X by doing Y).
-           - Use "Scope" bullets (Managed team of X, Budget of Y).
+        const prompt = `You are a senior executive recruiter with 15+ years of experience. You HATE resumes that scream "AI-generated" with excessive percentages and metrics. Rewrite the following job description for a "${role}" position at "${company}".
 
-        # CHRONOLOGICAL CONTEXT RULES:
-        ${structuralRule}
+Current Description:
+"${description}"
 
-        # FINAL OUTPUT RULES:
-        - Return ONLY the rewritten bullet points.
-        - Do not output introductory text.
-        - Use standard bullet points (•).
-        - No "fluff" or buzzwords without substance.
-        `;
+# CRITICAL RULES FROM A RECRUITER'S PERSPECTIVE:
 
-        const completion = await openai.chat.completions.create({
-            messages: [{ role: "user", content: prompt }],
-            model: "gpt-4o",
-            temperature: 0.7, // Slight increase for creativity/variety
-        });
+## 1. STRATEGIC QUANTIFICATION (NOT EXCESSIVE)
+- **MAXIMUM 1 metric per role** (unless it's a Key Achievements section)
+- Metrics should be IMPACTFUL, not filler (e.g., "30% efficiency gain" is weak; "Reduced deployment time from 2 weeks to 3 days" is strong)
+- If you use a number, make it SPECIFIC and CONTEXTUAL (not just percentages)
+- **AVOID**: Listing multiple percentages (20%, 30%, 40%) - this is an instant red flag
+- **PREFER**: Concrete outcomes ("Launched X", "Built Y", "Led Z")
 
-        return completion.choices[0].message.content?.trim() || description;
+## 2. BULLET POINT ARCHETYPES (Mix These):
+${isRecent ? `
+   **For Recent/Current Roles (4-5 bullets):**
+   - 1 "Strategic Impact" bullet (What system/process did you build or transform?)
+   - 1 "Leadership/Scope" bullet (Team size, budget, stakeholders)
+   - 1 "Problem-Solving" bullet (Specific challenge you resolved)
+   - 1-2 "Execution" bullets (Key deliverables or projects)
+   - OPTIONAL: 1 metric-driven bullet (ONLY if truly impressive)
+` : `
+   **For Earlier Roles (3-4 bullets):**
+   - 1 "Core Responsibility" bullet (What was your main function?)
+   - 1 "Key Achievement" bullet (Most proud accomplishment)
+   - 1-2 "Technical/Skill" bullets (What you built/used)
+   - AVOID metrics for older roles unless exceptional
+`}
+
+## 3. SEMANTIC VARIATION (CRITICAL):
+- **NEVER** start two bullets with the same verb
+- **NEVER** use the same sentence structure twice
+- Vary between: Action statements, Achievement statements, Scope statements
+
+## 4. TONE CALIBRATION:
+${isRecent ? `
+   - **Senior/Recent Role**: Use strategic language (Architected, Spearheaded, Transformed, Established)
+   - Focus on IMPACT and LEADERSHIP, not just tasks
+` : `
+   - **Earlier Role**: Use execution language (Developed, Implemented, Managed, Contributed)
+   - Focus on SKILLS and DELIVERABLES
+`}
+
+## 5. WHAT MAKES A GREAT BULLET:
+✅ GOOD: "Architected microservices platform serving 2M+ users, reducing infrastructure costs by $400K annually"
+✅ GOOD: "Led cross-functional team of 8 engineers to deliver mobile app 3 weeks ahead of schedule"
+✅ GOOD: "Resolved critical production incident affecting 50K users by implementing automated failover system"
+
+❌ BAD: "Improved efficiency by 30%" (vague, no context)
+❌ BAD: "Increased productivity by 25%, reduced costs by 20%, improved quality by 15%" (metric overload)
+❌ BAD: "Utilized Agile methodologies to enhance team collaboration" (buzzword soup)
+
+# FINAL OUTPUT:
+- Return ONLY the bullet points (use •)
+- ${isRecent ? '4-5 bullets' : '3-4 bullets'}
+- NO introductory text
+- Make it sound HUMAN, not AI-generated
+- Remember: ONE metric maximum (or zero if the work speaks for itself)
+`;
+
+        const result = await callAIText(prompt, 'gpt-4o', 0.8);
+        return result.trim() || description;
     } catch (error) {
         console.error('AI Enhancement Error:', error);
-        throw new Error('Failed to enhance description. Please check your API key and try again.');
+        throw new Error('Failed to enhance description. Please try again.');
     }
 };
 
@@ -86,9 +105,6 @@ export const generateSummary = async (
     resumeData: ResumeData,
     targetRole: string
 ): Promise<string> => {
-    const openai = getOpenAI();
-    if (!openai) throw new Error('OpenAI API key missing');
-
     try {
         const prompt = `Write a compelling professional summary for a resume based on the following details.
         
@@ -106,12 +122,8 @@ export const generateSummary = async (
         - Use a professional, confident tone.
         - Return ONLY the summary text.`;
 
-        const completion = await openai.chat.completions.create({
-            messages: [{ role: "user", content: prompt }],
-            model: "gpt-4o",
-        });
-
-        return completion.choices[0].message.content?.trim() || '';
+        const result = await callAIText(prompt, 'gpt-4o');
+        return result.trim() || '';
     } catch (error) {
         console.error('AI Summary Generation Error:', error);
         throw new Error('Failed to generate summary.');
@@ -123,9 +135,6 @@ export const generateBulletPoints = async (
     company: string,
     keywords: string
 ): Promise<string[]> => {
-    const openai = getOpenAI();
-    if (!openai) throw new Error('OpenAI API key missing');
-
     try {
         const prompt = `Generate 3-4 high-impact resume bullet points for a "${role}" position at "${company}".
         
@@ -136,14 +145,7 @@ export const generateBulletPoints = async (
         - Focus on achievements and metrics.
         - Return ONLY a JSON array of strings, e.g., ["bullet 1", "bullet 2"].`;
 
-        const completion = await openai.chat.completions.create({
-            messages: [{ role: "user", content: prompt }],
-            model: "gpt-4o",
-            response_format: { type: "json_object" }
-        });
-
-        const content = completion.choices[0].message.content?.trim() || '{"bullets": []}';
-        const parsed = JSON.parse(content);
+        const parsed = await callAIJSON(prompt, 'gpt-4o');
         // Handle different potential JSON structures
         return Array.isArray(parsed) ? parsed : (parsed.bullets || parsed.points || []);
     } catch (error) {
@@ -161,11 +163,8 @@ export const tailorResumeToJob = async (
     skills: string;
     keyAchievements: string;
 }> => {
-    const openai = getOpenAI();
-    if (!openai) throw new Error('OpenAI API key missing');
-
     try {
-        const prompt = `You are an expert ATS optimization specialist. Tailor this resume to perfectly match the provided Job Description.
+        const prompt = `You are a senior executive recruiter with 15+ years of experience. You're helping a candidate tailor their resume to THIS SPECIFIC JOB. You HATE resumes that scream "AI-generated" with excessive metrics and generic buzzwords.
 
 JOB DESCRIPTION:
 ${jobDescription.substring(0, 3000)}
@@ -175,80 +174,88 @@ Summary: ${resumeData.summary}
 Skills: ${resumeData.skills}
 Experience: ${JSON.stringify(resumeData.experience.map(e => ({ role: e.role, company: e.company, desc: e.description })))}
 
-TASK:
-Rewrite the resume content to maximize ATS score and relevance for this specific job.
+# YOUR MISSION: Make this resume PERFECTLY aligned with the job while sounding HUMAN and AUTHENTIC
 
-1. **PROFESSIONAL SUMMARY**:
-   - Write a powerful 3-4 sentence hook.
-   - Incorporate key job title and top 3 required skills from the JD.
-   - Focus on value proposition.
+## 1. PROFESSIONAL SUMMARY (3-4 sentences):
+- Mirror the job title and top 3 CRITICAL skills from the JD
+- Show you understand what THIS ROLE needs
+- Be confident but not arrogant
+- NO buzzwords without substance
+- Make it conversational yet professional
 
-2. **EXPERIENCE BULLETS**:
-   - Rewrite the bullet points for the most recent 2-3 roles.
-   - Infuse keywords from the JD naturally.
-   - Focus on IMPACT and RESULTS, not just responsibilities.
-   - 3-4 bullet points per role.
-   - Each bullet: 1-2 lines maximum.
+## 2. EXPERIENCE BULLETS (CRITICAL - READ CAREFULLY):
 
-3. **SKILLS** (comma-separated):
-   - Prioritize skills mentioned in the job description.
-   - Include technical skills, tools, methodologies from the job posting.
-   - Add relevant industry buzzwords.
-   - **STRICT LIMIT: Top 8 most relevant skills ONLY**
-   - Order by relevance to the job.
+### STRATEGIC QUANTIFICATION RULES:
+- **MAXIMUM 1 metric per role** (this is NOT the Key Achievements section)
+- Metrics must be IMPACTFUL and CONTEXTUAL
+- ❌ **AVOID**: Multiple percentages (20%, 30%, 40%) - instant red flag
+- ✅ **PREFER**: Concrete outcomes ("Launched X", "Built Y", "Led team of Z")
+- If you use a number, make it SPECIFIC: "Reduced deployment from 2 weeks to 3 days" NOT "Improved by 30%"
 
-4. **KEY ACHIEVEMENTS** (3-4 bullet points):
-   - Create powerful achievement statements using standard STAR method logic, but DO NOT use explicit labels like "Situation:" or "Result:".
-   - Merge the Situation, Task, Action, and Result into a single, cohesive, high-impact sentence.
-   - Start with a strong Power Verb.
-   - EVERY achievement must have numbers/metrics but not always.
-   - Align with the job's key requirements.
-   - Show scope, scale, and business impact.
-   - Use action verbs.
-   - Use superlatives when truthful (first, largest, fastest, etc.).
+### BULLET POINT STRUCTURE (3-4 bullets per role):
+1. **Strategic Impact** - What system/process did you build or transform?
+2. **Leadership/Scope** - Team size, stakeholders, budget (NOT percentages)
+3. **Problem-Solving** - Specific challenge you resolved
+4. **OPTIONAL: Metric** - ONLY if truly impressive and relevant to THIS job
 
-RULES:
-- Stay TRUTHFUL - enhance and reframe, don't fabricate.
-- Use the EXACT terminology from the job description.
-- Make every word count - no fluff.
-- Use • for bullets.
-- Be confident and assertive.
-- Focus on what matters for THIS specific job.
+### TONE & LANGUAGE:
+- Use EXACT terminology from the job description
+- Vary sentence structure - NEVER start two bullets the same way
+- Mix: Action statements, Achievement statements, Scope statements
+- Sound like a HUMAN wrote this, not an AI
 
-Return your response in this EXACT JSON format:
+### EXAMPLES OF WHAT TO DO:
+✅ "Architected microservices platform serving 2M+ users, reducing infrastructure costs by $400K annually"
+✅ "Led cross-functional team of 8 engineers to deliver mobile app 3 weeks ahead of schedule"
+✅ "Resolved critical production incident affecting 50K users by implementing automated failover"
+✅ "Built CI/CD pipeline that reduced deployment time from 2 weeks to 3 days"
+
+### EXAMPLES OF WHAT TO AVOID:
+❌ "Improved efficiency by 30%" (vague, no context)
+❌ "Increased productivity by 25%, reduced costs by 20%, improved quality by 15%" (metric overload)
+❌ "Utilized Agile methodologies to enhance team collaboration" (buzzword soup)
+
+## 3. SKILLS (Top 8 ONLY, comma-separated):
+- Prioritize skills EXPLICITLY mentioned in the job description
+- Use EXACT terminology from the JD
+- Order by relevance to THIS job
+- NO generic skills unless in the JD
+- Be specific: "React.js" not "Frontend Development"
+
+## 4. KEY ACHIEVEMENTS (3-4 bullet points):
+**THIS is where you can use 2-3 metrics** (unlike experience section)
+- Each achievement should be IMPRESSIVE and RELEVANT to THIS job
+- Use STAR method but write it as ONE cohesive sentence
+- Start with strong action verbs
+- Show scope, scale, and business impact
+- Align with the job's key requirements
+- Use superlatives when truthful (first, largest, fastest)
+
+CRITICAL RULES:
+- Stay TRUTHFUL - enhance and reframe existing experience, don't fabricate
+- Make this resume sound like the PERFECT candidate for THIS SPECIFIC JOB
+- Use keywords from the JD naturally (aim for 95%+ keyword coverage)
+- VARY sentence structure and verbs - no repetition
+- Sound HUMAN, not AI-generated
+- Remember: ONE metric maximum per experience role (Key Achievements can have more)
+
+Return ONLY valid JSON in this EXACT format:
 {
   "summary": "enhanced professional summary here",
   "experience": [
     {"description": "enhanced bullet points for first role"},
     {"description": "enhanced bullet points for second role"}
   ],
-  "skills": "skill1, skill2, skill3, ...",
-  "keyAchievements": "• achievement 1\\n• achievement 2\\n• achievement 3"
+  "skills": "skill1, skill2, skill3, skill4, skill5, skill6, skill7, skill8",
+  "keyAchievements": "• achievement 1\\n• achievement 2\\n• achievement 3\\n• achievement 4"
 }
 
-IMPORTANT: 
-- Ensure the rewritten content contains at least 95% of the significant keywords from the job description to guarantee a Job Match Score > 90. 
-- VARY YOUR SENTENCE STRUCTURE. Do not start every bullet with the same word.
-- Use a diverse range of high-impact action verbs from this list and beyond:
-  [Business Development: Accelerated, Expanded, Negotiated, Secured, Activated, Optimized, Spearheaded, Captured, Amplified, Established, Strengthened, Converted, Drove, Enabled, Launched, Penetrated, Executed, Boosted]
-  [Partnerships: Forged, Cultivated, Built, Engaged, Collaborated, Aligned, Onboarded, Nurtured, Facilitated, Connected, Leveraged, Coordinated, Integrated, Supported]
-  [Strategy: Identified, Analyzed, Evaluated, Prioritized, Developed, Designed, Positioned, Refined, Assessed, Strategized, Defined, Innovated, Streamlined]
-  [Community: Mobilized, Activated, Advocated, Educated, Informed, Moderated, Promoted, Grew, Resonated, Engaged, Attracted]
-  [General: Led, Managed, Delivered, Improved, Enhanced, Supported, Coordinated, Executed, Implemented, Achieved]
+Make this resume IMPOSSIBLE for hiring managers to ignore - but make it sound like a HUMAN wrote it!`;
 
-Make this resume IMPOSSIBLE for ATS systems and hiring managers to ignore!`;
-
-        const completion = await openai.chat.completions.create({
-            messages: [{ role: "user", content: prompt }],
-            model: "gpt-4o",
-            response_format: { type: "json_object" }
-        });
-
-        const text = completion.choices[0].message.content?.trim() || '{}';
-        return JSON.parse(text);
+        return await callAIJSON(prompt, 'gpt-4o', 0.8);
     } catch (error) {
         console.error('AI Resume Tailoring Error:', error);
-        throw new Error('Failed to tailor resume. Please check your API key and try again.');
+        throw new Error('Failed to tailor resume. Please try again.');
     }
 };
 
@@ -260,16 +267,6 @@ export const auditResume = async (
     keywords: string[];
     issues: string[];
 }> => {
-    const openai = getOpenAI();
-    if (!openai) {
-        // Fallback to mock data if no API key
-        return {
-            score: 75,
-            keywords: ["Communication", "Leadership", "Problem Solving"],
-            issues: ["API Key missing - using mock audit"]
-        };
-    }
-
     try {
         const prompt = `Act as a strict hiring manager and ATS system. Audit this resume for a "${targetRole}" position.
 
@@ -296,15 +293,7 @@ JSON Format:
   "issues": ["Add more metrics to experience", "Fix typo in summary"]
 }`;
 
-        const completion = await openai.chat.completions.create({
-            messages: [{ role: "user", content: prompt }],
-            model: "gpt-4o",
-            response_format: { type: "json_object" }
-        });
-
-        const text = completion.choices[0].message.content?.trim() || '{}';
-        const result = JSON.parse(text);
-
+        const result = await callAIJSON(prompt, 'gpt-4o');
         return {
             score: result.score || 70,
             keywords: result.keywords || [],
@@ -324,9 +313,6 @@ export const generateAchievements = async (
     role: string,
     experience: string
 ): Promise<string> => {
-    const openai = getOpenAI();
-    if (!openai) throw new Error('OpenAI API key missing');
-
     try {
         const prompt = `Generate 3-4 high-impact key achievements for a "${role}" based on this experience: "${experience}".
         
@@ -339,12 +325,8 @@ export const generateAchievements = async (
         - STRICT REQUIREMENT: Output EXACTLY 3 or 4 bullet points. No more, no less.
         - DO NOT use prefixes like "Situation:" or "Action:".`;
 
-        const completion = await openai.chat.completions.create({
-            messages: [{ role: "user", content: prompt }],
-            model: "gpt-4o",
-        });
-
-        return completion.choices[0].message.content?.trim() || '';
+        const result = await callAIText(prompt, 'gpt-4o');
+        return result.trim() || '';
     } catch (error) {
         console.error('AI Achievement Generation Error:', error);
         throw new Error('Failed to generate achievements.');
@@ -355,9 +337,6 @@ export const enhanceSummary = async (
     summary: string,
     role: string
 ): Promise<string> => {
-    const openai = getOpenAI();
-    if (!openai) throw new Error('OpenAI API key missing');
-
     try {
         const prompt = `You are an expert resume writer. Enhance this professional summary for a "${role}" position.
         
@@ -371,12 +350,8 @@ export const enhanceSummary = async (
         - Highlight key value propositions
         - Return ONLY the enhanced summary, no explanations`;
 
-        const completion = await openai.chat.completions.create({
-            messages: [{ role: "user", content: prompt }],
-            model: "gpt-4o",
-        });
-
-        return completion.choices[0].message.content?.trim() || summary;
+        const result = await callAIText(prompt, 'gpt-4o');
+        return result.trim() || summary;
     } catch (error) {
         console.error('AI Summary Enhancement Error:', error);
         throw new Error('Failed to enhance summary.');
@@ -387,9 +362,6 @@ export const enhanceSkills = async (
     currentSkills: string,
     jobTitle: string
 ): Promise<string> => {
-    const openai = getOpenAI();
-    if (!openai) throw new Error('OpenAI API key missing');
-
     try {
         const prompt = `Enhance this skills list to be more ATS-friendly and comprehensive.
 
@@ -403,12 +375,8 @@ Instructions:
 - Use standard naming conventions (e.g., "React.js" instead of "ReactJS").
 - Return ONLY the final comma-separated list. No explanations or bullets.`;
 
-        const completion = await openai.chat.completions.create({
-            messages: [{ role: "user", content: prompt }],
-            model: "gpt-4o",
-        });
-
-        return completion.choices[0].message.content?.trim() || currentSkills;
+        const result = await callAIText(prompt, 'gpt-4o');
+        return result.trim() || currentSkills;
     } catch (error) {
         console.error('AI Skills Enhancement Error:', error);
         throw new Error('Failed to enhance skills.');
@@ -430,9 +398,6 @@ export const generateCoverLetter = async (
     companyName: string,
     jobDescription: string
 ): Promise<GeneratedCoverLetter> => {
-    const openai = getOpenAI();
-    if (!openai) throw new Error('OpenAI API key missing');
-
     try {
         const prompt = `Write a professional cover letter for a "${jobTitle}" position at "${companyName}".
 
@@ -469,14 +434,7 @@ Return EXACTLY this JSON structure:
   }
 }`;
 
-        const completion = await openai.chat.completions.create({
-            messages: [{ role: "user", content: prompt }],
-            model: "gpt-4o",
-            response_format: { type: "json_object" }
-        });
-
-        const text = completion.choices[0].message.content?.trim() || '{}';
-        const parsed = JSON.parse(text);
+        const parsed = await callAIJSON(prompt, 'gpt-4o');
 
         // Validation / Fallback
         return {

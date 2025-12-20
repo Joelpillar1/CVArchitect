@@ -12,6 +12,7 @@ import Toast from './components/Toast';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
 import Contact from './components/Contact';
+import RefundPolicy from './components/RefundPolicy';
 import SignIn from './components/SignIn';
 import SignUp from './components/SignUp';
 import ForgotPassword from './components/ForgotPassword';
@@ -24,7 +25,7 @@ import PricingPage from './components/PricingPage';
 import { UserSubscription, PlanId } from './types/pricing';
 import { SubscriptionManager, createDefaultSubscription, upgradePlan } from './utils/subscriptionManager';
 import { subscriptionService } from './services/subscriptionService';
-import { canAccessTemplate } from './utils/pricingConfig';
+import { canAccessTemplate, PLANS } from './utils/pricingConfig';
 import { auditResume } from './components/utils/aiEnhancer';
 import { useAuth } from './contexts/AuthContext';
 import { useToast } from './contexts/ToastContext';
@@ -50,6 +51,7 @@ export enum View {
   PRIVACY = 'PRIVACY',
   TERMS = 'TERMS',
   CONTACT = 'CONTACT',
+  REFUND_POLICY = 'REFUND_POLICY',
 }
 
 // AppWrapper removed as Toast is now handled by Context
@@ -66,7 +68,8 @@ export default function App() {
     const saved = localStorage.getItem('cv_app_view');
     // Validation to ensure saved view is valid
     if (saved && Object.values(View).includes(saved as View)) return saved as View;
-    return View.LANDING;
+    // Default to OVERVIEW instead of LANDING to preserve authenticated sessions
+    return View.OVERVIEW;
   });
 
   const [resumeData, setResumeData] = useState<ResumeData>(() => {
@@ -98,6 +101,7 @@ export default function App() {
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
   const [auditResult, setAuditResult] = useState<{ score: number; keywords: string[]; issues: string[] } | null>(null);
+  const [savedResumes, setSavedResumes] = useState<SavedTemplate[]>([]);
 
   // Subscription State - New Comprehensive System
   const [userSubscription, setUserSubscription] = useState<UserSubscription>(
@@ -110,7 +114,7 @@ export default function App() {
   // Load user subscription
   useEffect(() => {
     if (user) {
-      // 1. Fetch subscription and usage logs from DB
+      // Fetch subscription from Supabase
       import('./services/subscriptionService').then(({ subscriptionService }) => {
         Promise.all([
           subscriptionService.getSubscription(user.id),
@@ -121,19 +125,24 @@ export default function App() {
             // Map DB subscription to Client state
             setUserSubscription({
               userId: user.id,
-              planId: sub.plan_id as PlanId,
-              credits: sub.ai_credits,
-              isActive: sub.status === 'active',
-              usageHistory: logs,
+              planId: (sub as any).plan_id as PlanId,
+              credits: (sub as any).credits || 0,
+              isActive: (sub as any).is_active || false,
+              usageHistory: logs || [],
               usageStats: stats,
-              subscriptionStart: new Date(sub.current_period_start),
-              subscriptionEnd: sub.current_period_end ? new Date(sub.current_period_end) : undefined
+              billingCycle: (sub as any).billing_cycle,
+              subscriptionStart: (sub as any).subscription_start ? new Date((sub as any).subscription_start) : undefined,
+              subscriptionEnd: (sub as any).subscription_end ? new Date((sub as any).subscription_end) : undefined
             });
           } else {
             // No subscription found? Create default connected to this user ID
             setUserSubscription(createDefaultSubscription(user.id));
           }
-        }).catch(err => console.error('Failed to load subscription:', err));
+        }).catch(err => {
+          console.error('Failed to load subscription:', err);
+          // On error, use default subscription
+          setUserSubscription(createDefaultSubscription(user.id));
+        });
       });
     } else {
       // Reset if logged out
@@ -141,20 +150,70 @@ export default function App() {
     }
   }, [user]);
 
-  // Set initial view based on auth state (after loading completes)
+  // Load saved resumes from Supabase
   useEffect(() => {
-    if (!authLoading) {
-      if (!user) {
-        // User is not authenticated, show landing page
+    if (user) {
+      resumeService.getResumes(user.id).then((resumes) => {
+        // Convert database resumes to SavedTemplate format
+        const templates: SavedTemplate[] = resumes
+          .map((resume) => {
+            // Parse content if it's a string
+            let content = resume.content;
+            if (typeof content === 'string') {
+              try {
+                content = JSON.parse(content);
+              } catch (e) {
+                console.error(`Failed to parse resume "${resume.title}":`, e);
+                // Skip this resume if it's corrupted
+                return null;
+              }
+            }
+
+            // Validate content is an object
+            if (!content || typeof content !== 'object') {
+              console.error(`Invalid resume content for "${resume.title}"`);
+              return null;
+            }
+
+            return {
+              id: resume.id,
+              tag: resume.title,
+              baseTemplate: (content?.template || 'free') as TemplateType,
+              data: content,
+              createdAt: new Date(resume.created_at),
+            };
+          })
+          .filter((t): t is SavedTemplate => t !== null); // Remove null entries
+
+        setSavedResumes(templates);
+        console.log('Loaded resumes:', templates.length);
+      }).catch(err => console.error('Failed to load resumes:', err));
+    } else {
+      setSavedResumes([]);
+    }
+  }, [user]);
+
+  // Redirect unauthenticated users to landing page (only after auth check completes)
+  useEffect(() => {
+    if (!authLoading && !user) {
+      // Only redirect to landing if not already on a public page
+      if (
+        currentView !== View.LANDING &&
+        currentView !== View.SIGN_IN &&
+        currentView !== View.SIGN_UP &&
+        currentView !== View.FORGOT_PASSWORD &&
+        currentView !== View.RESET_PASSWORD &&
+        currentView !== View.PRIVACY &&
+        currentView !== View.TERMS &&
+        currentView !== View.CONTACT &&
+        currentView !== View.REFUND_POLICY
+      ) {
         setCurrentView(View.LANDING);
       }
-      // If user matches, do NOT blindly reset to OVERVIEW. 
-      // The next useEffect handles redirecting from guest pages (Landing, SignIn) to Dashboard.
-      // This preserves the user's location (like Editor) if they are already there.
     }
-  }, [authLoading, user]);
+  }, [authLoading, user, currentView]);
 
-  // Redirect authenticated users to dashboard
+  // Redirect authenticated users from auth pages to dashboard
   useEffect(() => {
     if (user) {
       // If user is logged in and on landing/auth pages, redirect to dashboard.
@@ -169,7 +228,7 @@ export default function App() {
         setCurrentView(View.OVERVIEW);
       }
     }
-  }, [user]);
+  }, [user, currentView]);
 
   // Load user resumes
   useEffect(() => {
@@ -341,26 +400,77 @@ export default function App() {
   };
 
   const handleSelectPlan = async (planId: PlanId, billingCycle?: 'monthly' | 'yearly' | 'lifetime') => {
-    // 1. Update local state for immediate UI response
-    const upgraded = upgradePlan(userSubscription, planId, billingCycle);
-    setUserSubscription(upgraded);
-
-    // 2. Persist to Backend
-    if (user) {
-      try {
-        const { subscriptionService } = await import('./services/subscriptionService');
-        // This assumes updatePlan handles both create/update or we have an existing row.
-        // If user was free/new, they might not have a row. updatePlan uses an RPC that hopefully handles upsert or logic.
-        await subscriptionService.updatePlan(user.id, planId);
-        showToast(`Successfully upgraded to ${planId.replace('_', ' ')}!`);
-      } catch (error) {
-        console.error('Failed to persist plan upgrade:', error);
-        showToast('Plan upgraded locally, but failed to save to account.', 'error');
-      }
+    if (!user) {
+      showToast('Please sign in to upgrade your plan', 'error');
+      return;
     }
 
-    setShowPricingModal(false);
-    setShowPaywall(false);
+    try {
+      // Get the selected plan details
+      const selectedPlan = PLANS[planId];
+      if (!selectedPlan) {
+        showToast('Invalid plan selected', 'error');
+        return;
+      }
+
+      // Calculate credits based on plan
+      let credits = selectedPlan.creditRules.startingCredits;
+      if (billingCycle === 'yearly' && selectedPlan.creditRules.lifetimeCredits) {
+        credits = selectedPlan.creditRules.lifetimeCredits;
+      } else if (selectedPlan.creditRules.monthlyCredits) {
+        credits = selectedPlan.creditRules.monthlyCredits;
+      }
+
+      // Calculate subscription dates
+      const subscriptionStart = new Date();
+      let subscriptionEnd: Date | undefined;
+
+      if (planId !== 'lifetime') {
+        subscriptionEnd = new Date();
+        if (billingCycle === 'yearly') {
+          subscriptionEnd.setFullYear(subscriptionEnd.getFullYear() + 1);
+        } else if (billingCycle === 'monthly') {
+          subscriptionEnd.setMonth(subscriptionEnd.getMonth() + 1);
+        } else {
+          // Week pass
+          subscriptionEnd.setDate(subscriptionEnd.getDate() + 7);
+        }
+      }
+
+      // Update Supabase database
+      const { subscriptionService } = await import('./services/subscriptionService');
+      await subscriptionService.updateSubscription(user.id, {
+        plan_id: planId,
+        credits: credits,
+        billing_cycle: billingCycle,
+        subscription_start: subscriptionStart.toISOString(),
+        subscription_end: subscriptionEnd?.toISOString(),
+        is_active: true,
+      } as any);
+
+      // Update local state
+      setUserSubscription({
+        userId: user.id,
+        planId: planId,
+        credits: credits,
+        billingCycle: billingCycle,
+        subscriptionStart: subscriptionStart,
+        subscriptionEnd: subscriptionEnd,
+        isActive: true,
+        usageHistory: userSubscription.usageHistory || [],
+      });
+
+      // Close modals
+      setShowPricingModal(false);
+      setShowPaywall(false);
+
+      // Show success message
+      showToast(`Successfully upgraded to ${selectedPlan.name}!`, 'success');
+
+    } catch (error) {
+      console.error('Failed to upgrade plan:', error);
+      showToast('Failed to upgrade plan. Please try again.', 'error');
+    }
   };
 
   const handleUpgrade = () => {
@@ -451,31 +561,29 @@ export default function App() {
 
     if (user && !currentResumeId.startsWith('saved_')) {
       try {
-        const updated = await resumeService.updateResume(
+        await resumeService.updateResume(
           currentResumeId,
-          finalData,
-          finalData.currentTag || 'Untitled'
+          finalData.currentTag || 'Untitled',
+          finalData
         );
 
-        const updatedTemplate: SavedTemplate = {
-          id: updated.id,
-          tag: updated.title,
-          baseTemplate: updated.content.template || selectedTemplate,
-          data: updated.content
-        };
-
-        setSavedTemplates(prev =>
-          prev.map(t => (t.id === currentResumeId ? updatedTemplate : t))
+        // Update local state
+        setSavedResumes(prev =>
+          prev.map(t =>
+            t.id === currentResumeId
+              ? { ...t, data: finalData, tag: finalData.currentTag || t.tag }
+              : t
+          )
         );
         setHasUnsavedChanges(false);
-        showToast(`Resume "${updated.title}" updated successfully!`);
+        showToast(`Resume "${finalData.currentTag || 'Untitled'}" updated successfully!`, 'success');
       } catch (error) {
         console.error('Error updating resume:', error);
         showToast('Failed to update resume.', 'error');
       }
     } else {
       // Local update
-      setSavedTemplates(prev =>
+      setSavedResumes(prev =>
         prev.map(t =>
           t.id === currentResumeId
             ? { ...t, data: { ...finalData }, tag: finalData.currentTag || t.tag }
@@ -483,7 +591,7 @@ export default function App() {
         )
       );
       setHasUnsavedChanges(false);
-      showToast('Resume updated locally!');
+      showToast('Resume updated locally!', 'success');
     }
   };
 
@@ -494,23 +602,24 @@ export default function App() {
 
     if (user) {
       try {
-        const saved = await resumeService.createResume(
+        const resumeId = await resumeService.createResume(
           user.id,
           finalData.currentTag || 'Untitled',
           finalData
         );
 
         const newSavedTemplate: SavedTemplate = {
-          id: saved.id,
-          tag: saved.title,
-          baseTemplate: saved.content.template || selectedTemplate,
-          data: saved.content
+          id: resumeId,
+          tag: finalData.currentTag || 'Untitled',
+          baseTemplate: selectedTemplate,
+          data: finalData,
+          createdAt: new Date(),
         };
 
-        setSavedTemplates(prev => [newSavedTemplate, ...prev]);
-        setCurrentResumeId(saved.id); // Set as current resume
+        setSavedResumes(prev => [newSavedTemplate, ...prev]);
+        setCurrentResumeId(resumeId);
         setHasUnsavedChanges(false);
-        showToast(`Resume "${saved.title}" saved successfully!`);
+        showToast(`Resume "${finalData.currentTag || 'Untitled'}" saved successfully!`, 'success');
       } catch (error) {
         console.error('Error saving resume:', error);
         showToast('Failed to save resume.', 'error');
@@ -522,11 +631,12 @@ export default function App() {
         id: newId,
         tag: finalData.currentTag || 'Untitled',
         baseTemplate: selectedTemplate,
-        data: { ...finalData }
+        data: { ...finalData },
+        createdAt: new Date(),
       };
-      setSavedTemplates(prev => [newSavedTemplate, ...prev]);
+      setSavedResumes(prev => [newSavedTemplate, ...prev]);
       setCurrentResumeId(newId);
-      showToast(`Template "${newSavedTemplate.tag}" saved locally!`);
+      showToast(`Template "${newSavedTemplate.tag}" saved locally!`, 'success');
     }
   };
 
@@ -548,15 +658,15 @@ export default function App() {
     if (user && !id.startsWith('saved_')) {
       try {
         await resumeService.deleteResume(id);
-        setSavedTemplates(prev => prev.filter(t => t.id !== id));
-        showToast("Resume deleted.");
+        setSavedResumes(prev => prev.filter(t => t.id !== id));
+        showToast("Resume deleted.", 'success');
       } catch (error) {
         console.error('Error deleting resume:', error);
         showToast('Failed to delete resume.', 'error');
       }
     } else {
-      setSavedTemplates(prev => prev.filter(t => t.id !== id));
-      showToast("Template deleted.");
+      setSavedResumes(prev => prev.filter(t => t.id !== id));
+      showToast("Template deleted.", 'success');
     }
   };
 
@@ -668,7 +778,7 @@ export default function App() {
       case View.TEMPLATES:
         return <Templates onSelect={handleTemplateSelect} data={resumeData} />;
       case View.MY_TEMPLATES:
-        return <MyTemplates templates={savedTemplates} onLoadTemplate={handleLoadSavedTemplate} onDeleteTemplate={handleDeleteSavedTemplate} />;
+        return <MyTemplates templates={savedResumes} onLoadTemplate={handleLoadSavedTemplate} onDeleteTemplate={handleDeleteSavedTemplate} />;
       case View.MY_COVER_LETTERS:
         return (
           <MyCoverLetters
@@ -755,6 +865,8 @@ export default function App() {
         return <TermsOfService onBack={() => setCurrentView(user ? View.OVERVIEW : View.LANDING)} />;
       case View.CONTACT:
         return <Contact onBack={() => setCurrentView(View.LANDING)} />;
+      case View.REFUND_POLICY:
+        return <RefundPolicy onBack={() => setCurrentView(user ? View.OVERVIEW : View.LANDING)} />;
       default:
         return (
           <LandingPage
@@ -802,6 +914,16 @@ export default function App() {
       <AppWrapper {...wrapperProps}>
         <div className="min-h-screen w-full bg-brand-bg">
           <Contact onBack={() => navigate('/')} />
+        </div>
+      </AppWrapper>
+    );
+  }
+
+  if (location.pathname === '/refund-policy') {
+    return (
+      <AppWrapper {...wrapperProps}>
+        <div className="min-h-screen w-full bg-brand-bg">
+          <RefundPolicy onBack={() => navigate('/')} />
         </div>
       </AppWrapper>
     );

@@ -1,7 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, ArrowLeft, Star, Crown } from 'lucide-react';
+import { Check, Star, Crown } from 'lucide-react';
 import { PLANS } from '../utils/pricingConfig';
+import PublicHeader from './PublicHeader';
+import PublicFooter from './PublicFooter';
 
 export default function PricingPage() {
     const navigate = useNavigate();
@@ -35,18 +37,13 @@ export default function PricingPage() {
 
     return (
         <div className="min-h-screen bg-brand-bg flex flex-col">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-brand-dark to-gray-800 p-8 text-white relative overflow-hidden">
-                <button
-                    onClick={() => navigate('/')}
-                    className="absolute top-8 left-8 text-white/80 hover:text-white z-10 flex items-center gap-2"
-                >
-                    <ArrowLeft size={20} /> Back to Home
-                </button>
+            <PublicHeader />
 
+            {/* Header */}
+            <div className="bg-gradient-to-r from-brand-dark to-gray-800 p-8 pt-32 text-white relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-96 h-96 bg-brand-green/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
 
-                <div className="relative z-10 text-center mt-8">
+                <div className="relative z-10 text-center">
                     <h1 className="text-4xl md:text-5xl font-bold mb-4">Simple, Transparent Pricing</h1>
                     <p className="text-gray-300 text-lg max-w-2xl mx-auto">
                         Choose the perfect plan for your career journey. No hidden fees.
@@ -61,8 +58,8 @@ export default function PricingPage() {
                         <div
                             key={plan.id}
                             className={`relative rounded-xl border-2 p-6 transition-all hover:shadow-xl flex flex-col bg-white ${plan.popular
-                                    ? 'border-brand-green shadow-lg scale-105 z-10'
-                                    : 'border-gray-200'
+                                ? 'border-brand-green shadow-lg scale-105 z-10'
+                                : 'border-gray-200'
                                 }`}
                         >
                             {plan.popular && (
@@ -122,8 +119,8 @@ export default function PricingPage() {
                             <button
                                 onClick={() => handleSelectPlan(plan.id)}
                                 className={`w-full py-3 rounded-lg font-bold transition-all text-base mt-auto ${plan.popular
-                                        ? 'bg-brand-green text-brand-dark hover:bg-green-600 shadow-md'
-                                        : 'bg-brand-dark text-white hover:bg-gray-800'
+                                    ? 'bg-brand-green text-brand-dark hover:bg-green-600 shadow-md'
+                                    : 'bg-brand-dark text-white hover:bg-gray-800'
                                     }`}
                             >
                                 {plan.id === 'free' ? 'Get Started' : 'Choose Plan'}
@@ -132,6 +129,8 @@ export default function PricingPage() {
                     ))}
                 </div>
             </div>
+
+            <PublicFooter />
         </div>
     );
 }

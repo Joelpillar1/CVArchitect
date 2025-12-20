@@ -30,7 +30,7 @@ export default function ForgotPassword({ onBack }: ForgotPasswordProps) {
         setLoading(true);
         try {
             // Import supabase here to avoid circular dependencies
-            const { supabase } = await import('../utils/supabase');
+            const { supabase } = await import('../lib/supabase');
 
             const { error } = await supabase.auth.resetPasswordForEmail(email, {
                 redirectTo: `${window.location.origin}/reset-password`,

@@ -3,6 +3,7 @@ import { ArrowRight, Check, Star, X, Menu, FileText, Sparkles, Download, Noteboo
 import { View } from '../App';
 import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -62,6 +63,7 @@ const float = {
 
 export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivacy, onNavigateToTerms, onNavigateToContact }: LandingPageProps) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -83,13 +85,17 @@ export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivac
 
           {/* Centered Navigation (Desktop) */}
           <div className="hidden md:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2">
-            {['Features', 'The Difference', 'Pricing'].map((item, idx) => (
+            {[
+              { label: 'Features', action: () => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) },
+              { label: 'The Difference', action: () => document.getElementById('the-difference')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) },
+              { label: 'Pricing', action: () => navigate('/pricing') }
+            ].map((item, idx) => (
               <button
                 key={idx}
-                onClick={() => document.getElementById(item.toLowerCase().replace(' ', '-'))?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                onClick={item.action}
                 className="text-sm font-medium text-gray-600 hover:text-brand-dark transition-colors relative group"
               >
-                {item}
+                {item.label}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-green transition-all group-hover:w-full"></span>
               </button>
             ))}
@@ -156,16 +162,20 @@ export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivac
               className="md:hidden bg-white border-t border-gray-100 overflow-hidden"
             >
               <div className="p-6 flex flex-col gap-6">
-                {['Features', 'The Difference', 'Pricing'].map((item, idx) => (
+                {[
+                  { label: 'Features', action: () => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) },
+                  { label: 'The Difference', action: () => document.getElementById('the-difference')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) },
+                  { label: 'Pricing', action: () => navigate('/pricing') }
+                ].map((item, idx) => (
                   <button
                     key={idx}
                     onClick={() => {
-                      document.getElementById(item.toLowerCase().replace(' ', '-'))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      item.action();
                       setIsMobileMenuOpen(false);
                     }}
                     className="text-lg font-medium text-gray-800 hover:text-brand-green text-left py-2 border-b border-gray-50 last:border-0"
                   >
-                    {item}
+                    {item.label}
                   </button>
                 ))}
 
@@ -386,7 +396,7 @@ export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivac
       </section>
 
       {/* The Difference Section */}
-      <section id="difference" className="py-16 px-6 bg-white">
+      <section id="the-difference" className="py-16 px-6 bg-white">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial="hidden"
@@ -1085,6 +1095,7 @@ export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivac
           <div className="flex gap-6">
             <button onClick={onNavigateToPrivacy} className="text-gray-500 hover:text-brand-dark text-sm">Privacy Policy</button>
             <button onClick={onNavigateToTerms} className="text-gray-500 hover:text-brand-dark text-sm">Terms of Service</button>
+            <button onClick={() => navigate('/refund-policy')} className="text-gray-500 hover:text-brand-dark text-sm">Refund Policy</button>
             <button onClick={onNavigateToContact} className="text-gray-500 hover:text-brand-dark text-sm">Contact</button>
           </div>
         </div>

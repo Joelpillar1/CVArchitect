@@ -1,76 +1,45 @@
-import { supabase } from '../utils/supabase';
+import { supabase } from '../lib/supabase';
 
 export interface UserProfile {
     id: string;
-    full_name: string | null;
-    avatar_url: string | null;
-    website: string | null;
-    updated_at: string | null;
+    full_name: string;
+    avatar_url?: string;
+    website?: string;
+    created_at: string;
+    updated_at: string;
 }
 
 export const profileService = {
-    async getProfile(userId: string) {
-        const { data, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', userId)
-            .single();
-
-        if (error) throw error;
-        return data as UserProfile;
-    },
-
-    async updateProfile(userId: string, updates: Partial<UserProfile>) {
-        const { data, error } = await supabase
-            .from('profiles')
-            .upsert({
-                id: userId,
-                ...updates,
-                updated_at: new Date().toISOString(),
-            }, {
-                onConflict: 'id'
-            })
-            .select()
-            .single();
-
-        if (error) throw error;
-        return data as UserProfile;
-    },
-
-    async uploadAvatar(userId: string, file: File) {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${userId}.${fileExt}`;
-        const filePath = `avatars/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-            .from('avatars')
-            .upload(filePath, file, { upsert: true });
-
-        if (uploadError) throw uploadError;
-
-        const { data } = supabase.storage
-            .from('avatars')
-            .getPublicUrl(filePath);
-
-        // Update profile with new avatar URL
-        await this.updateProfile(userId, { avatar_url: data.publicUrl });
-
-        return data.publicUrl;
-    },
-
-    async deleteUser(userId: string) {
-        const { error } = await supabase.rpc('delete_user');
-
-        if (error) {
-            console.error('Account deletion RPC failed', error);
-            // Fallback: Delete public profile data if RPC fails/doesn't exist
-            // This relies on Cascade Delete for dependent tables
-            const { error: profileError } = await supabase
+    async getProfile(userId: string): Promise<UserProfile | null> {
+        try {
+            const { data, error } = await supabase
                 .from('profiles')
-                .delete()
+                .select('*')
+                .eq('id', userId)
+                .single();
+
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.error('Error fetching profile:', error);
+            return null;
+        }
+    },
+
+    async updateProfile(userId: string, updates: Partial<UserProfile>): Promise<void> {
+        try {
+            const { error } = await supabase
+                .from('profiles')
+                .update({
+                    ...updates,
+                    updated_at: new Date().toISOString(),
+                })
                 .eq('id', userId);
 
-            if (profileError) throw profileError;
+            if (error) throw error;
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            throw error;
         }
-    }
+    },
 };

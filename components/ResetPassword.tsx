@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Lock, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../utils/supabase';
+import { supabase } from '../lib/supabase';
 
 interface ResetPasswordProps {
     onSuccess: () => void;

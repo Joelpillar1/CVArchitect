@@ -1,57 +1,55 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import mammoth from 'mammoth';
-import OpenAI from 'openai';
 import { ResumeData } from '../types';
+import { callAIJSON } from '../services/aiService';
 
 // Initialize PDF.js worker
-// Use local worker file copied to public directory for maximum reliability
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
-
-// Initialize OpenAI
-const getOpenAI = () => {
-    const apiKey = (import.meta as any).env?.VITE_OPENAI_API_KEY || '';
-    if (!apiKey) {
-        console.warn('VITE_OPENAI_API_KEY not found. Falling back to basic parsing.');
-        return null;
-    }
-    return new OpenAI({
-        apiKey: apiKey,
-        dangerouslyAllowBrowser: true
-    });
-};
 
 export const parseResume = async (file: File): Promise<Partial<ResumeData>> => {
     let text = '';
-    console.log('Starting resume parsing for file:', file.name, file.type);
+    console.log('Starting resume parsing for file:', file.name, file.type, 'Size:', file.size);
 
     try {
         if (file.type === 'application/pdf') {
             text = await extractTextFromPDF(file);
             console.log('Extracted text length from PDF:', text.length);
+            console.log('First 200 chars:', text.substring(0, 200));
         } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
             text = await extractTextFromDocx(file);
             console.log('Extracted text length from DOCX:', text.length);
+            console.log('First 200 chars:', text.substring(0, 200));
         } else {
-            throw new Error('Unsupported file type');
+            throw new Error('Unsupported file type: ' + file.type);
+        }
+
+        if (!text || text.trim().length < 50) {
+            console.warn('Extracted text too short or empty. Length:', text.length);
+            console.warn('Text content:', text);
+            // Instead of throwing, return basic parsed data from whatever we have
+            if (text && text.length > 0) {
+                return parseTextToResumeData(text);
+            }
+            throw new Error('Could not extract sufficient text from resume. The file may be image-based or corrupted.');
         }
 
         // Try AI-powered parsing first, fall back to regex if unavailable
-        const openai = getOpenAI();
-        console.log('OpenAI initialized:', !!openai);
-
-        if (openai && text.length > 50) {
-            console.log('Attempting AI parsing...');
-            const result = await parseWithAI(text, openai);
+        console.log('Attempting AI parsing via Edge Function...');
+        try {
+            const result = await parseWithAI(text);
             console.log('AI parsing result keys:', Object.keys(result));
             return result;
-        } else {
-            console.log('Falling back to regex parsing (No OpenAI or text too short)');
+        } catch (aiError) {
+            console.log('AI parsing failed, falling back to regex parsing:', aiError);
             return parseTextToResumeData(text);
         }
     } catch (error) {
         console.error('Error parsing resume:', error);
-        // Fall back to basic parsing
-        return parseTextToResumeData(text);
+        // Fall back to basic parsing if we have any text
+        if (text && text.length > 0) {
+            return parseTextToResumeData(text);
+        }
+        throw error;
     }
 };
 
@@ -76,10 +74,9 @@ const extractTextFromDocx = async (file: File): Promise<string> => {
     return result.value;
 };
 
-// AI-Powered Parsing using OpenAI
-const parseWithAI = async (text: string, openai: OpenAI): Promise<Partial<ResumeData>> => {
-    try {
-        const prompt = `You are an expert resume parser. Extract ALL information from this resume and return it in a structured JSON format.
+// AI-Powered Parsing using Edge Function
+const parseWithAI = async (text: string): Promise<Partial<ResumeData>> => {
+    const prompt = `You are an expert resume parser. Extract ALL information from this resume and return it in a structured JSON format.
 
 Resume Text:
 ${text}
@@ -140,75 +137,64 @@ IMPORTANT:
 - If a field is not present, use empty string or empty array
 - Return ONLY the JSON object, no explanations`;
 
-        const completion = await openai.chat.completions.create({
-            messages: [{ role: "user", content: prompt }],
-            model: "gpt-4o",
-            response_format: { type: "json_object" },
-            temperature: 0.1, // Low temperature for consistent extraction
+    // Call Edge Function for AI parsing
+    const parsed = await callAIJSON(prompt, 'gpt-4o', 0.1);
+
+    // Transform to match ResumeData structure
+    const resumeData: Partial<ResumeData> = {
+        fullName: parsed.fullName || '',
+        email: parsed.email || '',
+        phone: parsed.phone || '',
+        location: parsed.location || '',
+        address: parsed.location || '',
+        jobTitle: parsed.jobTitle || '',
+        summary: parsed.summary || '',
+        skills: parsed.skills || '',
+        experience: (parsed.experience || []).map((exp: any, index: number) => ({
+            id: `exp_${Date.now()}_${index}`,
+            role: exp.role || '',
+            company: exp.company || '',
+            location: exp.location || '',
+            startDate: exp.startDate || '',
+            endDate: exp.endDate || '',
+            description: exp.description || '',
+        })),
+        education: (parsed.education || []).map((edu: any, index: number) => ({
+            id: `edu_${Date.now()}_${index}`,
+            degree: edu.degree || '',
+            institution: edu.institution || '',
+            location: edu.location || '',
+            graduationDate: edu.graduationDate || '',
+            gpa: edu.gpa || '',
+        })),
+        certifications: (parsed.certifications || []).map((cert: any, index: number) => ({
+            id: `cert_${Date.now()}_${index}`,
+            name: cert.name || '',
+            issuer: cert.issuer || '',
+            date: cert.date || '',
+        })),
+        projects: (parsed.projects || []).map((proj: any, index: number) => ({
+            id: `proj_${Date.now()}_${index}`,
+            name: proj.name || '',
+            description: proj.description || '',
+            technologies: proj.technologies || '',
+            link: proj.link || '',
+        })),
+        keyAchievements: parsed.keyAchievements || '',
+        referee: parsed.references || '',
+    };
+
+    // Handle languages by adding to additional info
+    if (parsed.languages) {
+        resumeData.additionalInfo = resumeData.additionalInfo || [];
+        resumeData.additionalInfo.push({
+            id: `lang_${Date.now()}`,
+            label: 'Languages',
+            value: parsed.languages
         });
-
-        const result = completion.choices[0].message.content?.trim() || '{}';
-        const parsed = JSON.parse(result);
-
-        // Transform to match ResumeData structure
-        const resumeData: Partial<ResumeData> = {
-            fullName: parsed.fullName || '',
-            email: parsed.email || '',
-            phone: parsed.phone || '',
-            location: parsed.location || '',
-            address: parsed.location || '',
-            jobTitle: parsed.jobTitle || '',
-            summary: parsed.summary || '',
-            skills: parsed.skills || '',
-            experience: (parsed.experience || []).map((exp: any, index: number) => ({
-                id: `exp_${Date.now()}_${index}`,
-                role: exp.role || '',
-                company: exp.company || '',
-                location: exp.location || '',
-                startDate: exp.startDate || '',
-                endDate: exp.endDate || '',
-                description: exp.description || '',
-            })),
-            education: (parsed.education || []).map((edu: any, index: number) => ({
-                id: `edu_${Date.now()}_${index}`,
-                degree: edu.degree || '',
-                institution: edu.institution || '',
-                location: edu.location || '',
-                graduationDate: edu.graduationDate || '',
-                gpa: edu.gpa || '',
-            })),
-            certifications: (parsed.certifications || []).map((cert: any, index: number) => ({
-                id: `cert_${Date.now()}_${index}`,
-                name: cert.name || '',
-                issuer: cert.issuer || '',
-                date: cert.date || '',
-            })),
-            projects: (parsed.projects || []).map((proj: any, index: number) => ({
-                id: `proj_${Date.now()}_${index}`,
-                name: proj.name || '',
-                description: proj.description || '',
-                technologies: proj.technologies || '',
-                link: proj.link || '',
-            })),
-            keyAchievements: parsed.keyAchievements || '',
-            referee: parsed.references || '',
-        };
-
-        // Handle languages by adding to additional info
-        if (parsed.languages) {
-            resumeData.additionalInfo = resumeData.additionalInfo || [];
-            resumeData.additionalInfo.push({
-                id: `lang_${Date.now()}`,
-                label: 'Languages',
-                value: parsed.languages
-            });
-        }
-
-        return resumeData;
-    } catch (error) {
-        console.error('AI parsing failed, falling back to regex:', error);
-        return parseTextToResumeData(text);
     }
+
+    return resumeData;
 };
 
 // Fallback: Basic regex-based parsing

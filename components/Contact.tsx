@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Mail, MessageSquare, Send } from 'lucide-react';
+import { Mail, MessageSquare, Send } from 'lucide-react';
+import PublicHeader from './PublicHeader';
+import PublicFooter from './PublicFooter';
 
 interface ContactProps {
     onBack: () => void;
@@ -38,21 +40,10 @@ export default function Contact({ onBack }: ContactProps) {
 
     return (
         <div className="min-h-screen bg-white">
-            {/* Header */}
-            <header className="border-b border-gray-200 bg-white sticky top-0 z-10">
-                <div className="max-w-4xl mx-auto px-6 py-6">
-                    <button
-                        onClick={onBack}
-                        className="flex items-center gap-2 text-brand-dark hover:text-brand-green transition-colors"
-                    >
-                        <ArrowLeft size={20} />
-                        <span className="font-medium">Back to Home</span>
-                    </button>
-                </div>
-            </header>
+            <PublicHeader />
 
             {/* Content */}
-            <main className="max-w-4xl mx-auto px-6 py-12">
+            <main className="max-w-4xl mx-auto px-6 py-12 pt-32">
                 <div className="text-center mb-12">
                     <h1 className="text-4xl md:text-5xl font-extrabold text-brand-dark mb-4" style={{ fontFamily: 'Graphik, sans-serif' }}>
                         Get in Touch
@@ -220,12 +211,7 @@ export default function Contact({ onBack }: ContactProps) {
                 </div>
             </main>
 
-            {/* Footer */}
-            <footer className="border-t border-gray-200 bg-white py-8 mt-16">
-                <div className="max-w-4xl mx-auto px-6 text-center text-gray-500 text-sm">
-                    &copy; 2025 CV Architect. All rights reserved.
-                </div>
-            </footer>
+            <PublicFooter />
         </div>
     );
 }
