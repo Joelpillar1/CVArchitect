@@ -53,7 +53,7 @@ export default function PaywallModal({ isOpen, onClose, onUpgrade, feature, curr
     const content = getContent();
 
     return createPortal(
-        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative border border-brand-green/20">
 
                 <button

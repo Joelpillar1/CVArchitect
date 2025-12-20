@@ -116,33 +116,20 @@ export default function App() {
     if (user) {
       // Fetch subscription from Supabase
       import('./services/subscriptionService').then(({ subscriptionService }) => {
-        Promise.all([
-          subscriptionService.getSubscription(user.id),
-          subscriptionService.getUsageLogs(user.id),
-          subscriptionService.getUsageTotals(user.id)
-        ]).then(([sub, logs, stats]) => {
-          if (sub) {
-            // Map DB subscription to Client state
-            setUserSubscription({
-              userId: user.id,
-              planId: (sub as any).plan_id as PlanId,
-              credits: (sub as any).credits || 0,
-              isActive: (sub as any).is_active || false,
-              usageHistory: logs || [],
-              usageStats: stats,
-              billingCycle: (sub as any).billing_cycle,
-              subscriptionStart: (sub as any).subscription_start ? new Date((sub as any).subscription_start) : undefined,
-              subscriptionEnd: (sub as any).subscription_end ? new Date((sub as any).subscription_end) : undefined
-            });
-          } else {
-            // No subscription found? Create default connected to this user ID
+        subscriptionService.getSubscription(user.id)
+          .then((sub) => {
+            if (sub) {
+              // The service now maps this correctly to UserSubscription
+              setUserSubscription(sub);
+            } else {
+              // No subscription found? Create default connected to this user ID
+              setUserSubscription(createDefaultSubscription(user.id));
+            }
+          }).catch(err => {
+            console.error('Failed to load subscription:', err);
+            // On error, use default subscription
             setUserSubscription(createDefaultSubscription(user.id));
-          }
-        }).catch(err => {
-          console.error('Failed to load subscription:', err);
-          // On error, use default subscription
-          setUserSubscription(createDefaultSubscription(user.id));
-        });
+          });
       });
     } else {
       // Reset if logged out
@@ -332,8 +319,10 @@ export default function App() {
   const handleAIAction = (action: 'ai_rewrite' | 'cv_regeneration' | 'cover_letter' | 'bullet_optimization'): boolean => {
     const check = subscriptionManager.canUseFeature(action);
     if (!check.allowed) {
+      console.log('AI Action blocked:', check.reason);
       setPaywallFeature('credits');
       setShowPaywall(true);
+      showToast(check.reason || "You are out of credits. Please upgrade or top up.", "error");
       return false;
     }
 
@@ -680,6 +669,7 @@ export default function App() {
             onNavigateToPrivacy={() => navigate('/privacy')}
             onNavigateToTerms={() => navigate('/terms')}
             onNavigateToContact={() => navigate('/contact')}
+            onNavigateToRefund={() => navigate('/refund-policy')}
           />
         );
       case View.SIGN_IN:
@@ -875,6 +865,7 @@ export default function App() {
             onNavigateToPrivacy={() => navigate('/privacy')}
             onNavigateToTerms={() => navigate('/terms')}
             onNavigateToContact={() => navigate('/contact')}
+            onNavigateToRefund={() => navigate('/refund-policy')}
           />
         );
     }
@@ -964,7 +955,26 @@ export default function App() {
   }
 
   if (currentView === View.EDITOR) {
-    return <AppWrapper {...wrapperProps}><div className="h-screen w-screen overflow-hidden bg-brand-bg font-sans text-brand-dark">{renderContent()}</div></AppWrapper>;
+    return (
+      <AppWrapper {...wrapperProps}>
+        <div className="h-screen w-screen overflow-hidden bg-brand-bg font-sans text-brand-dark">
+          {renderContent()}
+        </div>
+        <PaywallModal
+          isOpen={showPaywall}
+          onClose={() => setShowPaywall(false)}
+          onUpgrade={handleUpgrade}
+          feature={paywallFeature}
+          currentPlan={userSubscription.planId}
+        />
+        <PricingModal
+          isOpen={showPricingModal}
+          onClose={() => setShowPricingModal(false)}
+          onSelectPlan={handleSelectPlan}
+          currentPlanId={userSubscription.planId}
+        />
+      </AppWrapper>
+    );
   }
 
   return (

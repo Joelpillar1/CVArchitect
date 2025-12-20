@@ -82,7 +82,7 @@ export default function RefundPolicy({ onBack }: RefundPolicyProps) {
                         </p>
                         <ol className="list-decimal list-inside text-gray-700 space-y-3 ml-4">
                             <li className="leading-relaxed">
-                                <strong>Contact our support team</strong> at <span className="text-brand-green font-semibold">refunds@cvarchitect.com</span> within 14 days of your purchase
+                                <strong>Contact our support team</strong> at <span className="text-brand-green font-semibold">refunds@cvarchitect.app</span> within 14 days of your purchase
                             </li>
                             <li className="leading-relaxed">
                                 <strong>Include the following information:</strong>
@@ -185,10 +185,10 @@ export default function RefundPolicy({ onBack }: RefundPolicyProps) {
                         </p>
                         <div className="bg-brand-green/10 rounded-lg p-6 mt-4">
                             <p className="text-gray-700 mb-2">
-                                <strong>Email:</strong> <span className="text-brand-green font-semibold">refunds@cvarchitect.com</span>
+                                <strong>Email:</strong> <span className="text-brand-green font-semibold">refunds@cvarchitect.app</span>
                             </p>
                             <p className="text-gray-700 mb-2">
-                                <strong>Support:</strong> <span className="text-brand-green font-semibold">support@cvarchitect.com</span>
+                                <strong>Support:</strong> <span className="text-brand-green font-semibold">support@cvarchitect.app</span>
                             </p>
                             <p className="text-gray-500 text-sm mt-4">
                                 We typically respond to refund requests within 2-3 business days.

@@ -126,7 +126,7 @@ export default function PrivacyPolicy({ onBack }: PrivacyPolicyProps) {
                             If you have any questions about this Privacy Policy or our data practices, please contact us at:
                         </p>
                         <p className="text-brand-green font-semibold mt-4">
-                            privacy@cvarchitect.com
+                            privacy@cvarchitect.app
                         </p>
                     </section>
                 </div>

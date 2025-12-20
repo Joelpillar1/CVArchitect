@@ -265,7 +265,7 @@ export const getPlanById = (planId: string): Plan | undefined => {
 };
 
 export const isPro = (planId: string): boolean => {
-    return planId === 'pro_monthly' || planId === 'pro_yearly';
+    return planId === 'pro_quarterly';
 };
 
 export const getTemplatesForPlan = (planId: string): string[] => {

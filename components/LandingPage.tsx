@@ -11,6 +11,7 @@ interface LandingPageProps {
   onNavigateToPrivacy?: () => void;
   onNavigateToTerms?: () => void;
   onNavigateToContact?: () => void;
+  onNavigateToRefund?: () => void;
 }
 
 // Animation Variants
@@ -61,7 +62,7 @@ const float = {
   }
 };
 
-export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivacy, onNavigateToTerms, onNavigateToContact }: LandingPageProps) {
+export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivacy, onNavigateToTerms, onNavigateToContact, onNavigateToRefund }: LandingPageProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
@@ -1095,7 +1096,7 @@ export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivac
           <div className="flex gap-6">
             <button onClick={onNavigateToPrivacy} className="text-gray-500 hover:text-brand-dark text-sm">Privacy Policy</button>
             <button onClick={onNavigateToTerms} className="text-gray-500 hover:text-brand-dark text-sm">Terms of Service</button>
-            <button onClick={() => navigate('/refund-policy')} className="text-gray-500 hover:text-brand-dark text-sm">Refund Policy</button>
+            <button onClick={onNavigateToRefund} className="text-gray-500 hover:text-brand-dark text-sm">Refund Policy</button>
             <button onClick={onNavigateToContact} className="text-gray-500 hover:text-brand-dark text-sm">Contact</button>
           </div>
         </div>

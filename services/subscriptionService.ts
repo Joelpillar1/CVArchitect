@@ -8,14 +8,55 @@ import { UserSubscription } from '../types/pricing';
 export const subscriptionService = {
     async getSubscription(userId: string): Promise<UserSubscription | null> {
         try {
-            const { data, error } = await supabase
-                .from('subscriptions')
-                .select('*')
-                .eq('user_id', userId)
-                .single();
+            // Fetch subscription and usage data in parallel
+            const [subResult, logsResult, statsResult] = await Promise.all([
+                supabase
+                    .from('subscriptions')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .single(),
+                supabase
+                    .from('usage_logs')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .order('created_at', { ascending: false })
+                    .limit(50),
+                supabase
+                    .from('usage_logs')
+                    .select('credits_cost', { count: 'exact' })
+                    .eq('user_id', userId)
+            ]);
 
-            if (error) throw error;
-            return data as UserSubscription;
+            if (subResult.error) throw subResult.error;
+
+            const subscription = subResult.data;
+
+            // Map usage logs to UsageRecord format
+            const usageHistory = (logsResult.data || []).map((log: any) => ({
+                action: log.action,
+                creditsCost: log.credits_cost,
+                remainingCredits: log.remaining_credits,
+                timestamp: new Date(log.created_at)
+            }));
+
+            // Calculate total credits used
+            const totalCreditsUsed = (statsResult.data || []).reduce((sum: number, log: any) => sum + (log.credits_cost || 0), 0);
+            const totalActions = statsResult.count || 0;
+
+            return {
+                userId: subscription.user_id,
+                planId: subscription.plan_id,
+                credits: subscription.credits,
+                billingCycle: subscription.billing_cycle,
+                subscriptionStart: subscription.subscription_start ? new Date(subscription.subscription_start) : undefined,
+                subscriptionEnd: subscription.subscription_end ? new Date(subscription.subscription_end) : undefined,
+                isActive: subscription.is_active,
+                usageHistory,
+                usageStats: {
+                    totalActions,
+                    totalCreditsUsed
+                }
+            } as UserSubscription;
         } catch (error) {
             console.error('Error fetching subscription:', error);
             return null;

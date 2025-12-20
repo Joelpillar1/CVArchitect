@@ -171,7 +171,7 @@ export default function TermsOfService({ onBack }: TermsOfServiceProps) {
                             If you have any questions about these Terms of Service, please contact us at:
                         </p>
                         <p className="text-brand-green font-semibold mt-4">
-                            legal@cvarchitect.com
+                            legal@cvarchitect.app
                         </p>
                     </section>
                 </div>
