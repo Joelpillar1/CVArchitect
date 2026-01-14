@@ -63,16 +63,22 @@ ${isRecent ? `
 `}
 
 ## 3. SEMANTIC VARIATION (CRITICAL):
-- **NEVER** start two bullets with the same verb
+- **NEVER** start all the bullets with the same verb
 - **NEVER** use the same sentence structure twice
 - Vary between: Action statements, Achievement statements, Scope statements
 
 ## 4. TONE CALIBRATION:
 ${isRecent ? `
-   - **Senior/Recent Role**: Use strategic language (Architected, Spearheaded, Transformed, Established)
+   - **Senior/Recent Role**: Use strategic and high-impact language from these categories:
+     * **Strategy & Leadership**: Architected, Spearheaded, Orchestrated, Championed, Directed, Governed, Led, Established, Institutionalized, Stewarded
+     * **Transformation & Impact**: Transformed, Reimagined, Redefined, Elevated, Scaled, Optimized, Revitalized, Modernized, Streamlined, Accelerated
+     * **Cross-Functional & Influence**: Aligned, Unified, Bridged, Influenced, Drove, Enabled, Mobilized, Partnered, Collaborated, Negotiated
    - Focus on IMPACT and LEADERSHIP, not just tasks
 ` : `
-   - **Earlier Role**: Use execution language (Developed, Implemented, Managed, Contributed)
+   - **Earlier Role**: Use execution and delivery language from these categories:
+     * **Execution & Craft**: Designed, Built, Created, Developed, Prototyped, Wireframed, Illustrated, Refined, Produced, Implemented
+     * **Problem-Solving & Delivery**: Solved, Improved, Enhanced, Optimized, Simplified, Iterated, Tested, Validated, Resolved, Delivered
+     * **Collaboration & Learning**: Collaborated, Supported, Assisted, Contributed, Partnered, Aligned, Communicated, Documented, Reviewed, Learned
    - Focus on SKILLS and DELIVERABLES
 `}
 
@@ -125,7 +131,7 @@ export const generateSummary = async (
         const result = await callAIText(prompt, 'gpt-4o');
         return result.trim() || '';
     } catch (error) {
-        console.error('AI Summary Generation Error:', error);
+        console.error('Summary Generation Error:', error);
         throw new Error('Failed to generate summary.');
     }
 };
@@ -142,14 +148,14 @@ export const generateBulletPoints = async (
         
         Instructions:
         - Use strong action verbs.
-        - Focus on achievements and metrics.
+        - Focus on achievements and metrics but not too much.
         - Return ONLY a JSON array of strings, e.g., ["bullet 1", "bullet 2"].`;
 
         const parsed = await callAIJSON(prompt, 'gpt-4o');
         // Handle different potential JSON structures
         return Array.isArray(parsed) ? parsed : (parsed.bullets || parsed.points || []);
     } catch (error) {
-        console.error('AI Bullet Generation Error:', error);
+        console.error('Bullet Generation Error:', error);
         throw new Error('Failed to generate bullet points.');
     }
 };
@@ -191,12 +197,19 @@ Experience: ${JSON.stringify(resumeData.experience.map(e => ({ role: e.role, com
 - ❌ **AVOID**: Multiple percentages (20%, 30%, 40%) - instant red flag
 - ✅ **PREFER**: Concrete outcomes ("Launched X", "Built Y", "Led team of Z")
 - If you use a number, make it SPECIFIC: "Reduced deployment from 2 weeks to 3 days" NOT "Improved by 30%"
+- If you are generating 3-4 bullets, make sure to limit the matric on all the bullets to 2-3.
 
 ### BULLET POINT STRUCTURE (3-4 bullets per role):
 1. **Strategic Impact** - What system/process did you build or transform?
 2. **Leadership/Scope** - Team size, stakeholders, budget (NOT percentages)
 3. **Problem-Solving** - Specific challenge you resolved
 4. **OPTIONAL: Metric** - ONLY if truly impressive and relevant to THIS job
+
+### FORMATTING CRITICAL RULES:
+- **Output 3-4 distinct bullets per role.**
+- **Format as a single string with bullets separated by newlines (\\n).**
+- **Start EVERY bullet with a bullet point character (•).**
+- **DO NOT return a single paragraph.**
 
 ### TONE & LANGUAGE:
 - Use EXACT terminology from the job description
@@ -243,8 +256,7 @@ Return ONLY valid JSON in this EXACT format:
 {
   "summary": "enhanced professional summary here",
   "experience": [
-    {"description": "enhanced bullet points for first role"},
-    {"description": "enhanced bullet points for second role"}
+    {"description": "• Bullet 1\n• Bullet 2\n• Bullet 3\n• Bullet 4"}
   ],
   "skills": "skill1, skill2, skill3, skill4, skill5, skill6, skill7, skill8",
   "keyAchievements": "• achievement 1\\n• achievement 2\\n• achievement 3\\n• achievement 4"
@@ -300,11 +312,11 @@ JSON Format:
             issues: result.issues || []
         };
     } catch (error) {
-        console.error('AI Audit Error:', error);
+        console.error('Audit Error:', error);
         return {
             score: 0,
             keywords: [],
-            issues: ["Failed to perform AI audit"]
+            issues: ["Failed to perform audit"]
         };
     }
 };
@@ -328,7 +340,7 @@ export const generateAchievements = async (
         const result = await callAIText(prompt, 'gpt-4o');
         return result.trim() || '';
     } catch (error) {
-        console.error('AI Achievement Generation Error:', error);
+        console.error('Achievement Generation Error:', error);
         throw new Error('Failed to generate achievements.');
     }
 };
@@ -353,7 +365,7 @@ export const enhanceSummary = async (
         const result = await callAIText(prompt, 'gpt-4o');
         return result.trim() || summary;
     } catch (error) {
-        console.error('AI Summary Enhancement Error:', error);
+        console.error('Summary Enhancement Error:', error);
         throw new Error('Failed to enhance summary.');
     }
 };
@@ -378,7 +390,7 @@ Instructions:
         const result = await callAIText(prompt, 'gpt-4o');
         return result.trim() || currentSkills;
     } catch (error) {
-        console.error('AI Skills Enhancement Error:', error);
+        console.error('Skills Enhancement Error:', error);
         throw new Error('Failed to enhance skills.');
     }
 };
@@ -446,7 +458,7 @@ Return EXACTLY this JSON structure:
             }
         };
     } catch (error) {
-        console.error('AI Cover Letter Error:', error);
+        console.error('Cover Letter Error:', error);
         throw new Error('Failed to generate cover letter.');
     }
 };

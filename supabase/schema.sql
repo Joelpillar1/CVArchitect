@@ -53,7 +53,7 @@ CREATE TABLE public.subscriptions (
   id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
   user_id uuid REFERENCES auth.users ON DELETE CASCADE NOT NULL UNIQUE,
   plan_id text NOT NULL DEFAULT 'free',
-  credits integer NOT NULL DEFAULT 3,
+  credits integer NOT NULL DEFAULT 10,
   billing_cycle text,
   subscription_start timestamptz,
   subscription_end timestamptz,
@@ -248,7 +248,7 @@ BEGIN
     NOW()
   );
   
-  -- Create default subscription (Free plan with 3 credits)
+  -- Create default subscription (Free plan with 10 credits)
   INSERT INTO public.subscriptions (
     user_id,
     plan_id,
@@ -260,7 +260,7 @@ BEGIN
   VALUES (
     NEW.id,
     'free',
-    3,
+    10,
     true,
     NOW(),
     NOW()
@@ -300,3 +300,42 @@ GRANT ALL ON public.billing_history TO anon, authenticated;
 -- ✅ Indexes created
 -- ✅ Trigger set up for auto-creating user data
 -- ✅ Ready to use!
+
+-- ============================================
+-- HELPER FUNCTIONS
+-- ============================================
+
+-- Function to safely delete a user's account data from public tables
+-- Can be called via supabase.rpc('delete_user_account') from the client
+CREATE OR REPLACE FUNCTION public.delete_user_account()
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_user_id uuid;
+BEGIN
+  -- Get the ID of the calling user
+  v_user_id := auth.uid();
+  
+  IF v_user_id IS NULL THEN
+    RAISE EXCEPTION 'Not authenticated';
+  END IF;
+
+  -- Delete data in order of dependencies (leaves -> root)
+  DELETE FROM public.resume_versions WHERE resume_id IN (SELECT id FROM public.resumes WHERE user_id = v_user_id);
+  DELETE FROM public.cover_letters WHERE user_id = v_user_id;
+  DELETE FROM public.usage_logs WHERE user_id = v_user_id;
+  DELETE FROM public.billing_history WHERE user_id = v_user_id;
+  
+  -- Delete main entities
+  DELETE FROM public.resumes WHERE user_id = v_user_id;
+  DELETE FROM public.subscriptions WHERE user_id = v_user_id;
+  
+  -- Finally delete the profile
+  DELETE FROM public.profiles WHERE id = v_user_id;
+  
+END;
+$$;
+

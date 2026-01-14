@@ -37,8 +37,8 @@ export default function PaywallModal({ isOpen, onClose, onUpgrade, feature, curr
                 };
             case 'export':
                 return {
-                    title: "Export to PDF",
-                    description: "Download your professional resume as a PDF.",
+                    title: "Premium Template",
+                    description: "This template requires a Career Sprint or Marathon pass to export.",
                     icon: <Star className="text-brand-dark fill-brand-dark" size={32} />,
                 };
             default:

@@ -27,7 +27,13 @@ export const subscriptionService = {
                     .eq('user_id', userId)
             ]);
 
-            if (subResult.error) throw subResult.error;
+            if (subResult.error) {
+                if (subResult.error.code === 'PGRST116') {
+                    // No subscription found - this is okay, return null to trigger default creation
+                    return null;
+                }
+                throw subResult.error;
+            }
 
             const subscription = subResult.data;
 

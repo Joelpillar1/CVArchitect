@@ -132,7 +132,7 @@ After adding the function:
 
 1. **Sign up** with a new account
 2. **Check Supabase** → Table Editor → subscriptions
-   - Should see 1 row with `plan_id: 'free'`, `credits: 3`
+   - Should see 1 row with `plan_id: 'free'`, `credits: 10`
 3. **Upgrade** to a paid plan (e.g., Week Pass)
 4. **Check Supabase** again
    - Should see `plan_id: 'week_pass'`, `credits: 50`

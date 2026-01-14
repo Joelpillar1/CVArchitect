@@ -260,7 +260,7 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
                     className="font-normal text-5xl mb-4 text-black"
                     style={{
                         fontSize: `${fontSizes?.header || 38}pt`,
-                        fontFamily: "Georgia, serif",
+                        fontFamily: "Inter, sans-serif",
                         color: accentColor
                     }}
                 >

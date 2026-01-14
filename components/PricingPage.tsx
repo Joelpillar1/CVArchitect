@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, Star, Crown } from 'lucide-react';
+import { Check, Star, Crown, Zap } from 'lucide-react';
 import { PLANS } from '../utils/pricingConfig';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
@@ -8,125 +8,118 @@ import PublicFooter from './PublicFooter';
 export default function PricingPage() {
     const navigate = useNavigate();
 
-    const displayPlans = [
-        PLANS.free,
-        PLANS.week_pass,
-        PLANS.pro_quarterly,
-        PLANS.lifetime,
-    ];
-
-    const getPrice = (plan: typeof PLANS.free) => {
-        if (plan.id === 'free') return 'Free';
-        if (plan.id === 'lifetime') return `$${plan.price.lifetime}`;
-        if (plan.id === 'pro_quarterly') return '$9.60/mo';
-        return `$${plan.price.monthly}`;
-    };
-
-    const getBillingNote = (plan: typeof PLANS.free) => {
-        if (plan.id === 'free') return 'Forever free';
-        if (plan.id === 'lifetime') return 'One-time payment';
-        if (plan.id === 'week_pass') return 'For 7 days access';
-        if (plan.id === 'pro_quarterly') return 'Billed $29 every 3 months';
-        return 'Billed monthly';
-    };
-
     const handleSelectPlan = (planId: string) => {
-        // Navigate to register with plan selection
         navigate('/register?plan=' + planId);
     };
 
     return (
-        <div className="min-h-screen bg-brand-bg flex flex-col">
+        <div className="min-h-screen bg-brand-bg flex flex-col font-sans">
             <PublicHeader />
 
-            {/* Header */}
-            <div className="bg-gradient-to-r from-brand-dark to-gray-800 p-8 pt-32 text-white relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-96 h-96 bg-brand-green/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+            {/* Hero Section */}
+            <div className="bg-brand-dark pt-32 pb-20 px-8 text-center relative overflow-hidden">
+                <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-brand-green/5 rounded-full blur-3xl pointer-events-none"></div>
 
-                <div className="relative z-10 text-center">
-                    <h1 className="text-4xl md:text-5xl font-bold mb-4">Simple, Transparent Pricing</h1>
-                    <p className="text-gray-300 text-lg max-w-2xl mx-auto">
-                        Choose the perfect plan for your career journey. No hidden fees.
+                <div className="relative z-10 max-w-4xl mx-auto space-y-6">
+                    <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-brand-green px-4 py-1.5 rounded-full text-sm font-medium">
+                        <Zap size={14} className="fill-current" />
+                        New: The 7-Day Career Sprint
+                    </div>
+                    <h1 className="text-5xl md:text-7xl font-bold text-white tracking-tight leading-tight">
+                        Don't subscribe.<br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-green to-emerald-400">Just get hired.</span>
+                    </h1>
+                    <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                        Most resume builders want you to pay for months. We built a tool to get you a job in days.
                     </p>
                 </div>
             </div>
 
-            {/* Plans Grid */}
-            <div className="flex-1 p-4 md:p-12 overflow-y-auto">
-                <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {displayPlans.map((plan) => (
-                        <div
-                            key={plan.id}
-                            className={`relative rounded-xl border-2 p-6 transition-all hover:shadow-xl flex flex-col bg-white ${plan.popular
-                                ? 'border-brand-green shadow-lg scale-105 z-10'
-                                : 'border-gray-200'
-                                }`}
-                        >
-                            {plan.popular && (
-                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-green text-brand-dark px-4 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-                                    <Star size={12} className="fill-current" />
-                                    MOST POPULAR
-                                </div>
-                            )}
+            {/* Pricing Options */}
+            <div className="max-w-6xl mx-auto px-6 py-20">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start">
 
-                            {plan.id === 'lifetime' && (
-                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-purple-600 text-white px-4 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-                                    <Crown size={12} className="fill-current" />
-                                    BEST VALUE
-                                </div>
-                            )}
-
-                            <div className="text-center mb-6">
-                                <h3 className="text-xl font-bold text-brand-dark mb-2">{plan.name}</h3>
-                                <div className="text-3xl font-extrabold text-brand-dark mb-1">
-                                    {getPrice(plan)}
-                                </div>
-                                <p className="text-xs text-gray-500 font-medium">{getBillingNote(plan)}</p>
-                            </div>
-
-                            <ul className="space-y-4 mb-8 flex-1">
-                                <li className="flex items-start gap-3 text-sm">
-                                    <Check size={18} className="text-green-600 shrink-0 mt-0.5" />
-                                    <span>
-                                        {plan.id === 'free' ? '3 Trial Credits' :
-                                            plan.id === 'week_pass' ? 'Unlimited AI (Cap: 75)' :
-                                                plan.id === 'pro_quarterly' ? 'Unlimited AI (Cap: 300/mo)' :
-                                                    'Unlimited AI (Cap: 100/mo)'}
-                                    </span>
-                                </li>
-                                <li className="flex items-start gap-3 text-sm">
-                                    <Check size={18} className="text-green-600 shrink-0 mt-0.5" />
-                                    <span>
-                                        {plan.id === 'free' ? 'Export without watermark' : 'Clean PDF Exports'}
-                                    </span>
-                                </li>
-                                <li className="flex items-start gap-3 text-sm">
-                                    <Check size={18} className="text-green-600 shrink-0 mt-0.5" />
-                                    <span>
-                                        {plan.id === 'free' ? '1 Basic Template' : 'All Premium Templates'}
-                                    </span>
-                                </li>
-                                {plan.id !== 'free' && (
-                                    <li className="flex items-start gap-3 text-sm">
-                                        <Check size={18} className="text-green-600 shrink-0 mt-0.5" />
-                                        <span>
-                                            {plan.id === 'week_pass' ? '10 AI Cover Letters' : '50 AI Cover Letters / mo'}
-                                        </span>
-                                    </li>
-                                )}
-                            </ul>
-
-                            <button
-                                onClick={() => handleSelectPlan(plan.id)}
-                                className={`w-full py-3 rounded-lg font-bold transition-all text-base mt-auto ${plan.popular
-                                    ? 'bg-brand-green text-brand-dark hover:bg-green-600 shadow-md'
-                                    : 'bg-brand-dark text-white hover:bg-gray-800'
-                                    }`}
-                            >
-                                {plan.id === 'free' ? 'Get Started' : 'Choose Plan'}
-                            </button>
+                    {/* SPRINT PLAN (Focus) */}
+                    <div className="relative bg-white border-2 border-brand-green rounded-3xl p-8 md:p-10 shadow-2xl shadow-brand-green/10 transform md:-translate-y-12">
+                        <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-brand-green text-brand-dark px-6 py-2 rounded-full text-sm font-bold tracking-wide shadow-lg uppercase">
+                            Best for 90% of Users
                         </div>
-                    ))}
+
+                        <div className="text-center mb-10">
+                            <h3 className="text-2xl font-bold text-brand-dark mb-2">The Career Sprint</h3>
+                            <div className="flex justify-center items-baseline gap-1">
+                                <span className="text-6xl font-extrabold text-brand-dark">$14</span>
+                                <span className="text-gray-500 font-medium">/ 7 days</span>
+                            </div>
+                            <p className="text-sm text-gray-500 font-bold uppercase tracking-wider mt-4 text-brand-green">One-time payment. No auto-renew.</p>
+                        </div>
+
+                        <ul className="space-y-4 mb-10">
+                            <li className="flex items-center gap-3">
+                                <div className="bg-green-100 p-1 rounded-full"><Check size={16} className="text-green-700" /></div>
+                                <span className="text-gray-700 font-medium">Unlimited AI Rewrites</span>
+                            </li>
+                            <li className="flex items-center gap-3">
+                                <div className="bg-green-100 p-1 rounded-full"><Check size={16} className="text-green-700" /></div>
+                                <span className="text-gray-700 font-medium">Unlimited PDF Exports</span>
+                            </li>
+                            <li className="flex items-center gap-3">
+                                <div className="bg-green-100 p-1 rounded-full"><Check size={16} className="text-green-700" /></div>
+                                <span className="text-gray-700 font-medium">Access All Premium Templates</span>
+                            </li>
+                            <li className="flex items-center gap-3">
+                                <div className="bg-green-100 p-1 rounded-full"><Check size={16} className="text-green-700" /></div>
+                                <span className="text-gray-700 font-medium">Job Match Analysis</span>
+                            </li>
+                        </ul>
+
+                        <button
+                            onClick={() => handleSelectPlan('week_pass')}
+                            className="w-full py-5 rounded-2xl bg-brand-dark hover:bg-black text-white text-lg font-bold transition-all shadow-xl hover:shadow-2xl active:scale-[0.98]"
+                        >
+                            Start My 7-Day Sprint
+                        </button>
+                        <p className="text-center text-xs text-gray-400 mt-4">7-Day Money-Back Guarantee</p>
+                    </div>
+
+
+                    {/* MARATHON PLAN */}
+                    <div className="bg-white border border-gray-200 rounded-3xl p-8 md:p-10">
+                        <div className="text-center mb-10">
+                            <h3 className="text-2xl font-bold text-brand-dark mb-2">The Career Marathon</h3>
+                            <div className="flex justify-center items-baseline gap-1">
+                                <span className="text-5xl font-bold text-brand-dark">$29</span>
+                                <span className="text-gray-500 font-medium">/ month</span>
+                            </div>
+                            <p className="text-sm text-gray-500 font-medium mt-4">Recurring subscription. Cancel anytime.</p>
+                        </div>
+
+                        <div className="space-y-4 mb-10">
+                            <p className="text-gray-600 leading-relaxed text-center">
+                                Perfect for long-term career planning, freelancers, or passive job seekers who want to keep their options open.
+                            </p>
+                            <div className="h-px bg-gray-100 w-full my-6"></div>
+                            <ul className="space-y-3">
+                                <li className="flex items-center gap-3 text-sm text-gray-600">
+                                    <Check size={16} className="text-gray-400" />
+                                    <span>Everything in Sprint</span>
+                                </li>
+                                <li className="flex items-center gap-3 text-sm text-gray-600">
+                                    <Check size={16} className="text-gray-400" />
+                                    <span>Continuous Access</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <button
+                            onClick={() => handleSelectPlan('pro_monthly')}
+                            className="w-full py-4 rounded-xl bg-white border-2 border-brand-dark text-brand-dark font-bold hover:bg-gray-50 transition-all"
+                        >
+                            Start Monthly Subscription
+                        </button>
+                    </div>
+
                 </div>
             </div>
 

@@ -17,7 +17,7 @@ interface SettingsProps {
 }
 
 export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, userProfile, userEmail, onProfileUpdate, onNavigateToPrivacy, onNavigateToTerms }: SettingsProps) => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState<'account' | 'subscription' | 'usage' | 'preferences'>('account');
 
   // Parse user name from profile or email
@@ -56,20 +56,20 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
   });
 
   const plan = PLANS[userSubscription.planId];
-  const isPro = userSubscription.planId === 'pro_quarterly';
-  const isLifetime = userSubscription.planId === 'lifetime';
+  const isSprint = userSubscription.planId === 'week_pass';
+  const isMarathon = userSubscription.planId === 'pro_monthly';
   const isFree = userSubscription.planId === 'free';
 
   const getPlanIcon = () => {
-    if (isPro) return <Crown className="text-purple-600 fill-current" size={24} />;
-    if (isLifetime) return <Zap className="text-amber-600 fill-current" size={24} />;
-    return <TrendingUp className="text-blue-600" size={24} />;
+    if (isSprint) return <Zap className="text-brand-dark fill-current" size={24} />;
+    if (isMarathon) return <Crown className="text-purple-600 fill-current" size={24} />;
+    return <User className="text-gray-600" size={24} />;
   };
 
   const getPlanColor = () => {
-    if (isPro) return 'from-purple-500 to-purple-600';
-    if (isLifetime) return 'from-amber-500 to-orange-500';
-    return 'from-blue-500 to-blue-600';
+    if (isSprint) return 'from-brand-green to-emerald-500 text-brand-dark';
+    if (isMarathon) return 'from-purple-500 to-indigo-600 text-white';
+    return 'from-gray-100 to-gray-200 text-gray-800'; // Free plan style
   };
 
   const formatDate = (date?: Date) => {
@@ -115,21 +115,22 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
 
   const handleDeleteAccount = async () => {
     if (!user) return;
-    setIsSaving(true);
-    try {
-      await profileService.deleteUser(user.id);
-      // Trigger logout via handleCancelSubscription or similar if passed, 
-      // but ideally we should just force logout.
-      // Since we don't have a direct onLogout prop here, we can rely on auth context changes 
-      // or simple reload if the user is deleted on backend.
-      // But typically, we should call a prop to clean up app state.
-      // For now, we will call onCancelSubscription which is likely mapped to logout/cleanup 
-      // or simply rely on the fact that without a valid user row, subsequent calls fail.
 
-      // Best approach: Reload to clear state/trigger auth check
-      window.location.reload();
+    // Clear any previous errors
+    setSaveError('');
+    setSaveSuccess(false);
+    setIsSaving(true);
+
+    try {
+      // Delete user data and sign out
+      await profileService.deleteUser(user.id);
+
+      // The profileService.deleteUser already calls signOut internally
+      // But we'll navigate to home page to ensure clean state
+      window.location.href = '/';
 
     } catch (error: any) {
+      console.error('Delete account error:', error);
       setSaveError('Failed to delete account. Please try again or contact support.');
       setIsSaving(false);
     }
@@ -145,7 +146,7 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
   ];
 
   return (
-    <div className="h-screen bg-brand-bg overflow-y-auto">
+    <div className="h-full bg-brand-bg overflow-y-auto">
       <div className="p-8 md:p-12 max-w-6xl mx-auto">
         <h2 className="text-4xl font-bold text-brand-dark tracking-tight mb-2">Settings</h2>
         <p className="text-gray-500 mb-8">Manage your account, subscription, and preferences</p>
@@ -269,15 +270,23 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
                   <button
                     onClick={() => {
                       if (window.confirm('Are you absolutely sure? This action cannot be undone and will permanently delete your account and all data.')) {
-                        // Perform deletion
-                        // Since we need async context, we'll do:
                         handleDeleteAccount();
                       }
                     }}
-                    className="text-red-600 hover:text-red-700 font-semibold text-sm flex items-center gap-2"
+                    disabled={isSaving}
+                    className="text-red-600 hover:text-red-700 font-semibold text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Trash2 size={16} />
-                    Delete Account
+                    {isSaving ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                        Deleting...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 size={16} />
+                        Delete Account
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -302,18 +311,17 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
                         {getPlanIcon()}
                       </div>
                       <div>
-                        <p className="font-bold text-2xl">{plan?.name}</p>
+                        <p className="font-bold text-2xl">{plan?.name || 'Current Plan'}</p>
                         <p className="text-white/80 text-sm">
                           {isFree && 'Free Forever'}
-                          {isPro && (userSubscription.billingCycle === 'yearly' ? '$144/year' : '$19/mo')}
-                          {isLifetime && 'One-time payment of $97'}
-                          {!isFree && !isPro && !isLifetime && (userSubscription.billingCycle === 'yearly' ? '$72/year' : '$9/mo')}
+                          {isSprint && '$14 / 7 days'}
+                          {isMarathon && '$29 / month'}
                         </p>
                       </div>
                     </div>
-                    {!isFree && !isLifetime && (
+                    {!isFree && (
                       <div className="text-right">
-                        <p className="text-sm text-white/80">Renews on</p>
+                        <p className="text-sm text-white/80">{isSprint ? 'Expires on' : 'Renews on'}</p>
                         <p className="font-semibold">{formatDate(userSubscription.subscriptionEnd)}</p>
                       </div>
                     )}
@@ -324,7 +332,7 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
                   <div className="p-4 bg-gray-50 rounded-xl">
                     <p className="text-sm text-gray-500 mb-1">Credits</p>
                     <p className="text-2xl font-bold text-brand-dark">
-                      {isPro ? 'Unlimited' : userSubscription.credits}
+                      {(isSprint || isMarathon) ? 'Unlimited' : userSubscription.credits}
                     </p>
                   </div>
                   <div className="p-4 bg-gray-50 rounded-xl">
@@ -341,10 +349,20 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
                       onClick={onUpgrade}
                       className="bg-gradient-to-r from-brand-green to-emerald-500 hover:from-emerald-400 hover:to-emerald-600 text-brand-dark px-6 py-3 rounded-xl font-bold text-sm transition-all shadow-lg"
                     >
-                      Upgrade to Pro
+                      Upgrade Plan
                     </button>
                   )}
-                  {!isFree && !isLifetime && (
+
+                  {isSprint && (
+                    <button
+                      onClick={onUpgrade}
+                      className="bg-brand-dark text-white px-6 py-3 rounded-xl font-semibold text-sm hover:bg-gray-800 transition-colors"
+                    >
+                      Extenth Sprint / Upgrade
+                    </button>
+                  )}
+
+                  {isMarathon && (
                     <>
                       <button
                         onClick={onUpgrade}
@@ -360,44 +378,11 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
                       </button>
                     </>
                   )}
-                  {isLifetime && (
-                    <button
-                      onClick={onUpgrade}
-                      className="bg-brand-dark text-white px-6 py-3 rounded-xl font-semibold text-sm hover:bg-gray-800 transition-colors"
-                    >
-                      Buy More Credits
-                    </button>
-                  )}
                 </div>
               </div>
             </div>
 
-            {/* Credit Packs (for non-Pro users) */}
-            {!isPro && (
-              <div className="bg-white shadow-soft rounded-2xl border border-brand-border overflow-hidden">
-                <div className="p-8 border-b border-brand-border">
-                  <h3 className="text-xl font-bold text-brand-dark">Credit Packs</h3>
-                  <p className="text-sm text-gray-500 mt-1 font-medium">Purchase additional credits for AI features.</p>
-                </div>
-                <div className="p-8">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {CREDIT_PACKS.map((pack) => (
-                      <div key={pack.credits} className="border-2 border-gray-200 rounded-xl p-6 hover:border-brand-green transition-all">
-                        <div className="text-center">
-                          <p className="text-sm text-gray-500 mb-2">{pack.label}</p>
-                          <p className="text-4xl font-bold text-brand-dark mb-2">{pack.credits}</p>
-                          <p className="text-sm text-gray-600 mb-4">credits</p>
-                          <p className="text-2xl font-bold text-brand-green mb-4">${pack.price}</p>
-                          <button className="w-full bg-brand-green text-brand-dark py-2 rounded-lg font-semibold hover:bg-green-600 transition-all">
-                            Purchase
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
+            {/* Credit Packs removed */}
           </div>
         )}
 
@@ -424,7 +409,7 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
                   <div className="text-center p-6 bg-purple-50 rounded-xl">
                     <p className="text-sm text-purple-600 font-semibold mb-2">Credits Remaining</p>
                     <p className="text-4xl font-bold text-purple-700">
-                      {isPro ? '∞' : userSubscription.credits}
+                      {(isSprint || isMarathon) ? '∞' : userSubscription.credits}
                     </p>
                   </div>
                 </div>
@@ -517,9 +502,26 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
                   <Download size={16} />
                   Export My Data
                 </button>
-                <button className="w-full md:w-auto flex items-center gap-2 border border-red-300 text-red-600 px-6 py-3 rounded-xl font-semibold text-sm hover:bg-red-50 transition-colors">
-                  <Trash2 size={16} />
-                  Delete All My Data
+                <button
+                  onClick={() => {
+                    if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                      handleDeleteAccount();
+                    }
+                  }}
+                  disabled={isSaving}
+                  className="w-full md:w-auto flex items-center gap-2 border border-red-300 text-red-600 px-6 py-3 rounded-xl font-semibold text-sm hover:bg-red-50 transition-colors disabled:opacity-50"
+                >
+                  {isSaving ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 size={16} />
+                      Delete All My Data
+                    </>
+                  )}
                 </button>
               </div>
             </div>

@@ -4,7 +4,7 @@ import { ResumeData, TemplateType } from '../types';
 import { UserSubscription } from '../types/pricing';
 import { SubscriptionManager } from '../utils/subscriptionManager';
 import { canAccessTemplate } from '../utils/pricingConfig';
-import { ChevronLeft, Maximize2, Minimize2, Download, User, Briefcase, GraduationCap, Award, Layout as LayoutIcon, Target, CheckCircle, Monitor, Edit3, Palette } from 'lucide-react';
+import { ChevronLeft, Maximize2, Minimize2, Download, User, Briefcase, GraduationCap, Award, Layout as LayoutIcon, Target, CheckCircle, Monitor, Edit3, Palette, ShoppingCart } from 'lucide-react';
 import FormSection from './FormSection';
 import ResumePreview from './ResumePreview';
 import EditorSidebarRight from './EditorSidebarRight';
@@ -222,14 +222,24 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
             <FileTextIcon size={20} />
           </button>
 
-          <button
-            onClick={handleDownload}
-            disabled={isDownloading}
-            className="flex items-center gap-2 px-3 md:px-4 py-2 border border-brand-border rounded-lg text-sm font-medium text-brand-dark hover:bg-brand-secondary transition-colors"
-          >
-            <Download size={16} />
-            <span className="hidden sm:inline">Download</span>
-          </button>
+          {canAccessTemplate(userSubscription.planId, template) ? (
+            <button
+              onClick={handleDownload}
+              disabled={isDownloading}
+              className="flex items-center gap-2 px-3 md:px-4 py-2 border border-brand-border rounded-lg text-sm font-medium text-brand-dark hover:bg-brand-secondary transition-colors"
+            >
+              <Download size={16} />
+              <span className="hidden sm:inline">Download</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => onShowPaywall?.('export')}
+              className="flex items-center gap-2 px-3 md:px-4 py-2 bg-brand-dark text-white rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors shadow-sm ring-2 ring-brand-green/50 animate-pulse"
+            >
+              <ShoppingCart size={16} className="text-brand-green" />
+              <span className="hidden sm:inline">Buy this Resume</span>
+            </button>
+          )}
           <button className="flex items-center gap-2 px-3 md:px-4 py-2 bg-brand-green text-brand-dark rounded-lg text-sm font-bold hover:bg-brand-greenHover transition-colors shadow-sm">
             <LayoutIcon size={16} />
             <span className="hidden sm:inline">Share</span>

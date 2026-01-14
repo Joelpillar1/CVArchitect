@@ -102,9 +102,7 @@ export class SubscriptionManager {
                 if (this.subscription.credits <= 0) {
                     return {
                         allowed: false,
-                        reason: this.subscription.planId === 'lifetime'
-                            ? 'Out of credits. Purchase a credit pack to continue.'
-                            : 'Monthly quota reached. Upgrade to Pro or buy credits.'
+                        reason: 'Out of credits. Upgrade to Career Sprint or Marathon for unlimited access.'
                     };
                 }
 
@@ -249,7 +247,7 @@ export const createDefaultSubscription = (userId: string): UserSubscription => {
     return {
         userId,
         planId: 'free',
-        credits: 0,
+        credits: 10, // Updated to match new free tier allocation
         isActive: true,
         usageHistory: [],
     };
@@ -272,7 +270,9 @@ export const upgradePlan = (
         credits: newPlan.creditRules.startingCredits,
         billingCycle,
         subscriptionStart: new Date(),
-        subscriptionEnd: billingCycle === 'lifetime' ? undefined : new Date(Date.now() + (billingCycle === 'yearly' ? 365 : 30) * 24 * 60 * 60 * 1000),
+        subscriptionEnd: newPlanId === 'week_pass'
+            ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+            : newPlan.price.lifetime ? undefined : new Date(Date.now() + (billingCycle === 'yearly' ? 365 : 30) * 24 * 60 * 60 * 1000),
         isActive: true,
     };
 };

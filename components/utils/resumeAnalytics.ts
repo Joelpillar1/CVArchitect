@@ -116,13 +116,23 @@ export function analyzeResume(data: ResumeData): AnalyticsResult {
 }
 
 function calculateSectionScores(data: ResumeData) {
+    // Count skills properly (trim and filter empty entries)
+    const skillCount = data.skills
+        ? data.skills.split(',').map(s => s.trim()).filter(s => s.length > 0).length
+        : 0;
+
+    // Count achievement lines properly
+    const achievementLines = data.keyAchievements
+        ? data.keyAchievements.split('\n').filter(line => line.trim().length > 0).length
+        : 0;
+
     return {
         personalInfo: calculatePersonalInfoScore(data),
-        summary: data.summary ? Math.min(100, Math.max(0, (data.summary.length / 200) * 100)) : 0, // Aim for ~200 chars min
+        summary: data.summary ? Math.min(100, Math.max(0, (data.summary.length / 150) * 100)) : 0, // Aim for ~150 chars min (more achievable)
         experience: calculateExperienceScore(data),
         education: data.education.length > 0 ? 100 : 0,
-        skills: data.skills ? Math.min(100, (data.skills.split(',').length / 6) * 100) : 0, // Aim for 6+ skills
-        achievements: data.keyAchievements ? Math.min(100, (data.keyAchievements.split('\n').length / 3) * 100) : 0,
+        skills: skillCount >= 9 ? 100 : Math.min(100, (skillCount / 9) * 100), // 100 points at 9+ skills
+        achievements: achievementLines >= 3 ? 100 : Math.min(100, (achievementLines / 3) * 100), // 100 points at 3+ achievements
         projects: data.projects && data.projects.length > 0 ? 100 : 50, // Projects are optional but good
         certifications: data.certifications && data.certifications.length > 0 ? 100 : 50 // Optional
     };
@@ -140,13 +150,23 @@ function calculatePersonalInfoScore(data: ResumeData): number {
 
 function calculateExperienceScore(data: ResumeData): number {
     if (data.experience.length === 0) return 0;
-    // Base score for having experience 
-    let score = 50;
 
-    // Quality checks per role
+    // Give high score for 4+ experiences
+    let score = 0;
+
+    if (data.experience.length >= 4) {
+        score = 70; // Strong base for 4+ experiences
+    } else if (data.experience.length >= 2) {
+        score = 50;
+    } else {
+        score = 30;
+    }
+
+    // Quality checks - reward good descriptions
     const avgDescLength = data.experience.reduce((acc, exp) => acc + (exp.description?.length || 0), 0) / data.experience.length;
-    if (avgDescLength > 100) score += 25;
-    if (avgDescLength > 200) score += 25;
+
+    if (avgDescLength > 80) score += 15;  // Decent descriptions
+    if (avgDescLength > 150) score += 15; // Good descriptions
 
     return Math.min(100, score);
 }
@@ -229,8 +249,13 @@ function calculateRelevance(data: ResumeData) {
     // Normalize to 0-100
     let matchScore = (earnedWeight / totalPossibleWeight) * 100;
 
-    // boost curve for UX (so 50% match feels like a good 75%)
-    matchScore = Math.min(99, Math.round(Math.pow(matchScore / 100, 0.7) * 100));
+    // Base score boost for having 4+ experiences (shows commitment and depth)
+    const experienceBoost = data.experience.length >= 4 ? 15 : 0;
+    matchScore += experienceBoost;
+
+    // More generous boost curve for better UX (easier to reach 90%+)
+    // Using power of 0.6 instead of 0.7 for more aggressive boost
+    matchScore = Math.min(99, Math.round(Math.pow(matchScore / 100, 0.6) * 100));
 
     resultKeywords.missingKeywords = missing;
 
@@ -298,22 +323,21 @@ function calculateATSScore(
     // 1. Structure Score (Checklist)
     const structureScore = calculateCompleteness(sectionScores);
 
-    // 2. Impact Score (Quality of writing)
+    // 2. Impact Score (Quality of writing) - More generous scoring
     let impactScore = 0;
 
-    // Action Verbs (Target: 15+)
-    impactScore += Math.min(30, (keywords.actionVerbs / 15) * 30);
+    // Action Verbs (Target: 10+ for good score, was 15+)
+    impactScore += Math.min(35, (keywords.actionVerbs / 10) * 35);
 
-    // Metric Density (Target: 30% of bullets have numbers)
-    // readability.metricDensity is 0-1. Target 0.3.
-    // Score = (0.15 / 0.30) * 40 = 20 pts
-    impactScore += Math.min(40, (readability.metricDensity / 0.3) * 40);
+    // Metric Density (Target: 25% of bullets have numbers, was 30%)
+    // More achievable target
+    impactScore += Math.min(40, (readability.metricDensity / 0.25) * 40);
 
-    // Weak Words (Penalty)
-    impactScore -= (readability.weakWords * 2);
+    // Weak Words (Penalty) - Reduced penalty
+    impactScore -= (readability.weakWords * 1.5);
 
-    // Hard Skills Mentioned (Target: 5+)
-    impactScore += Math.min(30, (keywords.technicalSkills / 5) * 30);
+    // Hard Skills Mentioned (Target: 4+, was 5+)
+    impactScore += Math.min(25, (keywords.technicalSkills / 4) * 25);
 
     impactScore = Math.max(0, Math.min(100, impactScore));
 
@@ -322,13 +346,14 @@ function calculateATSScore(
     let totalScore = 0;
 
     if (hasJobDesc) {
-        // With JD: Relevance is King
-        // Relevance: 50% | Impact: 30% | Structure: 20%
-        totalScore = (jobMatchScore * 0.5) + (impactScore * 0.3) + (structureScore * 0.2);
+        // With JD: Relevance is King, but structure still matters
+        // Relevance: 55% | Impact: 25% | Structure: 20%
+        totalScore = (jobMatchScore * 0.55) + (impactScore * 0.25) + (structureScore * 0.20);
     } else {
-        // Without JD: Impact & Structure matter most
-        // Impact: 60% | Structure: 40%
-        totalScore = (impactScore * 0.6) + (structureScore * 0.4);
+        // Without JD: Structure is most important for complete resumes
+        // Structure: 50% | Impact: 50%
+        // This ensures users with complete sections get ~80% score
+        totalScore = (structureScore * 0.50) + (impactScore * 0.50);
     }
 
     return Math.round(Math.min(99, totalScore));
@@ -368,18 +393,19 @@ function generateRecommendations(
     const strengths: string[] = [];
     const improvements: string[] = [];
 
-    // Strengths
-    if (jobMatchScore > 80) strengths.push('Excellent match with the job description');
-    if (readability.metricDensity > 0.3) strengths.push('Strong use of metrics (numbers/%) in experience');
-    if (keywords.actionVerbs > 15) strengths.push('Dynamic use of action verbs');
-    if (completeness > 90) strengths.push('Resume structure is comprehensive');
+    // Strengths - Updated thresholds
+    if (jobMatchScore > 85) strengths.push('Excellent match with the job description');
+    if (readability.metricDensity > 0.25) strengths.push('Strong use of metrics (numbers/%) in experience');
+    if (keywords.actionVerbs > 10) strengths.push('Dynamic use of action verbs');
+    if (completeness > 85) strengths.push('Resume structure is comprehensive');
+    if (data.experience.length >= 4) strengths.push('Strong work history with 4+ experiences');
 
-    // Improvements
-    if (readability.metricDensity < 0.2) improvements.push('Add more numbers! Only ' + Math.round(readability.metricDensity * 100) + '% of your bullets have metrics. Aim for 30%.');
-    if (keywords.actionVerbs < 10) improvements.push('Use more diverse action verbs (Spearheaded, Orchestrated, etc.)');
+    // Improvements - Updated thresholds
+    if (readability.metricDensity < 0.15) improvements.push('Add more numbers! Only ' + Math.round(readability.metricDensity * 100) + '% of your bullets have metrics. Aim for 25%.');
+    if (keywords.actionVerbs < 8) improvements.push('Use more diverse action verbs (Spearheaded, Orchestrated, etc.)');
 
     if (data.jobDescription) {
-        if (jobMatchScore < 60) improvements.push('Critical keywords missing. Check the "Relevance" list.');
+        if (jobMatchScore < 70) improvements.push('Critical keywords missing. Check the "Relevance" list.');
         if (keywords.missingKeywords.length > 0) {
             improvements.push(`Try to include: ${keywords.missingKeywords.slice(0, 3).join(', ')}`);
         }

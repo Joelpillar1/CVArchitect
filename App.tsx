@@ -225,7 +225,8 @@ export default function App() {
           id: r.id,
           tag: r.title,
           baseTemplate: r.content.template || 'vanguard',
-          data: r.content
+          data: r.content,
+          createdAt: new Date(r.created_at)
         }));
         setSavedTemplates(templates);
       }).catch(err => console.error('Failed to load resumes:', err));
@@ -414,16 +415,14 @@ export default function App() {
       const subscriptionStart = new Date();
       let subscriptionEnd: Date | undefined;
 
-      if (planId !== 'lifetime') {
-        subscriptionEnd = new Date();
-        if (billingCycle === 'yearly') {
-          subscriptionEnd.setFullYear(subscriptionEnd.getFullYear() + 1);
-        } else if (billingCycle === 'monthly') {
-          subscriptionEnd.setMonth(subscriptionEnd.getMonth() + 1);
-        } else {
-          // Week pass
-          subscriptionEnd.setDate(subscriptionEnd.getDate() + 7);
-        }
+      subscriptionEnd = new Date();
+      if (billingCycle === 'yearly') {
+        subscriptionEnd.setFullYear(subscriptionEnd.getFullYear() + 1);
+      } else if (billingCycle === 'monthly') {
+        subscriptionEnd.setMonth(subscriptionEnd.getMonth() + 1);
+      } else {
+        // Week pass
+        subscriptionEnd.setDate(subscriptionEnd.getDate() + 7);
       }
 
       // Update Supabase database
@@ -523,18 +522,24 @@ export default function App() {
 
   const handleLogout = async () => {
     try {
-      await signOut();
+      // Optimistic UI update: reset state immediately
+      setCurrentView(View.LANDING);
+      setUserProfile(null);
+      setSavedTemplates([]);
+
+      // Clear storage
       localStorage.removeItem('cv_app_view');
       localStorage.removeItem('cv_app_data');
       localStorage.removeItem('cv_app_template');
       localStorage.removeItem('cv_app_resume_id');
-      setCurrentView(View.LANDING);
-      setUserProfile(null);
-      setSavedTemplates([]);
+
       showToast('Logged out successfully');
+
+      // Sign out from backend in background
+      await signOut();
     } catch (error) {
       console.error('Logout error:', error);
-      showToast('Failed to log out', 'error');
+      // Even if backend fails, we have visually logged them out
     }
   };
 
@@ -763,6 +768,7 @@ export default function App() {
             onLoadTemplate={handleLoadSavedTemplate}
             onDeleteTemplate={handleDeleteSavedTemplate}
             userName={userProfile?.full_name || user?.email?.split('@')[0]}
+            userSubscription={userSubscription}
           />
         );
       case View.TEMPLATES:
@@ -1054,12 +1060,12 @@ export default function App() {
                     {userProfile?.full_name || user?.email?.split('@')[0] || 'User'}
                   </p>
                   <p className="text-xs text-gray-500 truncate">
-                    {userSubscription.planId === 'pro_quarterly'
-                      ? 'Pro Plan'
-                      : userSubscription.planId === 'week_pass'
-                        ? 'Week Pass'
-                        : userSubscription.planId === 'lifetime'
-                          ? 'Lifetime Access'
+                    {userSubscription.planId === 'week_pass'
+                      ? 'Career Sprint'
+                      : userSubscription.planId === 'pro_monthly'
+                        ? 'Career Marathon'
+                        : userSubscription.planId === 'free'
+                          ? 'Free Guest'
                           : 'Free Plan'}
                   </p>
                 </div>

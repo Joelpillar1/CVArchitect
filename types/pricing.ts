@@ -1,6 +1,6 @@
 // Pricing and Subscription Type Definitions
 
-export type PlanId = 'free' | 'week_pass' | 'pro_quarterly' | 'lifetime';
+export type PlanId = 'free' | 'week_pass' | 'pro_monthly';
 
 export type BillingCycle = 'monthly' | 'yearly' | 'lifetime';
 

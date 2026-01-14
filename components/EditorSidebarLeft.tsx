@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Briefcase, GraduationCap, Award, Target, Layout as LayoutIcon, ChevronDown, ChevronRight, Plus, Check, Users, Hash, FileText, Info, GripVertical, BarChart3, Lock } from 'lucide-react';
+import { User, Briefcase, GraduationCap, Award, Target, Layout as LayoutIcon, ChevronDown, ChevronRight, Plus, Check, Users, Hash, FileText, Info, GripVertical, BarChart3, Lock, Crown } from 'lucide-react';
 import { ResumeData, TemplateType } from '../types';
 import { UserSubscription } from '../types/pricing';
 import { SubscriptionManager } from '../utils/subscriptionManager';
@@ -51,12 +51,13 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
     ];
 
     const templates: { id: TemplateType; name: string; color: string }[] = [
+        { id: 'free', name: 'Free', color: 'bg-gray-500' },
+        { id: 'simplepro', name: 'Simple Pro', color: 'bg-indigo-500' },
+        { id: 'minimalist', name: 'Minimalist', color: 'bg-gray-100' },
         { id: 'vanguard', name: 'Vanguard', color: 'bg-blue-500' },
         { id: 'elevate', name: 'Elevate', color: 'bg-purple-500' },
         { id: 'prime', name: 'Prime', color: 'bg-amber-500' },
         { id: 'impact', name: 'Impact', color: 'bg-emerald-500' },
-        { id: 'free', name: 'Free', color: 'bg-gray-500' },
-        { id: 'simplepro', name: 'Simple Pro', color: 'bg-indigo-500' },
         { id: 'dev', name: 'Dev', color: 'bg-cyan-500' },
         { id: 'elite', name: 'Elite', color: 'bg-rose-500' },
         { id: 'apex', name: 'Apex', color: 'bg-orange-500' },
@@ -67,7 +68,6 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
         { id: 'styled', name: 'Styled Professional', color: 'bg-blue-100' },
         { id: 'smart', name: 'Smart', color: 'bg-gray-200' },
         { id: 'elegant', name: 'Elegant', color: 'bg-indigo-900' },
-        { id: 'minimalist', name: 'Minimalist', color: 'bg-gray-100' },
     ];
 
     return (
@@ -226,10 +226,10 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                                     </div>
                                 )}
 
-                                {/* Lock Indicator for Premium */}
+                                {/* Premium Indicator */}
                                 {!canAccessTemplate(userSubscription.planId, t.id) && (
                                     <div className="absolute top-2 right-2 w-6 h-6 bg-brand-dark/90 rounded-full flex items-center justify-center shadow-lg z-10 border border-white/20">
-                                        <Lock size={12} className="text-white" />
+                                        <Crown size={12} className="text-amber-400 fill-current" />
                                     </div>
                                 )}
                             </button>

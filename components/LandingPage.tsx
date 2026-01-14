@@ -858,8 +858,8 @@ export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivac
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="py-16 px-6 bg-slate-50">
-        <div className="max-w-7xl mx-auto">
+      <section id="pricing" className="py-20 px-6 bg-slate-50 overflow-hidden">
+        <div className="max-w-6xl mx-auto">
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -867,11 +867,11 @@ export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivac
             variants={fadeInUp}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-extrabold mb-4 text-brand-dark" style={{ fontFamily: 'Graphik, sans-serif' }}>
-              Simple, Transparent Pricing
+            <h2 className="text-4xl md:text-5xl font-extrabold mb-6 text-brand-dark" style={{ fontFamily: 'Graphik, sans-serif' }}>
+              The "Get Hired" Pricing Model
             </h2>
-            <p className="text-xl text-gray-500">
-              Choose the plan that fits your career goals
+            <p className="text-xl text-gray-500 max-w-2xl mx-auto">
+              Most users find a job in less than 7 days. Why pay for a monthly subscription you don't need?
             </p>
           </motion.div>
 
@@ -880,149 +880,111 @@ export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivac
             whileInView="visible"
             viewport={{ once: true }}
             variants={staggerContainer}
-            className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-7xl mx-auto"
+            className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start max-w-5xl mx-auto"
           >
-            {/* Free Plan */}
-            <motion.div variants={fadeInUp} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 flex flex-col hover:shadow-lg transition-shadow">
-              <h3 className="text-lg font-semibold mb-2 text-gray-600">Free Guest</h3>
-              <div className="mb-2">
-                <span className="text-4xl font-extrabold text-brand-dark">$0</span>
-                <span className="text-gray-500 text-base">/forever</span>
-              </div>
-              <p className="text-xs text-gray-400 mb-6 min-h-[1.25rem]"></p>
-
-              <ul className="space-y-3 text-left text-gray-600 mb-8 flex-1">
-                {[
-                  "3 Trial AI Credits",
-                  "Clean PDF (No Watermark)",
-                  "1 Basic Template",
-                  "1 Job Match Analysis"
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <Check size={16} className="text-gray-400 mt-1 shrink-0" />
-                    <span className="text-sm">{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={onGetStarted}
-                className="w-full py-3 rounded-xl font-semibold bg-gray-100 text-brand-dark hover:bg-gray-200 transition-colors text-sm relative overflow-hidden group"
-              >
-                <span className="relative z-10">Get Started Free</span>
-                <div className="absolute inset-0 h-full w-full bg-white/40 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
-              </motion.button>
-            </motion.div>
-
-            {/* Week Pass Plan */}
-            <motion.div variants={fadeInUp} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 flex flex-col hover:shadow-lg transition-shadow">
-              <h3 className="text-lg font-semibold mb-2 text-gray-600">Week Pass</h3>
-              <div className="mb-2">
-                <span className="text-4xl font-extrabold text-brand-dark">$9</span>
-                <span className="text-gray-500 text-base">/7 days</span>
-              </div>
-              <p className="text-xs text-gray-500 mb-6 font-medium">One-time payment</p>
-
-              <ul className="space-y-3 text-left text-gray-600 mb-8 flex-1">
-                {[
-                  "Unlimited AI (Cap: 75)",
-                  "10 AI Cover Letters",
-                  "All Premium Templates",
-                  "Clean PDF Exports"
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <Check size={16} className="text-gray-400 mt-1 shrink-0" />
-                    <span className="text-sm">{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={onGetStarted}
-                className="w-full py-3 rounded-xl font-semibold bg-gray-100 text-brand-dark hover:bg-gray-200 transition-colors text-sm relative overflow-hidden group"
-              >
-                <span className="relative z-10">Get Week Pass</span>
-                <div className="absolute inset-0 h-full w-full bg-white/40 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
-              </motion.button>
-            </motion.div>
-
-            {/* Pro Plan - Featured */}
+            {/* SPRINT PLAN (Focus) */}
             <motion.div
               variants={fadeInUp}
-              whileHover={{ scale: 1.05 }}
-              className="bg-white rounded-2xl p-6 shadow-xl border-2 border-brand-green flex flex-col relative transform md:scale-105"
+              className="relative bg-white border-2 border-brand-green rounded-3xl p-8 md:p-10 shadow-2xl shadow-brand-green/10 transform md:-translate-y-6"
             >
-              {/* Most Popular Badge */}
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-green py-1.5 px-4 rounded-full shadow-lg z-10">
-                <span className="text-brand-dark font-bold text-xs">MOST POPULAR</span>
+              <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-brand-green text-brand-dark px-6 py-2 rounded-full text-sm font-bold tracking-wide shadow-lg uppercase whitespace-nowrap">
+                Best for 90% of Users
               </div>
 
-              <h3 className="text-lg font-semibold mb-2 text-gray-600 mt-2">Pro Quarterly</h3>
-              <div className="mb-2">
-                <span className="text-4xl font-extrabold text-brand-dark">$9.60</span>
-                <span className="text-gray-500 text-base">/month</span>
+              <div className="text-center mb-10 mt-2">
+                <h3 className="text-2xl font-bold text-brand-dark mb-2">The Career Sprint</h3>
+                <div className="flex justify-center items-baseline gap-1">
+                  <span className="text-6xl font-extrabold text-brand-dark">$14</span>
+                  <span className="text-gray-500 font-medium">/ 7 days</span>
+                </div>
+                <p className="text-sm text-brand-green font-bold uppercase tracking-wider mt-4">One-time payment. No auto-renew.</p>
               </div>
-              <p className="text-xs text-gray-500 mb-6 font-medium">Billed $29 every 3 months</p>
 
-              <ul className="space-y-3 text-left text-gray-600 mb-8 flex-1">
+              <ul className="space-y-4 mb-10">
                 {[
-                  "Unlimited AI (Cap: 300/mo)",
-                  "50 AI Cover Letters/mo",
-                  "All Premium Templates",
-                  "Priority Processing",
-                  "Clean PDF Exports"
+                  "Unlimited AI Rewrites",
+                  "Unlimited PDF Exports",
+                  "Access All Premium Templates",
+                  "Job Match Analysis"
                 ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <Check size={16} className="text-brand-green mt-1 shrink-0" />
-                    <span className="text-sm font-medium">{item}</span>
+                  <li key={i} className="flex items-center gap-3">
+                    <div className="bg-green-100 p-1 rounded-full"><Check size={16} className="text-green-700" /></div>
+                    <span className="text-gray-700 font-medium">{item}</span>
                   </li>
                 ))}
               </ul>
+
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={onGetStarted}
-                className="w-full py-3 rounded-xl font-semibold bg-brand-green text-brand-dark hover:opacity-90 transition-colors shadow-lg text-sm relative overflow-hidden group"
+                className="w-full py-5 rounded-2xl bg-brand-dark hover:bg-black text-white text-lg font-bold transition-all shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 group relative overflow-hidden"
               >
-                <span className="relative z-10">Start Pro</span>
+                <span className="relative z-10">Start My 7-Day Sprint</span>
                 <div className="absolute inset-0 h-full w-full bg-white/20 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
               </motion.button>
+              <p className="text-center text-xs text-gray-400 mt-4">7-Day Money-Back Guarantee</p>
             </motion.div>
 
-            {/* Lifetime Plan */}
-            <motion.div variants={fadeInUp} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 flex flex-col hover:shadow-lg transition-shadow">
-              <h3 className="text-lg font-semibold mb-2 text-gray-600">Lifetime</h3>
-              <div className="mb-2">
-                <span className="text-4xl font-extrabold text-brand-dark">$97</span>
-                <span className="text-gray-500 text-base block mt-1">one-time</span>
+            {/* MARATHON PLAN */}
+            <motion.div variants={fadeInUp} className="bg-white border border-gray-200 rounded-3xl p-8 md:p-10 mt-4 md:mt-0">
+              <div className="text-center mb-10">
+                <h3 className="text-2xl font-bold text-brand-dark mb-2">The Career Marathon</h3>
+                <div className="flex justify-center items-baseline gap-1">
+                  <span className="text-5xl font-bold text-brand-dark">$29</span>
+                  <span className="text-gray-500 font-medium">/ month</span>
+                </div>
+                <p className="text-sm text-gray-500 font-medium mt-4">Recurring subscription. Cancel anytime.</p>
               </div>
-              <p className="text-xs text-gray-500 mb-6 font-medium">Pay once, use forever</p>
 
-              <ul className="space-y-3 text-left text-gray-600 mb-8 flex-1">
-                {[
-                  "All Pro Features",
-                  "Unlimited AI (Cap: 100/mo)",
-                  "50 AI Cover Letters/mo",
-                  "Future Updates Included"
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <Check size={16} className="text-gray-400 mt-1 shrink-0" />
-                    <span className="text-sm">{item}</span>
-                  </li>
-                ))}
-              </ul>
+              <div className="space-y-4 mb-10">
+                <p className="text-gray-600 leading-relaxed text-center">
+                  Perfect for long-term career planning, freelancers, or passive job seekers who want to keep their options open.
+                </p>
+                <div className="h-px bg-gray-100 w-full my-6"></div>
+                <ul className="space-y-3">
+                  {[
+                    "Everything in Sprint",
+                    "Continuous Access"
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-center gap-3 text-sm text-gray-600">
+                      <Check size={16} className="text-gray-400" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={onGetStarted}
-                className="w-full py-3 rounded-xl font-semibold bg-gray-100 text-brand-dark hover:bg-gray-200 transition-colors text-sm relative overflow-hidden group"
+                className="w-full py-4 rounded-xl bg-white border-2 border-brand-dark text-brand-dark font-bold hover:bg-gray-50 transition-all"
               >
-                <span className="relative z-10">Get Lifetime Access</span>
-                <div className="absolute inset-0 h-full w-full bg-white/40 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
+                Start Monthly Subscription
               </motion.button>
             </motion.div>
+          </motion.div>
+
+          {/* Free Tier Link */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-center mt-12"
+          >
+            <p className="text-gray-500 text-lg">
+              Not ready to commit?{' '}
+              <button
+                onClick={onGetStarted}
+                className="text-brand-dark font-bold underline decoration-2 underline-offset-4 hover:text-brand-green transition-colors"
+              >
+                Start with Free Guest Access
+              </button>
+            </p>
+            <p className="text-sm text-gray-400 mt-2 max-w-lg mx-auto">
+              Includes 1 resume project, access to basic templates, and 10 complimentary AI credits to test the builder.
+            </p>
           </motion.div>
         </div>
       </section>

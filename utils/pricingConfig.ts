@@ -7,97 +7,52 @@ import { Plan, CreditPack } from '../types/pricing';
 export const PLANS: Record<string, Plan> = {
     free: {
         id: 'free',
-        name: 'Free Guest',
-        description: 'Try CV Architect with basic features',
-        price: {
-            monthly: 0,
-        },
+        name: 'Free Tier',
+        description: 'Explore the builder.',
+        price: { monthly: 0 },
         features: {
             resumeUploads: 1,
-            resumeAnalyses: 1,
-            aiRewrites: 0,
+            resumeAnalyses: 10,
+            aiRewrites: 10,
             jobMatches: 1,
             coverLetterGeneration: 0,
-            bulletOptimizations: 0,
+            bulletOptimizations: 10,
             cvRegenerations: 0,
             pdfExport: true,
-            watermarkFree: true,
+            watermarkFree: false,
             allTemplates: false,
             templateAccess: 'free',
             maxResumePages: 1,
             priorityProcessing: false,
             multipleVersions: false,
-            liveEditing: true,
+            liveEditing: true
         },
         creditRules: {
             usesCredits: true,
-            startingCredits: 3,
+            startingCredits: 10,
             monthlyCredits: 0,
             creditsReset: false,
             creditCosts: {
-                fullRewrite: 3,
-                cvRegeneration: 5,
-                resumeUpload: 5,
-                coverLetter: 3,
+                fullRewrite: 1,
+                cvRegeneration: 1,
+                resumeUpload: 1,
+                coverLetter: 1,
                 bulletOptimization: 1,
-                keywordEnhancement: 1,
-            },
-        },
+                keywordEnhancement: 1
+            }
+        }
     },
-
     week_pass: {
         id: 'week_pass',
-        name: 'Week Pass (Sprint)',
-        description: 'Unlimited access for 7 days',
-        price: {
-            monthly: 9, // One-time charge for 7 days
-        },
+        name: 'Career Sprint',
+        description: 'Get hired fast. 7 days of unlimited power.',
+        price: { lifetime: 14.00 }, // Using lifetime key for one-time payment
         features: {
             resumeUploads: 'unlimited',
             resumeAnalyses: 'unlimited',
             aiRewrites: 'unlimited',
             jobMatches: 'unlimited',
-            coverLetterGeneration: 10,
-            bulletOptimizations: 'unlimited',
-            cvRegenerations: 'unlimited',
-            pdfExport: true,
-            watermarkFree: true,
-            allTemplates: true,
-            templateAccess: 'all',
-            maxResumePages: 3,
-            priorityProcessing: true,
-            multipleVersions: true,
-            liveEditing: true,
-        },
-        creditRules: {
-            usesCredits: true,
-            startingCredits: 75, // Cap for "Unlimited"
-            creditsReset: false,
-            creditCosts: {
-                fullRewrite: 3,
-                cvRegeneration: 5,
-                resumeUpload: 5,
-                coverLetter: 3,
-                bulletOptimization: 1,
-                keywordEnhancement: 1,
-            },
-        },
-    },
-
-    pro_quarterly: {
-        id: 'pro_quarterly',
-        name: 'Pro (3 Months)',
-        description: 'Perfect for Serious Job Hunters',
-        price: {
-            monthly: 29, // Billed every 3 months. In UI show "Just $9.60/mo"
-            yearly: 0
-        },
-        features: {
-            resumeUploads: 'unlimited',
-            resumeAnalyses: 'unlimited',
-            aiRewrites: 'unlimited',
-            jobMatches: 'unlimited',
-            coverLetterGeneration: 50,
+            coverLetterGeneration: 'unlimited',
             bulletOptimizations: 'unlimited',
             cvRegenerations: 'unlimited',
             pdfExport: true,
@@ -107,38 +62,34 @@ export const PLANS: Record<string, Plan> = {
             maxResumePages: 10,
             priorityProcessing: true,
             multipleVersions: true,
-            liveEditing: true,
+            liveEditing: true
         },
         creditRules: {
-            usesCredits: true,
-            startingCredits: 300,
-            monthlyCredits: 300, // Refills monthly
+            usesCredits: false,
+            startingCredits: 999999,
             creditsReset: true,
             creditCosts: {
-                fullRewrite: 3,
-                cvRegeneration: 5,
-                resumeUpload: 5,
-                coverLetter: 3,
-                bulletOptimization: 1,
-                keywordEnhancement: 1,
-            },
+                fullRewrite: 0,
+                cvRegeneration: 0,
+                resumeUpload: 0,
+                coverLetter: 0,
+                bulletOptimization: 0,
+                keywordEnhancement: 0
+            }
         },
-        popular: true,
+        popular: true
     },
-
-    lifetime: {
-        id: 'lifetime',
-        name: 'Lifetime Access',
-        description: 'Pay once, use forever',
-        price: {
-            lifetime: 97,
-        },
+    pro_monthly: {
+        id: 'pro_monthly',
+        name: 'Career Marathon',
+        description: 'For the long-term career strategist.',
+        price: { monthly: 29.00 },
         features: {
             resumeUploads: 'unlimited',
             resumeAnalyses: 'unlimited',
             aiRewrites: 'unlimited',
             jobMatches: 'unlimited',
-            coverLetterGeneration: 50, // Per month
+            coverLetterGeneration: 'unlimited',
             bulletOptimizations: 'unlimited',
             cvRegenerations: 'unlimited',
             pdfExport: true,
@@ -148,60 +99,27 @@ export const PLANS: Record<string, Plan> = {
             maxResumePages: 10,
             priorityProcessing: true,
             multipleVersions: true,
-            liveEditing: true,
+            liveEditing: true
         },
         creditRules: {
-            usesCredits: true,
-            startingCredits: 100, // Monthly allowance
-            monthlyCredits: 100,
-            lifetimeCredits: 100,
+            usesCredits: false,
+            startingCredits: 9999,
+            monthlyCredits: 9999,
             creditsReset: true,
             creditCosts: {
-                fullRewrite: 3,
-                cvRegeneration: 5,
-                resumeUpload: 5,
-                coverLetter: 3,
-                bulletOptimization: 1,
-                keywordEnhancement: 1,
-            },
-        },
-    },
+                fullRewrite: 0,
+                cvRegeneration: 0,
+                resumeUpload: 0,
+                coverLetter: 0,
+                bulletOptimization: 0,
+                keywordEnhancement: 0
+            }
+        }
+    }
 };
 
-// ========================================================
-// CREDIT PACKS
-// ========================================================
-
-export const CREDIT_PACKS: CreditPack[] = [
-    {
-        credits: 25,
-        price: 5,
-        label: 'Starter Pack',
-        description: '25 AI credits - Quick enhancements',
-        savings: null,
-    },
-    {
-        credits: 60,
-        price: 9,
-        label: 'Standard',
-        description: '60 AI credits - Perfect for one resume',
-        savings: '25% off',
-    },
-    {
-        credits: 150,
-        price: 19,
-        label: 'Advanced',
-        description: '150 AI credits - Major overhaul',
-        savings: '35% off',
-    },
-    {
-        credits: 300,
-        price: 29,
-        label: 'Pro Boost',
-        description: '300 AI credits (Same cost as Pro Plan!)',
-        savings: '40% off',
-    },
-];
+// Credit packs are deprecated in favor of the Sprint/Marathon model
+export const CREDIT_PACKS: CreditPack[] = [];
 
 // Export credit packs (separate from AI credits)
 export const EXPORT_CREDIT_PACKS: CreditPack[] = [
@@ -265,7 +183,7 @@ export const getPlanById = (planId: string): Plan | undefined => {
 };
 
 export const isPro = (planId: string): boolean => {
-    return planId === 'pro_quarterly';
+    return planId === 'week_pass' || planId === 'pro_monthly';
 };
 
 export const getTemplatesForPlan = (planId: string): string[] => {

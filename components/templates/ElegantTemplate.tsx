@@ -263,7 +263,7 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
                     style={{
                         fontSize: `${fontSizes?.header || 36}pt`,
                         color: accentColor,
-                        fontFamily: "Georgia, serif"
+                        fontFamily: "Inter, sans-serif"
                     }}
                 >
                     {data.fullName || "Your Name"}

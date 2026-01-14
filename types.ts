@@ -100,6 +100,7 @@ export interface SavedTemplate {
   tag: string;
   baseTemplate: TemplateType;
   data: ResumeData;
+  createdAt: Date;
 }
 
 // Add 'vanguard' and remove the deleted templates for now.

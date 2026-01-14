@@ -1,6 +1,7 @@
 import React from 'react';
-import { Plus, FileText, TrendingUp, Eye, ArrowRight, Clock, Bookmark, Trash2, AlertTriangle } from 'lucide-react';
+import { Plus, FileText, Zap, Crown, ArrowRight, Bookmark, Trash2, AlertTriangle } from 'lucide-react';
 import { SavedTemplate, TemplateType } from '../types';
+import { UserSubscription } from '../types/pricing';
 
 interface OverviewProps {
   onCreateNew: () => void;
@@ -8,9 +9,10 @@ interface OverviewProps {
   onLoadTemplate: (template: SavedTemplate) => void;
   onDeleteTemplate: (id: string) => void;
   userName?: string;
+  userSubscription?: UserSubscription;
 }
 
-export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, onDeleteTemplate, userName }: OverviewProps) {
+export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, onDeleteTemplate, userName, userSubscription }: OverviewProps) {
   const [confirmDeleteId, setConfirmDeleteId] = React.useState<string | null>(null);
   const recentTemplates = savedTemplates.slice(0, 5);
   const templateToDelete = savedTemplates.find(t => t.id === confirmDeleteId);
@@ -40,6 +42,14 @@ export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, 
     }
   };
 
+  const getPlanName = (id?: string) => {
+    switch (id) {
+      case 'week_pass': return 'Career Sprint';
+      case 'pro_monthly': return 'Career Marathon';
+      default: return 'Free Plan';
+    }
+  };
+
   return (
     <div className="p-8 md:p-12 h-full overflow-y-auto bg-brand-bg">
       <div className="max-w-6xl mx-auto">
@@ -62,9 +72,21 @@ export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, 
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-          <StatCard icon={<FileText className="text-brand-dark" />} label="Total Documents" value={savedTemplates.length.toString()} />
-          <StatCard icon={<Eye className="text-brand-dark" />} label="Total Views" value="128" />
-          <StatCard icon={<TrendingUp className="text-brand-dark" />} label="Download Rate" value="+24%" />
+          <StatCard
+            icon={<FileText className="text-brand-dark" />}
+            label="Active Resumes"
+            value={savedTemplates.length.toString()}
+          />
+          <StatCard
+            icon={<Zap className="text-yellow-600" />}
+            label="AI Credits"
+            value={userSubscription?.credits.toString() || '0'}
+          />
+          <StatCard
+            icon={<Crown className="text-purple-600" />}
+            label="Current Plan"
+            value={getPlanName(userSubscription?.planId)}
+          />
         </div>
 
         <div className="flex items-center justify-between mb-6">
