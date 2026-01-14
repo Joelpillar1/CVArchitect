@@ -109,14 +109,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         // Handle different event types
         switch (eventType) {
-            case 'membership.went_valid':
-            case 'payment.succeeded':
-            case 'membership.created':
+            case 'membership_activated':
+            case 'payment_succeeded':
+            case 'invoice_paid':
                 await handlePaymentSuccess(event);
                 break;
 
-            case 'membership.went_invalid':
-            case 'membership.cancelled':
+            case 'membership_deactivated':
+            case 'payment_failed':
+            case 'refund_created':
                 await handleSubscriptionCancelled(event);
                 break;
 
