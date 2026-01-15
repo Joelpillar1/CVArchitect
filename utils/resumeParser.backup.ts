@@ -1,13 +1,12 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import mammoth from 'mammoth';
-import Tesseract from 'tesseract.js';
 import { ResumeData } from '../types';
 import { callAIJSON } from '../services/aiService';
 
 // Initialize PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
-export const parseResume = async (file: File, onProgress?: (progress: number) => void): Promise<Partial<ResumeData>> => {
+export const parseResume = async (file: File): Promise<Partial<ResumeData>> => {
     let text = '';
     console.log('Starting resume parsing for file:', file.name, file.type, 'Size:', file.size);
 
@@ -16,31 +15,13 @@ export const parseResume = async (file: File, onProgress?: (progress: number) =>
             text = await extractTextFromPDF(file);
             console.log('Extracted text length from PDF:', text.length);
             console.log('First 200 chars:', text.substring(0, 200));
-
-            // If PDF extraction yielded minimal text, try OCR
-            if (text.trim().length < 100) {
-                console.log('PDF text extraction yielded minimal text. Attempting OCR...');
-                onProgress?.(30);
-                const ocrText = await extractTextWithOCR(file, onProgress);
-                if (ocrText.length > text.length) {
-                    console.log('OCR found more text:', ocrText.length, 'chars');
-                    text = ocrText;
-                }
-            }
         } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
             text = await extractTextFromDocx(file);
             console.log('Extracted text length from DOCX:', text.length);
             console.log('First 200 chars:', text.substring(0, 200));
-        } else if (file.type.startsWith('image/')) {
-            // Direct image upload - use OCR
-            console.log('Image file detected, using OCR...');
-            text = await extractTextWithOCR(file, onProgress);
-            console.log('OCR extracted text length:', text.length);
         } else {
-            throw new Error('Unsupported file type: ' + file.type + '. Please use PDF, DOCX, or image files.');
+            throw new Error('Unsupported file type: ' + file.type);
         }
-
-        onProgress?.(60);
 
         if (!text || text.trim().length < 50) {
             console.warn('Extracted text too short or empty. Length:', text.length);
@@ -92,90 +73,6 @@ const extractTextFromDocx = async (file: File): Promise<string> => {
     const result = await mammoth.extractRawText({ arrayBuffer });
     return result.value;
 };
-
-/**
- * Extract text using OCR (Tesseract.js)
- * Works for image-based PDFs and direct image uploads
- */
-const extractTextWithOCR = async (file: File, onProgress?: (progress: number) => void): Promise<string> => {
-    console.log('Starting OCR extraction...');
-
-    try {
-        const imageUrl = URL.createObjectURL(file);
-        let imagesToProcess: string[] = [];
-
-        if (file.type === 'application/pdf') {
-            imagesToProcess = await convertPDFToImages(file);
-        } else {
-            imagesToProcess = [imageUrl];
-        }
-
-        let allText = '';
-
-        for (let i = 0; i < imagesToProcess.length; i++) {
-            console.log(`OCR processing image ${i + 1}/${imagesToProcess.length}...`);
-
-            const result = await Tesseract.recognize(imagesToProcess[i], 'eng', {
-                logger: (m) => {
-                    if (m.status === 'recognizing text' && onProgress) {
-                        const baseProgress = 30 + (i / imagesToProcess.length) * 30;
-                        const pageProgress = m.progress * (30 / imagesToProcess.length);
-                        onProgress(Math.floor(baseProgress + pageProgress));
-                    }
-                }
-            });
-
-            allText += result.data.text + '\n\n';
-            console.log(`OCR page ${i + 1} extracted ${result.data.text.length} characters`);
-        }
-
-        // Clean up object URLs
-        imagesToProcess.forEach(url => {
-            if (url.startsWith('blob:')) {
-                URL.revokeObjectURL(url);
-            }
-        });
-
-        return allText;
-    } catch (error) {
-        console.error('OCR extraction failed:', error);
-        throw new Error('OCR processing failed. The image quality may be too low or the file is corrupted.');
-    }
-};
-
-/**
- * Convert PDF pages to images for OCR processing
- */
-const convertPDFToImages = async (file: File): Promise<string[]> => {
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    const imageUrls: string[] = [];
-
-    for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const viewport = page.getViewport({ scale: 2.0 }); // Higher scale for better OCR
-
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d')!;
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-
-        await page.render({
-            canvasContext: context,
-            viewport: viewport,
-            canvas: canvas
-        }).promise;
-
-        const blob = await new Promise<Blob>((resolve) => {
-            canvas.toBlob((blob) => resolve(blob!), 'image/png');
-        });
-
-        imageUrls.push(URL.createObjectURL(blob));
-    }
-
-    return imageUrls;
-};
-
 
 // AI-Powered Parsing using Edge Function
 const parseWithAI = async (text: string): Promise<Partial<ResumeData>> => {
