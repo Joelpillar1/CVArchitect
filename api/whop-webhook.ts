@@ -19,6 +19,39 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 // Whop webhook secret for signature verification
 const WHOP_WEBHOOK_SECRET = process.env.WHOP_WEBHOOK_SECRET!;
+const WHOP_API_KEY = process.env.WHOP_API_KEY!;
+
+/**
+ * Fetch user details from Whop API
+ */
+async function getWhopUserDetails(userId: string): Promise<{ email?: string; username?: string } | null> {
+    try {
+        console.log('Fetching user details from Whop API for user:', userId);
+
+        const response = await fetch(`https://api.whop.com/api/v2/users/${userId}`, {
+            headers: {
+                'Authorization': `Bearer ${WHOP_API_KEY}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('Whop API error:', response.status, response.statusText);
+            return null;
+        }
+
+        const userData = await response.json();
+        console.log('Whop user data:', JSON.stringify(userData, null, 2));
+
+        return {
+            email: userData.email || userData.data?.email,
+            username: userData.username || userData.data?.username
+        };
+    } catch (error) {
+        console.error('Error fetching Whop user details:', error);
+        return null;
+    }
+}
 
 /**
  * Verify webhook signature from Whop
@@ -143,17 +176,29 @@ async function handlePaymentSuccess(event: any) {
     try {
         // Extract data from Whop webhook (correct structure)
         const membershipId = event.data?.membership?.id || event.data?.id || event.id;
-        const userEmail = event.data?.user?.email || event.data?.email || event.email;
+        let userEmail = event.data?.user?.email || event.data?.email || event.email;
+        const whopUserId = event.data?.user?.id;
         const whopPlanId = event.data?.plan?.id || event.data?.plan_id || event.plan_id;
         const userId = event.data?.metadata?.user_id; // We pass this during checkout
 
-        console.log('Processing payment success:', {
-            membershipId,
-            userEmail,
-            whopPlanId,
-            userId,
-            fullEvent: JSON.stringify(event)
-        });
+        console.log('=== WHOP WEBHOOK RECEIVED ===');
+        console.log('Membership ID:', membershipId);
+        console.log('User Email:', userEmail || 'NOT PROVIDED');
+        console.log('Whop User ID:', whopUserId);
+        console.log('Plan ID:', whopPlanId);
+        console.log('Metadata User ID:', userId || 'NOT PROVIDED');
+
+        // If no email provided, fetch from Whop API
+        if (!userEmail && whopUserId) {
+            console.log('Email not in webhook, fetching from Whop API...');
+            const whopUserDetails = await getWhopUserDetails(whopUserId);
+            if (whopUserDetails?.email) {
+                userEmail = whopUserDetails.email;
+                console.log('✅ Got email from Whop API:', userEmail);
+            } else {
+                console.error('❌ Could not get email from Whop API');
+            }
+        }
 
         // Map Whop plan to internal plan
         const internalPlanId = mapWhopPlanToInternal(whopPlanId);
