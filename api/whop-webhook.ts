@@ -146,6 +146,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         switch (eventType) {
             case 'membership_activated':
             case 'payment_succeeded':
+            case 'payment.succeeded':
+            case 'payment.created':
             case 'invoice_paid':
                 await handlePaymentSuccess(event);
                 break;
