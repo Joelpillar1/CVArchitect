@@ -141,17 +141,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
  */
 async function handlePaymentSuccess(event: any) {
     try {
-        // Extract data from Whop webhook
-        const membershipId = event.data?.id || event.id;
-        const userEmail = event.data?.email || event.email;
-        const whopPlanId = event.data?.plan_id || event.plan_id;
+        // Extract data from Whop webhook (correct structure)
+        const membershipId = event.data?.membership?.id || event.data?.id || event.id;
+        const userEmail = event.data?.user?.email || event.data?.email || event.email;
+        const whopPlanId = event.data?.plan?.id || event.data?.plan_id || event.plan_id;
         const userId = event.data?.metadata?.user_id; // We pass this during checkout
 
         console.log('Processing payment success:', {
             membershipId,
             userEmail,
             whopPlanId,
-            userId
+            userId,
+            fullEvent: JSON.stringify(event)
         });
 
         // Map Whop plan to internal plan
