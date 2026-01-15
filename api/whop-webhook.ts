@@ -44,6 +44,7 @@ function verifyWebhookSignature(payload: string, signature: string): boolean {
  */
 function mapWhopPlanToInternal(whopPlanId: string): string {
     const planMapping: Record<string, string> = {
+        'plan_DTNT5Oh5vIuPN': 'week_pass',      // Career Sprint (NEWEST)
         'plan_FPwExhvfWN9OH': 'week_pass',      // Career Sprint (NEW)
         'plan_Sr2CjRgtctFpD': 'week_pass',      // Career Sprint (OLD - for backwards compatibility)
         'plan_h4ga7XhsUpzx9': 'pro_monthly',    // Career Marathon

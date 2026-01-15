@@ -7,11 +7,11 @@
 
 export const WHOP_CONFIG = {
     // Plan IDs from Whop Dashboard
-    SPRINT_PLAN_ID: (import.meta as any).env?.VITE_WHOP_SPRINT_PLAN_ID || 'plan_FPwExhvfWN9OH',
+    SPRINT_PLAN_ID: (import.meta as any).env?.VITE_WHOP_SPRINT_PLAN_ID || 'plan_DTNT5Oh5vIuPN',
     MARATHON_PLAN_ID: (import.meta as any).env?.VITE_WHOP_MARATHON_PLAN_ID || 'plan_h4ga7XhsUpzx9',
 
     // Checkout URLs
-    SPRINT_CHECKOUT_URL: `https://whop.com/checkout/${(import.meta as any).env?.VITE_WHOP_SPRINT_PLAN_ID || 'plan_FPwExhvfWN9OH'}`,
+    SPRINT_CHECKOUT_URL: `https://whop.com/checkout/${(import.meta as any).env?.VITE_WHOP_SPRINT_PLAN_ID || 'plan_DTNT5Oh5vIuPN'}`,
     MARATHON_CHECKOUT_URL: `https://whop.com/checkout/${(import.meta as any).env?.VITE_WHOP_MARATHON_PLAN_ID || 'plan_h4ga7XhsUpzx9'}`,
 } as const;
 
