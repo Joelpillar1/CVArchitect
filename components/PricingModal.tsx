@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { Check, X, Zap, Crown, Star, Clock } from 'lucide-react';
 import { PLANS } from '../utils/pricingConfig';
 import { PlanId } from '../types/pricing';
-import { openWhopCheckout, getWhopPlanId } from '../utils/whopConfig';
+// Payment integration removed - integrate Stripe/Paddle/LemonSqueezy here
 import { useAuth } from '../contexts/AuthContext';
 
 interface PricingModalProps {
@@ -20,15 +20,10 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
     const sprintPlan = PLANS.week_pass;
     const marathonPlan = PLANS.pro_monthly;
 
-    const handleWhopCheckout = (planName: 'week_pass' | 'pro_monthly') => {
-        const whopPlanId = getWhopPlanId(planName);
-        const userEmail = user?.email;
-        const userId = user?.id;
-
-        // Open Whop checkout
-        openWhopCheckout(whopPlanId, userEmail, userId);
-
-        // Close the pricing modal
+    const handlePlanSelect = (planId: PlanId) => {
+        // TODO: Integrate payment provider (Stripe/Paddle/LemonSqueezy)
+        // For now, just select the plan
+        onSelectPlan(planId);
         onClose();
     };
 
@@ -87,7 +82,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
 
                     {/* SPRINT PLAN (HERO) */}
                     <div className={`relative group border-2 rounded-2xl p-6 transition-all duration-300 hover:shadow-xl cursor-pointer ${currentPlanId === 'week_pass' ? 'border-brand-green bg-green-50/50' : 'border-brand-green shadow-lg ring-4 ring-brand-green/5'}`}
-                        onClick={() => handleWhopCheckout('week_pass')}>
+                        onClick={() => handlePlanSelect('week_pass')}>
 
                         <div className="absolute -top-4 left-6 bg-brand-green text-brand-dark px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wide shadow-lg flex items-center gap-1.5">
                             <Zap size={12} className="fill-current" />
@@ -126,7 +121,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
 
                     {/* MARATHON PLAN (SECONDARY) */}
                     <div className={`group border border-gray-200 rounded-xl p-5 hover:border-brand-dark/30 transition-all cursor-pointer ${currentPlanId === 'pro_monthly' ? 'bg-gray-50 border-gray-300' : 'bg-white'}`}
-                        onClick={() => handleWhopCheckout('pro_monthly')}>
+                        onClick={() => handlePlanSelect('pro_monthly')}>
                         <div className="flex justify-between items-center">
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-lg bg-brand-secondary flex items-center justify-center text-brand-dark">
