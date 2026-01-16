@@ -35,21 +35,35 @@ export const formatDate = (dateString: string): string => {
 export const parseDescriptionBullets = (description: string): string[] => {
     if (!description) return [];
 
-    // If description contains newlines, assume it's already formatted
+    // First, try splitting by newlines (most common)
     if (description.includes('\n')) {
         return description.split('\n')
             .map(line => line.trim())
             .filter(line => line.length > 0)
-            .map(line => line.replace(/^[•·-]\s*/, '')); // Remove existing bullets
+            .map(line => line.replace(/^[•·\-*]\s*/, '')); // Remove existing bullets
     }
 
-    // If no newlines but contains bullets, split by bullets
+    // If no newlines but contains bullet characters, split by them
     if (description.includes('•')) {
         return description.split('•')
             .map(line => line.trim())
             .filter(line => line.length > 0);
     }
 
-    // If no newlines and no bullets, return as single item
-    return [description];
+    // Try splitting by " - " (dash with spaces)
+    if (description.includes(' - ')) {
+        return description.split(' - ')
+            .map(line => line.trim())
+            .filter(line => line.length > 0);
+    }
+
+    // Try splitting by asterisks
+    if (description.includes('*')) {
+        return description.split('*')
+            .map(line => line.trim())
+            .filter(line => line.length > 0);
+    }
+
+    // If no separators found, return as single item
+    return [description.trim()];
 };
