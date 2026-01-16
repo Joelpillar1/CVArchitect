@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import { syncWhopMembership } from '../services/whopMembershipService';
 
 interface AuthContextType {
     user: User | null;
@@ -39,10 +40,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Listen for auth changes
         const {
             data: { subscription },
-        } = supabase.auth.onAuthStateChange((_event, session) => {
+        } = supabase.auth.onAuthStateChange(async (_event, session) => {
             setSession(session);
             setUser(session?.user ?? null);
             setLoading(false);
+
+            // Sync Whop membership when user logs in
+            if (session?.user) {
+                console.log('User logged in, checking Whop membership...');
+                const result = await syncWhopMembership(
+                    session.user.id,
+                    session.user.email!,
+                    supabase
+                );
+
+                if (result.success && result.membership) {
+                    console.log('✅ Whop membership synced successfully!');
+                } else if (result.error) {
+                    console.error('Failed to sync Whop membership:', result.error);
+                }
+            }
         });
 
         return () => subscription.unsubscribe();
