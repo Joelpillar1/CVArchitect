@@ -2,7 +2,6 @@ import { whopSdk, isWhopConfigured } from '../lib/whop-sdk';
 
 /**
  * Create a checkout URL for a Whop plan
- * This is a simplified version - will be updated with actual SDK methods
  * @param planId - Whop plan ID (e.g., plan_xxxxx)
  * @param userId - Internal user ID
  * @param userEmail - User's email address
@@ -13,16 +12,17 @@ export async function createCheckoutSession(
     userId: string,
     userEmail: string
 ): Promise<string> {
-    if (!isWhopConfigured()) {
-        throw new Error('Whop is not configured. Please set WHOP_APP_ID and WHOP_API_KEY environment variables.');
+    // For client-side checkout, we don't need the API key
+    // We just need the plan ID to construct the checkout URL
+    if (!planId) {
+        throw new Error('Plan ID is required for checkout.');
     }
 
     try {
-        // For now, return the direct Whop checkout URL with email pre-filled
-        // This will be updated once we have the correct SDK API
+        // Construct direct Whop checkout URL with email pre-filled
         const checkoutUrl = `https://whop.com/checkout/${planId}?email=${encodeURIComponent(userEmail)}`;
 
-        console.log('Creating checkout session for:', { planId, userId, userEmail });
+        console.log('Creating checkout session for:', { planId, userId, userEmail, checkoutUrl });
 
         return checkoutUrl;
     } catch (error) {
@@ -79,8 +79,10 @@ export async function getUserMembership(membershipId: string): Promise<any | nul
  * @returns Internal plan ID ('free', 'week_pass', or 'pro_monthly')
  */
 export function mapWhopPlanToInternal(whopPlanId: string): string {
-    const SPRINT_PLAN_ID = process.env.NEXT_PUBLIC_WHOP_SPRINT_PLAN_ID;
-    const MARATHON_PLAN_ID = process.env.NEXT_PUBLIC_WHOP_MARATHON_PLAN_ID;
+    // @ts-ignore - Vite env variables
+    const SPRINT_PLAN_ID = import.meta.env.VITE_WHOP_SPRINT_PLAN_ID || process.env.NEXT_PUBLIC_WHOP_SPRINT_PLAN_ID;
+    // @ts-ignore - Vite env variables
+    const MARATHON_PLAN_ID = import.meta.env.VITE_WHOP_MARATHON_PLAN_ID || process.env.NEXT_PUBLIC_WHOP_MARATHON_PLAN_ID;
 
     if (whopPlanId === SPRINT_PLAN_ID) return 'week_pass';
     if (whopPlanId === MARATHON_PLAN_ID) return 'pro_monthly';
@@ -95,8 +97,10 @@ export function mapWhopPlanToInternal(whopPlanId: string): string {
  * @returns Whop plan ID or null if not a paid plan
  */
 export function mapInternalPlanToWhop(internalPlanId: string): string | null {
-    const SPRINT_PLAN_ID = process.env.NEXT_PUBLIC_WHOP_SPRINT_PLAN_ID;
-    const MARATHON_PLAN_ID = process.env.NEXT_PUBLIC_WHOP_MARATHON_PLAN_ID;
+    // @ts-ignore - Vite env variables
+    const SPRINT_PLAN_ID = import.meta.env.VITE_WHOP_SPRINT_PLAN_ID || process.env.NEXT_PUBLIC_WHOP_SPRINT_PLAN_ID;
+    // @ts-ignore - Vite env variables
+    const MARATHON_PLAN_ID = import.meta.env.VITE_WHOP_MARATHON_PLAN_ID || process.env.NEXT_PUBLIC_WHOP_MARATHON_PLAN_ID;
 
     if (internalPlanId === 'week_pass') return SPRINT_PLAN_ID || null;
     if (internalPlanId === 'pro_monthly') return MARATHON_PLAN_ID || null;
