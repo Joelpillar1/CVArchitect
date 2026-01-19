@@ -1,5 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
+import { parseDescriptionBullets } from '../../utils/templateUtils';
 
 interface ElegantTemplateProps {
     data: ResumeData;

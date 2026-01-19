@@ -62,10 +62,13 @@ ${isRecent ? `
    - AVOID metrics for older roles unless exceptional
 `}
 
-## 3. SEMANTIC VARIATION (CRITICAL):
-- **NEVER** start all the bullets with the same verb
+## 3. SEMANTIC VARIATION (CRITICAL - STRICTLY ENFORCED):
+- **MANDATORY**: Every single bullet point MUST start with a DIFFERENT action verb
+- **NO EXCEPTIONS**: If you generate 4 bullets, you must use 4 completely different verbs
 - **NEVER** use the same sentence structure twice
+- **NEVER** start consecutive bullets with similar verbs (e.g., "Led" and "Leading", "Built" and "Building")
 - Vary between: Action statements, Achievement statements, Scope statements
+- **VERIFICATION**: Before outputting, check that NO two bullets start with the same verb or verb form
 
 ## 4. TONE CALIBRATION:
 ${isRecent ? `
@@ -74,12 +77,14 @@ ${isRecent ? `
      * **Transformation & Impact**: Transformed, Reimagined, Redefined, Elevated, Scaled, Optimized, Revitalized, Modernized, Streamlined, Accelerated
      * **Cross-Functional & Influence**: Aligned, Unified, Bridged, Influenced, Drove, Enabled, Mobilized, Partnered, Collaborated, Negotiated
    - Focus on IMPACT and LEADERSHIP, not just tasks
+   - **CRITICAL**: Each bullet MUST use a DIFFERENT verb from the lists above
 ` : `
    - **Earlier Role**: Use execution and delivery language from these categories:
      * **Execution & Craft**: Designed, Built, Created, Developed, Prototyped, Wireframed, Illustrated, Refined, Produced, Implemented
      * **Problem-Solving & Delivery**: Solved, Improved, Enhanced, Optimized, Simplified, Iterated, Tested, Validated, Resolved, Delivered
      * **Collaboration & Learning**: Collaborated, Supported, Assisted, Contributed, Partnered, Aligned, Communicated, Documented, Reviewed, Learned
    - Focus on SKILLS and DELIVERABLES
+   - **CRITICAL**: Each bullet MUST use a DIFFERENT verb from the lists above
 `}
 
 ## 5. WHAT MAKES A GREAT BULLET:
@@ -90,6 +95,7 @@ ${isRecent ? `
 ❌ BAD: "Improved efficiency by 30%" (vague, no context)
 ❌ BAD: "Increased productivity by 25%, reduced costs by 20%, improved quality by 15%" (metric overload)
 ❌ BAD: "Utilized Agile methodologies to enhance team collaboration" (buzzword soup)
+❌ BAD: Starting multiple bullets with the same verb (e.g., "Led team...", "Led project...", "Led initiative...")
 
 # FINAL OUTPUT:
 - Return ONLY the bullet points (use •)
@@ -97,6 +103,7 @@ ${isRecent ? `
 - NO introductory text
 - Make it sound HUMAN, not AI-generated
 - Remember: ONE metric maximum (or zero if the work speaks for itself)
+- **MANDATORY**: Every bullet MUST start with a DIFFERENT action verb
 `;
 
         const result = await callAIText(prompt, 'gpt-4o', 0.8);
@@ -148,8 +155,12 @@ export const generateBulletPoints = async (
         
         Instructions:
         - Use strong action verbs.
+        - **MANDATORY**: Every single bullet point MUST start with a DIFFERENT action verb.
+        - **NO EXCEPTIONS**: If you generate 4 bullets, you must use 4 completely different verbs.
+        - **NEVER** start consecutive bullets with similar verbs.
         - Focus on achievements and metrics but not too much.
-        - Return ONLY a JSON array of strings, e.g., ["bullet 1", "bullet 2"].`;
+        - Return ONLY a JSON array of strings, e.g., ["bullet 1", "bullet 2"].
+        - **VERIFICATION**: Before outputting, check that NO two bullets start with the same verb or verb form.`;
 
         const parsed = await callAIJSON(prompt, 'gpt-4o');
         // Handle different potential JSON structures
@@ -211,11 +222,14 @@ Experience: ${JSON.stringify(resumeData.experience.map(e => ({ role: e.role, com
 - **Start EVERY bullet with a bullet point character (•).**
 - **DO NOT return a single paragraph.**
 
-### TONE & LANGUAGE:
+### TONE & LANGUAGE (CRITICAL - STRICTLY ENFORCED):
 - Use EXACT terminology from the job description
-- Vary sentence structure - NEVER start two bullets the same way
+- **MANDATORY**: Every bullet point MUST start with a DIFFERENT action verb
+- **NO EXCEPTIONS**: If you generate 4 bullets, you must use 4 completely different verbs
+- **NEVER** start consecutive bullets with similar verbs (e.g., "Led" and "Leading", "Built" and "Building")
 - Mix: Action statements, Achievement statements, Scope statements
 - Sound like a HUMAN wrote this, not an AI
+- **VERIFICATION**: Before outputting, check that NO two bullets start with the same verb or verb form
 
 ### EXAMPLES OF WHAT TO DO:
 ✅ "Architected microservices platform serving 2M+ users, reducing infrastructure costs by $400K annually"
@@ -331,11 +345,14 @@ export const generateAchievements = async (
         Instructions:
         - Use the STAR method to structure your thoughts (Situation -> Task -> Action -> Result), but DO NOT explicitly write these words.
         - Write distinct, high-impact narrative bullet points.
-        - Start each bullet with a strong Action Verb.
+        - **MANDATORY**: Every single bullet point MUST start with a DIFFERENT action verb.
+        - **NO EXCEPTIONS**: If you generate 4 bullets, you must use 4 completely different verbs.
+        - **NEVER** start consecutive bullets with similar verbs (e.g., "Led" and "Leading", "Achieved" and "Achieving").
         - Include metrics/numbers to quantify the Result.
         - Format as a single string with bullet points (•).
         - STRICT REQUIREMENT: Output EXACTLY 3 or 4 bullet points. No more, no less.
-        - DO NOT use prefixes like "Situation:" or "Action:".`;
+        - DO NOT use prefixes like "Situation:" or "Action:".
+        - **VERIFICATION**: Before outputting, check that NO two bullets start with the same verb or verb form.`;
 
         const result = await callAIText(prompt, 'gpt-4o');
         return result.trim() || '';

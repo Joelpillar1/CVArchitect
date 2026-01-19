@@ -76,7 +76,7 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
                 );
 
             case 'achievements':
-                return data.keyAchievements && data.keyAchievements.trim() && (
+                return data.keyAchievements && (
                     <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         <h2
                             className={`font-bold uppercase mb-3 ${getSectionHeaderAlignment()}`}
@@ -88,7 +88,7 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
                             Key Achievements
                         </h2>
                         <ul className="list-disc list-outside ml-5 space-y-2 text-gray-700" style={{ fontSize: `${bodySize}pt` }}>
-                            {data.keyAchievements.split('\n').map((line, i) => (
+                            {parseDescriptionBullets(data.keyAchievements).map((line, i) => (
                                 line.trim() && (
                                     <li key={i}>{line.replace(/^[•-]\s*/, '')}</li>
                                 )
@@ -128,7 +128,7 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
                                         </div>
                                     </div>
                                     <ul className="list-disc list-outside ml-5 space-y-1 text-gray-700" style={{ fontSize: `${bodySize}pt` }}>
-                                        {exp.description.split('\n').map((line, i) => (
+                                        {parseDescriptionBullets(exp.description).map((line, i) => (
                                             line.trim() && (
                                                 <li key={i}>{line.replace(/^[•-]\s*/, '')}</li>
                                             )

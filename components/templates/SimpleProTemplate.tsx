@@ -1,5 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
+import { parseDescriptionBullets } from '../../utils/templateUtils';
 import { getTranslation, Language } from '../../i18n/translations';
 
 export default function SimpleProTemplate({ data }: { data: ResumeData }) {
@@ -102,7 +103,7 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
                                         )}
                                     </div>
                                     <ul className="list-disc list-outside ml-5 space-y-1 text-gray-700" style={{ fontSize: `${smallSize}pt` }}>
-                                        {exp.description.split('\n').map((line, i) =>
+                                        {parseDescriptionBullets(exp.description).map((line, i) =>
                                             line.trim() && (
                                                 <li key={i}>{line.replace(/^[•-]\s*/, '')}</li>
                                             )
@@ -155,7 +156,7 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
                 );
 
             case 'achievements':
-                return data.keyAchievements && data.keyAchievements.trim() && (
+                return data.keyAchievements && (
                     <section style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         <h2
                             className={`font-bold uppercase mb-3 pb-1 border-b-2 ${getSectionHeaderAlignment()}`}
@@ -168,9 +169,9 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
                             Key Achievements
                         </h2>
                         <div className="text-gray-700" style={{ fontSize: `${smallSize}pt`, lineHeight: '1.6' }}>
-                            {data.keyAchievements.split('\n').map((hobby, i) =>
-                                hobby.trim() && (
-                                    <div key={i}>• {hobby.replace(/^[•-]\s*/, '')}</div>
+                            {parseDescriptionBullets(data.keyAchievements).map((achievement, i) =>
+                                achievement.trim() && (
+                                    <div key={i}>• {achievement.replace(/^[•-]\s*/, '')}</div>
                                 )
                             )}
                         </div>

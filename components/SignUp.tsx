@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
-interface SignUpProps {
-    onBack: () => void;
-    onSignIn: () => void;
-}
-
-export default function SignUp({ onBack, onSignIn }: SignUpProps) {
+export default function SignUp() {
+    const navigate = useNavigate();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -83,7 +80,7 @@ export default function SignUp({ onBack, onSignIn }: SignUpProps) {
                 {/* Back Button */}
                 <div className="flex justify-center mb-8">
                     <button
-                        onClick={onBack}
+                        onClick={() => navigate('/')}
                         className="flex items-center gap-2 text-gray-600 hover:text-brand-dark transition-colors"
                     >
                         <ArrowLeft size={20} />
@@ -208,11 +205,11 @@ export default function SignUp({ onBack, onSignIn }: SignUpProps) {
                         />
                         <label htmlFor="terms" className="text-sm text-gray-600">
                             I agree to the{' '}
-                            <button type="button" className="text-brand-green hover:text-green-700 font-medium">
+                            <button type="button" onClick={() => navigate('/terms')} className="text-brand-green hover:text-green-700 font-medium">
                                 Terms of Service
                             </button>{' '}
                             and{' '}
-                            <button type="button" className="text-brand-green hover:text-green-700 font-medium">
+                            <button type="button" onClick={() => navigate('/privacy')} className="text-brand-green hover:text-green-700 font-medium">
                                 Privacy Policy
                             </button>
                         </label>
@@ -256,7 +253,7 @@ export default function SignUp({ onBack, onSignIn }: SignUpProps) {
                 {/* Sign In Link */}
                 <p className="text-center text-gray-600 mt-6">
                     Already have an account?{' '}
-                    <button onClick={onSignIn} className="text-brand-green hover:text-green-700 font-semibold">
+                    <button onClick={() => navigate('/login')} className="text-brand-green hover:text-green-700 font-semibold">
                         Sign in
                     </button>
                 </p>

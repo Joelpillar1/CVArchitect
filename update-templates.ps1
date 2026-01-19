@@ -1,37 +1,42 @@
-# PowerShell script to update all templates with casing support
-
 $templates = @(
-    "ApexTemplate.tsx",
-    "ClassicTemplate.tsx", 
-    "DevTemplate.tsx",
-    "EliteTemplate.tsx",
+    "WonsultingTemplate.tsx",
+    "SmartTemplate.tsx",
+    "SimpleProTemplate.tsx",
+    "PrimeProfile.tsx",
+    "MinimalistTemplate.tsx",
     "ImpactTemplate.tsx",
-    "SimpleProTemplate.tsx"
+    "EliteTemplate.tsx",
+    "ElevateResume.tsx",
+    "ElegantTemplate.tsx",
+    "DevTemplate.tsx",
+    "ClassicTemplate.tsx",
+    "ApexTemplate.tsx"
 )
 
-$templatesPath = "c:\Users\dhonl\Downloads\cv-architect\components\templates"
+$basePath = "l:\CVArchitect\components\templates"
 
 foreach ($template in $templates) {
-    $filePath = Join-Path $templatesPath $template
-    
+    $filePath = Join-Path $basePath $template
     if (Test-Path $filePath) {
-        Write-Host "Processing $template..."
-        
-        # Read content
         $content = Get-Content $filePath -Raw
         
-        # Replace section header uppercase
-        $content = $content -replace 'className=\{`font-bold uppercase (.*?)\$\{getSectionHeaderAlignment\(\)\}`\}', 'className={`font-bold $1${getSectionHeaderAlignment()} ${data.sectionHeaderCase || ''uppercase''}`}'
-        
-        # Replace main header uppercase  
-        $content = $content -replace 'className="font-bold uppercase', 'className={`font-bold ${data.headerCase || ''uppercase''}`'
-        $content = $content -replace 'className=\{`font-bold uppercase', 'className={`font-bold ${data.headerCase || ''uppercase''}`'
-        
-        # Write back
-        Set-Content -Path $filePath -Value $content -NoNewline
-        
-        Write-Host "✓ Updated $template"
+        # Check if already has the import
+        if ($content -notmatch "parseDescriptionBullets") {
+            # Add import after the ResumeData import
+            $content = $content -replace "(import \{ ResumeData \} from '../../types';)", "`$1`r`nimport { parseDescriptionBullets } from '../../utils/templateUtils';"
+            
+            # Replace all occurrences of exp.description.split('\n')
+            $content = $content -replace "exp\.description\.split\('\\\\n'\)", "parseDescriptionBullets(exp.description)"
+            
+            # Save the file
+            Set-Content -Path $filePath -Value $content -NoNewline
+            Write-Host "Updated: $template" -ForegroundColor Green
+        } else {
+            Write-Host "Skipped (already updated): $template" -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "Not found: $template" -ForegroundColor Red
     }
 }
 
-Write-Host "`nAll templates updated!"
+Write-Host "`nAll templates updated!" -ForegroundColor Cyan

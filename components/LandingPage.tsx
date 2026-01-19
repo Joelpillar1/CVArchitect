@@ -1,18 +1,9 @@
 import React, { useState } from 'react';
 import { ArrowRight, Check, Star, X, Menu, FileText, Sparkles, Download, NotebookPen, LayoutTemplate, Zap, Shield, MousePointer2, User } from 'lucide-react';
-import { View } from '../App';
 import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
-interface LandingPageProps {
-  onGetStarted: () => void;
-  onSignIn: () => void;
-  onNavigateToPrivacy?: () => void;
-  onNavigateToTerms?: () => void;
-  onNavigateToContact?: () => void;
-  onNavigateToRefund?: () => void;
-}
 
 // Animation Variants
 const fadeInUp = {
@@ -62,11 +53,25 @@ const float = {
   }
 };
 
-export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivacy, onNavigateToTerms, onNavigateToContact, onNavigateToRefund }: LandingPageProps) {
+export default function LandingPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Navigation handlers
+  const handleGetStarted = () => {
+    if (user) {
+      navigate('/dashboard');
+    } else {
+      navigate('/signup');
+    }
+  };
+
+  const handleSignIn = () => {
+    navigate('/login');
+  };
+
 
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-green-200 overflow-x-hidden">
@@ -115,7 +120,7 @@ export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivac
                 <motion.button
                   whileHover={{ scale: 1.05, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)" }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={onGetStarted}
+                  onClick={handleGetStarted}
                   className="bg-brand-green hover:opacity-90 text-brand-dark px-6 py-2.5 rounded-full font-bold text-sm transition-all shadow-sm relative overflow-hidden group"
                 >
                   <span className="relative z-10">Go to Dashboard</span>
@@ -125,7 +130,7 @@ export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivac
             ) : (
               <>
                 <button
-                  onClick={onSignIn}
+                  onClick={handleSignIn}
                   className="text-sm font-medium text-brand-dark hover:text-brand-green transition-colors"
                 >
                   Sign in
@@ -133,7 +138,7 @@ export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivac
                 <motion.button
                   whileHover={{ scale: 1.05, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)" }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={onGetStarted}
+                  onClick={handleGetStarted}
                   className="bg-brand-green hover:opacity-90 text-brand-dark px-6 py-2.5 rounded-full font-bold text-sm transition-all shadow-sm relative overflow-hidden group"
                 >
                   <span className="relative z-10">Get Started</span>
@@ -183,7 +188,7 @@ export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivac
                 <div className="pt-4 flex flex-col gap-4">
                   {user ? (
                     <button
-                      onClick={onGetStarted}
+                      onClick={handleGetStarted}
                       className="w-full bg-brand-green text-brand-dark py-3 rounded-lg font-bold shadow-sm"
                     >
                       Go to Dashboard
@@ -191,13 +196,13 @@ export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivac
                   ) : (
                     <>
                       <button
-                        onClick={onSignIn}
+                        onClick={handleSignIn}
                         className="w-full border border-gray-200 text-brand-dark py-3 rounded-lg font-medium hover:bg-gray-50"
                       >
                         Sign In
                       </button>
                       <button
-                        onClick={onGetStarted}
+                        onClick={handleGetStarted}
                         className="w-full bg-brand-green text-brand-dark py-3 rounded-lg font-bold shadow-sm hover:opacity-90"
                       >
                         Get Started
@@ -258,7 +263,7 @@ export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivac
           <motion.button
             whileHover={{ scale: 1.05, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
             whileTap={{ scale: 0.95 }}
-            onClick={user ? onGetStarted : onGetStarted}
+            onClick={handleGetStarted}
             className="bg-brand-green hover:opacity-90 text-brand-dark px-10 py-4 rounded-full font-bold text-lg shadow-xl transition-all relative overflow-hidden group"
           >
             <span className="relative z-10">{user ? 'Go to Dashboard' : 'Build My Resume'}</span>
@@ -386,7 +391,7 @@ export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivac
               variants={fadeInUp}
               whileHover={{ scale: 1.05, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
               whileTap={{ scale: 0.95 }}
-              onClick={onGetStarted}
+              onClick={handleGetStarted}
               className="bg-brand-green hover:opacity-90 text-brand-dark px-10 py-4 rounded-full font-bold text-lg shadow-xl transition-all relative overflow-hidden group"
             >
               <span className="relative z-10">Build My Resume</span>
@@ -568,7 +573,7 @@ export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivac
               viewport={{ once: true }}
               whileHover={{ scale: 1.05, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
               whileTap={{ scale: 0.95 }}
-              onClick={onGetStarted}
+              onClick={handleGetStarted}
               className="bg-brand-green hover:opacity-90 text-brand-dark px-10 py-4 rounded-full font-bold text-lg shadow-xl transition-all hidden md:block relative overflow-hidden group"
             >
               <span className="relative z-10">Build My Resume</span>
@@ -743,7 +748,7 @@ export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivac
                 variants={fadeInUp}
                 whileHover={{ scale: 1.05, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
                 whileTap={{ scale: 0.95 }}
-                onClick={onGetStarted}
+                onClick={handleGetStarted}
                 className="bg-brand-green hover:opacity-90 text-brand-dark px-12 py-5 rounded-full font-bold text-xl shadow-2xl transition-all mt-8 relative overflow-hidden group"
               >
                 <span className="relative z-10">Build My Resume</span>
@@ -917,7 +922,7 @@ export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivac
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={onGetStarted}
+                onClick={handleGetStarted}
                 className="w-full py-5 rounded-2xl bg-brand-dark hover:bg-black text-white text-lg font-bold transition-all shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 group relative overflow-hidden"
               >
                 <span className="relative z-10">Start My 7-Day Sprint</span>
@@ -958,7 +963,7 @@ export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivac
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={onGetStarted}
+                onClick={handleGetStarted}
                 className="w-full py-4 rounded-xl bg-white border-2 border-brand-dark text-brand-dark font-bold hover:bg-gray-50 transition-all"
               >
                 Start Monthly Subscription
@@ -976,7 +981,7 @@ export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivac
             <p className="text-gray-500 text-lg">
               Not ready to commit?{' '}
               <button
-                onClick={onGetStarted}
+                onClick={handleGetStarted}
                 className="text-brand-dark font-bold underline decoration-2 underline-offset-4 hover:text-brand-green transition-colors"
               >
                 Start with Free Guest Access
@@ -1056,10 +1061,10 @@ export default function LandingPage({ onGetStarted, onSignIn, onNavigateToPrivac
             © {new Date().getFullYear()} CV Architect. All rights reserved.
           </div>
           <div className="flex gap-6">
-            <button onClick={onNavigateToPrivacy} className="text-gray-500 hover:text-brand-dark text-sm">Privacy Policy</button>
-            <button onClick={onNavigateToTerms} className="text-gray-500 hover:text-brand-dark text-sm">Terms of Service</button>
-            <button onClick={onNavigateToRefund} className="text-gray-500 hover:text-brand-dark text-sm">Refund Policy</button>
-            <button onClick={onNavigateToContact} className="text-gray-500 hover:text-brand-dark text-sm">Contact</button>
+            <button onClick={() => navigate('/privacy')} className="text-gray-500 hover:text-brand-dark text-sm">Privacy Policy</button>
+            <button onClick={() => navigate('/terms')} className="text-gray-500 hover:text-brand-dark text-sm">Terms of Service</button>
+            <button onClick={() => navigate('/refund-policy')} className="text-gray-500 hover:text-brand-dark text-sm">Refund Policy</button>
+            <button onClick={() => navigate('/contact')} className="text-gray-500 hover:text-brand-dark text-sm">Contact</button>
           </div>
         </div>
       </footer>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
+import { parseDescriptionBullets } from '../../utils/templateUtils';
 
 interface StyledTemplateProps {
     data: ResumeData;
@@ -80,7 +81,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                                         </div>
                                     </div>
                                     <ul className="list-disc ml-5 space-y-1 text-gray-700">
-                                        {exp.description.split('\n').map((line, i) => (
+                                        {parseDescriptionBullets(exp.description).map((line, i) => (
                                             line.trim() && (
                                                 <li key={i} className="pl-1 text-justify">
                                                     {line.replace(/^[•-]\s*/, '')}
@@ -127,7 +128,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                                         </div>
                                     </div>
                                     <ul className="list-disc ml-5 space-y-1 text-gray-700">
-                                        {exp.description.split('\n').map((line, i) => (
+                                        {parseDescriptionBullets(exp.description).map((line, i) => (
                                             line.trim() && (
                                                 <li key={i} className="pl-1 text-justify">
                                                     {line.replace(/^[•-]\s*/, '')}
@@ -162,7 +163,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                     <section key="achievements" style={{ marginBottom: sectionGap }}>
                         <SectionHeader title="Career Highlights" />
                         <ul className="list-disc ml-5 space-y-1 text-gray-700">
-                            {data.keyAchievements.split('\n').map((line, i) => (
+                            {parseDescriptionBullets(data.keyAchievements).map((line, i) => (
                                 line.trim() && (
                                     <li key={i} className="pl-1 text-justify">
                                         {line.replace(/^[\s•\-\*]+/, '')}

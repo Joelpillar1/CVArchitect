@@ -1,5 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
+import { parseDescriptionBullets } from '../../utils/templateUtils';
 import { getTranslation, Language } from '../../i18n/translations';
 
 const formatMonthYear = (dateString: string) => {

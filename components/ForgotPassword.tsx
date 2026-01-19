@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mail, CheckCircle } from 'lucide-react';
 
-interface ForgotPasswordProps {
-    onBack: () => void;
-}
-
-export default function ForgotPassword({ onBack }: ForgotPasswordProps) {
+export default function ForgotPassword() {
+    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -88,7 +86,7 @@ export default function ForgotPassword({ onBack }: ForgotPasswordProps) {
                         </p>
 
                         <button
-                            onClick={onBack}
+                            onClick={() => navigate('/login')}
                             className="w-full py-3 rounded-xl font-semibold bg-brand-green text-brand-dark hover:opacity-90 transition-all shadow-lg"
                         >
                             Back to Sign In
@@ -105,7 +103,7 @@ export default function ForgotPassword({ onBack }: ForgotPasswordProps) {
                 {/* Back Button */}
                 <div className="flex justify-center mb-8">
                     <button
-                        onClick={onBack}
+                        onClick={() => navigate('/login')}
                         className="flex items-center gap-2 text-gray-600 hover:text-brand-dark transition-colors"
                     >
                         <ArrowLeft size={20} />
@@ -162,7 +160,7 @@ export default function ForgotPassword({ onBack }: ForgotPasswordProps) {
                 <div className="mt-8 text-center">
                     <p className="text-sm text-gray-500">
                         Remember your password?{' '}
-                        <button onClick={onBack} className="text-brand-green hover:text-green-700 font-semibold">
+                        <button onClick={() => navigate('/login')} className="text-brand-green hover:text-green-700 font-semibold">
                             Sign in
                         </button>
                     </p>

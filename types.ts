@@ -6,7 +6,7 @@ export interface Experience {
   roleSummary?: string;
   startDate: string;
   endDate: string;
-  description: string;
+  description: string | string[]; // Can be string (legacy) or array of bullet points
 }
 
 export interface Education {
@@ -61,7 +61,7 @@ export interface ResumeData {
   projects?: Project[]; // New field for Projects
   leadership?: Experience[]; // LEadership same structure as Experience
   additionalInfo?: AdditionalInfoItem[]; // New field for custom sections
-  keyAchievements?: string; // New field for the Achievements tab
+  keyAchievements?: string | string[]; // Can be string (legacy) or array of achievement bullet points
   jobDescription?: string; // New field for Job Match tab
   referee?: string; // Referee information or "Available upon request"
   language?: string; // Language code (en, es, fr, de, pt, it, zh, ja, ar)
@@ -124,7 +124,12 @@ export const INITIAL_DATA: ResumeData = {
       location: 'City, Country',
       startDate: '2020-01',
       endDate: 'Present',
-      description: 'Key responsibility or achievement\nAnother important accomplishment\nQuantifiable result or impact'
+      description: [
+        'Key responsibility or achievement',
+        'Another important accomplishment',
+        'Quantifiable result or impact',
+        'Additional contribution or success'
+      ]
     }
   ],
   education: [
@@ -167,7 +172,11 @@ export const INITIAL_DATA: ResumeData = {
       value: 'Open Source Contributing, Tech Blogging, Hiking'
     }
   ],
-  keyAchievements: "Major achievement or award\nSignificant project or milestone\nRecognition or accomplishment",
+  keyAchievements: [
+    "Major achievement or award",
+    "Significant project or milestone",
+    "Recognition or accomplishment"
+  ],
   jobDescription: "",
   referee: "Available upon request",
   font: 'Helvetica, Arial, sans-serif',

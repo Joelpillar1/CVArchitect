@@ -1,5 +1,13 @@
 import { ResumeData } from '../../types';
 
+// Helper function to get description text from either string or array format
+function getDescriptionText(description: string | string[]): string {
+    if (Array.isArray(description)) {
+        return description.join(' ');
+    }
+    return description || '';
+}
+
 export interface AnalyticsResult {
     atsScore: number;
     completeness: number;
@@ -121,10 +129,15 @@ function calculateSectionScores(data: ResumeData) {
         ? data.skills.split(',').map(s => s.trim()).filter(s => s.length > 0).length
         : 0;
 
-    // Count achievement lines properly
-    const achievementLines = data.keyAchievements
-        ? data.keyAchievements.split('\n').filter(line => line.trim().length > 0).length
-        : 0;
+    // Count achievement lines properly (handle both string and array formats)
+    let achievementLines = 0;
+    if (data.keyAchievements) {
+        if (Array.isArray(data.keyAchievements)) {
+            achievementLines = data.keyAchievements.filter(line => line.trim().length > 0).length;
+        } else if (typeof data.keyAchievements === 'string') {
+            achievementLines = data.keyAchievements.split('\n').filter(line => line.trim().length > 0).length;
+        }
+    }
 
     return {
         personalInfo: calculatePersonalInfoScore(data),
@@ -163,7 +176,10 @@ function calculateExperienceScore(data: ResumeData): number {
     }
 
     // Quality checks - reward good descriptions
-    const avgDescLength = data.experience.reduce((acc, exp) => acc + (exp.description?.length || 0), 0) / data.experience.length;
+    const avgDescLength = data.experience.reduce((acc, exp) => {
+        const descText = getDescriptionText(exp.description);
+        return acc + descText.length;
+    }, 0) / data.experience.length;
 
     if (avgDescLength > 80) score += 15;  // Decent descriptions
     if (avgDescLength > 150) score += 15; // Good descriptions
@@ -179,7 +195,7 @@ function calculateRelevance(data: ResumeData) {
         data.summary,
         data.skills,
         data.keyAchievements || '',
-        ...data.experience.map(e => e.description),
+        ...data.experience.map(e => getDescriptionText(e.description)),
         ...data.projects?.map(p => p.description) || []
     ].join(' ').toLowerCase();
 
@@ -266,7 +282,7 @@ function calculateRelevance(data: ResumeData) {
 // PILLAR 2: IMPACT (Quality/Readability)
 // ============================================================================
 function analyzeReadability(data: ResumeData) {
-    const descriptions = data.experience.map(e => e.description).filter(Boolean);
+    const descriptions = data.experience.map(e => getDescriptionText(e.description)).filter(Boolean);
     const allResumeText = [data.summary, ...descriptions, data.keyAchievements || ''].join(' ').toLowerCase();
 
     // 1. Metric Density (Bullets with numbers / Total bullets)
@@ -274,7 +290,14 @@ function analyzeReadability(data: ResumeData) {
     let numberedBullets = 0;
 
     data.experience.forEach(exp => {
-        const lines = exp.description.split('\n').filter(l => l.trim().length > 5);
+        // Handle both array and string formats
+        let lines: string[] = [];
+        if (Array.isArray(exp.description)) {
+            lines = exp.description.filter(l => l.trim().length > 5);
+        } else if (exp.description) {
+            lines = exp.description.split('\n').filter(l => l.trim().length > 5);
+        }
+
         totalBullets += lines.length;
         lines.forEach(line => {
             if (/\d/.test(line)) numberedBullets++;

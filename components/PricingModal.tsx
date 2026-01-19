@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Check, X, Zap, Crown, Star, Clock } from 'lucide-react';
 import { PLANS } from '../utils/pricingConfig';
 import { PlanId } from '../types/pricing';
-// Payment integration removed - integrate Stripe/Paddle/LemonSqueezy here
 import { useAuth } from '../contexts/AuthContext';
+import { createCheckoutSession, mapInternalPlanToWhop } from '../services/whopService';
+import { useToast } from '../contexts/ToastContext';
 
 interface PricingModalProps {
     isOpen: boolean;
@@ -14,17 +15,49 @@ interface PricingModalProps {
 }
 
 export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPlanId = 'free' }: PricingModalProps) {
+    const [loading, setLoading] = useState(false);
+    const [processingPlan, setProcessingPlan] = useState<PlanId | null>(null);
+    const { user } = useAuth();
+    const { showToast } = useToast();
+
     if (!isOpen) return null;
 
-    const { user } = useAuth();
     const sprintPlan = PLANS.week_pass;
     const marathonPlan = PLANS.pro_monthly;
 
-    const handlePlanSelect = (planId: PlanId) => {
-        // TODO: Integrate payment provider (Stripe/Paddle/LemonSqueezy)
-        // For now, just select the plan
-        onSelectPlan(planId);
-        onClose();
+    const handlePlanSelect = async (planId: PlanId) => {
+        if (!user) {
+            showToast('Please sign in to upgrade your plan', 'error');
+            return;
+        }
+
+        // Get Whop plan ID
+        const whopPlanId = mapInternalPlanToWhop(planId);
+
+        if (!whopPlanId) {
+            showToast('This plan is not available for purchase', 'error');
+            return;
+        }
+
+        setLoading(true);
+        setProcessingPlan(planId);
+
+        try {
+            // Create checkout session and redirect to Whop
+            const checkoutUrl = await createCheckoutSession(
+                whopPlanId,
+                user.id,
+                user.email || ''
+            );
+
+            // Redirect to Whop checkout
+            window.location.href = checkoutUrl;
+        } catch (error: any) {
+            console.error('Checkout error:', error);
+            showToast(error.message || 'Failed to start checkout. Please try again.', 'error');
+            setLoading(false);
+            setProcessingPlan(null);
+        }
     };
 
     return createPortal(
@@ -107,9 +140,10 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
                         </div>
 
                         <button
-                            className="w-full py-4 rounded-xl bg-brand-dark hover:bg-black text-white font-bold transition-all shadow-lg hover:shadow-xl active:scale-[0.98] flex items-center justify-center gap-2"
+                            disabled={loading}
+                            className="w-full py-4 rounded-xl bg-brand-dark hover:bg-black text-white font-bold transition-all shadow-lg hover:shadow-xl active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            Start My 7-Day Sprint
+                            {processingPlan === 'week_pass' ? 'Redirecting to checkout...' : 'Start My 7-Day Sprint'}
                         </button>
                     </div>
 

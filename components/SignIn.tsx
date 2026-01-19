@@ -1,15 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
-interface SignInProps {
-    onBack: () => void;
-    onSignUp: () => void;
-    onSuccess: () => void;
-    onForgotPassword: () => void;
-}
-
-export default function SignIn({ onBack, onSignUp, onSuccess, onForgotPassword }: SignInProps) {
+export default function SignIn() {
+    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -28,10 +23,21 @@ export default function SignIn({ onBack, onSignUp, onSuccess, onForgotPassword }
 
         setLoading(true);
         try {
-            const { error } = await signIn(email, password);
+            const { data, error } = await signIn(email, password);
             if (error) throw error;
-            onSuccess();
+
+            // Check if session was actually created (might be pending email verification)
+            if (!data?.session) {
+                // If no session but no error, usually means email confirmation required
+                setError('Please verify your email address before signing in.');
+                return;
+            }
+
+            console.log('Sign in successful', data.user?.id);
+            // Force navigation to dashboard
+            navigate('/dashboard', { replace: true });
         } catch (err: any) {
+            console.error('Sign in error:', err);
             setError(err.message || 'Failed to sign in');
         } finally {
             setLoading(false);
@@ -44,7 +50,7 @@ export default function SignIn({ onBack, onSignUp, onSuccess, onForgotPassword }
         try {
             const { error } = await signInWithGoogle();
             if (error) throw error;
-            // OAuth will redirect, so no need to call onSuccess here
+            // OAuth will redirect, so no need to navigate here
         } catch (err: any) {
             setError(err.message || 'Failed to sign in with Google');
             setLoading(false);
@@ -57,7 +63,7 @@ export default function SignIn({ onBack, onSignUp, onSuccess, onForgotPassword }
                 {/* Back Button */}
                 <div className="flex justify-center mb-8">
                     <button
-                        onClick={onBack}
+                        onClick={() => navigate('/')}
                         className="flex items-center gap-2 text-gray-600 hover:text-brand-dark transition-colors"
                     >
                         <ArrowLeft size={20} />
@@ -129,7 +135,7 @@ export default function SignIn({ onBack, onSignUp, onSuccess, onForgotPassword }
                         </label>
                         <button
                             type="button"
-                            onClick={onForgotPassword}
+                            onClick={() => navigate('/forgot-password')}
                             className="text-brand-green hover:text-green-700 font-medium"
                         >
                             Forgot password?
@@ -174,7 +180,7 @@ export default function SignIn({ onBack, onSignUp, onSuccess, onForgotPassword }
                 {/* Sign Up Link */}
                 <p className="text-center text-gray-600 mt-6">
                     Don't have an account?{' '}
-                    <button onClick={onSignUp} className="text-brand-green hover:text-green-700 font-semibold">
+                    <button onClick={() => navigate('/signup')} className="text-brand-green hover:text-green-700 font-semibold">
                         Sign up
                     </button>
                 </p>

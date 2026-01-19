@@ -1,5 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
+import { parseDescriptionBullets } from '../../utils/templateUtils';
 import { Mail, Phone, Linkedin, Github, Globe, MapPin } from 'lucide-react';
 import { getTranslation, Language } from '../../i18n/translations';
 

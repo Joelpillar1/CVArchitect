@@ -66,9 +66,19 @@ export default function App() {
   const { showToast } = useToast();
   const [currentView, setCurrentView] = useState<View>(() => {
     const saved = localStorage.getItem('cv_app_view');
-    // Validation to ensure saved view is valid
-    if (saved && Object.values(View).includes(saved as View)) return saved as View;
-    // Default to OVERVIEW instead of LANDING to preserve authenticated sessions
+    // Validation to ensure saved view is valid and NOT an auth/landing page (since those are now routes)
+    if (saved && Object.values(View).includes(saved as View)) {
+      if (saved === View.LANDING ||
+        saved === View.SIGN_IN ||
+        saved === View.SIGN_UP ||
+        saved === View.FORGOT_PASSWORD ||
+        saved === View.RESET_PASSWORD ||
+        saved === View.ONBOARDING) { // Depending on if onboarding is internal or not
+        return View.OVERVIEW;
+      }
+      return saved as View;
+    }
+    // Default to OVERVIEW
     return View.OVERVIEW;
   });
 
@@ -649,19 +659,28 @@ export default function App() {
   };
 
   const handleDeleteSavedTemplate = async (id: string) => {
+    // Optimistic UI update: Remove from UI immediately
+    const templateToDelete = savedResumes.find(t => t.id === id);
+    setSavedResumes(prev => prev.filter(t => t.id !== id));
+    showToast("Resume deleted.", 'success');
+
+    // Handle database deletion in the background
     if (user && !id.startsWith('saved_')) {
       try {
         await resumeService.deleteResume(id);
-        setSavedResumes(prev => prev.filter(t => t.id !== id));
-        showToast("Resume deleted.", 'success');
+        // Successfully deleted from database - no need to update UI again
       } catch (error) {
         console.error('Error deleting resume:', error);
-        showToast('Failed to delete resume.', 'error');
+        // Restore the template if database deletion failed
+        if (templateToDelete) {
+          setSavedResumes(prev => [...prev, templateToDelete].sort((a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          ));
+        }
+        showToast('Failed to delete resume from server. Template restored.', 'error');
       }
-    } else {
-      setSavedResumes(prev => prev.filter(t => t.id !== id));
-      showToast("Template deleted.", 'success');
     }
+    // For local templates (id.startsWith('saved_')), no database operation needed
   };
 
   const renderContent = () => {
@@ -728,7 +747,13 @@ export default function App() {
                       role: "Senior Product Designer",
                       startDate: "2021-01",
                       endDate: "Present",
-                      description: "Leading the design of the core product suite. Improved user engagement by 40% through a complete redesign of the dashboard. Mentoring junior designers and establishing design best practices.",
+                      description: [
+                        "Leading the design of the core product suite",
+                        "Improved user engagement by 40% through a complete redesign of the dashboard",
+                        "Mentoring junior designers and establishing design best practices",
+                        "Collaborating with product and engineering teams to deliver user-centric solutions",
+                        "Conducting user research and usability testing to validate design decisions"
+                      ],
                       location: "San Francisco, CA"
                     },
                     {
@@ -737,7 +762,12 @@ export default function App() {
                       role: "UI/UX Designer",
                       startDate: "2018-06",
                       endDate: "2021-01",
-                      description: "Collaborated with cross-functional teams to deliver high-quality web and mobile applications. Conducted user research and usability testing to inform design decisions.",
+                      description: [
+                        "Collaborated with cross-functional teams to deliver high-quality web and mobile applications",
+                        "Conducted user research and usability testing to inform design decisions",
+                        "Created wireframes, prototypes, and high-fidelity designs",
+                        "Established and maintained design system documentation"
+                      ],
                       location: "New York, NY"
                     }
                   ],
@@ -1034,7 +1064,7 @@ export default function App() {
             />
             <SidebarItem
               icon={<FileText size={20} />}
-              label="My Cover Letters"
+              label="Cover Letters"
               active={currentView === View.MY_COVER_LETTERS}
               collapsed={isSidebarCollapsed}
               onClick={() => { setCurrentView(View.MY_COVER_LETTERS); setIsMobileMenuOpen(false); }}

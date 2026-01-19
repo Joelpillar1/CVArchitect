@@ -32,8 +32,14 @@ export const formatDate = (dateString: string): string => {
     return dateString;
 };
 
-export const parseDescriptionBullets = (description: string): string[] => {
-    if (!description) return [];
+export const parseDescriptionBullets = (description: string | string[]): string[] => {
+    // Handle array format (new format)
+    if (Array.isArray(description)) {
+        return description.filter(bullet => bullet && bullet.trim());
+    }
+
+    // Handle string format (legacy format)
+    if (!description || typeof description !== 'string') return [];
 
     // First, try splitting by newlines (most common)
     if (description.includes('\n')) {
@@ -67,3 +73,7 @@ export const parseDescriptionBullets = (description: string): string[] => {
     // If no separators found, return as single item
     return [description.trim()];
 };
+
+// Alias for achievements (same logic as descriptions)
+export const parseAchievementBullets = parseDescriptionBullets;
+

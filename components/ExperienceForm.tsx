@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ResumeData, Experience } from '../types';
-import { Plus, Trash2, Calendar, MapPin, Building, GripVertical, ChevronUp, ChevronDown, Sparkles } from 'lucide-react';
+import { Plus, Trash2, Calendar, MapPin, Building, GripVertical, ChevronUp, ChevronDown, Sparkles, X } from 'lucide-react';
 import { enhanceDescription } from './utils/aiEnhancer';
 
 interface ExperienceFormProps {
@@ -13,10 +13,19 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const [enhancingId, setEnhancingId] = useState<string | null>(null);
 
-    // ... (rest of methods)
+    // Helper function to ensure description is always an array
+    const getDescriptionArray = (description: string | string[]): string[] => {
+        if (Array.isArray(description)) {
+            return description;
+        }
+        // Convert legacy string format (newline-separated) to array
+        if (description && description.trim()) {
+            return description.split('\n').map(line => line.replace(/^[•\-\*]\s*/, '').trim()).filter(line => line);
+        }
+        return ['', '', '', '']; // Default 4 empty bullet points
+    };
 
     const handleAdd = () => {
-        // ...
         const newExperience: Experience = {
             id: Date.now().toString(),
             company: '',
@@ -24,7 +33,7 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
             location: '',
             startDate: '',
             endDate: '',
-            description: ''
+            description: ['', '', '', ''] // Default 4 bullet points
         };
         onChange({ ...data, experience: [...data.experience, newExperience] });
     };
@@ -33,7 +42,7 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
         onChange({ ...data, experience: data.experience.filter(exp => exp.id !== id) });
     };
 
-    const handleChange = (id: string, field: keyof Experience, value: string) => {
+    const handleChange = (id: string, field: keyof Experience, value: string | string[]) => {
         onChange({
             ...data,
             experience: data.experience.map(exp =>
@@ -42,12 +51,44 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
         });
     };
 
-    // ... (rest of simple handlers)
+    const handleBulletChange = (expId: string, bulletIndex: number, value: string) => {
+        const exp = data.experience.find(e => e.id === expId);
+        if (!exp) return;
 
-    // Helper to keep code concise
+        const bullets = getDescriptionArray(exp.description);
+        // Create a new array with the updated value
+        const newBullets = [...bullets];
+        newBullets[bulletIndex] = value;
+        handleChange(expId, 'description', newBullets);
+    };
+
+    const handleAddBullet = (expId: string) => {
+        const exp = data.experience.find(e => e.id === expId);
+        if (!exp) return;
+
+        const bullets = getDescriptionArray(exp.description);
+        // Create a new array instead of mutating
+        handleChange(expId, 'description', [...bullets, '']);
+    };
+
+    const handleRemoveBullet = (expId: string, bulletIndex: number) => {
+        const exp = data.experience.find(e => e.id === expId);
+        if (!exp) return;
+
+        const bullets = getDescriptionArray(exp.description);
+        if (bullets.length <= 1) return; // Keep at least one bullet point
+
+        // Create a new array without the removed bullet
+        const newBullets = bullets.filter((_, index) => index !== bulletIndex);
+        handleChange(expId, 'description', newBullets);
+    };
+
     const handleEnhanceDescription = async (exp: Experience) => {
-        if (!exp.description.trim()) {
-            alert('Please write a description first.');
+        const bullets = getDescriptionArray(exp.description);
+        const hasContent = bullets.some(b => b.trim());
+
+        if (!hasContent) {
+            alert('Please write at least one description first.');
             return;
         }
 
@@ -60,8 +101,10 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
         setEnhancingId(exp.id);
         try {
             const index = data.experience.findIndex(e => e.id === exp.id);
+            // Join bullets for AI enhancement
+            const combinedDescription = bullets.filter(b => b.trim()).join('\n');
             const enhanced = await enhanceDescription(
-                exp.description,
+                combinedDescription,
                 exp.role || 'Professional',
                 exp.company || 'Company',
                 {
@@ -69,7 +112,13 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
                     totalCount: data.experience.length
                 }
             );
-            handleChange(exp.id, 'description', enhanced);
+
+            // Split enhanced description back into bullets
+            const enhancedBullets = enhanced.split('\n')
+                .map(line => line.replace(/^[•\-\*]\s*/, '').trim())
+                .filter(line => line);
+
+            handleChange(exp.id, 'description', enhancedBullets);
         } catch (error) {
             alert('Failed to enhance. Check your API key.');
             console.error(error);
@@ -77,10 +126,6 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
             setEnhancingId(null);
         }
     };
-
-    // ... rest of component until rendering ...
-    // Inside render loop:
-
 
     const handleCurrentPositionToggle = (id: string, isChecked: boolean) => {
         onChange({
@@ -124,8 +169,38 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
 
     const formatDateForInput = (dateStr: string): string => {
         if (!dateStr || dateStr.toLowerCase() === 'present') return '';
+
+        // Already in correct format
         if (/^\d{4}-\d{2}$/.test(dateStr)) return dateStr;
-        return dateStr;
+
+        // Handle "MMM YYYY" or "Month YYYY" format (e.g., "Apr 2024", "April 2024")
+        const monthMap: { [key: string]: string } = {
+            'jan': '01', 'january': '01',
+            'feb': '02', 'february': '02',
+            'mar': '03', 'march': '03',
+            'apr': '04', 'april': '04',
+            'may': '05',
+            'jun': '06', 'june': '06',
+            'jul': '07', 'july': '07',
+            'aug': '08', 'august': '08',
+            'sep': '09', 'sept': '09', 'september': '09',
+            'oct': '10', 'october': '10',
+            'nov': '11', 'november': '11',
+            'dec': '12', 'december': '12'
+        };
+
+        const match = dateStr.match(/^([a-z]+)\.?\s+(\d{4})$/i);
+        if (match) {
+            const monthName = match[1].toLowerCase();
+            const year = match[2];
+            const monthNum = monthMap[monthName];
+            if (monthNum) {
+                return `${year}-${monthNum}`;
+            }
+        }
+
+        // If we can't parse it, return empty string to avoid console warnings
+        return '';
     };
 
     return (
@@ -133,6 +208,7 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
             <div className="space-y-6">
                 {data.experience.map((exp, index) => {
                     const isCurrentPosition = exp.endDate?.toLowerCase() === 'present';
+                    const bullets = getDescriptionArray(exp.description);
 
                     return (
                         <div
@@ -254,18 +330,11 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-xs font-medium text-gray-500">Description & Achievements</label>
-                                <textarea
-                                    value={exp.description}
-                                    onChange={(e) => handleChange(exp.id, 'description', e.target.value)}
-                                    rows={4}
-                                    className="w-full p-3 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all resize-none leading-relaxed"
-                                    placeholder="• Led a team of 5 developers...&#10;• Increased performance by 20%...&#10;• Implemented new features..."
-                                />
-                                <div className="flex justify-end">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-xs font-medium text-gray-500">Description & Achievements</label>
                                     <button
                                         onClick={() => handleEnhanceDescription(exp)}
-                                        disabled={enhancingId === exp.id || !exp.description.trim()}
+                                        disabled={enhancingId === exp.id || !bullets.some(b => b.trim())}
                                         className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-brand-dark bg-brand-green hover:bg-brand-greenHover rounded-md transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
                                         title="Enhance with AI (3 credits)"
                                     >
@@ -273,6 +342,37 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
                                         {enhancingId === exp.id ? 'Enhancing...' : 'Rewrite'}
                                     </button>
                                 </div>
+
+                                <div className="space-y-2">
+                                    {bullets.map((bullet, bulletIndex) => (
+                                        <div key={bulletIndex} className="flex items-start gap-2 group/bullet">
+                                            <div className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-brand-green mt-2"></div>
+                                            <input
+                                                type="text"
+                                                value={bullet}
+                                                onChange={(e) => handleBulletChange(exp.id, bulletIndex, e.target.value)}
+                                                className="flex-1 p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
+                                                placeholder={`Achievement or responsibility ${bulletIndex + 1}`}
+                                            />
+                                            {bullets.length > 1 && (
+                                                <button
+                                                    onClick={() => handleRemoveBullet(exp.id, bulletIndex)}
+                                                    className="flex-shrink-0 text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover/bullet:opacity-100 p-1"
+                                                    title="Remove bullet point"
+                                                >
+                                                    <X size={14} />
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <button
+                                    onClick={() => handleAddBullet(exp.id)}
+                                    className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-brand-dark bg-brand-green/10 hover:bg-brand-green/20 border border-brand-green/20 rounded-lg transition-all"
+                                >
+                                    <Plus size={14} /> Add More
+                                </button>
                             </div>
                         </div>
                     );
