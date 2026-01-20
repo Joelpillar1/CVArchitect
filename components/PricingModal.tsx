@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Check, X, Zap, Crown, Star, Clock } from 'lucide-react';
+import { Check, X, Zap, Crown, Star, Clock, Key } from 'lucide-react';
 import { PLANS } from '../utils/pricingConfig';
 import { PlanId } from '../types/pricing';
 import { useAuth } from '../contexts/AuthContext';
 import { createCheckoutSession, mapInternalPlanToWhop } from '../services/whopService';
 import { useToast } from '../contexts/ToastContext';
+import LicenseActivationModal from './LicenseActivationModal';
 
 interface PricingModalProps {
     isOpen: boolean;
@@ -17,6 +18,7 @@ interface PricingModalProps {
 export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPlanId = 'free' }: PricingModalProps) {
     const [loading, setLoading] = useState(false);
     const [processingPlan, setProcessingPlan] = useState<PlanId | null>(null);
+    const [showLicenseModal, setShowLicenseModal] = useState(false);
     const { user } = useAuth();
     const { showToast } = useToast();
 
@@ -172,8 +174,34 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
                         </div>
                     </div>
 
+                    {/* License Key Option */}
+                    <div className="mt-6 pt-6 border-t border-gray-200">
+                        <button
+                            onClick={() => {
+                                onClose();
+                                setShowLicenseModal(true);
+                            }}
+                            className="w-full flex items-center justify-center gap-2 text-sm text-gray-600 hover:text-brand-green transition-colors group"
+                        >
+                            <Key size={16} className="group-hover:text-brand-green" />
+                            <span>Already purchased? <span className="font-semibold">Enter License Key</span></span>
+                        </button>
+                    </div>
+
                 </div>
             </div>
+
+            {/* License Activation Modal */}
+            <LicenseActivationModal
+                isOpen={showLicenseModal}
+                onClose={() => setShowLicenseModal(false)}
+                onSuccess={(plan) => {
+                    setShowLicenseModal(false);
+                    showToast(`🎉 License activated! You now have ${plan === 'week_pass' ? 'Career Sprint' : 'Career Marathon'} access!`, 'success');
+                    onSelectPlan(plan as PlanId);
+                    onClose();
+                }}
+            />
         </div>,
         document.body
     );

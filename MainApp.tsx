@@ -147,6 +147,36 @@ export default function App() {
     }
   }, [user]);
 
+  // Handle payment return from Whop
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const paymentStatus = params.get('payment');
+
+    if (paymentStatus === 'success') {
+      showToast('🎉 Payment successful! Your subscription is activating...', 'success');
+
+      // Refresh user subscription data
+      if (user) {
+        import('./services/subscriptionService').then(({ subscriptionService }) => {
+          subscriptionService.getSubscription(user.id)
+            .then((sub) => {
+              if (sub) {
+                setUserSubscription(sub);
+                showToast('✅ Subscription activated! You now have unlimited access.', 'success');
+              }
+            })
+            .catch(err => console.error('Failed to refresh subscription:', err));
+        });
+      }
+
+      // Clean URL
+      window.history.replaceState({}, '', window.location.pathname);
+    } else if (paymentStatus === 'cancelled') {
+      showToast('Payment cancelled. You can upgrade anytime from settings.', 'info');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, [user, showToast]);
+
   // Load saved resumes from Supabase
   useEffect(() => {
     if (user) {

@@ -19,10 +19,26 @@ export async function createCheckoutSession(
     }
 
     try {
-        // Construct direct Whop checkout URL with email pre-filled
-        const checkoutUrl = `https://whop.com/checkout/${planId}?email=${encodeURIComponent(userEmail)}`;
+        // Get the current origin for redirect URLs
+        const origin = typeof window !== 'undefined' ? window.location.origin : 'https://cvarchitect.app';
 
-        console.log('Creating checkout session for:', { planId, userId, userEmail, checkoutUrl });
+        // Construct Whop checkout URL with success/cancel redirects
+        const successUrl = `${origin}/dashboard?payment=success`;
+        const cancelUrl = `${origin}/dashboard?payment=cancelled`;
+
+        const checkoutUrl = `https://whop.com/checkout/${planId}?` +
+            `email=${encodeURIComponent(userEmail)}&` +
+            `success_url=${encodeURIComponent(successUrl)}&` +
+            `cancel_url=${encodeURIComponent(cancelUrl)}`;
+
+        console.log('Creating checkout session for:', {
+            planId,
+            userId,
+            userEmail,
+            checkoutUrl,
+            successUrl,
+            cancelUrl
+        });
 
         return checkoutUrl;
     } catch (error) {
