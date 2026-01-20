@@ -1,8 +1,4 @@
 {
-    "functions": {
-        "api/**/*.ts": {
-            "memory": 1024,
-            "maxDuration": 10
-        }
-    }
+  // Static Vite + React app, no Vercel Serverless Functions needed.
+  // Use default Vercel behavior (serve the built `dist`).
 }
