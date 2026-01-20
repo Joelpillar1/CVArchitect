@@ -1,4 +1,12 @@
 {
-  // Static Vite + React app, no Vercel Serverless Functions needed.
-  // Use default Vercel behavior (serve the built `dist`).
+  "rewrites": [
+    {
+      "source": "/dashboard",
+      "destination": "/"
+    },
+    {
+      "source": "/dashboard/(.*)",
+      "destination": "/"
+    }
+  ]
 }
