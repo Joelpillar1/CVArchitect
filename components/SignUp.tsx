@@ -46,15 +46,25 @@ export default function SignUp() {
         try {
             const { error } = await signUp(email, password, name);
             if (error) {
-                // Check if it's a duplicate email error
-                if (error.message.includes('already registered') || error.message.includes('already exists')) {
-                    throw new Error('This email is already registered. Please sign in instead or use a different email.');
+                // Normalize message for reliable duplicate-email detection
+                const rawMessage = (error.message || '').toString();
+                const msg = rawMessage.toLowerCase();
+
+                // Supabase commonly uses "User already registered" / "already exists" / similar wording
+                if (
+                    msg.includes('already') &&
+                    (msg.includes('registered') || msg.includes('exists') || msg.includes('email'))
+                ) {
+                    setError('This email is already registered. Please sign in instead or use a different email.');
+                    return;
                 }
-                throw error;
+
+                console.error('Sign up error:', error);
+                setError(rawMessage || 'Failed to create account');
+                return;
             }
+
             setSuccess('Account created! Please check your email to verify your account.');
-        } catch (err: any) {
-            setError(err.message || 'Failed to create account');
         } finally {
             setLoading(false);
         }

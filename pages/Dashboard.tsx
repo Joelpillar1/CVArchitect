@@ -332,7 +332,11 @@ export default function Dashboard() {
                                 letters={[]}
                                 onViewLetter={() => { }}
                                 onDeleteLetter={() => { }}
-                                onCreateNew={() => navigate('/dashboard/editor')}
+                                onCreateNew={() => {
+                                    // Redirect to Templates so user can pick a resume template
+                                    // before generating or attaching a cover letter.
+                                    navigate('/dashboard/templates');
+                                }}
                             />
                         }
                     />
@@ -376,7 +380,8 @@ export default function Dashboard() {
 
                                     const cost = previousCredits - result.remainingCredits;
 
-                                    if (user && cost > 0) {
+                                    // Persist and log usage for all plans (even when cost is 0)
+                                    if (user) {
                                         subscriptionService.performAction(user.id, action, cost)
                                             .then(res => {
                                                 if (res.success) {

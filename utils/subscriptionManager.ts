@@ -127,11 +127,6 @@ export class SubscriptionManager {
      * Deduct credits for an action
      */
     deductCredit(action: FeatureAction): { success: boolean; remainingCredits: number; error?: string } {
-        // Pro users don't use credits
-        if (this.isPro()) {
-            return { success: true, remainingCredits: this.subscription.credits };
-        }
-
         const plan = PLANS[this.subscription.planId];
         if (!plan) {
             return { success: false, remainingCredits: this.subscription.credits, error: 'Invalid plan' };
@@ -159,12 +154,13 @@ export class SubscriptionManager {
                 cost = 0;
         }
 
-        // If plan doesn't use credits, treat as free action (0 cost) but log it
-        if (!plan.creditRules.usesCredits) {
-            cost = 0;
+        // If plan doesn't use credits (Sprint / Marathon), treat as free action but still log usage
+        if (!plan.creditRules.usesCredits || this.isPro()) {
+            this.logUsage(action, 0);
+            return { success: true, remainingCredits: this.subscription.credits };
         }
 
-        // Check if enough credits
+        // Check if enough credits for credit-based plans (Free)
         if (this.subscription.credits < cost) {
             return {
                 success: false,

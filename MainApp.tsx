@@ -435,8 +435,8 @@ export default function App() {
 
     const cost = previousCredits - result.remainingCredits;
 
-    // Use RPC to persist and log
-    if (user && cost > 0) {
+    // Use RPC to persist and log (log even when cost is 0 to track usage)
+    if (user) {
       subscriptionService.performAction(user.id, action, cost)
         .then(res => {
           if (res.success) {
@@ -903,10 +903,8 @@ export default function App() {
               }
             }}
             onCreateNew={() => {
-              // Go to Editor to generate new one
-              // Might want to auto-open the modal?
-              setCurrentView(View.EDITOR);
-              // We would ideally set a flag to open the modal, but simply going to editor is a good start.
+              // Go to Templates so user can choose a resume template before generating a cover letter
+              setCurrentView(View.TEMPLATES);
             }}
           />
         );

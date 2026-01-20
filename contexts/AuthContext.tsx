@@ -61,6 +61,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             });
 
             if (error) throw error;
+
+            // Supabase behavior: when an email is already registered, signUp may return
+            // no error but an existing user with empty identities[]. Treat this as a
+            // duplicate-email error so the UI can show a clear message.
+            const identities = (data as any)?.user?.identities as any[] | undefined;
+            if (identities && identities.length === 0) {
+                throw new Error('This email is already registered.');
+            }
+
             return { error: null };
         } catch (error: any) {
             return { error };
