@@ -95,9 +95,9 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
                                     {exp.description && (
                                         <div className="pl-2">
                                             <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-black">
-                                                {exp.description.split('\n').map((line, i) => (
-                                                    line.trim() && (
-                                                        <li key={i} className="pl-1">{line.replace(/^[•-]\s*/, '')}</li>
+                                                {parseDescriptionBullets(exp.description).map((line, i) => (
+                                                    line && (
+                                                        <li key={i} className="pl-1">{line}</li>
                                                     )
                                                 ))}
                                             </ul>
@@ -139,9 +139,9 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
                                         {exp.company}, {exp.location}
                                     </div>
                                     <ul className="list-disc ml-6 space-y-1 text-gray-800 marker:text-black">
-                                        {exp.description.split('\n').map((line, i) => (
-                                            line.trim() && (
-                                                <li key={i} className="pl-1">{line.replace(/^[•-]\s*/, '')}</li>
+                                        {parseDescriptionBullets(exp.description).map((line, i) => (
+                                            line && (
+                                                <li key={i} className="pl-1">{line}</li>
                                             )
                                         ))}
                                     </ul>
@@ -194,10 +194,10 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
                     <section key="keyAchievements" style={{ marginBottom: sectionGap }}>
                         <SectionHeader title="Key Achievements" />
                         <ul className="list-disc ml-6 space-y-2 text-gray-800 marker:text-black">
-                            {data.keyAchievements.split('\n').map((achievement, index) => (
-                                achievement.trim() && (
+                            {parseDescriptionBullets(data.keyAchievements).map((achievement, index) => (
+                                achievement && (
                                     <li key={index} className="pl-1 leading-relaxed">
-                                        {achievement.replace(/^[•-]\s*/, '')}
+                                        {achievement}
                                     </li>
                                 )
                             ))}

@@ -1,11 +1,17 @@
 import WhopSDK from "@whop/sdk";
 
+// Get environment variables (Vite uses import.meta.env)
+// @ts-ignore - Vite env variables
+const WHOP_APP_ID = import.meta.env.VITE_WHOP_APP_ID || process.env.NEXT_PUBLIC_WHOP_APP_ID;
+// @ts-ignore - Vite env variables
+const WHOP_API_KEY = import.meta.env.VITE_WHOP_API_KEY || process.env.WHOP_API_KEY;
+
 // Validate environment variables
-if (!process.env.NEXT_PUBLIC_WHOP_APP_ID) {
-    console.warn('⚠️ NEXT_PUBLIC_WHOP_APP_ID is not set. Whop integration will not work.');
+if (!WHOP_APP_ID) {
+    console.warn('⚠️ WHOP_APP_ID is not set. Whop integration will not work.');
 }
 
-if (!process.env.WHOP_API_KEY) {
+if (!WHOP_API_KEY) {
     console.warn('⚠️ WHOP_API_KEY is not set. Whop integration will not work.');
 }
 
@@ -13,11 +19,11 @@ if (!process.env.WHOP_API_KEY) {
 // Note: The exact initialization may need to be updated based on Whop SDK version
 // Check https://github.com/whopio/whopsdk-typescript for latest API
 export const whopSdk = new WhopSDK({
-    appID: process.env.NEXT_PUBLIC_WHOP_APP_ID || '',
-    apiKey: process.env.WHOP_API_KEY || '',
+    appID: WHOP_APP_ID || '',
+    apiKey: WHOP_API_KEY || '',
 });
 
 // Export a function to check if Whop is properly configured
 export function isWhopConfigured(): boolean {
-    return !!(process.env.NEXT_PUBLIC_WHOP_APP_ID && process.env.WHOP_API_KEY);
+    return !!(WHOP_APP_ID && WHOP_API_KEY);
 }
