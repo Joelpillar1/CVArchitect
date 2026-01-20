@@ -13,6 +13,7 @@ import TermsOfService from './components/TermsOfService';
 import Contact from './components/Contact';
 import RefundPolicy from './components/RefundPolicy';
 import PricingPage from './components/PricingPage';
+import ActivateLicense from './components/ActivateLicense';
 
 // Import the original MainApp as Dashboard
 import MainApp from './MainApp';
@@ -85,6 +86,9 @@ export default function AppRoutes() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/refund-policy" element={<RefundPolicy />} />
             <Route path="/pricing" element={<PricingPage />} />
+
+            {/* License Activation Page (after Whop purchase) */}
+            <Route path="/activate-license" element={<ProtectedRoute><ActivateLicense /></ProtectedRoute>} />
 
             {/* Protected Route - Original App with internal navigation */}
             <Route path="/dashboard/*" element={<ProtectedRoute><MainApp /></ProtectedRoute>} />

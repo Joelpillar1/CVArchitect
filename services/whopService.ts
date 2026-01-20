@@ -23,8 +23,9 @@ export async function createCheckoutSession(
         const origin = typeof window !== 'undefined' ? window.location.origin : 'https://cvarchitect.app';
 
         // Construct Whop checkout URL with success/cancel redirects
-        const successUrl = `${origin}/dashboard?payment=success`;
-        const cancelUrl = `${origin}/dashboard?payment=cancelled`;
+        // After successful payment, redirect to activation page
+        const successUrl = `${origin}/activate-license`;
+        const cancelUrl = `${origin}/pricing`;
 
         const checkoutUrl = `https://whop.com/checkout/${planId}?` +
             `email=${encodeURIComponent(userEmail)}&` +
