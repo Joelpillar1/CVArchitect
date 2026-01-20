@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Check, X, Zap, Crown, Star, Clock, Key } from 'lucide-react';
+import { Check, X, Zap, Crown, Star, Clock } from 'lucide-react';
 import { PLANS } from '../utils/pricingConfig';
 import { PlanId } from '../types/pricing';
 import { useAuth } from '../contexts/AuthContext';
-import { createCheckoutSession, mapInternalPlanToWhop } from '../services/whopService';
 import { useToast } from '../contexts/ToastContext';
-import LicenseActivationModal from './LicenseActivationModal';
 
 interface PricingModalProps {
     isOpen: boolean;
@@ -18,7 +16,6 @@ interface PricingModalProps {
 export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPlanId = 'free' }: PricingModalProps) {
     const [loading, setLoading] = useState(false);
     const [processingPlan, setProcessingPlan] = useState<PlanId | null>(null);
-    const [showLicenseModal, setShowLicenseModal] = useState(false);
     const { user } = useAuth();
     const { showToast } = useToast();
 
@@ -33,33 +30,9 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
             return;
         }
 
-        // Get Whop plan ID
-        const whopPlanId = mapInternalPlanToWhop(planId);
-
-        if (!whopPlanId) {
-            showToast('This plan is not available for purchase', 'error');
-            return;
-        }
-
-        setLoading(true);
-        setProcessingPlan(planId);
-
-        try {
-            // Create checkout session and redirect to Whop
-            const checkoutUrl = await createCheckoutSession(
-                whopPlanId,
-                user.id,
-                user.email || ''
-            );
-
-            // Redirect to Whop checkout
-            window.location.href = checkoutUrl;
-        } catch (error: any) {
-            console.error('Checkout error:', error);
-            showToast(error.message || 'Failed to start checkout. Please try again.', 'error');
-            setLoading(false);
-            setProcessingPlan(null);
-        }
+        // Just call the onSelectPlan callback
+        onSelectPlan(planId);
+        onClose();
     };
 
     return createPortal(
@@ -145,7 +118,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
                             disabled={loading}
                             className="w-full py-4 rounded-xl bg-brand-dark hover:bg-black text-white font-bold transition-all shadow-lg hover:shadow-xl active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {processingPlan === 'week_pass' ? 'Redirecting to checkout...' : 'Start My 7-Day Sprint'}
+                            {processingPlan === 'week_pass' ? 'Processing...' : 'Start My 7-Day Sprint'}
                         </button>
                     </div>
 
@@ -174,34 +147,8 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
                         </div>
                     </div>
 
-                    {/* License Key Option */}
-                    <div className="mt-6 pt-6 border-t border-gray-200">
-                        <button
-                            onClick={() => {
-                                onClose();
-                                setShowLicenseModal(true);
-                            }}
-                            className="w-full flex items-center justify-center gap-2 text-sm text-gray-600 hover:text-brand-green transition-colors group"
-                        >
-                            <Key size={16} className="group-hover:text-brand-green" />
-                            <span>Already purchased? <span className="font-semibold">Enter License Key</span></span>
-                        </button>
-                    </div>
-
                 </div>
             </div>
-
-            {/* License Activation Modal */}
-            <LicenseActivationModal
-                isOpen={showLicenseModal}
-                onClose={() => setShowLicenseModal(false)}
-                onSuccess={(plan) => {
-                    setShowLicenseModal(false);
-                    showToast(`🎉 License activated! You now have ${plan === 'week_pass' ? 'Career Sprint' : 'Career Marathon'} access!`, 'success');
-                    onSelectPlan(plan as PlanId);
-                    onClose();
-                }}
-            />
         </div>,
         document.body
     );

@@ -13,8 +13,6 @@ import TermsOfService from './components/TermsOfService';
 import Contact from './components/Contact';
 import RefundPolicy from './components/RefundPolicy';
 import PricingPage from './components/PricingPage';
-import ActivateLicense from './components/ActivateLicense';
-import WhopRedirectHandler from './components/WhopRedirectHandler';
 
 // Import the original MainApp as Dashboard
 import MainApp from './MainApp';
@@ -75,14 +73,7 @@ export default function AppRoutes() {
     return (
         <Routes>
             {/* Public Routes */}
-            <Route path="/" element={
-                <PublicRoute>
-                    <>
-                        <WhopRedirectHandler />
-                        <LandingPage />
-                    </>
-                </PublicRoute>
-            } />
+            <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
             <Route path="/login" element={<PublicRoute><SignIn /></PublicRoute>} />
             <Route path="/signup" element={<PublicRoute><SignUp /></PublicRoute>} />
             <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
@@ -94,9 +85,6 @@ export default function AppRoutes() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/refund-policy" element={<RefundPolicy />} />
             <Route path="/pricing" element={<PricingPage />} />
-
-            {/* License Activation Page (after Whop purchase) */}
-            <Route path="/activate-license" element={<ProtectedRoute><ActivateLicense /></ProtectedRoute>} />
 
             {/* Protected Route - Original App with internal navigation */}
             <Route path="/dashboard/*" element={<ProtectedRoute><MainApp /></ProtectedRoute>} />
