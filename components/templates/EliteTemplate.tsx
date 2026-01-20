@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets } from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets } from '../../utils/templateUtils';
 import { getTranslation, Language } from '../../i18n/translations';
 
 const formatMonthYear = (dateString: string) => {
@@ -54,8 +54,9 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                     </section>
                 );
 
-            case 'achievements':
-                return data.keyAchievements && data.keyAchievements.trim() && (
+            case 'achievements': {
+                const achievements = parseAchievementBullets(data.keyAchievements || '');
+                return achievements.length > 0 && (
                     <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.2}in` }}>
                         <h2
                             className={`font-bold uppercase tracking-wide mb-3 flex items-center gap-2 ${getSectionHeaderAlignment()}`}
@@ -68,7 +69,7 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                             KEY ACHIEVEMENTS
                         </h2>
                         <div className="grid grid-cols-1 gap-2">
-                            {data.keyAchievements.split('\n').map((line, i) =>
+                            {achievements.map((line, i) =>
                                 line.trim() && (
                                     <div
                                         key={i}
@@ -85,6 +86,7 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                         </div>
                     </section>
                 );
+            }
 
             case 'skills':
                 return data.skills && (
@@ -160,7 +162,7 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                                         </div>
                                     </div>
                                     <ul className="space-y-1.5 mt-3">
-                                        {exp.description.split('\n').map((line, i) =>
+                                        {descriptionToString(exp.description).split('\n').map((line, i) =>
                                             line.trim() && (
                                                 <li
                                                     key={i}
@@ -398,12 +400,12 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                     </p>
 
                     {/* Contact Bar */}
-                    <div className={`flex flex-wrap gap-4 text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}>
-                        {data.email && (
-                            <div className="flex items-center gap-1.5">
-                                <span>{data.email}</span>
-                            </div>
-                        )}
+                <div className={`flex flex-wrap gap-4 text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}>
+                    {data.email && (
+                        <div className="flex items-center gap-1.5">
+                            <a href={`mailto:${data.email}`} style={{ textDecoration: 'none', color: 'inherit' }}>{data.email}</a>
+                        </div>
+                    )}
                         {data.phone && (
                             <div className="flex items-center gap-1.5">
                                 <span>{data.phone}</span>
@@ -415,11 +417,18 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                                 <span>{data.address}</span>
                             </div>
                         )}
-                        {data.linkedin && (
-                            <div className="flex items-center gap-1.5">
-                                <span>{data.linkedin.replace(/^https?:\/\/(www\.)?/, '')}</span>
-                            </div>
-                        )}
+                    {data.linkedin && (
+                        <div className="flex items-center gap-1.5">
+                            <a
+                                href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ textDecoration: 'none', color: 'inherit' }}
+                            >
+                                {data.linkedin.replace(/^https?:\/\/(www\.)?/, '')}
+                            </a>
+                        </div>
+                    )}
                     </div>
                 </div>
             </header>

@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf';
 import { ResumeData } from '../../types';
+import { descriptionToString } from '../../utils/templateUtils';
 
 export const generatePDF = (data: ResumeData) => {
     const doc = new jsPDF({
@@ -159,7 +160,7 @@ export const generatePDF = (data: ResumeData) => {
         // Responsibilities
         doc.setFontSize(data.fontSizes?.body || 12.5);
         doc.setFont('helvetica', 'normal');
-        const responsibilities = exp.description.split('\n').filter(line => line.trim());
+        const responsibilities = descriptionToString(exp.description).split('\n').filter(line => line.trim());
 
         responsibilities.forEach(resp => {
             checkPageBreak(8);

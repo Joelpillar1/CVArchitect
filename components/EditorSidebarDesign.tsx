@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     AlignLeft, AlignCenter, AlignRight, AlignJustify,
     Type, Bold, Italic, Underline, Strikethrough,
@@ -31,16 +31,20 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
         });
     };
 
-    const handleSaveTemplate = () => {
-        if (!templateName.trim()) {
-            alert('Please enter a template name');
-            return;
+    // Keep local input in sync with the current tag so the name you saved with is always visible
+    useEffect(() => {
+        if (data.currentTag && data.currentTag !== templateName) {
+            setTemplateName(data.currentTag);
         }
+    }, [data.currentTag]);
 
+    const handleSaveTemplate = () => {
         setIsSaving(true);
 
-        // Create updated data with the template name
-        const updatedData = { ...data, currentTag: templateName.trim() };
+        const finalName = templateName.trim() || data.currentTag || 'Untitled Resume';
+
+        // Create updated data with the template name (or fallback)
+        const updatedData = { ...data, currentTag: finalName };
 
         // Update local state
         onChange(updatedData);
@@ -51,7 +55,6 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
         }
 
         setIsSaving(false);
-        setTemplateName('');
     };
 
     const handleSave = () => {
@@ -391,7 +394,7 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
                 </div>
             </div>
 
-            {/* Save as Template */}
+            {/* Save & Save as Template */}
             <div className="p-4 border-b border-brand-border">
                 <div className="flex justify-between items-center mb-3">
                     <h3 className="text-xs font-bold text-gray-900">Save Template</h3>
@@ -414,19 +417,21 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
                         />
                     </div>
 
-                    {/* Show Save button if editing existing resume */}
-                    {currentResumeId && onSave && (
-                        <div className="space-y-2">
+                    <div className="space-y-2">
+                        {/* Save current template (update or create) */}
+                        {onSave && (
                             <button
                                 onClick={handleSave}
                                 disabled={isSaving}
                                 className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-green text-brand-dark rounded-lg text-sm font-bold hover:bg-brand-greenHover transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
                             >
                                 <Save size={16} />
-                                {isSaving ? 'Saving...' : 'Save Changes'}
+                                {isSaving ? 'Saving...' : 'Save'}
                             </button>
+                        )}
 
-                            {/* Version History Button */}
+                        {/* Version History Button – only relevant when a resume already exists */}
+                        {currentResumeId && (
                             <button
                                 onClick={() => setShowVersionHistory(true)}
                                 className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-all"
@@ -434,17 +439,17 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
                                 <GitBranch size={16} />
                                 Version History
                             </button>
-                        </div>
-                    )}
+                        )}
+                    </div>
 
                     {/* Save As button */}
                     <button
                         onClick={handleSaveTemplate}
-                        disabled={isSaving || !templateName.trim()}
+                        disabled={isSaving}
                         className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border-2 border-brand-green text-brand-dark rounded-lg text-sm font-semibold hover:bg-brand-green/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <Save size={16} />
-                        {isSaving ? 'Saving...' : 'Save as New Template'}
+                        {isSaving ? 'Saving...' : 'Save as Template'}
                     </button>
 
                     <p className="text-xs text-gray-500 text-center">

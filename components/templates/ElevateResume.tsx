@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets } from '../../utils/templateUtils';
+import { parseDescriptionBullets, parseAchievementBullets } from '../../utils/templateUtils';
 import { Linkedin, Mail, Phone, MapPin, Send } from 'lucide-react';
 import { getTranslation, Language } from '../../i18n/translations';
 
@@ -79,8 +79,9 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                     </section>
                 );
 
-            case 'achievements':
-                return data.keyAchievements && data.keyAchievements.trim() && (
+            case 'achievements': {
+                const achievements = parseAchievementBullets(data.keyAchievements || '');
+                return achievements.length > 0 && (
                     <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         <h2
                             className={`section-header font-bold uppercase tracking-widest border-b mb-4 pb-1 ${getSectionHeaderAlignment()}`}
@@ -93,7 +94,7 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                             Key Achievements
                         </h2>
                         <ul className="list-disc list-outside ml-5 space-y-1 text-gray-700">
-                            {data.keyAchievements.split('\n').map((line, i) => (
+                            {achievements.map((line, i) => (
                                 line.trim() && (
                                     <li key={i}>{line.replace(/^[•-]\s*/, '')}</li>
                                 )
@@ -101,6 +102,7 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                         </ul>
                     </section>
                 );
+            }
 
             case 'experience':
                 return data.experience.length > 0 && (
@@ -116,28 +118,29 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                             {t.experienceTitle}
                         </h2>
                         <div className="space-y-6">
-                            {data.experience.map((exp) => (
-                                <div key={exp.id}>
-                                    <div className="flex justify-between items-baseline mb-1">
-                                        <div className="font-bold text-base">
-                                            {exp.company}{exp.location && <span className="font-normal italic text-gray-600"> • {exp.location}</span>}
+                            {data.experience.map((exp) => {
+                                const bullets = parseDescriptionBullets(exp.description);
+                                return (
+                                    <div key={exp.id}>
+                                        <div className="flex justify-between items-baseline mb-1">
+                                            <div className="font-bold text-base">
+                                                {exp.company}{exp.location && <span className="font-normal italic text-gray-600"> • {exp.location}</span>}
+                                            </div>
+                                            <div className="italic text-sm text-gray-600">
+                                                {formatMonthYear(exp.startDate)} – {formatMonthYear(exp.endDate)}
+                                            </div>
                                         </div>
-                                        <div className="italic text-sm text-gray-600">
-                                            {formatMonthYear(exp.startDate)} – {formatMonthYear(exp.endDate)}
+                                        <div className="flex justify-between items-baseline mb-2">
+                                            <div className="italic text-gray-800">{exp.role}</div>
                                         </div>
-                                    </div>
-                                    <div className="flex justify-between items-baseline mb-2">
-                                        <div className="italic text-gray-800">{exp.role}</div>
-                                    </div>
-                                    <ul className="list-disc list-outside ml-4 space-y-1 text-justify">
-                                        {exp.description.split('\n').map((line, i) =>
-                                            line.trim() && (
+                                        <ul className="list-disc list-outside ml-4 space-y-1 text-justify">
+                                            {bullets.map((line, i) => (
                                                 <li key={i} className="pl-1">{line.replace(/^[•-]\s*/, '')}</li>
-                                            )
-                                        )}
-                                    </ul>
-                                </div>
-                            ))}
+                                            ))}
+                                        </ul>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </section>
                 );
@@ -326,13 +329,23 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                     {data.email && (
                         <div className="flex items-center gap-1">
                             <Mail size={10} color={data.accentColor || '#000000'} />
-                            <span>{data.email}</span>
+                            <a href={`mailto:${data.email}`} className="no-underline" style={{ color: 'inherit' }}>
+                                {data.email}
+                            </a>
                         </div>
                     )}
                     {data.linkedin && (
                         <div className="flex items-center gap-1">
                             <Linkedin size={10} color={data.accentColor || '#000000'} />
-                            <span>{data.linkedin.replace(/^https?:\/\//, '')}</span>
+                            <a
+                                href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="no-underline"
+                                style={{ color: 'inherit' }}
+                            >
+                                {data.linkedin.replace(/^https?:\/\//, '')}
+                            </a>
                         </div>
                     )}
                     {data.atHandle && (

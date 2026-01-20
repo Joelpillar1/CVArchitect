@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets } from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets } from '../../utils/templateUtils';
 import { getTranslation, Language } from '../../i18n/translations';
 
 const formatMonthYear = (dateString: string) => {
@@ -62,8 +62,9 @@ export default function ClassicTemplate({ data }: { data: ResumeData }) {
           </section>
         );
 
-      case 'achievements':
-        return data.keyAchievements && data.keyAchievements.trim() && (
+      case 'achievements': {
+        const achievements = parseAchievementBullets(data.keyAchievements || '');
+        return achievements.length > 0 && (
           <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
             <h2
               className={`text-lg font-bold uppercase border-b-2 border-gray-300 mb-4 ${getSectionHeaderAlignment()}`}
@@ -72,7 +73,7 @@ export default function ClassicTemplate({ data }: { data: ResumeData }) {
               Key Achievements
             </h2>
             <div className="text-gray-800 pl-5" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
-              {data.keyAchievements.split('\n').map((line, i) => (
+              {achievements.map((line, i) => (
                 line.trim() ? <div key={i} className="mb-1 relative pl-2">
                   <span className="absolute left-[-1rem]">•</span>
                   {line.replace(/^[•-]\s*/, '')}
@@ -81,6 +82,7 @@ export default function ClassicTemplate({ data }: { data: ResumeData }) {
             </div>
           </section>
         );
+      }
 
       case 'experience':
         return data.experience.length > 0 && (
@@ -92,28 +94,31 @@ export default function ClassicTemplate({ data }: { data: ResumeData }) {
               {t.experienceTitle}
             </h2>
             <div className="space-y-8 mb-8">
-              {data.experience.map((exp) => (
-                <div key={exp.id} className="break-inside-avoid">
-                  <div className="flex justify-between items-center mb-1">
-                    <h3 className="font-bold text-lg text-gray-900" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{exp.role}</h3>
-                    <span className="text-sm font-bold text-gray-600" style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.9}pt` }}>
-                      {formatMonthYear(exp.startDate)} – {formatMonthYear(exp.endDate)}
-                    </span>
+              {data.experience.map((exp) => {
+                const desc = descriptionToString(exp.description);
+                return (
+                  <div key={exp.id} className="break-inside-avoid">
+                    <div className="flex justify-between items-center mb-1">
+                      <h3 className="font-bold text-lg text-gray-900" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{exp.role}</h3>
+                      <span className="text-sm font-bold text-gray-600" style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.9}pt` }}>
+                        {formatMonthYear(exp.startDate)} – {formatMonthYear(exp.endDate)}
+                      </span>
+                    </div>
+                    <p className="font-semibold italic text-gray-700 mb-3" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                      {exp.company}
+                      {exp.location && <span className="not-italic font-normal"> • {exp.location}</span>}
+                    </p>
+                    <div className="text-gray-800 pl-5" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                      {desc.split('\n').map((line, i) => (
+                        line.trim() ? <div key={i} className="mb-1 relative pl-2">
+                          <span className="absolute left-[-1rem]">•</span>
+                          {line.replace(/^[•-]\s*/, '')}
+                        </div> : null
+                      ))}
+                    </div>
                   </div>
-                  <p className="font-semibold italic text-gray-700 mb-3" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
-                    {exp.company}
-                    {exp.location && <span className="not-italic font-normal"> • {exp.location}</span>}
-                  </p>
-                  <div className="text-gray-800 pl-5" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
-                    {exp.description.split('\n').map((line, i) => (
-                      line.trim() ? <div key={i} className="mb-1 relative pl-2">
-                        <span className="absolute left-[-1rem]">•</span>
-                        {line.replace(/^[•-]\s*/, '')}
-                      </div> : null
-                    ))}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         );

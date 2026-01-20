@@ -2,7 +2,7 @@ import React from 'react';
 import { ResumeData } from '../../types';
 import { getTranslation, Language } from '../../i18n/translations';
 
-import { formatDate, parseDescriptionBullets } from '../../utils/templateUtils';
+import { formatDate, parseDescriptionBullets, parseAchievementBullets } from '../../utils/templateUtils';
 
 export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
   const { fontSizes } = data;
@@ -41,12 +41,13 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
           </section>
         );
 
-      case 'achievements':
-        return data.keyAchievements && data.keyAchievements.trim() && (
+      case 'achievements': {
+        const achievements = parseAchievementBullets(data.keyAchievements || '');
+        return achievements.length > 0 && (
           <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
             <h2 className={getSectionHeaderClass()} style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: data.accentColor || '#000000' }}>Key Achievements</h2>
             <ul className="list-disc ml-6 space-y-2 text-gray-700 leading-relaxed">
-              {data.keyAchievements.split('\n').map((line, i) => (
+              {achievements.map((line, i) => (
                 line.trim() && (
                   <li key={i} className="pl-1">
                     {line.replace(/^[\s•\-\*]+/, '')}
@@ -56,6 +57,7 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
             </ul>
           </section>
         );
+      }
 
       case 'experience':
         return data.experience.length > 0 && (

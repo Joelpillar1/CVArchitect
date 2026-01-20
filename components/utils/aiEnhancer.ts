@@ -158,7 +158,11 @@ export const generateBulletPoints = async (
         - **MANDATORY**: Every single bullet point MUST start with a DIFFERENT action verb.
         - **NO EXCEPTIONS**: If you generate 4 bullets, you must use 4 completely different verbs.
         - **NEVER** start consecutive bullets with similar verbs.
-        - Focus on achievements and metrics but not too much.
+        - Follow strategic quantification rules from the recruiter guide:
+          * **MAXIMUM ONE bullet with a metric/number** for this role.
+          * Metrics must be SPECIFIC and CONTEXTUAL (e.g., "Reduced deployment from 2 weeks to 3 days").
+          * AVOID strings of vague percentages like "improved by 20%, 30%, 40%".
+        - Prefer concrete outcomes and responsibilities over metric spam.
         - Return ONLY a JSON array of strings, e.g., ["bullet 1", "bullet 2"].
         - **VERIFICATION**: Before outputting, check that NO two bullets start with the same verb or verb form.`;
 
@@ -181,7 +185,7 @@ export const tailorResumeToJob = async (
     keyAchievements: string;
 }> => {
     try {
-        const prompt = `You are a senior executive recruiter with 15+ years of experience. You're helping a candidate tailor their resume to THIS SPECIFIC JOB. You HATE resumes that scream "AI-generated" with excessive metrics and generic buzzwords.
+        const prompt = `You are a senior executive recruiter with 15+ years of experience. You STRICTLY follow the "AI Resume Enhancement Rules - Recruiter-Approved" document below. You're helping a candidate tailor their resume to THIS SPECIFIC JOB. You HATE resumes that scream "AI-generated" with excessive metrics and generic buzzwords.
 
 JOB DESCRIPTION:
 ${jobDescription.substring(0, 3000)}
@@ -202,13 +206,12 @@ Experience: ${JSON.stringify(resumeData.experience.map(e => ({ role: e.role, com
 
 ## 2. EXPERIENCE BULLETS (CRITICAL - READ CAREFULLY):
 
-### STRATEGIC QUANTIFICATION RULES:
-- **MAXIMUM 1 metric per role** (this is NOT the Key Achievements section)
-- Metrics must be IMPACTFUL and CONTEXTUAL
-- ❌ **AVOID**: Multiple percentages (20%, 30%, 40%) - instant red flag
-- ✅ **PREFER**: Concrete outcomes ("Launched X", "Built Y", "Led team of Z")
-- If you use a number, make it SPECIFIC: "Reduced deployment from 2 weeks to 3 days" NOT "Improved by 30%"
-- If you are generating 3-4 bullets, make sure to limit the matric on all the bullets to 2-3.
+### STRATEGIC QUANTIFICATION RULES (MUST MATCH THE RULES DOC):
+- **MAXIMUM 1 metric-driven bullet per role** (this is NOT the Key Achievements section).
+- The other bullets should focus on strategy, scope, problem-solving, and execution WITHOUT numbers.
+- Metrics must be IMPACTFUL and CONTEXTUAL.
+- ❌ **AVOID**: Multiple vague percentages (20%, 30%, 40%) – this looks AI-generated.
+- ✅ **PREFER**: Concrete outcomes ("Reduced deployment time from 2 weeks to 3 days", "Launched mobile app to 50K users").
 
 ### BULLET POINT STRUCTURE (3-4 bullets per role):
 1. **Strategic Impact** - What system/process did you build or transform?
@@ -250,13 +253,13 @@ Experience: ${JSON.stringify(resumeData.experience.map(e => ({ role: e.role, com
 - Be specific: "React.js" not "Frontend Development"
 
 ## 4. KEY ACHIEVEMENTS (3-4 bullet points):
-**THIS is where you can use 2-3 metrics** (unlike experience section)
+**THIS is the ONLY place where 2-3 METRIC-HEAVY bullets are acceptable** (unlike the experience section).
 - Each achievement should be IMPRESSIVE and RELEVANT to THIS job
 - Use STAR method but write it as ONE cohesive sentence
 - Start with strong action verbs
 - Show scope, scale, and business impact
 - Align with the job's key requirements
-- Use superlatives when truthful (first, largest, fastest)
+- Use superlatives when truthful (first, largest, fastest).
 
 CRITICAL RULES:
 - Stay TRUTHFUL - enhance and reframe existing experience, don't fabricate
@@ -264,7 +267,7 @@ CRITICAL RULES:
 - Use keywords from the JD naturally (aim for 95%+ keyword coverage)
 - VARY sentence structure and verbs - no repetition
 - Sound HUMAN, not AI-generated
-- Remember: ONE metric maximum per experience role (Key Achievements can have more)
+- Remember: ONE metric-driven bullet maximum per experience role (Key Achievements can have more, but still must be credible)
 
 Return ONLY valid JSON in this EXACT format:
 {

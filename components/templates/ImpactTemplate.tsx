@@ -1,7 +1,7 @@
 import React from 'react';
 import { ResumeData } from '../../types';
 import { getTranslation, Language } from '../../i18n/translations';
-import { formatDate, parseDescriptionBullets } from '../../utils/templateUtils';
+import { formatDate, parseDescriptionBullets, descriptionToString, parseAchievementBullets } from '../../utils/templateUtils';
 
 export default function ImpactTemplate({ data }: { data: ResumeData }) {
     const { fontSizes } = data;
@@ -77,8 +77,9 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
                     </section>
                 );
 
-            case 'achievements':
-                return data.keyAchievements && data.keyAchievements.trim() && (
+            case 'achievements': {
+                const achievements = parseAchievementBullets(data.keyAchievements || '');
+                return achievements.length > 0 && (
                     <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         <h2
                             className={`font-bold uppercase tracking-wide mb-3 ${getSectionHeaderAlignment()}`}
@@ -90,7 +91,7 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
                             Key Achievements
                         </h2>
                         <ul className="list-disc list-outside ml-5 space-y-1 text-gray-700">
-                            {data.keyAchievements.split('\n').map((line, i) => (
+                            {achievements.map((line, i) => (
                                 line.trim() && (
                                     <li key={i} style={{ fontSize: `${bodySize}pt` }}>{line.replace(/^[•-]\s*/, '')}</li>
                                 )
@@ -98,6 +99,7 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
                         </ul>
                     </section>
                 );
+            }
 
             case 'experience':
                 return data.experience.length > 0 && (
@@ -136,7 +138,7 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
                                         </p>
                                     )}
                                     <ul className="list-none space-y-1 ml-0">
-                                        {exp.description.split('\n').map((line, i) => (
+                                        {descriptionToString(exp.description).split('\n').map((line, i) => (
                                             line.trim() && (
                                                 <li key={i} className="text-gray-700 flex items-start" style={{ fontSize: `${mediumSize}pt` }}>
                                                     <span className="mr-2">•</span>

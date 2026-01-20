@@ -319,10 +319,25 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
 
                 {/* Contact Info */}
                 <div className={`flex gap-6 text-gray-700 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${smallSize}pt` }}>
-                    {data.email && <div>{data.email}</div>}
+                    {data.email && (
+                        <div>
+                            <a href={`mailto:${data.email}`} style={{ textDecoration: 'none', color: 'inherit' }}>{data.email}</a>
+                        </div>
+                    )}
                     {data.phone && <div>{data.phone}</div>}
                     {data.address && <div>{data.address}</div>}
-                    {data.linkedin && <div>{data.linkedin.replace(/^https?:\/\//, '')}</div>}
+                    {data.linkedin && (
+                        <div>
+                            <a
+                                href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ textDecoration: 'none', color: 'inherit' }}
+                            >
+                                {data.linkedin.replace(/^https?:\/\//, '')}
+                            </a>
+                        </div>
+                    )}
                 </div>
             </header>
 

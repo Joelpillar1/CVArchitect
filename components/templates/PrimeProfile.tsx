@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets } from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets } from '../../utils/templateUtils';
 import { Linkedin, Mail, Phone, MapPin, Send } from 'lucide-react';
 import { getTranslation, Language } from '../../i18n/translations';
 
@@ -48,8 +48,9 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                     </section>
                 );
 
-            case 'achievements':
-                return data.keyAchievements && data.keyAchievements.trim() && (
+            case 'achievements': {
+                const achievements = parseAchievementBullets(data.keyAchievements || '');
+                return achievements.length > 0 && (
                     <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         <h2
                             className={`font-bold uppercase tracking-wide mb-3 text-black ${getSectionHeaderAlignment()}`}
@@ -58,7 +59,7 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                             Key Achievements
                         </h2>
                         <ul className="list-disc list-outside ml-5 space-y-1 text-gray-700">
-                            {data.keyAchievements.split('\n').map((line, i) => (
+                            {achievements.map((line, i) => (
                                 line.trim() && (
                                     <li key={i}>{line.replace(/^[•-]\s*/, '')}</li>
                                 )
@@ -67,6 +68,7 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                         <div className="mt-6 h-px w-full" style={{ backgroundColor: accentColor }}></div>
                     </section>
                 );
+            }
 
             case 'experience':
                 return data.experience.length > 0 && (
@@ -88,7 +90,7 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                                     </div>
                                     <div className="italic text-gray-800 mb-2">{exp.role}</div>
                                     <ul className="list-disc list-outside ml-4 space-y-1 text-gray-700 text-justify">
-                                        {exp.description.split('\n').map((line, i) => (
+                                        {descriptionToString(exp.description).split('\n').map((line, i) => (
                                             line.trim() && <li key={i} className="pl-1">{line.replace(/^[•-]\s*/, '')}</li>
                                         ))}
                                     </ul>
@@ -286,7 +288,9 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                     {data.phone && data.email && <span className="text-gray-400">|</span>}
 
                     {data.email && (
-                        <span>{data.email}</span>
+                        <a href={`mailto:${data.email}`} className="no-underline" style={{ color: 'inherit' }}>
+                            {data.email}
+                        </a>
                     )}
                     {data.email && (data.address || data.linkedin) && <span className="text-gray-400">|</span>}
 
@@ -296,7 +300,15 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                     {data.address && data.linkedin && <span className="text-gray-400">|</span>}
 
                     {data.linkedin && (
-                        <span>{data.linkedin.replace(/^https?:\/\//, '')}</span>
+                        <a
+                            href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="no-underline"
+                            style={{ color: 'inherit' }}
+                        >
+                            {data.linkedin.replace(/^https?:\/\//, '')}
+                        </a>
                     )}
                 </div>
             </header>

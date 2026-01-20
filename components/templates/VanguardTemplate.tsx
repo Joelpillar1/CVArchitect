@@ -3,7 +3,7 @@ import { ResumeData } from '../../types';
 import { Linkedin, Mail, Phone, MapPin, Send } from 'lucide-react';
 import { getTranslation, Language } from '../../i18n/translations';
 
-import { formatDate, parseDescriptionBullets } from '../../utils/templateUtils';
+import { formatDate, parseDescriptionBullets, parseAchievementBullets } from '../../utils/templateUtils';
 
 export default function VanguardTemplate({ data }: { data: ResumeData }) {
   const { fontSizes } = data;
@@ -67,8 +67,9 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
           </section>
         );
 
-      case 'achievements':
-        return data.keyAchievements && (
+      case 'achievements': {
+        const achievements = parseAchievementBullets(data.keyAchievements || '');
+        return achievements.length > 0 && (
           <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
             <h2
               className={`section-header font-bold tracking-widest border-b-2 pb-1 mb-3 ${getSectionHeaderAlignment()} ${data.sectionHeaderCase || 'uppercase'}`}
@@ -81,12 +82,13 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
               Key Achievements
             </h2>
             <ul className="list-disc list-outside ml-4 space-y-1">
-              {data.keyAchievements.split('\n').map((line, i) => (
+              {achievements.map((line, i) => (
                 line.trim() && <li key={i}>{line.replace(/^[•-]\s*/, '')}</li>
               ))}
             </ul>
           </section>
         );
+      }
 
       case 'experience':
         return data.experience.length > 0 && (

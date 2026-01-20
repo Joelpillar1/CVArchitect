@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets } from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets } from '../../utils/templateUtils';
 import { Mail, Phone, Linkedin, Github, Globe, MapPin } from 'lucide-react';
 import { getTranslation, Language } from '../../i18n/translations';
 
@@ -85,8 +85,9 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                     </section>
                 );
 
-            case 'achievements':
-                return data.keyAchievements && data.keyAchievements.trim() && (
+            case 'achievements': {
+                const achievements = parseAchievementBullets(data.keyAchievements || '');
+                return achievements.length > 0 && (
                     <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         <h2
                             className="font-bold uppercase mb-2 flex items-center gap-2"
@@ -103,7 +104,7 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                             className="list-none space-y-1 text-gray-700"
                             style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
                         >
-                            {data.keyAchievements.split('\n').map((line, i) =>
+                            {achievements.map((line, i) =>
                                 line.trim() && (
                                     <li key={i} className="flex gap-2 text-justify">
                                         <span style={{ color: accentColor }}>▸</span>
@@ -114,6 +115,7 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                         </ul>
                     </section>
                 );
+            }
 
             case 'experience':
                 return data.experience.length > 0 && (
@@ -160,7 +162,7 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                                         className="list-none space-y-1 text-gray-700"
                                         style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
                                     >
-                                        {exp.description.split('\n').map((line, i) =>
+                                        {descriptionToString(exp.description).split('\n').map((line, i) =>
                                             line.trim() && (
                                                 <li key={i} className="flex gap-2 text-justify">
                                                     <span style={{ color: accentColor }}>▸</span>
@@ -396,7 +398,7 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                     {data.email && data.email.trim() && (
                         <div className="flex items-center gap-2">
                             <Mail size={12} style={{ color: accentColor }} />
-                            <span>{data.email}</span>
+                            <a href={`mailto:${data.email}`} style={{ textDecoration: 'none', color: 'inherit' }}>{data.email}</a>
                         </div>
                     )}
                     {data.phone && data.phone.trim() && (
@@ -408,7 +410,15 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                     {data.linkedin && data.linkedin.trim() && (
                         <div className="flex items-center gap-2">
                             <Linkedin size={12} style={{ color: accentColor }} />
-                            <span className="truncate">{data.linkedin.replace(/^https?:\/\/(www\.)?/, '')}</span>
+                            <a
+                                href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="truncate"
+                                style={{ textDecoration: 'none', color: 'inherit' }}
+                            >
+                                {data.linkedin.replace(/^https?:\/\/(www\.)?/, '')}
+                            </a>
                         </div>
                     )}
 

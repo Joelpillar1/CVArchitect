@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets } from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets } from '../../utils/templateUtils';
 
 interface MinimalistTemplateProps {
     data: ResumeData;
@@ -85,11 +85,11 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
                                     {exp.description && (
                                         <div className="mt-1">
                                             <div className="mb-2 text-justify">
-                                                {exp.description.split('\n').filter(l => !l.trim().startsWith('•') && !l.trim().startsWith('-') && l.trim()).join(' ')}
+                                                {descriptionToString(exp.description).split('\n').filter(l => !l.trim().startsWith('•') && !l.trim().startsWith('-') && l.trim()).join(' ')}
                                             </div>
 
                                             <ul className="list-disc ml-8 space-y-1 text-black">
-                                                {exp.description.split('\n').map((line, i) => (
+                                                {descriptionToString(exp.description).split('\n').map((line, i) => (
                                                     (line.trim().startsWith('•') || line.trim().startsWith('-')) && (
                                                         <li key={i} className="pl-2">{line.replace(/^[•-]\s*/, '')}</li>
                                                     )
@@ -140,7 +140,7 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
                                     {exp.description && (
                                         <div className="mt-1">
                                             <ul className="list-disc ml-8 space-y-1 text-black">
-                                                {exp.description.split('\n').map((line, i) => (
+                                                {descriptionToString(exp.description).split('\n').map((line, i) => (
                                                     line.trim() && (
                                                         <li key={i} className="pl-2">{line.replace(/^[•-]\s*/, '')}</li>
                                                     )
@@ -206,12 +206,13 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
                     </section>
                 );
             case 'keyAchievements':
-            case 'achievements':
-                return data.keyAchievements && (
+            case 'achievements': {
+                const achievements = parseAchievementBullets(data.keyAchievements || '');
+                return achievements.length > 0 && (
                     <section key="keyAchievements" style={{ marginBottom: sectionGap }}>
                         <SectionHeader title="Key Achievements" />
                         <ul className="list-disc ml-8 space-y-2 text-black">
-                            {data.keyAchievements.split('\n').map((achievement, index) => (
+                            {achievements.map((achievement, index) => (
                                 achievement.trim() && (
                                     <li key={index} className="pl-2 leading-relaxed">
                                         {achievement.replace(/^[•-]\s*/, '')}
@@ -221,6 +222,7 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
                         </ul>
                     </section>
                 );
+            }
             default:
                 return null;
         }

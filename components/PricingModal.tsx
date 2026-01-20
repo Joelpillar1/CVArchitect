@@ -42,7 +42,8 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
                 {/* Close Button */}
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 z-50 bg-white/10 hover:bg-white/20 text-white rounded-full p-2 transition-colors"
+                    className="absolute top-4 right-4 z-50 w-9 h-9 rounded-full bg-white/95 text-gray-700 shadow-md flex items-center justify-center hover:bg-white hover:text-gray-900 transition-colors"
+                    aria-label="Close pricing"
                 >
                     <X size={20} />
                 </button>

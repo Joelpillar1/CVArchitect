@@ -54,6 +54,55 @@ export enum View {
   REFUND_POLICY = 'REFUND_POLICY',
 }
 
+// Helper functions to map between View enum and URL paths
+function viewToPath(view: View): string {
+  const pathMap: Record<View, string> = {
+    [View.LANDING]: '/',
+    [View.SIGN_IN]: '/login',
+    [View.SIGN_UP]: '/signup',
+    [View.FORGOT_PASSWORD]: '/forgot-password',
+    [View.RESET_PASSWORD]: '/reset-password',
+    [View.ONBOARDING]: '/dashboard/onboarding',
+    [View.OVERVIEW]: '/dashboard',
+    [View.TEMPLATES]: '/dashboard/templates',
+    [View.MY_TEMPLATES]: '/dashboard/my-templates',
+    [View.MY_COVER_LETTERS]: '/dashboard/cover-letters',
+    [View.EDITOR]: '/dashboard/editor',
+    [View.SETTINGS]: '/dashboard/settings',
+    [View.PRIVACY]: '/privacy',
+    [View.TERMS]: '/terms',
+    [View.CONTACT]: '/contact',
+    [View.REFUND_POLICY]: '/refund-policy',
+  };
+  return pathMap[view] || '/dashboard';
+}
+
+function pathToView(pathname: string): View {
+  // Remove trailing slash
+  const path = pathname.replace(/\/$/, '') || '/';
+
+  const viewMap: Record<string, View> = {
+    '/': View.LANDING,
+    '/login': View.SIGN_IN,
+    '/signup': View.SIGN_UP,
+    '/forgot-password': View.FORGOT_PASSWORD,
+    '/reset-password': View.RESET_PASSWORD,
+    '/dashboard': View.OVERVIEW,
+    '/dashboard/onboarding': View.ONBOARDING,
+    '/dashboard/templates': View.TEMPLATES,
+    '/dashboard/my-templates': View.MY_TEMPLATES,
+    '/dashboard/cover-letters': View.MY_COVER_LETTERS,
+    '/dashboard/editor': View.EDITOR,
+    '/dashboard/settings': View.SETTINGS,
+    '/privacy': View.PRIVACY,
+    '/terms': View.TERMS,
+    '/contact': View.CONTACT,
+    '/refund-policy': View.REFUND_POLICY,
+  };
+
+  return viewMap[path] || View.OVERVIEW;
+}
+
 // AppWrapper removed as Toast is now handled by Context
 const AppWrapper = ({ children }: { children: React.ReactNode }) => (
   <>

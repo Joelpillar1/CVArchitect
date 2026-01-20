@@ -2,7 +2,7 @@ import React from 'react';
 import { ResumeData } from '../../types';
 import { getTranslation, Language } from '../../i18n/translations';
 
-import { formatDate, parseDescriptionBullets } from '../../utils/templateUtils';
+import { formatDate, parseDescriptionBullets, parseAchievementBullets } from '../../utils/templateUtils';
 
 export default function ModernTemplate({ data }: { data: ResumeData }) {
   const { fontSizes } = data;
@@ -120,8 +120,9 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
           </section>
         );
 
-      case 'achievements':
-        return data.keyAchievements && data.keyAchievements.trim() && (
+      case 'achievements': {
+        const achievements = parseAchievementBullets(data.keyAchievements || '');
+        return achievements.length > 0 && (
           <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
             <h2
               className={`text-xl font-bold uppercase tracking-wider border-b-2 border-gray-300 pb-2 mb-4 ${getSectionHeaderAlignment()}`}
@@ -130,7 +131,7 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
               Key Achievements
             </h2>
             <ul className="list-disc list-outside ml-5 space-y-1 text-gray-700" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
-              {data.keyAchievements.split('\n').map((line, i) => (
+              {achievements.map((line, i) => (
                 line.trim() && (
                   <li key={i}>{line.replace(/^[•-]\s*/, '')}</li>
                 )
@@ -138,6 +139,7 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
             </ul>
           </section>
         );
+      }
 
       case 'certifications':
         return data.certifications && data.certifications.length > 0 && (

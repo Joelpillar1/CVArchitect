@@ -32,6 +32,16 @@ export const formatDate = (dateString: string): string => {
     return dateString;
 };
 
+export const descriptionToString = (description: string | string[] | undefined | null): string => {
+    if (Array.isArray(description)) {
+        return description.filter(Boolean).join('\n');
+    }
+    if (!description || typeof description !== 'string') {
+        return '';
+    }
+    return description;
+};
+
 export const parseDescriptionBullets = (description: string | string[]): string[] => {
     // Handle array format (new format)
     if (Array.isArray(description)) {

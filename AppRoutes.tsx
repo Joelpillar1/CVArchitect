@@ -14,8 +14,8 @@ import Contact from './components/Contact';
 import RefundPolicy from './components/RefundPolicy';
 import PricingPage from './components/PricingPage';
 
-// Import the original MainApp as Dashboard
-import MainApp from './MainApp';
+// New dashboard with nested routing
+import Dashboard from './pages/Dashboard';
 
 // Protected Route Component
 interface ProtectedRouteProps {
@@ -86,8 +86,8 @@ export default function AppRoutes() {
             <Route path="/refund-policy" element={<RefundPolicy />} />
             <Route path="/pricing" element={<PricingPage />} />
 
-            {/* Protected Route - Original App with internal navigation */}
-            <Route path="/dashboard/*" element={<ProtectedRoute><MainApp /></ProtectedRoute>} />
+            {/* Protected Route - Dashboard with nested routes */}
+            <Route path="/dashboard/*" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
             {/* Catch all - redirect to home */}
             <Route path="*" element={<Navigate to="/" replace />} />

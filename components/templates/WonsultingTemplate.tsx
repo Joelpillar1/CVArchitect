@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets } from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets } from '../../utils/templateUtils';
 import { getTranslation, Language } from '../../i18n/translations';
 
 const formatMonthYear = (dateString: string) => {
@@ -57,8 +57,9 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                     </section>
                 );
 
-            case 'achievements':
-                return data.keyAchievements && data.keyAchievements.trim() && (
+            case 'achievements': {
+                const achievements = parseAchievementBullets(data.keyAchievements || '');
+                return achievements.length > 0 && (
                     <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         <h2
                             className={`font-bold uppercase border-b-2 border-black mb-2 ${getSectionHeaderAlignment()}`}
@@ -67,7 +68,7 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                             Key Achievements
                         </h2>
                         <div className="text-gray-900 pl-4" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
-                            {data.keyAchievements.split('\n').map((line, i) => (
+                            {achievements.map((line, i) => (
                                 line.trim() ? <div key={i} className="mb-1 relative pl-2">
                                     <span className="absolute left-[-1rem]">•</span>
                                     {line.replace(/^[•-]\s*/, '')}
@@ -76,6 +77,7 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                         </div>
                     </section>
                 );
+            }
 
             case 'experience':
                 return data.experience.length > 0 && (
@@ -103,7 +105,7 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                                     </div>
 
                                     <div className="text-gray-900 pl-4" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
-                                        {exp.description.split('\n').map((line, i) => (
+                                        {descriptionToString(exp.description).split('\n').map((line, i) => (
                                             line.trim() ? <div key={i} className="relative pl-2">
                                                 <span className="absolute left-[-1rem]">•</span>
                                                 {line.replace(/^[•-]\s*/, '')}
@@ -248,7 +250,7 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                                         </span>
                                     </div>
                                     <div className="text-gray-900 pl-4" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
-                                        {exp.description.split('\n').map((line, i) => (
+                                        {descriptionToString(exp.description).split('\n').map((line, i) => (
                                             line.trim() ? <div key={i} className="relative pl-2">
                                                 <span className="absolute left-[-1rem]">•</span>
                                                 {line.replace(/^[•-]\s*/, '')}

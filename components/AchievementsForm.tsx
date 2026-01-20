@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ResumeData } from '../types';
 import { Sparkles, Plus, X } from 'lucide-react';
 import { generateAchievements } from './utils/aiEnhancer';
+import { parseAchievementBullets } from '../utils/templateUtils';
 
 interface AchievementsFormProps {
     data: ResumeData;
@@ -19,9 +20,10 @@ export default function AchievementsForm({ data, onChange, onAIAction }: Achieve
             // Return a new copy of the array to avoid mutation
             return [...achievements];
         }
-        // Convert legacy string format (newline-separated) to array
         if (achievements && achievements.trim()) {
-            return achievements.split('\n').map(line => line.replace(/^[•\-\*]\s*/, '').trim()).filter(line => line);
+            // Use shared parser so we correctly handle both newline and "•" separated bullets
+            const bullets = parseAchievementBullets(achievements);
+            if (bullets.length > 0) return bullets;
         }
         return ['', '', '']; // Default 3 empty achievements
     };

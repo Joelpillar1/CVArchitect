@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ResumeData, Experience } from '../types';
 import { Plus, Trash2, Calendar, MapPin, Building, GripVertical, ChevronUp, ChevronDown, Sparkles, X } from 'lucide-react';
 import { enhanceDescription } from './utils/aiEnhancer';
+import { parseDescriptionBullets } from '../utils/templateUtils';
 
 interface ExperienceFormProps {
     data: ResumeData;
@@ -18,11 +19,13 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
         if (Array.isArray(description)) {
             return description;
         }
-        // Convert legacy string format (newline-separated) to array
         if (description && description.trim()) {
-            return description.split('\n').map(line => line.replace(/^[•\-\*]\s*/, '').trim()).filter(line => line);
+            // Use shared parser so we correctly handle both newline and "•" separated bullets
+            const bullets = parseDescriptionBullets(description);
+            if (bullets.length > 0) return bullets;
         }
-        return ['', '', '', '']; // Default 4 empty bullet points
+        // Default empty state: 4 editable bullet boxes
+        return ['', '', '', ''];
     };
 
     const handleAdd = () => {

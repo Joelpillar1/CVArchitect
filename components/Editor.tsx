@@ -240,10 +240,6 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
               <span className="hidden sm:inline">Buy this Resume</span>
             </button>
           )}
-          <button className="flex items-center gap-2 px-3 md:px-4 py-2 bg-brand-green text-brand-dark rounded-lg text-sm font-bold hover:bg-brand-greenHover transition-colors shadow-sm">
-            <LayoutIcon size={16} />
-            <span className="hidden sm:inline">Share</span>
-          </button>
         </div>
       </div>
 

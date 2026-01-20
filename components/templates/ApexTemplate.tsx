@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets } from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets } from '../../utils/templateUtils';
 import { getTranslation, Language } from '../../i18n/translations';
 
 const formatMonthYear = (dateString: string) => {
@@ -50,8 +50,9 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                     </section>
                 );
 
-            case 'achievements':
-                return data.keyAchievements && data.keyAchievements.trim() && (
+            case 'achievements': {
+                const achievements = parseAchievementBullets(data.keyAchievements || '');
+                return achievements.length > 0 && (
                     <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.2}in` }}>
                         <h2
                             className={`font-bold uppercase tracking-wider mb-3 pb-2 border-b-2 border-gray-300 ${getSectionHeaderAlignment()}`}
@@ -63,7 +64,7 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                             KEY ACHIEVEMENTS
                         </h2>
                         <div className="space-y-2">
-                            {data.keyAchievements.split('\n').map((line, i) =>
+                            {achievements.map((line, i) =>
                                 line.trim() && (
                                     <div
                                         key={i}
@@ -78,6 +79,7 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                         </div>
                     </section>
                 );
+            }
 
             case 'skills':
                 return data.skills && (
@@ -119,50 +121,53 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                             {t.experienceTitle}
                         </h2>
                         <div className="space-y-5">
-                            {data.experience.map((exp) => (
-                                <div key={exp.id} className="break-inside-avoid">
-                                    <div className="mb-2">
-                                        <div className="flex justify-between items-baseline mb-1">
-                                            <h3
-                                                className="font-bold"
-                                                style={{
-                                                    fontSize: `${(fontSizes?.body || 10.5) * 1.15}pt`,
-                                                    color: accentColor
-                                                }}
-                                            >
-                                                {exp.role}
-                                            </h3>
-                                            <span
-                                                className="text-gray-500 font-medium"
-                                                style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.85}pt` }}
-                                            >
-                                                {formatMonthYear(exp.startDate)} – {formatMonthYear(exp.endDate)}
-                                            </span>
-                                        </div>
-                                        <div
-                                            className="font-semibold text-gray-600"
-                                            style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
-                                        >
-                                            {exp.company}
-                                            {exp.location && <span className="text-gray-400 font-normal"> | {exp.location}</span>}
-                                        </div>
-                                    </div>
-                                    <ul className="space-y-1.5">
-                                        {exp.description.split('\n').map((line, i) =>
-                                            line.trim() && (
-                                                <li
-                                                    key={i}
-                                                    className="flex gap-2 items-start text-gray-700"
-                                                    style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
+                            {data.experience.map((exp) => {
+                                const desc = descriptionToString(exp.description);
+                                return (
+                                    <div key={exp.id} className="break-inside-avoid">
+                                        <div className="mb-2">
+                                            <div className="flex justify-between items-baseline mb-1">
+                                                <h3
+                                                    className="font-bold"
+                                                    style={{
+                                                        fontSize: `${(fontSizes?.body || 10.5) * 1.15}pt`,
+                                                        color: accentColor
+                                                    }}
                                                 >
-                                                    <span className="font-bold mt-0.5" style={{ color: accentColor }}>•</span>
-                                                    <span className="flex-1">{line.replace(/^[•-]\s*/, '')}</span>
-                                                </li>
-                                            )
-                                        )}
-                                    </ul>
-                                </div>
-                            ))}
+                                                    {exp.role}
+                                                </h3>
+                                                <span
+                                                    className="text-gray-500 font-medium"
+                                                    style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.85}pt` }}
+                                                >
+                                                    {formatMonthYear(exp.startDate)} – {formatMonthYear(exp.endDate)}
+                                                </span>
+                                            </div>
+                                            <div
+                                                className="font-semibold text-gray-600"
+                                                style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
+                                            >
+                                                {exp.company}
+                                                {exp.location && <span className="text-gray-400 font-normal"> | {exp.location}</span>}
+                                            </div>
+                                        </div>
+                                        <ul className="space-y-1.5">
+                                            {desc.split('\n').map((line, i) =>
+                                                line.trim() && (
+                                                    <li
+                                                        key={i}
+                                                        className="flex gap-2 items-start text-gray-700"
+                                                        style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
+                                                    >
+                                                        <span className="font-bold mt-0.5" style={{ color: accentColor }}>•</span>
+                                                        <span className="flex-1">{line.replace(/^[•-]\s*/, '')}</span>
+                                                    </li>
+                                                )
+                                            )}
+                                        </ul>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </section>
                 );
@@ -394,7 +399,7 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                     <div className={`flex flex-wrap gap-x-6 gap-y-2 text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.9}pt` }}>
                         {data.email && (
                             <div className="flex items-center gap-2">
-                                <span>{data.email}</span>
+                                <a href={`mailto:${data.email}`} style={{ textDecoration: 'none', color: 'inherit' }}>{data.email}</a>
                             </div>
                         )}
                         {data.phone && (
@@ -410,7 +415,15 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                         )}
                         {data.linkedin && (
                             <div className="flex items-center gap-2">
-                                <span className="text-sm">{data.linkedin.replace(/^https?:\/\/(www\.)?/, '')}</span>
+                                <a
+                                    href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{ textDecoration: 'none', color: 'inherit' }}
+                                    className="text-sm"
+                                >
+                                    {data.linkedin.replace(/^https?:\/\/(www\.)?/, '')}
+                                </a>
                             </div>
                         )}
                     </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets } from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets } from '../../utils/templateUtils';
 
 interface ElegantTemplateProps {
     data: ResumeData;
@@ -93,7 +93,7 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
                                     {exp.description && (
                                         <div className="mt-2">
                                             <ul className="list-disc ml-5 space-y-1 text-gray-700">
-                                                {exp.description.split('\n').map((line, i) => (
+                                                {descriptionToString(exp.description).split('\n').map((line, i) => (
                                                     line.trim() && (
                                                         <li key={i} className="pl-1">{line.replace(/^[•-]\s*/, '')}</li>
                                                     )
@@ -142,7 +142,7 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
                                         </div>
                                     </div>
                                     <ul className="list-disc ml-5 space-y-1 text-gray-700">
-                                        {exp.description.split('\n').map((line, i) => (
+                                        {descriptionToString(exp.description).split('\n').map((line, i) => (
                                             line.trim() && (
                                                 <li key={i} className="pl-1">{line.replace(/^[•-]\s*/, '')}</li>
                                             )
@@ -208,12 +208,13 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
                     </section>
                 );
             case 'keyAchievements':
-            case 'achievements':
-                return data.keyAchievements && (
+            case 'achievements': {
+                const achievements = parseAchievementBullets(data.keyAchievements || '');
+                return achievements.length > 0 && (
                     <section key="keyAchievements" style={{ marginBottom: sectionGap }}>
                         <SectionHeader title="Key Achievements" />
                         <ul className="list-disc ml-5 space-y-1 text-gray-700">
-                            {data.keyAchievements.split('\n').map((achievement, index) => (
+                            {achievements.map((achievement, index) => (
                                 achievement.trim() && (
                                     <li key={index} className="pl-1 leading-relaxed">
                                         {achievement.replace(/^[•-]\s*/, '')}
@@ -223,6 +224,7 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
                         </ul>
                     </section>
                 );
+            }
             default:
                 return null;
         }
