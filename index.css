@@ -46,3 +46,22 @@
         display: none;
     }
 }
+
+/* Whop Checkout Embed Styling - Stripe-like Professional Design */
+.whop-checkout-wrapper {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.whop-checkout-wrapper iframe {
+    border: none;
+    border-radius: 12px;
+    width: 100%;
+    min-height: 400px;
+}
+
+/* Ensure smooth integration with our theme */
+.whop-checkout-wrapper * {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+}
