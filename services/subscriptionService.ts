@@ -85,6 +85,22 @@ export const subscriptionService = {
 
     async updateSubscription(userId: string, updates: any): Promise<void> {
         try {
+            // If updating to free plan, preserve existing credits unless explicitly setting them
+            // This prevents accidentally resetting credits for free users
+            if (updates.plan_id === 'free' && updates.credits === undefined) {
+                // Get current subscription to preserve credits
+                const { data: currentSub } = await supabase
+                    .from('subscriptions')
+                    .select('credits')
+                    .eq('user_id', userId)
+                    .single();
+
+                if (currentSub) {
+                    // Preserve existing credits when updating to free plan
+                    updates.credits = currentSub.credits;
+                }
+            }
+
             const { error } = await supabase
                 .from('subscriptions')
                 .update({

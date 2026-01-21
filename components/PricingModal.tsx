@@ -30,9 +30,36 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
             return;
         }
 
-        // Just call the onSelectPlan callback
-        onSelectPlan(planId);
-        onClose();
+        setLoading(true);
+        setProcessingPlan(planId);
+
+        try {
+            // Get Whop checkout URL from environment
+            const checkoutUrl = planId === 'week_pass'
+                ? import.meta.env.VITE_WHOP_SPRINT_CHECKOUT_URL
+                : import.meta.env.VITE_WHOP_MARATHON_CHECKOUT_URL;
+
+            if (!checkoutUrl) {
+                showToast('Checkout URL not configured. Please contact support.', 'error');
+                setLoading(false);
+                setProcessingPlan(null);
+                return;
+            }
+
+            // Redirect to Whop checkout with user ID in metadata
+            // Whop will pass this back in the webhook so we can identify the user
+            const url = new URL(checkoutUrl);
+            url.searchParams.set('metadata[user_id]', user.id);
+            url.searchParams.set('metadata[email]', user.email || '');
+            
+            // Redirect to Whop checkout
+            window.location.href = url.toString();
+        } catch (error) {
+            console.error('Error redirecting to Whop checkout:', error);
+            showToast('Failed to redirect to checkout. Please try again.', 'error');
+            setLoading(false);
+            setProcessingPlan(null);
+        }
     };
 
     return createPortal(

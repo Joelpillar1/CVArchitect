@@ -79,38 +79,81 @@ export default function Dashboard() {
                 return;
             }
             try {
+                console.log('Loading resumes for user:', user.id);
                 const rows = await resumeService.getResumes(user.id);
+                console.log('Fetched resumes from database:', rows.length, rows);
+                
                 const templates: SavedTemplate[] = rows
                     .map((r) => {
-                        let content: any = r.content;
-                        if (typeof content === 'string') {
-                            try {
-                                content = JSON.parse(content);
-                            } catch (e) {
-                                console.error(`Failed to parse resume "${r.title}":`, e);
+                        try {
+                            let content: any = r.content;
+                            
+                            // Supabase JSONB fields are usually already objects, but handle string case
+                            if (typeof content === 'string') {
+                                try {
+                                    content = JSON.parse(content);
+                                } catch (e) {
+                                    console.error(`Failed to parse resume "${r.title}":`, e);
+                                    return null;
+                                }
+                            }
+                            
+                            // Validate content is an object
+                            if (!content || typeof content !== 'object' || Array.isArray(content)) {
+                                console.error(`Invalid resume content for "${r.title}":`, content);
                                 return null;
                             }
-                        }
-                        if (!content || typeof content !== 'object') {
-                            console.error(`Invalid resume content for "${r.title}"`);
+                            
+                            // Ensure template field exists (fallback to 'free' if missing)
+                            const template = content?.template || 'free';
+                            
+                            return {
+                                id: r.id,
+                                tag: r.title || 'Untitled Resume',
+                                baseTemplate: template as TemplateType,
+                                data: content as ResumeData,
+                                createdAt: new Date(r.created_at),
+                            };
+                        } catch (e) {
+                            console.error(`Error processing resume "${r.title}":`, e);
                             return null;
                         }
-                        return {
-                            id: r.id,
-                            tag: r.title,
-                            baseTemplate: (content?.template || 'free') as TemplateType,
-                            data: content as ResumeData,
-                            createdAt: new Date(r.created_at),
-                        };
                     })
                     .filter((t): t is SavedTemplate => t !== null);
+                
+                console.log('Processed templates:', templates.length, templates);
                 setSavedTemplates(templates);
+                
+                // If there's a currentResumeId from localStorage, try to restore it
+                const savedResumeId = localStorage.getItem('cv_app_resume_id');
+                if (savedResumeId && !savedResumeId.startsWith('tmp_')) {
+                    const savedResume = templates.find(t => t.id === savedResumeId);
+                    if (savedResume) {
+                        console.log('Restoring saved resume:', savedResumeId, savedResume);
+                        setCurrentResumeId(savedResumeId);
+                        setResumeData(savedResume.data);
+                        setSelectedTemplate(savedResume.baseTemplate);
+                        // Update localStorage with the restored data
+                        localStorage.setItem('cv_app_data', JSON.stringify(savedResume.data));
+                        localStorage.setItem('cv_app_template', savedResume.baseTemplate);
+                    } else {
+                        console.warn('Saved resume ID not found in loaded templates:', savedResumeId);
+                    }
+                } else if (templates.length > 0) {
+                    // If no saved resume ID but we have templates, optionally load the most recent one
+                    // (commented out - let user choose which to load)
+                    // const mostRecent = templates[0];
+                    // setCurrentResumeId(mostRecent.id);
+                    // setResumeData(mostRecent.data);
+                    // setSelectedTemplate(mostRecent.baseTemplate);
+                }
             } catch (err) {
                 console.error('Failed to load resumes:', err);
+                showToast('Failed to load saved resumes. Please refresh the page.', 'error');
             }
         };
         loadResumes();
-    }, [user]);
+    }, [user, showToast]);
 
     // Load subscription & profile from Supabase when user changes
     useEffect(() => {

@@ -5,7 +5,7 @@ export interface SavedResume {
     id: string;
     user_id: string;
     title: string;
-    content: ResumeData;
+    content: ResumeData | string; // Can be object (JSONB) or string
     created_at: string;
     updated_at: string;
 }
@@ -19,7 +19,12 @@ export const resumeService = {
                 .eq('user_id', userId)
                 .order('updated_at', { ascending: false });
 
-            if (error) throw error;
+            if (error) {
+                console.error('Supabase error fetching resumes:', error);
+                throw error;
+            }
+            
+            console.log(`Fetched ${data?.length || 0} resumes for user ${userId}`);
             return data || [];
         } catch (error) {
             console.error('Error fetching resumes:', error);
