@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { User, CreditCard, Bell, Shield, Zap, Crown, TrendingUp, Calendar, Download, Trash2, Check, X, Eye, EyeOff } from 'lucide-react';
 import { UserSubscription, PlanId } from '../types/pricing';
 import { PLANS, CREDIT_PACKS } from '../utils/pricingConfig';
@@ -20,6 +21,7 @@ interface SettingsProps {
 
 export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, userProfile, userEmail, onProfileUpdate, onNavigateToPrivacy, onNavigateToTerms }: SettingsProps) => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'account' | 'subscription' | 'usage' | 'preferences'>('account');
 
   // Parse user name from profile or email
@@ -801,13 +803,25 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
               <div className="p-8 space-y-4">
                 <div className="flex gap-4">
                   <button
-                    onClick={onNavigateToTerms}
+                    onClick={() => {
+                      if (onNavigateToTerms) {
+                        onNavigateToTerms();
+                      } else {
+                        navigate('/terms');
+                      }
+                    }}
                     className="text-brand-dark hover:text-brand-green font-medium underline transition-colors"
                   >
                     Terms of Service
                   </button>
                   <button
-                    onClick={onNavigateToPrivacy}
+                    onClick={() => {
+                      if (onNavigateToPrivacy) {
+                        onNavigateToPrivacy();
+                      } else {
+                        navigate('/privacy');
+                      }
+                    }}
                     className="text-brand-dark hover:text-brand-green font-medium underline transition-colors"
                   >
                     Privacy Policy

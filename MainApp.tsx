@@ -173,10 +173,13 @@ export default function App() {
   // Load user subscription
   useEffect(() => {
     if (user) {
+      let isMounted = true;
+      
       // Fetch subscription from Supabase
       import('./services/subscriptionService').then(({ subscriptionService }) => {
         subscriptionService.getSubscription(user.id)
           .then((sub) => {
+            if (!isMounted) return; // Component unmounted, ignore result
             if (sub) {
               // The service now maps this correctly to UserSubscription
               setUserSubscription(sub);
@@ -185,11 +188,22 @@ export default function App() {
               setUserSubscription(createDefaultSubscription(user.id));
             }
           }).catch(err => {
+            if (!isMounted) return; // Component unmounted, ignore error
+            // Ignore AbortError - it's not a real error
+            if (err?.name === 'AbortError' || err?.message?.includes('aborted')) {
+              console.log('Subscription fetch was aborted');
+              return;
+            }
             console.error('Failed to load subscription:', err);
             // On error, use default subscription
             setUserSubscription(createDefaultSubscription(user.id));
           });
       });
+      
+      // Cleanup function to mark component as unmounted
+      return () => {
+        isMounted = false;
+      };
     } else {
       // Reset if logged out
       setUserSubscription(createDefaultSubscription('guest'));

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 
 // Page Components
@@ -69,6 +69,17 @@ function PublicRoute({ children }: PublicRouteProps) {
     return <>{children}</>;
 }
 
+// Wrapper components for legal pages that need onBack prop
+function PrivacyPolicyWrapper() {
+    const navigate = useNavigate();
+    return <PrivacyPolicy onBack={() => navigate(-1)} />;
+}
+
+function TermsOfServiceWrapper() {
+    const navigate = useNavigate();
+    return <TermsOfService onBack={() => navigate(-1)} />;
+}
+
 export default function AppRoutes() {
     return (
         <Routes>
@@ -80,8 +91,8 @@ export default function AppRoutes() {
             <Route path="/reset-password" element={<PublicRoute><ResetPassword /></PublicRoute>} />
 
             {/* Legal Pages */}
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/privacy" element={<PrivacyPolicyWrapper />} />
+            <Route path="/terms" element={<TermsOfServiceWrapper />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/refund-policy" element={<RefundPolicy />} />
             <Route path="/pricing" element={<PricingPage />} />

@@ -175,8 +175,11 @@ export default function Dashboard() {
             return;
         }
 
+        let isMounted = true;
+
         // Subscription
         subscriptionService.getSubscription(user.id).then(sub => {
+            if (!isMounted) return; // Component unmounted, ignore result
             if (sub) {
                 setUserSubscription(sub);
             } else {
@@ -193,15 +196,33 @@ export default function Dashboard() {
                 });
             }
         }).catch(err => {
+            if (!isMounted) return; // Component unmounted, ignore error
+            // Ignore AbortError - it's not a real error
+            if (err?.name === 'AbortError' || err?.message?.includes('aborted')) {
+                console.log('Subscription fetch was aborted');
+                return;
+            }
             console.error('Failed to load subscription:', err);
         });
 
         // Profile
         profileService.getProfile(user.id).then(profile => {
+            if (!isMounted) return; // Component unmounted, ignore result
             setUserProfile(profile);
         }).catch(err => {
+            if (!isMounted) return; // Component unmounted, ignore error
+            // Ignore AbortError - it's not a real error
+            if (err?.name === 'AbortError' || err?.message?.includes('aborted')) {
+                console.log('Profile fetch was aborted');
+                return;
+            }
             console.error('Failed to load profile:', err);
         });
+
+        // Cleanup function to mark component as unmounted
+        return () => {
+            isMounted = false;
+        };
     }, [user]);
 
     // Handle payment return from Whop
@@ -212,6 +233,9 @@ export default function Dashboard() {
         const paymentStatus = params.get('payment');
         const planParam = params.get('plan');
 
+        // Track polling state for cleanup
+        let isPolling = false;
+
         if (paymentStatus === 'success') {
             console.log('Payment success detected, starting subscription check for user:', user.id);
             showToast('🎉 Payment successful! Activating your subscription...', 'success');
@@ -220,13 +244,18 @@ export default function Dashboard() {
             let attempts = 0;
             const maxAttempts = 15; // Increased to 15 attempts (30 seconds total)
             const pollInterval = 2000; // 2 seconds
+            isPolling = true;
 
             const checkSubscription = async () => {
+                if (!isPolling) return false; // Component unmounted, stop polling
+                
                 attempts++;
                 console.log(`Checking subscription (attempt ${attempts}/${maxAttempts})...`);
                 
                 try {
                     const sub = await subscriptionService.getSubscription(user.id);
+                    if (!isPolling) return false; // Component unmounted during fetch
+                    
                     console.log('Current subscription:', sub);
                     
                     if (sub && (sub.planId === 'week_pass' || sub.planId === 'pro_monthly')) {
@@ -241,19 +270,25 @@ export default function Dashboard() {
                     } else {
                         console.log(`Subscription not yet activated. Current plan: ${sub?.planId || 'none'}, Attempt: ${attempts}/${maxAttempts}`);
                         
-                        if (attempts < maxAttempts) {
+                        if (attempts < maxAttempts && isPolling) {
                             // Keep polling
                             setTimeout(checkSubscription, pollInterval);
                             return false;
                         } else {
+                            if (!isPolling) return false; // Component unmounted
+                            
                             // Timeout - show message with manual refresh option
                             console.warn('Subscription activation timeout after', maxAttempts, 'attempts');
                             
                             // Try one more time after a short delay
                             setTimeout(async () => {
+                                if (!isPolling) return; // Component unmounted
+                                
                                 try {
                                     console.log('Final subscription check after timeout...');
                                     const refreshedSub = await subscriptionService.getSubscription(user.id);
+                                    if (!isPolling) return; // Component unmounted during fetch
+                                    
                                     console.log('Final subscription result:', refreshedSub);
                                     
                                     if (refreshedSub && (refreshedSub.planId === 'week_pass' || refreshedSub.planId === 'pro_monthly')) {
@@ -285,10 +320,18 @@ export default function Dashboard() {
                         }
                     }
                 } catch (err) {
+                    if (!isPolling) return false; // Component unmounted, stop polling
+                    
+                    // Ignore AbortError - it's not a real error
+                    if (err?.name === 'AbortError' || err?.message?.includes('aborted')) {
+                        console.log('Subscription check was aborted');
+                        return false;
+                    }
+                    
                     console.error('Error checking subscription:', err);
-                    if (attempts < maxAttempts) {
+                    if (attempts < maxAttempts && isPolling) {
                         setTimeout(checkSubscription, pollInterval);
-                    } else {
+                    } else if (isPolling) {
                         showToast('Payment received! Please refresh the page to see your updated subscription.', 'info');
                         window.history.replaceState({}, '', '/dashboard');
                     }
@@ -302,6 +345,11 @@ export default function Dashboard() {
             showToast('Payment cancelled. You can upgrade anytime from settings.', 'info');
             window.history.replaceState({}, '', '/dashboard');
         }
+        
+        // Cleanup function to stop polling if component unmounts
+        return () => {
+            isPolling = false;
+        };
     }, [user, showToast]);
 
     // Persist last-opened resume/template locally so reload on /dashboard/editor restores it

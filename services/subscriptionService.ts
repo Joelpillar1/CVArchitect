@@ -63,7 +63,12 @@ export const subscriptionService = {
                     totalCreditsUsed
                 }
             } as UserSubscription;
-        } catch (error) {
+        } catch (error: any) {
+            // Ignore AbortError - it's not a real error, just means the request was cancelled
+            if (error?.name === 'AbortError' || error?.message?.includes('aborted')) {
+                console.log('Subscription fetch was aborted (component likely unmounted)');
+                return null;
+            }
             console.error('Error fetching subscription:', error);
             return null;
         }

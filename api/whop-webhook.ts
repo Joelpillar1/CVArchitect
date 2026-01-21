@@ -136,20 +136,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     eventType === 'invoice.paid' ||
     eventType === 'invoice_paid'
   ) {
-    // Extract product ID from Whop event
-    // Based on actual Whop payload: event.data.product.id or event.data.plan.id
+    // Extract plan ID and product ID from Whop event
+    // IMPORTANT: Prioritize plan.id over product.id since environment variables are plan IDs
+    const planIdFromEvent = event.data?.plan?.id;  // Plan ID (plan_xxx) - PRIORITY
     const productId = 
-      event.data?.product?.id ||           // Product ID (prod_xxx)
-      event.data?.plan?.id ||               // Plan ID (plan_xxx) 
+      event.data?.product?.id ||           // Product ID (prod_xxx) - FALLBACK
       event.data?.product_id ||
       event.data?.membership?.product_id ||
       event.data?.membership?.product?.id ||
       event.product_id ||
       event.product?.id;
 
+    console.log('Extracted planId:', planIdFromEvent);
     console.log('Extracted productId:', productId);
     console.log('Product object:', event.data?.product);
     console.log('Plan object:', event.data?.plan);
+
+    // Use plan ID first (since env vars are plan IDs), fallback to product ID
+    const finalId = planIdFromEvent || productId;
+
+    if (!finalId) {
+      console.error('Missing planId and productId in Whop event:', JSON.stringify(event, null, 2));
+      return res.status(400).json({ 
+        error: 'Missing planId and productId',
+        received: { planIdFromEvent, productId, eventData: event.data }
+      });
+    }
+
+    console.log('Using plan/product ID (prioritizing plan):', finalId);
 
     // Extract user email from Whop event (we'll use this to find Supabase user)
     const userEmail = 
@@ -189,20 +203,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       userKeys: event.data?.user ? Object.keys(event.data.user) : [],
     });
 
-    // If no product ID, try plan ID
-    const planIdFromEvent = event.data?.plan?.id;
-    const finalProductId = productId || planIdFromEvent;
-
-    if (!finalProductId) {
-      console.error('Missing productId and planId in Whop event:', JSON.stringify(event, null, 2));
-      return res.status(400).json({ 
-        error: 'Missing productId and planId',
-        received: { productId, planIdFromEvent, eventData: event.data }
-      });
-    }
-
-    console.log('Using product/plan ID:', finalProductId);
-
     // If we don't have user_id in metadata, try to look up by email
     let finalUserId = supabaseUserId;
     if (!finalUserId && userEmail) {
@@ -236,17 +236,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    // Map Whop product/plan ID to your app's plan_id
-    // Whop sends both product.id (prod_xxx) and plan.id (plan_xxx)
-    // We check finalProductId (which is productId or planId) against our configured IDs
+    // Map Whop plan/product ID to your app's plan_id
+    // IMPORTANT: Environment variables are plan IDs, so we prioritize plan.id matching
+    // Check both plan ID and product ID against configured values for flexibility
     console.log('Comparing IDs:', {
-      finalProductId,
-      productId,
+      finalId,
       planIdFromEvent,
+      productId,
       whopSprintProductId,
       whopMarathonProductId,
-      matchesSprint: finalProductId === whopSprintProductId,
-      matchesMarathon: finalProductId === whopMarathonProductId,
+      matchesSprintPlan: planIdFromEvent === whopSprintProductId,
+      matchesSprintProduct: productId === whopSprintProductId,
+      matchesMarathonPlan: planIdFromEvent === whopMarathonProductId,
+      matchesMarathonProduct: productId === whopMarathonProductId,
       productTitle: event.data?.product?.title,
     });
 
@@ -255,29 +257,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     let subscriptionStart = new Date();
     let subscriptionEnd: Date | undefined;
 
-    // Check finalProductId against our configured IDs
-    if (finalProductId === whopSprintProductId) {
+    // Check plan ID first (since env vars are plan IDs), then product ID as fallback
+    if (planIdFromEvent === whopSprintProductId || productId === whopSprintProductId) {
       planId = 'week_pass';
       billingCycle = 'lifetime'; // one-time 7-day pass
       subscriptionEnd = new Date(subscriptionStart);
       subscriptionEnd.setDate(subscriptionEnd.getDate() + 7);
       console.log('Mapped to week_pass (Career Sprint)');
-    } else if (finalProductId === whopMarathonProductId) {
+    } else if (planIdFromEvent === whopMarathonProductId || productId === whopMarathonProductId) {
       planId = 'pro_monthly';
       billingCycle = 'monthly';
       subscriptionEnd = new Date(subscriptionStart);
       subscriptionEnd.setMonth(subscriptionEnd.getMonth() + 1);
       console.log('Mapped to pro_monthly (Career Marathon)');
     } else {
-      console.error('Unknown Whop product/plan ID:', { 
-        finalProductId, 
-        productId, 
+      console.error('Unknown Whop plan/product ID:', { 
+        finalId,
         planIdFromEvent, 
+        productId, 
         productTitle: event.data?.product?.title 
       });
       return res.status(400).json({ 
-        error: 'Unknown product/plan ID', 
-        received: { finalProductId, productId, planIdFromEvent, productTitle: event.data?.product?.title },
+        error: 'Unknown plan/product ID', 
+        received: { finalId, planIdFromEvent, productId, productTitle: event.data?.product?.title },
         expected: { sprint: whopSprintProductId, marathon: whopMarathonProductId }
       });
     }
