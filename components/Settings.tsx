@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { User, CreditCard, Bell, Shield, Zap, Crown, TrendingUp, Calendar, Download, Trash2, Check, X } from 'lucide-react';
+import { User, CreditCard, Bell, Shield, Zap, Crown, TrendingUp, Calendar, Download, Trash2, Check, X, Eye, EyeOff } from 'lucide-react';
 import { UserSubscription, PlanId } from '../types/pricing';
 import { PLANS, CREDIT_PACKS } from '../utils/pricingConfig';
 import { profileService } from '../services/profileService';
+import { subscriptionService } from '../services/subscriptionService';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 
 interface SettingsProps {
   userSubscription: UserSubscription;
@@ -32,6 +34,18 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState('');
+
+  // Password change state
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
 
 
   // Update form when userProfile changes
@@ -111,6 +125,91 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
     setEmail(userEmail || '');
     setSaveError('');
     setSaveSuccess(false);
+  };
+
+  const validatePassword = (pwd: string): string | null => {
+    if (pwd.length < 6) {
+      return 'Password must be at least 6 characters';
+    }
+    if (!/[A-Z]/.test(pwd)) {
+      return 'Password must contain at least one uppercase letter';
+    }
+    if (!/[a-z]/.test(pwd)) {
+      return 'Password must contain at least one lowercase letter';
+    }
+    if (!/[0-9]/.test(pwd)) {
+      return 'Password must contain at least one number';
+    }
+    return null;
+  };
+
+  const handleChangePassword = async () => {
+    if (!user) return;
+
+    setPasswordError('');
+    setPasswordSuccess(false);
+
+    // Validate inputs
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordError('Please fill in all fields');
+      return;
+    }
+
+    const passwordError = validatePassword(newPassword);
+    if (passwordError) {
+      setPasswordError(passwordError);
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('New passwords do not match');
+      return;
+    }
+
+    if (currentPassword === newPassword) {
+      setPasswordError('New password must be different from current password');
+      return;
+    }
+
+    setIsChangingPassword(true);
+
+    try {
+      // First, verify current password by attempting to sign in
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email!,
+        password: currentPassword,
+      });
+
+      if (signInError) {
+        setPasswordError('Current password is incorrect');
+        setIsChangingPassword(false);
+        return;
+      }
+
+      // If current password is correct, update to new password
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      setPasswordSuccess(true);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+
+      // Close modal after 2 seconds
+      setTimeout(() => {
+        setShowChangePassword(false);
+        setPasswordSuccess(false);
+      }, 2000);
+    } catch (error: any) {
+      setPasswordError(error.message || 'Failed to change password. Please try again.');
+    } finally {
+      setIsChangingPassword(false);
+    }
   };
 
   const handleDeleteAccount = async () => {
@@ -263,7 +362,10 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
                 <p className="text-sm text-gray-500 mt-1 font-medium">Manage your password and security settings.</p>
               </div>
               <div className="p-8 space-y-4">
-                <button className="w-full md:w-auto bg-brand-dark text-white px-6 py-3 rounded-xl font-semibold text-sm hover:bg-gray-800 transition-colors">
+                <button 
+                  onClick={() => setShowChangePassword(true)}
+                  className="w-full md:w-auto bg-brand-dark text-white px-6 py-3 rounded-xl font-semibold text-sm hover:bg-gray-800 transition-colors"
+                >
                   Change Password
                 </button>
                 <div className="pt-4 border-t">
@@ -287,6 +389,152 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
                         Delete Account
                       </>
                     )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Change Password Modal */}
+        {showChangePassword && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 relative">
+              <button
+                onClick={() => {
+                  setShowChangePassword(false);
+                  setCurrentPassword('');
+                  setNewPassword('');
+                  setConfirmPassword('');
+                  setPasswordError('');
+                  setPasswordSuccess(false);
+                }}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X size={24} />
+              </button>
+
+              <h3 className="text-2xl font-bold text-brand-dark mb-2">Change Password</h3>
+              <p className="text-sm text-gray-500 mb-6">Enter your current password and choose a new one.</p>
+
+              {passwordSuccess && (
+                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2 mb-4">
+                  <Check size={20} />
+                  <span>Password changed successfully!</span>
+                </div>
+              )}
+
+              {passwordError && (
+                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg flex items-center gap-2 mb-4">
+                  <X size={20} />
+                  <span>{passwordError}</span>
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">
+                    Current Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showCurrentPassword ? 'text' : 'password'}
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      className="w-full rounded-xl border-gray-200 border bg-brand-bg/30 px-4 py-3 pr-12 text-brand-dark focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 outline-none transition-all"
+                      placeholder="Enter current password"
+                      disabled={isChangingPassword}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      {showCurrentPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">
+                    New Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showNewPassword ? 'text' : 'password'}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full rounded-xl border-gray-200 border bg-brand-bg/30 px-4 py-3 pr-12 text-brand-dark focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 outline-none transition-all"
+                      placeholder="Enter new password"
+                      disabled={isChangingPassword}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Must be at least 6 characters with uppercase, lowercase, and number
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">
+                    Confirm New Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full rounded-xl border-gray-200 border bg-brand-bg/30 px-4 py-3 pr-12 text-brand-dark focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 outline-none transition-all"
+                      placeholder="Confirm new password"
+                      disabled={isChangingPassword}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={handleChangePassword}
+                    disabled={isChangingPassword}
+                    className="flex-1 bg-brand-dark text-white px-6 py-3 rounded-xl font-semibold text-sm hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {isChangingPassword ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Changing...
+                      </>
+                    ) : (
+                      <>
+                        <Check size={16} />
+                        Change Password
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowChangePassword(false);
+                      setCurrentPassword('');
+                      setNewPassword('');
+                      setConfirmPassword('');
+                      setPasswordError('');
+                      setPasswordSuccess(false);
+                    }}
+                    disabled={isChangingPassword}
+                    className="border border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-semibold text-sm hover:bg-gray-50 transition-colors disabled:opacity-50"
+                  >
+                    Cancel
                   </button>
                 </div>
               </div>
@@ -344,6 +592,25 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
                 </div>
 
                 <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={async () => {
+                      if (!user) return;
+                      try {
+                        const sub = await subscriptionService.getSubscription(user.id);
+                        if (sub) {
+                          // Force refresh subscription in parent component
+                          window.location.reload();
+                        }
+                      } catch (err) {
+                        console.error('Error refreshing subscription:', err);
+                      }
+                    }}
+                    className="border border-gray-300 text-gray-700 px-4 py-2 rounded-xl font-semibold text-sm hover:bg-gray-50 transition-colors"
+                    title="Refresh subscription status"
+                  >
+                    Refresh Status
+                  </button>
+                  
                   {isFree && (
                     <button
                       onClick={onUpgrade}

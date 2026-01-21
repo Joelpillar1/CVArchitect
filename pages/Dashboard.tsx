@@ -204,6 +204,106 @@ export default function Dashboard() {
         });
     }, [user]);
 
+    // Handle payment return from Whop
+    useEffect(() => {
+        if (!user) return;
+
+        const params = new URLSearchParams(window.location.search);
+        const paymentStatus = params.get('payment');
+        const planParam = params.get('plan');
+
+        if (paymentStatus === 'success') {
+            console.log('Payment success detected, starting subscription check for user:', user.id);
+            showToast('🎉 Payment successful! Activating your subscription...', 'success');
+
+            // Poll for subscription update (webhook might take a few seconds)
+            let attempts = 0;
+            const maxAttempts = 15; // Increased to 15 attempts (30 seconds total)
+            const pollInterval = 2000; // 2 seconds
+
+            const checkSubscription = async () => {
+                attempts++;
+                console.log(`Checking subscription (attempt ${attempts}/${maxAttempts})...`);
+                
+                try {
+                    const sub = await subscriptionService.getSubscription(user.id);
+                    console.log('Current subscription:', sub);
+                    
+                    if (sub && (sub.planId === 'week_pass' || sub.planId === 'pro_monthly')) {
+                        // Subscription activated!
+                        console.log('Subscription activated! Plan:', sub.planId);
+                        setUserSubscription(sub);
+                        showToast('✅ Subscription activated! You now have unlimited access.', 'success');
+                        
+                        // Clean URL
+                        window.history.replaceState({}, '', '/dashboard');
+                        return true;
+                    } else {
+                        console.log(`Subscription not yet activated. Current plan: ${sub?.planId || 'none'}, Attempt: ${attempts}/${maxAttempts}`);
+                        
+                        if (attempts < maxAttempts) {
+                            // Keep polling
+                            setTimeout(checkSubscription, pollInterval);
+                            return false;
+                        } else {
+                            // Timeout - show message with manual refresh option
+                            console.warn('Subscription activation timeout after', maxAttempts, 'attempts');
+                            
+                            // Try one more time after a short delay
+                            setTimeout(async () => {
+                                try {
+                                    console.log('Final subscription check after timeout...');
+                                    const refreshedSub = await subscriptionService.getSubscription(user.id);
+                                    console.log('Final subscription result:', refreshedSub);
+                                    
+                                    if (refreshedSub && (refreshedSub.planId === 'week_pass' || refreshedSub.planId === 'pro_monthly')) {
+                                        setUserSubscription(refreshedSub);
+                                        showToast('✅ Subscription activated! You now have unlimited access.', 'success');
+                                        window.history.replaceState({}, '', '/dashboard');
+                                    } else {
+                                        // Still not activated - show message to user
+                                        showToast(
+                                            'Payment received! If your subscription doesn\'t appear, please refresh the page or contact support.',
+                                            'info',
+                                            10000
+                                        );
+                                        window.history.replaceState({}, '', '/dashboard');
+                                        
+                                        // Log for debugging
+                                        console.error('Subscription still not activated after timeout. Current subscription:', refreshedSub);
+                                        console.error('Expected plan: week_pass or pro_monthly');
+                                        console.error('User ID:', user.id);
+                                    }
+                                } catch (err) {
+                                    console.error('Error in final subscription check:', err);
+                                    showToast('Payment received! Please refresh the page to see your updated subscription.', 'info');
+                                    window.history.replaceState({}, '', '/dashboard');
+                                }
+                            }, 3000);
+                            
+                            return false;
+                        }
+                    }
+                } catch (err) {
+                    console.error('Error checking subscription:', err);
+                    if (attempts < maxAttempts) {
+                        setTimeout(checkSubscription, pollInterval);
+                    } else {
+                        showToast('Payment received! Please refresh the page to see your updated subscription.', 'info');
+                        window.history.replaceState({}, '', '/dashboard');
+                    }
+                    return false;
+                }
+            };
+
+            // Start polling immediately, then every 2 seconds
+            checkSubscription();
+        } else if (paymentStatus === 'cancelled') {
+            showToast('Payment cancelled. You can upgrade anytime from settings.', 'info');
+            window.history.replaceState({}, '', '/dashboard');
+        }
+    }, [user, showToast]);
+
     // Persist last-opened resume/template locally so reload on /dashboard/editor restores it
     useEffect(() => {
         try {
@@ -310,7 +410,7 @@ export default function Dashboard() {
                                         showToast('Resume deleted locally.', 'success');
                                     }
                                 }}
-                            userName={user?.user_metadata?.full_name || user?.email}
+                            userName={userProfile?.full_name || user?.email || 'User'}
                             userSubscription={userSubscription}
                         />
                         }

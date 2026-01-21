@@ -5,6 +5,7 @@ import { PLANS } from '../utils/pricingConfig';
 import { PlanId } from '../types/pricing';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
+import { WhopCheckoutEmbed } from '@whop/checkout/react';
 
 interface PricingModalProps {
     isOpen: boolean;
@@ -14,8 +15,8 @@ interface PricingModalProps {
 }
 
 export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPlanId = 'free' }: PricingModalProps) {
-    const [loading, setLoading] = useState(false);
-    const [processingPlan, setProcessingPlan] = useState<PlanId | null>(null);
+    const [showCheckout, setShowCheckout] = useState(false);
+    const [selectedPlanId, setSelectedPlanId] = useState<PlanId | null>(null);
     const { user } = useAuth();
     const { showToast } = useToast();
 
@@ -24,43 +25,50 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
     const sprintPlan = PLANS.week_pass;
     const marathonPlan = PLANS.pro_monthly;
 
-    const handlePlanSelect = async (planId: PlanId) => {
+    // Get Whop plan IDs from environment variables
+    // These should be in format: plan_XXXXXXXXX
+    const sprintPlanId = import.meta.env.VITE_WHOP_SPRINT_PLAN_ID || 
+                         import.meta.env.VITE_WHOP_SPRINT_PRODUCT_ID;
+    const marathonPlanId = import.meta.env.VITE_WHOP_MARATHON_PLAN_ID || 
+                           import.meta.env.VITE_WHOP_MARATHON_PRODUCT_ID;
+
+    const handlePlanSelect = (planId: PlanId) => {
         if (!user) {
             showToast('Please sign in to upgrade your plan', 'error');
             return;
         }
 
-        setLoading(true);
-        setProcessingPlan(planId);
+        // Get the Whop plan ID for the selected plan
+        const whopPlanId = planId === 'week_pass' ? sprintPlanId : marathonPlanId;
 
-        try {
-            // Get Whop checkout URL from environment
-            const checkoutUrl = planId === 'week_pass'
-                ? import.meta.env.VITE_WHOP_SPRINT_CHECKOUT_URL
-                : import.meta.env.VITE_WHOP_MARATHON_CHECKOUT_URL;
-
-            if (!checkoutUrl) {
-                showToast('Checkout URL not configured. Please contact support.', 'error');
-                setLoading(false);
-                setProcessingPlan(null);
-                return;
-            }
-
-            // Redirect to Whop checkout with user ID in metadata
-            // Whop will pass this back in the webhook so we can identify the user
-            const url = new URL(checkoutUrl);
-            url.searchParams.set('metadata[user_id]', user.id);
-            url.searchParams.set('metadata[email]', user.email || '');
-            
-            // Redirect to Whop checkout
-            window.location.href = url.toString();
-        } catch (error) {
-            console.error('Error redirecting to Whop checkout:', error);
-            showToast('Failed to redirect to checkout. Please try again.', 'error');
-            setLoading(false);
-            setProcessingPlan(null);
+        if (!whopPlanId) {
+            showToast('Checkout not configured. Please contact support.', 'error');
+            return;
         }
+
+        // Show embedded checkout
+        setSelectedPlanId(planId);
+        setShowCheckout(true);
     };
+
+    const handleCheckoutClose = () => {
+        setShowCheckout(false);
+        setSelectedPlanId(null);
+    };
+
+    const handleCheckoutSuccess = () => {
+        // Redirect to dashboard with success parameter
+        const returnUrl = `${window.location.origin}/dashboard?payment=success&plan=${selectedPlanId}`;
+        window.location.href = returnUrl;
+    };
+
+    // Get the Whop plan ID for the selected plan
+    const currentWhopPlanId = selectedPlanId === 'week_pass' ? sprintPlanId : 
+                              selectedPlanId === 'pro_monthly' ? marathonPlanId : null;
+    
+    const returnUrl = selectedPlanId 
+        ? `${window.location.origin}/dashboard?payment=success&plan=${selectedPlanId}`
+        : `${window.location.origin}/dashboard?payment=success`;
 
     return createPortal(
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/90 backdrop-blur-md animate-fadeIn p-4 overflow-y-auto">
@@ -143,10 +151,9 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
                         </div>
 
                         <button
-                            disabled={loading}
-                            className="w-full py-4 rounded-xl bg-brand-dark hover:bg-black text-white font-bold transition-all shadow-lg hover:shadow-xl active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full py-4 rounded-xl bg-brand-dark hover:bg-black text-white font-bold transition-all shadow-lg hover:shadow-xl active:scale-[0.98] flex items-center justify-center gap-2"
                         >
-                            {processingPlan === 'week_pass' ? 'Processing...' : 'Start My 7-Day Sprint'}
+                            Start My 7-Day Sprint
                         </button>
                     </div>
 
@@ -177,6 +184,46 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
 
                 </div>
             </div>
+
+            {/* Embedded Whop Checkout Modal */}
+            {showCheckout && currentWhopPlanId && (
+                <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/95 backdrop-blur-md animate-fadeIn p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden relative flex flex-col">
+                        {/* Close Button */}
+                        <button
+                            onClick={handleCheckoutClose}
+                            className="absolute top-4 right-4 z-50 w-9 h-9 rounded-full bg-gray-100 text-gray-700 shadow-md flex items-center justify-center hover:bg-gray-200 hover:text-gray-900 transition-colors"
+                            aria-label="Close checkout"
+                        >
+                            <X size={20} />
+                        </button>
+
+                        {/* Checkout Embed */}
+                        <div className="flex-1 overflow-y-auto p-6">
+                            <div className="mb-4">
+                                <h3 className="text-2xl font-bold text-gray-900">
+                                    Complete Your Purchase
+                                </h3>
+                                <p className="text-gray-600 mt-1">
+                                    {selectedPlanId === 'week_pass' 
+                                        ? 'Career Sprint - 7 Days Unlimited Access'
+                                        : 'Career Marathon - Monthly Unlimited Access'}
+                                </p>
+                            </div>
+                            
+                            <div className="whop-checkout-wrapper">
+                                <WhopCheckoutEmbed
+                                    planId={currentWhopPlanId}
+                                    returnUrl={returnUrl}
+                                    prefill={user?.email ? { email: user.email } : undefined}
+                                    onSuccess={handleCheckoutSuccess}
+                                    onClose={handleCheckoutClose}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>,
         document.body
     );
