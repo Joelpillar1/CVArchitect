@@ -110,7 +110,9 @@
       }
 
       .print-resume,
-      .print-resume * {
+      .print-resume *,
+      .print-cover-letter,
+      .print-cover-letter * {
         visibility: visible !important;
       }
 
@@ -137,6 +139,99 @@
         /* remove any scaling */
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
+      }
+
+      /* Print-only cover letter container - single page */
+      .print-cover-letter {
+        display: block !important;
+        position: static !important;
+        left: auto !important;
+        top: auto !important;
+        width: 210mm !important;
+        /* A4 width */
+        height: auto !important;
+        min-height: auto !important;
+        max-height: 297mm !important;
+        /* Max A4 height to prevent overflow */
+        padding: 0 8mm !important;
+        /* Match resume padding */
+        margin: 0 auto !important;
+        background: white !important;
+        overflow: visible !important;
+        transform: none !important;
+        visibility: visible !important;
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      /* Ensure cover letter inner content maintains its own padding */
+      .print-cover-letter > div {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0.3in !important;
+        background: white !important;
+        overflow: visible !important;
+        page-break-inside: avoid;
+        visibility: visible !important;
+        height: auto !important;
+        min-height: auto !important;
+        max-height: none !important;
+      }
+
+      /* Ensure header is visible in print */
+      .print-cover-letter header,
+      .print-cover-letter header * {
+        visibility: visible !important;
+        display: block !important;
+      }
+
+      /* Ensure all cover letter elements are visible */
+      .print-cover-letter h1,
+      .print-cover-letter h2,
+      .print-cover-letter h3,
+      .print-cover-letter p,
+      .print-cover-letter div,
+      .print-cover-letter span,
+      .print-cover-letter a {
+        visibility: visible !important;
+        color: inherit !important;
+      }
+
+      /* Ensure contact info stays on one line in print */
+      .print-cover-letter header > div.flex {
+        flex-wrap: nowrap !important;
+        white-space: nowrap !important;
+        display: flex !important;
+        flex-direction: row !important;
+      }
+
+      /* Ensure skills row stays on one line in print (any flex div in header) */
+      .print-cover-letter header div.flex {
+        flex-wrap: nowrap !important;
+        white-space: nowrap !important;
+        display: flex !important;
+        flex-direction: row !important;
+      }
+
+      /* Prevent any wrapping in contact info and skills */
+      .print-cover-letter header div.flex span,
+      .print-cover-letter header div.flex a {
+        white-space: nowrap !important;
+        display: inline !important;
+        flex-shrink: 0 !important;
+      }
+
+      /* Ensure proper paragraph spacing in print */
+      .print-cover-letter p {
+        margin-bottom: 1em !important;
+        margin-top: 0 !important;
+      }
+
+      .print-cover-letter p:last-child {
+        margin-bottom: 0 !important;
       }
 
       /* Ensure all parent containers allow overflow */

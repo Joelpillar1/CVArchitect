@@ -11,12 +11,6 @@ interface StructuredCoverLetterProps {
 }
 
 export default function StructuredCoverLetter({ data, content, companyName, jobTitle }: StructuredCoverLetterProps) {
-    const today = new Date().toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-
     // Fallback: If structured data is missing/empty, we try to use plain text or just show a warning.
     // Ideally the AI always returns structured data now.
     const { opening, skills, closing } = content.structured;
@@ -28,33 +22,38 @@ export default function StructuredCoverLetter({ data, content, companyName, jobT
         : ['Professional', 'Experienced', 'Dedicated'];
 
     return (
-        <div className="w-full h-full bg-white text-gray-900 font-sans p-[0.3in] mx-auto relative shadow-sm flex flex-col" style={{ maxWidth: '210mm', minHeight: '297mm' }}>
+        <div className="w-full bg-white text-gray-900 font-sans p-[0.3in] mx-auto relative shadow-sm flex flex-col" style={{ maxWidth: '210mm' }}>
             {/* Header - Identical to Bold Template */}
             <header className="text-center mb-8">
                 <h1 className="text-4xl font-bold uppercase mb-2 text-black font-sans tracking-wide">
                     {data.fullName}
                 </h1>
 
-                <div className="flex justify-center flex-wrap gap-x-1 text-sm text-black mb-4">
+                <div className="flex justify-center items-center flex-nowrap gap-x-2 text-sm text-black mb-4 whitespace-nowrap">
                     {data.phone && (
                         <>
-                            <span>{data.phone}</span>
-                            <span>|</span>
+                            <span className="whitespace-nowrap">{data.phone}</span>
+                            <span className="mx-1">|</span>
                         </>
                     )}
                     {data.email && (
                         <>
-                            <a href={`mailto:${data.email}`} className="text-black no-underline">
+                            <a href={`mailto:${data.email}`} className="text-black no-underline whitespace-nowrap">
                                 {data.email}
                             </a>
-                            <span>|</span>
+                            {(data.linkedin || data.location || data.address) && <span className="mx-1">|</span>}
+                        </>
+                    )}
+                    {data.linkedin && (
+                        <>
+                            <a href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`} target="_blank" rel="noopener noreferrer" className="text-black no-underline whitespace-nowrap">
+                                LinkedIn
+                            </a>
+                            {(data.location || data.address) && <span className="mx-1">|</span>}
                         </>
                     )}
                     {data.location || data.address ? (
-                        <>
-                            <span>|</span>
-                            <span>{data.location || data.address}</span>
-                        </>
+                        <span className="whitespace-nowrap">{data.location || data.address}</span>
                     ) : null}
                 </div>
 
@@ -62,10 +61,10 @@ export default function StructuredCoverLetter({ data, content, companyName, jobT
                 <div className="w-full h-1.5 bg-black mb-4"></div>
 
                 {/* Headline Row */}
-                <div className="flex justify-center gap-4 text-sm font-bold text-black uppercase tracking-wide">
+                <div className="flex justify-center items-center flex-nowrap gap-x-4 text-sm font-bold text-black uppercase tracking-wide whitespace-nowrap">
                     {headlineSkills.map((skill, i) => (
                         <React.Fragment key={i}>
-                            <span>{skill}</span>
+                            <span className="whitespace-nowrap">{skill}</span>
                             {i < headlineSkills.length - 1 && <span>•</span>}
                         </React.Fragment>
                     ))}
@@ -74,30 +73,24 @@ export default function StructuredCoverLetter({ data, content, companyName, jobT
 
             {/* Body */}
             <div className="text-justify leading-relaxed text-sm text-gray-800 font-sans flex-1">
-                {/* Date & Recipient */}
-                <div className="mb-6">
-                    {today}
-                    <br /><br />
-                    {companyName && (
-                        <>
-                            {companyName}<br />
-                            Department Name<br />
-                            {companyName} Address<br />
-                            City, State, Zip Code<br />
-                        </>
-                    )}
-                    <br />
-                    Dear Hiring Manager,
-                </div>
-
                 {/* Main Content */}
                 {isFallback ? (
-                    <div className="whitespace-pre-wrap">{content.plainText}</div>
+                    <div className="space-y-4">
+                        {content.plainText
+                            .split(/\n\s*\n/)
+                            .map(block => block.split(/\n/).filter(line => line.trim()).join(' '))
+                            .filter(p => p.trim())
+                            .map((paragraph, idx) => (
+                                <p key={idx} className="mb-4 last:mb-0">
+                                    {paragraph.trim()}
+                                </p>
+                            ))}
+                    </div>
                 ) : (
                     <>
-                        <div className="mb-6 whitespace-pre-wrap">
+                        <p className="mb-6">
                             {opening}
-                        </div>
+                        </p>
 
                         {/* Skills Grid */}
                         <div className="mb-8 space-y-4">
@@ -114,9 +107,9 @@ export default function StructuredCoverLetter({ data, content, companyName, jobT
                             ))}
                         </div>
 
-                        <div className="whitespace-pre-wrap">
+                        <p className="mb-0">
                             {closing}
-                        </div>
+                        </p>
                     </>
                 )}
             </div>

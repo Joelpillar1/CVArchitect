@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, CreditCard, Bell, Shield, Zap, Crown, TrendingUp, Calendar, Download, Trash2, Check, X, Eye, EyeOff } from 'lucide-react';
 import { UserSubscription, PlanId } from '../types/pricing';
@@ -7,6 +7,7 @@ import { profileService } from '../services/profileService';
 import { subscriptionService } from '../services/subscriptionService';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import { saveToStorage, loadFromStorage, debouncedSaveToStorage } from '../utils/statePersistence';
 
 interface SettingsProps {
   userSubscription: UserSubscription;
@@ -22,15 +23,56 @@ interface SettingsProps {
 export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, userProfile, userEmail, onProfileUpdate, onNavigateToPrivacy, onNavigateToTerms }: SettingsProps) => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'account' | 'subscription' | 'usage' | 'preferences'>('account');
+  // Restore active tab from localStorage
+  const [activeTab, setActiveTabState] = useState<'account' | 'subscription' | 'usage' | 'preferences'>(() => {
+    return loadFromStorage<'account' | 'subscription' | 'usage' | 'preferences'>('settings_active_tab', 'account');
+  });
+
+  const setActiveTab = useCallback((tab: 'account' | 'subscription' | 'usage' | 'preferences') => {
+    setActiveTabState(tab);
+    saveToStorage('settings_active_tab', tab);
+  }, []);
 
   // Parse user name from profile or email
   const fullName = userProfile?.full_name || userEmail?.split('@')[0] || 'User';
   const nameParts = fullName.split(' ');
-  const [firstName, setFirstName] = useState(nameParts[0] || 'User');
-  const [lastName, setLastName] = useState(nameParts.slice(1).join(' ') || '');
-  const [email, setEmail] = useState(userEmail || 'user@example.com');
-  const [avatarUrl, setAvatarUrl] = useState(userProfile?.avatar_url || '');
+  
+  // Restore form fields from localStorage or use defaults
+  const [firstName, setFirstNameState] = useState(() => {
+    const saved = loadFromStorage<string>('settings_firstName', '');
+    return saved || nameParts[0] || 'User';
+  });
+  const [lastName, setLastNameState] = useState(() => {
+    const saved = loadFromStorage<string>('settings_lastName', '');
+    return saved || nameParts.slice(1).join(' ') || '';
+  });
+  const [email, setEmailState] = useState(() => {
+    return loadFromStorage<string>('settings_email', userEmail || 'user@example.com');
+  });
+  const [avatarUrl, setAvatarUrlState] = useState(() => {
+    return loadFromStorage<string>('settings_avatarUrl', userProfile?.avatar_url || '');
+  });
+
+  // Wrapper functions that persist immediately
+  const setFirstName = useCallback((name: string) => {
+    setFirstNameState(name);
+    debouncedSaveToStorage('settings_firstName', name, 500);
+  }, []);
+
+  const setLastName = useCallback((name: string) => {
+    setLastNameState(name);
+    debouncedSaveToStorage('settings_lastName', name, 500);
+  }, []);
+
+  const setEmail = useCallback((email: string) => {
+    setEmailState(email);
+    debouncedSaveToStorage('settings_email', email, 500);
+  }, []);
+
+  const setAvatarUrl = useCallback((url: string) => {
+    setAvatarUrlState(url);
+    debouncedSaveToStorage('settings_avatarUrl', url, 500);
+  }, []);
 
   // Form state
   const [isSaving, setIsSaving] = useState(false);
@@ -50,20 +92,28 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
   const [passwordSuccess, setPasswordSuccess] = useState(false);
 
 
-  // Update form when userProfile changes
+  // Update form when userProfile changes (but preserve user edits from localStorage)
   useEffect(() => {
-    if (userProfile?.full_name) {
+    // Only update if we don't have saved values (first load)
+    const savedFirstName = loadFromStorage<string>('settings_firstName', '');
+    const savedLastName = loadFromStorage<string>('settings_lastName', '');
+    const savedEmail = loadFromStorage<string>('settings_email', '');
+    const savedAvatarUrl = loadFromStorage<string>('settings_avatarUrl', '');
+
+    // Only update from userProfile if we don't have saved values
+    if (userProfile?.full_name && !savedFirstName && !savedLastName) {
       const parts = userProfile.full_name.split(' ');
       setFirstName(parts[0] || '');
       setLastName(parts.slice(1).join(' ') || '');
     }
-    if (userProfile?.avatar_url) {
+    if (userProfile?.avatar_url && !savedAvatarUrl) {
       setAvatarUrl(userProfile.avatar_url);
     }
-    if (userEmail) {
+    if (userEmail && !savedEmail) {
       setEmail(userEmail);
     }
-  }, [userProfile, userEmail]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userProfile, userEmail]); // Only depend on external props, not setters
 
   const [notifications, setNotifications] = useState({
     emailUpdates: true,
@@ -325,11 +375,11 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
                   <p className="text-xs text-gray-500 mt-1">Email address cannot be changed</p>
                 </div>
 
-                <div className="pt-4 flex gap-3">
+                <div className="pt-4 flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={handleSaveProfile}
                     disabled={isSaving}
-                    className="bg-brand-dark text-white px-6 py-3 rounded-xl font-semibold text-sm hover:bg-gray-800 transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    className="w-full sm:w-auto bg-brand-dark text-white px-6 py-3 rounded-xl font-semibold text-sm hover:bg-gray-800 transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isSaving ? (
                       <>
@@ -346,7 +396,7 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
                   <button
                     onClick={handleCancelEdit}
                     disabled={isSaving}
-                    className="border border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-semibold text-sm hover:bg-gray-50 transition-colors disabled:opacity-50"
+                    className="w-full sm:w-auto border border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-semibold text-sm hover:bg-gray-50 transition-colors disabled:opacity-50"
                   >
                     Cancel
                   </button>

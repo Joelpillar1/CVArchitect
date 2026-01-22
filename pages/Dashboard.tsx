@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { Layout, FileText, Settings as SettingsIcon, Home, ChevronRight, ChevronLeft, LogOut, Bookmark } from 'lucide-react';
+import { Layout, FileText, Settings as SettingsIcon, Home, ChevronRight, ChevronLeft, LogOut, Bookmark, Menu, X } from 'lucide-react';
 import { ResumeData, INITIAL_DATA, TemplateType, SavedTemplate } from '../types';
 import Editor from '../components/Editor';
 import Overview from '../components/Overview';
@@ -11,13 +11,16 @@ import MyCoverLetters from '../components/MyCoverLetters';
 import TemplateOnboardingModal from '../components/TemplateOnboardingModal';
 import PaywallModal from '../components/PaywallModal';
 import PricingModal from '../components/PricingModal';
+import CoverLetterPage from './CoverLetterPage';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { UserSubscription, PlanId } from '../types/pricing';
 import { resumeService } from '../services/resumeService';
 import { subscriptionService } from '../services/subscriptionService';
 import { profileService, UserProfile } from '../services/profileService';
+import { coverLetterService, SavedCoverLetter } from '../services/coverLetterService';
 import { SubscriptionManager } from '../utils/subscriptionManager';
+import { saveToStorage, debouncedSaveToStorage, loadFromStorage } from '../utils/statePersistence';
 
 export default function Dashboard() {
     const { user, signOut } = useAuth();
@@ -26,27 +29,49 @@ export default function Dashboard() {
     const location = useLocation();
 
     // Core state needed for routing-based dashboard
-    const [resumeData, setResumeData] = useState<ResumeData>(() => {
-        try {
-            const saved = localStorage.getItem('cv_app_data');
-            return saved ? JSON.parse(saved) : INITIAL_DATA;
-        } catch {
-            return INITIAL_DATA;
-        }
+    // Load from localStorage on mount
+    const [resumeData, setResumeDataState] = useState<ResumeData>(() => {
+        return loadFromStorage<ResumeData>('cv_app_data', INITIAL_DATA);
     });
 
-    const [selectedTemplate, setSelectedTemplate] = useState<TemplateType>(() => {
-        return (localStorage.getItem('cv_app_template') as TemplateType) || 'vanguard';
+    const [selectedTemplate, setSelectedTemplateState] = useState<TemplateType>(() => {
+        return loadFromStorage<TemplateType>('cv_app_template', 'vanguard');
     });
+
+    // Wrapper functions that persist immediately
+    const setResumeData = useCallback((data: ResumeData | ((prev: ResumeData) => ResumeData)) => {
+        setResumeDataState(prev => {
+            const newData = typeof data === 'function' ? data(prev) : data;
+            // Immediate save for critical state
+            debouncedSaveToStorage('cv_app_data', newData, 300);
+            return newData;
+        });
+    }, []);
+
+    const setSelectedTemplate = React.useCallback((template: TemplateType | ((prev: TemplateType) => TemplateType)) => {
+        setSelectedTemplateState(prev => {
+            const newTemplate = typeof template === 'function' ? template(prev) : template;
+            // Immediate save
+            saveToStorage('cv_app_template', newTemplate);
+            return newTemplate;
+        });
+    }, []);
 
     const [savedTemplates, setSavedTemplates] = useState<SavedTemplate[]>([]);
-    const [currentResumeId, setCurrentResumeId] = useState<string | null>(() => {
-        try {
-            return localStorage.getItem('cv_app_resume_id');
-        } catch {
-            return null;
-        }
+    const [savedCoverLetters, setSavedCoverLetters] = useState<SavedCoverLetter[]>([]);
+    const [currentResumeId, setCurrentResumeIdState] = useState<string | null>(() => {
+        return loadFromStorage<string | null>('cv_app_resume_id', null);
     });
+
+    // Wrapper for currentResumeId that persists immediately
+    const setCurrentResumeId = useCallback((id: string | null) => {
+        setCurrentResumeIdState(id);
+        if (id) {
+            saveToStorage('cv_app_resume_id', id);
+        } else {
+            localStorage.removeItem('cv_app_resume_id');
+        }
+    }, []);
     const [userSubscription, setUserSubscription] = useState<UserSubscription>({
         userId: user?.id || 'guest',
         planId: 'free',
@@ -60,6 +85,7 @@ export default function Dashboard() {
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [showPaywall, setShowPaywall] = useState(false);
     const [showPricingModal, setShowPricingModal] = useState(false);
     const [showOnboardingModal, setShowOnboardingModal] = useState(false);
@@ -154,6 +180,24 @@ export default function Dashboard() {
         };
         loadResumes();
     }, [user, showToast]);
+
+    // Load saved cover letters from Supabase when user changes
+    useEffect(() => {
+        const loadCoverLetters = async () => {
+            if (!user) {
+                setSavedCoverLetters([]);
+                return;
+            }
+            try {
+                const letters = await coverLetterService.getCoverLetters(user.id);
+                setSavedCoverLetters(letters);
+            } catch (err) {
+                console.error('Failed to load cover letters:', err);
+                // Don't show toast for cover letters - it's not critical
+            }
+        };
+        loadCoverLetters();
+    }, [user]);
 
     // Load subscription & profile from Supabase when user changes
     useEffect(() => {
@@ -352,20 +396,30 @@ export default function Dashboard() {
         };
     }, [user, showToast]);
 
-    // Persist last-opened resume/template locally so reload on /dashboard/editor restores it
+    // Restore state from localStorage on mount only
+    // This ensures state is preserved when switching tabs
     useEffect(() => {
-        try {
-            localStorage.setItem('cv_app_template', selectedTemplate);
-            if (currentResumeId) {
-                localStorage.setItem('cv_app_resume_id', currentResumeId);
-            } else {
-                localStorage.removeItem('cv_app_resume_id');
+        // Only restore on initial mount, not on every route change
+        // The state is already loaded from localStorage in useState initializers
+        // This effect just ensures we sync if localStorage was updated externally
+        const handleStorageChange = (e: StorageEvent) => {
+            if (e.key === 'cv_app_data' && e.newValue) {
+                try {
+                    const newData = JSON.parse(e.newValue);
+                    setResumeDataState(newData);
+                } catch (err) {
+                    console.error('Failed to parse storage update:', err);
+                }
+            } else if (e.key === 'cv_app_template' && e.newValue) {
+                setSelectedTemplateState(e.newValue as TemplateType);
+            } else if (e.key === 'cv_app_resume_id') {
+                setCurrentResumeIdState(e.newValue);
             }
-            localStorage.setItem('cv_app_data', JSON.stringify(resumeData));
-        } catch {
-            // Ignore storage errors (e.g., private mode)
-        }
-    }, [selectedTemplate, currentResumeId, resumeData]);
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []); // Only run on mount
 
     // Warn before closing the tab/window if there are unsaved changes
     useEffect(() => {
@@ -380,26 +434,47 @@ export default function Dashboard() {
     }, [hasUnsavedChanges]);
 
     return (
-        <div className="flex h-screen bg-gray-50">
+        <div className="flex h-screen bg-gray-50 overflow-hidden">
+            {/* Mobile Menu Overlay */}
+            {!isEditorRoute && isMobileMenuOpen && (
+                <div 
+                    className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                />
+            )}
+
             {/* Sidebar (hidden on editor route) */}
             {!isEditorRoute && (
-            <aside className={`${isSidebarCollapsed ? 'w-16' : 'w-64'} bg-brand-dark text-white transition-all duration-300 flex flex-col`}>
+            <aside className={`
+                ${isSidebarCollapsed ? 'w-16' : 'w-64'} 
+                bg-brand-dark text-white transition-all duration-300 flex flex-col
+                fixed md:relative z-50 h-full
+                ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+            `}>
                 <div className="p-4 flex items-center justify-between">
                     {!isSidebarCollapsed && <h1 className="text-xl font-bold">CVArchitect</h1>}
-                    <button
-                        onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                        className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-                    >
-                        {isSidebarCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="md:hidden p-2 hover:bg-white/10 rounded-lg transition-colors"
+                        >
+                            <X size={20} />
+                        </button>
+                        <button
+                            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                            className="hidden md:flex p-2 hover:bg-white/10 rounded-lg transition-colors"
+                        >
+                            {isSidebarCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+                        </button>
+                    </div>
                 </div>
 
                 <nav className="flex-1 px-2 py-4 space-y-2">
-                    <NavItem icon={<Home size={20} />} label="Overview" to="/dashboard" collapsed={isSidebarCollapsed} />
-                    <NavItem icon={<Layout size={20} />} label="Templates" to="/dashboard/templates" collapsed={isSidebarCollapsed} />
-                        <NavItem icon={<Bookmark size={20} />} label="My Templates" to="/dashboard/my-templates" collapsed={isSidebarCollapsed} />
-                        <NavItem icon={<FileText size={20} />} label="Cover Letters" to="/dashboard/cover-letters" collapsed={isSidebarCollapsed} />
-                    <NavItem icon={<SettingsIcon size={20} />} label="Settings" to="/dashboard/settings" collapsed={isSidebarCollapsed} />
+                    <NavItem icon={<Home size={20} />} label="Overview" to="/dashboard" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
+                    <NavItem icon={<Layout size={20} />} label="Templates" to="/dashboard/templates" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
+                        <NavItem icon={<Bookmark size={20} />} label="My Templates" to="/dashboard/my-templates" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
+                        <NavItem icon={<FileText size={20} />} label="Cover Letters" to="/dashboard/cover-letters" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
+                    <NavItem icon={<SettingsIcon size={20} />} label="Settings" to="/dashboard/settings" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
                 </nav>
 
                 <div className="p-4 border-t border-white/10">
@@ -418,7 +493,16 @@ export default function Dashboard() {
             )}
 
             {/* Main Content */}
-            <main className="flex-1 overflow-auto">
+            <main className="flex-1 overflow-auto relative">
+                {/* Mobile Menu Button */}
+                {!isEditorRoute && (
+                    <button
+                        onClick={() => setIsMobileMenuOpen(true)}
+                        className="md:hidden fixed top-4 left-4 z-30 p-2 bg-brand-dark text-white rounded-lg shadow-lg hover:bg-brand-dark/90 transition-colors"
+                    >
+                        <Menu size={24} />
+                    </button>
+                )}
                 <Routes>
                     {/* Overview (index) */}
                     <Route
@@ -520,13 +604,88 @@ export default function Dashboard() {
                         path="cover-letters"
                         element={
                             <MyCoverLetters
-                                letters={[]}
-                                onViewLetter={() => { }}
-                                onDeleteLetter={() => { }}
+                                letters={savedCoverLetters}
+                                onViewLetter={(letter) => {
+                                    navigate('/dashboard/cover-letter', { state: { initialLetter: letter } });
+                                }}
+                                onDeleteLetter={async (id) => {
+                                    try {
+                                        await coverLetterService.deleteCoverLetter(id);
+                                        setSavedCoverLetters(prev => prev.filter(l => l.id !== id));
+                                        showToast('Cover letter deleted successfully.', 'success');
+                                    } catch (err) {
+                                        console.error('Failed to delete cover letter:', err);
+                                        showToast('Failed to delete cover letter.', 'error');
+                                    }
+                                }}
                                 onCreateNew={() => {
-                                    // Redirect to Templates so user can pick a resume template
-                                    // before generating or attaching a cover letter.
-                                    navigate('/dashboard/templates');
+                                    navigate('/dashboard/cover-letter');
+                                }}
+                            />
+                        }
+                    />
+
+                    {/* Cover Letter Generator Page */}
+                    <Route
+                        path="cover-letter"
+                        element={
+                            <CoverLetterPage
+                                resumeData={resumeData}
+                                userSubscription={userSubscription}
+                                onSave={() => {
+                                    // Reload cover letters after save
+                                    if (user) {
+                                        coverLetterService.getCoverLetters(user.id)
+                                            .then(letters => setSavedCoverLetters(letters))
+                                            .catch(err => console.error('Failed to reload cover letters:', err));
+                                    }
+                                }}
+                                onDeductCredit={() => {
+                                    const check = subscriptionManager.canUseFeature('cover_letter');
+                                    if (!check.allowed) {
+                                        setShowPaywall(true);
+                                        showToast(check.reason || 'You are out of credits. Please upgrade to continue using AI.', 'error');
+                                        return false;
+                                    }
+
+                                    const previousCredits = subscriptionManager.getCreditBalance();
+                                    const result = subscriptionManager.deductCredit('cover_letter');
+
+                                    if (!result.success) {
+                                        setShowPaywall(true);
+                                        showToast('You are out of credits. Please upgrade to continue using AI.', 'error');
+                                        return false;
+                                    }
+
+                                    const cost = previousCredits - result.remainingCredits;
+
+                                    if (user && cost > 0) {
+                                        subscriptionService.performAction(user.id, 'cover_letter', cost)
+                                            .then(res => {
+                                                if (res.success) {
+                                                    setUserSubscription(prev => ({
+                                                        ...prev,
+                                                        credits: res.newCredits,
+                                                        usageHistory: [
+                                                            {
+                                                                timestamp: new Date(),
+                                                                action: 'cover_letter',
+                                                                creditsCost: cost,
+                                                                remainingCredits: res.newCredits,
+                                                            },
+                                                            ...prev.usageHistory,
+                                                        ],
+                                                    }));
+                                                }
+                                            })
+                                            .catch(err => {
+                                                console.error('Failed to sync credits:', err);
+                                            });
+                                    } else {
+                                        setUserSubscription(subscriptionManager.getSubscription());
+                                    }
+
+                                    return true;
                                 }}
                             />
                         }
@@ -543,7 +702,44 @@ export default function Dashboard() {
                                     setHasUnsavedChanges(true);
                                 }}
                             template={selectedTemplate}
-                            onTemplateChange={setSelectedTemplate}
+                            onTemplateChange={(template) => {
+                                setSelectedTemplate(template);
+                                // Immediately persist template to localStorage
+                                localStorage.setItem('cv_app_template', template);
+                                
+                                // Update the resume data's template field
+                                const updatedData = { ...resumeData, template };
+                                setResumeData(updatedData);
+                                
+                                // If there's a current resume being edited, update its baseTemplate
+                                if (currentResumeId && user) {
+                                    // Update the saved template in state and get current resume for DB update
+                                    setSavedTemplates(prev => {
+                                        const currentResume = prev.find(t => t.id === currentResumeId);
+                                        
+                                        // Update in database asynchronously (don't block UI)
+                                        if (currentResume) {
+                                            resumeService.updateResume(
+                                                currentResumeId, 
+                                                currentResume.tag, 
+                                                updatedData
+                                            ).catch(err => {
+                                                console.error('Failed to update template in database:', err);
+                                                // Don't show error to user - it's a background sync
+                                            });
+                                        }
+                                        
+                                        return prev.map(t => 
+                                            t.id === currentResumeId 
+                                                ? { ...t, baseTemplate: template, data: updatedData }
+                                                : t
+                                        );
+                                    });
+                                    
+                                    // Mark as having unsaved changes to prompt save
+                                    setHasUnsavedChanges(true);
+                                }
+                            }}
                                 onBack={() => {
                                     if (hasUnsavedChanges) {
                                         const confirmLeave = window.confirm('You have unsaved changes. Are you sure you want to leave without saving?');
@@ -875,13 +1071,18 @@ interface NavItemProps {
     collapsed: boolean;
 }
 
-function NavItem({ icon, label, to, collapsed }: NavItemProps) {
+function NavItem({ icon, label, to, collapsed, onClick }: NavItemProps) {
     const navigate = useNavigate();
     const isActive = window.location.pathname === to;
 
+    const handleClick = () => {
+        navigate(to);
+        onClick?.();
+    };
+
     return (
         <button
-            onClick={() => navigate(to)}
+            onClick={handleClick}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive ? 'bg-brand-green text-brand-dark' : 'hover:bg-white/10'
                 }`}
             title={collapsed ? label : undefined}

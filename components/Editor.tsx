@@ -49,18 +49,49 @@ export type EditorTab = 'personal' | 'summary' | 'education' | 'experience' | 'a
 
 import { analyzeResume } from './utils/resumeAnalytics';
 
-import CoverLetterModal from './CoverLetterModal';
+import { useNavigate } from 'react-router-dom';
 import { FileText as FileTextIcon } from 'lucide-react';
+import { saveToStorage, loadFromStorage } from '../utils/statePersistence';
 
 export default function Editor({ data, onChange, template, onTemplateChange, onBack, onSave, onSaveAsTemplate, currentResumeId, showWelcomeModal, onCloseWelcomeModal, auditResult, userSubscription, onAIAction, onShowPaywall }: EditorProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [activeMobileTab, setActiveMobileTab] = useState<'editor' | 'preview' | 'design'>('editor');
-  const [activeTab, setActiveTab] = useState<EditorTab>('personal');
+  const [activeMobileTabState, setActiveMobileTabState] = useState<'editor' | 'preview' | 'design'>(() => {
+    return loadFromStorage<'editor' | 'preview' | 'design'>('editor_activeMobileTab', 'editor');
+  });
+  const [activeTabState, setActiveTabState] = useState<EditorTab>(() => {
+    return loadFromStorage<EditorTab>('editor_activeTab', 'personal');
+  });
   const [isDownloading, setIsDownloading] = useState(false);
-  const [showCoverLetterModal, setShowCoverLetterModal] = useState(false);
+  const navigate = useNavigate();
   const [coverLetterContent, setCoverLetterContent] = useState<string>('');
   const [isPrintingCoverLetter, setIsPrintingCoverLetter] = useState(false);
-  const [zoom, setZoom] = useState(0.5);
+  const [zoomState, setZoomStateInternal] = useState(() => {
+    return loadFromStorage<number>('editor_zoom', 0.5);
+  });
+
+  // Wrapper functions that persist immediately
+  const setActiveTab = React.useCallback((tab: EditorTab) => {
+    setActiveTabState(tab);
+    saveToStorage('editor_activeTab', tab);
+  }, []);
+
+  const setZoom = React.useCallback((zoom: number | ((prev: number) => number)) => {
+    setZoomStateInternal(prev => {
+      const newZoom = typeof zoom === 'function' ? zoom(prev) : zoom;
+      saveToStorage('editor_zoom', newZoom);
+      return newZoom;
+    });
+  }, []);
+
+  const setActiveMobileTab = React.useCallback((tab: 'editor' | 'preview' | 'design') => {
+    setActiveMobileTabState(tab);
+    saveToStorage('editor_activeMobileTab', tab);
+  }, []);
+
+  // Use the state variables
+  const activeTab = activeTabState;
+  const activeMobileTab = activeMobileTabState;
+  const zoom = zoomState;
 
   // Auto-adjust initial zoom based on screen width
   React.useEffect(() => {
@@ -177,9 +208,9 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
   return (
     <div className="flex flex-col h-screen h-[100dvh] w-full bg-brand-bg">
       {/* Global Header */}
-      <div className="h-16 border-b border-brand-border flex items-center justify-between px-4 bg-brand-bg shrink-0 z-20">
-        <div className="flex items-center gap-4">
-          <button onClick={onBack} className="p-2 hover:bg-brand-secondary rounded-full transition-colors">
+      <div className="h-16 border-b border-brand-border flex items-center justify-between px-2 sm:px-4 bg-brand-bg shrink-0 z-20">
+        <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
+          <button onClick={onBack} className="p-2 hover:bg-brand-secondary rounded-full transition-colors shrink-0">
             <ChevronLeft size={20} className="text-gray-600" />
           </button>
           <div className="hidden md:flex items-center gap-3 text-sm">
@@ -191,7 +222,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1 sm:gap-3 shrink-0">
           {/* Real-time Scores */}
           <div className="hidden md:flex items-center gap-3 mr-4 border-r border-gray-200 pr-4 h-8">
             <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ring-1 ring-inset transition-all ${getScoreColor(analytics.atsScore)}`}>
@@ -206,19 +237,21 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
             )}
           </div>
 
-          <CreditDisplay
-            userSubscription={userSubscription}
-            onUpgradeClick={() => onShowPaywall?.('general')}
-          />
+          <div className="hidden sm:block">
+            <CreditDisplay
+              userSubscription={userSubscription}
+              onUpgradeClick={() => onShowPaywall?.('general')}
+            />
+          </div>
           <button
-            onClick={() => setShowCoverLetterModal(true)}
+            onClick={() => navigate('/dashboard/cover-letter')}
             className="hidden sm:flex items-center gap-2 px-3 py-2 border border-brand-border rounded-lg text-sm font-medium text-brand-dark hover:bg-brand-secondary transition-colors"
           >
             <FileTextIcon size={16} />
             <span className="hidden md:inline">Cover Letter</span>
           </button>
           {/* Mobile Cover Letter Icon */}
-          <button onClick={() => setShowCoverLetterModal(true)} className="sm:hidden p-2 text-gray-500 hover:text-brand-dark">
+          <button onClick={() => navigate('/dashboard/cover-letter')} className="sm:hidden p-2 text-gray-500 hover:text-brand-dark">
             <FileTextIcon size={20} />
           </button>
 
@@ -226,7 +259,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
             <button
               onClick={handleDownload}
               disabled={isDownloading}
-              className="flex items-center gap-2 px-3 md:px-4 py-2 border border-brand-border rounded-lg text-sm font-medium text-brand-dark hover:bg-brand-secondary transition-colors"
+              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-2 border border-brand-border rounded-lg text-sm font-medium text-brand-dark hover:bg-brand-secondary transition-colors"
             >
               <Download size={16} />
               <span className="hidden sm:inline">Download</span>
@@ -234,7 +267,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
           ) : (
             <button
               onClick={() => onShowPaywall?.('export')}
-              className="flex items-center gap-2 px-3 md:px-4 py-2 bg-brand-dark text-white rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors shadow-sm ring-2 ring-brand-green/50 animate-pulse"
+              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-2 bg-brand-dark text-white rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors shadow-sm ring-2 ring-brand-green/50 animate-pulse"
             >
               <ShoppingCart size={16} className="text-brand-green" />
               <span className="hidden sm:inline">Buy this Resume</span>
@@ -442,22 +475,6 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
         document.body
       )}
 
-      <CoverLetterModal
-        isOpen={showCoverLetterModal}
-        onClose={() => setShowCoverLetterModal(false)}
-        resumeData={data}
-        onDeductCredit={() => {
-          const check = onAIAction('cover_letter');
-          if (!check && onShowPaywall) {
-            // onAIAction handles showing paywall internally in App.tsx typically, 
-            // but returning false means denied.
-            // App.tsx handleAIAction already shows paywall if needed.
-            return false;
-          }
-          return check;
-        }}
-        onDownload={handleCoverLetterDownload}
-      />
     </div>
   );
 }
