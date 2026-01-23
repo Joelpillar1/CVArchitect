@@ -983,12 +983,48 @@ export default function Dashboard() {
             <TemplateOnboardingModal
                 isOpen={showOnboardingModal}
                 onClose={() => setShowOnboardingModal(false)}
+                onCheckUploadPermission={() => {
+                    const check = subscriptionManager.canUseFeature('resume_upload');
+                    if (!check.allowed) {
+                        setShowPaywall(true);
+                        return false;
+                    }
+                    return true;
+                }}
                 onComplete={(data) => {
                     setShowOnboardingModal(false);
 
                     let newResumeData: ResumeData = { ...INITIAL_DATA, template: selectedTemplate };
 
                     if (data.method === 'upload') {
+                        // Check access and deduct credits for resume upload
+                        const check = subscriptionManager.canUseFeature('resume_upload');
+                        if (!check.allowed) {
+                            setShowPaywall(true);
+                            return;
+                        }
+
+                        // Try to deduct credit if authorized
+                        const previousCredits = subscriptionManager.getCreditBalance();
+                        const creditResult = subscriptionManager.deductCredit('resume_upload');
+                        if (!creditResult.success) {
+                            setShowPaywall(true);
+                            showToast('Insufficient credits. Resume upload costs 1 credit.', 'error');
+                            return;
+                        }
+
+                        // Update subscription state
+                        setUserSubscription(subscriptionManager.getSubscription());
+
+                        // Persist to backend
+                        if (user) {
+                            const cost = previousCredits - creditResult.remainingCredits;
+                            if (cost > 0) {
+                                subscriptionService.deductCredits(user.id, cost)
+                                    .catch(err => console.error('Failed to sync credits for upload:', err));
+                            }
+                        }
+
                         // Use parsed data from uploaded resume
                         newResumeData = {
                             ...newResumeData,

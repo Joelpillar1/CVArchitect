@@ -48,11 +48,13 @@ export class SubscriptionManager {
 
         switch (feature) {
             case 'resume_upload':
-                // Check if Pro (Unlimited)
+                // Check if Pro (Unlimited) - Sprint/Marathon plans
                 if (plan.features.resumeUploads === 'unlimited') {
-                    // But if plan uses credits (Basic), we might still want to charge?
-                    // The business logic says: Paid users (Basic) pay 1 credit.
-                    // If plan uses credits, check if they have enough
+                    // Pro plans don't use credits, so they're always allowed
+                    if (!plan.creditRules.usesCredits) {
+                        return { allowed: true };
+                    }
+                    // If plan uses credits (shouldn't happen for unlimited, but handle it)
                     if (plan.creditRules.usesCredits && plan.creditRules.creditCosts.resumeUpload > 0) {
                         if (this.subscription.credits < plan.creditRules.creditCosts.resumeUpload) {
                             return { allowed: false, reason: 'Insufficient credits for AI Resume Parsing.' };
@@ -62,7 +64,17 @@ export class SubscriptionManager {
                     return { allowed: true };
                 }
 
-                // For Free plan (limited count)
+                // For Free plan - check credits first (costs 1 credit)
+                if (plan.creditRules.usesCredits && plan.creditRules.creditCosts.resumeUpload > 0) {
+                    if (this.subscription.credits < plan.creditRules.creditCosts.resumeUpload) {
+                        return { 
+                            allowed: false, 
+                            reason: 'Insufficient credits. Resume upload costs 1 credit. Upgrade for unlimited uploads.' 
+                        };
+                    }
+                }
+
+                // Also check upload count limit (for free plan, this is 1)
                 const uploadCount = this.getUsageCount('resume_upload');
                 if (uploadCount >= plan.features.resumeUploads) {
                     return { allowed: false, reason: 'Upload limit reached. Upgrade to continue.' };
