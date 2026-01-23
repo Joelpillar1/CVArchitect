@@ -96,12 +96,16 @@ export default function Dashboard() {
     // Subscription helper for credits & feature checks
     const subscriptionManager = new SubscriptionManager(userSubscription);
 
+    // Track if we've done initial load to prevent overwriting unsaved changes
+    const hasLoadedResumesRef = React.useRef<boolean>(false);
+
     // Load saved resumes from Supabase when user changes
     useEffect(() => {
         const loadResumes = async () => {
             if (!user) {
                 setSavedTemplates([]);
                 setCurrentResumeId(null);
+                hasLoadedResumesRef.current = false;
                 return;
             }
             try {
@@ -150,22 +154,41 @@ export default function Dashboard() {
                 console.log('Processed templates:', templates.length, templates);
                 setSavedTemplates(templates);
                 
-                // If there's a currentResumeId from localStorage, try to restore it
+                // Only restore from database on initial load, not when navigating back to editor
+                // This prevents overwriting unsaved changes in localStorage
                 const savedResumeId = localStorage.getItem('cv_app_resume_id');
                 if (savedResumeId && !savedResumeId.startsWith('tmp_')) {
                     const savedResume = templates.find(t => t.id === savedResumeId);
                     if (savedResume) {
-                        console.log('Restoring saved resume:', savedResumeId, savedResume);
-                        setCurrentResumeId(savedResumeId);
-                        setResumeData(savedResume.data);
-                        setSelectedTemplate(savedResume.baseTemplate);
-                        // Update localStorage with the restored data
-                        localStorage.setItem('cv_app_data', JSON.stringify(savedResume.data));
-                        localStorage.setItem('cv_app_template', savedResume.baseTemplate);
+                        // Check if we're currently on the editor route - if so, don't overwrite
+                        const isOnEditorRoute = location.pathname === '/dashboard/editor';
+                        
+                        // Only restore from database if:
+                        // 1. This is the first load (hasLoadedResumesRef.current === false)
+                        // 2. AND we're NOT on the editor route (user isn't actively editing)
+                        // 3. OR the localStorage data matches the database (no unsaved changes)
+                        const localData = loadFromStorage<ResumeData>('cv_app_data', null);
+                        const dataMatches = localData && JSON.stringify(localData) === JSON.stringify(savedResume.data);
+                        const isInitialLoad = !hasLoadedResumesRef.current;
+                        
+                        if ((isInitialLoad && !isOnEditorRoute) || dataMatches) {
+                            console.log('Restoring saved resume from database:', savedResumeId, savedResume);
+                            setCurrentResumeId(savedResumeId);
+                            setResumeData(savedResume.data);
+                            setSelectedTemplate(savedResume.baseTemplate);
+                            // Update localStorage with the restored data
+                            localStorage.setItem('cv_app_data', JSON.stringify(savedResume.data));
+                            localStorage.setItem('cv_app_template', savedResume.baseTemplate);
+                        } else {
+                            console.log('Skipping database restore - preserving localStorage data (user may have unsaved changes)');
+                            // Still update currentResumeId to keep it in sync, but preserve localStorage data
+                            setCurrentResumeId(savedResumeId);
+                        }
                     } else {
                         console.warn('Saved resume ID not found in loaded templates:', savedResumeId);
                     }
-                } else if (templates.length > 0) {
+                } else if (templates.length > 0 && !hasLoadedResumesRef.current) {
+                    // Only auto-load on initial load, not on every navigation
                     // If no saved resume ID but we have templates, optionally load the most recent one
                     // (commented out - let user choose which to load)
                     // const mostRecent = templates[0];
@@ -173,13 +196,16 @@ export default function Dashboard() {
                     // setResumeData(mostRecent.data);
                     // setSelectedTemplate(mostRecent.baseTemplate);
                 }
+                
+                // Mark as loaded
+                hasLoadedResumesRef.current = true;
             } catch (err) {
                 console.error('Failed to load resumes:', err);
                 showToast('Failed to load saved resumes. Please refresh the page.', 'error');
             }
         };
         loadResumes();
-    }, [user, showToast]);
+    }, [user, showToast, location.pathname]);
 
     // Load saved cover letters from Supabase when user changes
     useEffect(() => {
@@ -1105,6 +1131,7 @@ interface NavItemProps {
     label: string;
     to: string;
     collapsed: boolean;
+    onClick?: () => void;
 }
 
 function NavItem({ icon, label, to, collapsed, onClick }: NavItemProps) {
