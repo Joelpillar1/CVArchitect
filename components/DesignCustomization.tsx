@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ResumeData, TemplateType } from '../types';
 import { Layout, Type, Palette, AlignJustify, Move, Save, AlignLeft, AlignCenter, AlignRight, X, Check } from 'lucide-react';
+import { FREE_TEMPLATES } from '../utils/pricingConfig';
 
 interface DesignCustomizationProps {
     data: ResumeData;
@@ -82,11 +83,26 @@ export default function DesignCustomization({
         { id: 'dev', name: 'DevPro' },
         { id: 'modern', name: 'Modern' },
         { id: 'executive', name: 'Executive' },
-
         { id: 'classic', name: 'Classic' },
         { id: 'elite', name: 'Elite Professional' },
-        { id: 'apex', name: 'Apex Executive' }
+        { id: 'apex', name: 'Apex Executive' },
+        { id: 'wonsulting', name: 'Ivy League' },
+        { id: 'styled', name: 'Styled Professional' },
+        { id: 'smart', name: 'Smart Professional' },
+        { id: 'elegant', name: 'Elegant Professional' },
+        { id: 'minimalist', name: 'Minimalist Serif' },
+        { id: 'professional', name: 'Professional Clean' },
+        { id: 'twocolumn', name: 'Two Column Professional' }
     ];
+
+    // Sort templates: free templates first, then pro templates
+    const sortedTemplates = [...templates].sort((a, b) => {
+        const aIsFree = FREE_TEMPLATES.includes(a.id);
+        const bIsFree = FREE_TEMPLATES.includes(b.id);
+        if (aIsFree && !bIsFree) return -1;
+        if (!aIsFree && bIsFree) return 1;
+        return 0; // Maintain original order within each group
+    });
 
     return (
         <div className="space-y-8 animate-fadeIn">
@@ -103,7 +119,7 @@ export default function DesignCustomization({
                         onChange={(e) => onTemplateChange(e.target.value as TemplateType)}
                         className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all text-sm"
                     >
-                        {templates.map(template => (
+                        {sortedTemplates.map(template => (
                             <option key={template.id} value={template.id}>
                                 {template.name}
                             </option>

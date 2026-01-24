@@ -32,34 +32,56 @@ export const enhanceDescription = async (
     }
 
     try {
-        const prompt = `You are a senior executive recruiter with 15+ years of experience. You HATE resumes that scream "AI-generated" with excessive percentages and metrics. Rewrite the following job description for a "${role}" position at "${company}".
+        const prompt = `You are a senior executive recruiter with 15+ years of experience across industries and markets globally. You understand what recruiters and hiring managers want to see, what they don't want to see, and how to craft resumes that get interviews. You have deep knowledge of different roles, industries, company sizes, and what metrics are appropriate and impressive for each context. You HATE resumes that scream "AI-generated" with excessive percentages.
+
+Your approach: You build on the original description, but you use your recruiter expertise to strategically enhance it. You know where metrics should go, what types of metrics work best, and how to make the resume compelling without being unrealistic. The original description is your foundation - you enhance it intelligently based on your experience.
 
 Current Description:
 "${description}"
 
 # CRITICAL RULES FROM A RECRUITER'S PERSPECTIVE:
 
-## 1. STRATEGIC QUANTIFICATION (NOT EXCESSIVE)
-- **MAXIMUM 1 metric per role** (unless it's a Key Achievements section)
-- Metrics should be IMPACTFUL, not filler (e.g., "30% efficiency gain" is weak; "Reduced deployment time from 2 weeks to 3 days" is strong)
-- If you use a number, make it SPECIFIC and CONTEXTUAL (not just percentages)
-- **AVOID**: Listing multiple percentages (20%, 30%, 40%) - this is an instant red flag
-- **PREFER**: Concrete outcomes ("Launched X", "Built Y", "Led Z")
+## 0. YOUR RECRUITER EXPERTISE (MOST IMPORTANT - READ FIRST):
+- **You know what recruiters want**: Use your 15+ years of experience to understand what metrics are appropriate for this role, industry, and company size
+- **Build strategically on the original**: The original description is your foundation - enhance it intelligently, don't just copy it
+- **Add metrics where they make sense**: You know where metric-driven bullets should go based on the role type and what recruiters expect to see
+- **Use industry knowledge**: Draw on your understanding of different industries, roles, and company sizes to infer reasonable metrics
+- **NEVER exaggerate**: Use realistic, believable metrics that align with the role level, company size, and industry standards
+- **Be strategic**: Not every bullet needs a metric - you know when to use metrics and when to focus on strategic impact
+- **Trust your expertise**: You've seen thousands of resumes - you know what works and what doesn't
+
+## 1. STRATEGIC QUANTIFICATION (BALANCED & NATURAL)
+- **MAXIMUM 2 metrics per ENTIRE role** (not per bullet - across all bullets for this role)
+- **PREFER non-percentage metrics**: Team size, budget amounts, user counts, time periods, dollar amounts, project counts
+- **LIMIT percentages**: Use percentages ONLY when they're truly impressive and contextual (e.g., "Increased revenue by 150%" is strong; "Improved efficiency by 15%" is weak)
+- **AVOID**: Multiple percentages in one role (e.g., "increased by 20%, reduced by 15%, improved by 18%") - this screams AI-generated
+- **AVOID**: Vague percentages without context (e.g., "Improved efficiency by 30%" is weak)
+- **Use your recruiter knowledge**: Based on the role, industry, and company context, strategically add metrics where they make sense
+- **Infer intelligently**: If the original doesn't have numbers, use your experience to infer reasonable metrics based on:
+  * Role level (junior vs senior)
+  * Industry standards (tech vs finance vs healthcare)
+  * Company size (startup vs enterprise)
+  * Typical scope for this type of role
+- **NEVER exaggerate**: Keep metrics realistic and believable - you know what's reasonable for each context
+- Mix 1-2 metric-driven bullets with strategic/leadership bullets that have NO metrics
+- **CRITICAL**: Not every bullet needs a metric - you know when metrics add value and when strategic impact is more powerful
 
 ## 2. BULLET POINT ARCHETYPES (Mix These):
 ${isRecent ? `
    **For Recent/Current Roles (4-5 bullets):**
-   - 1 "Strategic Impact" bullet (What system/process did you build or transform?)
-   - 1 "Leadership/Scope" bullet (Team size, budget, stakeholders)
-   - 1 "Problem-Solving" bullet (Specific challenge you resolved)
-   - 1-2 "Execution" bullets (Key deliverables or projects)
-   - OPTIONAL: 1 metric-driven bullet (ONLY if truly impressive)
+   - 1 "Strategic Impact" bullet (What system/process did you build? NO metric needed - focus on transformation)
+   - 1 "Leadership/Scope" bullet (Team size, budget amount, stakeholder count - USE NUMBERS HERE)
+   - 1 "Problem-Solving" bullet (Specific challenge resolved - NO metric needed, focus on solution)
+   - 1-2 "Execution/Project" bullets (Key deliverables - USE NUMBERS HERE if available: user count, project count, timeline)
+   - **REQUIREMENT**: Maximum 2 bullets should have metrics across the entire role
+   - **PREFER**: Use counts, dollar amounts, time periods over percentages
 ` : `
    **For Earlier Roles (3-4 bullets):**
-   - 1 "Core Responsibility" bullet (What was your main function?)
-   - 1 "Key Achievement" bullet (Most proud accomplishment)
-   - 1-2 "Technical/Skill" bullets (What you built/used)
-   - AVOID metrics for older roles unless exceptional
+   - 1 "Core Responsibility" bullet (What was your main function? NO metric needed)
+   - 1 "Key Achievement" bullet (Most proud accomplishment - USE NUMBERS HERE if available)
+   - 1-2 "Technical/Skill" bullets (What you built/used - USE NUMBERS HERE if relevant: scale, scope)
+   - **REQUIREMENT**: Maximum 2 bullets should have metrics across the entire role
+   - **PREFER**: Use counts, dollar amounts, time periods over percentages
 `}
 
 ## 3. SEMANTIC VARIATION (CRITICAL - STRICTLY ENFORCED):
@@ -88,22 +110,37 @@ ${isRecent ? `
 `}
 
 ## 5. WHAT MAKES A GREAT BULLET:
-✅ GOOD: "Architected microservices platform serving 2M+ users, reducing infrastructure costs by $400K annually"
-✅ GOOD: "Led cross-functional team of 8 engineers to deliver mobile app 3 weeks ahead of schedule"
-✅ GOOD: "Resolved critical production incident affecting 50K users by implementing automated failover system"
+✅ GOOD (Non-percentage metrics): "Architected microservices platform serving 2M+ users, reducing infrastructure costs by $400K annually"
+✅ GOOD (Count/Time): "Led cross-functional team of 8 engineers to deliver mobile app 3 weeks ahead of schedule"
+✅ GOOD (Count): "Resolved critical production incident affecting 50K users by implementing automated failover system"
+✅ GOOD (Dollar/Count): "Managed $2M annual budget and delivered 15+ projects on time and within budget"
+✅ GOOD (Count): "Established comprehensive design system used by 25+ product teams across the organization"
+✅ GOOD (Strategic, no metric): "Spearheaded UX research initiatives that influenced product strategy and uncovered key user insights"
+✅ GOOD (Strategic, no metric): "Facilitated smooth design-to-engineering handoffs, ensuring precise implementation and alignment"
 
-❌ BAD: "Improved efficiency by 30%" (vague, no context)
-❌ BAD: "Increased productivity by 25%, reduced costs by 20%, improved quality by 15%" (metric overload)
-❌ BAD: "Utilized Agile methodologies to enhance team collaboration" (buzzword soup)
+❌ BAD: "Increased engagement by 25%, expanded reach by 40%, boosted acquisition by 20%" (too many percentages - screams AI)
+❌ BAD: "Improved efficiency by 30%" (vague percentage without context)
+❌ BAD: "Increased productivity by 25%, reduced costs by 20%, improved quality by 15%" (metric overload - too many percentages)
+❌ BAD: "Utilized Agile methodologies to enhance team collaboration" (no metrics, buzzword soup)
 ❌ BAD: Starting multiple bullets with the same verb (e.g., "Led team...", "Led project...", "Led initiative...")
+❌ BAD: Every bullet having a percentage (makes it look AI-generated)
+❌ BAD: Exaggerating numbers beyond what's reasonable for the role/industry (e.g., saying "team of 50" for a junior role, or "increased by 500%" without context)
+❌ BAD: Adding metrics that don't make sense for the role or industry context
 
 # FINAL OUTPUT:
 - Return ONLY the bullet points (use •)
 - ${isRecent ? '4-5 bullets' : '3-4 bullets'}
 - NO introductory text
 - Make it sound HUMAN, not AI-generated
-- Remember: ONE metric maximum (or zero if the work speaks for itself)
+- **CRITICAL**: Maximum 2 bullets should have metrics across the ENTIRE role (not per bullet)
+- **PREFER**: Use non-percentage metrics (team size, budget, user count, time periods, dollar amounts, project count)
+- **LIMIT**: Use percentages ONLY when truly impressive (e.g., "Increased revenue by 150%" not "Improved efficiency by 15%")
 - **MANDATORY**: Every bullet MUST start with a DIFFERENT action verb
+- **BALANCE**: Mix metric-driven bullets (max 2) with strategic/leadership bullets that have NO metrics
+- **AVOID**: Making every bullet have a percentage - this screams AI-generated
+- **USE YOUR EXPERTISE**: Strategically add metrics based on your recruiter knowledge of what's appropriate for this role and industry
+- **NEVER EXAGGERATE**: Keep numbers realistic and believable - you know what's reasonable for each context
+- **BUILD ON THE ORIGINAL**: Enhance the original description intelligently, using your experience to know where metrics add value
 `;
 
         const result = await callAIText(prompt, 'gpt-4o', 0.8);
@@ -149,22 +186,29 @@ export const generateBulletPoints = async (
     keywords: string
 ): Promise<string[]> => {
     try {
-        const prompt = `Generate 3-4 high-impact resume bullet points for a "${role}" position at "${company}".
+        const prompt = `You are a senior executive recruiter with 15+ years of experience. Generate 3-4 high-impact resume bullet points for a "${role}" position at "${company}".
         
         Keywords/Context to include: ${keywords}
+        
+        Your approach: Use your recruiter expertise to strategically craft bullets. You know what metrics are appropriate for this role and industry. Build on the context provided, but use your experience to enhance it intelligently.
         
         Instructions:
         - Use strong action verbs.
         - **MANDATORY**: Every single bullet point MUST start with a DIFFERENT action verb.
         - **NO EXCEPTIONS**: If you generate 4 bullets, you must use 4 completely different verbs.
         - **NEVER** start consecutive bullets with similar verbs.
+        - **Use your recruiter knowledge**: Based on the role, industry, and company context, strategically add metrics where they make sense
+        - **Infer intelligently**: Use your experience to infer reasonable metrics based on role level, industry standards, company size, and typical scope
+        - **NEVER EXAGGERATE**: Keep metrics realistic and believable - you know what's reasonable for each context
         - Follow strategic quantification rules from the recruiter guide:
-          * **MAXIMUM ONE bullet with a metric/number** for this role.
-          * Metrics must be SPECIFIC and CONTEXTUAL (e.g., "Reduced deployment from 2 weeks to 3 days").
-          * AVOID strings of vague percentages like "improved by 20%, 30%, 40%".
-        - Prefer concrete outcomes and responsibilities over metric spam.
+          * **MAXIMUM 2 metrics per ENTIRE role** (not per bullet - across all bullets for this role).
+          * **PREFER non-percentage metrics**: Team size, budget amounts, user counts, time periods, dollar amounts, project counts.
+          * **LIMIT percentages**: Use percentages ONLY when truly impressive (e.g., "Increased revenue by 150%" not "Improved efficiency by 15%").
+          * **AVOID**: Multiple percentages in one role (e.g., "increased by 20%, reduced by 15%, improved by 18%") - this screams AI-generated.
+          * Balance 1-2 metric-driven bullets with strategic/leadership bullets that have NO metrics.
+        - **CRITICAL**: You know when metrics add value and when strategic impact is more powerful - use your judgment
         - Return ONLY a JSON array of strings, e.g., ["bullet 1", "bullet 2"].
-        - **VERIFICATION**: Before outputting, check that NO two bullets start with the same verb or verb form.`;
+        - **VERIFICATION**: Before outputting, check that NO two bullets start with the same verb or verb form, and that all numbers are reasonable and appropriate for the role/industry context.`;
 
         const parsed = await callAIJSON(prompt, 'gpt-4o');
         // Handle different potential JSON structures
@@ -185,7 +229,9 @@ export const tailorResumeToJob = async (
     keyAchievements: string;
 }> => {
     try {
-        const prompt = `You are a senior executive recruiter with 15+ years of experience. You STRICTLY follow the "AI Resume Enhancement Rules - Recruiter-Approved" document below. You're helping a candidate tailor their resume to THIS SPECIFIC JOB. You HATE resumes that scream "AI-generated" with excessive metrics and generic buzzwords.
+        const prompt = `You are a senior executive recruiter with 15+ years of experience across industries and markets globally. You understand what recruiters and hiring managers want to see, what they don't want to see, and how to craft resumes that get interviews. You have deep knowledge of different roles, industries, company sizes, and what metrics are appropriate and impressive for each context. You're helping a candidate tailor their resume to THIS SPECIFIC JOB. You HATE resumes that scream "AI-generated" with excessive metrics and generic buzzwords.
+
+Your approach: You build on the original resume, but you use your recruiter expertise to strategically enhance it. You know where metrics should go, what types of metrics work best, and how to make the resume compelling without being unrealistic. The original resume is your foundation - you enhance it intelligently based on your experience and the job requirements.
 
 JOB DESCRIPTION:
 ${jobDescription.substring(0, 3000)}
@@ -206,18 +252,20 @@ Experience: ${JSON.stringify(resumeData.experience.map(e => ({ role: e.role, com
 
 ## 2. EXPERIENCE BULLETS (CRITICAL - READ CAREFULLY):
 
-### STRATEGIC QUANTIFICATION RULES (MUST MATCH THE RULES DOC):
-- **MAXIMUM 1 metric-driven bullet per role** (this is NOT the Key Achievements section).
-- The other bullets should focus on strategy, scope, problem-solving, and execution WITHOUT numbers.
-- Metrics must be IMPACTFUL and CONTEXTUAL.
-- ❌ **AVOID**: Multiple vague percentages (20%, 30%, 40%) – this looks AI-generated.
-- ✅ **PREFER**: Concrete outcomes ("Reduced deployment time from 2 weeks to 3 days", "Launched mobile app to 50K users").
+### STRATEGIC QUANTIFICATION RULES (BALANCED & NATURAL):
+- **MAXIMUM 2 metrics per ENTIRE role** (not per bullet - across all bullets for this role)
+- **PREFER non-percentage metrics**: Team size, budget amounts, user counts, time periods, dollar amounts, project counts
+- **LIMIT percentages**: Use percentages ONLY when truly impressive and contextual (e.g., "Increased revenue by 150%" is strong; "Improved efficiency by 15%" is weak)
+- ❌ **AVOID**: Multiple percentages in one role (e.g., "increased by 20%, reduced by 15%, improved by 18%") – this screams AI-generated
+- ❌ **AVOID**: Vague percentages without context (20%, 30%, 40%) – this looks AI-generated
+- ✅ **PREFER**: Specific non-percentage numbers ("Reduced deployment time from 2 weeks to 3 days", "Launched mobile app to 50K users", "Managed team of 12 engineers", "Delivered $2M project on budget")
+- Mix 1-2 metric-driven bullets with strategic/leadership bullets that have NO metrics
 
 ### BULLET POINT STRUCTURE (3-4 bullets per role):
-1. **Strategic Impact** - What system/process did you build or transform?
-2. **Leadership/Scope** - Team size, stakeholders, budget (NOT percentages)
-3. **Problem-Solving** - Specific challenge you resolved
-4. **OPTIONAL: Metric** - ONLY if truly impressive and relevant to THIS job
+1. **Strategic Impact** - What system/process did you build? NO metric needed - focus on transformation
+2. **Leadership/Scope** - Team size, budget amount, stakeholder count - USE NUMBERS HERE (non-percentage preferred)
+3. **Problem-Solving** - Specific challenge resolved - NO metric needed, focus on solution
+4. **Execution/Project** - Key deliverables - USE NUMBERS HERE if available (user count, project count, timeline - non-percentage preferred)
 
 ### FORMATTING CRITICAL RULES:
 - **Output 3-4 distinct bullets per role.**
@@ -234,16 +282,22 @@ Experience: ${JSON.stringify(resumeData.experience.map(e => ({ role: e.role, com
 - Sound like a HUMAN wrote this, not an AI
 - **VERIFICATION**: Before outputting, check that NO two bullets start with the same verb or verb form
 
-### EXAMPLES OF WHAT TO DO:
-✅ "Architected microservices platform serving 2M+ users, reducing infrastructure costs by $400K annually"
-✅ "Led cross-functional team of 8 engineers to deliver mobile app 3 weeks ahead of schedule"
-✅ "Resolved critical production incident affecting 50K users by implementing automated failover"
-✅ "Built CI/CD pipeline that reduced deployment time from 2 weeks to 3 days"
+### EXAMPLES OF WHAT TO DO (Good Mix):
+✅ "Architected microservices platform serving 2M+ users, reducing infrastructure costs by $400K annually" (user count + dollar amount)
+✅ "Led cross-functional team of 8 engineers to deliver mobile app 3 weeks ahead of schedule" (team size + time)
+✅ "Resolved critical production incident affecting 50K users by implementing automated failover" (user count)
+✅ "Built CI/CD pipeline that reduced deployment time from 2 weeks to 3 days" (time period - no percentage)
+✅ "Managed $2M annual budget and delivered 15+ projects on time and within budget" (dollar amount + project count)
+✅ "Established comprehensive design system used by 25+ product teams across the organization" (team count)
+✅ "Spearheaded UX research initiatives that influenced product strategy and uncovered key user insights" (NO metric - strategic focus)
+✅ "Facilitated smooth design-to-engineering handoffs, ensuring precise implementation and alignment" (NO metric - process focus)
 
 ### EXAMPLES OF WHAT TO AVOID:
-❌ "Improved efficiency by 30%" (vague, no context)
-❌ "Increased productivity by 25%, reduced costs by 20%, improved quality by 15%" (metric overload)
-❌ "Utilized Agile methodologies to enhance team collaboration" (buzzword soup)
+❌ "Increased engagement by 25%, expanded reach by 40%, boosted acquisition by 20%" (too many percentages - screams AI)
+❌ "Improved efficiency by 30%" (vague percentage without context)
+❌ "Increased productivity by 25%, reduced costs by 20%, improved quality by 15%" (metric overload - too many percentages)
+❌ "Utilized Agile methodologies to enhance team collaboration" (no metrics, buzzword soup)
+❌ Every bullet having a percentage (makes it look AI-generated)
 
 ## 3. SKILLS (Top 8 ONLY, comma-separated):
 - Prioritize skills EXPLICITLY mentioned in the job description
@@ -262,12 +316,18 @@ Experience: ${JSON.stringify(resumeData.experience.map(e => ({ role: e.role, com
 - Use superlatives when truthful (first, largest, fastest).
 
 CRITICAL RULES:
-- Stay TRUTHFUL - enhance and reframe existing experience, don't fabricate
+- **Use your recruiter expertise**: Draw on your 15+ years of experience to know what metrics are appropriate for this role, industry, and company size
+- **Build strategically on the original**: The original resume is your foundation - enhance it intelligently based on the job requirements and your knowledge
+- **Add metrics where they make sense**: You know where metric-driven bullets should go based on the role type and what recruiters expect to see
+- **Use industry knowledge**: Infer reasonable metrics based on role level, industry standards, company size, and typical scope for this type of role
+- **NEVER EXAGGERATE**: Keep metrics realistic and believable - you know what's reasonable for each context
 - Make this resume sound like the PERFECT candidate for THIS SPECIFIC JOB
 - Use keywords from the JD naturally (aim for 95%+ keyword coverage)
 - VARY sentence structure and verbs - no repetition
 - Sound HUMAN, not AI-generated
-- Remember: ONE metric-driven bullet maximum per experience role (Key Achievements can have more, but still must be credible)
+- **CRITICAL**: Maximum 2 metrics per experience role (not per bullet - across all bullets)
+- **PREFER**: Non-percentage metrics (team size, budget, user count, time periods, dollar amounts)
+- **LIMIT**: Percentages only when truly impressive (Key Achievements can have more, but still must be credible and not percentage-heavy)
 
 Return ONLY valid JSON in this EXACT format:
 {

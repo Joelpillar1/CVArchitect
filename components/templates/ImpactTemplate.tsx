@@ -1,23 +1,14 @@
 import React from 'react';
 import { ResumeData } from '../../types';
 import { getTranslation, Language } from '../../i18n/translations';
-import { formatDate, parseDescriptionBullets, descriptionToString, parseAchievementBullets } from '../../utils/templateUtils';
+import { formatDate, parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil } from '../../utils/templateUtils';
 
 export default function ImpactTemplate({ data }: { data: ResumeData }) {
     const { fontSizes } = data;
     const t = getTranslation(data.language as Language || 'en');
 
-    const formatMonthYear = (dateString: string) => {
-        if (!dateString || dateString.toLowerCase() === 'present') {
-            return 'Present';
-        }
-        try {
-            const [year, month] = dateString.split('-');
-            const date = new Date(parseInt(year), parseInt(month) - 1);
-            return date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
-        } catch (e) {
-            return dateString;
-        }
+    const formatMonthYear = (dateString: string | null | undefined) => {
+        return formatMonthYearUtil(dateString, 'long');
     };
 
 

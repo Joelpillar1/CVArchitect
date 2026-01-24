@@ -20,7 +20,7 @@ body {
 @media print {
     @page {
         margin: 0;
-        size: auto;
+        size: A4;
     }
 
     body {
@@ -28,6 +28,19 @@ body {
         padding: 0;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
+    }
+
+    /* Prevent content from being rasterized - keep as vector/text */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Critical: Prevent browser from rasterizing content */
+    html, body {
+        /* Force text rendering, not image rendering */
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
     }
 
     /* Reset layout for print */
@@ -131,6 +144,49 @@ body {
         margin-bottom: 0 !important;
     }
 
+    /* Ensure links are clickable in PDF and text is selectable */
+    .print-resume a,
+    .print-cover-letter a {
+        color: inherit !important;
+        text-decoration: underline !important;
+        /* Ensure links are preserved in PDF */
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        /* Preserve link functionality */
+        pointer-events: auto !important;
+        cursor: pointer !important;
+        /* Ensure links are recognized as links */
+        display: inline !important;
+    }
+
+    /* Ensure all text is selectable (not rasterized) */
+    .print-resume,
+    .print-cover-letter {
+        /* Prevent content from being rasterized */
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        /* Force browser to keep as text, not images */
+        image-rendering: auto !important;
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
+    }
+
+    /* Ensure all text elements remain as text */
+    .print-resume *,
+    .print-cover-letter * {
+        /* Prevent content from being rasterized */
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        /* Make text selectable */
+        user-select: text !important;
+        -webkit-user-select: text !important;
+        -moz-user-select: text !important;
+        -ms-user-select: text !important;
+        /* Ensure text remains as text, not images */
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
+    }
+
     /* Ensure text doesn't get cut off */
     .print-resume *,
     .print-cover-letter * {
@@ -138,6 +194,13 @@ body {
         white-space: normal !important;
         /* Allow wrapping */
         overflow: visible !important;
+    }
+
+    /* Prevent images from blocking text selection */
+    .print-resume img,
+    .print-cover-letter img {
+        pointer-events: none !important;
+        user-select: none !important;
     }
 
     /* Hide scrollbars and UI elements */

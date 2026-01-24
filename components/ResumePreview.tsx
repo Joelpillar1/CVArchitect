@@ -17,6 +17,8 @@ import StyledTemplate from './templates/StyledTemplate';
 import SmartTemplate from './templates/SmartTemplate';
 import ElegantTemplate from './templates/ElegantTemplate';
 import MinimalistTemplate from './templates/MinimalistTemplate';
+import ProfessionalTemplate from './templates/ProfessionalTemplate';
+import TwoColumnTemplate from './templates/TwoColumnTemplate';
 
 interface ResumePreviewProps {
   data: ResumeData;
@@ -51,6 +53,8 @@ export default function ResumePreview({ data, template }: ResumePreviewProps) {
         case 'smart': return <SmartTemplate data={data} />;
         case 'elegant': return <ElegantTemplate data={data} />;
         case 'minimalist': return <MinimalistTemplate data={data} />;
+        case 'professional': return <ProfessionalTemplate data={data} />;
+        case 'twocolumn': return <TwoColumnTemplate data={data} />;
         default: return <VanguardTemplate data={data} />;
       }
     } catch (e) {

@@ -150,7 +150,7 @@ export const EXPORT_CREDIT_PACKS: CreditPack[] = [
 // FREE TEMPLATES
 // ========================================================
 
-export const FREE_TEMPLATES = ['free', 'simplepro', 'minimalist'];
+export const FREE_TEMPLATES = ['free', 'simplepro', 'minimalist', 'twocolumn'];
 
 export const BASIC_TEMPLATES = [
     ...FREE_TEMPLATES,
@@ -172,6 +172,7 @@ export const ALL_TEMPLATES = [
     'styled',
     'smart',
     'elegant',
+    'professional',
 ];
 
 // ========================================================

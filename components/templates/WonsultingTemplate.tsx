@@ -1,19 +1,10 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, descriptionToString, parseAchievementBullets } from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil } from '../../utils/templateUtils';
 import { getTranslation, Language } from '../../i18n/translations';
 
-const formatMonthYear = (dateString: string) => {
-    if (!dateString || dateString.toLowerCase() === 'present') {
-        return 'Present';
-    }
-    try {
-        const [year, month] = dateString.split('-');
-        const date = new Date(parseInt(year), parseInt(month) - 1);
-        return date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
-    } catch (e) {
-        return dateString;
-    }
+const formatMonthYear = (dateString: string | null | undefined) => {
+    return formatMonthYearUtil(dateString, 'long');
 };
 
 export default function WonsultingTemplate({ data }: { data: ResumeData }) {
@@ -134,7 +125,7 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                                         <h3 className="font-bold text-gray-900" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
                                             {project.name}
                                             {project.link && (
-                                                <a href={project.link} target="_blank" rel="noopener noreferrer" className="ml-2 font-normal text-blue-600 hover:underline">
+                                                <a href={project.link.startsWith('http') ? project.link : `https://${project.link}`} target="_blank" rel="noopener noreferrer" className="ml-2 font-normal text-blue-600 hover:underline">
                                                     [Link]
                                                 </a>
                                             )}

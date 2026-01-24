@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TemplateType, ResumeData } from '../types';
 import { ArrowRight, Crown, Eye, X, LayoutTemplate } from 'lucide-react';
 import ResumePreview from './ResumePreview';
+import { FREE_TEMPLATES } from '../utils/pricingConfig';
 
 interface TemplatesProps {
     onSelect: (template: TemplateType) => void;
@@ -113,8 +114,29 @@ export default function Templates({ onSelect, data }: TemplatesProps) {
             name: "Minimalist Serif",
             description: "A beautifully simple text-focused template with light background section headers. clean and easy to read.",
             bg: "bg-[#FFFFFF]"
+        },
+        {
+            id: 'professional',
+            name: "Professional Clean",
+            description: "A clean, single-column template with centered header, underlined section titles, and right-aligned dates. Perfect for academic and traditional professional roles.",
+            bg: "bg-[#FFFFFF]"
+        },
+        {
+            id: 'twocolumn',
+            name: "Two Column Professional",
+            description: "A sophisticated two-column layout with narrow left sidebar for contact, education, and highlights, and wide right column for summary and experience. Clean, minimalist design with subtle accents.",
+            bg: "bg-[#FFFFFF]"
         }
     ];
+
+    // Sort templates: free templates first, then pro templates
+    const sortedTemplates = [...templates].sort((a, b) => {
+        const aIsFree = FREE_TEMPLATES.includes(a.id);
+        const bIsFree = FREE_TEMPLATES.includes(b.id);
+        if (aIsFree && !bIsFree) return -1;
+        if (!aIsFree && bIsFree) return 1;
+        return 0; // Maintain original order within each group
+    });
 
     return (
         <div className="p-6 md:p-10 h-full overflow-y-auto bg-brand-bg">
@@ -131,7 +153,7 @@ export default function Templates({ onSelect, data }: TemplatesProps) {
                 <div className="pb-16">
                     {templates.length > 0 ? (
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-6">
-                            {templates.map((template) => (
+                            {sortedTemplates.map((template) => (
                                 <div
                                     key={template.id}
                                     className="group relative bg-white rounded-xl shadow-sm border border-gray-200 hover:border-brand-green hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden"
@@ -188,11 +210,11 @@ export default function Templates({ onSelect, data }: TemplatesProps) {
                                         </div>
 
                                         {/* Badge */}
-                                        <div className={`absolute top-2 right-2 z-20 text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1 uppercase tracking-wide ${template.id === 'free' || template.id === 'simplepro' || template.id === 'minimalist'
+                                        <div className={`absolute top-2 right-2 z-20 text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1 uppercase tracking-wide ${template.id === 'free' || template.id === 'simplepro' || template.id === 'minimalist' || template.id === 'twocolumn'
                                             ? 'bg-green-500 text-white'
                                             : 'bg-brand-dark text-brand-green'
                                             }`}>
-                                            {template.id === 'free' || template.id === 'simplepro' || template.id === 'minimalist' ? (
+                                            {template.id === 'free' || template.id === 'simplepro' || template.id === 'minimalist' || template.id === 'twocolumn' ? (
                                                 <>FREE</>
                                             ) : (
                                                 <>
@@ -250,7 +272,7 @@ export default function Templates({ onSelect, data }: TemplatesProps) {
                         <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200 shrink-0 z-10 shadow-sm">
                             <div>
                                 <h3 className="text-xl font-bold text-brand-dark">Template Preview</h3>
-                                <p className="text-sm text-gray-500 hidden md:block">Full preview of the {templates.find(t => t.id === previewTemplate)?.name} template</p>
+                                <p className="text-sm text-gray-500 hidden md:block">Full preview of the {sortedTemplates.find(t => t.id === previewTemplate)?.name} template</p>
                             </div>
                             <div className="flex items-center gap-3">
                                 <button

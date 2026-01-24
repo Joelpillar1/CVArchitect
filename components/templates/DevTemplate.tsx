@@ -1,20 +1,11 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, descriptionToString, parseAchievementBullets } from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil } from '../../utils/templateUtils';
 import { Mail, Phone, Linkedin, Github, Globe, MapPin } from 'lucide-react';
 import { getTranslation, Language } from '../../i18n/translations';
 
-const formatMonthYear = (dateString: string) => {
-    if (!dateString || dateString.toLowerCase() === 'present') {
-        return 'Present';
-    }
-    try {
-        const [year, month] = dateString.split('-');
-        const date = new Date(parseInt(year), parseInt(month) - 1);
-        return date.toLocaleString('en-US', { month: 'short', year: 'numeric' });
-    } catch (e) {
-        return dateString;
-    }
+const formatMonthYear = (dateString: string | null | undefined) => {
+    return formatMonthYearUtil(dateString, 'short');
 };
 
 export default function DevTemplate({ data }: { data: ResumeData }) {
@@ -205,7 +196,7 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                                             {project.name}
                                         </h3>
                                         {project.link && (
-                                            <a href={project.link} target="_blank" rel="noopener noreferrer" className="ml-2 font-normal italic text-gray-600 text-sm hover:underline">
+                                            <a href={project.link.startsWith('http') ? project.link : `https://${project.link}`} target="_blank" rel="noopener noreferrer" className="ml-2 font-normal italic text-gray-600 text-sm hover:underline">
                                                 Link
                                             </a>
                                         )}

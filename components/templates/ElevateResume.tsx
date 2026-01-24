@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, parseAchievementBullets } from '../../utils/templateUtils';
+import { parseDescriptionBullets, parseAchievementBullets, formatMonthYear as formatMonthYearUtil } from '../../utils/templateUtils';
 import { Linkedin, Mail, Phone, MapPin, Send } from 'lucide-react';
 import { getTranslation, Language } from '../../i18n/translations';
 
@@ -8,17 +8,8 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
     const { fontSizes } = data;
     const t = getTranslation(data.language as Language || 'en');
 
-    const formatMonthYear = (dateString: string) => {
-        if (!dateString || dateString.toLowerCase() === 'present') {
-            return 'Present';
-        }
-        try {
-            const [year, month] = dateString.split('-');
-            const date = new Date(parseInt(year), parseInt(month) - 1);
-            return date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
-        } catch (e) {
-            return dateString;
-        }
+    const formatMonthYear = (dateString: string | null | undefined) => {
+        return formatMonthYearUtil(dateString, 'long');
     };
 
     const getSectionHeaderAlignment = () => {
@@ -165,7 +156,7 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                                         <div className="font-bold text-base">
                                             {project.name}
                                             {project.link && (
-                                                <a href={project.link} target="_blank" rel="noopener noreferrer" className="ml-2 font-normal italic text-gray-600 text-sm hover:underline">
+                                                <a href={project.link.startsWith('http') ? project.link : `https://${project.link}`} target="_blank" rel="noopener noreferrer" className="ml-2 font-normal italic text-gray-600 text-sm hover:underline">
                                                     Link
                                                 </a>
                                             )}

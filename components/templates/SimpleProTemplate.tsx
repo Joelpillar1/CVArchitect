@@ -1,23 +1,14 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets } from '../../utils/templateUtils';
+import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil } from '../../utils/templateUtils';
 import { getTranslation, Language } from '../../i18n/translations';
 
 export default function SimpleProTemplate({ data }: { data: ResumeData }) {
     const { fontSizes } = data;
     const t = getTranslation(data.language as Language || 'en');
 
-    const formatMonthYear = (dateString: string) => {
-        if (!dateString || dateString.toLowerCase() === 'present') {
-            return 'Present';
-        }
-        try {
-            const [year, month] = dateString.split('-');
-            const date = new Date(parseInt(year), parseInt(month) - 1);
-            return date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
-        } catch (e) {
-            return dateString;
-        }
+    const formatMonthYear = (dateString: string | null | undefined) => {
+        return formatMonthYearUtil(dateString, 'long');
     };
 
     // Calculate relative font sizes
@@ -135,7 +126,7 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
                                         <h3 className="font-bold text-gray-900" style={{ fontSize: `${bodySize}pt` }}>
                                             {project.name}
                                             {project.link && (
-                                                <a href={project.link} target="_blank" rel="noopener noreferrer" className="ml-2 font-normal italic text-gray-600 text-sm hover:underline">
+                                                <a href={project.link.startsWith('http') ? project.link : `https://${project.link}`} target="_blank" rel="noopener noreferrer" className="ml-2 font-normal italic text-gray-600 text-sm hover:underline">
                                                     Link
                                                 </a>
                                             )}

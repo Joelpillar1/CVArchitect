@@ -3,7 +3,7 @@ import { User, Briefcase, GraduationCap, Award, Target, Layout as LayoutIcon, Ch
 import { ResumeData, TemplateType } from '../types';
 import { UserSubscription } from '../types/pricing';
 import { SubscriptionManager } from '../utils/subscriptionManager';
-import { canAccessTemplate } from '../utils/pricingConfig';
+import { canAccessTemplate, FREE_TEMPLATES } from '../utils/pricingConfig';
 import PersonalInfoForm from './PersonalInfoForm';
 import ExperienceForm from './ExperienceForm';
 import EducationForm from './EducationForm';
@@ -68,7 +68,18 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
         { id: 'styled', name: 'Styled Professional', color: 'bg-blue-100' },
         { id: 'smart', name: 'Smart', color: 'bg-gray-200' },
         { id: 'elegant', name: 'Elegant', color: 'bg-indigo-900' },
+        { id: 'professional', name: 'Professional Clean', color: 'bg-gray-300' },
+        { id: 'twocolumn', name: 'Two Column Professional', color: 'bg-pink-200' },
     ];
+
+    // Sort templates: free templates first, then pro templates
+    const sortedTemplates = [...templates].sort((a, b) => {
+        const aIsFree = FREE_TEMPLATES.includes(a.id);
+        const bIsFree = FREE_TEMPLATES.includes(b.id);
+        if (aIsFree && !bIsFree) return -1;
+        if (!aIsFree && bIsFree) return 1;
+        return 0; // Maintain original order within each group
+    });
 
     return (
         <div className="flex flex-col h-full bg-brand-bg">
@@ -194,7 +205,7 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                 {view === 'templates' && (
                     // Templates Grid
                     <div className="p-4 grid grid-cols-2 gap-3">
-                        {templates.map((t) => (
+                        {sortedTemplates.map((t) => (
                             <button
                                 key={t.id}
                                 onClick={() => {

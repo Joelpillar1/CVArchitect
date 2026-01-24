@@ -101,7 +101,7 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
                   <h3 className="font-bold text-lg text-gray-900">
                     {project.name}
                     {project.link && (
-                      <a href={project.link} target="_blank" rel="noopener noreferrer" className="ml-2 font-normal italic text-gray-500 text-sm hover:underline">
+                      <a href={project.link.startsWith('http') ? project.link : `https://${project.link}`} target="_blank" rel="noopener noreferrer" className="ml-2 font-normal italic text-gray-500 text-sm hover:underline">
                         Link
                       </a>
                     )}

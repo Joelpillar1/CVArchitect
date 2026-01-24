@@ -142,7 +142,7 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
                   <div className="text-base font-bold">
                     {project.name}
                     {project.link && (
-                      <a href={project.link} target="_blank" rel="noopener noreferrer" className="ml-2 font-normal italic text-gray-600 text-sm hover:underline">
+                      <a href={project.link.startsWith('http') ? project.link : `https://${project.link}`} target="_blank" rel="noopener noreferrer" className="ml-2 font-normal italic text-gray-600 text-sm hover:underline">
                         Link
                       </a>
                     )}

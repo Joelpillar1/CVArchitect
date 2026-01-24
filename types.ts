@@ -104,7 +104,7 @@ export interface SavedTemplate {
 }
 
 // Add 'vanguard' and remove the deleted templates for now.
-export type TemplateType = 'vanguard' | 'elevate' | 'prime' | 'impact' | 'free' | 'simplepro' | 'dev' | 'modern' | 'executive' | 'classic' | 'elite' | 'apex' | 'wonsulting' | 'styled' | 'smart' | 'elegant' | 'minimalist';
+export type TemplateType = 'vanguard' | 'elevate' | 'prime' | 'impact' | 'free' | 'simplepro' | 'dev' | 'modern' | 'executive' | 'classic' | 'elite' | 'apex' | 'wonsulting' | 'styled' | 'smart' | 'elegant' | 'minimalist' | 'professional' | 'twocolumn';
 
 export const INITIAL_DATA: ResumeData = {
   fullName: "YOUR NAME",

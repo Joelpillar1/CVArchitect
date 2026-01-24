@@ -26,6 +26,8 @@ import WonsultingTemplate from './templates/WonsultingTemplate';
 import StyledTemplate from './templates/StyledTemplate';
 import SmartTemplate from './templates/SmartTemplate';
 import ElegantTemplate from './templates/ElegantTemplate';
+import ProfessionalTemplate from './templates/ProfessionalTemplate';
+import TwoColumnTemplate from './templates/TwoColumnTemplate';
 import CreditDisplay from './CreditDisplay';
 
 interface EditorProps {
@@ -145,12 +147,41 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
     const originalTitle = document.title;
     document.title = `${data.fullName.replace(/\s+/g, '_')}_Resume`;
 
-    // Trigger browser print dialog
+    // Ensure all links have proper href attributes before printing
     setTimeout(() => {
-      window.print();
-      document.title = originalTitle;
-      setIsDownloading(false);
-    }, 100);
+      // Find all links in the print container and ensure they have proper URLs
+      const printContainer = document.querySelector('.print-resume');
+      if (printContainer) {
+        const links = printContainer.querySelectorAll('a[href]');
+        links.forEach((link: Element) => {
+          const anchor = link as HTMLAnchorElement;
+          const href = anchor.getAttribute('href');
+          if (href && !href.startsWith('http') && !href.startsWith('mailto:') && !href.startsWith('#')) {
+            // Ensure relative URLs become absolute
+            if (href.includes('@')) {
+              anchor.href = `mailto:${href}`;
+            } else if (href.includes('.')) {
+              anchor.href = `https://${href}`;
+            }
+          }
+          // Ensure links are visible and clickable
+          anchor.style.textDecoration = 'underline';
+          anchor.style.color = 'inherit';
+        });
+      }
+
+      // Add a small delay to ensure DOM is ready
+      requestAnimationFrame(() => {
+        // Trigger browser print dialog
+        // Note: For best results, users should:
+        // 1. Use Chrome/Edge browser
+        // 2. In print dialog, ensure "Background graphics" is enabled
+        // 3. Use "Save as PDF" (not "Print to PDF" which may rasterize)
+        window.print();
+        document.title = originalTitle;
+        setIsDownloading(false);
+      });
+    }, 200);
   };
 
   const handleCoverLetterDownload = (content: string) => {
@@ -201,6 +232,8 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
       case 'styled': return <StyledTemplate data={data} />;
       case 'smart': return <SmartTemplate data={data} />;
       case 'elegant': return <ElegantTemplate data={data} />;
+      case 'professional': return <ProfessionalTemplate data={data} />;
+      case 'twocolumn': return <TwoColumnTemplate data={data} />;
       default: return <VanguardTemplate data={data} />;
     }
   };

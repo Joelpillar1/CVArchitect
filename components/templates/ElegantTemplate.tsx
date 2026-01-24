@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, descriptionToString, parseAchievementBullets } from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatDate as formatDateUtil } from '../../utils/templateUtils';
 
 interface ElegantTemplateProps {
     data: ResumeData;
@@ -36,11 +36,8 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
         </div>
     );
 
-    const formatDate = (dateString: string) => {
-        if (!dateString) return "";
-        if (dateString.toLowerCase() === 'present') return "Present";
-        const date = new Date(dateString);
-        return isNaN(date.getTime()) ? dateString : date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    const formatDate = (dateString: string | null | undefined) => {
+        return formatDateUtil(dateString);
     };
 
     const flexAlignment = data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start';
@@ -181,7 +178,7 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
                                         <div className="flex-1">
                                             <span className="font-bold" style={{ color: accentColor }}>{project.name}</span>
                                             {project.link && (
-                                                <a href={project.link} target="_blank" rel="noopener noreferrer" className="ml-2 text-sm font-normal text-blue-600 underline">
+                                                <a href={project.link.startsWith('http') ? project.link : `https://${project.link}`} target="_blank" rel="noopener noreferrer" className="ml-2 text-sm font-normal text-blue-600 underline">
                                                     Link
                                                 </a>
                                             )}
@@ -296,7 +293,7 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
                         </>
                     )}
                     {data.linkedin && (
-                        <a href={data.linkedin} target="_blank" rel="noopener noreferrer" className="text-gray-600 no-underline">
+                        <a href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`} target="_blank" rel="noopener noreferrer" className="text-gray-600 no-underline">
                             {data.linkedin.replace(/^https?:\/\//, '')}
                         </a>
                     )}
