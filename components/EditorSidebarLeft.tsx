@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { User, Briefcase, GraduationCap, Award, Target, Layout as LayoutIcon, ChevronDown, ChevronRight, Plus, Check, Users, Hash, FileText, Info, GripVertical, BarChart3, Lock, Crown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { User, Briefcase, GraduationCap, Award, Target, Layout as LayoutIcon, ChevronDown, ChevronRight, ChevronUp, Plus, Check, Users, Hash, FileText, Info, GripVertical, BarChart3, Lock, Crown } from 'lucide-react';
 import { ResumeData, TemplateType } from '../types';
 import { UserSubscription } from '../types/pricing';
 import { SubscriptionManager } from '../utils/subscriptionManager';
@@ -35,6 +35,20 @@ interface EditorSidebarLeftProps {
 export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onChange, currentTemplate, onTemplateChange, userSubscription, onAIAction, onShowPaywall, auditResult }: EditorSidebarLeftProps) {
     const [view, setView] = useState<'create' | 'templates' | 'analytics'>('create');
     const [draggedSection, setDraggedSection] = useState<string | null>(null);
+    const [isMobile, setIsMobile] = useState(false);
+
+    // Detect mobile/touch device
+    useEffect(() => {
+        const checkMobile = () => {
+            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            const isSmallScreen = window.innerWidth < 768;
+            setIsMobile(isTouchDevice && isSmallScreen);
+        };
+        
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     const sections = [
         { id: 'personal', label: 'Personal Information', icon: <User size={18} />, component: <PersonalInfoForm data={data} onChange={onChange} /> },
@@ -144,19 +158,37 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
 
                             const fullOrder = [...savedOrder, ...missingSections];
 
-                            return fullOrder.map((sectionId) => {
+                            const moveSection = (sectionId: string, direction: 'up' | 'down') => {
+                                const currentOrder = [...fullOrder];
+                                const currentIdx = currentOrder.indexOf(sectionId);
+                                
+                                if (currentIdx === -1) return;
+                                
+                                const targetIdx = direction === 'up' ? currentIdx - 1 : currentIdx + 1;
+                                
+                                if (targetIdx < 0 || targetIdx >= currentOrder.length) return;
+                                
+                                const newOrder = [...currentOrder];
+                                [newOrder[currentIdx], newOrder[targetIdx]] = [newOrder[targetIdx], newOrder[currentIdx]];
+                                onChange({ ...data, sectionOrder: newOrder });
+                            };
+
+                            return fullOrder.map((sectionId, index) => {
                                 const section = sections.find(s => s.id === sectionId);
                                 if (!section) return null;
 
                                 const isActive = activeTab === section.id;
                                 const isDragging = draggedSection === section.id;
+                                const canMoveUp = index > 0;
+                                const canMoveDown = index < fullOrder.length - 1;
 
                                 return (
                                     <div
                                         key={section.id}
-                                        draggable
-                                        onDragStart={() => setDraggedSection(section.id)}
+                                        draggable={!isMobile}
+                                        onDragStart={() => !isMobile && setDraggedSection(section.id)}
                                         onDragOver={(e) => {
+                                            if (isMobile) return;
                                             e.preventDefault();
                                             if (!draggedSection || draggedSection === section.id) return;
 
@@ -172,17 +204,57 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                                             newOrder.splice(targetIdx, 0, draggedSection);
                                             onChange({ ...data, sectionOrder: newOrder });
                                         }}
-                                        onDragEnd={() => setDraggedSection(null)}
+                                        onDragEnd={() => !isMobile && setDraggedSection(null)}
                                         className={`border-b border-brand-border transition-all ${isDragging ? 'opacity-50' : ''}`}
                                     >
                                         <div className={`w-full flex items-center justify-between p-4 hover:bg-brand-secondary transition-colors ${isActive ? 'bg-brand-secondary' : ''}`}>
-                                            <div className="flex items-center gap-3 flex-1">
-                                                <div
-                                                    className="cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 p-1 -ml-2"
-                                                    onMouseDown={(e) => e.stopPropagation()} // Prevent accordion toggle when grabbing handle
-                                                >
-                                                    <GripVertical size={14} />
-                                                </div>
+                                            <div className="flex items-center gap-2 sm:gap-3 flex-1">
+                                                {/* Drag Handle - Desktop only */}
+                                                {!isMobile && (
+                                                    <div
+                                                        className="cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 p-1 -ml-2 touch-none"
+                                                        onMouseDown={(e) => e.stopPropagation()} // Prevent accordion toggle when grabbing handle
+                                                    >
+                                                        <GripVertical size={14} />
+                                                    </div>
+                                                )}
+                                                
+                                                {/* Mobile Move Buttons */}
+                                                {isMobile && (
+                                                    <div className="flex flex-col gap-0.5 -ml-1">
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                moveSection(section.id, 'up');
+                                                            }}
+                                                            disabled={!canMoveUp}
+                                                            className={`p-1 rounded transition-colors ${
+                                                                canMoveUp 
+                                                                    ? 'text-gray-400 active:text-brand-green active:bg-brand-secondary' 
+                                                                    : 'text-gray-200 cursor-not-allowed'
+                                                            }`}
+                                                            aria-label="Move section up"
+                                                        >
+                                                            <ChevronUp size={14} />
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                moveSection(section.id, 'down');
+                                                            }}
+                                                            disabled={!canMoveDown}
+                                                            className={`p-1 rounded transition-colors ${
+                                                                canMoveDown 
+                                                                    ? 'text-gray-400 active:text-brand-green active:bg-brand-secondary' 
+                                                                    : 'text-gray-200 cursor-not-allowed'
+                                                            }`}
+                                                            aria-label="Move section down"
+                                                        >
+                                                            <ChevronDown size={14} />
+                                                        </button>
+                                                    </div>
+                                                )}
+                                                
                                                 <button
                                                     onClick={() => setActiveTab(section.id as EditorTab)}
                                                     className="flex-1 text-left flex items-center gap-3"
