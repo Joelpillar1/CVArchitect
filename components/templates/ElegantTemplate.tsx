@@ -54,20 +54,32 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
                         </p>
                     </section>
                 );
-            case 'skills':
-                return data.skills && (
+            case 'skills': {
+                if (!data.skills) return null;
+                const skillsList = data.skills.split(',').map(s => s.trim()).filter(s => s);
+                const columnCount = data.skillsColumnCount === 2 ? 2 : 3;
+                const itemsPerColumn = Math.ceil(skillsList.length / columnCount);
+                const skillColumns: string[][] = [];
+                for (let i = 0; i < columnCount; i++) {
+                    skillColumns.push(skillsList.slice(i * itemsPerColumn, (i + 1) * itemsPerColumn));
+                }
+                return (
                     <section key="skills" style={{ marginBottom: sectionGap }}>
                         <SectionHeader title="Areas of Expertise" />
-                        <div className={`grid ${data.skillsColumnCount === 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-x-8 gap-y-2`}>
-                            {data.skills.split(',').map((skill, index) => (
-                                <div key={index} className="flex items-center gap-2">
-                                    <span className="w-1.5 h-1.5 rounded-full sticky top-2" style={{ backgroundColor: accentColor }}></span>
-                                    <span className="text-gray-700">{skill.trim()}</span>
-                                </div>
+                        <div className={`grid gap-x-6 ${columnCount === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+                            {skillColumns.map((column, colIndex) => (
+                                <ul key={colIndex} className="list-disc ml-5 space-y-1 text-gray-700">
+                                    {column.map((skill, index) => (
+                                        <li key={index} className="pl-1 leading-relaxed">
+                                            {skill}
+                                        </li>
+                                    ))}
+                                </ul>
                             ))}
                         </div>
                     </section>
                 );
+            }
             case 'experience':
                 return data.experience && data.experience.length > 0 && (
                     <section key="experience" style={{ marginBottom: sectionGap }}>
@@ -76,13 +88,13 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
                             {data.experience.map((exp) => (
                                 <div key={exp.id} className="break-inside-avoid">
                                     <div className="flex justify-between items-baseline mb-1">
-                                        <div className="font-bold text-gray-800 text-lg">
-                                            {exp.role.toUpperCase()}
+                                        <div className="font-bold text-gray-800" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
+                                            {exp.role}
                                             <span className="font-normal text-gray-600 mx-1">,</span>
                                             <span className="font-normal text-gray-600">{exp.company}</span>
                                             {exp.location && <span className="font-normal text-gray-600"> | {exp.location}</span>}
                                         </div>
-                                        <div className="text-gray-600 whitespace-nowrap ml-4">
+                                        <div className="text-gray-600 whitespace-nowrap ml-4" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                                             {formatDate(exp.startDate)} – {formatDate(exp.endDate)}
                                         </div>
                                     </div>
@@ -110,7 +122,7 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
                         <div className="space-y-2">
                             {data.education.map((edu) => (
                                 <div key={edu.id} className="break-inside-avoid">
-                                    <div className="flex justify-between text-gray-800">
+                                    <div className="flex justify-between text-gray-800" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                                         <div>
                                             <span className="font-bold">{edu.degree}</span>, {edu.school}
                                         </div>
@@ -129,12 +141,12 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
                             {data.leadership.map((exp) => (
                                 <div key={exp.id} className="break-inside-avoid">
                                     <div className="flex justify-between items-baseline mb-1">
-                                        <div className="font-bold text-gray-800 text-lg">
-                                            {exp.role.toUpperCase()}
+                                        <div className="font-bold text-gray-800" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
+                                            {exp.role}
                                             <span className="font-normal text-gray-600 mx-1">,</span>
                                             <span className="font-normal text-gray-600">{exp.company}</span>
                                         </div>
-                                        <div className="text-gray-600 whitespace-nowrap ml-4">
+                                        <div className="text-gray-600 whitespace-nowrap ml-4" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                                             {formatDate(exp.startDate)} – {formatDate(exp.endDate)}
                                         </div>
                                     </div>
@@ -263,14 +275,14 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
                     style={{
                         fontSize: `${fontSizes?.header || 36}pt`,
                         color: accentColor,
-                        fontFamily: "Inter, sans-serif"
+                        fontFamily: data.font || "Inter, sans-serif"
                     }}
                 >
                     {data.fullName || "Your Name"}
                 </h1>
 
-                <div className="text-gray-600 uppercase tracking-widest text-sm mb-3 font-bold" style={{ fontSize: `${fontSizes?.jobTitle || 11}pt` }}>
-                    {data.jobTitle || "PROFESSIONAL TITLE"}
+                <div className="text-gray-600 tracking-widest text-sm mb-3 font-bold" style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt` }}>
+                    {data.jobTitle || "Professional Title"}
                 </div>
 
                 <div className={`flex flex-wrap text-gray-600 text-sm ${flexAlignment}`} style={{ gap: headerItemGap }}>

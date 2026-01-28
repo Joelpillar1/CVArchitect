@@ -50,7 +50,7 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                 return achievements.length > 0 && (
                     <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.2}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wide mb-3 flex items-center gap-2 ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wide mb-1.5 flex items-center gap-2 ${getSectionHeaderAlignment()}`}
                             style={{
                                 fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor,
@@ -59,18 +59,18 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                         >
                             KEY ACHIEVEMENTS
                         </h2>
-                        <div className="grid grid-cols-1 gap-2">
+                        <div className="grid grid-cols-1 gap-0.5">
                             {achievements.map((line, i) =>
                                 line.trim() && (
                                     <div
                                         key={i}
-                                        className="flex gap-3 items-start bg-white py-1"
+                                        className="flex gap-2 items-baseline bg-white py-0.5"
                                         style={{
                                             fontSize: `${fontSizes?.body || 10.5}pt`
                                         }}
                                     >
-                                        <span className="font-bold mt-1" style={{ color: accentColor }}>•</span>
-                                        <span className="text-gray-700 flex-1">{line.replace(/^[•-]\s*/, '')}</span>
+                                        <span className="shrink-0 w-2 inline-block text-left leading-none" style={{ color: accentColor }}>•</span>
+                                        <span className="text-gray-700 flex-1 leading-relaxed">{line.replace(/^[•-]\s*/, '')}</span>
                                     </div>
                                 )
                             )}
@@ -96,10 +96,10 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                             {data.skills.split(',').map((skill, i) => (
                                 <div
                                     key={i}
-                                    className="flex items-start gap-2 text-gray-700"
+                                    className="flex items-baseline gap-2 text-gray-700"
                                     style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
                                 >
-                                    <span className="font-bold mt-0.5" style={{ color: accentColor }}>•</span>
+                                    <span className="shrink-0 w-2 inline-block text-left leading-none" style={{ color: accentColor }}>•</span>
                                     <span className="font-medium">{skill.trim()}</span>
                                 </div>
                             ))}
@@ -157,11 +157,11 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                                             line.trim() && (
                                                 <li
                                                     key={i}
-                                                    className="flex gap-2 items-start text-gray-700"
+                                                    className="flex gap-2 items-baseline text-gray-700"
                                                     style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
                                                 >
-                                                    <span className="mt-1.5" style={{ color: accentColor }}>•</span>
-                                                    <span className="flex-1">{line.replace(/^[•-]\s*/, '')}</span>
+                                                    <span className="shrink-0 w-2 inline-block text-left leading-none" style={{ color: accentColor }}>•</span>
+                                                    <span className="flex-1 leading-relaxed">{line.replace(/^[•-]\s*/, '')}</span>
                                                 </li>
                                             )
                                         )}
@@ -293,7 +293,7 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                                     </div>
                                     <div
                                         className="font-semibold text-gray-500"
-                                        style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.9}pt` }}
+                                        style={{ fontSize: `${fontSizes?.body || 10}pt` }}
                                     >
                                         {edu.year}
                                     </div>

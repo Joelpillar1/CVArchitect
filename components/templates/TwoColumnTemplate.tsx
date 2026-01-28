@@ -17,12 +17,14 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
       className="w-full bg-white text-black relative"
       style={{
         fontFamily: data.font || "Arial, Helvetica, sans-serif",
-        fontSize: `${fontSizes?.body || 10.5}pt`,
+        fontSize: `${fontSizes?.body || 10}pt`,
         lineHeight: 1.4,
         paddingTop: `${data.margins?.vertical || 0.5}in`,
         paddingBottom: `${data.margins?.vertical || 0.5}in`,
         paddingLeft: `${data.margins?.horizontal || 0.5}in`,
         paddingRight: `${data.margins?.horizontal || 0.5}in`,
+        wordBreak: 'break-word',
+        overflowWrap: 'break-word',
       }}
     >
       {/* Subtle pink vertical borders */}
@@ -40,12 +42,12 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
           {data.fullName || "YOUR NAME"}
         </h1>
         <p
-          className="uppercase text-black mb-3"
+          className="text-black mb-3"
           style={{
-            fontSize: `${fontSizes?.jobTitle || 12}pt`,
+            fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt`,
           }}
         >
-          {data.jobTitle || "TITLE HERE"}
+          {data.jobTitle || "Title Here"}
         </p>
       </header>
 
@@ -63,7 +65,7 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
             >
               CONTACT
             </h2>
-            <div className="space-y-1.5 text-black" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+            <div className="space-y-1.5 text-black" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
               {data.phone && (
                 <div className="flex items-center gap-2">
                   <Phone size={12} className="text-black" />
@@ -112,14 +114,14 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
               <div className="space-y-3">
                 {data.education.map((edu) => (
                   <div key={edu.id} className="break-inside-avoid">
-                    <div className="font-bold text-black text-left mb-0.5" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                    <div className="font-bold text-black text-left mb-0.5" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                       {edu.school}
                     </div>
-                    <div className="text-black text-left mb-0.5" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                    <div className="text-black text-left mb-0.5" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                       {edu.degree}
                     </div>
                     {edu.year && (
-                      <div className="text-black text-left" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                      <div className="text-black text-left" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                         {edu.year}
                       </div>
                     )}
@@ -171,7 +173,7 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
               >
                 EXPERTISE
               </h2>
-              <div className="space-y-1 text-black" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+              <div className="space-y-1 text-black" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                 {(typeof data.skills === 'string' ? data.skills.split(',') : []).slice(0, 6).map((skill, i) => (
                   <div key={i} className="flex items-start gap-1">
                     <span className="text-black mt-0.5">•</span>
@@ -196,7 +198,7 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
               </h2>
               <p
                 className="text-black text-justify leading-relaxed"
-                style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                style={{ fontSize: `${fontSizes?.body || 10}pt` }}
               >
                 {data.summary}
               </p>
@@ -226,26 +228,26 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
                   return (
                     <div key={exp.id} className="break-inside-avoid">
                       {/* Company Name - Location */}
-                      <div className="font-bold text-black text-left mb-0.5" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                      <div className="font-bold text-black text-left mb-0.5" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                         {exp.company || ''}
                         {exp.location && ` - ${exp.location}`}
                       </div>
                       {/* Job Title, Start Date – End Date */}
-                      <div className="italic text-black text-left mb-1.5" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                      <div className="italic text-black text-left mb-1.5" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                         {exp.role || ''}, {formatMonthYear(exp.startDate)} – {formatMonthYear(exp.endDate)}
                       </div>
                       {/* Overview paragraph (if exists) */}
                       {overview.trim() && (
                         <p
                           className="text-black text-justify mb-2 leading-relaxed"
-                          style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                          style={{ fontSize: `${fontSizes?.body || 10}pt` }}
                         >
                           {overview}
                         </p>
                       )}
                       {/* Bullet points with hanging indent */}
                       {bullets.length > 0 && (
-                        <div className="text-black" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                        <div className="text-black" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                           {bullets.map((bullet, i) => (
                             bullet.trim() ? (
                               <div key={i} className="mb-1 relative pl-4">

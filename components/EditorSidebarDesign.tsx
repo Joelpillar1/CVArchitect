@@ -205,14 +205,14 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
                         <div className="space-y-1">
                             <div className="flex justify-between items-center">
                                 <span className="text-xs text-gray-600">Professional Title</span>
-                                <span className="text-xs text-gray-400">{data.fontSizes?.jobTitle || 14}pt</span>
+                                <span className="text-xs text-gray-400">{data.fontSizes?.jobTitle || data.fontSizes?.body || 10}pt</span>
                             </div>
                             <input
                                 type="range"
                                 min="10"
                                 max="24"
                                 step="0.5"
-                                value={data.fontSizes?.jobTitle || 14}
+                                value={data.fontSizes?.jobTitle || data.fontSizes?.body || 10}
                                 onChange={(e) => handleNestedChange('fontSizes', 'jobTitle', parseFloat(e.target.value))}
                                 className="w-full accent-brand-green"
                             />

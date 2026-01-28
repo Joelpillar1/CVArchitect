@@ -144,18 +144,13 @@ body {
         margin-bottom: 0 !important;
     }
 
-    /* Ensure links are clickable in PDF and text is selectable */
+    /* Style links in print/export */
     .print-resume a,
     .print-cover-letter a {
         color: inherit !important;
-        text-decoration: underline !important;
-        /* Ensure links are preserved in PDF */
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        /* Preserve link functionality */
-        pointer-events: auto !important;
-        cursor: pointer !important;
-        /* Ensure links are recognized as links */
+        /* Avoid underlines so output doesn't suggest clickable links
+           when most PDF printers strip link annotations anyway */
+        text-decoration: none !important;
         display: inline !important;
     }
 

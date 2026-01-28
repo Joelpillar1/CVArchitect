@@ -49,10 +49,15 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                         >
                             Key Achievements
                         </h2>
-                        <ul className="list-disc list-outside ml-5 space-y-1 text-gray-700">
+                        <ul
+                            className="list-disc list-outside ml-4 space-y-1 text-gray-700 text-justify"
+                            style={{ fontSize: `${fontSizes?.body || 10}pt` }}
+                        >
                             {achievements.map((line, i) => (
                                 line.trim() && (
-                                    <li key={i}>{line.replace(/^[•-]\s*/, '')}</li>
+                                    <li key={i} className="pl-1">
+                                        {line.replace(/^[•-]\s*/, '')}
+                                    </li>
                                 )
                             ))}
                         </ul>
@@ -140,10 +145,17 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                         </h2>
                         <div className={`grid gap-x-8 gap-y-1 text-gray-700 ${data.skillsColumnCount === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
                             {data.skills.split(',').map((skill, i) => (
-                                <div key={i} className="flex items-start">
-                                    <span className="mr-2">•</span>
-                                    <span>{skill.trim()}</span>
-                                </div>
+                                <ul
+                                    key={i}
+                                    className="list-disc list-outside ml-4 space-y-1"
+                                    style={{ fontSize: `${fontSizes?.body || 10}pt` }}
+                                >
+                                    {skill.trim() && (
+                                        <li className="pl-1">
+                                            {skill.trim()}
+                                        </li>
+                                    )}
+                                </ul>
                             ))}
                         </div>
                         <div className="mt-6 h-px w-full" style={{ backgroundColor: accentColor }}></div>
@@ -164,7 +176,7 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                                 <div key={edu.id}>
                                     <div className="flex justify-between items-baseline mb-1">
                                         <div className="font-bold text-black" style={{ fontSize: '1.1em' }}>{edu.school}</div>
-                                        <div className="italic text-gray-600" style={{ fontSize: '0.9em' }}>{edu.year}</div>
+                                        <div className="italic text-gray-600" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>{edu.year}</div>
                                     </div>
                                     <div className="italic text-gray-800">{edu.degree}</div>
                                 </div>
@@ -258,8 +270,8 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                     {data.fullName.toUpperCase()}
                 </h1>
                 <p
-                    className="uppercase tracking-[0.2em] text-gray-600"
-                    style={{ fontSize: `${fontSizes?.jobTitle || 14}pt`, marginBottom: `${data.headerItemGap || 0.08}in` }}
+                    className="tracking-[0.2em] text-gray-600"
+                    style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt`, marginBottom: `${data.headerItemGap || 0.08}in` }}
                 >
                     {data.jobTitle}
                 </p>

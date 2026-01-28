@@ -36,6 +36,7 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
     const [view, setView] = useState<'create' | 'templates' | 'analytics'>('create');
     const [draggedSection, setDraggedSection] = useState<string | null>(null);
     const [isMobile, setIsMobile] = useState(false);
+    const lastUpdateRef = React.useRef<string>('');
 
     // Detect mobile/touch device
     useEffect(() => {
@@ -64,7 +65,36 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
         { id: 'references', label: 'References', icon: <Users size={18} />, component: <ReferencesForm data={data} onChange={onChange} /> },
     ];
 
+    // Helper function to compute full section order consistently
+    // This ensures all sections are included, even if not in saved order
+    // Validates section IDs and filters out any invalid ones
+    const computeFullSectionOrder = React.useCallback((sectionOrder: string[] | undefined): string[] => {
+        const availableSectionIds = sections
+            .filter(s => s.id !== 'personal')
+            .map(s => s.id);
+        
+        const savedOrder = sectionOrder || [];
+        
+        // Filter out invalid section IDs (defensive programming)
+        const validSavedOrder = savedOrder.filter(id => availableSectionIds.includes(id));
+        
+        // Find sections that exist but aren't in saved order
+        const missingSections = availableSectionIds.filter(id => !validSavedOrder.includes(id));
+        
+        // Return: valid saved order + missing sections appended
+        return [...validSavedOrder, ...missingSections];
+    }, [sections]);
+
     const templates: { id: TemplateType; name: string; color: string }[] = [
+        // Fresh grad series – surfaced explicitly in the editor
+        { id: 'freshgrad1', name: 'Fresh Grad · Campus Starter', color: 'bg-emerald-500' },
+        { id: 'freshgrad2', name: 'Fresh Grad · Campus Finance', color: 'bg-indigo-600' },
+        { id: 'freshgrad3', name: 'Fresh Grad · Campus Engineer', color: 'bg-sky-600' },
+        { id: 'freshgrad4', name: 'Fresh Grad · Campus Creative', color: 'bg-rose-500' },
+        { id: 'freshgrad5', name: 'Fresh Grad · Campus ChemE', color: 'bg-lime-600' },
+        { id: 'freshgrad6', name: 'Fresh Grad · Campus Strategist', color: 'bg-amber-500' },
+
+        // Existing templates
         { id: 'free', name: 'Free', color: 'bg-gray-500' },
         { id: 'simplepro', name: 'Simple Pro', color: 'bg-indigo-500' },
         { id: 'minimalist', name: 'Minimalist', color: 'bg-gray-100' },
@@ -83,7 +113,6 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
         { id: 'smart', name: 'Smart', color: 'bg-gray-200' },
         { id: 'elegant', name: 'Elegant', color: 'bg-indigo-900' },
         { id: 'professional', name: 'Professional Clean', color: 'bg-gray-300' },
-        { id: 'twocolumn', name: 'Two Column Professional', color: 'bg-pink-200' },
     ];
 
     // Sort templates: free templates first, then pro templates
@@ -149,27 +178,30 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
 
                         {/* Draggable Sections */}
                         {(() => {
-                            // Ensure all available sections are shown, even if not in the saved order
-                            const savedOrder = data.sectionOrder || [];
-                            const availableSections = sections.filter(s => s.id !== 'personal');
-                            const missingSections = availableSections
-                                .map(s => s.id)
-                                .filter(id => !savedOrder.includes(id));
+                            // Compute current full order for display (always from latest data)
+                            const fullOrder = computeFullSectionOrder(data.sectionOrder);
 
-                            const fullOrder = [...savedOrder, ...missingSections];
-
+                            // Move section up or down (for mobile arrow buttons)
                             const moveSection = (sectionId: string, direction: 'up' | 'down') => {
-                                const currentOrder = [...fullOrder];
-                                const currentIdx = currentOrder.indexOf(sectionId);
+                                // Always compute from current data state to ensure consistency
+                                const currentFullOrder = computeFullSectionOrder(data.sectionOrder);
                                 
-                                if (currentIdx === -1) return;
+                                const currentIdx = currentFullOrder.indexOf(sectionId);
+                                if (currentIdx === -1) {
+                                    console.warn(`Section ${sectionId} not found in order`);
+                                    return;
+                                }
                                 
                                 const targetIdx = direction === 'up' ? currentIdx - 1 : currentIdx + 1;
+                                if (targetIdx < 0 || targetIdx >= currentFullOrder.length) {
+                                    return; // Already at boundary
+                                }
                                 
-                                if (targetIdx < 0 || targetIdx >= currentOrder.length) return;
-                                
-                                const newOrder = [...currentOrder];
+                                // Create new order by swapping adjacent items
+                                const newOrder = [...currentFullOrder];
                                 [newOrder[currentIdx], newOrder[targetIdx]] = [newOrder[targetIdx], newOrder[currentIdx]];
+                                
+                                // Update state immediately - this will trigger re-render and preview update
                                 onChange({ ...data, sectionOrder: newOrder });
                             };
 
@@ -192,19 +224,37 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                                             e.preventDefault();
                                             if (!draggedSection || draggedSection === section.id) return;
 
-                                            // Use fullOrder here because it includes sections that might be missing from saved data
-                                            const currentOrder = [...fullOrder];
-                                            const draggedIdx = currentOrder.indexOf(draggedSection);
-                                            const targetIdx = currentOrder.indexOf(section.id);
+                                            // Always compute from current data state to ensure we have latest order
+                                            const currentFullOrder = computeFullSectionOrder(data.sectionOrder);
+                                            
+                                            const draggedIdx = currentFullOrder.indexOf(draggedSection);
+                                            const targetIdx = currentFullOrder.indexOf(section.id);
 
-                                            if (draggedIdx === -1 || targetIdx === -1) return;
+                                            // Safety checks
+                                            if (draggedIdx === -1 || targetIdx === -1) {
+                                                console.warn('Invalid drag operation - section not found in order');
+                                                return;
+                                            }
 
-                                            const newOrder = [...currentOrder];
+                                            // Create new order by moving dragged item to target position
+                                            const newOrder = [...currentFullOrder];
                                             newOrder.splice(draggedIdx, 1);
                                             newOrder.splice(targetIdx, 0, draggedSection);
+                                            
+                                            // Prevent duplicate updates during rapid drag events
+                                            const orderKey = newOrder.join(',');
+                                            if (lastUpdateRef.current === orderKey) return;
+                                            lastUpdateRef.current = orderKey;
+                                            
+                                            // Update state immediately - triggers re-render and preview update
                                             onChange({ ...data, sectionOrder: newOrder });
                                         }}
-                                        onDragEnd={() => !isMobile && setDraggedSection(null)}
+                                        onDragEnd={() => {
+                                            if (!isMobile) {
+                                                setDraggedSection(null);
+                                                lastUpdateRef.current = ''; // Reset on drag end
+                                            }
+                                        }}
                                         className={`border-b border-brand-border transition-all ${isDragging ? 'opacity-50' : ''}`}
                                     >
                                         <div className={`w-full flex items-center justify-between p-4 hover:bg-brand-secondary transition-colors ${isActive ? 'bg-brand-secondary' : ''}`}>
@@ -219,9 +269,8 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                                                     </div>
                                                 )}
                                                 
-                                                {/* Mobile Move Buttons */}
-                                                {isMobile && (
-                                                    <div className="flex flex-col gap-0.5 -ml-1">
+                                                {/* Move Buttons (arrows) for reordering - available on all devices */}
+                                                <div className="flex flex-col gap-0.5 -ml-1">
                                                         <button
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
@@ -252,8 +301,7 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                                                         >
                                                             <ChevronDown size={14} />
                                                         </button>
-                                                    </div>
-                                                )}
+                                                </div>
                                                 
                                                 <button
                                                     onClick={() => setActiveTab(section.id as EditorTab)}

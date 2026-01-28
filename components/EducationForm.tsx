@@ -13,7 +13,9 @@ export default function EducationForm({ data, onChange }: EducationFormProps) {
             id: Date.now().toString(),
             school: '',
             degree: '',
-            year: ''
+            year: '',
+            gpa: '',
+            relevantCourses: ''
         };
         onChange({ ...data, education: [newEducation, ...data.education] });
     };
@@ -113,6 +115,33 @@ export default function EducationForm({ data, onChange }: EducationFormProps) {
                                         placeholder="2020"
                                     />
                                 </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                    <label className="text-xs font-medium text-gray-500">
+                                        GPA (optional)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={edu.gpa || ''}
+                                        onChange={(e) => handleChange(edu.id, 'gpa', e.target.value)}
+                                        className="w-full p-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
+                                        placeholder="e.g. 3.8/4.0, Dean's List"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="text-xs font-medium text-gray-500">
+                                    Relevant Courses (optional)
+                                </label>
+                                <textarea
+                                    value={edu.relevantCourses || ''}
+                                    onChange={(e) => handleChange(edu.id, 'relevantCourses', e.target.value)}
+                                    className="w-full p-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all min-h-[60px]"
+                                    placeholder="List key courses separated by commas, e.g. Data Structures, Algorithms, Operating Systems"
+                                />
                             </div>
                         </div>
                     ))}

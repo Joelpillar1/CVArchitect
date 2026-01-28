@@ -55,10 +55,16 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
                         <SectionHeader title="Areas of Expertise" />
                         <div className={`grid ${data.skillsColumnCount === 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-x-4 gap-y-2 ${bodyAlignmentClass}`}>
                             {data.skills.split(',').map((skill, index) => (
-                                <div key={index} className="text-black flex items-start">
-                                    <span className="mr-2 text-gray-400">•</span>
-                                    <span>{skill.trim()}</span>
-                                </div>
+                                <ul
+                                    key={index}
+                                    className="list-disc list-outside ml-8 space-y-1 text-black"
+                                >
+                                    {skill.trim() && (
+                                        <li className="pl-2 leading-relaxed">
+                                            {skill.trim()}
+                                        </li>
+                                    )}
+                                </ul>
                             ))}
                         </div>
                     </section>
@@ -67,35 +73,34 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
                 return data.experience && data.experience.length > 0 && (
                     <section key="experience" style={{ marginBottom: sectionGap }}>
                         <SectionHeader title="Professional Experience" />
-                        <div className="space-y-8">
-                            {data.experience.map((exp) => (
-                                <div key={exp.id} className="break-inside-avoid">
-                                    <div className="flex justify-between items-baseline mb-2 font-bold text-black tracking-wide">
-                                        <div className="text-base">
-                                            {exp.role} <span className="mx-1">|</span> {exp.company}
-                                        </div>
-                                        <div className="whitespace-nowrap font-serif">
-                                            {formatDate(exp.startDate)} - {formatDate(exp.endDate)}
-                                        </div>
-                                    </div>
-
-                                    {exp.description && (
-                                        <div className="mt-1">
-                                            <div className="mb-2 text-justify">
-                                                {descriptionToString(exp.description).split('\n').filter(l => !l.trim().startsWith('•') && !l.trim().startsWith('-') && l.trim()).join(' ')}
+                        <div className="space-y-6">
+                            {data.experience.map((exp) => {
+                                const bullets = parseDescriptionBullets(exp.description);
+                                return (
+                                    <div key={exp.id} className="break-inside-avoid">
+                                        <div className="flex justify-between items-baseline mb-2 font-bold text-black tracking-wide">
+                                            <div className="text-base">
+                                                {exp.role} <span className="mx-1">|</span> {exp.company}
                                             </div>
-
-                                            <ul className="list-disc ml-8 space-y-1 text-black">
-                                                {descriptionToString(exp.description).split('\n').map((line, i) => (
-                                                    (line.trim().startsWith('•') || line.trim().startsWith('-')) && (
-                                                        <li key={i} className="pl-2">{line.replace(/^[•-]\s*/, '')}</li>
-                                                    )
-                                                ))}
-                                            </ul>
+                                            <div className="whitespace-nowrap font-serif">
+                                                {formatDate(exp.startDate)} - {formatDate(exp.endDate)}
+                                            </div>
                                         </div>
-                                    )}
-                                </div>
-                            ))}
+
+                                        {bullets.length > 0 && (
+                                            <ul className="list-disc ml-8 space-y-1.5 text-black leading-relaxed">
+                                                {bullets.map((line, i) =>
+                                                    line.trim() && (
+                                                        <li key={i} className="pl-2">
+                                                            {line.replace(/^[•-]\s*/, '')}
+                                                        </li>
+                                                    )
+                                                )}
+                                            </ul>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     </section>
                 );
@@ -122,31 +127,34 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
                 return data.leadership && data.leadership.length > 0 && (
                     <section key="leadership" style={{ marginBottom: sectionGap }}>
                         <SectionHeader title="Leadership Experience" />
-                        <div className="space-y-8">
-                            {data.leadership.map((exp) => (
-                                <div key={exp.id} className="break-inside-avoid">
-                                    <div className="flex justify-between items-baseline mb-2 font-bold text-black tracking-wide">
-                                        <div className="text-base">
-                                            {exp.role} <span className="mx-1">|</span> {exp.company}
+                        <div className="space-y-6">
+                            {data.leadership.map((exp) => {
+                                const bullets = parseDescriptionBullets(exp.description);
+                                return (
+                                    <div key={exp.id} className="break-inside-avoid">
+                                        <div className="flex justify-between items-baseline mb-2 font-bold text-black tracking-wide">
+                                            <div className="text-base">
+                                                {exp.role} <span className="mx-1">|</span> {exp.company}
+                                            </div>
+                                            <div className="whitespace-nowrap font-serif">
+                                                {formatDate(exp.startDate)} - {formatDate(exp.endDate)}
+                                            </div>
                                         </div>
-                                        <div className="whitespace-nowrap font-serif">
-                                            {formatDate(exp.startDate)} - {formatDate(exp.endDate)}
-                                        </div>
-                                    </div>
 
-                                    {exp.description && (
-                                        <div className="mt-1">
-                                            <ul className="list-disc ml-8 space-y-1 text-black">
-                                                {descriptionToString(exp.description).split('\n').map((line, i) => (
+                                        {bullets.length > 0 && (
+                                            <ul className="list-disc ml-8 space-y-1.5 text-black leading-relaxed">
+                                                {bullets.map((line, i) =>
                                                     line.trim() && (
-                                                        <li key={i} className="pl-2">{line.replace(/^[•-]\s*/, '')}</li>
+                                                        <li key={i} className="pl-2">
+                                                            {line.replace(/^[•-]\s*/, '')}
+                                                        </li>
                                                     )
-                                                ))}
+                                                )}
                                             </ul>
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     </section>
                 );
@@ -246,8 +254,8 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
             className="w-[210mm] min-h-[297mm] bg-white text-gray-900 mx-auto"
             style={{
                 fontFamily: data.font || "Georgia, 'Times New Roman', Times, serif",
-                fontSize: `${fontSizes?.body || 10.5}pt`,
-                lineHeight: data.lineHeight || 1.6,
+                fontSize: `${fontSizes?.body || 10}pt`,
+                lineHeight: data.lineHeight || 1.5,
                 paddingTop: `${data.margins?.vertical || 1}in`,
                 paddingBottom: `${data.margins?.vertical || 1}in`,
                 paddingLeft: `${data.margins?.horizontal || 1}in`,
@@ -260,14 +268,14 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
                     className="font-normal text-5xl mb-4 text-black"
                     style={{
                         fontSize: `${fontSizes?.header || 38}pt`,
-                        fontFamily: "Inter, sans-serif",
+                        fontFamily: data.font || "Inter, sans-serif",
                         color: accentColor
                     }}
                 >
                     {data.fullName || "YOUR NAME"}
                 </h1>
 
-                <div className="text-black uppercase tracking-[0.2em] text-sm mb-6 font-sans" style={{ fontSize: `${fontSizes?.jobTitle || 11}pt` }}>
+                <div className="text-black tracking-[0.2em] text-sm mb-6 font-sans" style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt` }}>
                     {data.jobTitle || "PROFESSIONAL TITLE"}
                 </div>
 

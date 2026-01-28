@@ -279,7 +279,7 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                                         </span>
                                         <span
                                             className="text-gray-600"
-                                            style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.85}pt` }}
+                                            style={{ fontSize: `${fontSizes?.body || 10}pt` }}
                                         >
                                             {edu.year}
                                         </span>
@@ -377,7 +377,7 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                         </h1>
                         <p
                             className="font-semibold text-gray-700"
-                            style={{ fontSize: `${fontSizes?.jobTitle || 14}pt`, marginBottom: `${data.headerItemGap || 0.08}in` }}
+                            style={{ fontSize: `${fontSizes?.body || fontSizes?.jobTitle || 10}pt`, marginBottom: `${data.headerItemGap || 0.08}in` }}
                         >
                             {data.jobTitle}
                         </p>

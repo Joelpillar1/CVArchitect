@@ -59,10 +59,17 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
                         </h2>
                         <div className={`grid gap-x-4 gap-y-1 ${data.skillsColumnCount === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
                             {data.skills.split(',').map((skill, i) => (
-                                <div key={i} className="text-gray-700 flex items-start" style={{ fontSize: `${mediumSize}pt` }}>
-                                    <span className="mr-2">•</span>
-                                    <span>{skill.trim()}</span>
-                                </div>
+                                <ul
+                                    key={i}
+                                    className="list-disc list-outside ml-4 space-y-1 text-gray-700"
+                                    style={{ fontSize: `${bodySize}pt` }}
+                                >
+                                    {skill.trim() && (
+                                        <li className="pl-1">
+                                            {skill.trim()}
+                                        </li>
+                                    )}
+                                </ul>
                             ))}
                         </div>
                     </section>
@@ -81,10 +88,15 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
                         >
                             Key Achievements
                         </h2>
-                        <ul className="list-disc list-outside ml-5 space-y-1 text-gray-700">
+                        <ul
+                            className="list-disc list-outside ml-4 space-y-1 text-gray-700 text-justify"
+                            style={{ fontSize: `${bodySize}pt` }}
+                        >
                             {achievements.map((line, i) => (
                                 line.trim() && (
-                                    <li key={i} style={{ fontSize: `${bodySize}pt` }}>{line.replace(/^[•-]\s*/, '')}</li>
+                                    <li key={i} className="pl-1">
+                                        {line.replace(/^[•-]\s*/, '')}
+                                    </li>
                                 )
                             ))}
                         </ul>
@@ -128,12 +140,14 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
                                             {exp.roleSummary}
                                         </p>
                                     )}
-                                    <ul className="list-none space-y-1 ml-0">
+                                    <ul
+                                        className="list-disc list-outside ml-4 space-y-1 text-gray-700"
+                                        style={{ fontSize: `${bodySize}pt` }}
+                                    >
                                         {descriptionToString(exp.description).split('\n').map((line, i) => (
                                             line.trim() && (
-                                                <li key={i} className="text-gray-700 flex items-start" style={{ fontSize: `${mediumSize}pt` }}>
-                                                    <span className="mr-2">•</span>
-                                                    <span>{line.replace(/^[•-]\s*/, '')}</span>
+                                                <li key={i} className="pl-1">
+                                                    {line.replace(/^[•-]\s*/, '')}
                                                 </li>
                                             )
                                         ))}
@@ -246,7 +260,7 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
                                             {edu.degree}
                                         </span>
                                     </div>
-                                    <div className="italic text-gray-600" style={{ fontSize: `${mediumSize}pt` }}>
+                                    <div className="italic text-gray-600" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                                         {edu.year}
                                     </div>
                                 </div>
@@ -323,7 +337,7 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
                     </h1>
                     <div
                         className="text-gray-500 uppercase tracking-widest"
-                        style={{ fontSize: `${fontSizes?.jobTitle || 14}pt`, letterSpacing: '0.2em', marginBottom: `${data.headerItemGap || 0.08}in` }}
+                        style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt`, letterSpacing: '0.2em', marginBottom: `${data.headerItemGap || 0.08}in` }}
                     >
                         {data.jobTitle}
                     </div>

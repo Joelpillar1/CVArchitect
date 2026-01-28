@@ -138,11 +138,11 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
                   </div>
                   {/* Degree (italic, left) and Date (regular, right) */}
                   <div className="flex justify-between items-center mb-1">
-                    <p className="italic text-black text-left" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                    <p className="italic text-black text-left" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                       {edu.degree}
                     </p>
                     {edu.year && (
-                      <span className="text-black text-right" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                      <span className="text-black text-right" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                         {typeof edu.year === 'string' && (edu.year.includes('Expected') || edu.year.includes('May') || edu.year.includes('20')) ? edu.year : `Expected ${edu.year || ''}`}
                       </span>
                     )}

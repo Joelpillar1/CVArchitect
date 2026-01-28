@@ -192,7 +192,7 @@ export default function ClassicTemplate({ data }: { data: ResumeData }) {
                     <span className="font-bold block text-gray-900" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{edu.school}</span>
                     <span className="italic text-gray-700" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{edu.degree}</span>
                   </div>
-                  <span className="font-bold text-sm text-gray-600" style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.9}pt` }}>{edu.year}</span>
+                  <span className="font-bold text-gray-600" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>{edu.year}</span>
                 </div>
               ))}
             </div>
@@ -249,20 +249,41 @@ export default function ClassicTemplate({ data }: { data: ResumeData }) {
     >
       <div className={`border-b-2 border-gray-300 pb-6 break-inside-avoid ${data.headerAlignment === 'left' ? 'text-left' : data.headerAlignment === 'right' ? 'text-right' : 'text-center'}`} style={{ marginBottom: `${data.headerGap || 0.15}in` }}>
         <h1 className="text-5xl font-bold" style={{ fontSize: `${fontSizes?.header || 36}pt`, marginBottom: `${data.headerItemGap || 0.08}in` }}>{data.fullName}</h1>
-        <p className="font-semibold" style={{ fontSize: `${fontSizes?.jobTitle || 14}pt`, color: data.accentColor || '#000000', marginBottom: `${data.headerItemGap || 0.08}in` }}>{data.jobTitle}</p>
-        <div className="text-sm space-x-4" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+        <p className="font-semibold" style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt`, color: data.accentColor || '#000000', marginBottom: `${data.headerItemGap || 0.08}in` }}>{data.jobTitle}</p>
+        <div className="text-sm flex flex-wrap items-center justify-center gap-2" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
+          {data.address && <span>{data.address}</span>}
+          {data.address && (data.phone || data.email || data.linkedin) && (
+            <span className="mx-1">•</span>
+          )}
 
-          {data.address && (
+          {data.phone && <span>{data.phone}</span>}
+          {data.phone && (data.email || data.linkedin) && (
+            <span className="mx-1">•</span>
+          )}
+
+          {data.email && (
             <>
-              <span>{data.address}</span>
-              <span>•</span>
+              <a
+                href={`mailto:${data.email}`}
+                style={{ textDecoration: 'none', color: data.accentColor || '#000000' }}
+              >
+                {data.email}
+              </a>
+              {data.linkedin && <span className="mx-1">•</span>}
             </>
           )}
-          <span>{data.phone}</span>
-          <span>•</span>
-          <a href={`mailto:${data.email}`} style={{ textDecoration: 'none', color: data.accentColor || '#000000' }}>{data.email}</a>
-          <span>•</span>
-          <a href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }} className="text-gray-600">{data.linkedin.replace(/^https?:\/\//, '')}</a>
+
+          {data.linkedin && (
+            <a
+              href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ textDecoration: 'none', color: 'inherit' }}
+              className="text-gray-600"
+            >
+              {data.linkedin.replace(/^https?:\/\//, '')}
+            </a>
+          )}
         </div>
       </div>
 

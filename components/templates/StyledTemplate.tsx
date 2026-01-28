@@ -73,7 +73,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                                         <div className="flex-1">
                                             <span>{exp.role}</span>, <span className="italic text-gray-500">{exp.company}{exp.location && ` • ${exp.location}`}</span>
                                         </div>
-                                        <div className="text-right whitespace-nowrap text-sm bg-white pl-2">
+                                        <div className="text-right whitespace-nowrap bg-white pl-2" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                                             {formatDate(exp.startDate)} – {formatDate(exp.endDate)}
                                         </div>
                                     </div>
@@ -102,7 +102,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                                         <div>
                                             <span className="font-bold">{edu.degree}</span>, {edu.school}
                                         </div>
-                                        <div className="text-right">{edu.year}</div>
+                                        <div className="text-right" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>{edu.year}</div>
                                     </div>
                                 </div>
                             ))}
@@ -120,7 +120,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                                         <div className="flex-1">
                                             <span>{exp.role}</span>, <span className="italic text-gray-500">{exp.company}</span>
                                         </div>
-                                        <div className="text-right whitespace-nowrap text-sm bg-white pl-2 font-normal text-gray-600">
+                                        <div className="text-right whitespace-nowrap bg-white pl-2 font-normal text-gray-600" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                                             {formatDate(exp.startDate)} – {formatDate(exp.endDate)}
                                         </div>
                                     </div>
@@ -148,7 +148,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                                     <div>
                                         <span className="font-bold">{cert.name}</span>, {cert.issuer}
                                     </div>
-                                    <div>{cert.date}</div>
+                                    <div style={{ fontSize: `${fontSizes?.body || 10}pt` }}>{cert.date}</div>
                                 </div>
                             ))}
                         </div>
@@ -265,8 +265,8 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                 </div>
 
                 <div className="border-t border-b border-gray-400 py-1.5 mb-4">
-                    <p className="uppercase tracking-[0.2em] font-bold text-gray-700 text-sm" style={{ fontSize: `${fontSizes?.jobTitle || 11}pt` }}>
-                        {data.jobTitle || "PROFESSIONAL TITLE"}
+                    <p className="tracking-[0.2em] font-bold text-gray-700 text-sm" style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt` }}>
+                        {data.jobTitle || "Professional Title"}
                     </p>
                 </div>
             </div>

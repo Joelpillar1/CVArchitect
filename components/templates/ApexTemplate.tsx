@@ -59,11 +59,11 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                                 line.trim() && (
                                     <div
                                         key={i}
-                                        className="flex gap-3 items-start"
+                                        className="flex gap-2 items-baseline"
                                         style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
                                     >
-                                        <span className="font-bold mt-0.5" style={{ color: accentColor }}>•</span>
-                                        <span className="text-gray-700 flex-1">{line.replace(/^[•-]\s*/, '')}</span>
+                                        <span className="font-bold shrink-0 w-2 text-[9px] leading-none inline-block" style={{ color: accentColor }}>•</span>
+                                        <span className="text-gray-700 flex-1 leading-relaxed">{line.replace(/^[•-]\s*/, '')}</span>
                                     </div>
                                 )
                             )}
@@ -88,10 +88,10 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                             {data.skills.split(',').map((skill, i) => (
                                 <div
                                     key={i}
-                                    className="flex items-start gap-2"
+                                    className="flex items-baseline gap-2"
                                     style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
                                 >
-                                    <span className="font-bold mt-0.5" style={{ color: accentColor }}>•</span>
+                                    <span className="font-bold shrink-0 w-2 text-[9px] leading-none inline-block" style={{ color: accentColor }}>•</span>
                                     <span className="text-gray-700 font-medium">{skill.trim()}</span>
                                 </div>
                             ))}
@@ -147,11 +147,11 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                                                 line.trim() && (
                                                     <li
                                                         key={i}
-                                                        className="flex gap-2 items-start text-gray-700"
+                                                        className="flex gap-2 items-baseline text-gray-700"
                                                         style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
                                                     >
-                                                        <span className="font-bold mt-0.5" style={{ color: accentColor }}>•</span>
-                                                        <span className="flex-1">{line.replace(/^[•-]\s*/, '')}</span>
+                                                        <span className="font-bold shrink-0 w-2 text-[9px] leading-none inline-block" style={{ color: accentColor }}>•</span>
+                                                        <span className="flex-1 leading-relaxed">{line.replace(/^[•-]\s*/, '')}</span>
                                                     </li>
                                                 )
                                             )}
@@ -375,9 +375,9 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                         {data.fullName}
                     </h1>
                     <div
-                        className="font-semibold uppercase tracking-wider"
+                        className="font-semibold tracking-wider"
                         style={{
-                            fontSize: `${fontSizes?.jobTitle || 12}pt`,
+                            fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt`,
                             color: '#64748b',
                             letterSpacing: '0.1em',
                             marginBottom: `${data.headerItemGap || 0.08}in`

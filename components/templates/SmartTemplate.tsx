@@ -55,20 +55,32 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
                         </p>
                     </section>
                 );
-            case 'skills':
-                return data.skills && (
+            case 'skills': {
+                if (!data.skills) return null;
+                const skillsList = data.skills.split(',').map(s => s.trim()).filter(s => s);
+                const columnCount = data.skillsColumnCount === 2 ? 2 : 3;
+                const itemsPerColumn = Math.ceil(skillsList.length / columnCount);
+                const skillColumns: string[][] = [];
+                for (let i = 0; i < columnCount; i++) {
+                    skillColumns.push(skillsList.slice(i * itemsPerColumn, (i + 1) * itemsPerColumn));
+                }
+                return (
                     <section key="skills" style={{ marginBottom: sectionGap }}>
                         <SectionHeader title="Areas of Expertise" />
-                        <div className={`grid ${data.skillsColumnCount === 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-x-2 gap-y-1`}>
-                            {data.skills.split(',').map((skill, index) => (
-                                <div key={index} className="flex items-center gap-1.5">
-                                    <span style={{ color: accentColor }} className="text-[10px] leading-none">•</span>
-                                    <span className="truncate">{skill.trim()}</span>
-                                </div>
+                        <div className={`grid ${columnCount === 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-x-6`}>
+                            {skillColumns.map((column, colIndex) => (
+                                <ul key={colIndex} className="list-disc ml-6 space-y-2 text-gray-800 marker:text-black">
+                                    {column.map((skill, index) => (
+                                        <li key={index} className="pl-1 leading-relaxed">
+                                            {skill}
+                                        </li>
+                                    ))}
+                                </ul>
                             ))}
                         </div>
                     </section>
                 );
+            }
             case 'experience':
                 return data.experience && data.experience.length > 0 && (
                     <section key="experience" style={{ marginBottom: sectionGap }}>
@@ -113,7 +125,7 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
                             {data.education.map((edu) => (
                                 <div key={edu.id} className="break-inside-avoid">
                                     <div className="text-black">
-                                        <span className="font-bold">{edu.degree}</span>, {edu.school} | {edu.year}
+                                        <span className="font-bold">{edu.degree}</span>, {edu.school} | <span style={{ fontSize: `${fontSizes?.body || 10}pt` }}>{edu.year}</span>
                                     </div>
                                 </div>
                             ))}
@@ -262,7 +274,7 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
                     {data.fullName || "YOUR NAME"}
                 </h1>
 
-                <div className="text-gray-500 text-lg mb-3 font-serif" style={{ fontSize: `${fontSizes?.jobTitle || 12}pt` }}>
+                <div className="text-gray-500 text-lg mb-3 font-serif" style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt` }}>
                     {data.jobTitle || "Professional Title"}
                 </div>
 

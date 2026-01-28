@@ -159,13 +159,16 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
                         >
                             Key Achievements
                         </h2>
-                        <div className="text-gray-700" style={{ fontSize: `${smallSize}pt`, lineHeight: '1.6' }}>
+                        <ul
+                            className="list-disc list-outside ml-5 space-y-1 text-gray-700"
+                            style={{ fontSize: `${smallSize}pt` }}
+                        >
                             {parseDescriptionBullets(data.keyAchievements).map((achievement, i) =>
                                 achievement.trim() && (
-                                    <div key={i}>• {achievement.replace(/^[•-]\s*/, '')}</div>
+                                    <li key={i}>{achievement.replace(/^[•-]\s*/, '')}</li>
                                 )
                             )}
-                        </div>
+                        </ul>
                     </section >
                 );
 
@@ -228,7 +231,7 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
                                             {edu.degree}
                                         </div>
                                     </div>
-                                    <div className="text-gray-600" style={{ fontSize: `${smallSize}pt` }}>
+                                    <div className="text-gray-600" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                                         {edu.year}
                                     </div>
                                 </div>
@@ -304,7 +307,7 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
                 >
                     {data.fullName}
                 </h1>
-                <div className="text-gray-900 font-semibold" style={{ fontSize: `${fontSizes?.jobTitle || 14}pt`, marginBottom: `${data.headerItemGap || 0.08}in` }}>
+                <div className="text-gray-900 font-semibold" style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt`, marginBottom: `${data.headerItemGap || 0.08}in` }}>
                     {data.jobTitle}
                 </div>
 

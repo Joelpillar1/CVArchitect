@@ -289,14 +289,14 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                 paddingRight: `${data.margins?.horizontal || 0.5}in`,
                 paddingTop: `${data.margins?.vertical || 0.5}in`,
                 paddingBottom: `${data.margins?.vertical || 0.5}in`,
-                fontFamily: "'Times New Roman', Times, serif" // Wonsulting Wendy often uses Serif fonts like Times New Roman or similar. The image looks like Serif.
+                fontFamily: data.font || "'Times New Roman', Times, serif"
             }}
         >
             {/* Header */}
             <div className={`mb-6 break-inside-avoid ${data.headerAlignment === 'left' ? 'text-left' : data.headerAlignment === 'right' ? 'text-right' : 'text-center'}`} style={{ marginBottom: `${data.headerGap || 0.15}in` }}>
                 <h1 className="font-bold text-gray-900 mb-1" style={{ fontSize: `${fontSizes?.header || 24}pt` }}>{data.fullName}</h1>
                 {/* We can merge title if needed, but standard is separate line. Image: "Wonsulting Wendy [Professional]" looks like name. */}
-                {data.jobTitle && <div className="" style={{ fontSize: `${fontSizes?.jobTitle || 14}pt` }}>{data.jobTitle}</div>}
+                {data.jobTitle && <div className="" style={{ fontSize: `${fontSizes?.body || fontSizes?.jobTitle || 10}pt` }}>{data.jobTitle}</div>}
 
                 <div className="flex flex-wrap justify-center gap-1 text-gray-900 mt-1" style={{ fontSize: `${fontSizes?.body || 10.5}pt`, justifyContent: data.headerAlignment === 'left' ? 'flex-start' : data.headerAlignment === 'right' ? 'flex-end' : 'center' }}>
                     {/* Custom joining with | */}

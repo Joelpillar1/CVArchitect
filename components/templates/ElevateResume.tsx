@@ -62,7 +62,7 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                                     </div>
                                     <div className="flex justify-between items-baseline mb-2">
                                         <div className="italic text-gray-800">{edu.degree}</div>
-                                        <div className="italic text-sm text-gray-600">{edu.year}</div>
+                                        <div className="italic text-gray-600" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>{edu.year}</div>
                                     </div>
                                 </div>
                             ))}
@@ -84,10 +84,15 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                         >
                             Key Achievements
                         </h2>
-                        <ul className="list-disc list-outside ml-5 space-y-1 text-gray-700">
+                        <ul
+                            className="list-disc list-outside ml-4 space-y-1 text-justify text-gray-700"
+                            style={{ fontSize: `${fontSizes?.body || 10}pt` }}
+                        >
                             {achievements.map((line, i) => (
                                 line.trim() && (
-                                    <li key={i}>{line.replace(/^[•-]\s*/, '')}</li>
+                                    <li key={i} className="pl-1">
+                                        {line.replace(/^[•-]\s*/, '')}
+                                    </li>
                                 )
                             ))}
                         </ul>
@@ -114,17 +119,17 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                                 return (
                                     <div key={exp.id}>
                                         <div className="flex justify-between items-baseline mb-1">
-                                            <div className="font-bold text-base">
+                                            <div className="font-bold" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                                                 {exp.company}{exp.location && <span className="font-normal italic text-gray-600"> • {exp.location}</span>}
                                             </div>
-                                            <div className="italic text-sm text-gray-600">
+                                            <div className="italic text-gray-600" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                                                 {formatMonthYear(exp.startDate)} – {formatMonthYear(exp.endDate)}
                                             </div>
                                         </div>
                                         <div className="flex justify-between items-baseline mb-2">
-                                            <div className="italic text-gray-800">{exp.role}</div>
+                                            <div className="italic text-gray-800" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>{exp.role}</div>
                                         </div>
-                                        <ul className="list-disc list-outside ml-4 space-y-1 text-justify">
+                                        <ul className="list-disc list-outside ml-4 space-y-1 text-justify" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                                             {bullets.map((line, i) => (
                                                 <li key={i} className="pl-1">{line.replace(/^[•-]\s*/, '')}</li>
                                             ))}
@@ -298,7 +303,7 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                 {data.jobTitle && (
                     <p
                         className="text-gray-600 font-semibold"
-                        style={{ fontSize: `${fontSizes?.jobTitle || 14}pt`, marginBottom: `${data.headerItemGap || 0.08}in` }}
+                        style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt`, marginBottom: `${data.headerItemGap || 0.08}in` }}
                     >
                         {data.jobTitle}
                     </p>

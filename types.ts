@@ -14,6 +14,8 @@ export interface Education {
   school: string;
   degree: string;
   year: string;
+  gpa?: string;
+  relevantCourses?: string;
 }
 
 export interface Certification {
@@ -104,7 +106,32 @@ export interface SavedTemplate {
 }
 
 // Add 'vanguard' and remove the deleted templates for now.
-export type TemplateType = 'vanguard' | 'elevate' | 'prime' | 'impact' | 'free' | 'simplepro' | 'dev' | 'modern' | 'executive' | 'classic' | 'elite' | 'apex' | 'wonsulting' | 'styled' | 'smart' | 'elegant' | 'minimalist' | 'professional' | 'twocolumn';
+export type TemplateType =
+  | 'vanguard'
+  | 'elevate'
+  | 'prime'
+  | 'impact'
+  | 'free'
+  | 'simplepro'
+  | 'dev'
+  | 'modern'
+  | 'executive'
+  | 'classic'
+  | 'elite'
+  | 'apex'
+  | 'wonsulting'
+  | 'styled'
+  | 'smart'
+  | 'elegant'
+  | 'minimalist'
+  | 'professional'
+  | 'twocolumn'
+  | 'freshgrad1'
+  | 'freshgrad2'
+  | 'freshgrad3'
+  | 'freshgrad4'
+  | 'freshgrad5'
+  | 'freshgrad6';
 
 export const INITIAL_DATA: ResumeData = {
   fullName: "YOUR NAME",
@@ -181,10 +208,10 @@ export const INITIAL_DATA: ResumeData = {
   referee: "Available upon request",
   font: 'Helvetica, Arial, sans-serif',
   fontSizes: {
-    header: 36,
-    jobTitle: 14,
-    sectionTitle: 12,
-    body: 10.5,
+  header: 20,       // Header / Name
+  jobTitle: 10,     // Professional Title (matches body)
+  sectionTitle: 13, // Section title
+  body: 10,         // Body text, bullets, company & job title
   },
   lineHeight: 1.4,
   sectionGap: 0.14,
@@ -202,13 +229,14 @@ export const INITIAL_DATA: ResumeData = {
   contentAlignment: 'left',
   skillsColumnCount: 3,
   sectionOrder: [
-    'summary',
-    'keyAchievements',
-    'experience',
-    'education',
+    'summary',         // Professional Summary
+    'keyAchievements', // Key Achievements
+    'skills',          // Skills
+    'experience',      // Experiences
+    'education',       // Education
+    'certifications',  // Certifications
+    // Other sections follow after the core blocks
     'projects',
-    'skills',
-    'certifications',
     'additionalInfo',
     'references'
   ],

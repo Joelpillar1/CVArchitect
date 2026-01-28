@@ -56,10 +56,15 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
                         <div className={`grid gap-x-4 gap-y-1 ${data.skillsColumnCount === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
                             {data.skills.split(',').map((skill, i) => (
                                 skill.trim() && (
-                                    <div key={i} className="text-gray-700 flex items-start" style={{ fontSize: `${bodySize}pt` }}>
-                                        <span className="mr-2">•</span>
-                                        <span>{skill.trim()}</span>
-                                    </div>
+                                    <ul
+                                        key={i}
+                                        className="list-disc list-outside ml-4 space-y-1 text-gray-700"
+                                        style={{ fontSize: `${bodySize}pt` }}
+                                    >
+                                        <li className="pl-1">
+                                            {skill.trim()}
+                                        </li>
+                                    </ul>
                                 )
                             ))}
                         </div>
@@ -78,10 +83,15 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
                         >
                             Key Achievements
                         </h2>
-                        <ul className="list-disc list-outside ml-5 space-y-2 text-gray-700" style={{ fontSize: `${bodySize}pt` }}>
+                        <ul
+                            className="list-disc list-outside ml-4 space-y-1 text-gray-700 text-justify"
+                            style={{ fontSize: `${bodySize}pt` }}
+                        >
                             {parseDescriptionBullets(data.keyAchievements).map((line, i) => (
                                 line.trim() && (
-                                    <li key={i}>{line.replace(/^[•-]\s*/, '')}</li>
+                                    <li key={i} className="pl-1">
+                                        {line.replace(/^[•-]\s*/, '')}
+                                    </li>
                                 )
                             ))}
                         </ul>
@@ -118,10 +128,15 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
                                             {formatMonthYear(exp.startDate)} - {formatMonthYear(exp.endDate)}
                                         </div>
                                     </div>
-                                    <ul className="list-disc list-outside ml-5 space-y-1 text-gray-700" style={{ fontSize: `${bodySize}pt` }}>
+                                    <ul
+                                        className="list-disc list-outside ml-4 space-y-1 text-gray-700"
+                                        style={{ fontSize: `${bodySize}pt` }}
+                                    >
                                         {parseDescriptionBullets(exp.description).map((line, i) => (
                                             line.trim() && (
-                                                <li key={i}>{line.replace(/^[•-]\s*/, '')}</li>
+                                                <li key={i} className="pl-1">
+                                                    {line.replace(/^[•-]\s*/, '')}
+                                                </li>
                                             )
                                         ))}
                                     </ul>
@@ -184,9 +199,12 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
                         >
                             {t.certifications}
                         </h2>
-                        <ul className="list-disc list-outside ml-4 space-y-1 text-gray-700">
+                        <ul
+                            className="list-disc list-outside ml-4 space-y-1 text-gray-700"
+                            style={{ fontSize: `${bodySize}pt` }}
+                        >
                             {data.certifications.map((cert) => (
-                                <li key={cert.id} style={{ fontSize: `${bodySize}pt` }}>
+                                <li key={cert.id} className="pl-1">
                                     <span className="font-bold">{cert.name}</span>
                                     {cert.issuer && <span> - {cert.issuer}</span>}
                                     {cert.date && <span className="text-gray-600 text-sm"> ({cert.date})</span>}
@@ -216,7 +234,7 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
                                             {edu.degree}, {edu.school}
                                         </span>
                                     </div>
-                                    <div className="italic text-gray-600" style={{ fontSize: `${smallSize}pt` }}>
+                                    <div className="italic text-gray-600" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                                         {edu.year}
                                     </div>
                                 </div>
@@ -292,7 +310,7 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
                         >
                             {data.fullName}
                         </h1>
-                        <div className="text-gray-600" style={{ fontSize: `${fontSizes?.jobTitle || 14}pt`, marginBottom: `${data.headerItemGap || 0.08}in` }}>
+                        <div className="text-gray-600" style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt`, marginBottom: `${data.headerItemGap || 0.08}in` }}>
                             {data.jobTitle}
                         </div>
                     </div>

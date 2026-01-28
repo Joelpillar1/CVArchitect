@@ -19,6 +19,12 @@ import ElegantTemplate from './templates/ElegantTemplate';
 import MinimalistTemplate from './templates/MinimalistTemplate';
 import ProfessionalTemplate from './templates/ProfessionalTemplate';
 import TwoColumnTemplate from './templates/TwoColumnTemplate';
+import FreshGradTemplate from './templates/FreshGradTemplate';
+import FreshGradFinanceTemplate from './templates/FreshGradFinanceTemplate';
+import FreshGradCSTemplate from './templates/FreshGradCSTemplate';
+import FreshGradArtsTemplate from './templates/FreshGradArtsTemplate';
+import FreshGradEngTemplate from './templates/FreshGradEngTemplate';
+import FreshGradMarketingTemplate from './templates/FreshGradMarketingTemplate';
 
 interface ResumePreviewProps {
   data: ResumeData;
@@ -55,6 +61,12 @@ export default function ResumePreview({ data, template }: ResumePreviewProps) {
         case 'minimalist': return <MinimalistTemplate data={data} />;
         case 'professional': return <ProfessionalTemplate data={data} />;
         case 'twocolumn': return <TwoColumnTemplate data={data} />;
+        case 'freshgrad1': return <FreshGradTemplate data={data} />;
+        case 'freshgrad2': return <FreshGradFinanceTemplate data={data} />;
+        case 'freshgrad3': return <FreshGradCSTemplate data={data} />;
+        case 'freshgrad4': return <FreshGradArtsTemplate data={data} />;
+        case 'freshgrad5': return <FreshGradEngTemplate data={data} />;
+        case 'freshgrad6': return <FreshGradMarketingTemplate data={data} />;
         default: return <VanguardTemplate data={data} />;
       }
     } catch (e) {

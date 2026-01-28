@@ -106,14 +106,14 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
             {data.experience.map(exp => (
               <div key={exp.id} className="w-full break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                 <div className="flex justify-between items-baseline mb-1">
-                  <div className="text-base font-bold">
+                  <div className="font-bold" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                     {exp.role} <span className="font-normal italic text-gray-700">- {exp.company}</span>{exp.location && <span className="font-normal italic text-gray-600">, {exp.location}</span>}
                   </div>
-                  <span className="text-xs text-gray-500 font-medium italic shrink-0 ml-4">
+                  <span className="text-gray-500 font-medium italic shrink-0 ml-4" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                     {formatDate(exp.startDate)} - {formatDate(exp.endDate)}
                   </span>
                 </div>
-                <ul className="list-disc list-outside ml-4 space-y-1">
+                <ul className="list-disc list-outside ml-4 space-y-1" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                   {parseDescriptionBullets(exp.description).map((line, i) => (
                     <li key={i}>{line}</li>
                   ))}
@@ -181,7 +181,7 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
                     <h3 className="text-base font-bold">{edu.degree}</h3>
                     <p className="italic text-gray-600">{edu.school}</p>
                   </div>
-                  <span className="text-xs text-gray-500 font-medium">{edu.year}</span>
+                  <span className="text-gray-500 font-medium" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>{edu.year}</span>
                 </div>
               </div>
             ))}
@@ -281,7 +281,7 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
         >
           {data.fullName}
         </h1>
-        <p className="text-gray-600" style={{ fontSize: `${fontSizes?.jobTitle || 14}pt`, marginBottom: `${data.headerItemGap || 0.08}in` }}>
+        <p className="text-gray-600" style={{ fontSize: `${fontSizes?.body || fontSizes?.jobTitle || 10}pt`, marginBottom: `${data.headerItemGap || 0.08}in` }}>
           {data.jobTitle}
         </p>
       </header>
