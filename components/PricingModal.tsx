@@ -139,7 +139,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
                                 <p className="text-sm text-gray-500 font-medium mt-1">7 Days of Unlimited Power</p>
                             </div>
                             <div className="text-right">
-                                <div className="text-3xl font-extrabold text-brand-dark">$14</div>
+                                <div className="text-3xl font-extrabold text-brand-dark">$9</div>
                                 <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">One-time payment</div>
                             </div>
                         </div>
@@ -177,7 +177,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
                                 </div>
                             </div>
                             <div className="text-right">
-                                <div className="text-xl font-bold text-brand-dark">$29<span className="text-sm font-normal text-gray-400">/mo</span></div>
+                                <div className="text-xl font-bold text-brand-dark">$19<span className="text-sm font-normal text-gray-400">/mo</span></div>
                             </div>
                         </div>
                     </div>
@@ -233,7 +233,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
                                         </div>
                                         <div className="text-right">
                                             <div className="text-3xl font-bold text-brand-green">
-                                                ${selectedPlanId === 'week_pass' ? '14' : '29'}
+                                                ${selectedPlanId === 'week_pass' ? '9' : '19'}
                                             </div>
                                             <div className="text-xs text-gray-400">
                                                 {selectedPlanId === 'week_pass' ? 'One-time' : 'per month'}

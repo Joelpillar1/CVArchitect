@@ -111,11 +111,15 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                         >
                             {t.experienceTitle}
                         </h2>
-                        <div className="space-y-5">
-                            {data.experience.map((exp) => {
+                        <div>
+                            {data.experience.map((exp, index) => {
                                 const desc = descriptionToString(exp.description);
                                 return (
-                                    <div key={exp.id} className="break-inside-avoid">
+                                    <div
+                                        key={exp.id}
+                                        className="break-inside-avoid"
+                                        style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${data.sectionGap || 0.2}in` }}
+                                    >
                                         <div className="mb-2">
                                             <div className="flex justify-between items-baseline mb-1">
                                                 <h3

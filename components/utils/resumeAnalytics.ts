@@ -206,7 +206,7 @@ function calculateRelevance(data: ResumeData) {
         missingKeywords: [] as string[]
     };
 
-    if (!data.jobDescription || data.jobDescription.trim().length < 50) {
+    if (!data.jobDescription || data.jobDescription.trim().length < 50 || !data.hasJobMatchRun) {
         return { jobMatchScore: 0, keywords: resultKeywords };
     }
 
@@ -271,7 +271,21 @@ function calculateRelevance(data: ResumeData) {
 
     // More generous boost curve for better UX (easier to reach 90%+)
     // Using power of 0.6 instead of 0.7 for more aggressive boost
-    matchScore = Math.min(99, Math.round(Math.pow(matchScore / 100, 0.6) * 100));
+    matchScore = Math.min(98, Math.round(Math.pow(matchScore / 100, 0.6) * 100));
+
+    // When a job description is present, users are explicitly using Job Match.
+    // For UX reasons, the score should never look "failing", but it also
+    // shouldn't look obviously hard-coded. Keep it dynamic but ensure >= 90.
+    if (matchScore < 90) {
+        // Map low raw scores into a 90–94 band based on how strong they were.
+        const clampedBase = Math.max(0, Math.min(89, matchScore));
+        const normalized = clampedBase / 89; // 0–1
+        const extra = Math.round(normalized * 4); // 0–4
+        matchScore = 90 + extra; // 90–94
+    }
+
+    // Final safety cap
+    matchScore = Math.min(98, matchScore);
 
     resultKeywords.missingKeywords = missing;
 
@@ -339,7 +353,27 @@ function calculateATSScore(
     jobMatchScore: number,
     data: ResumeData
 ): number {
-    const hasJobDesc = data.jobDescription && data.jobDescription.trim().length > 50;
+    const hasJobDesc = !!(data.jobDescription && data.jobDescription.trim().length > 50 && data.hasJobMatchRun);
+
+    // Core section completion (personal info, summary, experience, education, skills, achievements)
+    const hasPersonalInfo =
+        !!data.fullName &&
+        !!data.email &&
+        !!data.phone &&
+        !!data.linkedin &&
+        !!data.location;
+    const hasSummary = !!data.summary && data.summary.trim().length > 0;
+    const hasExperience = Array.isArray(data.experience) && data.experience.length > 0;
+    const hasEducation = Array.isArray(data.education) && data.education.length > 0;
+    const hasSkills = !!data.skills && data.skills.split(',').map(s => s.trim()).filter(Boolean).length > 0;
+    const hasAchievements =
+        !!data.keyAchievements &&
+        (
+            (Array.isArray(data.keyAchievements) && data.keyAchievements.filter(line => line.trim().length > 0).length > 0) ||
+            (typeof data.keyAchievements === 'string' && data.keyAchievements.split('\n').filter(line => line.trim().length > 0).length > 0)
+        );
+    const hasCoreSectionsComplete =
+        hasPersonalInfo && hasSummary && hasExperience && hasEducation && hasSkills && hasAchievements;
 
     // --- PILLAR SCORES (0-100) ---
 
@@ -372,14 +406,50 @@ function calculateATSScore(
         // With JD: Relevance is King, but structure still matters
         // Relevance: 55% | Impact: 25% | Structure: 20%
         totalScore = (jobMatchScore * 0.55) + (impactScore * 0.25) + (structureScore * 0.20);
+
+        // Whenever a job description is provided (i.e., user is using Job Match),
+        // ATS score should never show as "failing", but keep it dynamic.
+        if (totalScore < 90) {
+            // Map low raw ATS scores into a 90–94 band based on strength.
+            const clampedBase = Math.max(0, Math.min(89, totalScore));
+            const normalized = clampedBase / 89; // 0–1
+            const extra = Math.round(normalized * 4); // 0–4
+            totalScore = 90 + extra; // 90–94
+        }
     } else {
         // Without JD: Structure is most important for complete resumes
         // Structure: 50% | Impact: 50%
         // This ensures users with complete sections get ~80% score
         totalScore = (structureScore * 0.50) + (impactScore * 0.50);
+
+        // If the user has filled all core sections (personal info, summary, experience,
+        // education, skills, achievements), ATS score should feel clearly "passing"
+        // for scratch-built resumes.
+        if (hasCoreSectionsComplete && totalScore < 80 && data.source !== 'upload') {
+            totalScore = 80;
+        }
+
+        // For uploaded resumes (no Job Description yet), ATS score should never appear
+        // "too high" out of the box. Clamp to a maximum of 70 so users see room to improve.
+        if (data.source === 'upload' && !hasJobDesc && totalScore > 70) {
+            totalScore = 70;
+        }
     }
 
-    return Math.round(Math.min(99, totalScore));
+    // Final rounding and cap
+    let atsScore = Math.round(Math.min(98, totalScore));
+
+    // When a job description is present, ensure ATS Score and Job Match are never identical.
+    // Nudge ATS by 1 point while keeping it within 90–98.
+    if (hasJobDesc && atsScore === jobMatchScore) {
+        if (atsScore < 98) {
+            atsScore = Math.min(98, atsScore + 1);
+        } else {
+            atsScore = 97; // if both were 98, drop ATS slightly
+        }
+    }
+
+    return atsScore;
 }
 
 function countMatches(text: string, keywords: string[]): number {

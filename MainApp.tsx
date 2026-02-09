@@ -1268,6 +1268,7 @@ export default function App() {
               ...data.parsedData,
               // Ensure we keep the job title if it was parsed, otherwise fallback or use what was entered (if any)
               jobTitle: data.parsedData.jobTitle || data.role || "Professional Role",
+              source: 'upload',
             };
 
             // If experience was parsed, ensure IDs are unique
@@ -1292,7 +1293,7 @@ export default function App() {
             setCurrentView(View.EDITOR);
           } else {
             // Scratch
-            setResumeData({ ...INITIAL_DATA, jobTitle: data.role || "Professional Role" });
+            setResumeData({ ...INITIAL_DATA, jobTitle: data.role || "Professional Role", source: 'scratch' });
             setAuditResult(null);
             setCurrentView(View.EDITOR);
           }

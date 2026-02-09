@@ -78,10 +78,14 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                             style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' }}
                         >
                             {t.experienceTitle}
-                        </h2>
-                        <div className="space-y-4">
-                            {data.experience.map((exp) => (
-                                <div key={exp.id} className="break-inside-avoid">
+            </h2>
+            <div>
+              {data.experience.map((exp, index) => (
+                <div
+                  key={exp.id}
+                  className="break-inside-avoid"
+                  style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${data.sectionGap || 0.14}in` }}
+                >
                                     {/* Company and Location */}
                                     <div className="flex justify-between items-baseline">
                                         <h3 className="font-bold text-gray-900" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{exp.company}</h3>

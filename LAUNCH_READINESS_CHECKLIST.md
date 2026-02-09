@@ -91,8 +91,8 @@
 
 - [ ] **Subscription Management:**
   - [ ] Free plan: 10 credits, limited templates
-  - [ ] Career Sprint: Unlimited access for 7 days ($14)
-  - [ ] Career Marathon: Monthly unlimited ($29)
+  - [ ] Career Sprint: Unlimited access for 7 days ($9)
+  - [ ] Career Marathon: Monthly unlimited ($19)
   - [ ] Subscription activation after payment
   - [ ] Credit tracking and usage logs
 

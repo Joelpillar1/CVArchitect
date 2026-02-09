@@ -49,7 +49,7 @@ export default function PricingPage() {
                         <div className="text-center mb-10">
                             <h3 className="text-2xl font-bold text-brand-dark mb-2">The Career Sprint</h3>
                             <div className="flex justify-center items-baseline gap-1">
-                                <span className="text-6xl font-extrabold text-brand-dark">$14</span>
+                                <span className="text-6xl font-extrabold text-brand-dark">$9</span>
                                 <span className="text-gray-500 font-medium">/ 7 days</span>
                             </div>
                             <p className="text-sm text-gray-500 font-bold uppercase tracking-wider mt-4 text-brand-green">One-time payment. No auto-renew.</p>
@@ -89,7 +89,7 @@ export default function PricingPage() {
                         <div className="text-center mb-10">
                             <h3 className="text-2xl font-bold text-brand-dark mb-2">The Career Marathon</h3>
                             <div className="flex justify-center items-baseline gap-1">
-                                <span className="text-5xl font-bold text-brand-dark">$29</span>
+                                <span className="text-5xl font-bold text-brand-dark">$19</span>
                                 <span className="text-gray-500 font-medium">/ month</span>
                             </div>
                             <p className="text-sm text-gray-500 font-medium mt-4">Recurring subscription. Cancel anytime.</p>

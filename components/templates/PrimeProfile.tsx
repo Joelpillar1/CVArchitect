@@ -75,9 +75,12 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                         >
                             {t.experienceTitle}
                         </h2>
-                        <div className="space-y-6">
-                            {data.experience.map((exp) => (
-                                <div key={exp.id}>
+                        <div>
+                            {data.experience.map((exp, index) => (
+                                <div
+                                    key={exp.id}
+                                    style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${data.sectionGap || 0.14}in` }}
+                                >
                                     <div className="flex justify-between items-baseline mb-1">
                                         <div className="font-bold text-black" style={{ fontSize: '1.1em' }}>{exp.company}{exp.location && <span className="font-normal italic text-gray-600"> • {exp.location}</span>}</div>
                                         <div className="italic text-gray-600" style={{ fontSize: '0.9em' }}>

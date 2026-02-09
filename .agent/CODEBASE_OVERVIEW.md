@@ -139,7 +139,7 @@ L:\CVArchitect/
    - PDF export with watermark
    - 1 page max
 
-2. **Career Sprint** (`week_pass`) - $14 one-time
+2. **Career Sprint** (`week_pass`) - $9 one-time
    - 7 days unlimited access
    - Unlimited AI features
    - All 17 templates
@@ -147,7 +147,7 @@ L:\CVArchitect/
    - 10 pages max
    - **POPULAR**
 
-3. **Career Marathon** (`pro_monthly`) - $29/month
+3. **Career Marathon** (`pro_monthly`) - $19/month
    - Monthly unlimited access
    - Unlimited AI features
    - All 17 templates

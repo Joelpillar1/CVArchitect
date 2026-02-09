@@ -122,9 +122,12 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                             <span className="w-1 h-4 rounded" style={{ backgroundColor: accentColor }}></span>
                             {t.experienceTitle}
                         </h2>
-                        <div className="space-y-4">
-                            {data.experience.map((exp) => (
-                                <div key={exp.id}>
+                        <div>
+                            {data.experience.map((exp, index) => (
+                                <div
+                                    key={exp.id}
+                                    style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${data.sectionGap || 0.14}in` }}
+                                >
                                     <div className="flex justify-between items-baseline mb-1">
                                         <h3
                                             className="font-bold"
@@ -312,7 +315,11 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                         </h2>
                         <div className="space-y-2">
                             {data.additionalInfo.filter(item => item.label.trim() && item.value.trim()).map((item) => (
-                                <div key={item.id} className="text-gray-700">
+                                <div
+                                    key={item.id}
+                                    className="text-gray-700"
+                                    style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
+                                >
                                     <span className="font-bold">{item.label}:</span>
                                     <span className="ml-2">{item.value}</span>
                                 </div>

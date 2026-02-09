@@ -9,9 +9,9 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
 
   const getSectionHeaderClass = () => {
     const base = "font-black text-gray-900 uppercase tracking-[0.2em] mb-4";
-    if (data.bodyHeaderAlignment === 'center') return `${base} text-center border-b-2 pb-2`;
-    if (data.bodyHeaderAlignment === 'right') return `${base} text-right border-r-4 pr-3`;
-    return `${base} border-l-4 pl-3`;
+    if (data.bodyHeaderAlignment === 'center') return `${base} text-center border-b pb-2`;
+    if (data.bodyHeaderAlignment === 'right') return `${base} text-right border-r-2 pr-3`;
+    return `${base} border-l-2 pl-3`;
   };
 
   const t = getTranslation(data.language as Language || 'en');
@@ -75,9 +75,13 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
         return data.experience.length > 0 && (
           <div style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
             <h2 className={`${getSectionHeaderClass()} break-inside-avoid`} style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: data.accentColor || '#000000' }}>{t.experienceTitle}</h2>
-            <div className="space-y-6">
-              {data.experience.map((exp) => (
-                <div key={exp.id} className="relative break-inside-avoid">
+            <div>
+              {data.experience.map((exp, index) => (
+                <div
+                  key={exp.id}
+                  className="relative break-inside-avoid"
+                  style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${data.sectionGap || 0.14}in` }}
+                >
                   <div className="flex justify-between items-center mb-2">
                     <h3 className="font-bold text-gray-900" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>{exp.role}</h3>
                     <span className="font-bold text-gray-500" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
@@ -213,7 +217,7 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
         paddingBottom: `${data.margins?.vertical || 0.45}in`,
       }}
     >
-      <div className={`border-b-4 border-gray-900 pb-6 break-inside-avoid ${data.headerAlignment === 'center' ? 'flex flex-col items-center text-center' : data.headerAlignment === 'right' ? 'flex flex-col items-end text-right' : 'flex justify-between items-end'}`} style={{ marginBottom: `${data.headerGap || 0.15}in` }}>
+      <div className={`border-b border-gray-900 pb-6 break-inside-avoid ${data.headerAlignment === 'center' ? 'flex flex-col items-center text-center' : data.headerAlignment === 'right' ? 'flex flex-col items-end text-right' : 'flex justify-between items-end'}`} style={{ marginBottom: `${data.headerGap || 0.15}in` }}>
         <div>
           <h1 className="font-extrabold tracking-tight text-gray-900 uppercase" style={{ fontSize: `${fontSizes?.header || 36}pt`, marginBottom: `${data.headerItemGap || 0.08}in` }}>{data.fullName.split(' ')[0]} <span className="text-gray-400">{data.fullName.split(' ').slice(1).join(' ')}</span></h1>
           <p className="font-bold tracking-wide" style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt`, color: data.accentColor || '#000000', marginBottom: `${data.headerItemGap || 0.08}in` }}>{data.jobTitle}</p>

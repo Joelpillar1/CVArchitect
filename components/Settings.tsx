@@ -614,8 +614,8 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
                         <p className="font-bold text-2xl">{plan?.name || 'Current Plan'}</p>
                         <p className="text-white/80 text-sm">
                           {isFree && 'Free Forever'}
-                          {isSprint && '$14 / 7 days'}
-                          {isMarathon && '$29 / month'}
+                          {isSprint && '$9 / 7 days'}
+                          {isMarathon && '$19 / month'}
                         </p>
                       </div>
                     </div>

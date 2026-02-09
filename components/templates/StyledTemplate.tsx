@@ -66,9 +66,13 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                 return data.experience && data.experience.length > 0 && (
                     <section key="experience" style={{ marginBottom: sectionGap }}>
                         <SectionHeader title="Professional Experience" />
-                        <div className="space-y-6">
-                            {data.experience.map((exp) => (
-                                <div key={exp.id} className="break-inside-avoid">
+                        <div>
+                            {data.experience.map((exp, index) => (
+                                <div
+                                    key={exp.id}
+                                    className="break-inside-avoid"
+                                    style={{ marginBottom: index === data.experience.length - 1 ? 0 : sectionGap }}
+                                >
                                     <div className="flex justify-between items-baseline font-bold text-gray-800 mb-1">
                                         <div className="flex-1">
                                             <span>{exp.role}</span>, <span className="italic text-gray-500">{exp.company}{exp.location && ` • ${exp.location}`}</span>
@@ -255,13 +259,42 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                 </h1>
 
                 <div className={`flex flex-wrap text-gray-600 uppercase tracking-wider text-xs mb-3 ${flexAlignment}`} style={{ gap: headerItemGap }}>
-                    {data.location && <span>{data.location}</span>}
-                    {data.location && data.phone && <span>|</span>}
-                    {data.phone && <span>{data.phone}</span>}
-                    {data.phone && data.email && <span>|</span>}
-                    {data.email && <a href={`mailto:${data.email}`}>{data.email}</a>}
-                    {data.email && data.linkedin && <span>|</span>}
-                    {data.linkedin && <a href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`} target="_blank" rel="noopener noreferrer">{data.linkedin.replace(/^https?:\/\/(www\.)?/, '')}</a>}
+                    {(() => {
+                        const items: React.ReactNode[] = [];
+
+                        if (data.location) {
+                            items.push(<span key="location">{data.location}</span>);
+                        }
+                        if (data.phone) {
+                            items.push(<span key="phone">{data.phone}</span>);
+                        }
+                        if (data.email) {
+                            items.push(
+                                <a key="email" href={`mailto:${data.email}`}>
+                                    {data.email}
+                                </a>
+                            );
+                        }
+                        if (data.linkedin) {
+                            items.push(
+                                <a
+                                    key="linkedin"
+                                    href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    {data.linkedin.replace(/^https?:\/\/(www\.)?/, '')}
+                                </a>
+                            );
+                        }
+
+                        return items.map((item, index) => (
+                            <React.Fragment key={index}>
+                                {index > 0 && <span>|</span>}
+                                {item}
+                            </React.Fragment>
+                        ));
+                    })()}
                 </div>
 
                 <div className="border-t border-b border-gray-400 py-1.5 mb-4">

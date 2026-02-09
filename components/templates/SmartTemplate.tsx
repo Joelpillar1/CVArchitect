@@ -85,9 +85,13 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
                 return data.experience && data.experience.length > 0 && (
                     <section key="experience" style={{ marginBottom: sectionGap }}>
                         <SectionHeader title="Professional Experience" />
-                        <div className="space-y-6">
-                            {data.experience.map((exp) => (
-                                <div key={exp.id} className="break-inside-avoid">
+                        <div>
+                            {data.experience.map((exp, index) => (
+                                <div
+                                    key={exp.id}
+                                    className="break-inside-avoid"
+                                    style={{ marginBottom: index === data.experience.length - 1 ? 0 : sectionGap }}
+                                >
                                     {/* Line 1: Job Title | Start - End */}
                                     <div className="flex justify-between items-baseline mb-0.5">
                                         <div className="font-bold text-black" style={{ fontSize: `${(fontSizes?.body || 10.5) + 0.5}pt` }}>

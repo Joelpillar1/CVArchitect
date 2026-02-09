@@ -113,11 +113,14 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                         >
                             {t.experienceTitle}
                         </h2>
-                        <div className="space-y-6">
-                            {data.experience.map((exp) => {
+                        <div>
+                            {data.experience.map((exp, index) => {
                                 const bullets = parseDescriptionBullets(exp.description);
                                 return (
-                                    <div key={exp.id}>
+                                    <div
+                                        key={exp.id}
+                                        style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${data.sectionGap || 0.14}in` }}
+                                    >
                                         <div className="flex justify-between items-baseline mb-1">
                                             <div className="font-bold" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                                                 {exp.company}{exp.location && <span className="font-normal italic text-gray-600"> • {exp.location}</span>}

@@ -476,15 +476,6 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
               </div>
 
               <div className="space-y-4 mb-8">
-                <div className="flex items-start gap-3 p-3 bg-red-50 rounded-lg border border-red-100">
-                  <div className="mt-0.5 text-red-500"><CheckCircle size={18} /></div>
-                  <div>
-                    <h4 className="font-bold text-gray-800 text-sm">Missing Keywords</h4>
-                    <p className="text-xs text-gray-600">
-                      {auditResult?.keywords ? `Missing: ${auditResult.keywords.join(", ")}` : "We found 3 critical keywords missing for this role."}
-                    </p>
-                  </div>
-                </div>
                 <div className="flex items-start gap-3 p-3 bg-orange-50 rounded-lg border border-orange-100">
                   <div className="mt-0.5 text-orange-500"><LayoutIcon size={18} /></div>
                   <div>

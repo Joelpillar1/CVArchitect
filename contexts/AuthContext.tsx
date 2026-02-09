@@ -70,6 +70,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 throw new Error('This email is already registered.');
             }
 
+            // Fire-and-forget welcome email via Supabase Edge Function + Resend.
+            // Any failure here is logged but never blocks signup.
+            supabase.functions
+                .invoke('resend-email', {
+                    body: {
+                        type: 'welcome',
+                        email,
+                        name: fullName,
+                    },
+                })
+                .catch((err) => {
+                    console.error('Failed to send welcome email via Resend:', err);
+                });
+
             return { error: null };
         } catch (error: any) {
             return { error };

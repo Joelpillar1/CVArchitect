@@ -31,7 +31,7 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
         return data.summary && (
           <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
             <h2
-              className={`section-header font-bold tracking-widest border-b-2 pb-1 mb-3 ${getSectionHeaderAlignment()} ${data.sectionHeaderCase || 'uppercase'}`}
+              className={`section-header font-bold tracking-widest border-b pb-1 mb-3 ${getSectionHeaderAlignment()} ${data.sectionHeaderCase || 'uppercase'}`}
               style={{
                 fontSize: `${fontSizes?.sectionTitle || 12}pt`,
                 borderColor: data.accentColor || '#000000',
@@ -48,7 +48,7 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
         return data.skills && data.skills.trim() && (
           <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
             <h2
-              className={`section-header font-bold tracking-widest border-b-2 pb-1 mb-3 ${getSectionHeaderAlignment()} ${data.sectionHeaderCase || 'uppercase'}`}
+              className={`section-header font-bold tracking-widest border-b pb-1 mb-3 ${getSectionHeaderAlignment()} ${data.sectionHeaderCase || 'uppercase'}`}
               style={{
                 fontSize: `${fontSizes?.sectionTitle || 12}pt`,
                 borderColor: data.accentColor || '#000000',
@@ -72,7 +72,7 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
         return achievements.length > 0 && (
           <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
             <h2
-              className={`section-header font-bold tracking-widest border-b-2 pb-1 mb-3 ${getSectionHeaderAlignment()} ${data.sectionHeaderCase || 'uppercase'}`}
+              className={`section-header font-bold tracking-widest border-b pb-1 mb-3 ${getSectionHeaderAlignment()} ${data.sectionHeaderCase || 'uppercase'}`}
               style={{
                 fontSize: `${fontSizes?.sectionTitle || 12}pt`,
                 borderColor: data.accentColor || '#000000',
@@ -94,7 +94,7 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
         return data.experience.length > 0 && (
           <section style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
             <h2
-              className={`section-header font-bold uppercase tracking-widest border-b-2 pb-1 mb-4 break-inside-avoid w-full ${getSectionHeaderAlignment()}`}
+              className={`section-header font-bold uppercase tracking-widest border-b pb-1 mb-4 break-inside-avoid w-full ${getSectionHeaderAlignment()}`}
               style={{
                 fontSize: `${fontSizes?.sectionTitle || 12}pt`,
                 borderColor: data.accentColor || '#000000',
@@ -103,8 +103,12 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
             >
               {t.experienceTitle}
             </h2>
-            {data.experience.map(exp => (
-              <div key={exp.id} className="w-full break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+            {data.experience.map((exp, index) => (
+              <div
+                key={exp.id}
+                className="w-full break-inside-avoid"
+                style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${data.sectionGap || 0.14}in` }}
+              >
                 <div className="flex justify-between items-baseline mb-1">
                   <div className="font-bold" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
                     {exp.role} <span className="font-normal italic text-gray-700">- {exp.company}</span>{exp.location && <span className="font-normal italic text-gray-600">, {exp.location}</span>}
@@ -127,7 +131,7 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
         return data.projects && data.projects.length > 0 && (
           <section style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
             <h2
-              className={`section-header font-bold uppercase tracking-widest border-b-2 pb-1 mb-4 break-inside-avoid w-full ${getSectionHeaderAlignment()}`}
+              className={`section-header font-bold uppercase tracking-widest border-b pb-1 mb-4 break-inside-avoid w-full ${getSectionHeaderAlignment()}`}
               style={{
                 fontSize: `${fontSizes?.sectionTitle || 12}pt`,
                 borderColor: data.accentColor || '#000000',
@@ -165,7 +169,7 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
         return data.education.length > 0 && (
           <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
             <h2
-              className={`section-header font-bold uppercase tracking-widest border-b-2 pb-1 mb-4 break-inside-avoid w-full ${getSectionHeaderAlignment()}`}
+              className={`section-header font-bold uppercase tracking-widest border-b pb-1 mb-4 break-inside-avoid w-full ${getSectionHeaderAlignment()}`}
               style={{
                 fontSize: `${fontSizes?.sectionTitle || 12}pt`,
                 borderColor: data.accentColor || '#000000',
@@ -192,7 +196,7 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
         return data.certifications && data.certifications.length > 0 && (
           <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
             <h2
-              className={`section-header font-bold tracking-widest border-b-2 pb-1 mb-3 ${getSectionHeaderAlignment()} ${data.sectionHeaderCase || 'uppercase'}`}
+              className={`section-header font-bold tracking-widest border-b pb-1 mb-3 ${getSectionHeaderAlignment()} ${data.sectionHeaderCase || 'uppercase'}`}
               style={{
                 fontSize: `${fontSizes?.sectionTitle || 12}pt`,
                 borderColor: data.accentColor || '#000000',
@@ -217,7 +221,7 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
         return data.additionalInfo && data.additionalInfo.length > 0 && data.additionalInfo.some(item => item.label.trim() && item.value.trim()) && (
           <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
             <h2
-              className={`section-header font-bold tracking-widest border-b-2 pb-1 mb-3 ${getSectionHeaderAlignment()} ${data.sectionHeaderCase || 'uppercase'}`}
+              className={`section-header font-bold tracking-widest border-b pb-1 mb-3 ${getSectionHeaderAlignment()} ${data.sectionHeaderCase || 'uppercase'}`}
               style={{
                 fontSize: `${fontSizes?.sectionTitle || 12}pt`,
                 borderColor: data.accentColor || '#000000',
@@ -241,7 +245,7 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
         return data.referee && data.referee.trim() && (
           <section className="break-inside-avoid">
             <h2
-              className={`section-header font-bold tracking-widest border-b-2 pb-1 mb-3 ${getSectionHeaderAlignment()} ${data.sectionHeaderCase || 'uppercase'}`}
+              className={`section-header font-bold tracking-widest border-b pb-1 mb-3 ${getSectionHeaderAlignment()} ${data.sectionHeaderCase || 'uppercase'}`}
               style={{
                 fontSize: `${fontSizes?.sectionTitle || 12}pt`,
                 borderColor: data.accentColor || '#000000',
@@ -286,7 +290,7 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
         </p>
       </header>
 
-      <hr className="border-t-2" style={{ borderColor: data.accentColor || '#000000' }} />
+      <hr className="border-t" style={{ borderColor: data.accentColor || '#000000' }} />
 
       {/* Contact Info */}
       <section
@@ -346,7 +350,7 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
         )}
       </section>
 
-      <hr className="border-t-2" style={{ borderColor: data.accentColor || '#000000', marginBottom: `${data.sectionGap || 0.14}in` }} />
+      <hr className="border-t" style={{ borderColor: data.accentColor || '#000000', marginBottom: `${data.sectionGap || 0.14}in` }} />
 
       {/* Dynamic Sections */}
       {(data.sectionOrder || ['summary', 'experience', 'education', 'projects', 'skills', 'certifications', 'achievements', 'additionalInfo', 'references']).map(id => (

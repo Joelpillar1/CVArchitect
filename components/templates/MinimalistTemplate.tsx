@@ -73,11 +73,15 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
                 return data.experience && data.experience.length > 0 && (
                     <section key="experience" style={{ marginBottom: sectionGap }}>
                         <SectionHeader title="Professional Experience" />
-                        <div className="space-y-6">
-                            {data.experience.map((exp) => {
+                        <div>
+                            {data.experience.map((exp, index) => {
                                 const bullets = parseDescriptionBullets(exp.description);
                                 return (
-                                    <div key={exp.id} className="break-inside-avoid">
+                                    <div
+                                        key={exp.id}
+                                        className="break-inside-avoid"
+                                        style={{ marginBottom: index === data.experience.length - 1 ? 0 : sectionGap }}
+                                    >
                                         <div className="flex justify-between items-baseline mb-2 font-bold text-black tracking-wide">
                                             <div className="text-base">
                                                 {exp.role} <span className="mx-1">|</span> {exp.company}

@@ -197,8 +197,9 @@ export const generateBulletPoints = async (
         - **MANDATORY**: Every single bullet point MUST start with a DIFFERENT action verb.
         - **NO EXCEPTIONS**: If you generate 4 bullets, you must use 4 completely different verbs.
         - **NEVER** start consecutive bullets with similar verbs.
-        - **Use your recruiter knowledge**: Based on the role, industry, and company context, strategically add metrics where they make sense
-        - **Infer intelligently**: Use your experience to infer reasonable metrics based on role level, industry standards, company size, and typical scope
+        - **Use your recruiter knowledge**: Based on the role, industry, and company context, strategically add metrics where they make the story stronger (not generic statements).
+        - **Look for clues in the existing bullets/context**: If the current text hints at teams, projects, users, budgets, timelines, or scope, turn those into clear numbers instead of leaving them vague.
+        - **Infer intelligently when no metrics are given**: Use your experience to infer reasonable metrics based on role level, industry standards, company size, and typical scope so the bullets do NOT feel generic or metric-free.
         - **NEVER EXAGGERATE**: Keep metrics realistic and believable - you know what's reasonable for each context
         - Follow strategic quantification rules from the recruiter guide:
           * **MAXIMUM 2 metrics per ENTIRE role** (not per bullet - across all bullets for this role).
@@ -207,6 +208,11 @@ export const generateBulletPoints = async (
           * **AVOID**: Multiple percentages in one role (e.g., "increased by 20%, reduced by 15%, improved by 18%") - this screams AI-generated.
           * Balance 1-2 metric-driven bullets with strategic/leadership bullets that have NO metrics.
         - **CRITICAL**: You know when metrics add value and when strategic impact is more powerful - use your judgment
+        - Always treat each provided keyword or short bullet as a starting point and rewrite it into a fuller, more specific, action-driven bullet.
+        - Each bullet MUST be a rich, two-line bullet in a normal resume editor:
+          * Write at least 2 clear clauses or sentences per bullet.
+          * Aim for roughly 20–35 words per bullet (never a short 5–10 word fragment).
+          * **HARD REQUIREMENT**: Do NOT return any bullet under 18 words. If a bullet is too short, expand it before returning your JSON.
         - Return ONLY a JSON array of strings, e.g., ["bullet 1", "bullet 2"].
         - **VERIFICATION**: Before outputting, check that NO two bullets start with the same verb or verb form, and that all numbers are reasonable and appropriate for the role/industry context.`;
 
@@ -267,6 +273,13 @@ Experience: ${JSON.stringify(resumeData.experience.map(e => ({ role: e.role, com
 3. **Problem-Solving** - Specific challenge resolved - NO metric needed, focus on solution
 4. **Execution/Project** - Key deliverables - USE NUMBERS HERE if available (user count, project count, timeline - non-percentage preferred)
 
+For EVERY bullet you write:
+- ALWAYS treat the user's existing bullets as the seed: keep the same underlying responsibility/achievement, but expand it into a richer, more specific story.
+- Make every bullet a rich, two-line bullet in a normal resume editor (not a short fragment).
+- Use at least 2 clear clauses or sentences per bullet.
+- Aim for roughly 20–35 words per bullet so it wraps to a second line naturally.
+- **HARD REQUIREMENT**: Do NOT output any bullet under 18 words. If a bullet is shorter, expand it with concrete actions, context, and metrics before returning your answer.
+
 ### FORMATTING CRITICAL RULES:
 - **Output 3-4 distinct bullets per role.**
 - **Format as a single string with bullets separated by newlines (\\n).**
@@ -318,16 +331,41 @@ Experience: ${JSON.stringify(resumeData.experience.map(e => ({ role: e.role, com
 CRITICAL RULES:
 - **Use your recruiter expertise**: Draw on your 15+ years of experience to know what metrics are appropriate for this role, industry, and company size
 - **Build strategically on the original**: The original resume is your foundation - enhance it intelligently based on the job requirements and your knowledge
-- **Add metrics where they make sense**: You know where metric-driven bullets should go based on the role type and what recruiters expect to see
-- **Use industry knowledge**: Infer reasonable metrics based on role level, industry standards, company size, and typical scope for this type of role
-- **NEVER EXAGGERATE**: Keep metrics realistic and believable - you know what's reasonable for each context
+- **Mine the current resume for clues**: Look at the existing experience and achievements to detect implied scope (team size, number of projects, user counts, budgets, timelines) and turn those into clear metrics.
+- **Add metrics where they make the story stronger**: At least 1 strong metric-driven bullet for every significant role, and 2–3 strong metric-driven bullets in the Key Achievements section.
+- **When no metrics exist in the original text**: Infer realistic, job-appropriate metrics from the context (role level, industry, company size) so the resume does NOT feel generic or metric-free.
+- **NEVER EXAGGERATE**: Metrics must stay realistic and believable for this context.
 - Make this resume sound like the PERFECT candidate for THIS SPECIFIC JOB
-- Use keywords from the JD naturally (aim for 95%+ keyword coverage)
 - VARY sentence structure and verbs - no repetition
 - Sound HUMAN, not AI-generated
-- **CRITICAL**: Maximum 2 metrics per experience role (not per bullet - across all bullets)
+- **CRITICAL**: Maximum 2 explicit metrics per experience role (not per bullet - across all bullets)
 - **PREFER**: Non-percentage metrics (team size, budget, user count, time periods, dollar amounts)
 - **LIMIT**: Percentages only when truly impressive (Key Achievements can have more, but still must be credible and not percentage-heavy)
+
+## 5. KEYWORD COVERAGE (FOR ATS + JOB MATCH) - STRICT
+
+1. From the JOB DESCRIPTION, build a mental list of **CRITICAL KEYWORDS**:
+   - Skills, tools, frameworks, methodologies, and responsibilities that appear **2+ times** in the JD, AND
+   - Any seniority / role-defining words (Senior, Lead, Manager, Principal, Director, etc.).
+
+2. When you write the new resume content:
+   - You MUST include **at least 95% of these CRITICAL KEYWORDS** somewhere in the final resume:
+     - Summary, OR
+     - Experience bullets, OR
+     - Skills list, OR
+     - Key Achievements.
+   - Use **EXACT spelling/wording from the JD** so ATS systems see a direct match.
+
+3. Avoid keyword spam:
+   - Do **NOT** repeat the exact same CRITICAL KEYWORD more than **2 times total** across the whole resume.
+   - Prefer to use each important keyword **once**, maybe twice if it is truly central to the role.
+   - If a keyword already appears clearly, use synonyms or vary sentence structure instead of repeating it again.
+
+4. BEFORE you output the JSON:
+   - Quickly scan your final summary, experience, skills, and achievements.
+   - Confirm that **at least 95% of CRITICAL KEYWORDS** from the JD appear at least once.
+   - If any are missing (and would be honest to include), revise bullets/summary/skills to insert them naturally.
+   - Do not add keywords that would be dishonest about the candidate's background.
 
 Return ONLY valid JSON in this EXACT format:
 {
@@ -411,8 +449,10 @@ export const generateAchievements = async (
         - **MANDATORY**: Every single bullet point MUST start with a DIFFERENT action verb.
         - **NO EXCEPTIONS**: If you generate 4 bullets, you must use 4 completely different verbs.
         - **NEVER** start consecutive bullets with similar verbs (e.g., "Led" and "Leading", "Achieved" and "Achieving").
-        - Include metrics/numbers to quantify the Result.
+        - Include metrics/numbers to quantify the Result and avoid generic statements.
         - Format as a single string with bullet points (•).
+        - Each bullet should be a rich, two-line bullet in a normal resume editor (at least 20–35 words, not a short fragment).
+        - **HARD REQUIREMENT**: If any bullet you generate is shorter than 18 words, you must expand it with additional context, actions, and quantified results before returning the final text.
         - STRICT REQUIREMENT: Output EXACTLY 3 or 4 bullet points. No more, no less.
         - DO NOT use prefixes like "Situation:" or "Action:".
         - **VERIFICATION**: Before outputting, check that NO two bullets start with the same verb or verb form.`;

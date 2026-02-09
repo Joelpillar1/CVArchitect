@@ -78,7 +78,7 @@ export default function JobMatchForm({ data, onChange, userSubscription, onAIAct
             );
 
             // Update the resume with AI-tailored content
-            const updatedData = { ...data };
+            const updatedData = { ...data, hasJobMatchRun: true };
             updatedData.summary = result.summary;
             updatedData.skills = result.skills;
             updatedData.keyAchievements = result.keyAchievements;
@@ -202,7 +202,7 @@ export default function JobMatchForm({ data, onChange, userSubscription, onAIAct
                 )}
             </div>
 
-            {data.jobDescription && (
+            {data.jobDescription && data.hasJobMatchRun && (
                 <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden transition-all">
                     {/* Hero Section: Score */}
                     <div className="p-6 border-b border-gray-100 flex items-center justify-between">
@@ -254,32 +254,8 @@ export default function JobMatchForm({ data, onChange, userSubscription, onAIAct
                         </div>
                     </div>
 
-                    {/* Details Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-100 bg-gray-50/30">
-                        {/* Keyword Relevance */}
-                        <div className="p-5">
-                            <div className="flex items-center gap-2 mb-4">
-                                <Target size={14} className="text-gray-400" />
-                                <h5 className="text-xs font-bold text-gray-500 uppercase tracking-wide">Missing Keywords</h5>
-                            </div>
-
-                            {analytics.keywords.missingKeywords.length > 0 ? (
-                                <ul className="space-y-2">
-                                    {analytics.keywords.missingKeywords.map((kw, i) => (
-                                        <li key={i} className="flex items-center gap-2 text-sm text-gray-700 group">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-red-400 group-hover:bg-red-500 transition-colors"></span>
-                                            <span className="capitalize">{kw}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            ) : (
-                                <div className="text-sm text-gray-500 flex items-center gap-2 italic">
-                                    <CheckCircle size={14} className="text-green-500" />
-                                    No critical keywords missing.
-                                </div>
-                            )}
-                        </div>
-
+                    {/* Details */}
+                    <div className="bg-gray-50/30">
                         {/* Content Quality */}
                         <div className="p-5">
                             <div className="flex items-center gap-2 mb-4">

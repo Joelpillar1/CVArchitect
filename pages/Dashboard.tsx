@@ -1056,6 +1056,7 @@ export default function Dashboard() {
                             ...newResumeData,
                             ...(data.parsedData || {}),
                             jobTitle: (data.parsedData?.jobTitle as string) || data.role || 'Professional Role',
+                            source: 'upload',
                         };
 
                         // Ensure experience IDs are present/unique
@@ -1070,6 +1071,7 @@ export default function Dashboard() {
                         newResumeData = {
                             ...newResumeData,
                             jobTitle: data.role || 'Professional Role',
+                            source: 'scratch',
                         };
                     }
 

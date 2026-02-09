@@ -95,6 +95,8 @@ export interface ResumeData {
   template?: TemplateType; // Selected template
   version_number?: number; // Current version number
   version_name?: string | null; // Optional version name/tag
+  source?: 'upload' | 'scratch'; // How this resume was created (for analytics behavior)
+  hasJobMatchRun?: boolean; // Whether AI job match rewrite has been run
 }
 
 export interface SavedTemplate {
@@ -240,4 +242,6 @@ export const INITIAL_DATA: ResumeData = {
     'additionalInfo',
     'references'
   ],
+  source: 'scratch',
+  hasJobMatchRun: false,
 };

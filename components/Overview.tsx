@@ -50,13 +50,21 @@ export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, 
     }
   };
 
+  // Dynamic greeting based on time of day
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  };
+
   return (
     <div className="p-8 md:p-12 h-full overflow-y-auto bg-brand-bg">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
           <div>
             <h2 className="text-4xl font-bold text-brand-dark tracking-tight mb-3">
-              Good morning, {userName || 'there'}.
+              {getGreeting()}, {userName || 'there'}.
             </h2>
             <p className="text-gray-500 text-lg font-light">
               You have {savedTemplates.length} active resumes ready for deployment.

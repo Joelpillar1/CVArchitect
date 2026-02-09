@@ -120,9 +120,13 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                         >
                             {t.experienceTitle}
                         </h2>
-                        <div className="space-y-5">
-                            {data.experience.map((exp) => (
-                                <div key={exp.id} className="break-inside-avoid">
+                        <div>
+                            {data.experience.map((exp, index) => (
+                                <div
+                                    key={exp.id}
+                                    className="break-inside-avoid"
+                                    style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${data.sectionGap || 0.2}in` }}
+                                >
                                     <div className="flex justify-between items-start mb-2">
                                         <div className="flex-1">
                                             <h3
@@ -367,7 +371,10 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
         >
             {/* Header Section - Clean and Professional */}
             <header className="break-inside-avoid" style={{ marginBottom: `${data.headerGap || 0.15}in` }}>
-                <div className={`border-b-3 pb-4 flex flex-col ${data.headerAlignment === 'center' ? 'items-center text-center' : data.headerAlignment === 'right' ? 'items-end text-right' : 'items-start text-left'}`} style={{ borderBottomWidth: '3px', borderColor: accentColor }}>
+                <div
+                    className={`border-b pb-4 flex flex-col ${data.headerAlignment === 'center' ? 'items-center text-center' : data.headerAlignment === 'right' ? 'items-end text-right' : 'items-start text-left'}`}
+                    style={{ borderColor: accentColor }}
+                >
                     <h1
                         className="font-bold tracking-tight"
                         style={{

@@ -46,7 +46,7 @@ export const PLANS: Record<string, Plan> = {
         id: 'week_pass',
         name: 'Career Sprint',
         description: 'Get hired fast. 7 days of unlimited power.',
-        price: { lifetime: 14.00 }, // Using lifetime key for one-time payment
+        price: { lifetime: 9.00 }, // Using lifetime key for one-time payment
         features: {
             resumeUploads: 'unlimited',
             resumeAnalyses: 'unlimited',
@@ -83,7 +83,7 @@ export const PLANS: Record<string, Plan> = {
         id: 'pro_monthly',
         name: 'Career Marathon',
         description: 'For the long-term career strategist.',
-        price: { monthly: 29.00 },
+        price: { monthly: 19.00 },
         features: {
             resumeUploads: 'unlimited',
             resumeAnalyses: 'unlimited',

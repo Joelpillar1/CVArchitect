@@ -17,7 +17,18 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
       case 'summary':
         return data.summary && (
           <section className="break-inside-avoid" style={{ marginBottom: '0.5rem' }}>
-            <p className="text-justify leading-relaxed text-black" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{data.summary}</p>
+            <h2
+              className="text-base font-bold uppercase underline mb-2 text-left text-black"
+              style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt` }}
+            >
+              {t.professionalSummary || 'PROFESSIONAL SUMMARY'}
+            </h2>
+            <p
+              className="text-justify leading-relaxed text-black"
+              style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+            >
+              {data.summary}
+            </p>
           </section>
         );
 
@@ -80,12 +91,16 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
             >
               {t.experienceTitle || 'EXPERIENCE'}
             </h2>
-            <div className="space-y-4 mb-4">
-              {data.experience.map((exp) => {
+            <div className="mb-4">
+              {data.experience.map((exp, index) => {
                 const desc = descriptionToString(exp.description);
                 const bullets = parseDescriptionBullets(exp.description);
                 return (
-                  <div key={exp.id} className="break-inside-avoid">
+                  <div
+                    key={exp.id}
+                    className="break-inside-avoid"
+                    style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${data.sectionGap || 0.14}in` }}
+                  >
                     {/* Company Name (bold, left) and Location (regular, right) */}
                     <div className="flex justify-between items-center mb-0">
                       <h3 className="font-bold text-black text-left" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{exp.company}</h3>
@@ -303,16 +318,27 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
         paddingRight: `${data.margins?.horizontal || 0.75}in`,
       }}
     >
-      {/* Header - Name (largest, bold, centered) */}
+      {/* Header - Name, Professional Title, Contact */}
       <div className="text-center mb-4">
         <h1
-          className="font-bold text-black mb-2"
+          className="font-bold text-black mb-1"
           style={{
             fontSize: `${fontSizes?.header || 24}pt`,
           }}
         >
           {data.fullName || "YOUR NAME"}
         </h1>
+        {/* Professional Title */}
+        {data.jobTitle && (
+          <p
+            className="font-semibold text-black mb-1"
+            style={{
+              fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt`,
+            }}
+          >
+            {data.jobTitle}
+          </p>
+        )}
         {/* Contact Information (smaller, regular, centered, separated by •) */}
         <div className="text-black" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
           {data.phone && <span>{data.phone}</span>}

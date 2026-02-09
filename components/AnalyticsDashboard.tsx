@@ -188,18 +188,6 @@ export default function AnalyticsDashboard({ data, isSidebar = false, auditResul
                             <span className="text-sm text-gray-600 flex-1 min-w-0">Soft Skills</span>
                             <span className="text-lg font-bold text-brand-dark shrink-0">{analytics.keywords.softSkills}</span>
                         </div>
-                        {analytics.keywords.missingKeywords.length > 0 && (
-                            <div className="pt-2 border-t border-gray-100">
-                                <p className="text-xs font-medium text-red-500 mb-1">Missing Keywords:</p>
-                                <div className="flex flex-wrap gap-1">
-                                    {analytics.keywords.missingKeywords.map((kw, i) => (
-                                        <span key={i} className="text-[10px] px-1.5 py-0.5 bg-red-50 text-red-600 rounded border border-red-100">
-                                            {kw}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
 

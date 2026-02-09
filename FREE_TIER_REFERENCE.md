@@ -67,7 +67,7 @@
 
 ## 🚀 Upgrade Options
 
-### Career Sprint ($14 / 7 days)
+### Career Sprint ($9 / 7 days)
 - ✅ **Unlimited** AI Rewrites
 - ✅ **Unlimited** Resume Analyses
 - ✅ **Unlimited** Job Matches
@@ -76,7 +76,7 @@
 - ✅ Watermark-Free Exports
 - ✅ Priority Processing
 
-### Career Marathon ($29 / month)
+### Career Marathon ($19 / month)
 - ✅ Everything in Sprint
 - ✅ Continuous Access
 - ✅ Cancel Anytime
@@ -93,7 +93,7 @@
 | Templates | 3 Basic | All Premium | All Premium |
 | Watermark | ❌ | ✅ | ✅ |
 | Duration | Forever | 7 Days | Monthly |
-| Price | $0 | $14 | $29/mo |
+| Price | $0 | $9 | $19/mo |
 
 ---
 

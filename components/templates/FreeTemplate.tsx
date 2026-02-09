@@ -110,9 +110,13 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
                         >
                             {t.experienceTitle}
                         </h2>
-                        <div className="space-y-5">
-                            {data.experience.map((exp) => (
-                                <div key={exp.id} className="break-inside-avoid">
+                        <div>
+                            {data.experience.map((exp, index) => (
+                                <div
+                                    key={exp.id}
+                                    className="break-inside-avoid"
+                                    style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${data.sectionGap || 0.14}in` }}
+                                >
                                     <div className="flex justify-between items-baseline mb-2">
                                         <div>
                                             <span className="font-bold text-gray-900" style={{ fontSize: `${bodySize}pt` }}>
