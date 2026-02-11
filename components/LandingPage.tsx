@@ -275,7 +275,7 @@ export default function LandingPage() {
       {/* Section 2: Editor Preview & Value Prop */}
       <section id="features" className="py-16 px-6 bg-white overflow-hidden">
         <div className="max-w-6xl mx-auto">
-          {/* Top Image: Editor UI */}
+          {/* Top: Interactive Editor Demo (Supademo embed) */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 50 }}
             whileInView={{ opacity: 1, scale: 1, y: 0 }}
@@ -283,15 +283,19 @@ export default function LandingPage() {
             transition={{ duration: 0.8 }}
             className="mb-12 relative"
           >
-            <div className="relative group perspective-1000">
-              <img
-                src="/images/new section 2.png"
-                alt="CV Architect Editor Interface"
+            <div
+              className="relative box-border w-full overflow-hidden"
+              style={{ maxHeight: '80vh', maxWidth: '100%', aspectRatio: '2.03' }}
+            >
+              <iframe
+                src="https://app.supademo.com/embed/cmli04cay1h0d53516ufxiyso?embed_v=2&utm_source=embed"
                 loading="lazy"
-                className="w-full h-auto rounded-lg shadow-2xl border border-gray-100 transform transition-transform duration-700 hover:scale-[1.01]"
+                title="Build and Customize Your Professional Resume with CVArchitect"
+                allow="clipboard-write"
+                frameBorder="0"
+                allowFullScreen
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
               />
-              {/* Optional: Glossy reflection effect */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none rounded-lg"></div>
             </div>
 
             {/* Green Banner Overlay */}
