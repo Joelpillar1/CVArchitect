@@ -92,6 +92,7 @@ export default function JobMatchForm({ data, onChange, userSubscription, onAIAct
 
             onChange(updatedData);
             setRewriteSuccess(true);
+            try { sessionStorage.removeItem('cvarchitect_job_from_extension'); } catch (_) {}
             setTimeout(() => setRewriteSuccess(false), 5000);
         } catch (error) {
             console.error('Resume rewrite error:', error);
@@ -112,8 +113,36 @@ export default function JobMatchForm({ data, onChange, userSubscription, onAIAct
         return 'text-red-600 bg-red-50 border-red-200';
     };
 
+    const jobFromExtension = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('cvarchitect_job_from_extension') === '1';
+    const clearJobFromExtensionFlag = () => {
+        try { sessionStorage.removeItem('cvarchitect_job_from_extension'); } catch (_) {}
+    };
+
     return (
         <div className="space-y-6 animate-fadeIn">
+            {jobFromExtension && data.jobDescription && (
+                <div className="bg-brand-green/15 border-2 border-brand-green rounded-xl p-4 flex flex-col gap-3">
+                    <p className="font-semibold text-brand-dark">Job added from extension.</p>
+                    <p className="text-sm text-gray-700">One click to tailor your resume to this job.</p>
+                    <button
+                        onClick={() => { clearJobFromExtensionFlag(); handleRewriteResume(); }}
+                        disabled={isRewriting}
+                        className="w-full bg-brand-green hover:bg-green-700 disabled:bg-gray-400 text-black font-bold py-3 px-6 rounded-lg transition-all flex items-center justify-center gap-2 shadow-lg"
+                    >
+                        {isRewriting ? (
+                            <>
+                                <Loader2 size={20} className="animate-spin" />
+                                <span>Tailoring...</span>
+                            </>
+                        ) : (
+                            <>
+                                <Sparkles size={20} />
+                                <span>Tailor my resume now</span>
+                            </>
+                        )}
+                    </button>
+                </div>
+            )}
             <div className="bg-green-50 border border-green-100 p-4 rounded-xl flex gap-3">
                 <Target className="text-brand-green shrink-0 mt-0.5" size={20} />
                 <div className="space-y-1">

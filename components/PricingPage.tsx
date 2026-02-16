@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, Star, Crown, Zap } from 'lucide-react';
+import { Check, Star, Crown, Zap, Shield } from 'lucide-react';
 import { PLANS } from '../utils/pricingConfig';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
@@ -11,6 +11,16 @@ export default function PricingPage() {
     const handleSelectPlan = (planId: string) => {
         navigate('/register?plan=' + planId);
     };
+
+    const sharedFeatures = [
+        'Unlimited resume uploads & analyses',
+        'Unlimited AI rewrites & bullet optimizations',
+        'Unlimited Job Match reports',
+        'Unlimited cover letter generation',
+        'Access to every premium template',
+        'Up to 10-page resumes',
+        'Priority processing & unlimited versions',
+    ];
 
     return (
         <div className="min-h-screen bg-brand-bg flex flex-col font-sans">
@@ -37,87 +47,92 @@ export default function PricingPage() {
             </div>
 
             {/* Pricing Options */}
-            <div className="max-w-6xl mx-auto px-6 py-20">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start">
+            <div className="max-w-4xl mx-auto px-6 py-20">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-stretch">
 
                     {/* SPRINT PLAN (Focus) */}
-                    <div className="relative bg-white border-2 border-brand-green rounded-3xl p-8 md:p-10 shadow-2xl shadow-brand-green/10 transform md:-translate-y-12">
-                        <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-brand-green text-brand-dark px-6 py-2 rounded-full text-sm font-bold tracking-wide shadow-lg uppercase">
-                            Best for 90% of Users
-                        </div>
-
-                        <div className="text-center mb-10">
-                            <h3 className="text-2xl font-bold text-brand-dark mb-2">The Career Sprint</h3>
-                            <div className="flex justify-center items-baseline gap-1">
+                    <div className="relative bg-white border-2 border-brand-green rounded-3xl p-8 md:p-10 shadow-2xl shadow-brand-green/10 max-w-sm w-full mx-auto flex flex-col">
+                        <div className="mb-8">
+                            <div className="flex items-center justify-between gap-3 mb-1">
+                                <h3 className="text-base sm:text-lg md:text-xl font-bold text-brand-dark whitespace-nowrap">The Career Sprint</h3>
+                                <span className="inline-flex items-center px-3 py-1 rounded-full bg-brand-green text-brand-dark text-[10px] sm:text-xs font-semibold uppercase tracking-wide whitespace-nowrap">
+                                    Most popular
+                                </span>
+                            </div>
+                            <p className="text-sm text-gray-500">Best for focused 7-day job search sprints.</p>
+                            <div className="mt-4 flex items-baseline gap-1">
                                 <span className="text-6xl font-extrabold text-brand-dark">$9</span>
                                 <span className="text-gray-500 font-medium">/ 7 days</span>
                             </div>
-                            <p className="text-sm text-gray-500 font-bold uppercase tracking-wider mt-4 text-brand-green">One-time payment. No auto-renew.</p>
+                            <p className="text-sm text-gray-500 font-semibold mt-3 text-brand-green">
+                                One-time payment, no auto-renew.
+                            </p>
                         </div>
 
-                        <ul className="space-y-4 mb-10">
-                            <li className="flex items-center gap-3">
-                                <div className="bg-green-100 p-1 rounded-full"><Check size={16} className="text-green-700" /></div>
-                                <span className="text-gray-700 font-medium">Unlimited AI Rewrites</span>
-                            </li>
-                            <li className="flex items-center gap-3">
-                                <div className="bg-green-100 p-1 rounded-full"><Check size={16} className="text-green-700" /></div>
-                                <span className="text-gray-700 font-medium">Unlimited PDF Exports</span>
-                            </li>
-                            <li className="flex items-center gap-3">
-                                <div className="bg-green-100 p-1 rounded-full"><Check size={16} className="text-green-700" /></div>
-                                <span className="text-gray-700 font-medium">Access All Premium Templates</span>
-                            </li>
-                            <li className="flex items-center gap-3">
-                                <div className="bg-green-100 p-1 rounded-full"><Check size={16} className="text-green-700" /></div>
-                                <span className="text-gray-700 font-medium">Job Match Analysis</span>
-                            </li>
+                        <ul className="space-y-3 mb-8 flex-1">
+                            {sharedFeatures.map((item, i) => (
+                                <li key={i} className="flex items-center gap-3 text-sm text-gray-600">
+                                    <Check size={16} className="text-brand-green mt-0.5" />
+                                    <span className={i === 0 ? 'font-semibold' : ''}>{item}</span>
+                                </li>
+                            ))}
                         </ul>
 
-                        <button
-                            onClick={() => handleSelectPlan('week_pass')}
-                            className="w-full py-5 rounded-2xl bg-brand-dark hover:bg-black text-white text-lg font-bold transition-all shadow-xl hover:shadow-2xl active:scale-[0.98]"
-                        >
-                            Start My 7-Day Sprint
-                        </button>
-                        <p className="text-center text-xs text-gray-400 mt-4">7-Day Money-Back Guarantee</p>
+                        <div className="mt-2">
+                            <button
+                                onClick={() => handleSelectPlan('week_pass')}
+                                className="w-full py-4 rounded-full bg-brand-green hover:opacity-90 text-brand-dark text-sm font-semibold transition-all shadow-md flex items-center justify-center gap-2"
+                            >
+                                Start 7-day access
+                            </button>
+                            <div className="flex items-center gap-2 mt-3 text-xs text-gray-500">
+                                <Shield size={14} className="text-brand-green" />
+                                <p>Backed by a 7-day money-back guarantee.</p>
+                            </div>
+                        </div>
                     </div>
 
 
                     {/* MARATHON PLAN */}
-                    <div className="bg-white border border-gray-200 rounded-3xl p-8 md:p-10">
-                        <div className="text-center mb-10">
-                            <h3 className="text-2xl font-bold text-brand-dark mb-2">The Career Marathon</h3>
-                            <div className="flex justify-center items-baseline gap-1">
+                    <div className="bg-white border border-gray-200 rounded-3xl p-8 md:p-10 max-w-sm w-full mx-auto flex flex-col">
+                        <div className="mb-8">
+                            <div className="flex items-center justify-between gap-3 mb-1">
+                                <h3 className="text-base sm:text-lg md:text-xl font-bold text-brand-dark whitespace-nowrap">The Career Marathon</h3>
+                                <span className="inline-flex items-center px-3 py-1 rounded-full bg-brand-green text-brand-dark text-[10px] sm:text-xs font-semibold uppercase tracking-wide whitespace-nowrap">
+                                    Best deal
+                                </span>
+                            </div>
+                            <p className="text-sm text-gray-500">Best for ongoing applications and long-term career moves.</p>
+                            <div className="mt-4 flex items-baseline gap-1">
                                 <span className="text-5xl font-bold text-brand-dark">$19</span>
                                 <span className="text-gray-500 font-medium">/ month</span>
                             </div>
-                            <p className="text-sm text-gray-500 font-medium mt-4">Recurring subscription. Cancel anytime.</p>
+                            <p className="text-sm text-gray-500 font-medium mt-3">Recurring subscription. Cancel anytime.</p>
                         </div>
 
-                        <div className="space-y-4 mb-10">
-                            <p className="text-gray-600 leading-relaxed text-center">
-                                Perfect for long-term career planning, freelancers, or passive job seekers who want to keep their options open.
-                            </p>
-                            <div className="h-px bg-gray-100 w-full my-6"></div>
+                        <div className="space-y-4 mb-8 flex-1">
                             <ul className="space-y-3">
-                                <li className="flex items-center gap-3 text-sm text-gray-600">
-                                    <Check size={16} className="text-gray-400" />
-                                    <span>Everything in Sprint</span>
-                                </li>
-                                <li className="flex items-center gap-3 text-sm text-gray-600">
-                                    <Check size={16} className="text-gray-400" />
-                                    <span>Continuous Access</span>
-                                </li>
+                                {sharedFeatures.map((item, i) => (
+                                    <li key={i} className="flex items-center gap-3 text-sm text-gray-600">
+                                        <Check size={16} className="text-brand-green mt-0.5" />
+                                        <span className={i === 0 ? 'font-semibold' : ''}>{item}</span>
+                                    </li>
+                                ))}
                             </ul>
                         </div>
 
-                        <button
-                            onClick={() => handleSelectPlan('pro_monthly')}
-                            className="w-full py-4 rounded-xl bg-white border-2 border-brand-dark text-brand-dark font-bold hover:bg-gray-50 transition-all"
-                        >
-                            Start Monthly Subscription
-                        </button>
+                        <div className="mt-2">
+                            <button
+                                onClick={() => handleSelectPlan('pro_monthly')}
+                                className="w-full py-4 rounded-full bg-brand-green hover:opacity-90 text-brand-dark text-sm font-semibold transition-all shadow-md flex items-center justify-center gap-2"
+                            >
+                                Start monthly access
+                            </button>
+                            <div className="flex items-center gap-2 mt-3 text-xs text-gray-500">
+                                <Shield size={14} className="text-brand-green" />
+                                <p>Cancel anytime. Your changes are always saved.</p>
+                            </div>
+                        </div>
                     </div>
 
                 </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ResumeData } from '../types';
 import { UserSubscription } from '../types/pricing';
+import { loadFromStorage } from '../utils/statePersistence';
 import EditorSidebarDesign from './EditorSidebarDesign';
 import JobMatchForm from './JobMatchForm';
 import { Palette, Target } from 'lucide-react';
@@ -16,7 +17,14 @@ interface EditorSidebarRightProps {
 }
 
 export default function EditorSidebarRight({ data, onChange, onSave, onSaveAsTemplate, currentResumeId, userSubscription, onAIAction }: EditorSidebarRightProps) {
-    const [activeTab, setActiveTab] = useState<'design' | 'job-match'>('design');
+    const [activeTab, setActiveTab] = useState<'design' | 'job-match'>(() => {
+        const openJobMatch = loadFromStorage<boolean>('editor_openJobMatchTab', false);
+        if (openJobMatch) {
+            try { localStorage.removeItem('editor_openJobMatchTab'); } catch (_) {}
+            return 'job-match';
+        }
+        return 'design';
+    });
 
     return (
         <div className="w-full bg-brand-bg border-l border-brand-border flex flex-col h-full overflow-hidden shrink-0 animate-fadeIn">

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CVArchitect Job Tailor</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="popup">
+    <header class="header">
+      <span class="logo">CVArchitect</span>
+      <span class="badge">Job Tailor</span>
+    </header>
+
+    <div id="state-loading" class="state state-loading">
+      <div class="spinner"></div>
+      <p>Reading this job...</p>
+    </div>
+
+    <div id="state-success" class="state state-success" hidden>
+      <p class="success-hint">Ready to tailor your resume</p>
+      <div class="job-preview">
+        <h2 id="job-title" class="job-title"></h2>
+        <p id="job-company" class="job-company"></p>
+      </div>
+      <button type="button" id="btn-open-app" class="btn btn-primary btn-hero">
+        Tailor in CVArchitect
+      </button>
+      <a href="#" id="btn-copy" class="link-copy">Copy description</a>
+      <button type="button" id="btn-retry" class="link-copy">Try another page</button>
+    </div>
+
+    <div id="state-empty" class="state state-empty" hidden>
+      <p class="message">No job found on this page.</p>
+      <p class="hint">Paste the job description below — we’ll open CVArchitect for you.</p>
+      <textarea id="paste-area" class="paste-area" placeholder="Paste job description here..."></textarea>
+      <input type="text" id="manual-title" class="input" placeholder="Job title (optional)" />
+      <input type="text" id="manual-company" class="input" placeholder="Company (optional)" />
+      <button type="button" id="btn-use-paste" class="btn btn-primary">Tailor in CVArchitect</button>
+    </div>
+
+    <footer class="footer">
+      <span class="footer-hint">Right‑click page → “Tailor this job with CVArchitect” for one click</span>
+    </footer>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -59,6 +59,16 @@ export default function LandingPage() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const pricingFeatures = [
+    "Unlimited resume uploads & analyses",
+    "Unlimited AI rewrites & bullet optimizations",
+    "Unlimited Job Match reports",
+    "Unlimited cover letter generation",
+    "Access to every premium template",
+    "Up to 10-page resumes",
+    "Priority processing & unlimited versions",
+  ];
+
   // Navigation handlers
   const handleGetStarted = () => {
     if (user) {
@@ -283,10 +293,8 @@ export default function LandingPage() {
             transition={{ duration: 0.8 }}
             className="mb-12 relative"
           >
-            <div
-              className="relative box-border w-full overflow-hidden"
-              style={{ maxHeight: '80vh', maxWidth: '100%', aspectRatio: '2.03' }}
-            >
+            {/* Supademo embed - responsive 16:9 video container */}
+            <div className="relative w-full max-w-5xl mx-auto aspect-video overflow-hidden rounded-xl">
               <iframe
                 src="https://app.supademo.com/embed/cmli04cay1h0d53516ufxiyso?embed_v=2&utm_source=embed"
                 loading="lazy"
@@ -294,7 +302,7 @@ export default function LandingPage() {
                 allow="clipboard-write"
                 frameBorder="0"
                 allowFullScreen
-                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
               />
             </div>
 
@@ -822,24 +830,44 @@ export default function LandingPage() {
             whileInView="visible"
             viewport={{ once: true }}
             variants={staggerContainer}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
             {[
               {
-                name: "Sarah Mitchell", role: "Marketing Manager", initials: "SM",
-                quote: "I applied to 15 jobs with my old resume—zero responses. Used CV Architect, tailored it for each role, and got 3 interviews in the first week. The ATS optimization actually works."
+                name: "Sarah Mitchell",
+                role: "Senior Marketing Manager · B2B SaaS",
+                avatar: "/images/testimonials/sarah-mitchell.jpg",
+                quote: "I applied to 15 roles with my old resume—zero responses. After rebuilding with CV Architect and tailoring for each posting, I booked 3 interviews in the first week and accepted an offer in 10 days."
               },
               {
-                name: "James Chen", role: "Software Engineer", initials: "JC",
-                quote: "The AI rewrite feature saved me hours. It took my generic bullet points and turned them into achievement-focused statements that actually got me past the screening stage."
+                name: "James Chen",
+                role: "Senior Software Engineer · Fintech",
+                avatar: "/images/testimonials/james-chen.jpg",
+                quote: "The AI rewrite feature turned vague bullets into concrete impact. My resume finally read like the work I actually do. Recruiters started commenting on specific projects instead of sending generic rejections."
               },
               {
-                name: "Priya Reddy", role: "Product Designer", initials: "PR",
-                quote: "Finally, a resume builder that doesn't look like everyone else's. The templates are clean, professional, and actually parse correctly through ATS systems. Worth every penny."
+                name: "Priya Reddy",
+                role: "Product Designer · Consumer Apps",
+                avatar: "/images/testimonials/priya-reddy.jpg",
+                quote: "Every other builder made my resume look like a template. CV Architect gave me a layout that feels premium and still parses perfectly through ATS. My Dribbble portfolio gets more clicks now because the story is clear."
               },
               {
-                name: "Marcus Johnson", role: "Sales Director", initials: "MJ",
-                quote: "Landed my dream job 2 months after using this. The job match feature showed me exactly what keywords to include. No more guessing—just results."
+                name: "Marcus Johnson",
+                role: "Enterprise Sales Director · Cybersecurity",
+                avatar: "/images/testimonials/marcus-johnson.jpg",
+                quote: "The Job Match score took the guesswork out of tailoring. I went from sending out 40 generic resumes a month to 8 targeted applications—with 5 turning into pipeline conversations."
+              },
+              {
+                name: "Elena García",
+                role: "HR Business Partner · Manufacturing",
+                avatar: "/images/testimonials/elena-garcia.jpg",
+                quote: "As someone who reads resumes all day, I can tell when a candidate used CV Architect. The structure is clean, the bullets are outcome-driven, and the key details are impossible to miss."
+              },
+              {
+                name: "David Kim",
+                role: "Recent Graduate · Data Analyst",
+                avatar: "/images/testimonials/david-kim.jpg",
+                quote: "I had internships but no \"brand name\" experience. The AI suggestions helped me frame school projects and part‑time work as real impact. I landed my first full‑time analyst role within 3 weeks of graduation."
               }
             ].map((t, idx) => (
               <motion.div
@@ -849,9 +877,12 @@ export default function LandingPage() {
                 className="bg-brand-dark rounded-2xl p-6 text-white shadow-lg border border-gray-700 hover:border-brand-green transition-colors"
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-full bg-brand-green flex items-center justify-center text-brand-dark font-bold text-lg">
-                    {t.initials}
-                  </div>
+                  <img
+                    src={t.avatar}
+                    alt={t.name}
+                    loading="lazy"
+                    className="w-12 h-12 rounded-full object-cover border border-gray-600"
+                  />
                   <div>
                     <p className="font-bold">{t.name}</p>
                     <p className="text-sm text-gray-400">{t.role}</p>
@@ -889,89 +920,100 @@ export default function LandingPage() {
             whileInView="visible"
             viewport={{ once: true }}
             variants={staggerContainer}
-            className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start max-w-5xl mx-auto"
+            className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-stretch max-w-4xl mx-auto"
           >
             {/* SPRINT PLAN (Focus) */}
             <motion.div
               variants={fadeInUp}
-              className="relative bg-white border-2 border-brand-green rounded-3xl p-8 md:p-10 shadow-2xl shadow-brand-green/10 transform md:-translate-y-6"
+              className="relative bg-white border-2 border-brand-green rounded-3xl p-8 md:p-10 shadow-2xl shadow-brand-green/10 max-w-sm w-full mx-auto flex flex-col"
             >
-              <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-brand-green text-brand-dark px-6 py-2 rounded-full text-sm font-bold tracking-wide shadow-lg uppercase whitespace-nowrap">
-                Best for 90% of Users
-              </div>
-
-              <div className="text-center mb-10 mt-2">
-                <h3 className="text-2xl font-bold text-brand-dark mb-2">The Career Sprint</h3>
-                <div className="flex justify-center items-baseline gap-1">
+              <div className="mb-8">
+                <div className="flex items-center justify-between gap-3 mb-1">
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-brand-dark whitespace-nowrap">The Career Sprint</h3>
+                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-brand-green text-brand-dark text-[10px] sm:text-xs font-semibold uppercase tracking-wide whitespace-nowrap">
+                    Most popular
+                  </span>
+                </div>
+                <p className="text-sm text-gray-500">Best for focused 7-day job search sprints.</p>
+                <div className="mt-4 flex items-baseline gap-1">
                   <span className="text-6xl font-extrabold text-brand-dark">$9</span>
                   <span className="text-gray-500 font-medium">/ 7 days</span>
                 </div>
-                <p className="text-sm text-brand-green font-bold uppercase tracking-wider mt-4">One-time payment. No auto-renew.</p>
+                <p className="text-sm text-brand-green font-semibold mt-3">
+                  One-time payment, no auto-renew.
+                </p>
               </div>
 
-              <ul className="space-y-4 mb-10">
-                {[
-                  "Unlimited AI Rewrites",
-                  "Unlimited PDF Exports",
-                  "Access All Premium Templates",
-                  "Job Match Analysis"
-                ].map((item, i) => (
-                  <li key={i} className="flex items-center gap-3">
-                    <div className="bg-green-100 p-1 rounded-full"><Check size={16} className="text-green-700" /></div>
-                    <span className="text-gray-700 font-medium">{item}</span>
+              <ul className="space-y-3 mb-8 flex-1">
+                {pricingFeatures.map((item, i) => (
+                  <li key={i} className="flex items-center gap-3 text-sm text-gray-600">
+                    <Check size={16} className="text-brand-green mt-0.5" />
+                    <span className={i === 0 ? 'font-semibold' : ''}>{item}</span>
                   </li>
                 ))}
               </ul>
 
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleGetStarted}
-                className="w-full py-5 rounded-2xl bg-brand-dark hover:bg-black text-white text-lg font-bold transition-all shadow-xl hover:shadow-2xl flex items-center justify-center gap-2 group relative overflow-hidden"
-              >
-                <span className="relative z-10">Start My 7-Day Sprint</span>
-                <div className="absolute inset-0 h-full w-full bg-white/20 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
-              </motion.button>
-              <p className="text-center text-xs text-gray-400 mt-4">7-Day Money-Back Guarantee</p>
+              <div className="mt-2">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleGetStarted}
+                  className="w-full py-4 rounded-full bg-brand-green hover:opacity-90 text-brand-dark text-sm font-semibold transition-all shadow-md flex items-center justify-center gap-2"
+                >
+                  Start 7-day access
+                </motion.button>
+                <div className="flex items-center gap-2 mt-3 text-xs text-gray-500">
+                  <Shield size={14} className="text-brand-green" />
+                  <p>Backed by a 7-day money-back guarantee.</p>
+                </div>
+              </div>
             </motion.div>
 
             {/* MARATHON PLAN */}
-            <motion.div variants={fadeInUp} className="bg-white border border-gray-200 rounded-3xl p-8 md:p-10 mt-4 md:mt-0">
-              <div className="text-center mb-10">
-                <h3 className="text-2xl font-bold text-brand-dark mb-2">The Career Marathon</h3>
-                <div className="flex justify-center items-baseline gap-1">
+            <motion.div
+              variants={fadeInUp}
+              className="bg-white border border-gray-200 rounded-3xl p-8 md:p-10 mt-4 md:mt-0 max-w-sm w-full mx-auto flex flex-col"
+            >
+              <div className="mb-8">
+                <div className="flex items-center justify-between gap-3 mb-1">
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-brand-dark whitespace-nowrap">The Career Marathon</h3>
+                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-brand-green text-brand-dark text-[10px] sm:text-xs font-semibold uppercase tracking-wide whitespace-nowrap">
+                    Best deal
+                  </span>
+                </div>
+                <p className="text-sm text-gray-500">Best for ongoing applications and long-term career moves.</p>
+                <div className="mt-4 flex items-baseline gap-1">
                   <span className="text-5xl font-bold text-brand-dark">$19</span>
                   <span className="text-gray-500 font-medium">/ month</span>
                 </div>
-                <p className="text-sm text-gray-500 font-medium mt-4">Recurring subscription. Cancel anytime.</p>
+                <p className="text-sm text-gray-500 font-medium mt-3">Recurring subscription. Cancel anytime.</p>
               </div>
 
-              <div className="space-y-4 mb-10">
-                <p className="text-gray-600 leading-relaxed text-center">
-                  Perfect for long-term career planning, freelancers, or passive job seekers who want to keep their options open.
-                </p>
-                <div className="h-px bg-gray-100 w-full my-6"></div>
+              <div className="space-y-4 mb-8 flex-1">
                 <ul className="space-y-3">
-                  {[
-                    "Everything in Sprint",
-                    "Continuous Access"
-                  ].map((item, i) => (
+                  {pricingFeatures.map((item, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm text-gray-600">
-                      <Check size={16} className="text-gray-400" />
-                      <span>{item}</span>
+                      <Check size={16} className="text-brand-green mt-0.5" />
+                      <span className={i === 0 ? 'font-semibold' : ''}>{item}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleGetStarted}
-                className="w-full py-4 rounded-xl bg-white border-2 border-brand-dark text-brand-dark font-bold hover:bg-gray-50 transition-all"
-              >
-                Start Monthly Subscription
-              </motion.button>
+              <div className="mt-2">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleGetStarted}
+                  className="w-full py-4 rounded-full bg-brand-green hover:opacity-90 text-brand-dark text-sm font-semibold transition-all shadow-md flex items-center justify-center gap-2"
+                >
+                  Start monthly access
+                </motion.button>
+                <div className="flex items-center gap-2 mt-3 text-xs text-gray-500">
+                  <Shield size={14} className="text-brand-green" />
+                  <p>Cancel anytime. Your changes are always saved.</p>
+                </div>
+              </div>
             </motion.div>
           </motion.div>
 

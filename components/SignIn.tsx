@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function SignIn() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const redirectTo = searchParams.get('redirect');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -34,8 +36,8 @@ export default function SignIn() {
             }
 
             console.log('Sign in successful', data.user?.id);
-            // Force navigation to dashboard
-            navigate('/dashboard', { replace: true });
+            // Go to redirect URL (e.g. from extension: /dashboard/editor?job=...) or dashboard
+            navigate(redirectTo && redirectTo.startsWith('/dashboard') ? redirectTo : '/dashboard', { replace: true });
         } catch (err: any) {
             console.error('Sign in error:', err);
             setError(err.message || 'Failed to sign in');

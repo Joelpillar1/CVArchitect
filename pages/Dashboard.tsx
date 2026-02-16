@@ -28,10 +28,39 @@ export default function Dashboard() {
     const navigate = useNavigate();
     const location = useLocation();
 
+    // Ref for job description from extension URL (so load-resumes doesn't overwrite it)
+    const jobDescriptionFromUrlRef = React.useRef<string | null>(null);
+
     // Core state needed for routing-based dashboard
-    // Load from localStorage on mount
+    // Load from localStorage on mount; if URL has ?job= from extension, merge it so first paint has it
     const [resumeData, setResumeDataState] = useState<ResumeData>(() => {
-        return loadFromStorage<ResumeData>('cv_app_data', INITIAL_DATA);
+        const data = loadFromStorage<ResumeData>('cv_app_data', INITIAL_DATA);
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const jobParam = params.get('job');
+            if (jobParam && jobParam.length >= 50) {
+                try {
+                    let decoded = jobParam;
+                    try {
+                        decoded = decodeURIComponent(jobParam);
+                    } catch (_) {
+                        decoded = jobParam;
+                    }
+                    const json = atob(decoded.replace(/-/g, '+').replace(/_/g, '/'));
+                    const payload = JSON.parse(json) as { description?: string };
+                    const description = (payload.description || '').trim();
+                    if (description.length >= 20) {
+                        jobDescriptionFromUrlRef.current = description;
+                        (data as ResumeData).jobDescription = description;
+                        saveToStorage('editor_openJobMatchTab', true);
+                        try {
+                            sessionStorage.setItem('cvarchitect_job_from_extension', '1');
+                        } catch (_) { /* ignore */ }
+                    }
+                } catch (_) { /* ignore */ }
+            }
+        }
+        return data;
     });
 
     const [selectedTemplate, setSelectedTemplateState] = useState<TemplateType>(() => {
@@ -174,10 +203,16 @@ export default function Dashboard() {
                         if ((isInitialLoad && !isOnEditorRoute) || dataMatches) {
                             console.log('Restoring saved resume from database:', savedResumeId, savedResume);
                             setCurrentResumeId(savedResumeId);
-                            setResumeData(savedResume.data);
+                            // Preserve job description from extension URL if we landed with ?job=
+                            const jobFromUrl = jobDescriptionFromUrlRef.current;
+                            const dataToSet = jobFromUrl
+                                ? { ...savedResume.data, jobDescription: jobFromUrl }
+                                : savedResume.data;
+                            if (jobFromUrl) jobDescriptionFromUrlRef.current = null;
+                            setResumeData(dataToSet);
                             setSelectedTemplate(savedResume.baseTemplate);
                             // Update localStorage with the restored data
-                            localStorage.setItem('cv_app_data', JSON.stringify(savedResume.data));
+                            localStorage.setItem('cv_app_data', JSON.stringify(dataToSet));
                             localStorage.setItem('cv_app_template', savedResume.baseTemplate);
                         } else {
                             console.log('Skipping database restore - preserving localStorage data (user may have unsaved changes)');
@@ -421,6 +456,54 @@ export default function Dashboard() {
             isPolling = false;
         };
     }, [user, showToast]);
+
+    // Pre-fill job description from Chrome extension ( ?job= base64 payload )
+    // Use window.location so we always read the actual address bar (long URLs can differ from router state)
+    useEffect(() => {
+        const search = typeof window !== 'undefined' ? window.location.search : '';
+        const params = new URLSearchParams(search);
+        const jobParam = params.get('job');
+        if (!jobParam || jobParam.length < 50) return;
+
+        try {
+            let decoded = jobParam;
+            try {
+                decoded = decodeURIComponent(jobParam);
+            } catch (_) {
+                decoded = jobParam;
+            }
+            const json = atob(decoded.replace(/-/g, '+').replace(/_/g, '/'));
+            const payload = JSON.parse(json) as { title?: string; company?: string; description?: string };
+            const description = (payload.description || '').trim();
+            if (description.length < 20) return;
+
+            jobDescriptionFromUrlRef.current = description;
+            setResumeData((prev) => {
+                const next = { ...prev, jobDescription: description };
+                saveToStorage('cv_app_data', next);
+                return next;
+            });
+            saveToStorage('editor_openJobMatchTab', true);
+            try {
+                sessionStorage.setItem('cvarchitect_job_from_extension', '1');
+            } catch (_) { /* ignore */ }
+            showToast('Job added! Click "Tailor my resume now" in the right panel.', 'success');
+            if (!window.location.pathname.endsWith('/dashboard/editor')) {
+                navigate('/dashboard/editor');
+            }
+        } catch (e) {
+            console.warn('Failed to parse job param from extension:', e);
+        }
+        // Remove job param after a short delay so React Strict Mode remount still sees it
+        const timeoutId = setTimeout(() => {
+            const url = new URL(window.location.href);
+            if (url.searchParams.has('job')) {
+                url.searchParams.delete('job');
+                window.history.replaceState({}, '', url.pathname + url.search);
+            }
+        }, 500);
+        return () => clearTimeout(timeoutId);
+    }, [navigate, setResumeData, showToast]);
 
     // Restore state from localStorage on mount only
     // This ensures state is preserved when switching tabs

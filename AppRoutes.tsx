@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 
 // Page Components
@@ -24,6 +24,7 @@ interface ProtectedRouteProps {
 
 function ProtectedRoute({ children }: ProtectedRouteProps) {
     const { user, loading } = useAuth();
+    const location = useLocation();
 
     if (loading) {
         return (
@@ -37,7 +38,8 @@ function ProtectedRoute({ children }: ProtectedRouteProps) {
     }
 
     if (!user) {
-        return <Navigate to="/login" replace />;
+        const redirectUrl = location.pathname + location.search;
+        return <Navigate to={redirectUrl ? `/login?redirect=${encodeURIComponent(redirectUrl)}` : '/login'} replace />;
     }
 
     return <>{children}</>;
