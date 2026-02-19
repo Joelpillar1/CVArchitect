@@ -1,12 +1,7 @@
 import React, { useEffect } from 'react';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
-<<<<<<< HEAD
 import SEO from './SEO';
-
-=======
-<meta name="google-site-verification" content="tM8NcOMoT43REWAXI4sUDCX6usdXgja0epq5QCK1Ygc" />
->>>>>>> 65dec36b65dc75ca91f14c99c3d03873ffe351b2
 interface PrivacyPolicyProps {
     onBack: () => void;
 }
