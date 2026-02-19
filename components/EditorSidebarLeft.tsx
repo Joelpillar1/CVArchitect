@@ -45,7 +45,7 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
             const isSmallScreen = window.innerWidth < 768;
             setIsMobile(isTouchDevice && isSmallScreen);
         };
-        
+
         checkMobile();
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
@@ -72,15 +72,15 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
         const availableSectionIds = sections
             .filter(s => s.id !== 'personal')
             .map(s => s.id);
-        
+
         const savedOrder = sectionOrder || [];
-        
+
         // Filter out invalid section IDs (defensive programming)
         const validSavedOrder = savedOrder.filter(id => availableSectionIds.includes(id));
-        
+
         // Find sections that exist but aren't in saved order
         const missingSections = availableSectionIds.filter(id => !validSavedOrder.includes(id));
-        
+
         // Return: valid saved order + missing sections appended
         return [...validSavedOrder, ...missingSections];
     }, [sections]);
@@ -113,6 +113,7 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
         { id: 'smart', name: 'Smart', color: 'bg-gray-200' },
         { id: 'elegant', name: 'Elegant', color: 'bg-indigo-900' },
         { id: 'professional', name: 'Professional Clean', color: 'bg-gray-300' },
+        { id: 'sage', name: 'Sage', color: 'bg-slate-700' },
     ];
 
     // Sort templates: free templates first, then pro templates
@@ -185,22 +186,22 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                             const moveSection = (sectionId: string, direction: 'up' | 'down') => {
                                 // Always compute from current data state to ensure consistency
                                 const currentFullOrder = computeFullSectionOrder(data.sectionOrder);
-                                
+
                                 const currentIdx = currentFullOrder.indexOf(sectionId);
                                 if (currentIdx === -1) {
                                     console.warn(`Section ${sectionId} not found in order`);
                                     return;
                                 }
-                                
+
                                 const targetIdx = direction === 'up' ? currentIdx - 1 : currentIdx + 1;
                                 if (targetIdx < 0 || targetIdx >= currentFullOrder.length) {
                                     return; // Already at boundary
                                 }
-                                
+
                                 // Create new order by swapping adjacent items
                                 const newOrder = [...currentFullOrder];
                                 [newOrder[currentIdx], newOrder[targetIdx]] = [newOrder[targetIdx], newOrder[currentIdx]];
-                                
+
                                 // Update state immediately - this will trigger re-render and preview update
                                 onChange({ ...data, sectionOrder: newOrder });
                             };
@@ -226,7 +227,7 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
 
                                             // Always compute from current data state to ensure we have latest order
                                             const currentFullOrder = computeFullSectionOrder(data.sectionOrder);
-                                            
+
                                             const draggedIdx = currentFullOrder.indexOf(draggedSection);
                                             const targetIdx = currentFullOrder.indexOf(section.id);
 
@@ -240,12 +241,12 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                                             const newOrder = [...currentFullOrder];
                                             newOrder.splice(draggedIdx, 1);
                                             newOrder.splice(targetIdx, 0, draggedSection);
-                                            
+
                                             // Prevent duplicate updates during rapid drag events
                                             const orderKey = newOrder.join(',');
                                             if (lastUpdateRef.current === orderKey) return;
                                             lastUpdateRef.current = orderKey;
-                                            
+
                                             // Update state immediately - triggers re-render and preview update
                                             onChange({ ...data, sectionOrder: newOrder });
                                         }}
@@ -268,41 +269,39 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                                                         <GripVertical size={14} />
                                                     </div>
                                                 )}
-                                                
+
                                                 {/* Move Buttons (arrows) for reordering - available on all devices */}
                                                 <div className="flex flex-col gap-0.5 -ml-1">
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                moveSection(section.id, 'up');
-                                                            }}
-                                                            disabled={!canMoveUp}
-                                                            className={`p-1 rounded transition-colors ${
-                                                                canMoveUp 
-                                                                    ? 'text-gray-400 active:text-brand-green active:bg-brand-secondary' 
-                                                                    : 'text-gray-200 cursor-not-allowed'
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            moveSection(section.id, 'up');
+                                                        }}
+                                                        disabled={!canMoveUp}
+                                                        className={`p-1 rounded transition-colors ${canMoveUp
+                                                                ? 'text-gray-400 active:text-brand-green active:bg-brand-secondary'
+                                                                : 'text-gray-200 cursor-not-allowed'
                                                             }`}
-                                                            aria-label="Move section up"
-                                                        >
-                                                            <ChevronUp size={14} />
-                                                        </button>
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                moveSection(section.id, 'down');
-                                                            }}
-                                                            disabled={!canMoveDown}
-                                                            className={`p-1 rounded transition-colors ${
-                                                                canMoveDown 
-                                                                    ? 'text-gray-400 active:text-brand-green active:bg-brand-secondary' 
-                                                                    : 'text-gray-200 cursor-not-allowed'
+                                                        aria-label="Move section up"
+                                                    >
+                                                        <ChevronUp size={14} />
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            moveSection(section.id, 'down');
+                                                        }}
+                                                        disabled={!canMoveDown}
+                                                        className={`p-1 rounded transition-colors ${canMoveDown
+                                                                ? 'text-gray-400 active:text-brand-green active:bg-brand-secondary'
+                                                                : 'text-gray-200 cursor-not-allowed'
                                                             }`}
-                                                            aria-label="Move section down"
-                                                        >
-                                                            <ChevronDown size={14} />
-                                                        </button>
+                                                        aria-label="Move section down"
+                                                    >
+                                                        <ChevronDown size={14} />
+                                                    </button>
                                                 </div>
-                                                
+
                                                 <button
                                                     onClick={() => setActiveTab(section.id as EditorTab)}
                                                     className="flex-1 text-left flex items-center gap-3"

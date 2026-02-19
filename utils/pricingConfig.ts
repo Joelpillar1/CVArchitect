@@ -178,6 +178,7 @@ export const ALL_TEMPLATES = [
     'freshgrad4',
     'freshgrad5',
     'freshgrad6',
+    'sage',
 ];
 
 // ========================================================

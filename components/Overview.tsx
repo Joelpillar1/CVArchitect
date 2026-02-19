@@ -1,7 +1,9 @@
 import React from 'react';
-import { Plus, FileText, Zap, Crown, ArrowRight, Bookmark, Trash2, AlertTriangle } from 'lucide-react';
-import { SavedTemplate, TemplateType } from '../types';
+import { Plus, FileText, Zap, Crown, ArrowRight, Trash2, AlertTriangle, Eye, Edit } from 'lucide-react';
+import { SavedTemplate } from '../types';
 import { UserSubscription } from '../types/pricing';
+import ResumePreview from './ResumePreview';
+import { getTemplateMetadata } from '../utils/templateConfig';
 
 interface OverviewProps {
   onCreateNew: () => void;
@@ -21,24 +23,6 @@ export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, 
     if (confirmDeleteId) {
       onDeleteTemplate(confirmDeleteId);
       setConfirmDeleteId(null);
-    }
-  };
-
-  const getBaseTemplateName = (base: TemplateType) => {
-    switch (base) {
-      case 'free': return 'CareerCraft';
-      case 'simplepro': return 'SimplePro';
-      case 'vanguard': return 'The Vanguard';
-      case 'elevate': return 'Elevate Resume';
-      case 'prime': return 'Prime Profile';
-      case 'impact': return 'Impact';
-      case 'dev': return 'DevPro';
-      case 'elite': return 'Elite Professional';
-      case 'apex': return 'Apex Executive';
-      case 'modern': return 'Modern Professional';
-      case 'executive': return 'Executive Suite';
-      case 'classic': return 'Classic Professional';
-      default: return 'Custom';
     }
   };
 
@@ -107,7 +91,7 @@ export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, 
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <div onClick={onCreateNew} className="group border-2 border-dashed border-gray-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-brand-green/50 hover:bg-white transition-all duration-300 min-h-[320px]">
+          <div onClick={onCreateNew} className="group border-2 border-dashed border-gray-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-brand-green/50 hover:bg-white transition-all duration-300 min-h-[340px]">
             <div className="w-16 h-16 rounded-full bg-brand-secondary flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-brand-green/20 transition-all duration-300">
               <Plus className="text-gray-400 group-hover:text-brand-dark" size={28} />
             </div>
@@ -115,55 +99,65 @@ export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, 
             <p className="text-sm text-gray-400 font-light">Create a masterpiece from scratch</p>
           </div>
 
-          {recentTemplates.map((template) => (
-            <div
-              key={template.id}
-              onClick={() => onLoadTemplate(template)}
-              className="bg-brand-surface p-5 rounded-2xl shadow-soft border border-brand-border hover:shadow-float hover:-translate-y-1 transition-all duration-300 cursor-pointer group flex flex-col"
-            >
-              <div className="aspect-[3/4] rounded-xl bg-gray-50 mb-5 overflow-hidden relative shadow-inner p-4">
-                {/* CSS Preview */}
-                <div className="w-full h-full bg-white rounded-sm shadow-inner p-3 flex flex-col gap-1.5 opacity-90 group-hover:opacity-100 transition-opacity">
-                  <div className="h-6 bg-gray-100 rounded-sm"></div>
-                  <div className="h-1 bg-gray-200 w-3/4 rounded-full"></div>
-                  <div className="mt-2">
-                    <div className="h-1.5 w-12 rounded-sm mb-1 bg-brand-green"></div>
-                    <div className="space-y-0.5">
-                      <div className="h-1 bg-gray-300 w-full rounded-full"></div>
-                      <div className="h-1 bg-gray-300 w-5/6 rounded-full"></div>
+          {recentTemplates.map((template) => {
+            const metadata = getTemplateMetadata(template.baseTemplate);
+            return (
+              <div
+                key={template.id}
+                className="group bg-white rounded-xl shadow-sm border border-gray-200 hover:border-brand-green hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden flex flex-col h-[340px]"
+                onClick={() => onLoadTemplate(template)}
+              >
+                {/* Template Preview Area - Real Render */}
+                <div className="relative flex-1 bg-gray-100 overflow-hidden w-full">
+                  {/* Scaled Resume Preview - Centered */}
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[210mm] origin-top transform scale-[0.45] pointer-events-none select-none shadow-md">
+                    <ResumePreview data={template.data} template={template.baseTemplate} />
+                  </div>
+
+                  {/* Hover Overlay */}
+                  <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-brand-dark/20 backdrop-blur-[2px]">
+                    <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-200 flex flex-col gap-2">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onLoadTemplate(template); }}
+                        className="bg-brand-green hover:bg-brand-greenHover text-brand-dark px-5 py-2 rounded-lg font-bold shadow-xl transition-all flex items-center justify-center gap-1.5 text-sm"
+                      >
+                        <Edit size={14} /> Resume Editing
+                      </button>
                     </div>
                   </div>
-                  <div className="mt-1">
-                    <div className="h-1.5 w-10 rounded-sm mb-1 bg-brand-green"></div>
-                    <div className="space-y-0.5">
-                      <div className="h-1 bg-gray-300 w-11/12 rounded-full"></div>
+
+                  {/* Delete Button */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(template.id); }}
+                    className="absolute top-2 right-2 z-20 bg-white/90 backdrop-blur-sm text-gray-400 w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-50 hover:text-red-600 transition-all shadow-sm"
+                    title="Delete Template"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+
+                {/* Template Footer Info */}
+                <div className="h-20 px-4 flex items-center justify-between border-t border-gray-100 bg-white z-20 relative">
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    {/* Logo / Icon */}
+                    <div className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
+                      {metadata.icon}
+                    </div>
+
+                    {/* Text Info */}
+                    <div className="flex flex-col overflow-hidden">
+                      <h3 className="text-sm font-bold text-gray-900 truncate pr-2">
+                        {template.tag}
+                      </h3>
+                      <span className="text-xs text-gray-500 truncate">
+                        {metadata.name}
+                      </span>
                     </div>
                   </div>
                 </div>
-
-                {/* Delete Button */}
-                <button
-                  onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(template.id); }}
-                  className="absolute top-2 right-2 z-20 bg-white/90 backdrop-blur-sm text-gray-400 w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-50 hover:text-red-600 transition-all"
-                  title="Delete Template"
-                >
-                  <Trash2 size={14} />
-                </button>
-
-                <div className="absolute inset-0 bg-brand-dark/0 group-hover:bg-brand-dark/10 transition-colors duration-300" />
-                <div className="absolute bottom-4 left-4 right-4 translate-y-12 group-hover:translate-y-0 transition-transform duration-300">
-                  <button className="w-full bg-brand-green text-brand-dark font-semibold py-3 rounded-lg shadow-lg text-sm">Resume Editing</button>
-                </div>
               </div>
-              <div className="mt-auto">
-                <h4 className="font-bold text-brand-dark text-lg truncate">{template.tag}</h4>
-                <div className="flex items-center gap-1.5 mt-2 text-xs text-gray-400 font-medium">
-                  <Bookmark size={12} />
-                  {getBaseTemplateName(template.baseTemplate)}
-                </div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

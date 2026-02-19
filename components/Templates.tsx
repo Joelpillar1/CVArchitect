@@ -1,6 +1,30 @@
 import React, { useState } from 'react';
 import { TemplateType, ResumeData } from '../types';
-import { ArrowRight, Crown, Eye, X, LayoutTemplate } from 'lucide-react';
+import {
+    ArrowRight,
+    Crown,
+    Eye,
+    X,
+    LayoutTemplate,
+    Briefcase,
+    GraduationCap,
+    Code,
+    Palette,
+    LineChart,
+    Building2,
+    User,
+    Award,
+    PenTool,
+    BookOpen,
+    Landmark,
+    Leaf,
+    Zap,
+    Anchor,
+    Feather,
+    Gem,
+    Megaphone,
+    Search
+} from 'lucide-react';
 import ResumePreview from './ResumePreview';
 import { FREE_TEMPLATES } from '../utils/pricingConfig';
 
@@ -14,172 +38,118 @@ export default function Templates({ onSelect, data }: TemplatesProps) {
 
     // Fixed, fully-filled sample resume used for ALL template previews
     const PREVIEW_DATA: ResumeData = {
-        fullName: 'NAME',
-        jobTitle: '',
-        email: 'student@gmail.com',
-        phone: '(617) 432-8765',
-        atHandle: '',
+        fullName: 'Alexander Franklin',
+        jobTitle: 'Senior Product Manager',
+        email: 'alexander.franklin@example.com',
+        phone: '(555) 123-4567',
+        atHandle: 'linkedin.com/in/afranklin',
         linkedin: '',
-        location: '',
+        location: 'San Francisco, CA',
         address: '',
         summary:
-            'Chemical Engineering student with hands-on experience in membrane separations, polymer characterization, and wet-lab experimentation. Passionate about translating lab findings into scalable solutions in energy, sustainability, and biotechnology.',
+            'Dynamic and results-oriented Product Manager with over 7 years of experience driving product strategy and execution in high-growth tech environments. Proven track record of launching user-centric products that generate millions in revenue. Skilled in Agile methodologies, cross-functional leadership, and data-driven decision making. Passionate about leveraging AI to solve complex user problems.',
         experience: [
             {
                 id: 'exp1',
-                company: 'Aramco Services Company',
-                role: 'Gas Separations Intern',
-                location: 'Cambridge, MA',
-                startDate: '2024-05',
-                endDate: '2024-08',
+                company: 'TechVision Inc.',
+                role: 'Senior Product Manager',
+                location: 'San Francisco, CA',
+                startDate: '2022-03',
+                endDate: 'Present',
                 roleSummary: '',
                 description: [
-                    'Separated gas molecules for experiments by casting membranes for post processing and characterization',
-                    'Experimented with various hollow fiber dopes and conditions by separating and testing membranes using the laserquadra knife',
-                    'Functionalized membranes using cross-linking techniques',
-                    'Investigated mechanical and thermal properties of various polymers by examining molecules utilizing various strength microscopes',
-                    'Conducted single gas tests for performance testing by running separated gas molecules through functioner machine',
+                    'Spearhead the product roadmap for the company’s flagship AI analytics platform, resulting in a 40% increase in user engagement year-over-year.',
+                    'Lead a cross-functional team of 15 engineers, designers, and data scientists to deliver quarterly product releases on time and under budget.',
+                    'Implemented a new customer feedback loop that reduced churn by 15% and improved Net Promoter Score (NPS) by 20 points.',
                 ],
             },
             {
                 id: 'exp2',
-                company: 'Smart Polymers, Membranes and Separations Laboratory',
-                role: 'Undergraduate Research Assistant',
-                location: 'Tufts University, MA',
-                startDate: '2023-01',
-                endDate: '2023-05',
+                company: 'Innovate Solutions',
+                role: 'Product Manager',
+                location: 'Austin, TX',
+                startDate: '2019-06',
+                endDate: '2022-02',
                 roleSummary: '',
                 description: [
-                    'Manufactured polymer membranes and dyes for filtration tests by using a staking polymer technique',
-                    'Collected and modeled diffusion rate data on different dyes utilizing a diffuser',
-                    'Synthesized zwitterionic copolymers for brackish water testing',
-                    'Characterized novel copolymer membranes using FTIR and TGA',
-                    'Tested frack wastewater flux and fouling resistance by using a frack measurer',
+                    'Managed the full product lifecycle for a suite of enterprise SaaS tools, growing annual recurring revenue (ARR) from $2M to $5M.',
+                    'Conducted extensive market research and competitor analysis to identify key opportunities for product differentiation and expansion.',
+                    'Collaborated with sales and marketing teams to develop effective go-to-market strategies and sales enablement materials.',
                 ],
             },
             {
                 id: 'exp3',
-                company: 'Bits Bytes & Bots',
-                role: 'Instructor',
-                location: 'Anytown, NY',
-                startDate: '2022-06',
-                endDate: '2022-08',
+                company: 'Creative Studio',
+                role: 'Associate Product Manager',
+                location: 'Austin, TX',
+                startDate: '2017-06',
+                endDate: '2019-05',
                 roleSummary: '',
                 description: [
-                    'Taught multiple classes involving Robotics, Game Maker, and Scratch by creating lesson plans and providing weekly instruction',
-                    'Guided 20–30 campers through their daily schedule and led fun social transition activities',
-                    'Solved any issues that arose between students and with the camp’s computers by utilizing training in conflict resolution',
-                    'Created curriculum for other instructors to use in future classes by archiving lesson plans and assessments',
-                ],
-            },
-            {
-                id: 'exp4',
-                company: 'Marine Biotechnology Laboratory',
-                role: 'Intern',
-                location: 'University of Connecticut, Stamford, CT',
-                startDate: '2021-06',
-                endDate: '2021-08',
-                roleSummary: '',
-                description: [
-                    'Cultivated and gathered seaweed plants in labs and rivers carefully as to preserve the local ocean floor',
-                    'Investigated the fluorescence of ground seaweed using blue and black lights and tracked observations',
+                    'Assisted in the definition and prioritization of product requirements, ensuring alignment with business goals and user needs.',
+                    'Coordinated beta testing programs and gathered user feedback to inform product iterations and improvements.',
                 ],
             },
         ],
         education: [
             {
                 id: 'edu1',
-                school: 'Tufts University, Medford, MA',
-                degree: 'Bachelor of Science in Chemical Engineering',
-                year: 'May xxxx',
+                school: 'University of California, Berkeley',
+                degree: 'Master of Business Administration (MBA)',
+                year: '2017',
                 gpa: '',
-                relevantCourses:
-                    'Physical Chemistry of Polymers, Hazardous Waste Treatment Technology, Chemical and Biological Separations, Surface and Colloid Chemistry, Reactor Design, Data Structures, Process Dynamics and Controls',
+                relevantCourses: 'Product Management, Data Analytics, Strategic Marketing',
+            },
+            {
+                id: 'edu2',
+                school: 'University of Texas at Austin',
+                degree: 'Bachelor of Science in Computer Science',
+                year: '2015',
+                gpa: '3.8',
+                relevantCourses: '',
             },
         ],
-        skills: [
-            'Lab: Polymer synthesis, characterization, NMR, DSC, FTIR, TGA, DMA',
-            'Computer: Visual Basic, C++, Python, HTML and CSS',
-            'Language: Proficient Spanish',
-        ].join(' | '),
-        certifications: [],
+        skills: 'Product Strategy, Agile & Scrum, Roadmap Planning, Data Analysis (SQL, Tableau), User Research, A/B Testing, JIRA, Figma, stakeholder Management, Python (Basic)',
+        certifications: [
+            {
+                id: 'cert1',
+                name: 'Certified Product Manager (CPM)',
+                issuer: 'AIPMM',
+                date: '2018'
+            }
+        ],
         projects: [
             {
                 id: 'proj1',
-                name: 'Hollow Fiber Membrane Filtration System',
-                description:
-                    'Designed and assembled a benchtop hollow fiber membrane module to study gas and liquid separations. Analyzed flux and rejection data to compare membrane formulations under varying operating conditions.',
-                technologies: 'Membrane separations, gas diffusion, data analysis (Excel, MATLAB)',
-                link: '',
-            },
-            {
-                id: 'proj2',
-                name: 'Robotics & Coding Workshop Curriculum',
-                description:
-                    'Developed a multi-week robotics and programming curriculum for middle school students using Scratch and Game Maker, emphasizing iterative problem solving and teamwork.',
-                technologies: 'Scratch, Game Maker, basic electronics',
-                link: '',
-            },
+                name: 'AI-Powered Recommendation Engine',
+                description: 'Led the development of a recommendation engine that personalized content for users, increasing average session duration by 25%.',
+                technologies: 'Python, TensorFlow, AWS',
+                link: ''
+            }
         ],
-        leadership: [
-            {
-                id: 'lead1',
-                company: 'Chemical Engineering Society',
-                role: 'Vice President',
-                location: '',
-                startDate: '2023-09',
-                endDate: '2024-05',
-                roleSummary: '',
-                description: [
-                    'Coordinated industry info sessions and alumni panels to connect 80+ students with practicing engineers.',
-                    'Organized peer mentorship program pairing 30 first-year students with upper-class mentors.',
-                ],
-            },
-            {
-                id: 'lead2',
-                company: 'Women in STEM Mentorship Program',
-                role: 'Student Mentor',
-                location: '',
-                startDate: '2022-09',
-                endDate: '2023-05',
-                roleSummary: '',
-                description: [
-                    'Mentored three first-year students on course planning, internship search strategies, and lab opportunities.',
-                ],
-            },
-        ],
+        leadership: [],
         additionalInfo: [
             {
-                id: 'add1',
-                label: 'Proficiencies',
-                value:
-                    'Adobe Creative Cloud (Photoshop, Illustrator), Sprout Social, Tribe Dynamics, GRIN, CapCut, Canva, Figma, Google Analytics, MailChimp, Microsoft Office (Excel, PowerPoint), Squarespace, Wix, Salesforce, Asana, Dash Hudson, Trello',
-            },
-            {
-                id: 'add2',
-                label: 'Core Competencies',
-                value:
-                    'UGC Creation, Social Analytics, Organic Social Strategy, Campaign Management, Contract Negotiation, Creator Onboarding, Community Building, Invoicing, Crisis Management, Caption Writing',
-            },
+                id: 'lang',
+                label: 'Languages',
+                value: 'English (Native), Spanish (Professional Working Proficiency)'
+            }
         ],
-        keyAchievements: [
-            'Selected as Gas Separations Intern at Aramco Services Company to support R&D on membrane-based gas separations, collaborating with senior engineers on experimental design and analysis.',
-            'Contributed to polymer membrane research at Tufts University by running FTIR and TGA characterization, summarizing findings into lab reports used to steer follow‑up experimentation.',
-            'Delivered engaging robotics and coding instruction to 20–30 campers per week while maintaining a supportive learning environment, resolving technical issues and tailoring lessons to different skill levels.',
-        ],
+        keyAchievements:
+            ['Launched a mobile app that achieved 100k+ downloads in the first 3 months.', 'Awarded "Product Manager of the Year" at Innovate Solutions in 2021.'],
         jobDescription: '',
         referee: '',
-        font: 'Times New Roman, serif',
+        font: 'Inter, sans-serif',
         fontSizes: {
-            header: 20,
-            jobTitle: 10,
-            sectionTitle: 13,
-            body: 10,
+            header: 22,
+            jobTitle: 11,
+            sectionTitle: 12,
+            body: 9,
         },
         lineHeight: 1.3,
-        sectionGap: 0.18,
+        sectionGap: 0.15,
         headerGap: 0.15,
-        headerItemGap: 0.08,
+        headerItemGap: 0.05,
         margins: {
             horizontal: 0.5,
             vertical: 0.5,
@@ -193,164 +163,195 @@ export default function Templates({ onSelect, data }: TemplatesProps) {
         skillsColumnCount: 1,
         sectionOrder: [
             'summary',
-            'keyAchievements',
-            'skills',
             'experience',
             'education',
-            'certifications',
+            'skills',
             'projects',
-            'additionalInfo',
-            'references',
+            'certifications',
+            'additionalInfo'
         ],
     };
 
-    const templates: { id: TemplateType; name: string; description: string; bg: string }[] = [
+    const templates: { id: TemplateType; name: string; subtitle: string; icon: React.ReactNode; bg: string }[] = [
         {
             id: 'free',
             name: "CareerCraft",
-            description: "A simple, clean resume template with bullet-point sections and straightforward formatting. Perfect for getting started.",
+            subtitle: "Entry Level",
+            icon: <User className="text-gray-600" size={20} />,
             bg: "bg-[#FAFAFA]"
         },
         {
             id: 'freshgrad1',
             name: "Campus Starter",
-            description: "A classic single-column layout modeled for fresh graduates. Education first, then campus work, leadership, and skills & interests.",
+            subtitle: "Graduate",
+            icon: <GraduationCap className="text-emerald-600" size={20} />,
             bg: "bg-[#FFFFFF]"
         },
         {
             id: 'freshgrad2',
             name: "Campus Finance",
-            description: "A finance-focused variant for fresh graduates. Education with relevant courses, followed by financial experience, leadership, and skills & interests.",
+            subtitle: "Finance",
+            icon: <LineChart className="text-indigo-600" size={20} />,
             bg: "bg-[#FFFFFF]"
         },
         {
             id: 'freshgrad3',
             name: "Campus Engineer",
-            description: "A CS/engineering-focused template for fresh graduates. Education with CS coursework and GPA, followed by technical skills, projects, experience, athletics, and activities.",
+            subtitle: "Engineering",
+            icon: <Code className="text-sky-600" size={20} />,
             bg: "bg-[#FFFFFF]"
         },
         {
             id: 'freshgrad4',
             name: "Campus Creative",
-            description: "An arts and media-focused layout for fresh graduates. Education with relevant courses, followed by experience, campus leadership, and narrative-style skills.",
+            subtitle: "Creative",
+            icon: <Palette className="text-rose-600" size={20} />,
             bg: "bg-[#FFFFFF]"
         },
         {
             id: 'freshgrad5',
             name: "Campus ChemE",
-            description: "A chemical engineering-focused layout for fresh graduates. Centered header, education with relevant courses, engineering experience, and lab-focused skills.",
+            subtitle: "Chemical Eng",
+            icon: <Leaf className="text-lime-600" size={20} />,
             bg: "bg-[#FFFFFF]"
         },
         {
             id: 'freshgrad6',
-            name: "Campus Strategist",
-            description: "A modern marketing & communications layout for fresh graduates. Centered name and contact line, followed by education, professional experience, leadership, and additional information.",
+            name: "Campus Strat",
+            subtitle: "Marketing",
+            icon: <Megaphone className="text-amber-600" size={20} />,
             bg: "bg-[#FFFFFF]"
         },
         {
             id: 'simplepro',
             name: "SimplePro",
-            description: "A clean two-column resume with orange accent line and professional layout. Perfect for showcasing experience and skills side-by-side.",
+            subtitle: "Professional",
+            icon: <Briefcase className="text-orange-500" size={20} />,
             bg: "bg-[#FFFFFF]"
         },
         {
             id: 'vanguard',
             name: "The Vanguard",
-            description: "A modern, clean, and highly scannable layout perfect for tech and design roles.",
+            subtitle: "Modern Tech",
+            icon: <Zap className="text-blue-600" size={20} />,
             bg: "bg-[#F8F8F8]"
         },
         {
             id: 'elevate',
-            name: "Elevate Resume",
-            description: "A classic, professional layout with centered header and clear hierarchy. Ideal for corporate and academic roles.",
+            name: "Elevate",
+            subtitle: "Corporate",
+            icon: <Building2 className="text-gray-700" size={20} />,
             bg: "bg-[#FDFDFD]"
         },
         {
             id: 'prime',
             name: "Prime Profile",
-            description: "An elegant, high-impact design featuring gold accents and a sophisticated centered header.",
+            subtitle: "Executive",
+            icon: <Crown className="text-amber-500" size={20} />,
             bg: "bg-[#FFFEFA]"
         },
         {
             id: 'impact',
             name: "Impact",
-            description: "A bold, modern design with multi-column skills layout and clean professional formatting.",
+            subtitle: "Bold Design",
+            icon: <Award className="text-red-600" size={20} />,
             bg: "bg-[#FFFFFF]"
         },
         {
             id: 'dev',
             name: "DevPro",
-            description: "A modern, ATS-optimized template designed specifically for developers. Features prominent technical skills section and clean code-like aesthetics.",
+            subtitle: "Developer",
+            icon: <Code className="text-slate-700" size={20} />,
             bg: "bg-[#F8FAFC]"
         },
         {
             id: 'elite',
-            name: "Elite Professional",
-            description: "Premium ATS-optimized design for top-tier markets (USA, UK, Australia). Features strategic information hierarchy, high readability, and recruiter-friendly formatting.",
+            name: "Elite Pro",
+            subtitle: "International",
+            icon: <Gem className="text-purple-600" size={20} />,
             bg: "bg-[#FFFFFF]"
         },
         {
             id: 'apex',
-            name: "Apex Executive",
-            description: "Sophisticated two-column layout for senior professionals. Left sidebar showcases contact and skills, while the right column highlights achievements and experience.",
+            name: "Apex Exec",
+            subtitle: "Senior Leader",
+            icon: <Anchor className="text-navy-600" size={20} />,
             bg: "bg-[#FAFAFA]"
         },
         {
             id: 'modern',
-            name: "Modern Professional",
-            description: "A contemporary design with clean lines and modern aesthetics. Perfect for creative professionals and modern industries.",
+            name: "Modern",
+            subtitle: "Contemporary",
+            icon: <LayoutTemplate className="text-teal-600" size={20} />,
             bg: "bg-[#FFFFFF]"
         },
         {
             id: 'executive',
-            name: "Executive Suite",
-            description: "An elegant, executive-level template designed for C-suite and senior leadership positions. Features refined typography and professional layout.",
+            name: "Executive",
+            subtitle: "C-Suite",
+            icon: <Building2 className="text-slate-800" size={20} />,
             bg: "bg-[#FAFAFA]"
         },
         {
             id: 'classic',
-            name: "Classic Professional",
-            description: "A timeless, traditional resume format that works across all industries. Clean, professional, and universally accepted.",
+            name: "Classic",
+            subtitle: "Traditional",
+            icon: <BookOpen className="text-gray-600" size={20} />,
             bg: "bg-[#F8F8F8]"
         },
         {
             id: 'wonsulting',
             name: "Ivy League",
-            description: "A professional, single-column template favored by top recruiters. Clean layout with serif fonts and optimal readability.",
+            subtitle: "Academic",
+            icon: <Landmark className="text-emerald-700" size={20} />,
             bg: "bg-[#FFFFFF]"
         },
         {
             id: 'styled',
-            name: "Styled Professional",
-            description: "A sophisticated, high-end template with distinctive blue section headers and serif typography. Ideal for senior roles.",
+            name: "Styled",
+            subtitle: "Sophisticated",
+            icon: <PenTool className="text-blue-700" size={20} />,
             bg: "bg-[#FFFFFF]"
         },
         {
             id: 'smart',
-            name: "Smart Professional",
-            description: "A clean, academic-style template with dotted separators and clear hierarchy. Perfect for research and traditional industries.",
+            name: "Smart",
+            subtitle: "Research",
+            icon: <BookOpen className="text-indigo-600" size={20} />,
             bg: "bg-[#FFFFFF]"
         },
         {
             id: 'elegant',
-            name: "Elegant Professional",
-            description: "A refined template featuring centered dashed headers and a distinctive navy accent bar. Timeless and professional.",
+            name: "Elegant",
+            subtitle: "Refined",
+            icon: <Feather className="text-slate-600" size={20} />,
             bg: "bg-[#FFFFFF]"
         },
         {
             id: 'minimalist',
-            name: "Minimalist Serif",
-            description: "A beautifully simple text-focused template with light background section headers. clean and easy to read.",
+            name: "Minimalist",
+            subtitle: "Clean",
+            icon: <LayoutTemplate className="text-gray-400" size={20} />,
             bg: "bg-[#FFFFFF]"
         },
         {
             id: 'professional',
-            name: "Professional Clean",
-            description: "A clean, single-column template with centered header, underlined section titles, and right-aligned dates. Perfect for academic and traditional professional roles.",
+            name: "Pro Clean",
+            subtitle: "Standard",
+            icon: <Briefcase className="text-blue-500" size={20} />,
             bg: "bg-[#FFFFFF]"
         },
-        // 'twocolumn' template removed from selection UI
+        {
+            id: 'sage',
+            name: "Sage",
+            subtitle: "Expert",
+            icon: <Feather className="text-green-700" size={20} />,
+            bg: "bg-[#FFFFFF]"
+        },
     ];
+
+
+
 
     // Sort templates: free templates first, then pro templates
     const sortedTemplates = [...templates].sort((a, b) => {
@@ -361,211 +362,142 @@ export default function Templates({ onSelect, data }: TemplatesProps) {
         return 0; // Maintain original order within each group
     });
 
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('All');
+
+    const getTemplateCategory = (t: typeof templates[0]) => {
+        const sub = t.subtitle.toLowerCase();
+        // Categorization logic based on subtitles
+        if (['entry level', 'graduate', 'finance', 'engineering', 'creative', 'chemical eng', 'marketing'].some(k => sub.includes(k))) return 'Student';
+        if (['executive', 'senior leader', 'c-suite'].some(k => sub.includes(k))) return 'Executive';
+        if (['modern tech', 'bold design', 'contemporary', 'clean', 'developer', 'modern'].some(k => sub.includes(k))) return 'Modern';
+        if (['academic', 'research'].some(k => sub.includes(k))) return 'Academic';
+        return 'Professional';
+    };
+
+    const categories = ['All', 'Professional', 'Modern', 'Student', 'Executive', 'Academic'];
+
+    const filteredTemplates = sortedTemplates.filter(t => {
+        const category = getTemplateCategory(t);
+        const matchesCategory = selectedCategory === 'All' || category === selectedCategory;
+        const matchesSearch = t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            t.subtitle.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesCategory && matchesSearch;
+    });
+
     return (
         <div className="p-6 md:p-10 h-full overflow-y-auto bg-brand-bg">
             <div className="max-w-[1400px] mx-auto">
                 {/* Header */}
-                <div className="text-center mb-10">
+                <div className="text-center mb-8">
                     <h2 className="text-3xl md:text-4xl font-bold text-brand-dark tracking-tight mb-3">Choose Your Template</h2>
                     <p className="text-gray-500 text-base max-w-xl mx-auto">
                         Professional designs optimized for ATS systems.
                     </p>
                 </div>
 
+                {/* Search and Filter */}
+                <div className="max-w-4xl mx-auto mb-12 space-y-6">
+                    {/* Search Bar */}
+                    <div className="relative">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                        <input
+                            type="text"
+                            placeholder="Search templates (e.g., 'Modern', 'ATS', 'Creative')..."
+                            className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 outline-none transition-all shadow-sm"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
+
+                    {/* Categories */}
+                    <div className="flex flex-wrap justify-center gap-2">
+                        {categories.map(cat => (
+                            <button
+                                key={cat}
+                                onClick={() => setSelectedCategory(cat)}
+                                className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${selectedCategory === cat
+                                    ? 'bg-brand-dark text-white shadow-md transform scale-105'
+                                    : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 hover:border-gray-300'
+                                    }`}
+                            >
+                                {cat}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
                 {/* Templates Grid */}
                 <div className="pb-16">
-                    {templates.length > 0 ? (
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-6">
-                            {sortedTemplates.map((template) => (
-                                <div
-                                    key={template.id}
-                                    className="group relative bg-white rounded-xl shadow-sm border border-gray-200 hover:border-brand-green hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden"
-                                >
-                                    {/* Template Preview - Optimized CSS Preview */}
-                                    <div className="aspect-[210/297] bg-gray-50 relative overflow-hidden p-4">
-                                        {/* Template Style Preview */}
-                                        <div className={`w-full h-full ${template.bg} rounded-sm shadow-inner p-3 flex flex-col gap-1.5`}>
-                                            {/* Header simulation */}
-                                            <div className={`h-8 ${
-                                                template.id === 'prime'
-                                                    ? 'bg-amber-100'
-                                                    : template.id === 'dev'
-                                                        ? 'bg-blue-50'
-                                                        : template.id === 'freshgrad1'
-                                                            ? 'bg-emerald-50'
-                                                            : 'bg-gray-100'
-                                            } rounded-sm`}></div>
-                                            <div className="h-1 bg-gray-200 w-3/4 rounded-full"></div>
-
-                                            {/* Section 1 */}
-                                            <div className="mt-2">
-                                            <div className={`h-2 w-16 rounded-sm mb-1 ${
-                                                template.id === 'simplepro'
-                                                        ? 'bg-orange-400'
-                                                        : template.id === 'prime'
-                                                            ? 'bg-amber-500'
-                                                            : template.id === 'dev'
-                                                                ? 'bg-blue-500'
-                                                                : template.id === 'freshgrad1'
-                                                                    ? 'bg-emerald-600'
-                                                                    : template.id === 'freshgrad2'
-                                                                        ? 'bg-indigo-700'
-                                                                        : template.id === 'freshgrad3'
-                                                                            ? 'bg-sky-700'
-                                                                            : template.id === 'freshgrad4'
-                                                                                ? 'bg-rose-700'
-                                                                                : template.id === 'freshgrad5'
-                                                                                    ? 'bg-lime-700'
-                                                                                    : template.id === 'freshgrad6'
-                                                                                        ? 'bg-amber-700'
-                                                                                        : 'bg-gray-700'
-                                                }`}></div>
-                                                <div className="space-y-0.5">
-                                                    <div className="h-1 bg-gray-300 w-full rounded-full"></div>
-                                                    <div className="h-1 bg-gray-300 w-5/6 rounded-full"></div>
-                                                    <div className="h-1 bg-gray-300 w-4/5 rounded-full"></div>
-                                                </div>
+                    {filteredTemplates.length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                            {filteredTemplates.map((template) => {
+                                const isFree = FREE_TEMPLATES.includes(template.id);
+                                return (
+                                    <div
+                                        key={template.id}
+                                        className="group bg-white rounded-xl shadow-sm border border-gray-200 hover:border-brand-green hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden flex flex-col h-[340px]"
+                                        onClick={() => onSelect(template.id)}
+                                    >
+                                        {/* Template Preview Area - Real Render */}
+                                        <div className="relative flex-1 bg-gray-100 overflow-hidden w-full">
+                                            {/* Scaled Resume Preview - Centered */}
+                                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[210mm] origin-top transform scale-[0.34] pointer-events-none select-none shadow-md">
+                                                <ResumePreview data={PREVIEW_DATA} template={template.id} />
                                             </div>
 
-                                            {/* Section 2 */}
-                                            <div className="mt-2">
-                                                <div className={`h-2 w-12 rounded-sm mb-1 ${
-                                                    template.id === 'simplepro'
-                                                        ? 'bg-orange-400'
-                                                        : template.id === 'prime'
-                                                            ? 'bg-amber-500'
-                                                            : template.id === 'dev'
-                                                                ? 'bg-blue-500'
-                                                                : template.id === 'freshgrad1'
-                                                                    ? 'bg-emerald-600'
-                                                                    : template.id === 'freshgrad2'
-                                                                        ? 'bg-indigo-700'
-                                                                        : template.id === 'freshgrad3'
-                                                                            ? 'bg-sky-700'
-                                                                            : template.id === 'freshgrad4'
-                                                                                ? 'bg-rose-700'
-                                                                                : template.id === 'freshgrad5'
-                                                                                    ? 'bg-lime-700'
-                                                                                    : template.id === 'freshgrad6'
-                                                                                        ? 'bg-amber-700'
-                                                                                        : 'bg-gray-700'
-                                                }`}></div>
-                                                <div className="space-y-0.5">
-                                                    <div className="h-1 bg-gray-300 w-full rounded-full"></div>
-                                                    <div className="h-1 bg-gray-300 w-11/12 rounded-full"></div>
-                                                </div>
-                                            </div>
-
-                                            {/* Section 3 */}
-                                            <div className="mt-2">
-                                                <div className={`h-2 w-14 rounded-sm mb-1 ${
-                                                    template.id === 'simplepro'
-                                                        ? 'bg-orange-400'
-                                                        : template.id === 'prime'
-                                                            ? 'bg-amber-500'
-                                                            : template.id === 'dev'
-                                                                ? 'bg-blue-500'
-                                                                : template.id === 'freshgrad1'
-                                                                    ? 'bg-emerald-600'
-                                                                    : template.id === 'freshgrad2'
-                                                                        ? 'bg-indigo-700'
-                                                                        : template.id === 'freshgrad3'
-                                                                            ? 'bg-sky-700'
-                                                                            : template.id === 'freshgrad4'
-                                                                                ? 'bg-rose-700'
-                                                                                : template.id === 'freshgrad5'
-                                                                                    ? 'bg-lime-700'
-                                                                                    : template.id === 'freshgrad6'
-                                                                                        ? 'bg-amber-700'
-                                                                                        : 'bg-gray-700'
-                                                }`}></div>
-                                                <div className="grid grid-cols-2 gap-0.5">
-                                                    <div className="h-1 bg-gray-300 rounded-full"></div>
-                                                    <div className="h-1 bg-gray-300 rounded-full"></div>
-                                                    <div className="h-1 bg-gray-300 rounded-full"></div>
-                                                    <div className="h-1 bg-gray-300 rounded-full"></div>
+                                            {/* Hover Overlay */}
+                                            <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-brand-dark/20 backdrop-blur-[2px]">
+                                                <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-200 flex flex-col gap-2">
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); onSelect(template.id); }}
+                                                        className="bg-brand-green hover:bg-brand-greenHover text-brand-dark px-5 py-2 rounded-lg font-bold shadow-xl transition-all flex items-center justify-center gap-1.5 text-sm"
+                                                    >
+                                                        Use Template <ArrowRight size={14} />
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); setPreviewTemplate(template.id); }}
+                                                        className="bg-white hover:bg-gray-50 text-brand-dark px-5 py-2 rounded-lg font-bold shadow-xl transition-all flex items-center justify-center gap-1.5 text-sm"
+                                                    >
+                                                        <Eye size={14} /> Quick View
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {/* Badge */}
-                                        {(() => {
-                                            const isFree = FREE_TEMPLATES.includes(template.id);
-                                            return (
-                                                <div
-                                                    className={`absolute top-2 right-2 z-20 text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1 uppercase tracking-wide ${
-                                                        isFree
-                                                            ? 'bg-green-500 text-white'
-                                                            : 'bg-brand-dark text-brand-green'
-                                                    }`}
-                                                >
-                                                    {isFree ? (
-                                                        <>FREE</>
-                                                    ) : (
-                                                        <>
-                                                            <Crown size={8} className="fill-brand-green" />
-                                                            Pro
-                                                        </>
-                                                    )}
+                                        {/* Template Footer Info */}
+                                        <div className="h-20 px-4 flex items-center justify-between border-t border-gray-100 bg-white z-20 relative">
+                                            <div className="flex items-center gap-3 overflow-hidden">
+                                                {/* Logo / Icon */}
+                                                <div className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
+                                                    {template.icon}
                                                 </div>
-                                            );
-                                        })()}
 
-                                        {/* Hover Overlay with Select and Preview buttons */}
-                                        <div className="absolute inset-0 z-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-brand-dark/20 backdrop-blur-[1px]">
-                                            <div className="transform scale-90 group-hover:scale-100 transition-transform duration-200 flex flex-col gap-2">
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); onSelect(template.id); }}
-                                                    className="bg-brand-green hover:bg-brand-greenHover text-brand-dark px-5 py-2 rounded-lg font-bold shadow-xl transition-all flex items-center justify-center gap-1.5 text-sm"
-                                                >
-                                                    Select <ArrowRight size={14} />
-                                                </button>
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); setPreviewTemplate(template.id); }}
-                                                    className="bg-white/90 hover:bg-white text-brand-dark px-5 py-2 rounded-lg font-bold shadow-xl transition-all flex items-center justify-center gap-1.5 text-sm border border-gray-200"
-                                                >
-                                                    <Eye size={14} /> Preview
-                                                </button>
+                                                {/* Text Info */}
+                                                <div className="flex flex-col overflow-hidden">
+                                                    <h3 className="text-sm font-bold text-gray-900 truncate pr-2">
+                                                        {template.name}
+                                                    </h3>
+                                                    <span className="text-xs text-gray-500 truncate">
+                                                        {template.subtitle}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            {/* Badge */}
+                                            <div className="shrink-0">
+                                                {isFree ? (
+                                                    <span className="opacity-0"></span>
+                                                ) : (
+                                                    <div className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-[10px] font-bold tracking-wider uppercase flex items-center gap-1 border border-gray-200">
+                                                        PRO
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
-
-                                    {/* Template Info */}
-                                    <div className="p-3 bg-white border-t border-gray-100 flex items-center justify-between gap-2">
-                                        <h3 className="text-sm font-bold text-brand-dark truncate">{template.name}</h3>
-                                        {template.id === 'freshgrad1' && (
-                                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap">
-                                                Fresh Grad
-                                            </span>
-                                        )}
-                                        {template.id === 'freshgrad2' && (
-                                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 whitespace-nowrap">
-                                                Fresh Grad · Finance
-                                            </span>
-                                        )}
-                                        {template.id === 'freshgrad3' && (
-                                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200 whitespace-nowrap">
-                                                Fresh Grad · CS
-                                            </span>
-                                        )}
-                                        {template.id === 'freshgrad4' && (
-                                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 whitespace-nowrap">
-                                                Fresh Grad · Creative
-                                            </span>
-                                        )}
-                                        {template.id === 'freshgrad5' && (
-                                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-lime-50 text-lime-700 border border-lime-200 whitespace-nowrap">
-                                                Fresh Grad · Eng
-                                            </span>
-                                        )}
-                                        {template.id === 'freshgrad6' && (
-                                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">
-                                                Fresh Grad · Marketing
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     ) : (
                         <div className="text-center py-16 px-6 bg-white rounded-xl border border-dashed border-gray-200">

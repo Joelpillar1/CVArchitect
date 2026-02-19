@@ -3,6 +3,7 @@ import { ArrowRight, Check, Star, X, Menu, FileText, Sparkles, Download, Noteboo
 import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import SEO from './SEO';
 
 
 // Animation Variants
@@ -85,6 +86,51 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-green-200 overflow-x-hidden">
+      <SEO
+        title="CV Architect — AI Resume Builder | Beat ATS & Land Interviews 3x Faster"
+        description="Stop getting rejected by ATS robots. CV Architect uses advanced AI to rewrite your resume, optimize for ATS scanners, and help you land interviews 3x faster. Professional resume templates, AI cover letters, and job match scoring."
+        canonicalPath="/"
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "Can CV Architect prevent my resume from being rejected by ATS?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes! CV Architect uses AI to optimize your resume format, keywords, and structure specifically for Applicant Tracking Systems. Our resumes have a 98% ATS pass rate."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How much does CV Architect cost?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "CV Architect offers a 7-day Career Sprint for $9 (one-time payment) and a monthly Career Marathon plan for $19/month. There's also a free guest tier with basic features and 10 AI credits."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Can I create unlimited resume versions for different jobs?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes! With a paid plan, you can create unlimited versions of your resume, each tailored to different job descriptions using our AI-powered Job Match feature."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Does CV Architect offer a free resume builder?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes! CV Architect offers free guest access with 1 resume project, access to basic templates, and 10 complimentary AI credits to test the builder before committing to a paid plan."
+                }
+              }
+            ]
+          }
+        ]}
+      />
 
       {/* Navbar */}
       <motion.nav
@@ -104,7 +150,8 @@ export default function LandingPage() {
             {[
               { label: 'Features', action: () => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) },
               { label: 'The Difference', action: () => document.getElementById('the-difference')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) },
-              { label: 'Pricing', action: () => navigate('/pricing') }
+              { label: 'Pricing', action: () => navigate('/pricing') },
+              { label: 'Blog', action: () => navigate('/blog') }
             ].map((item, idx) => (
               <button
                 key={idx}
@@ -181,7 +228,8 @@ export default function LandingPage() {
                 {[
                   { label: 'Features', action: () => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) },
                   { label: 'The Difference', action: () => document.getElementById('the-difference')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) },
-                  { label: 'Pricing', action: () => navigate('/pricing') }
+                  { label: 'Pricing', action: () => navigate('/pricing') },
+                  { label: 'Blog', action: () => navigate('/blog') }
                 ].map((item, idx) => (
                   <button
                     key={idx}
@@ -243,13 +291,13 @@ export default function LandingPage() {
             {/* Mobile Image */}
             <img
               src="/images/Illustration Mobile.png"
-              alt="Resume rejection chaos"
+              alt="CV Architect AI resume builder mobile interface"
               className="w-full h-auto object-contain mx-auto md:hidden"
             />
             {/* Desktop Image */}
             <img
               src="/images/Illustration Desktop.png"
-              alt="Resume rejection chaos"
+              alt="CV Architect AI resume builder desktop interface showing ATS optimization"
               className="w-full h-auto object-contain mx-auto hidden md:block drop-shadow-2xl"
             />
           </div>
@@ -351,7 +399,7 @@ export default function LandingPage() {
             >
               <img
                 src="/images/Section 2 illustration 2.png"
-                alt="Pile of resumes"
+                alt="Stack of resumes rejected by ATS - CV Architect solves this"
                 loading="lazy"
                 className="w-full h-auto object-contain transform md:translate-x-12"
               />
@@ -373,7 +421,7 @@ export default function LandingPage() {
           >
             <img
               src="/images/Section 3 illustration.png"
-              alt="Resumes rejected by ATS"
+              alt="75 percent of resumes rejected by ATS systems before human review"
               loading="lazy"
               className="w-full h-auto object-contain"
             />
@@ -444,7 +492,7 @@ export default function LandingPage() {
               <div className="relative bg-brand-dark p-4 pb-0 rounded-t-lg shadow-2xl mb-8 group">
                 <img
                   src="/images/Section 4 illustration - Your Old Resume.png"
-                  alt="Old Resume Example"
+                  alt="Example of a poorly formatted resume that fails ATS screening"
                   loading="lazy"
                   className="w-full h-auto rounded-t-sm opacity-90 transition-opacity group-hover:opacity-60"
                 />
@@ -504,7 +552,7 @@ export default function LandingPage() {
               <div className="relative bg-brand-dark p-4 pb-0 rounded-t-lg shadow-2xl mb-8 hover:transform hover:-translate-y-2 transition-transform duration-300">
                 <img
                   src="/images/Section 4 illustration - ATS Optimized.png"
-                  alt="ATS Optimized Resume Example"
+                  alt="ATS-optimized resume created with CV Architect AI builder"
                   loading="lazy"
                   className="w-full h-auto rounded-t-sm"
                 />
@@ -722,7 +770,7 @@ export default function LandingPage() {
             >
               <img
                 src="/images/Section 6 illustration.png"
-                alt="Success outcomes illustration"
+                alt="Job seekers landing interviews with ATS-optimized resumes"
                 loading="lazy"
                 className="w-full h-auto object-contain"
               />
@@ -778,7 +826,7 @@ export default function LandingPage() {
             >
               <img
                 src="/images/Section  7  illustration.png"
-                alt="Resume preview with 98% pass rate"
+                alt="CV Architect resume passing ATS with 98 percent compatibility score"
                 loading="lazy"
                 className="w-full h-auto object-contain rounded-lg shadow-2xl"
               />
@@ -808,7 +856,7 @@ export default function LandingPage() {
           >
             <img
               src="/images/Section 8 illustration.png"
-              alt="User testimonials"
+              alt="CV Architect user testimonials and reviews"
               loading="lazy"
               className="w-full max-w-3xl mx-auto h-auto object-contain"
             />
@@ -1099,19 +1147,21 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="bg-white border-t border-gray-100 py-12">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-2">
+          <a href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <img src="/images/logo icon.png" alt="CV Architect Logo" className="w-8 h-8 object-contain" />
             <span className="text-xl font-bold tracking-tight text-brand-dark">CV Architect</span>
-          </div>
+          </a>
           <div className="text-gray-500 text-sm">
             © {new Date().getFullYear()} CV Architect. All rights reserved.
           </div>
-          <div className="flex gap-6">
-            <button onClick={() => navigate('/privacy')} className="text-gray-500 hover:text-brand-dark text-sm">Privacy Policy</button>
-            <button onClick={() => navigate('/terms')} className="text-gray-500 hover:text-brand-dark text-sm">Terms of Service</button>
-            <button onClick={() => navigate('/refund-policy')} className="text-gray-500 hover:text-brand-dark text-sm">Refund Policy</button>
-            <button onClick={() => navigate('/contact')} className="text-gray-500 hover:text-brand-dark text-sm">Contact</button>
-          </div>
+          <nav aria-label="Footer navigation" className="flex gap-6">
+            <a href="/privacy" className="text-gray-500 hover:text-brand-dark text-sm transition-colors">Privacy Policy</a>
+            <a href="/terms" className="text-gray-500 hover:text-brand-dark text-sm transition-colors">Terms of Service</a>
+            <a href="/refund-policy" className="text-gray-500 hover:text-brand-dark text-sm transition-colors">Refund Policy</a>
+            <a href="/contact" className="text-gray-500 hover:text-brand-dark text-sm transition-colors">Contact</a>
+            <a href="/pricing" className="text-gray-500 hover:text-brand-dark text-sm transition-colors">Pricing</a>
+            <a href="/blog" className="text-gray-500 hover:text-brand-dark text-sm transition-colors">Blog</a>
+          </nav>
         </div>
       </footer>
 

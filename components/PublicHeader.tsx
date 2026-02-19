@@ -39,7 +39,8 @@ export default function PublicHeader() {
                     {[
                         { label: 'Features', path: '/#features' },
                         { label: 'The Difference', path: '/#the-difference' },
-                        { label: 'Pricing', path: '/pricing' }
+                        { label: 'Pricing', path: '/pricing' },
+                        { label: 'Blog', path: '/blog' }
                     ].map((item, idx) => (
                         <button
                             key={idx}
@@ -126,7 +127,8 @@ export default function PublicHeader() {
                             {[
                                 { label: 'Features', path: '/#features' },
                                 { label: 'The Difference', path: '/#the-difference' },
-                                { label: 'Pricing', path: '/pricing' }
+                                { label: 'Pricing', path: '/pricing' },
+                                { label: 'Blog', path: '/blog' }
                             ].map((item, idx) => (
                                 <button
                                     key={idx}

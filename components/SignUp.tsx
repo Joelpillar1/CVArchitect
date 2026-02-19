@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import SEO from './SEO';
 
 export default function SignUp() {
     const navigate = useNavigate();
@@ -86,6 +87,11 @@ export default function SignUp() {
 
     return (
         <div className="min-h-screen bg-white flex items-center justify-center px-6 py-12">
+            <SEO
+                title="Create Free Account — CV Architect | AI Resume Builder"
+                description="Create your free CV Architect account and start building an ATS-optimized resume in minutes. Includes free AI credits and professional templates."
+                canonicalPath="/signup"
+            />
             <div className="w-full max-w-md">
                 {/* Back Button */}
                 <div className="flex justify-center mb-8">

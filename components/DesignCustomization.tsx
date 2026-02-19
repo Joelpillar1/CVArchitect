@@ -92,7 +92,8 @@ export default function DesignCustomization({
         { id: 'elegant', name: 'Elegant Professional' },
         { id: 'minimalist', name: 'Minimalist Serif' },
         { id: 'professional', name: 'Professional Clean' },
-        { id: 'twocolumn', name: 'Two Column Professional' }
+        { id: 'twocolumn', name: 'Two Column Professional' },
+        { id: 'sage', name: 'Sage' }
     ];
 
     // Sort templates: free templates first, then pro templates

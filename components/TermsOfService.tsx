@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
+import SEO from './SEO';
 
 interface TermsOfServiceProps {
     onBack: () => void;
@@ -13,6 +14,11 @@ export default function TermsOfService({ onBack }: TermsOfServiceProps) {
 
     return (
         <div className="min-h-screen bg-white">
+            <SEO
+                title="Terms of Service — CV Architect"
+                description="Read CV Architect's Terms of Service. Understand your rights and responsibilities when using our AI-powered resume builder platform."
+                canonicalPath="/terms"
+            />
             <PublicHeader />
 
             {/* Content */}

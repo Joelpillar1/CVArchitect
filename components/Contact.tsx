@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Mail, MessageSquare, Send } from 'lucide-react';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
+import SEO from './SEO';
 
 interface ContactProps {
     onBack: () => void;
@@ -40,6 +41,11 @@ export default function Contact({ onBack }: ContactProps) {
 
     return (
         <div className="min-h-screen bg-white">
+            <SEO
+                title="Contact CV Architect — Customer Support & Help"
+                description="Have questions about CV Architect? Contact our support team via email at support@cvarchitect.app or live chat. We typically respond within 24 hours."
+                canonicalPath="/contact"
+            />
             <PublicHeader />
 
             {/* Content */}

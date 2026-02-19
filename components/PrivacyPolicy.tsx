@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
+import SEO from './SEO';
 
 interface PrivacyPolicyProps {
     onBack: () => void;
@@ -13,6 +14,11 @@ export default function PrivacyPolicy({ onBack }: PrivacyPolicyProps) {
 
     return (
         <div className="min-h-screen bg-white">
+            <SEO
+                title="Privacy Policy — CV Architect"
+                description="Learn how CV Architect collects, uses, and protects your personal data. We take your privacy seriously and use industry-standard encryption to secure your resume data."
+                canonicalPath="/privacy"
+            />
             <PublicHeader />
 
             {/* Content */}

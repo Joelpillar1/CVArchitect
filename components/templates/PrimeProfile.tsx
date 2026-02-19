@@ -27,15 +27,15 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                 return data.summary && (
                     <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wide mb-3 text-black ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wide mb-2 text-black ${getSectionHeaderAlignment()}`}
                             style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt` }}
                         >
                             {t.professionalSummary}
                         </h2>
+                        <div className="mb-4 h-px w-full" style={{ backgroundColor: accentColor }}></div>
                         <p className="leading-relaxed text-justify text-gray-700">
                             {data.summary}
                         </p>
-                        <div className="mt-6 h-px w-full" style={{ backgroundColor: accentColor }}></div>
                     </section>
                 );
 
@@ -44,11 +44,12 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                 return achievements.length > 0 && (
                     <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wide mb-3 text-black ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wide mb-2 text-black ${getSectionHeaderAlignment()}`}
                             style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt` }}
                         >
                             Key Achievements
                         </h2>
+                        <div className="mb-4 h-px w-full" style={{ backgroundColor: accentColor }}></div>
                         <ul
                             className="list-disc list-outside ml-4 space-y-1 text-gray-700 text-justify"
                             style={{ fontSize: `${fontSizes?.body || 10}pt` }}
@@ -61,7 +62,6 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                                 )
                             ))}
                         </ul>
-                        <div className="mt-6 h-px w-full" style={{ backgroundColor: accentColor }}></div>
                     </section>
                 );
             }
@@ -70,11 +70,12 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                 return data.experience.length > 0 && (
                     <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wide mb-4 text-black ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wide mb-2 text-black ${getSectionHeaderAlignment()}`}
                             style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt` }}
                         >
                             {t.experienceTitle}
                         </h2>
+                        <div className="mb-4 h-px w-full" style={{ backgroundColor: accentColor }}></div>
                         <div>
                             {data.experience.map((exp, index) => (
                                 <div
@@ -96,7 +97,6 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                                 </div>
                             ))}
                         </div>
-                        <div className="mt-6 h-px w-full" style={{ backgroundColor: accentColor }}></div>
                     </section>
                 );
 
@@ -104,11 +104,12 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                 return data.projects && data.projects.length > 0 && (
                     <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wide mb-4 text-black ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wide mb-2 text-black ${getSectionHeaderAlignment()}`}
                             style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt` }}
                         >
                             Projects
                         </h2>
+                        <div className="mb-4 h-px w-full" style={{ backgroundColor: accentColor }}></div>
                         <div className="space-y-4">
                             {data.projects.map((project) => (
                                 <div key={project.id}>
@@ -133,7 +134,6 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                                 </div>
                             ))}
                         </div>
-                        <div className="mt-6 h-px w-full" style={{ backgroundColor: accentColor }}></div>
                     </section>
                 );
 
@@ -141,11 +141,12 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                 return data.skills && (
                     <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wide mb-3 text-black ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wide mb-2 text-black ${getSectionHeaderAlignment()}`}
                             style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt` }}
                         >
                             {t.technicalSkills}
                         </h2>
+                        <div className="mb-4 h-px w-full" style={{ backgroundColor: accentColor }}></div>
                         <div className={`grid gap-x-8 gap-y-1 text-gray-700 ${data.skillsColumnCount === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
                             {data.skills.split(',').map((skill, i) => (
                                 <ul
@@ -161,7 +162,6 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                                 </ul>
                             ))}
                         </div>
-                        <div className="mt-6 h-px w-full" style={{ backgroundColor: accentColor }}></div>
                     </section>
                 );
 
@@ -169,11 +169,12 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                 return data.education.length > 0 && (
                     <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wide mb-4 text-black ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wide mb-2 text-black ${getSectionHeaderAlignment()}`}
                             style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt` }}
                         >
                             {t.educationTitle}
                         </h2>
+                        <div className="mb-4 h-px w-full" style={{ backgroundColor: accentColor }}></div>
                         <div className="space-y-4">
                             {data.education.map((edu) => (
                                 <div key={edu.id}>
@@ -185,7 +186,6 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                                 </div>
                             ))}
                         </div>
-                        <div className="mt-6 h-px w-full" style={{ backgroundColor: accentColor }}></div>
                     </section>
                 );
 
@@ -193,11 +193,12 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                 return data.certifications && data.certifications.length > 0 && (
                     <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wide mb-3 text-black ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wide mb-2 text-black ${getSectionHeaderAlignment()}`}
                             style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt` }}
                         >
                             {t.certifications}
                         </h2>
+                        <div className="mb-4 h-px w-full" style={{ backgroundColor: accentColor }}></div>
                         <ul className="list-disc list-outside ml-4 space-y-1 text-gray-700">
                             {data.certifications.map((cert) => (
                                 <li key={cert.id}>
@@ -207,7 +208,6 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                                 </li>
                             ))}
                         </ul>
-                        <div className="mt-6 h-px w-full" style={{ backgroundColor: accentColor }}></div>
                     </section>
                 );
 
@@ -215,11 +215,12 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                 return data.additionalInfo && data.additionalInfo.length > 0 && data.additionalInfo.some(item => item.label.trim() && item.value.trim()) && (
                     <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wide mb-3 text-black ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wide mb-2 text-black ${getSectionHeaderAlignment()}`}
                             style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt` }}
                         >
                             Additional Information
                         </h2>
+                        <div className="mb-4 h-px w-full" style={{ backgroundColor: accentColor }}></div>
                         <div className="space-y-2">
                             {data.additionalInfo.filter(item => item.label.trim() && item.value.trim()).map((item) => (
                                 <div key={item.id} className="text-gray-700">
@@ -228,7 +229,6 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                                 </div>
                             ))}
                         </div>
-                        <div className="mt-6 h-px w-full" style={{ backgroundColor: accentColor }}></div>
                     </section>
                 );
 
@@ -236,15 +236,15 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                 return data.referee && data.referee.trim() && (
                     <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wide mb-3 text-black ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wide mb-2 text-black ${getSectionHeaderAlignment()}`}
                             style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt` }}
                         >
                             References
                         </h2>
+                        <div className="mb-4 h-px w-full" style={{ backgroundColor: accentColor }}></div>
                         <div className="text-justify leading-relaxed text-gray-700 whitespace-pre-line">
                             {data.referee}
                         </div>
-                        <div className="mt-6 h-px w-full" style={{ backgroundColor: accentColor }}></div>
                     </section>
                 );
 

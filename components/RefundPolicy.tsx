@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
+import SEO from './SEO';
 
 interface RefundPolicyProps {
     onBack: () => void;
@@ -13,6 +14,11 @@ export default function RefundPolicy({ onBack }: RefundPolicyProps) {
 
     return (
         <div className="min-h-screen bg-white">
+            <SEO
+                title="Refund Policy — CV Architect | 14-Day Money-Back Guarantee"
+                description="CV Architect offers a 14-day money-back guarantee for first-time subscribers. Learn about our refund process, eligibility, and how to request a refund."
+                canonicalPath="/refund-policy"
+            />
             <PublicHeader />
 
             {/* Content */}

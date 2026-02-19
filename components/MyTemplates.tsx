@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { SavedTemplate, TemplateType } from '../types';
-import { ArrowRight, Bookmark, LayoutTemplate, Plus, Trash2, AlertTriangle } from 'lucide-react';
+import { SavedTemplate } from '../types';
+import { ArrowRight, Trash2, AlertTriangle, Bookmark, Edit } from 'lucide-react';
+import ResumePreview from './ResumePreview';
+import { getTemplateMetadata } from '../utils/templateConfig';
 
 interface MyTemplatesProps {
   templates: SavedTemplate[];
@@ -10,24 +12,6 @@ interface MyTemplatesProps {
 
 export default function MyTemplates({ templates, onLoadTemplate, onDeleteTemplate }: MyTemplatesProps) {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-
-  const getBaseTemplateName = (base: TemplateType) => {
-    switch (base) {
-      case 'free': return 'CareerCraft';
-      case 'simplepro': return 'SimplePro';
-      case 'vanguard': return 'The Vanguard';
-      case 'elevate': return 'Elevate Resume';
-      case 'prime': return 'Prime Profile';
-      case 'impact': return 'Impact';
-      case 'dev': return 'DevPro';
-      case 'elite': return 'Elite Professional';
-      case 'apex': return 'Apex Executive';
-      case 'modern': return 'Modern Professional';
-      case 'executive': return 'Executive Suite';
-      case 'classic': return 'Classic Professional';
-      default: return 'Custom';
-    }
-  };
 
   const handleDelete = () => {
     if (confirmDeleteId) {
@@ -52,88 +36,66 @@ export default function MyTemplates({ templates, onLoadTemplate, onDeleteTemplat
 
         <div>
           {templates.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-6">
-              {templates.map((template) => (
-                <div
-                  key={template.id}
-                  className="group relative bg-white rounded-xl shadow-sm border border-gray-200 hover:border-brand-green hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden"
-                >
-                  {/* Template Preview - Optimized CSS Preview */}
-                  <div className="aspect-[210/297] bg-gray-50 relative overflow-hidden p-4">
-                    {/* Template Style Preview */}
-                    <div className="w-full h-full bg-white rounded-sm shadow-inner p-3 flex flex-col gap-1.5">
-                      {/* Header simulation */}
-                      <div className="h-8 bg-gray-100 rounded-sm"></div>
-                      <div className="h-1 bg-gray-200 w-3/4 rounded-full"></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {templates.map((template) => {
+                const metadata = getTemplateMetadata(template.baseTemplate);
+                return (
+                  <div
+                    key={template.id}
+                    className="group bg-white rounded-xl shadow-sm border border-gray-200 hover:border-brand-green hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden flex flex-col h-[340px]"
+                    onClick={() => onLoadTemplate(template)}
+                  >
+                    {/* Template Preview Area - Real Render */}
+                    <div className="relative flex-1 bg-gray-100 overflow-hidden w-full">
+                      {/* Scaled Resume Preview - Centered */}
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[210mm] origin-top transform scale-[0.34] pointer-events-none select-none shadow-md">
+                        <ResumePreview data={template.data} template={template.baseTemplate} />
+                      </div>
 
-                      {/* Section 1 */}
-                      <div className="mt-2">
-                        <div className="h-2 w-16 rounded-sm mb-1 bg-brand-green"></div>
-                        <div className="space-y-0.5">
-                          <div className="h-1 bg-gray-300 w-full rounded-full"></div>
-                          <div className="h-1 bg-gray-300 w-5/6 rounded-full"></div>
-                          <div className="h-1 bg-gray-300 w-4/5 rounded-full"></div>
+                      {/* Hover Overlay */}
+                      <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-brand-dark/20 backdrop-blur-[2px]">
+                        <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-200 flex flex-col gap-2">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); onLoadTemplate(template); }}
+                            className="bg-brand-green hover:bg-brand-greenHover text-brand-dark px-5 py-2 rounded-lg font-bold shadow-xl transition-all flex items-center justify-center gap-1.5 text-sm"
+                          >
+                            <Edit size={14} /> Resume Editing
+                          </button>
                         </div>
                       </div>
 
-                      {/* Section 2 */}
-                      <div className="mt-2">
-                        <div className="h-2 w-12 rounded-sm mb-1 bg-brand-green"></div>
-                        <div className="space-y-0.5">
-                          <div className="h-1 bg-gray-300 w-full rounded-full"></div>
-                          <div className="h-1 bg-gray-300 w-11/12 rounded-full"></div>
-                        </div>
-                      </div>
-
-                      {/* Section 3 */}
-                      <div className="mt-2">
-                        <div className="h-2 w-14 rounded-sm mb-1 bg-brand-green"></div>
-                        <div className="grid grid-cols-2 gap-0.5">
-                          <div className="h-1 bg-gray-300 rounded-full"></div>
-                          <div className="h-1 bg-gray-300 rounded-full"></div>
-                          <div className="h-1 bg-gray-300 rounded-full"></div>
-                          <div className="h-1 bg-gray-300 rounded-full"></div>
-                        </div>
-                      </div>
+                      {/* Delete Button */}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(template.id); }}
+                        className="absolute top-2 right-2 z-20 bg-white/90 backdrop-blur-sm text-gray-400 w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-50 hover:text-red-600 transition-all shadow-sm"
+                        title="Delete Template"
+                      >
+                        <Trash2 size={14} />
+                      </button>
                     </div>
 
-                    {/* Badge */}
-                    <div className="absolute top-2 right-2 z-20 bg-brand-green text-brand-dark text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1 uppercase tracking-wide">
-                      <Bookmark size={8} className="fill-brand-dark" />
-                      Saved
-                    </div>
+                    {/* Template Footer Info */}
+                    <div className="h-20 px-4 flex items-center justify-between border-t border-gray-100 bg-white z-20 relative">
+                      <div className="flex items-center gap-3 overflow-hidden">
+                        {/* Logo / Icon */}
+                        <div className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
+                          {metadata.icon}
+                        </div>
 
-                    {/* Delete Button */}
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(template.id); }}
-                      className="absolute top-2 left-2 z-40 bg-white/90 backdrop-blur-sm text-gray-400 w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-50 hover:text-red-600 transition-all"
-                      title="Delete Template"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-
-                    {/* Hover Overlay with Use Template button */}
-                    <div className="absolute inset-0 z-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-brand-dark/20 backdrop-blur-[1px]">
-                      <div className="transform scale-90 group-hover:scale-100 transition-transform duration-200">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); onLoadTemplate(template); }}
-                          className="bg-brand-green hover:bg-brand-greenHover text-brand-dark px-5 py-2 rounded-lg font-bold shadow-xl transition-all flex items-center justify-center gap-1.5 text-sm"
-                        >
-                          Use Template <ArrowRight size={14} />
-                        </button>
+                        {/* Text Info */}
+                        <div className="flex flex-col overflow-hidden">
+                          <h3 className="text-sm font-bold text-gray-900 truncate pr-2">
+                            {template.tag}
+                          </h3>
+                          <span className="text-xs text-gray-500 truncate">
+                            {metadata.name}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
-
-                  {/* Template Info */}
-                  <div className="p-3 bg-white border-t border-gray-100">
-                    <h3 className="text-sm font-bold text-brand-dark truncate">{template.tag}</h3>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      Based on {getBaseTemplateName(template.baseTemplate)}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="text-center py-20 px-6 bg-white rounded-2xl border border-dashed border-gray-200">

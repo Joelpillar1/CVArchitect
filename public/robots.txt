@@ -1,3 +1,25 @@
+# CV Architect - Robots.txt
+# https://cvarchitect.app
+
 User-agent: *
 Allow: /
+Allow: /pricing
+Allow: /contact
+Allow: /privacy
+Allow: /terms
+Allow: /refund-policy
+Allow: /signup
+Allow: /login
+Allow: /blog
+
+# Block authenticated/internal routes
+Disallow: /dashboard
+Disallow: /dashboard/*
+Disallow: /reset-password
+Disallow: /forgot-password
+
+# Block API routes
+Disallow: /api/
+
+# Sitemap
 Sitemap: https://cvarchitect.app/sitemap.xml

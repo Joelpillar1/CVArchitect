@@ -4,6 +4,7 @@ import { Check, Star, Crown, Zap, Shield } from 'lucide-react';
 import { PLANS } from '../utils/pricingConfig';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
+import SEO from './SEO';
 
 export default function PricingPage() {
     const navigate = useNavigate();
@@ -24,6 +25,11 @@ export default function PricingPage() {
 
     return (
         <div className="min-h-screen bg-brand-bg flex flex-col font-sans">
+            <SEO
+                title="CV Architect Pricing — Affordable AI Resume Builder Plans | From $9"
+                description="Don't subscribe for months. Get hired in days. CV Architect offers a 7-day Career Sprint for $9 and a monthly plan for $19. Includes unlimited AI rewrites, ATS optimization, cover letters, and premium templates."
+                canonicalPath="/pricing"
+            />
             <PublicHeader />
 
             {/* Hero Section */}

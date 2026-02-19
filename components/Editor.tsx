@@ -28,6 +28,7 @@ import SmartTemplate from './templates/SmartTemplate';
 import ElegantTemplate from './templates/ElegantTemplate';
 import ProfessionalTemplate from './templates/ProfessionalTemplate';
 import TwoColumnTemplate from './templates/TwoColumnTemplate';
+import SageTemplate from './templates/SageTemplate';
 import CreditDisplay from './CreditDisplay';
 
 interface EditorProps {
@@ -234,6 +235,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
       case 'elegant': return <ElegantTemplate data={data} />;
       case 'professional': return <ProfessionalTemplate data={data} />;
       case 'twocolumn': return <TwoColumnTemplate data={data} />;
+      case 'sage': return <SageTemplate data={data} />;
       default: return <VanguardTemplate data={data} />;
     }
   };

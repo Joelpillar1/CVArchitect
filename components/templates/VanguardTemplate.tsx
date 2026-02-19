@@ -182,8 +182,8 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
               <div key={edu.id} className="break-inside-avoid w-full" style={{ marginBottom: `${(data.sectionGap || 0.14) * 0.7}in` }}>
                 <div className="flex justify-between items-baseline">
                   <div>
-                    <h3 className="text-base font-bold">{edu.degree}</h3>
-                    <p className="italic text-gray-600">{edu.school}</p>
+                    <h3 className="font-bold" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>{edu.degree}</h3>
+                    <p className="italic text-gray-600" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>{edu.school}</p>
                   </div>
                   <span className="text-gray-500 font-medium" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>{edu.year}</span>
                 </div>
@@ -285,7 +285,7 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
         >
           {data.fullName}
         </h1>
-        <p className="text-gray-600" style={{ fontSize: `${fontSizes?.body || fontSizes?.jobTitle || 10}pt`, marginBottom: `${data.headerItemGap || 0.08}in` }}>
+        <p className="text-gray-600" style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt`, marginBottom: `${data.headerItemGap || 0.08}in` }}>
           {data.jobTitle}
         </p>
       </header>

@@ -115,7 +115,7 @@ export default function PaywallModal({ isOpen, onClose, onUpgrade, feature, curr
                                 onClick={onClose}
                                 className="w-full py-3 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors"
                             >
-                                No thanks, continue with Free plan
+                                No thanks, continue with plan
                             </button>
 
                             <p className="text-center text-xs text-gray-400">
