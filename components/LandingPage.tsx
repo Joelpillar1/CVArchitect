@@ -3,7 +3,7 @@ import { ArrowRight, Check, Star, X, Menu, FileText, Sparkles, Download, Noteboo
 import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-
+<meta name="google-site-verification" content="tM8NcOMoT43REWAXI4sUDCX6usdXgja0epq5QCK1Ygc" />
 
 // Animation Variants
 const fadeInUp = {
