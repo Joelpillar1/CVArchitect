@@ -34,7 +34,7 @@ import { profileService, UserProfile } from './services/profileService';
 import MyCoverLetters from './components/MyCoverLetters';
 import { coverLetterService, SavedCoverLetter } from './services/coverLetterService';
 import CoverLetterModal from './components/CoverLetterModal';
-
+<meta name="google-site-verification" content="tM8NcOMoT43REWAXI4sUDCX6usdXgja0epq5QCK1Ygc" />
 export enum View {
   LANDING = 'LANDING',
   SIGN_IN = 'SIGN_IN',
