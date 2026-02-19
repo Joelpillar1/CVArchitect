@@ -22,6 +22,8 @@ import { coverLetterService, SavedCoverLetter } from '../services/coverLetterSer
 import { SubscriptionManager } from '../utils/subscriptionManager';
 import { saveToStorage, debouncedSaveToStorage, loadFromStorage } from '../utils/statePersistence';
 
+<meta name="google-site-verification" content="tM8NcOMoT43REWAXI4sUDCX6usdXgja0epq5QCK1Ygc" />
+
 export default function Dashboard() {
     const { user, signOut } = useAuth();
     const { showToast } = useToast();
