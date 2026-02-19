@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import SEO from './SEO';
 
-
 // Animation Variants
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
