@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
-
+<meta name="google-site-verification" content="tM8NcOMoT43REWAXI4sUDCX6usdXgja0epq5QCK1Ygc" />
 interface PrivacyPolicyProps {
     onBack: () => void;
 }
