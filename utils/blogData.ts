@@ -2769,6 +2769,12 @@ export const blogPosts: BlogPost[] = [
                 content: 'Here is the complete resume outline you should follow, in exact order. This is the same structure used by 9 out of 10 successful resumes I have reviewed.'
             },
             {
+                type: 'image',
+                src: '/images/Resume Tutorial/Resume Sample 1.png',
+                alt: 'Complete Resume Outline Visualization',
+                content: 'A visual representation of the standard 2026 resume structure.'
+            },
+            {
                 type: 'list',
                 items: [
                     '1. Contact Information — Full name, phone, email, LinkedIn URL, location (city/state)',
