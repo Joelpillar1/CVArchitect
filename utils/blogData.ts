@@ -2256,7 +2256,7 @@ export const blogPosts: BlogPost[] = [
             },
             {
                 type: 'image',
-                src: '/images/Resume Tutorial/Resume Sample.png',
+                src: '/images/Resume Tutorial/Reume Sample.png',
                 alt: 'Professional Resume Sample Overview',
                 content: 'A complete ATS-optimized resume sample showing the ideal structure for 2026.'
             },
