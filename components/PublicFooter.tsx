@@ -31,7 +31,7 @@ export default function PublicFooter() {
                 { label: 'Resume Templates', href: '/blog/best-resume-templates-2026' },
                 { label: 'Resume Examples by Industry', href: '/blog/resume-examples-by-industry-2026' },
                 { label: 'Student Resume Guide', href: '/blog/student-resume-no-experience-guide' },
-                { label: 'Resume Builders', href: '/blog/free-resume-builder-comparison-2026' },
+                { label: 'Resume Builders', href: '/blog/ai-resume-builder-vs-traditional' },
                 { label: 'AI vs Traditional Resume', href: '/blog/ai-resume-builder-vs-traditional' },
             ],
         },

@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import SEO from './SEO';
+import PublicFooter from './PublicFooter';
 
 // Animation Variants
 const fadeInUp = {
@@ -1152,26 +1153,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-100 py-12">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-          <a href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <img src="/images/logo icon.png" alt="CV Architect Logo" className="w-8 h-8 object-contain" />
-            <span className="text-xl font-bold tracking-tight text-brand-dark">CV Architect</span>
-          </a>
-          <div className="text-gray-500 text-sm">
-            © {new Date().getFullYear()} CV Architect. All rights reserved.
-          </div>
-          <nav aria-label="Footer navigation" className="flex gap-6">
-            <a href="/privacy" className="text-gray-500 hover:text-brand-dark text-sm transition-colors">Privacy Policy</a>
-            <a href="/terms" className="text-gray-500 hover:text-brand-dark text-sm transition-colors">Terms of Service</a>
-            <a href="/refund-policy" className="text-gray-500 hover:text-brand-dark text-sm transition-colors">Refund Policy</a>
-            <a href="/contact" className="text-gray-500 hover:text-brand-dark text-sm transition-colors">Contact</a>
-            <a href="/pricing" className="text-gray-500 hover:text-brand-dark text-sm transition-colors">Pricing</a>
-            <a href="/blog" className="text-gray-500 hover:text-brand-dark text-sm transition-colors">Blog</a>
-          </nav>
-        </div>
-      </footer>
+      <PublicFooter />
 
     </div>
   );
