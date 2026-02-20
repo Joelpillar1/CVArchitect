@@ -95,7 +95,7 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
         { id: 'freshgrad6', name: 'Fresh Grad · Campus Strategist', color: 'bg-amber-500' },
 
         // Existing templates
-        { id: 'free', name: 'Free', color: 'bg-gray-500' },
+        { id: 'free', name: 'Basic', color: 'bg-gray-500' },
         { id: 'simplepro', name: 'Simple Pro', color: 'bg-indigo-500' },
         { id: 'minimalist', name: 'Minimalist', color: 'bg-gray-100' },
         { id: 'vanguard', name: 'Vanguard', color: 'bg-blue-500' },
@@ -279,8 +279,8 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                                                         }}
                                                         disabled={!canMoveUp}
                                                         className={`p-1 rounded transition-colors ${canMoveUp
-                                                                ? 'text-gray-400 active:text-brand-green active:bg-brand-secondary'
-                                                                : 'text-gray-200 cursor-not-allowed'
+                                                            ? 'text-gray-400 active:text-brand-green active:bg-brand-secondary'
+                                                            : 'text-gray-200 cursor-not-allowed'
                                                             }`}
                                                         aria-label="Move section up"
                                                     >
@@ -293,8 +293,8 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                                                         }}
                                                         disabled={!canMoveDown}
                                                         className={`p-1 rounded transition-colors ${canMoveDown
-                                                                ? 'text-gray-400 active:text-brand-green active:bg-brand-secondary'
-                                                                : 'text-gray-200 cursor-not-allowed'
+                                                            ? 'text-gray-400 active:text-brand-green active:bg-brand-secondary'
+                                                            : 'text-gray-200 cursor-not-allowed'
                                                             }`}
                                                         aria-label="Move section down"
                                                     >

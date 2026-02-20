@@ -36,7 +36,7 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
   // Parse user name from profile or email
   const fullName = userProfile?.full_name || userEmail?.split('@')[0] || 'User';
   const nameParts = fullName.split(' ');
-  
+
   // Restore form fields from localStorage or use defaults
   const [firstName, setFirstNameState] = useState(() => {
     const saved = loadFromStorage<string>('settings_firstName', '');
@@ -135,7 +135,7 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
   const getPlanColor = () => {
     if (isSprint) return 'from-brand-green to-emerald-500 text-brand-dark';
     if (isMarathon) return 'from-purple-500 to-indigo-600 text-white';
-    return 'from-gray-100 to-gray-200 text-gray-800'; // Free plan style
+    return 'from-gray-100 to-gray-200 text-gray-800'; // Guest plan style
   };
 
   const formatDate = (date?: Date) => {
@@ -414,7 +414,7 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
                 <p className="text-sm text-gray-500 mt-1 font-medium">Manage your password and security settings.</p>
               </div>
               <div className="p-8 space-y-4">
-                <button 
+                <button
                   onClick={() => setShowChangePassword(true)}
                   className="w-full md:w-auto bg-brand-dark text-white px-6 py-3 rounded-xl font-semibold text-sm hover:bg-gray-800 transition-colors"
                 >
@@ -613,7 +613,7 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
                       <div>
                         <p className="font-bold text-2xl">{plan?.name || 'Current Plan'}</p>
                         <p className="text-white/80 text-sm">
-                          {isFree && 'Free Forever'}
+                          {isFree && 'Guest Tier'}
                           {isSprint && '$9 / 7 days'}
                           {isMarathon && '$19 / month'}
                         </p>
@@ -662,7 +662,7 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
                   >
                     Refresh Status
                   </button>
-                  
+
                   {isFree && (
                     <button
                       onClick={onUpgrade}

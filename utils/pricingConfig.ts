@@ -7,7 +7,7 @@ import { Plan, CreditPack } from '../types/pricing';
 export const PLANS: Record<string, Plan> = {
     free: {
         id: 'free',
-        name: 'Free Tier',
+        name: 'Guest Tier',
         description: 'Explore the builder.',
         price: { monthly: 0 },
         features: {

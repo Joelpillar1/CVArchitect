@@ -71,7 +71,7 @@ export default function RefundPolicy({ onBack }: RefundPolicyProps) {
                             The following are not eligible for refunds:
                         </p>
                         <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
-                            <li>Free plan usage (no payment made)</li>
+                            <li>Guest account usage (no payment made)</li>
                             <li>Subscription renewals after the first billing cycle</li>
                             <li>Partial refunds for unused portions of a subscription period</li>
                             <li>AI credits that have been consumed</li>

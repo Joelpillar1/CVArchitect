@@ -47,7 +47,7 @@ export default function BlogPage() {
         <div className="min-h-screen bg-white font-sans">
             <SEO
                 title="CV Architect Blog — Resume Tips, ATS Guides & Career Advice"
-                description="Expert resume writing tips, ATS optimization guides, and career advice to help you land more interviews. Free resources from CV Architect's team of hiring experts."
+                description="Expert resume writing tips, ATS optimization guides, and career advice to help you land more interviews. Resources from CV Architect's team of hiring experts."
                 canonicalPath="/blog"
                 jsonLd={{
                     "@context": "https://schema.org",
@@ -105,8 +105,8 @@ export default function BlogPage() {
                             key={category}
                             onClick={() => setActiveCategory(category)}
                             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${activeCategory === category
-                                    ? 'bg-brand-dark text-white shadow-md'
-                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                ? 'bg-brand-dark text-white shadow-md'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                 }`}
                         >
                             {category}
@@ -255,7 +255,7 @@ export default function BlogPage() {
                         onClick={() => navigate('/signup')}
                         className="bg-brand-green text-brand-dark px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:opacity-90 transition-all"
                     >
-                        Build Your Resume — Free
+                        Build Your Resume
                     </button>
                 </div>
             </section>

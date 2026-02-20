@@ -174,7 +174,7 @@ export default function App() {
   useEffect(() => {
     if (user) {
       let isMounted = true;
-      
+
       // Fetch subscription from Supabase
       import('./services/subscriptionService').then(({ subscriptionService }) => {
         subscriptionService.getSubscription(user.id)
@@ -199,7 +199,7 @@ export default function App() {
             setUserSubscription(createDefaultSubscription(user.id));
           });
       });
-      
+
       // Cleanup function to mark component as unmounted
       return () => {
         isMounted = false;
@@ -324,13 +324,16 @@ export default function App() {
   useEffect(() => {
     if (user) {
       resumeService.getResumes(user.id).then(resumes => {
-        const templates: SavedTemplate[] = resumes.map(r => ({
-          id: r.id,
-          tag: r.title,
-          baseTemplate: r.content.template || 'vanguard',
-          data: r.content,
-          createdAt: new Date(r.created_at)
-        }));
+        const templates: SavedTemplate[] = resumes.map(r => {
+          const content = r.content as any;
+          return {
+            id: r.id,
+            tag: r.title,
+            baseTemplate: content?.template || 'vanguard',
+            data: content as ResumeData,
+            createdAt: new Date(r.created_at)
+          };
+        });
         setSavedTemplates(templates);
       }).catch(err => console.error('Failed to load resumes:', err));
 
@@ -1186,8 +1189,8 @@ export default function App() {
                       : userSubscription.planId === 'pro_monthly'
                         ? 'Career Marathon'
                         : userSubscription.planId === 'free'
-                          ? 'Free Guest'
-                          : 'Free Plan'}
+                          ? 'Guest Tier'
+                          : 'Guest Plan'}
                   </p>
                 </div>
               </div>

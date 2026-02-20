@@ -30,7 +30,7 @@ export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, 
     switch (id) {
       case 'week_pass': return 'Career Sprint';
       case 'pro_monthly': return 'Career Marathon';
-      default: return 'Free Plan';
+      default: return 'Guest Plan';
     }
   };
 

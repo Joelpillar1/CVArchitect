@@ -107,7 +107,7 @@ export default function LandingPage() {
                 "name": "How much does CV Architect cost?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "CV Architect offers a 7-day Career Sprint for $9 (one-time payment) and a monthly Career Marathon plan for $19/month. There's also a free guest tier with basic features and 10 AI credits."
+                  "text": "CV Architect offers a 7-day Career Sprint for $9 (one-time payment) and a monthly Career Marathon plan for $19/month. There's also a guest tier with basic features and 10 AI credits."
                 }
               },
               {
@@ -120,10 +120,10 @@ export default function LandingPage() {
               },
               {
                 "@type": "Question",
-                "name": "Does CV Architect offer a free resume builder?",
+                "name": "Does CV Architect offer a resume builder?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Yes! CV Architect offers free guest access with 1 resume project, access to basic templates, and 10 complimentary AI credits to test the builder before committing to a paid plan."
+                  "text": "Yes! CV Architect offers guest access with 1 resume project, access to basic templates, and 10 complimentary AI credits to test the builder before committing to a paid plan."
                 }
               }
             ]
@@ -340,8 +340,8 @@ export default function LandingPage() {
             transition={{ duration: 0.8 }}
             className="mb-12 relative"
           >
-            {/* Supademo embed - responsive 16:9 video container */}
-            <div className="relative w-full max-w-5xl mx-auto aspect-video overflow-hidden rounded-xl">
+            {/* Supademo embed - hidden on mobile */}
+            <div className="hidden md:block relative w-full max-w-5xl mx-auto aspect-video overflow-hidden rounded-xl">
               <iframe
                 src="https://app.supademo.com/embed/cmli04cay1h0d53516ufxiyso?embed_v=2&utm_source=embed"
                 loading="lazy"
@@ -350,6 +350,15 @@ export default function LandingPage() {
                 frameBorder="0"
                 allowFullScreen
                 style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+              />
+            </div>
+
+            {/* Mobile Image - shown only on mobile */}
+            <div className="md:hidden w-full max-w-sm mx-auto overflow-hidden rounded-2xl shadow-xl border border-gray-100 bg-white">
+              <img
+                src="/images/Resume Tutorial/mobile show.png"
+                alt="CV Architect Mobile Interface Demo"
+                className="w-full h-auto object-contain"
               />
             </div>
 
@@ -1064,7 +1073,7 @@ export default function LandingPage() {
             </motion.div>
           </motion.div>
 
-          {/* Free Tier Link */}
+          {/* Guest Tier Link */}
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -1077,7 +1086,7 @@ export default function LandingPage() {
                 onClick={handleGetStarted}
                 className="text-brand-dark font-bold underline decoration-2 underline-offset-4 hover:text-brand-green transition-colors"
               >
-                Start with Free Guest Access
+                Start with Guest Access
               </button>
             </p>
             <p className="text-sm text-gray-400 mt-2 max-w-lg mx-auto">

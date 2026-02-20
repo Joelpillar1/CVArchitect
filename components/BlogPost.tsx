@@ -330,7 +330,7 @@ export default function BlogPost() {
                         href="/signup"
                         className="inline-block bg-brand-green text-brand-dark px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:opacity-90 transition-all"
                     >
-                        Start Building Your Resume Free
+                        Start Building Your Resume
                     </a>
                 </div>
             </section>

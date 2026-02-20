@@ -11,8 +11,7 @@ interface CreditDisplayProps {
 export default function CreditDisplay({ userSubscription, onUpgradeClick }: CreditDisplayProps) {
     const plan = PLANS[userSubscription.planId];
     // Check for Pro plans
-    const isPro = userSubscription.planId === 'pro_quarterly' || userSubscription.planId === 'pro_monthly' || userSubscription.planId === 'pro_yearly';
-    const isLifetime = userSubscription.planId === 'lifetime';
+    const isPro = userSubscription.planId === 'pro_monthly';
     const isWeekPass = userSubscription.planId === 'week_pass';
     const isFree = userSubscription.planId === 'free';
 
@@ -37,14 +36,6 @@ export default function CreditDisplay({ userSubscription, onUpgradeClick }: Cred
                 </div>
             );
         }
-        if (isLifetime) {
-            return (
-                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg text-xs font-bold shadow-lg">
-                    <Sparkles size={14} className="fill-current" />
-                    LIFETIME
-                </div>
-            );
-        }
         if (isWeekPass) {
             return (
                 <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg text-xs font-bold shadow-lg">
@@ -56,7 +47,7 @@ export default function CreditDisplay({ userSubscription, onUpgradeClick }: Cred
         // Default to FREE only if it's explicitly free or unknown
         return (
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-200 text-gray-700 rounded-lg text-xs font-bold">
-                FREE
+                GUEST
             </div>
         );
     };
@@ -100,7 +91,7 @@ export default function CreditDisplay({ userSubscription, onUpgradeClick }: Cred
                     <Zap size={16} className="text-white fill-current" />
                     <div className="flex flex-col">
                         <span className="text-xs font-bold text-white leading-tight">
-                            {userSubscription.credits} {isLifetime ? 'Lifetime' : isWeekPass ? 'Weekly' : 'Monthly'}
+                            {userSubscription.credits} {isWeekPass ? 'Weekly' : 'Monthly'}
                         </span>
                         <span className="text-[10px] text-white/80 leading-tight">
                             Credits Left
@@ -139,7 +130,7 @@ export default function CreditDisplay({ userSubscription, onUpgradeClick }: Cred
                                 onClick={onUpgradeClick}
                                 className="w-full py-2 bg-gradient-to-r from-brand-green to-emerald-500 hover:from-emerald-400 hover:to-emerald-600 text-brand-dark rounded-lg text-xs font-bold transition-all"
                             >
-                                {isLifetime ? 'Buy More Credits' : 'Upgrade to Pro'}
+                                {isPro ? 'Upgrade Plan' : 'Extend Pass'}
                             </button>
                         )}
                     </div>
