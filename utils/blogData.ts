@@ -1500,7 +1500,7 @@ export const blogPosts: BlogPost[] = [
         readTime: '26 min read',
         featured: false,
         tags: ['resume mistakes', 'resume tips', 'job search', 'career advice', 'resume writing'],
-        coverImage: 'https://images.unsplash.com/photo-1504711434969-e33886168d5c?w=1200&q=80',
+        coverImage: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=1200&q=80',
         content: [
             {
                 type: 'paragraph',
