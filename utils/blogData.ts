@@ -2770,7 +2770,7 @@ export const blogPosts: BlogPost[] = [
             },
             {
                 type: 'image',
-                src: '/images/Resume Tutorial/Resume Sample 1.png',
+                src: '/images/Resume Tutorial/Reume Sample.png',
                 alt: 'Complete Resume Outline Visualization',
                 content: 'A visual representation of the standard 2026 resume structure.'
             },
