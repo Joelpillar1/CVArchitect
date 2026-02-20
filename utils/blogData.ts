@@ -2256,8 +2256,18 @@ export const blogPosts: BlogPost[] = [
             },
             {
                 type: 'image',
-                src: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=1000&q=80',
-                alt: 'Person working on a document at a clean desk with laptop',
+                src: '/images/Resume Tutorial/Resume Sample.png',
+                alt: 'Professional Resume Sample Overview',
+                content: 'A complete ATS-optimized resume sample showing the ideal structure for 2026.'
+            },
+            {
+                type: 'image',
+                src: '/images/Resume Tutorial/Resume Sample 1.png',
+                alt: 'Alternative Resume Sample',
+                content: 'An alternative professional layout for a candidate with extensive experience.'
+            },
+            {
+                type: 'paragraph',
                 content: 'Your resume needs to pass two gatekeepers: ATS software that parses the content, and a recruiter who scans it in under 8 seconds.'
             },
             {
@@ -2315,13 +2325,26 @@ export const blogPosts: BlogPost[] = [
             {
                 type: 'list',
                 items: [
-                    'Full name — Use your professional name. If your legal name is "Robert" but everyone calls you "Bob," use "Robert (Bob) Martinez" or just "Robert Martinez."',
-                    'Phone number — One number only. Include country code if applying internationally.',
-                    'Professional email address — firstname.lastname@gmail.com is fine. partyking2005@hotmail.com is not. If your personal email is unprofessional, create a new one specifically for your job search.',
-                    'LinkedIn profile URL — Customize your LinkedIn URL (linkedin.com/in/yourname). Recruiters will look you up anyway; give them a clean, polished profile to find.',
-                    'Portfolio or personal website (if relevant) — Essential for designers, developers, writers, and marketing professionals. Optional for everyone else.',
                     'Location — City and state (or city and country) are sufficient. You do not need to include your full street address. Many applicants just write "New York, NY" or "Remote — Based in London, UK."'
                 ]
+            },
+            {
+                type: 'image',
+                src: '/images/Resume Tutorial/Contact Info 1.png',
+                alt: 'Contact Information Examples',
+                content: 'Clean examples of how to format your contact section for maximum readability.'
+            },
+            {
+                type: 'image',
+                src: '/images/Resume Tutorial/Contact.png',
+                alt: 'Contact Details Layout',
+                content: 'Proper placement of phone, email, and LinkedIn links.'
+            },
+            {
+                type: 'image',
+                src: '/images/Resume Tutorial/Contact 1.png',
+                alt: 'Minimalist Contact Header',
+                content: 'A minimalist approach to the resume header.'
             },
             {
                 type: 'subheading',
@@ -2338,9 +2361,7 @@ export const blogPosts: BlogPost[] = [
                 ]
             },
             {
-                type: 'image',
-                src: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1000&q=80',
-                alt: 'Professional reviewing a structured document on a desk',
+                type: 'paragraph',
                 content: 'Your contact section should be clean and scannable. Name, phone, email, LinkedIn, location — nothing more.'
             },
             {
@@ -2378,6 +2399,24 @@ export const blogPosts: BlogPost[] = [
             {
                 type: 'paragraph',
                 content: 'GOOD: "Marketing graduate from NYU with hands-on experience managing $15K social media ad budgets through internship at FinTech startup. Created content campaigns that grew Instagram following from 2K to 18K in 4 months. Proficient in Google Analytics, Meta Ads Manager, Canva, and HubSpot." — Even with limited experience, this is compelling because it shows real results.'
+            },
+            {
+                type: 'image',
+                src: '/images/Resume Tutorial/Professional Summary.png',
+                alt: 'Professional Summary Formula',
+                content: 'How to structure your summary to balance years of experience, core skills, and a top achievement.'
+            },
+            {
+                type: 'image',
+                src: '/images/Resume Tutorial/Professional Summary 1.png',
+                alt: 'Executive Summary Example',
+                content: 'A high-impact executive summary for senior professionals.'
+            },
+            {
+                type: 'image',
+                src: '/images/Resume Tutorial/Summary 1.png',
+                alt: 'Alternative Summary Style',
+                content: 'Using a summary profile to highlight specific career pivots.'
             },
             {
                 type: 'subheading',
@@ -2445,8 +2484,42 @@ export const blogPosts: BlogPost[] = [
             },
             {
                 type: 'image',
-                src: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1000&q=80',
-                alt: 'Person writing detailed notes with charts and data visible',
+                src: '/images/Resume Tutorial/Experience.png',
+                alt: 'Work Experience Section Overview',
+                content: 'Properly formatting company names, dates, and locations.'
+            },
+            {
+                type: 'image',
+                src: '/images/Resume Tutorial/Experience 1.png',
+                alt: 'Achievement-Focused Bullets',
+                content: 'Detailed achievement bullets that use numbers and metrics to quantify impact.'
+            },
+            {
+                type: 'image',
+                src: '/images/Resume Tutorial/Experience 2.png',
+                alt: 'Senior Role Experience',
+                content: 'Showcasing leadership and strategic impact in senior-level roles.'
+            },
+            {
+                type: 'image',
+                src: '/images/Resume Tutorial/Professional Experience.png',
+                alt: 'Professional History Layout',
+                content: 'A clean, modern layout for the professional history section.'
+            },
+            {
+                type: 'image',
+                src: '/images/Resume Tutorial/Key Achievement.png',
+                alt: 'Highlighting Key Achievements',
+                content: 'Using a dedicated subsection or bolded callouts for your top career wins.'
+            },
+            {
+                type: 'image',
+                src: '/images/Resume Tutorial/Key Achievement - Career Highlight.png',
+                alt: 'Career Highlights Visualization',
+                content: 'Drawing the recruiter\'s eye to your most significant professional milestones.'
+            },
+            {
+                type: 'paragraph',
                 content: 'Achievement-focused bullet points with specific numbers are the single most impactful improvement you can make to any resume.'
             },
             {
@@ -2480,11 +2553,32 @@ export const blogPosts: BlogPost[] = [
             {
                 type: 'list',
                 items: [
-                    'Including high school when you have a college degree — Drop it unless you graduated within the past year.',
-                    'Listing every course you ever took — Only include coursework directly relevant to the job.',
-                    'Including GPA when it is below 3.0 — If it is not strong, leaving it off is better than drawing attention to it.',
                     'Forgetting certifications — Industry certifications (PMP, CPA, AWS, Google Analytics) often matter more than your degree. List them prominently.'
                 ]
+            },
+            {
+                type: 'image',
+                src: '/images/Resume Tutorial/Education.png',
+                alt: 'Education Section Formatting',
+                content: 'How to list degrees, universities, and graduation dates clearly.'
+            },
+            {
+                type: 'image',
+                src: '/images/Resume Tutorial/Education 1.png',
+                alt: 'Education Details for Students',
+                content: 'Including relevant coursework, GPA, and honors for recent graduates.'
+            },
+            {
+                type: 'image',
+                src: '/images/Resume Tutorial/Education 2.png',
+                alt: 'Continuing Education and Certifications',
+                content: 'Showcasing ongoing learning and professional development.'
+            },
+            {
+                type: 'image',
+                src: '/images/Resume Tutorial/Certification.png',
+                alt: 'Professional Certifications',
+                content: 'Properly listing industry-recognized certifications for ATS scoring.'
             },
             {
                 type: 'heading',
@@ -2536,8 +2630,30 @@ export const blogPosts: BlogPost[] = [
             },
             {
                 type: 'image',
-                src: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1000&q=80',
-                alt: 'Data analytics dashboard on a screen',
+                src: '/images/Resume Tutorial/Skills.png',
+                alt: 'Organized Skills Section',
+                content: 'The ideal layout for a skills section, grouped by technical and professional categories.'
+            },
+            {
+                type: 'image',
+                src: '/images/Resume Tutorial/Skills 1.png',
+                alt: 'Keyword-Rich Skills List',
+                content: 'Matching the exact terminology from the job description in your skills section.'
+            },
+            {
+                type: 'image',
+                src: '/images/Resume Tutorial/Skill.png',
+                alt: 'Technical Expertise Visualization',
+                content: 'Showcasing proficiency levels for critical software and tools.'
+            },
+            {
+                type: 'image',
+                src: '/images/Resume Tutorial/Skills-Area of expertise.png',
+                alt: 'Areas of Expertise',
+                content: 'Using a professional "Areas of Expertise" block to highlight core industry knowledge.'
+            },
+            {
+                type: 'paragraph',
                 content: 'Your skills section is your ATS keyword goldmine. Mirror the exact terminology from the job description.'
             },
             {
