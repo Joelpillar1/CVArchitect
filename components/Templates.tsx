@@ -429,6 +429,28 @@ export default function Templates({ onSelect, data }: TemplatesProps) {
 
     const categories = ['All', 'Professional', 'Modern', 'Student', 'Executive', 'Academic', 'Free', 'Pro'];
 
+    const getPreviewDataForTemplate = (templateId: string): ResumeData => {
+        const template = templates.find(t => t.id === templateId);
+        if (!template) return PREVIEW_DATA;
+
+        const isStudent = getTemplateCategory(template) === 'Student';
+        return {
+            ...PREVIEW_DATA,
+            linkedin: isStudent ? '' : PREVIEW_DATA.linkedin,
+            sectionOrder: isStudent ? PREVIEW_DATA.sectionOrder : [
+                'summary',
+                'skills',
+                'achievements',
+                'experience',
+                'leadership',
+                'projects',
+                'education',
+                'certifications',
+                'additionalInfo'
+            ]
+        };
+    };
+
     const filteredTemplates = sortedTemplates.filter(t => {
         const isTemplateFree = FREE_TEMPLATES.includes(t.id);
         const matchesSearch = t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -501,7 +523,7 @@ export default function Templates({ onSelect, data }: TemplatesProps) {
                                         <div className="relative flex-1 bg-gray-100 overflow-hidden w-full">
                                             {/* Scaled Resume Preview - Centered */}
                                             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[210mm] origin-top transform scale-[0.34] pointer-events-none select-none shadow-md">
-                                                <ResumePreview data={PREVIEW_DATA} template={template.id} />
+                                                <ResumePreview data={getPreviewDataForTemplate(template.id)} template={template.id} />
                                             </div>
 
                                             {/* Hover Overlay */}
@@ -603,7 +625,7 @@ export default function Templates({ onSelect, data }: TemplatesProps) {
                             <div className="scale-75 md:scale-90 origin-top transition-transform shadow-2xl">
                                 {previewTemplate && (
                                     <ResumePreview
-                                        data={PREVIEW_DATA}
+                                        data={getPreviewDataForTemplate(previewTemplate)}
                                         template={previewTemplate}
                                     />
                                 )}
