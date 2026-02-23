@@ -49,22 +49,15 @@ const FreshGradEngTemplate: React.FC<FreshGradEngTemplateProps> = ({ data }) => 
           className="mt-1 text-gray-900"
           style={{ fontSize: `${smallSize}pt` }}
         >
-          {data.phone || '(617) 432-8765'}
+          {[
+            data.location || data.address,
+            data.email,
+            data.phone,
+            data.linkedin ? data.linkedin.replace(/https?:\/\/(www\.)?/, '') : undefined,
+          ]
+            .filter(Boolean)
+            .join(' | ')}
         </div>
-        {data.email && (
-          <div
-            className="text-gray-900"
-            style={{ fontSize: `${smallSize}pt` }}
-          >
-            <a
-              href={`mailto:${data.email}`}
-              className="text-blue-700 underline"
-              style={{ textDecorationThickness: '0.5px' }}
-            >
-              {data.email}
-            </a>
-          </div>
-        )}
       </header>
 
       {/* EDUCATION */}

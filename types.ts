@@ -134,7 +134,10 @@ export type TemplateType =
   | 'freshgrad4'
   | 'freshgrad5'
   | 'freshgrad6'
-  | 'sage';
+  | 'freshgrad7'
+  | 'freshgrad8'
+  | 'sage'
+  | 'student';
 
 export const INITIAL_DATA: ResumeData = {
   fullName: "YOUR NAME",
@@ -209,7 +212,7 @@ export const INITIAL_DATA: ResumeData = {
   ],
   jobDescription: "",
   referee: "Available upon request",
-  font: 'Helvetica, Arial, sans-serif',
+  font: 'Merriweather, serif',
   fontSizes: {
     header: 20,       // Header / Name
     jobTitle: 10,     // Professional Title (matches body)

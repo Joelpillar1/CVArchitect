@@ -73,6 +73,20 @@ export const TEMPLATE_CONFIG: { id: TemplateType; name: string; subtitle: string
         bg: "bg-[#FFFFFF]"
     },
     {
+        id: 'freshgrad7',
+        name: "Executive Start",
+        subtitle: "Leadership",
+        icon: <Crown className="text-gray-700" size={20} />,
+        bg: "bg-[#FFFFFF]"
+    },
+    {
+        id: 'freshgrad8',
+        name: "Business Classic",
+        subtitle: "Graduate",
+        icon: <Briefcase className="text-indigo-700" size={20} />,
+        bg: "bg-[#FFFFFF]"
+    },
+    {
         id: 'simplepro',
         name: "SimplePro",
         subtitle: "Professional",

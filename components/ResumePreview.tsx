@@ -25,7 +25,10 @@ import FreshGradCSTemplate from './templates/FreshGradCSTemplate';
 import FreshGradArtsTemplate from './templates/FreshGradArtsTemplate';
 import FreshGradEngTemplate from './templates/FreshGradEngTemplate';
 import FreshGradMarketingTemplate from './templates/FreshGradMarketingTemplate';
+import FreshGrad7Template from './templates/FreshGrad7Template';
+import FreshGrad8Template from './templates/FreshGrad8Template';
 import SageTemplate from './templates/SageTemplate';
+import StudentTemplate from './templates/StudentTemplate';
 
 interface ResumePreviewProps {
   data: ResumeData;
@@ -68,7 +71,10 @@ export default function ResumePreview({ data, template }: ResumePreviewProps) {
         case 'freshgrad4': return <FreshGradArtsTemplate data={data} />;
         case 'freshgrad5': return <FreshGradEngTemplate data={data} />;
         case 'freshgrad6': return <FreshGradMarketingTemplate data={data} />;
+        case 'freshgrad7': return <FreshGrad7Template data={data} />;
+        case 'freshgrad8': return <FreshGrad8Template data={data} />;
         case 'sage': return <SageTemplate data={data} />;
+        case 'student': return <StudentTemplate data={data} />;
         default: return <VanguardTemplate data={data} />;
       }
     } catch (e) {

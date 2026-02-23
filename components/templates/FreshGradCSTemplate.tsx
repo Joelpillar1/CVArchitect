@@ -53,9 +53,10 @@ const FreshGradCSTemplate: React.FC<FreshGradCSTemplateProps> = ({ data }) => {
           style={{ fontSize: `${smallSize}pt` }}
         >
           {[
-            data.phone || 'Phone number',
-            data.email || 'Tufts email',
-            data.linkedin || data.atHandle || 'github.com/myname',
+            data.location || data.address,
+            data.email,
+            data.phone,
+            data.linkedin ? data.linkedin.replace(/https?:\/\/(www\.)?/, '') : undefined,
           ]
             .filter(Boolean)
             .join(' | ')}

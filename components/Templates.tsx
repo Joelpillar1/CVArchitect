@@ -38,108 +38,138 @@ export default function Templates({ onSelect, data }: TemplatesProps) {
 
     // Fixed, fully-filled sample resume used for ALL template previews
     const PREVIEW_DATA: ResumeData = {
-        fullName: 'Alexander Franklin',
-        jobTitle: 'Senior Product Manager',
-        email: 'alexander.franklin@example.com',
-        phone: '(555) 123-4567',
-        atHandle: 'linkedin.com/in/afranklin',
-        linkedin: '',
-        location: 'San Francisco, CA',
+        fullName: 'YOUR NAME',
+        jobTitle: 'PROFESSIONAL TITLE',
+        email: 'youremail@gmail.com',
+        phone: '+1 (555) 000-000',
+        atHandle: '',
+        linkedin: 'linkedin.com/in/yourprofile',
+        location: 'City, Country',
         address: '',
-        summary:
-            'Dynamic and results-oriented Product Manager with over 7 years of experience driving product strategy and execution in high-growth tech environments. Proven track record of launching user-centric products that generate millions in revenue. Skilled in Agile methodologies, cross-functional leadership, and data-driven decision making. Passionate about leveraging AI to solve complex user problems.',
+        summary: 'Your professional summary highlighting your key strengths, experience, and career objectives using the XYZ formula. Your professional summary highlighting your key strengths, experience, and career objectives using the XYZ formula.',
         experience: [
             {
                 id: 'exp1',
-                company: 'TechVision Inc.',
-                role: 'Senior Product Manager',
-                location: 'San Francisco, CA',
-                startDate: '2022-03',
-                endDate: 'Present',
+                company: 'Company',
+                role: 'Role Title',
+                location: 'City, Country',
+                startDate: 'YYYY',
+                endDate: 'YYYY',
                 roleSummary: '',
                 description: [
-                    'Spearhead the product roadmap for the company’s flagship AI analytics platform, resulting in a 40% increase in user engagement year-over-year.',
-                    'Lead a cross-functional team of 15 engineers, designers, and data scientists to deliver quarterly product releases on time and under budget.',
-                    'Implemented a new customer feedback loop that reduced churn by 15% and improved Net Promoter Score (NPS) by 20 points.',
+                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.',
+                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.',
+                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.'
                 ],
             },
             {
                 id: 'exp2',
-                company: 'Innovate Solutions',
-                role: 'Product Manager',
-                location: 'Austin, TX',
-                startDate: '2019-06',
-                endDate: '2022-02',
+                company: 'Company',
+                role: 'Role Title',
+                location: 'City, Country',
+                startDate: 'YYYY',
+                endDate: 'YYYY',
                 roleSummary: '',
                 description: [
-                    'Managed the full product lifecycle for a suite of enterprise SaaS tools, growing annual recurring revenue (ARR) from $2M to $5M.',
-                    'Conducted extensive market research and competitor analysis to identify key opportunities for product differentiation and expansion.',
-                    'Collaborated with sales and marketing teams to develop effective go-to-market strategies and sales enablement materials.',
+                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.',
+                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.',
+                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.'
                 ],
             },
             {
                 id: 'exp3',
-                company: 'Creative Studio',
-                role: 'Associate Product Manager',
-                location: 'Austin, TX',
-                startDate: '2017-06',
-                endDate: '2019-05',
+                company: 'Company',
+                role: 'Role Title',
+                location: 'City, Country',
+                startDate: 'YYYY',
+                endDate: 'YYYY',
                 roleSummary: '',
                 description: [
-                    'Assisted in the definition and prioritization of product requirements, ensuring alignment with business goals and user needs.',
-                    'Coordinated beta testing programs and gathered user feedback to inform product iterations and improvements.',
+                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.',
+                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.',
+                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.'
                 ],
-            },
+            }
         ],
         education: [
             {
                 id: 'edu1',
-                school: 'University of California, Berkeley',
-                degree: 'Master of Business Administration (MBA)',
-                year: '2017',
+                school: 'School/University',
+                degree: 'Degree & Major',
+                year: 'YYYY - YYYY',
                 gpa: '',
-                relevantCourses: 'Product Management, Data Analytics, Strategic Marketing',
+                relevantCourses: 'Relevant Courses',
             },
             {
                 id: 'edu2',
-                school: 'University of Texas at Austin',
-                degree: 'Bachelor of Science in Computer Science',
-                year: '2015',
-                gpa: '3.8',
-                relevantCourses: '',
-            },
+                school: 'School/University',
+                degree: 'Degree & Major',
+                year: 'YYYY - YYYY',
+                gpa: '',
+                relevantCourses: 'Relevant Courses',
+            }
         ],
-        skills: 'Product Strategy, Agile & Scrum, Roadmap Planning, Data Analysis (SQL, Tableau), User Research, A/B Testing, JIRA, Figma, stakeholder Management, Python (Basic)',
+        skills: 'Enter your professional skill, Enter your professional skill, Enter your professional skill, Enter your professional skill, Enter your professional skill, Enter your professional skill, Enter your professional skill, Enter your professional skill, Enter your professional skill',
         certifications: [
             {
                 id: 'cert1',
-                name: 'Certified Product Manager (CPM)',
-                issuer: 'AIPMM',
-                date: '2018'
+                name: 'Certification Title',
+                issuer: 'Issuing Organization',
+                date: 'YYYY'
             }
         ],
         projects: [
             {
                 id: 'proj1',
-                name: 'AI-Powered Recommendation Engine',
-                description: 'Led the development of a recommendation engine that personalized content for users, increasing average session duration by 25%.',
-                technologies: 'Python, TensorFlow, AWS',
+                name: 'Project Title',
+                description: 'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.',
+                technologies: 'Skill 1, Skill 2, Skill 3',
                 link: ''
             }
         ],
-        leadership: [],
-        additionalInfo: [
+        leadership: [
             {
-                id: 'lang',
-                label: 'Languages',
-                value: 'English (Native), Spanish (Professional Working Proficiency)'
+                id: 'lead1',
+                company: 'University',
+                role: 'Title',
+                location: '',
+                startDate: 'YYYY',
+                endDate: 'YYYY',
+                roleSummary: '',
+                description: [
+                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.',
+                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.'
+                ],
+            },
+            {
+                id: 'lead2',
+                company: 'University',
+                role: 'Title',
+                location: '',
+                startDate: 'YYYY',
+                endDate: 'YYYY',
+                roleSummary: '',
+                description: [
+                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.',
+                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.'
+                ],
             }
         ],
-        keyAchievements:
-            ['Launched a mobile app that achieved 100k+ downloads in the first 3 months.', 'Awarded "Product Manager of the Year" at Innovate Solutions in 2021.'],
+        additionalInfo: [
+            {
+                id: 'lang1',
+                label: 'Languages',
+                value: 'English (Native), Spanish (Fluent)'
+            }
+        ],
+        keyAchievements: [
+            'Your professional result using the XYZ formula, Your professional result using the XYZ formula, Your professional result using the XYZ formula, Your professional result using the XYZ formula.',
+            'Your professional result using the XYZ formula, Your professional result using the XYZ formula, Your professional result using the XYZ formula, Your professional result using the XYZ formula.',
+            'Your professional result using the XYZ formula, Your professional result using the XYZ formula, Your professional result using the XYZ formula, Your professional result using the XYZ formula.'
+        ],
         jobDescription: '',
         referee: '',
-        font: 'Inter, sans-serif',
+        font: 'Merriweather, serif',
         fontSizes: {
             header: 22,
             jobTitle: 11,
@@ -160,12 +190,13 @@ export default function Templates({ onSelect, data }: TemplatesProps) {
         headerAlignment: 'center',
         bodyHeaderAlignment: 'left',
         contentAlignment: 'left',
-        skillsColumnCount: 1,
+        skillsColumnCount: 3,
         sectionOrder: [
             'summary',
             'experience',
             'education',
             'skills',
+            'leadership',
             'projects',
             'certifications',
             'additionalInfo'
@@ -173,6 +204,13 @@ export default function Templates({ onSelect, data }: TemplatesProps) {
     };
 
     const templates: { id: TemplateType; name: string; subtitle: string; icon: React.ReactNode; bg: string }[] = [
+        {
+            id: 'student',
+            name: "Student Profile",
+            subtitle: "Student",
+            icon: <BookOpen className="text-blue-500" size={20} />,
+            bg: "bg-[#FFFFFF]"
+        },
         {
             id: 'free',
             name: "CareerCraft",
@@ -220,6 +258,20 @@ export default function Templates({ onSelect, data }: TemplatesProps) {
             name: "Campus Strat",
             subtitle: "Marketing",
             icon: <Megaphone className="text-amber-600" size={20} />,
+            bg: "bg-[#FFFFFF]"
+        },
+        {
+            id: 'freshgrad7',
+            name: "Executive Start",
+            subtitle: "Leadership",
+            icon: <Crown className="text-gray-700" size={20} />,
+            bg: "bg-[#FFFFFF]"
+        },
+        {
+            id: 'freshgrad8',
+            name: "Business Classic",
+            subtitle: "Graduate",
+            icon: <Briefcase className="text-indigo-700" size={20} />,
             bg: "bg-[#FFFFFF]"
         },
         {
@@ -368,21 +420,27 @@ export default function Templates({ onSelect, data }: TemplatesProps) {
     const getTemplateCategory = (t: typeof templates[0]) => {
         const sub = t.subtitle.toLowerCase();
         // Categorization logic based on subtitles
-        if (['entry level', 'graduate', 'finance', 'engineering', 'creative', 'chemical eng', 'marketing'].some(k => sub.includes(k))) return 'Student';
+        if (['entry level', 'graduate', 'finance', 'engineering', 'creative', 'chemical eng', 'marketing', 'leadership', 'student'].some(k => sub.includes(k))) return 'Student';
         if (['executive', 'senior leader', 'c-suite'].some(k => sub.includes(k))) return 'Executive';
         if (['modern tech', 'bold design', 'contemporary', 'clean', 'developer', 'modern'].some(k => sub.includes(k))) return 'Modern';
         if (['academic', 'research'].some(k => sub.includes(k))) return 'Academic';
         return 'Professional';
     };
 
-    const categories = ['All', 'Professional', 'Modern', 'Student', 'Executive', 'Academic'];
+    const categories = ['All', 'Professional', 'Modern', 'Student', 'Executive', 'Academic', 'Free', 'Pro'];
 
     const filteredTemplates = sortedTemplates.filter(t => {
-        const category = getTemplateCategory(t);
-        const matchesCategory = selectedCategory === 'All' || category === selectedCategory;
+        const isTemplateFree = FREE_TEMPLATES.includes(t.id);
         const matchesSearch = t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             t.subtitle.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesCategory && matchesSearch;
+
+        if (!matchesSearch) return false;
+
+        if (selectedCategory === 'Free') return isTemplateFree;
+        if (selectedCategory === 'Pro') return !isTemplateFree;
+
+        const category = getTemplateCategory(t);
+        return selectedCategory === 'All' || category === selectedCategory;
     });
 
     return (
@@ -487,10 +545,12 @@ export default function Templates({ onSelect, data }: TemplatesProps) {
                                             {/* Badge */}
                                             <div className="shrink-0">
                                                 {isFree ? (
-                                                    <span className="opacity-0"></span>
+                                                    <div className="bg-brand-green/10 text-brand-green px-2 py-1 rounded text-[10px] font-bold tracking-wider uppercase flex items-center gap-1 border border-brand-green/20">
+                                                        FREE
+                                                    </div>
                                                 ) : (
-                                                    <div className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-[10px] font-bold tracking-wider uppercase flex items-center gap-1 border border-gray-200">
-                                                        PRO
+                                                    <div className="bg-brand-green/90 text-white px-2 py-1 rounded text-[10px] font-bold tracking-wider uppercase flex items-center gap-1 shadow-sm">
+                                                        <Crown size={10} className="text-[#1a1a2e] fill-current" /> PRO
                                                     </div>
                                                 )}
                                             </div>

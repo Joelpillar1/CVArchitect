@@ -50,10 +50,14 @@ const FreshGradMarketingTemplate: React.FC<FreshGradMarketingTemplateProps> = ({
           className="mt-1 text-gray-900"
           style={{ fontSize: `${smallSize}pt` }}
         >
-          {(data.email || 'Name@email.com')}{' '}
-          {'| '}{data.location || 'City, State'}{' '}
-          {'| '}{data.phone || '(123) 456-7890'}{' '}
-          {data.linkedin && <>| {data.linkedin}</>}
+          {[
+            data.location || data.address,
+            data.email,
+            data.phone,
+            data.linkedin ? data.linkedin.replace(/https?:\/\/(www\.)?/, '') : undefined,
+          ]
+            .filter(Boolean)
+            .join(' | ')}
         </div>
       </header>
 

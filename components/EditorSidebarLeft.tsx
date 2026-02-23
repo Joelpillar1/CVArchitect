@@ -4,6 +4,7 @@ import { ResumeData, TemplateType } from '../types';
 import { UserSubscription } from '../types/pricing';
 import { SubscriptionManager } from '../utils/subscriptionManager';
 import { canAccessTemplate, FREE_TEMPLATES } from '../utils/pricingConfig';
+import { TEMPLATE_CONFIG } from '../utils/templateConfig';
 import PersonalInfoForm from './PersonalInfoForm';
 import ExperienceForm from './ExperienceForm';
 import EducationForm from './EducationForm';
@@ -36,6 +37,7 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
     const [view, setView] = useState<'create' | 'templates' | 'analytics'>('create');
     const [draggedSection, setDraggedSection] = useState<string | null>(null);
     const [isMobile, setIsMobile] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState('All');
     const lastUpdateRef = React.useRef<string>('');
 
     // Detect mobile/touch device
@@ -85,44 +87,34 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
         return [...validSavedOrder, ...missingSections];
     }, [sections]);
 
-    const templates: { id: TemplateType; name: string; color: string }[] = [
-        // Fresh grad series – surfaced explicitly in the editor
-        { id: 'freshgrad1', name: 'Fresh Grad · Campus Starter', color: 'bg-emerald-500' },
-        { id: 'freshgrad2', name: 'Fresh Grad · Campus Finance', color: 'bg-indigo-600' },
-        { id: 'freshgrad3', name: 'Fresh Grad · Campus Engineer', color: 'bg-sky-600' },
-        { id: 'freshgrad4', name: 'Fresh Grad · Campus Creative', color: 'bg-rose-500' },
-        { id: 'freshgrad5', name: 'Fresh Grad · Campus ChemE', color: 'bg-lime-600' },
-        { id: 'freshgrad6', name: 'Fresh Grad · Campus Strategist', color: 'bg-amber-500' },
-
-        // Existing templates
-        { id: 'free', name: 'Basic', color: 'bg-gray-500' },
-        { id: 'simplepro', name: 'Simple Pro', color: 'bg-indigo-500' },
-        { id: 'minimalist', name: 'Minimalist', color: 'bg-gray-100' },
-        { id: 'vanguard', name: 'Vanguard', color: 'bg-blue-500' },
-        { id: 'elevate', name: 'Elevate', color: 'bg-purple-500' },
-        { id: 'prime', name: 'Prime', color: 'bg-amber-500' },
-        { id: 'impact', name: 'Impact', color: 'bg-emerald-500' },
-        { id: 'dev', name: 'Dev', color: 'bg-cyan-500' },
-        { id: 'elite', name: 'Elite', color: 'bg-rose-500' },
-        { id: 'apex', name: 'Apex', color: 'bg-orange-500' },
-        { id: 'modern', name: 'Modern', color: 'bg-teal-500' },
-        { id: 'executive', name: 'Executive', color: 'bg-slate-800' },
-        { id: 'classic', name: 'Classic', color: 'bg-stone-600' },
-        { id: 'wonsulting', name: 'Ivy League', color: 'bg-slate-900' },
-        { id: 'styled', name: 'Styled Professional', color: 'bg-blue-100' },
-        { id: 'smart', name: 'Smart', color: 'bg-gray-200' },
-        { id: 'elegant', name: 'Elegant', color: 'bg-indigo-900' },
-        { id: 'professional', name: 'Professional Clean', color: 'bg-gray-300' },
-        { id: 'sage', name: 'Sage', color: 'bg-slate-700' },
-    ];
-
     // Sort templates: free templates first, then pro templates
-    const sortedTemplates = [...templates].sort((a, b) => {
+    const sortedTemplates = [...TEMPLATE_CONFIG].sort((a, b) => {
         const aIsFree = FREE_TEMPLATES.includes(a.id);
         const bIsFree = FREE_TEMPLATES.includes(b.id);
         if (aIsFree && !bIsFree) return -1;
         if (!aIsFree && bIsFree) return 1;
         return 0; // Maintain original order within each group
+    });
+
+    const getTemplateCategory = (t: typeof TEMPLATE_CONFIG[0]) => {
+        const sub = t.subtitle.toLowerCase();
+        // Categorization logic based on subtitles
+        if (['entry level', 'graduate', 'finance', 'engineering', 'creative', 'chemical eng', 'marketing', 'leadership'].some(k => sub.includes(k))) return 'Student';
+        if (['executive', 'senior leader', 'c-suite'].some(k => sub.includes(k))) return 'Executive';
+        if (['modern tech', 'bold design', 'contemporary', 'clean', 'developer', 'modern'].some(k => sub.includes(k))) return 'Modern';
+        if (['academic', 'research'].some(k => sub.includes(k))) return 'Academic';
+        return 'Professional';
+    };
+
+    const categories = ['All', 'Professional', 'Modern', 'Student', 'Executive', 'Academic', 'Free', 'Pro'];
+
+    const filteredTemplates = sortedTemplates.filter(t => {
+        const isFree = FREE_TEMPLATES.includes(t.id);
+        if (selectedCategory === 'Free') return isFree;
+        if (selectedCategory === 'Pro') return !isFree;
+
+        const category = getTemplateCategory(t);
+        return selectedCategory === 'All' || category === selectedCategory;
     });
 
     return (
@@ -322,48 +314,87 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                 )}
 
                 {view === 'templates' && (
-                    // Templates Grid
-                    <div className="p-4 grid grid-cols-2 gap-3">
-                        {sortedTemplates.map((t) => (
-                            <button
-                                key={t.id}
-                                onClick={() => {
-                                    onTemplateChange(t.id);
-                                }}
-                                className={`group relative aspect-[210/297] rounded-lg border-2 transition-all overflow-hidden ${currentTemplate === t.id
-                                    ? 'border-brand-green ring-2 ring-brand-green/20'
-                                    : 'border-brand-border hover:border-brand-green/50'
-                                    }`}
-                            >
-                                {/* Actual Template Preview */}
-                                <div className="absolute inset-0 bg-gray-50 overflow-hidden">
-                                    <div className="absolute inset-0 flex items-start justify-center">
-                                        <div className="origin-top transform scale-[0.15] pointer-events-none select-none">
-                                            <ResumePreview data={data} template={t.id} />
+                    <div className="flex flex-col h-full bg-brand-bg relative">
+                        {/* Categories List (Sticky) */}
+                        <div className="px-4 py-3 border-b border-brand-border bg-white sticky top-0 z-20">
+                            <div className="flex overflow-x-auto gap-2 no-scrollbar pb-1 -mb-1 items-center">
+                                {categories.map(cat => (
+                                    <button
+                                        key={cat}
+                                        onClick={() => setSelectedCategory(cat)}
+                                        className={`px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all whitespace-nowrap ${selectedCategory === cat
+                                            ? 'bg-brand-dark text-white shadow-sm'
+                                            : 'bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200'
+                                            }`}
+                                    >
+                                        {cat}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Templates Grid */}
+                        <div className="p-4 grid grid-cols-2 gap-3 pb-8">
+                            {filteredTemplates.map((t) => (
+                                <button
+                                    key={t.id}
+                                    onClick={() => {
+                                        onTemplateChange(t.id);
+                                    }}
+                                    className={`group flex flex-col items-center bg-white rounded-xl shadow-sm border transition-all duration-300 overflow-hidden text-left ${currentTemplate === t.id
+                                        ? 'border-brand-green ring-1 ring-brand-green/20'
+                                        : 'border-gray-200 hover:border-brand-green/50 hover:shadow-md'
+                                        }`}
+                                >
+                                    {/* Template Preview Area */}
+                                    <div className="relative w-full h-40 bg-gray-50 overflow-hidden border-b border-gray-100">
+                                        <div className="absolute inset-x-0 top-0 flex justify-center py-2">
+                                            <div className="origin-top transform scale-[0.14] pointer-events-none select-none">
+                                                <ResumePreview data={data} template={t.id} />
+                                            </div>
+                                        </div>
+
+                                        {/* Hover Overlay */}
+                                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent pt-8 pb-3 px-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <span className="text-[10px] font-bold text-white text-center block">Use Template</span>
+                                        </div>
+
+                                        {/* Active Indicator */}
+                                        {currentTemplate === t.id && (
+                                            <div className="absolute top-2 right-2 w-5 h-5 bg-brand-green rounded-full flex items-center justify-center shadow-md z-10">
+                                                <Check size={10} className="text-white" />
+                                            </div>
+                                        )}
+
+                                        {/* Status Indicator */}
+                                        {FREE_TEMPLATES.includes(t.id) ? (
+                                            <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-brand-green/90 rounded text-[9px] font-bold tracking-wider text-white flex items-center shadow-sm z-10">
+                                                FREE
+                                            </div>
+                                        ) : !canAccessTemplate(userSubscription.planId, t.id) && (
+                                            <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-brand-green/90 rounded text-[9px] font-bold tracking-wider text-white flex items-center gap-1 shadow-sm z-10">
+                                                <Crown size={9} className="text-[#1a1a2e] fill-current" /> PRO
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Template Footer Info (Smaller Card version) */}
+                                    <div className="w-full p-2.5 flex items-center gap-2 bg-white z-20">
+                                        <div className="w-7 h-7 rounded bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
+                                            {React.cloneElement(t.icon as React.ReactElement, { size: 14 })}
+                                        </div>
+                                        <div className="flex flex-col overflow-hidden">
+                                            <h3 className="text-[11px] font-bold text-gray-900 truncate tracking-tight leading-none mb-0.5">
+                                                {t.name}
+                                            </h3>
+                                            <span className="text-[9px] text-gray-500 truncate mt-0.5 leading-none">
+                                                {t.subtitle}
+                                            </span>
                                         </div>
                                     </div>
-                                </div>
-
-                                {/* Template Name Overlay */}
-                                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <span className="text-[10px] font-bold text-white text-center block">{t.name}</span>
-                                </div>
-
-                                {/* Active Indicator */}
-                                {currentTemplate === t.id && (
-                                    <div className="absolute top-2 right-2 w-5 h-5 bg-brand-green rounded-full flex items-center justify-center shadow-lg z-10">
-                                        <Check size={12} className="text-white" />
-                                    </div>
-                                )}
-
-                                {/* Premium Indicator */}
-                                {!canAccessTemplate(userSubscription.planId, t.id) && (
-                                    <div className="absolute top-2 right-2 w-6 h-6 bg-brand-dark/90 rounded-full flex items-center justify-center shadow-lg z-10 border border-white/20">
-                                        <Crown size={12} className="text-amber-400 fill-current" />
-                                    </div>
-                                )}
-                            </button>
-                        ))}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 )}
 

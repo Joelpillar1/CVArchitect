@@ -49,28 +49,19 @@ const FreshGradArtsTemplate: React.FC<FreshGradArtsTemplateProps> = ({ data }) =
             >
               {data.fullName || 'Your Name'}
             </h1>
-            {data.phone && (
-              <div
-                className="text-gray-900"
-                style={{ fontSize: `${smallSize}pt` }}
-              >
-                {data.phone}
-              </div>
-            )}
-            {data.email && (
-              <div
-                className="text-gray-900"
-                style={{ fontSize: `${smallSize}pt` }}
-              >
-                <a
-                  href={`mailto:${data.email}`}
-                  className="text-blue-700 underline"
-                  style={{ textDecorationThickness: '0.5px' }}
-                >
-                  {data.email}
-                </a>
-              </div>
-            )}
+            <div
+              className="mt-1 text-gray-900"
+              style={{ fontSize: `${smallSize}pt` }}
+            >
+              {[
+                data.location || data.address,
+                data.email,
+                data.phone,
+                data.linkedin ? data.linkedin.replace(/https?:\/\/(www\.)?/, '') : undefined,
+              ]
+                .filter(Boolean)
+                .join(' | ')}
+            </div>
           </div>
         </div>
       </header>
@@ -259,22 +250,22 @@ const FreshGradArtsTemplate: React.FC<FreshGradArtsTemplateProps> = ({ data }) =
           >
             {data.additionalInfo && data.additionalInfo.length > 0
               ? data.additionalInfo
-                  .filter((item) => item.label.trim() || item.value.trim())
-                  .map((item) => (
-                    <div key={item.id}>
-                      {item.label && (
-                        <span className="font-semibold">
-                          {item.label}
-                        </span>
-                      )}
-                      {item.value && (
-                        <>
-                          {item.label && <span> </span>}
-                          <span>{item.value}</span>
-                        </>
-                      )}
-                    </div>
-                  ))
+                .filter((item) => item.label.trim() || item.value.trim())
+                .map((item) => (
+                  <div key={item.id}>
+                    {item.label && (
+                      <span className="font-semibold">
+                        {item.label}
+                      </span>
+                    )}
+                    {item.value && (
+                      <>
+                        {item.label && <span> </span>}
+                        <span>{item.value}</span>
+                      </>
+                    )}
+                  </div>
+                ))
               : data.skills && <div>{data.skills}</div>}
           </div>
         </section>

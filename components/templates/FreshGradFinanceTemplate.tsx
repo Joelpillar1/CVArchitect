@@ -52,7 +52,14 @@ const FreshGradFinanceTemplate: React.FC<FreshGradFinanceTemplateProps> = ({ dat
           className="mt-1 text-gray-900"
           style={{ fontSize: `${smallSize}pt` }}
         >
-          {[data.phone, data.email].filter(Boolean).join(' • ') || 'Cell Phone • Email'}
+          {[
+            data.location || data.address,
+            data.email,
+            data.phone,
+            data.linkedin ? data.linkedin.replace(/https?:\/\/(www\.)?/, '') : undefined,
+          ]
+            .filter(Boolean)
+            .join(' | ')}
         </div>
       </header>
 

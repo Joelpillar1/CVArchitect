@@ -53,12 +53,13 @@ const FreshGradTemplate: React.FC<FreshGradTemplateProps> = ({ data }) => {
           style={{ fontSize: `${smallSize}pt` }}
         >
           {[
-            data.phone,
-            data.email,
             data.location || data.address,
+            data.email,
+            data.phone,
+            data.linkedin ? data.linkedin.replace(/https?:\/\/(www\.)?/, '') : undefined,
           ]
             .filter(Boolean)
-            .join(' | ') || 'Phone number | University email'}
+            .join(' | ')}
         </div>
       </header>
 
