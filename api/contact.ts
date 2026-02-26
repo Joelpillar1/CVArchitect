@@ -13,7 +13,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY!;
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'CV Architect <support@cvarchitect.app>';
+// FROM must match a verified Resend domain — using verified subdomain as default
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'CV Architect <support@support.cvarchitect.app>';
 const SUPPORT_EMAIL = 'support@cvarchitect.app';
 
 interface ResendPayload {
@@ -43,10 +44,14 @@ async function sendEmail(payload: ResendPayload) {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // CORS
-    res.setHeader('Access-Control-Allow-Origin', 'https://cvarchitect.app');
+    // CORS — allow all origins (API is protected by server-side key)
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    console.log('Contact API called:', req.method);
+    console.log('RESEND_API_KEY present:', !!RESEND_API_KEY);
+    console.log('FROM_EMAIL:', FROM_EMAIL);
 
     if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
@@ -143,8 +148,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.log(`Contact form submitted by ${name} <${email}> — ${subjectLabel}`);
         return res.status(200).json({ success: true });
 
-    } catch (err) {
-        console.error('Failed to send contact email:', err);
-        return res.status(500).json({ error: 'Failed to send message. Please try again or email us directly at support@cvarchitect.app' });
+    } catch (err: any) {
+        console.error('Failed to send contact email:', err?.message || err);
+        return res.status(500).json({
+            error: 'Failed to send message. Please try again or email us directly at support@cvarchitect.app',
+            detail: err?.message || String(err),
+        });
     }
 }
