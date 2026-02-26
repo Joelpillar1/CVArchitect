@@ -66,6 +66,13 @@ export default function SignUp() {
             }
 
             setSuccess('Account created! Please check your email to verify your account.');
+
+            // Fire welcome email in the background — don't block signup flow
+            fetch('/api/welcome', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email }),
+            }).catch(err => console.warn('Welcome email failed (non-critical):', err));
         } finally {
             setLoading(false);
         }
