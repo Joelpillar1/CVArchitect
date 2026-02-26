@@ -43,6 +43,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setSession(session);
             setUser(session?.user ?? null);
             setLoading(false);
+
+            // Detect brand-new Google OAuth signups and fire welcome email + Loops
+            if (_event === 'SIGNED_IN' && session?.user) {
+                const u = session.user;
+                const isOAuth = u.app_metadata?.provider === 'google';
+                const createdAt = new Date(u.created_at).getTime();
+                const lastSignIn = new Date(u.last_sign_in_at ?? u.created_at).getTime();
+                const isNewUser = Math.abs(lastSignIn - createdAt) < 10_000; // within 10 seconds
+                const dedupeKey = `welcome_sent_${u.id}`;
+
+                if (isOAuth && isNewUser && !localStorage.getItem(dedupeKey)) {
+                    localStorage.setItem(dedupeKey, '1');
+                    const name = u.user_metadata?.full_name || u.user_metadata?.name || '';
+                    fetch('/api/welcome', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, email: u.email }),
+                    }).catch(err => console.warn('Welcome email (Google) failed (non-critical):', err));
+                }
+            }
         });
 
         return () => subscription.unsubscribe();
