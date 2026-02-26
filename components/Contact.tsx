@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, MessageSquare, Send } from 'lucide-react';
+import { Mail, MessageSquare, Send, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
 import SEO from './SEO';
+import { Link } from 'react-router-dom';
 
 interface ContactProps {
-    onBack: () => void;
+    onBack?: () => void;
 }
 
 export default function Contact({ onBack }: ContactProps) {
@@ -19,24 +20,37 @@ export default function Contact({ onBack }: ContactProps) {
         subject: '',
         message: ''
     });
-    const [submitted, setSubmitted] = useState(false);
+    const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+    const [errorMsg, setErrorMsg] = useState('');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // In a real app, this would send the form data to a backend
-        console.log('Contact form submitted:', formData);
-        setSubmitted(true);
-        setTimeout(() => {
-            setSubmitted(false);
+        setStatus('loading');
+        setErrorMsg('');
+
+        try {
+            const res = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.error || 'Something went wrong.');
+            }
+
+            setStatus('success');
             setFormData({ name: '', email: '', subject: '', message: '' });
-        }, 3000);
+        } catch (err: any) {
+            setStatus('error');
+            setErrorMsg(err.message || 'Failed to send message. Please try again.');
+        }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     return (
@@ -94,16 +108,16 @@ export default function Contact({ onBack }: ContactProps) {
                             <h3 className="font-bold text-brand-dark mb-3">Quick Links</h3>
                             <ul className="space-y-2 text-gray-600">
                                 <li>
-                                    <a href="#" className="hover:text-brand-green transition-colors">Help Center & FAQs</a>
+                                    <Link to="/support" className="hover:text-brand-green transition-colors">Help Center &amp; FAQs</Link>
                                 </li>
                                 <li>
-                                    <a href="#" className="hover:text-brand-green transition-colors">Resume Templates</a>
+                                    <Link to="/pricing" className="hover:text-brand-green transition-colors">Pricing Plans</Link>
                                 </li>
                                 <li>
-                                    <a href="#" className="hover:text-brand-green transition-colors">Pricing Plans</a>
+                                    <Link to="/blog/how-to-beat-ats-resume-2026" className="hover:text-brand-green transition-colors">ATS Optimization Guide</Link>
                                 </li>
                                 <li>
-                                    <a href="#" className="hover:text-brand-green transition-colors">ATS Optimization Guide</a>
+                                    <Link to="/refund-policy" className="hover:text-brand-green transition-colors">Refund Policy</Link>
                                 </li>
                             </ul>
                         </div>
@@ -113,16 +127,31 @@ export default function Contact({ onBack }: ContactProps) {
                     <div>
                         <h2 className="text-2xl font-bold text-brand-dark mb-6">Send us a Message</h2>
 
-                        {submitted ? (
-                            <div className="bg-brand-green/10 border border-brand-green rounded-xl p-6 text-center">
+                        {status === 'success' ? (
+                            <div className="bg-brand-green/10 border border-brand-green rounded-xl p-8 text-center">
                                 <div className="w-16 h-16 bg-brand-green rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <Send className="text-brand-dark" size={24} />
+                                    <CheckCircle className="text-brand-dark" size={28} />
                                 </div>
                                 <h3 className="text-xl font-bold text-brand-dark mb-2">Message Sent!</h3>
-                                <p className="text-gray-600">Thank you for contacting us. We'll get back to you soon.</p>
+                                <p className="text-gray-600 mb-4">
+                                    Thank you for reaching out. We've sent a confirmation to your inbox and will reply within 24 hours.
+                                </p>
+                                <button
+                                    onClick={() => setStatus('idle')}
+                                    className="text-sm font-semibold text-brand-green hover:underline"
+                                >
+                                    Send another message
+                                </button>
                             </div>
                         ) : (
                             <form onSubmit={handleSubmit} className="space-y-6">
+                                {status === 'error' && (
+                                    <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+                                        <AlertCircle className="text-red-500 shrink-0 mt-0.5" size={18} />
+                                        <p className="text-sm text-red-700">{errorMsg}</p>
+                                    </div>
+                                )}
+
                                 <div>
                                     <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                                         Name *
@@ -195,10 +224,20 @@ export default function Contact({ onBack }: ContactProps) {
 
                                 <button
                                     type="submit"
-                                    className="w-full bg-brand-green hover:bg-green-600 text-brand-dark px-8 py-4 rounded-full font-bold text-lg shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center justify-center gap-2"
+                                    disabled={status === 'loading'}
+                                    className="w-full bg-brand-green hover:bg-green-600 text-brand-dark px-8 py-4 rounded-full font-bold text-lg shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
                                 >
-                                    <Send size={20} />
-                                    Send Message
+                                    {status === 'loading' ? (
+                                        <>
+                                            <Loader2 size={20} className="animate-spin" />
+                                            Sending…
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Send size={20} />
+                                            Send Message
+                                        </>
+                                    )}
                                 </button>
                             </form>
                         )}
@@ -211,9 +250,12 @@ export default function Contact({ onBack }: ContactProps) {
                     <p className="text-gray-600 mb-4">
                         Check out our comprehensive Help Center for instant answers to common questions about resume building, ATS optimization, and using CV Architect's features.
                     </p>
-                    <button className="bg-brand-dark hover:bg-gray-800 text-white px-6 py-3 rounded-full font-semibold transition-all">
+                    <Link
+                        to="/support"
+                        className="inline-block bg-brand-dark hover:bg-gray-800 text-white px-6 py-3 rounded-full font-semibold transition-all"
+                    >
                         Visit Help Center
-                    </button>
+                    </Link>
                 </div>
             </main>
 
