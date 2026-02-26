@@ -15,6 +15,7 @@ import RefundPolicy from './components/RefundPolicy';
 import PricingPage from './components/PricingPage';
 import BlogPage from './components/BlogPage';
 import BlogPost from './components/BlogPost';
+import Support from './components/Support';
 
 // New dashboard with nested routing
 import Dashboard from './pages/Dashboard';
@@ -130,6 +131,7 @@ export default function AppRoutes() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/refund-policy" element={<RefundPolicy />} />
             <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/support" element={<Support />} />
 
             {/* Blog */}
             <Route path="/blog" element={<BlogPage />} />

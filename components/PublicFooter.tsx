@@ -40,6 +40,7 @@ export default function PublicFooter() {
             links: [
                 { label: 'Pricing', href: '/pricing' },
                 { label: 'Career Blog', href: '/blog' },
+                { label: 'Support Center', href: '/support' },
                 { label: 'Contact Support', href: '/contact' },
             ],
         },
