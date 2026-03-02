@@ -15,11 +15,13 @@ export interface BlogPost {
 }
 
 export interface BlogSection {
-    type: 'paragraph' | 'heading' | 'subheading' | 'list' | 'quote' | 'tip' | 'image';
+    type: 'paragraph' | 'heading' | 'subheading' | 'list' | 'quote' | 'tip' | 'image' | 'templatePreview';
     content?: string;
     items?: string[];
     src?: string;
     alt?: string;
+    templateId?: string;
+    crossedOut?: boolean;
 }
 
 export const blogPosts: BlogPost[] = [
@@ -2121,9 +2123,10 @@ export const blogPosts: BlogPost[] = [
             },
             {
                 type: 'image',
-                src: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=1000&q=80',
-                alt: 'Modern workspace with laptop showing document templates',
-                content: 'The best resume templates prioritize clean structure and ATS compatibility over flashy visual design.'
+                src: '/images/Section 4 illustration - Your Old Resume.png',
+                alt: 'Legacy ATS-incompatible resume template example',
+                content: 'A classic "beautiful" resume that will fail almost every modern ATS parsing system.',
+                crossedOut: true
             },
             {
                 type: 'heading',
@@ -2236,6 +2239,66 @@ export const blogPosts: BlogPost[] = [
             {
                 type: 'tip',
                 content: 'Every resume template in CV Architect has been tested against the top 20 ATS platforms. They are designed to look professional while ensuring perfect parsing. You can switch between templates with one click without losing any of your content or formatting.'
+            },
+            {
+                type: 'heading',
+                content: '4 Professional Resume Samples You Can Use Today'
+            },
+            {
+                type: 'paragraph',
+                content: 'To give you a clearer picture of what works, here is a collection of high-performing resume samples across different industries and experience levels. These visual examples combine modern aesthetics with rigorous ATS compatibility.'
+            },
+            {
+                type: 'subheading',
+                content: '1. The Styled Resume Template'
+            },
+            {
+                type: 'paragraph',
+                content: 'A polished, sophisticated layout featuring a clear single-column structure with elegant typography. This template provides a sleek design that stands out while remaining clean and fully optimized for applicant tracking systems.'
+            },
+            {
+                type: 'templatePreview',
+                templateId: 'styled',
+                content: 'Perfect for business, finance, and general professional roles where clarity and elegance are valued.'
+            },
+            {
+                type: 'subheading',
+                content: '2. The Ivy League Resume Template'
+            },
+            {
+                type: 'paragraph',
+                content: 'A distinguished, academic-style template with an emphasis on structure and clarity. It leverages traditional serif fonts and crisp text to highlight educational achievements and rigorous academic or professional backgrounds without any unnecessary flair.'
+            },
+            {
+                type: 'templatePreview',
+                templateId: 'wonsulting',
+                content: 'Ideal for ambitious graduates, consulting candidates, and professionals seeking a highly traditional, prestige-focused format.'
+            },
+            {
+                type: 'subheading',
+                content: '3. The Sage Resume Template'
+            },
+            {
+                type: 'paragraph',
+                content: 'A deeply professional, expert-level template offering clear, robust spacing and logical section divisions. It brings balance and ease of readability to dense work histories, making extensive experience feel approachable and well-organized.'
+            },
+            {
+                type: 'templatePreview',
+                templateId: 'sage',
+                content: 'Best for seasoned experts, senior managers, and candidates with comprehensive careers to summarize effectively.'
+            },
+            {
+                type: 'subheading',
+                content: '4. The Student Profile Template'
+            },
+            {
+                type: 'paragraph',
+                content: 'A template designed specifically for entry-level applicants or students. It structurally prioritizes education, skills, and projects when formal work experience is light, framing potential and academic achievement beautifully.'
+            },
+            {
+                type: 'templatePreview',
+                templateId: 'student',
+                content: 'Great for high school students, college freshmen, and entry-level applicants looking to enter the workforce with confidence.'
             }
         ]
     },

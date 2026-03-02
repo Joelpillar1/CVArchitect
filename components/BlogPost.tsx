@@ -6,6 +6,9 @@ import { getPostBySlug, blogPosts, BlogSection } from '../utils/blogData';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
 import SEO from './SEO';
+import ResumePreview from './ResumePreview';
+import { TemplateType } from '../types';
+import { SAMPLE_RESUME_DATA, STUDENT_RESUME_DATA } from '../utils/sampleResumeData';
 
 const fadeUp = {
     hidden: { opacity: 0, y: 20 },
@@ -67,18 +70,50 @@ function renderSection(section: BlogSection, index: number) {
         case 'image':
             return (
                 <figure key={index} className="my-8">
-                    <img
-                        src={section.src}
-                        alt={section.alt || ''}
-                        loading="lazy"
-                        className="w-full h-auto rounded-xl shadow-md object-cover"
-                    />
+                    <div className="relative inline-block w-full">
+                        <img
+                            src={section.src}
+                            alt={section.alt || ''}
+                            loading="lazy"
+                            className={`w-full h-auto rounded-xl shadow-md object-cover ${section.crossedOut ? 'opacity-50 grayscale' : ''}`}
+                        />
+                        {section.crossedOut && (
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <div className="absolute w-[90%] md:w-[70%] h-3 bg-red-500 rounded-full transform rotate-[25deg] shadow-lg"></div>
+                                <div className="absolute w-[90%] md:w-[70%] h-3 bg-red-500 rounded-full transform -rotate-[25deg] shadow-lg"></div>
+                            </div>
+                        )}
+                    </div>
                     {section.content && (
                         <figcaption className="text-center text-sm text-gray-400 mt-3 italic">
                             {section.content}
                         </figcaption>
                     )}
                 </figure>
+            );
+        case 'templatePreview':
+            return (
+                <div key={index} className="my-10 flex flex-col items-center">
+                    <div className="relative w-full max-w-[800px] bg-gray-100 rounded-xl overflow-hidden shadow-lg border border-gray-200" style={{ height: '500px' }}>
+                        {section.templateId && (
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[210mm] origin-top transform scale-[0.45] pointer-events-none select-none my-8">
+                                <ResumePreview data={section.templateId === 'student' ? STUDENT_RESUME_DATA : SAMPLE_RESUME_DATA} template={section.templateId as TemplateType} />
+                            </div>
+                        )}
+                        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+                    </div>
+                    {section.content && (
+                        <p className="text-center text-sm text-gray-500 mt-4 italic max-w-2xl">
+                            {section.content}
+                        </p>
+                    )}
+                    <a
+                        href="/signup"
+                        className="mt-6 inline-flex items-center gap-2 bg-brand-dark text-white px-6 py-3 rounded-xl font-bold hover:bg-brand-green hover:text-brand-dark transition-all shadow-md group"
+                    >
+                        Use This Template <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                    </a>
+                </div>
             );
         default:
             return null;
