@@ -4,17 +4,18 @@
 
 /* Global responsive utilities */
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
-html, body {
-  overflow-x: hidden;
-  max-width: 100vw;
+html,
+body {
+    overflow-x: hidden;
+    max-width: 100vw;
 }
 
 /* Prevent horizontal scroll on mobile */
 body {
-  position: relative;
+    position: relative;
 }
 
 @media print {
@@ -37,7 +38,8 @@ body {
     }
 
     /* Critical: Prevent browser from rasterizing content */
-    html, body {
+    html,
+    body {
         /* Force text rendering, not image rendering */
         -webkit-font-smoothing: antialiased !important;
         -moz-osx-font-smoothing: grayscale !important;
@@ -79,7 +81,7 @@ body {
     }
 
     /* Ensure cover letter inner content maintains its own padding */
-    .print-cover-letter > div {
+    .print-cover-letter>div {
         width: 100% !important;
         max-width: 100% !important;
         margin: 0 !important;
@@ -111,7 +113,7 @@ body {
     }
 
     /* Ensure contact info stays on one line in print */
-    .print-cover-letter header > div.flex {
+    .print-cover-letter header>div.flex {
         flex-wrap: nowrap !important;
         white-space: nowrap !important;
         display: flex !important;

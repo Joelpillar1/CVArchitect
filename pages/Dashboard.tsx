@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { Layout, FileText, Settings as SettingsIcon, Home, ChevronRight, ChevronLeft, LogOut, Bookmark, Menu, X } from 'lucide-react';
+import { Layout, FileText, Settings as SettingsIcon, Home, ChevronRight, ChevronLeft, LogOut, Bookmark, Menu, X, BookOpen } from 'lucide-react';
 import { ResumeData, INITIAL_DATA, TemplateType, SavedTemplate } from '../types';
 import Editor from '../components/Editor';
 import Overview from '../components/Overview';
@@ -12,6 +12,7 @@ import TemplateOnboardingModal from '../components/TemplateOnboardingModal';
 import PaywallModal from '../components/PaywallModal';
 import PricingModal from '../components/PricingModal';
 import CoverLetterPage from './CoverLetterPage';
+import InterviewPrep from './interview';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { UserSubscription, PlanId } from '../types/pricing';
@@ -143,12 +144,12 @@ export default function Dashboard() {
                 console.log('Loading resumes for user:', user.id);
                 const rows = await resumeService.getResumes(user.id);
                 console.log('Fetched resumes from database:', rows.length, rows);
-                
+
                 const templates: SavedTemplate[] = rows
                     .map((r) => {
                         try {
                             let content: any = r.content;
-                            
+
                             // Supabase JSONB fields are usually already objects, but handle string case
                             if (typeof content === 'string') {
                                 try {
@@ -158,16 +159,16 @@ export default function Dashboard() {
                                     return null;
                                 }
                             }
-                            
+
                             // Validate content is an object
                             if (!content || typeof content !== 'object' || Array.isArray(content)) {
                                 console.error(`Invalid resume content for "${r.title}":`, content);
                                 return null;
                             }
-                            
+
                             // Ensure template field exists (fallback to 'free' if missing)
                             const template = content?.template || 'free';
-                            
+
                             return {
                                 id: r.id,
                                 tag: r.title || 'Untitled Resume',
@@ -181,10 +182,10 @@ export default function Dashboard() {
                         }
                     })
                     .filter((t): t is SavedTemplate => t !== null);
-                
+
                 console.log('Processed templates:', templates.length, templates);
                 setSavedTemplates(templates);
-                
+
                 // Only restore from database on initial load, not when navigating back to editor
                 // This prevents overwriting unsaved changes in localStorage
                 const savedResumeId = localStorage.getItem('cv_app_resume_id');
@@ -193,7 +194,7 @@ export default function Dashboard() {
                     if (savedResume) {
                         // Check if we're currently on the editor route - if so, don't overwrite
                         const isOnEditorRoute = location.pathname === '/dashboard/editor';
-                        
+
                         // Only restore from database if:
                         // 1. This is the first load (hasLoadedResumesRef.current === false)
                         // 2. AND we're NOT on the editor route (user isn't actively editing)
@@ -201,7 +202,7 @@ export default function Dashboard() {
                         const localData = loadFromStorage<ResumeData>('cv_app_data', null);
                         const dataMatches = localData && JSON.stringify(localData) === JSON.stringify(savedResume.data);
                         const isInitialLoad = !hasLoadedResumesRef.current;
-                        
+
                         if ((isInitialLoad && !isOnEditorRoute) || dataMatches) {
                             console.log('Restoring saved resume from database:', savedResumeId, savedResume);
                             setCurrentResumeId(savedResumeId);
@@ -233,7 +234,7 @@ export default function Dashboard() {
                     // setResumeData(mostRecent.data);
                     // setSelectedTemplate(mostRecent.baseTemplate);
                 }
-                
+
                 // Mark as loaded
                 hasLoadedResumesRef.current = true;
             } catch (err) {
@@ -355,49 +356,49 @@ export default function Dashboard() {
 
             const checkSubscription = async () => {
                 if (!isPolling) return false; // Component unmounted, stop polling
-                
+
                 attempts++;
                 console.log(`Checking subscription (attempt ${attempts}/${maxAttempts})...`);
-                
+
                 try {
                     const sub = await subscriptionService.getSubscription(user.id);
                     if (!isPolling) return false; // Component unmounted during fetch
-                    
+
                     console.log('Current subscription:', sub);
-                    
+
                     if (sub && (sub.planId === 'week_pass' || sub.planId === 'pro_monthly')) {
                         // Subscription activated!
                         console.log('Subscription activated! Plan:', sub.planId);
                         setUserSubscription(sub);
                         showToast('✅ Subscription activated! You now have unlimited access.', 'success');
-                        
+
                         // Clean URL
                         window.history.replaceState({}, '', '/dashboard');
                         return true;
                     } else {
                         console.log(`Subscription not yet activated. Current plan: ${sub?.planId || 'none'}, Attempt: ${attempts}/${maxAttempts}`);
-                        
+
                         if (attempts < maxAttempts && isPolling) {
                             // Keep polling
                             setTimeout(checkSubscription, pollInterval);
                             return false;
                         } else {
                             if (!isPolling) return false; // Component unmounted
-                            
+
                             // Timeout - show message with manual refresh option
                             console.warn('Subscription activation timeout after', maxAttempts, 'attempts');
-                            
+
                             // Try one more time after a short delay
                             setTimeout(async () => {
                                 if (!isPolling) return; // Component unmounted
-                                
+
                                 try {
                                     console.log('Final subscription check after timeout...');
                                     const refreshedSub = await subscriptionService.getSubscription(user.id);
                                     if (!isPolling) return; // Component unmounted during fetch
-                                    
+
                                     console.log('Final subscription result:', refreshedSub);
-                                    
+
                                     if (refreshedSub && (refreshedSub.planId === 'week_pass' || refreshedSub.planId === 'pro_monthly')) {
                                         setUserSubscription(refreshedSub);
                                         showToast('✅ Subscription activated! You now have unlimited access.', 'success');
@@ -410,7 +411,7 @@ export default function Dashboard() {
                                             10000
                                         );
                                         window.history.replaceState({}, '', '/dashboard');
-                                        
+
                                         // Log for debugging
                                         console.error('Subscription still not activated after timeout. Current subscription:', refreshedSub);
                                         console.error('Expected plan: week_pass or pro_monthly');
@@ -422,19 +423,19 @@ export default function Dashboard() {
                                     window.history.replaceState({}, '', '/dashboard');
                                 }
                             }, 3000);
-                            
+
                             return false;
                         }
                     }
                 } catch (err) {
                     if (!isPolling) return false; // Component unmounted, stop polling
-                    
+
                     // Ignore AbortError - it's not a real error
                     if (err?.name === 'AbortError' || err?.message?.includes('aborted')) {
                         console.log('Subscription check was aborted');
                         return false;
                     }
-                    
+
                     console.error('Error checking subscription:', err);
                     if (attempts < maxAttempts && isPolling) {
                         setTimeout(checkSubscription, pollInterval);
@@ -452,7 +453,7 @@ export default function Dashboard() {
             showToast('Payment cancelled. You can upgrade anytime from settings.', 'info');
             window.history.replaceState({}, '', '/dashboard');
         }
-        
+
         // Cleanup function to stop polling if component unmounts
         return () => {
             isPolling = false;
@@ -548,7 +549,7 @@ export default function Dashboard() {
         <div className="flex h-screen bg-gray-50 overflow-hidden">
             {/* Mobile Menu Overlay */}
             {!isEditorRoute && isMobileMenuOpen && (
-                <div 
+                <div
                     className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
                     onClick={() => setIsMobileMenuOpen(false)}
                 />
@@ -556,51 +557,52 @@ export default function Dashboard() {
 
             {/* Sidebar (hidden on editor route) */}
             {!isEditorRoute && (
-            <aside className={`
+                <aside className={`
                 ${isSidebarCollapsed ? 'w-16' : 'w-64'} 
                 bg-brand-dark text-white transition-all duration-300 flex flex-col
                 fixed md:relative z-50 h-full
                 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
             `}>
-                <div className="p-4 flex items-center justify-between">
-                    {!isSidebarCollapsed && <h1 className="text-xl font-bold">CVArchitect</h1>}
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => setIsMobileMenuOpen(false)}
-                            className="md:hidden p-2 hover:bg-white/10 rounded-lg transition-colors"
-                        >
-                            <X size={20} />
-                        </button>
-                        <button
-                            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                            className="hidden md:flex p-2 hover:bg-white/10 rounded-lg transition-colors"
-                        >
-                            {isSidebarCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
-                        </button>
+                    <div className="p-4 flex items-center justify-between">
+                        {!isSidebarCollapsed && <h1 className="text-xl font-bold">CVArchitect</h1>}
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="md:hidden p-2 hover:bg-white/10 rounded-lg transition-colors"
+                            >
+                                <X size={20} />
+                            </button>
+                            <button
+                                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                                className="hidden md:flex p-2 hover:bg-white/10 rounded-lg transition-colors"
+                            >
+                                {isSidebarCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+                            </button>
+                        </div>
                     </div>
-                </div>
 
-                <nav className="flex-1 px-2 py-4 space-y-2">
-                    <NavItem icon={<Home size={20} />} label="Overview" to="/dashboard" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
-                    <NavItem icon={<Layout size={20} />} label="Templates" to="/dashboard/templates" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
+                    <nav className="flex-1 px-2 py-4 space-y-2">
+                        <NavItem icon={<Home size={20} />} label="Overview" to="/dashboard" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
+                        <NavItem icon={<Layout size={20} />} label="Templates" to="/dashboard/templates" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
                         <NavItem icon={<Bookmark size={20} />} label="My Templates" to="/dashboard/my-templates" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
                         <NavItem icon={<FileText size={20} />} label="Cover Letters" to="/dashboard/cover-letters" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
-                    <NavItem icon={<SettingsIcon size={20} />} label="Settings" to="/dashboard/settings" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
-                </nav>
+                        <NavItem icon={<BookOpen size={20} />} label="Interview Prep" to="/dashboard/interview-prep" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
+                        <NavItem icon={<SettingsIcon size={20} />} label="Settings" to="/dashboard/settings" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
+                    </nav>
 
-                <div className="p-4 border-t border-white/10">
-                    <button
-                        onClick={() => {
-                            signOut();
-                            navigate('/');
-                        }}
-                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-white/10 rounded-lg transition-colors"
-                    >
-                        <LogOut size={20} />
-                        {!isSidebarCollapsed && <span>Sign Out</span>}
-                    </button>
-                </div>
-            </aside>
+                    <div className="p-4 border-t border-white/10">
+                        <button
+                            onClick={() => {
+                                signOut();
+                                navigate('/');
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-2 hover:bg-white/10 rounded-lg transition-colors"
+                        >
+                            <LogOut size={20} />
+                            {!isSidebarCollapsed && <span>Sign Out</span>}
+                        </button>
+                    </div>
+                </aside>
             )}
 
             {/* Main Content */}
@@ -619,13 +621,13 @@ export default function Dashboard() {
                     <Route
                         index
                         element={
-                        <Overview
+                            <Overview
                                 onCreateNew={() => {
                                     // starting a fresh resume; clear current id so autosave creates new entry
                                     setCurrentResumeId(null);
                                     navigate('/dashboard/templates');
                                 }}
-                            savedTemplates={savedTemplates}
+                                savedTemplates={savedTemplates}
                                 onLoadTemplate={(template) => {
                                     setResumeData(template.data);
                                     setSelectedTemplate(template.baseTemplate);
@@ -653,9 +655,9 @@ export default function Dashboard() {
                                         showToast('Resume deleted locally.', 'success');
                                     }
                                 }}
-                            userName={userProfile?.full_name || user?.email || 'User'}
-                            userSubscription={userSubscription}
-                        />
+                                userName={userProfile?.full_name || user?.email || 'User'}
+                                userSubscription={userSubscription}
+                            />
                         }
                     />
 
@@ -663,14 +665,14 @@ export default function Dashboard() {
                     <Route
                         path="templates"
                         element={
-                        <Templates
-                            onSelect={(template) => {
-                                setSelectedTemplate(template);
+                            <Templates
+                                onSelect={(template) => {
+                                    setSelectedTemplate(template);
                                     setCurrentResumeId(null);
                                     setShowOnboardingModal(true);
-                            }}
-                            data={resumeData}
-                        />
+                                }}
+                                data={resumeData}
+                            />
                         }
                     />
 
@@ -678,8 +680,8 @@ export default function Dashboard() {
                     <Route
                         path="my-templates"
                         element={
-                        <MyTemplates
-                            templates={savedTemplates}
+                            <MyTemplates
+                                templates={savedTemplates}
                                 onLoadTemplate={(template) => {
                                     setResumeData(template.data);
                                     setSelectedTemplate(template.baseTemplate);
@@ -802,55 +804,61 @@ export default function Dashboard() {
                         }
                     />
 
+                    {/* Interview Prep Page */}
+                    <Route
+                        path="interview-prep"
+                        element={<InterviewPrep />}
+                    />
+
                     {/* Editor */}
                     <Route
                         path="editor"
                         element={
-                        <Editor
-                            data={resumeData}
+                            <Editor
+                                data={resumeData}
                                 onChange={(newData) => {
                                     setResumeData(newData);
                                     setHasUnsavedChanges(true);
                                 }}
-                            template={selectedTemplate}
-                            onTemplateChange={(template) => {
-                                setSelectedTemplate(template);
-                                // Immediately persist template to localStorage
-                                localStorage.setItem('cv_app_template', template);
-                                
-                                // Update the resume data's template field
-                                const updatedData = { ...resumeData, template };
-                                setResumeData(updatedData);
-                                
-                                // If there's a current resume being edited, update its baseTemplate
-                                if (currentResumeId && user) {
-                                    // Update the saved template in state and get current resume for DB update
-                                    setSavedTemplates(prev => {
-                                        const currentResume = prev.find(t => t.id === currentResumeId);
-                                        
-                                        // Update in database asynchronously (don't block UI)
-                                        if (currentResume) {
-                                            resumeService.updateResume(
-                                                currentResumeId, 
-                                                currentResume.tag, 
-                                                updatedData
-                                            ).catch(err => {
-                                                console.error('Failed to update template in database:', err);
-                                                // Don't show error to user - it's a background sync
-                                            });
-                                        }
-                                        
-                                        return prev.map(t => 
-                                            t.id === currentResumeId 
-                                                ? { ...t, baseTemplate: template, data: updatedData }
-                                                : t
-                                        );
-                                    });
-                                    
-                                    // Mark as having unsaved changes to prompt save
-                                    setHasUnsavedChanges(true);
-                                }
-                            }}
+                                template={selectedTemplate}
+                                onTemplateChange={(template) => {
+                                    setSelectedTemplate(template);
+                                    // Immediately persist template to localStorage
+                                    localStorage.setItem('cv_app_template', template);
+
+                                    // Update the resume data's template field
+                                    const updatedData = { ...resumeData, template };
+                                    setResumeData(updatedData);
+
+                                    // If there's a current resume being edited, update its baseTemplate
+                                    if (currentResumeId && user) {
+                                        // Update the saved template in state and get current resume for DB update
+                                        setSavedTemplates(prev => {
+                                            const currentResume = prev.find(t => t.id === currentResumeId);
+
+                                            // Update in database asynchronously (don't block UI)
+                                            if (currentResume) {
+                                                resumeService.updateResume(
+                                                    currentResumeId,
+                                                    currentResume.tag,
+                                                    updatedData
+                                                ).catch(err => {
+                                                    console.error('Failed to update template in database:', err);
+                                                    // Don't show error to user - it's a background sync
+                                                });
+                                            }
+
+                                            return prev.map(t =>
+                                                t.id === currentResumeId
+                                                    ? { ...t, baseTemplate: template, data: updatedData }
+                                                    : t
+                                            );
+                                        });
+
+                                        // Mark as having unsaved changes to prompt save
+                                        setHasUnsavedChanges(true);
+                                    }
+                                }}
                                 onBack={() => {
                                     if (hasUnsavedChanges) {
                                         const confirmLeave = window.confirm('You have unsaved changes. Are you sure you want to leave without saving?');
@@ -1047,9 +1055,9 @@ export default function Dashboard() {
                     <Route
                         path="settings"
                         element={
-                        <Settings
-                            userSubscription={userSubscription}
-                            onUpgrade={() => setShowPricingModal(true)}
+                            <Settings
+                                userSubscription={userSubscription}
+                                onUpgrade={() => setShowPricingModal(true)}
                                 userProfile={userProfile ? { full_name: userProfile.full_name, avatar_url: userProfile.avatar_url || null } : undefined}
                                 userEmail={user?.email || undefined}
                                 onProfileUpdate={() => {
@@ -1068,27 +1076,27 @@ export default function Dashboard() {
             </main>
 
             {/* Real paywall + pricing modals */}
-                <PaywallModal
-                    isOpen={showPaywall}
-                    onClose={() => setShowPaywall(false)}
-                    onUpgrade={() => {
-                        setShowPaywall(false);
-                        setShowPricingModal(true);
-                    }}
+            <PaywallModal
+                isOpen={showPaywall}
+                onClose={() => setShowPaywall(false)}
+                onUpgrade={() => {
+                    setShowPaywall(false);
+                    setShowPricingModal(true);
+                }}
                 feature="general"
-                    currentPlan={userSubscription.planId}
-                />
+                currentPlan={userSubscription.planId}
+            />
 
-                <PricingModal
-                    isOpen={showPricingModal}
-                    onClose={() => setShowPricingModal(false)}
+            <PricingModal
+                isOpen={showPricingModal}
+                onClose={() => setShowPricingModal(false)}
                 onSelectPlan={(planId: PlanId) => {
                     // In this dashboard preview, just log the selection.
                     // Full subscription handling lives in the main app flow.
                     console.log('Selected plan from dashboard:', planId);
-                    }}
-                    currentPlanId={userSubscription.planId}
-                />
+                }}
+                currentPlanId={userSubscription.planId}
+            />
 
             {/* Onboarding modal: upload vs start from scratch */}
             <TemplateOnboardingModal
