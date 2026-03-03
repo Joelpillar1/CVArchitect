@@ -12,14 +12,19 @@ const formatMonthYear = (dateString: string | null | undefined) => {
 
 const StudentTemplate: React.FC<StudentTemplateProps> = ({ data }) => {
     const { fontSizes } = data;
+  const getSectionHeaderAlignment = () => {
+    if (data.bodyHeaderAlignment === 'center') return 'text-center';
+    if (data.bodyHeaderAlignment === 'right') return 'text-right';
+    return 'text-left';
+  };
     const bodySize = fontSizes?.body || 10.5;
     const smallSize = bodySize * 0.9;
     const accentColor = data.accentColor || '#000000';
 
     const renderSectionHeader = (title: string) => (
         <h2
-            className="uppercase font-bold border-b border-black pb-1 mb-2 mt-4"
-            style={{ color: accentColor, fontSize: `${fontSizes?.sectionTitle || 12}pt` }}
+            className={`uppercase font-bold border-b border-black pb-1 mb-2 mt-4 ${getSectionHeaderAlignment()}`}
+            style={{ color: accentColor, fontSize: `${fontSizes?.sectionTitle || 12}pt` , borderColor: data.accentColor ||"#000000"}}
         >
             {title}
         </h2>
@@ -34,14 +39,14 @@ const StudentTemplate: React.FC<StudentTemplateProps> = ({ data }) => {
                 paddingRight: `${data.margins?.horizontal || 0.8}in`,
                 paddingTop: `${data.margins?.vertical || 0.8}in`,
                 paddingBottom: `${data.margins?.vertical || 0.8}in`,
-                fontFamily: data.font || "Georgia, 'Times New Roman', Times, serif",
+                fontFamily: data.font ||"Georgia, 'Times New Roman', Times, serif",
             }}
         >
             {/* Header */}
-            <header className="text-center mb-6">
+            <header className="text-center mb-6" style={{ marginBottom: `${data.headerGap || 0.15}in` }}>
                 <h1
                     className="uppercase mb-1"
-                    style={{
+                    style={{ marginBottom: `${data.headerItemGap || 0.08}in`, 
                         fontSize: `${fontSizes?.header || 24}pt`,
                     }}
                 >
@@ -64,7 +69,7 @@ const StudentTemplate: React.FC<StudentTemplateProps> = ({ data }) => {
 
             {/* EDUCATION */}
             {data.education && data.education.length > 0 && (
-                <section className="mb-4 break-inside-avoid">
+                <section className="mb-4 break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                     {renderSectionHeader('Education')}
                     <div className="space-y-2">
                         {data.education.map((edu) => (
@@ -84,7 +89,7 @@ const StudentTemplate: React.FC<StudentTemplateProps> = ({ data }) => {
 
             {/* WORK EXPERIENCE */}
             {data.experience && data.experience.length > 0 && (
-                <section className="mb-4 break-inside-avoid">
+                <section className="mb-4 break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                     {renderSectionHeader('Experience')}
                     <div className="space-y-3">
                         {data.experience.map((exp) => (
@@ -120,7 +125,7 @@ const StudentTemplate: React.FC<StudentTemplateProps> = ({ data }) => {
 
             {/* LEADERSHIP */}
             {data.leadership && data.leadership.length > 0 && (
-                <section className="mb-4 break-inside-avoid">
+                <section className="mb-4 break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                     {renderSectionHeader('Leadership')}
                     <div className="space-y-3">
                         {data.leadership.map((lead) => (
@@ -156,7 +161,7 @@ const StudentTemplate: React.FC<StudentTemplateProps> = ({ data }) => {
 
             {/* SKILLS */}
             {(data.skills || (data.additionalInfo && data.additionalInfo.length > 0)) && (
-                <section className="break-inside-avoid">
+                <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                     {renderSectionHeader('Skills')}
                     <div className="space-y-1">
                         {/* If skills are defined as a single string, parse or show it */}
@@ -166,7 +171,7 @@ const StudentTemplate: React.FC<StudentTemplateProps> = ({ data }) => {
                             </div>
                         )}
 
-                        {/* Show additional info which translates well to "Category: skills" */}
+                        {/* Show additional info which translates well to"Category: skills" */}
                         {data.additionalInfo && data.additionalInfo
                             .filter(item => item.label?.trim() && item.value?.trim())
                             .map((item) => (

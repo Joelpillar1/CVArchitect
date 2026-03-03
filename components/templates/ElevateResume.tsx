@@ -36,7 +36,7 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                         >
                             {t.professionalSummary}
                         </h2>
-                        <p className="text-justify leading-relaxed text-gray-900">{data.summary}</p>
+                        <p className="text-justify  text-gray-900">{data.summary}</p>
                     </section>
                 );
 

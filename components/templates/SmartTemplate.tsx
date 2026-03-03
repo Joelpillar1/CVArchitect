@@ -50,7 +50,7 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
                 return data.summary && (
                     <section key="summary" style={{ marginBottom: sectionGap }}>
                         <SectionHeader title="Professional Summary" />
-                        <p className="text-justify leading-relaxed">
+                        <p className="text-justify">
                             {data.summary}
                         </p>
                     </section>
@@ -71,7 +71,7 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
                             {skillColumns.map((column, colIndex) => (
                                 <ul key={colIndex} className="list-disc ml-6 space-y-2 text-gray-800 marker:text-black">
                                     {column.map((skill, index) => (
-                                        <li key={index} className="pl-1 leading-relaxed">
+                                        <li key={index} className="pl-1">
                                             {skill}
                                         </li>
                                     ))}
@@ -209,7 +209,7 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
                         <ul className="list-disc ml-6 space-y-2 text-gray-800 marker:text-black">
                             {parseDescriptionBullets(data.keyAchievements).map((achievement, index) => (
                                 achievement && (
-                                    <li key={index} className="pl-1 leading-relaxed">
+                                    <li key={index} className="pl-1">
                                         {achievement}
                                     </li>
                                 )
@@ -257,7 +257,7 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
         <div
             className="w-[210mm] min-h-[297mm] bg-white text-gray-800 mx-auto"
             style={{
-                fontFamily: data.font || "Georgia, 'Times New Roman', Times, serif",
+                fontFamily: data.font ||"Georgia, 'Times New Roman', Times, serif",
                 fontSize: `${fontSizes?.body || 10.5}pt`,
                 lineHeight: data.lineHeight || 1.4,
                 paddingTop: `${data.margins?.vertical || 0.8}in`,
@@ -275,11 +275,11 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
                         color: accentColor
                     }}
                 >
-                    {data.fullName || "YOUR NAME"}
+                    {data.fullName ||"YOUR NAME"}
                 </h1>
 
                 <div className="text-gray-500 text-lg mb-3 font-serif" style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt` }}>
-                    {data.jobTitle || "Professional Title"}
+                    {data.jobTitle ||"Professional Title"}
                 </div>
 
                 <div className={`flex flex-wrap text-black text-sm border-t-0 pt-0 ${flexAlignment}`} style={{ gap: headerItemGap }}>

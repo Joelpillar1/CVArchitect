@@ -8,6 +8,11 @@ interface StyledTemplateProps {
 
 export default function StyledTemplate({ data }: StyledTemplateProps) {
     const { fontSizes } = data;
+  const getSectionHeaderAlignment = () => {
+    if (data.bodyHeaderAlignment === 'center') return 'text-center';
+    if (data.bodyHeaderAlignment === 'right') return 'text-right';
+    return 'text-left';
+  };
     const accentColor = data.accentColor || '#374151'; // Default to gray-700 if no accent
     const sectionGap = data.sectionGap !== undefined ? `${data.sectionGap}rem` : '1rem';
     const headerGap = data.headerGap !== undefined ? `${data.headerGap}rem` : '1.5rem';
@@ -19,7 +24,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
             className="text-center py-1 mt-0 mb-3 bg-gray-100 break-inside-avoid"
         >
             <h2
-                className="uppercase tracking-widest font-bold font-serif"
+                className={`uppercase tracking-widest font-bold font-serif ${getSectionHeaderAlignment()}`}
                 style={{
                     fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                     color: accentColor
@@ -43,7 +48,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                 return data.summary && (
                     <section key="summary" style={{ marginBottom: sectionGap }}>
                         <SectionHeader title="Professional Summary" />
-                        <p className="text-justify leading-relaxed">
+                        <p className="text-justify">
                             {data.summary}
                         </p>
                     </section>
@@ -237,7 +242,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
         <div
             className="w-[210mm] min-h-[297mm] bg-white text-gray-800 mx-auto"
             style={{
-                fontFamily: data.font || "Georgia, 'Times New Roman', Times, serif",
+                fontFamily: data.font ||"Georgia, 'Times New Roman', Times, serif",
                 fontSize: `${fontSizes?.body || 10}pt`,
                 lineHeight: data.lineHeight || 1.4,
                 paddingTop: `${data.margins?.vertical || 0.8}in`,
@@ -250,12 +255,12 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
             <div className={`${textAlignment}`} style={{ marginBottom: headerGap }}>
                 <h1
                     className="uppercase tracking-widest text-4xl mb-1 text-gray-800"
-                    style={{
+                    style={{ marginBottom: `${data.headerItemGap || 0.08}in`, 
                         fontSize: `${fontSizes?.header || 28}pt`,
                         color: accentColor
                     }}
                 >
-                    {data.fullName || "YOUR NAME"}
+                    {data.fullName ||"YOUR NAME"}
                 </h1>
 
                 <div className={`flex flex-wrap text-gray-600 uppercase tracking-wider text-xs mb-3 ${flexAlignment}`} style={{ gap: headerItemGap }}>
@@ -299,7 +304,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
 
                 <div className="border-t border-b border-gray-400 py-1.5 mb-4">
                     <p className="tracking-[0.2em] font-bold text-gray-700 text-sm" style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt` }}>
-                        {data.jobTitle || "Professional Title"}
+                        {data.jobTitle ||"Professional Title"}
                     </p>
                 </div>
             </div>

@@ -32,7 +32,7 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
                         >
                             {t.professionalSummary}
                         </h2>
-                        <p className="text-gray-600 text-justify" style={{ fontSize: `${smallSize}pt`, lineHeight: '1.5' }}>
+                        <p className="text-gray-600 text-justify" style={{ fontSize: `${smallSize}pt`, }}>
                             {data.summary}
                         </p>
                     </section>
@@ -281,7 +281,7 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
                         >
                             References
                         </h2>
-                        <div className="text-gray-700" style={{ fontSize: `${smallSize}pt`, lineHeight: '1.6' }}>
+                        <div className="text-gray-700" style={{ fontSize: `${smallSize}pt`, }}>
                             {data.referee}
                         </div>
                     </section >

@@ -44,7 +44,7 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
             case 'summary':
                 return data.summary && (
                     <section key="summary" style={{ marginBottom: sectionGap }}>
-                        <p className={`leading-relaxed max-w-4xl mx-auto ${textAlignment}`}>
+                        <p className={`max-w-4xl mx-auto ${textAlignment}`}>
                             {data.summary}
                         </p>
                     </section>
@@ -60,7 +60,7 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
                                     className="list-disc list-outside ml-8 space-y-1 text-black"
                                 >
                                     {skill.trim() && (
-                                        <li className="pl-2 leading-relaxed">
+                                        <li className="pl-2">
                                             {skill.trim()}
                                         </li>
                                     )}
@@ -92,7 +92,7 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
                                         </div>
 
                                         {bullets.length > 0 && (
-                                            <ul className="list-disc ml-8 space-y-1.5 text-black leading-relaxed">
+                                            <ul className="list-disc ml-8 space-y-1.5 text-black">
                                                 {bullets.map((line, i) =>
                                                     line.trim() && (
                                                         <li key={i} className="pl-2">
@@ -146,7 +146,7 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
                                         </div>
 
                                         {bullets.length > 0 && (
-                                            <ul className="list-disc ml-8 space-y-1.5 text-black leading-relaxed">
+                                            <ul className="list-disc ml-8 space-y-1.5 text-black">
                                                 {bullets.map((line, i) =>
                                                     line.trim() && (
                                                         <li key={i} className="pl-2">
@@ -223,7 +223,7 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
                         <ul className="list-disc ml-8 space-y-2 text-black">
                             {achievements.map((achievement, index) => (
                                 achievement.trim() && (
-                                    <li key={index} className="pl-2 leading-relaxed">
+                                    <li key={index} className="pl-2">
                                         {achievement.replace(/^[•-]\s*/, '')}
                                     </li>
                                 )
@@ -257,7 +257,7 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
         <div
             className="w-[210mm] min-h-[297mm] bg-white text-gray-900 mx-auto"
             style={{
-                fontFamily: data.font || "Georgia, 'Times New Roman', Times, serif",
+                fontFamily: data.font ||"Georgia, 'Times New Roman', Times, serif",
                 fontSize: `${fontSizes?.body || 10}pt`,
                 lineHeight: data.lineHeight || 1.5,
                 paddingTop: `${data.margins?.vertical || 1}in`,
@@ -272,15 +272,15 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
                     className="font-normal text-5xl mb-4 text-black"
                     style={{
                         fontSize: `${fontSizes?.header || 38}pt`,
-                        fontFamily: data.font || "Inter, sans-serif",
+                        fontFamily: data.font ||"Inter, sans-serif",
                         color: accentColor
                     }}
                 >
-                    {data.fullName || "YOUR NAME"}
+                    {data.fullName ||"YOUR NAME"}
                 </h1>
 
                 <div className="text-black tracking-[0.2em] text-sm mb-6 font-sans" style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt` }}>
-                    {data.jobTitle || "PROFESSIONAL TITLE"}
+                    {data.jobTitle ||"PROFESSIONAL TITLE"}
                 </div>
 
                 <div className={`flex flex-wrap text-black text-sm font-serif italic ${flexAlignment}`} style={{ gap: headerItemGap }}>

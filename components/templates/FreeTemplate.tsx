@@ -35,7 +35,7 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
                         >
                             Summary
                         </h2>
-                        <p className="text-gray-700 text-justify leading-relaxed" style={{ fontSize: `${bodySize}pt` }}>
+                        <p className="text-gray-700 text-justify" style={{ fontSize: `${bodySize}pt` }}>
                             {data.summary}
                         </p>
                     </section>

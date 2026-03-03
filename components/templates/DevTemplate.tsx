@@ -36,7 +36,7 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                             {t.professionalSummary}
                         </h2>
                         <p
-                            className="text-gray-700 leading-relaxed text-justify"
+                            className="text-gray-700  text-justify"
                             style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
                         >
                             {data.summary}

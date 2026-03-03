@@ -25,10 +25,10 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                 return data.summary && (
                     <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         {/* No title for summary in some Wonsulting variants, but let's check the image. 
-                 The image starts at "WORK EXPERIENCE', no summary visible. 
+                 The image starts at"WORK EXPERIENCE', no summary visible. 
                  However, if summary exists, we should show it. I'll follow the style of other headers. 
              */}
-                        <p className="text-justify leading-relaxed text-gray-900" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{data.summary}</p>
+                        <p className="text-justify  text-gray-900" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{data.summary}</p>
                     </section>
                 );
 
@@ -37,7 +37,7 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                     <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         <h2
                             className={`font-bold uppercase border-b-2 border-black mb-2 ${getSectionHeaderAlignment()}`}
-                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' }}
+                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
                         >
                             {t.technicalSkills} & Interests
                         </h2>
@@ -54,7 +54,7 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                     <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         <h2
                             className={`font-bold uppercase border-b-2 border-black mb-2 ${getSectionHeaderAlignment()}`}
-                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' }}
+                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
                         >
                             Key Achievements
                         </h2>
@@ -75,7 +75,7 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                     <div style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         <h2
                             className={`font-bold uppercase border-b-2 border-black mb-2 break-inside-avoid ${getSectionHeaderAlignment()}`}
-                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' }}
+                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
                         >
                             {t.experienceTitle}
             </h2>
@@ -118,7 +118,7 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                     <div style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         <h2
                             className={`font-bold uppercase border-b-2 border-black mb-2 break-inside-avoid ${getSectionHeaderAlignment()}`}
-                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' }}
+                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
                         >
                             Projects
                         </h2>
@@ -158,7 +158,7 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                         {/* Reusing experience-like header if appropriate, or simpler list */}
                         <h2
                             className={`font-bold uppercase border-b-2 border-black mb-2 ${getSectionHeaderAlignment()}`}
-                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' }}
+                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
                         >
                             {t.certifications}
                         </h2>
@@ -181,7 +181,7 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                     <div style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         <h2
                             className={`font-bold uppercase border-b-2 border-black mb-2 break-inside-avoid ${getSectionHeaderAlignment()}`}
-                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' }}
+                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
                         >
                             {t.educationTitle}
                         </h2>
@@ -208,14 +208,14 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                     <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         <h2
                             className={`font-bold uppercase border-b-2 border-black mb-2 ${getSectionHeaderAlignment()}`}
-                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' }}
+                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
                         >
                             Additional Information
                         </h2>
                         <div className="space-y-1" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
                             {data.additionalInfo.filter(item => item.label.trim() && item.value.trim()).map((item) => (
                                 <div key={item.id} className="text-gray-900">
-                                    <span className="font-bold">{item.label}:</span> <span className="">{item.value}</span>
+                                    <span className="font-bold">{item.label}:</span> <span >{item.value}</span>
                                 </div>
                             ))}
                         </div>
@@ -227,7 +227,7 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                     <div style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         <h2
                             className={`font-bold uppercase border-b-2 border-black mb-2 break-inside-avoid ${getSectionHeaderAlignment()}`}
-                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' }}
+                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
                         >
                             LEADERSHIP EXPERIENCE
                         </h2>
@@ -263,11 +263,11 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                     <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                         <h2
                             className={`font-bold uppercase border-b-2 border-black mb-2 ${getSectionHeaderAlignment()}`}
-                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' }}
+                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
                         >
                             References
                         </h2>
-                        <p className="text-justify leading-relaxed text-gray-900 whitespace-pre-line" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{data.referee}</p>
+                        <p className="text-justify  text-gray-900 whitespace-pre-line" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{data.referee}</p>
                     </section>
                 );
 
@@ -279,7 +279,7 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
     // Header Info Construction
     const headerInfo = [
         data.location || data.address,
-        data.linkedin && `LinkedIn`, // Simplified as per image style usually just saying "LinkedIn" or URL. Image says "LinkedIn".
+        data.linkedin && `LinkedIn`, // Simplified as per image style usually just saying"LinkedIn" or URL. Image says"LinkedIn".
         data.phone,
         data.email
     ].filter(Boolean);
@@ -293,14 +293,14 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                 paddingRight: `${data.margins?.horizontal || 0.5}in`,
                 paddingTop: `${data.margins?.vertical || 0.5}in`,
                 paddingBottom: `${data.margins?.vertical || 0.5}in`,
-                fontFamily: data.font || "'Times New Roman', Times, serif"
+                fontFamily: data.font ||"'Times New Roman', Times, serif"
             }}
         >
             {/* Header */}
             <div className={`mb-6 break-inside-avoid ${data.headerAlignment === 'left' ? 'text-left' : data.headerAlignment === 'right' ? 'text-right' : 'text-center'}`} style={{ marginBottom: `${data.headerGap || 0.15}in` }}>
-                <h1 className="font-bold text-gray-900 mb-1" style={{ fontSize: `${fontSizes?.header || 24}pt` }}>{data.fullName}</h1>
-                {/* We can merge title if needed, but standard is separate line. Image: "Wonsulting Wendy [Professional]" looks like name. */}
-                {data.jobTitle && <div className="" style={{ fontSize: `${fontSizes?.body || fontSizes?.jobTitle || 10}pt` }}>{data.jobTitle}</div>}
+                <h1 className="font-bold text-gray-900 mb-1" style={{ marginBottom: `${data.headerItemGap || 0.08}in`,  fontSize: `${fontSizes?.header || 24}pt` }}>{data.fullName}</h1>
+                {/* We can merge title if needed, but standard is separate line. Image:"Wonsulting Wendy [Professional]" looks like name. */}
+                {data.jobTitle && <div  style={{ fontSize: `${fontSizes?.body || fontSizes?.jobTitle || 10}pt` }}>{data.jobTitle}</div>}
 
                 <div className="flex flex-wrap justify-center gap-1 text-gray-900 mt-1" style={{ fontSize: `${fontSizes?.body || 10.5}pt`, justifyContent: data.headerAlignment === 'left' ? 'flex-start' : data.headerAlignment === 'right' ? 'flex-end' : 'center' }}>
                     {/* Custom joining with | */}

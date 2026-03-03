@@ -35,7 +35,7 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                             {t.professionalSummary}
                         </h2>
                         <div
-                            className="text-gray-700 leading-relaxed"
+                            className="text-gray-700"
                             style={{
                                 fontSize: `${fontSizes?.body || 10.5}pt`
                             }}
@@ -70,7 +70,7 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                                         }}
                                     >
                                         <span className="shrink-0 w-2 inline-block text-left leading-none" style={{ color: accentColor }}>•</span>
-                                        <span className="text-gray-700 flex-1 leading-relaxed">{line.replace(/^[•-]\s*/, '')}</span>
+                                        <span className="text-gray-700 flex-1">{line.replace(/^[•-]\s*/, '')}</span>
                                     </div>
                                 )
                             )}
@@ -165,7 +165,7 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                                                     style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
                                                 >
                                                     <span className="shrink-0 w-2 inline-block text-left leading-none" style={{ color: accentColor }}>•</span>
-                                                    <span className="flex-1 leading-relaxed">{line.replace(/^[•-]\s*/, '')}</span>
+                                                    <span className="flex-1">{line.replace(/^[•-]\s*/, '')}</span>
                                                 </li>
                                             )
                                         )}

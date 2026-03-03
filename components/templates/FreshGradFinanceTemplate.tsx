@@ -12,6 +12,11 @@ const formatMonthYear = (dateString: string | null | undefined) => {
 
 const FreshGradFinanceTemplate: React.FC<FreshGradFinanceTemplateProps> = ({ data }) => {
   const { fontSizes } = data;
+  const getSectionHeaderAlignment = () => {
+    if (data.bodyHeaderAlignment === 'center') return 'text-center';
+    if (data.bodyHeaderAlignment === 'right') return 'text-right';
+    return 'text-left';
+  };
   const bodySize = fontSizes?.body || 10.5;
   const smallSize = bodySize * 0.85;
 
@@ -19,8 +24,8 @@ const FreshGradFinanceTemplate: React.FC<FreshGradFinanceTemplateProps> = ({ dat
 
   const renderSectionHeader = (title: string) => (
     <h2
-      className="uppercase font-bold tracking-[0.14em] text-xs border-b border-black pb-1 mb-2"
-      style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` }}
+      className={`uppercase font-bold tracking-[0.14em] text-xs border-b border-black pb-1 mb-2 ${getSectionHeaderAlignment()}`}
+      style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000", borderColor: data.accentColor ||"#000000"}}
     >
       {title}
     </h2>
@@ -35,14 +40,14 @@ const FreshGradFinanceTemplate: React.FC<FreshGradFinanceTemplateProps> = ({ dat
         paddingRight: `${data.margins?.horizontal || 0.75}in`,
         paddingTop: `${data.margins?.vertical || 0.7}in`,
         paddingBottom: `${data.margins?.vertical || 0.7}in`,
-        fontFamily: data.font || "Times New Roman, serif",
+        fontFamily: data.font ||"Times New Roman, serif",
       }}
     >
       {/* Header */}
-      <header className="text-center mb-4">
+      <header className="text-center mb-4" style={{ marginBottom: `${data.headerGap || 0.15}in` }}>
         <h1
           className="font-bold"
-          style={{
+          style={{ marginBottom: `${data.headerItemGap || 0.08}in`, 
             fontSize: `${fontSizes?.header || 24}pt`,
           }}
         >
@@ -230,7 +235,7 @@ const FreshGradFinanceTemplate: React.FC<FreshGradFinanceTemplateProps> = ({ dat
 
       {/* SKILLS AND INTERESTS */}
       {data.additionalInfo && data.additionalInfo.length > 0 && (
-        <section className="break-inside-avoid">
+        <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
           {renderSectionHeader('Skills and Interests')}
 
           <div className="space-y-1">

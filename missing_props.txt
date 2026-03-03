@@ -1,0 +1,14 @@
+FreshGrad7Template.tsx missing: sectionGap, headerGap, headerItemGap, bodyHeaderAlignment, skillsColumnCount
+FreshGrad8Template.tsx missing: sectionGap, headerGap, headerItemGap, bodyHeaderAlignment, skillsColumnCount, accentColor
+FreshGradArtsTemplate.tsx missing: headerGap, headerItemGap, bodyHeaderAlignment, skillsColumnCount, accentColor
+FreshGradCSTemplate.tsx missing: headerGap, headerItemGap, bodyHeaderAlignment, skillsColumnCount, accentColor
+FreshGradEngTemplate.tsx missing: headerGap, headerItemGap, bodyHeaderAlignment, skillsColumnCount, accentColor
+FreshGradFinanceTemplate.tsx missing: headerGap, headerItemGap, bodyHeaderAlignment, skillsColumnCount, accentColor
+FreshGradMarketingTemplate.tsx missing: headerGap, headerItemGap, bodyHeaderAlignment, skillsColumnCount, accentColor
+FreshGradTemplate.tsx missing: sectionGap, headerGap, headerItemGap, bodyHeaderAlignment, skillsColumnCount
+ProfessionalTemplate.tsx missing: headerGap, headerItemGap, bodyHeaderAlignment, skillsColumnCount, accentColor
+SageTemplate.tsx missing: bodyHeaderAlignment
+StudentTemplate.tsx missing: sectionGap, headerGap, headerItemGap, bodyHeaderAlignment, skillsColumnCount
+StyledTemplate.tsx missing: bodyHeaderAlignment
+TwoColumnTemplate.tsx missing: sectionGap, headerGap, headerItemGap, bodyHeaderAlignment, skillsColumnCount, accentColor
+WonsultingTemplate.tsx missing: headerItemGap, skillsColumnCount, accentColor

@@ -15,6 +15,11 @@ const ACCENT = '#2c4770'; // Dark navy — matches the image's section header co
 
 export default function SageTemplate({ data }: { data: ResumeData }) {
     const { fontSizes } = data;
+  const getSectionHeaderAlignment = () => {
+    if (data.bodyHeaderAlignment === 'center') return 'text-center';
+    if (data.bodyHeaderAlignment === 'right') return 'text-right';
+    return 'text-left';
+  };
     const t = getTranslation((data.language as Language) || 'en');
 
     const accentColor = data.accentColor && data.accentColor !== '#000000' ? data.accentColor : ACCENT;
@@ -37,7 +42,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
             }}
         >
             <h2
-                className="font-bold tracking-wide uppercase"
+                className={`font-bold tracking-wide uppercase ${getSectionHeaderAlignment()}`}
                 style={{
                     fontSize: `${fontSizes?.sectionTitle || 12}pt`,
                     color: accentColor,
@@ -61,7 +66,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                     >
                         <SectionTitle>Professional Summary</SectionTitle>
                         <p
-                            className="text-gray-900 leading-relaxed"
+                            className="text-gray-900"
                             style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
                         >
                             {data.summary}
@@ -121,7 +126,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                                             .split('\n')
                                             .map((line, i) =>
                                                 line.trim() ? (
-                                                    <div key={i} className="relative pl-2 leading-relaxed">
+                                                    <div key={i} className="relative pl-2">
                                                         <span className="absolute left-[-1rem] text-gray-600">·</span>
                                                         {line.replace(/^[•·\-*]\s*/, '')}
                                                     </div>
@@ -177,7 +182,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                                             .split('\n')
                                             .map((line, i) =>
                                                 line.trim() ? (
-                                                    <div key={i} className="relative pl-2 leading-relaxed">
+                                                    <div key={i} className="relative pl-2">
                                                         <span className="absolute left-[-1rem] text-gray-600">·</span>
                                                         {line.replace(/^[•·\-*]\s*/, '')}
                                                     </div>
@@ -322,7 +327,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                         >
                             {achievements.map((line, i) =>
                                 line.trim() ? (
-                                    <div key={i} className="relative pl-2 leading-relaxed">
+                                    <div key={i} className="relative pl-2">
                                         <span className="absolute left-[-1rem] text-gray-600">·</span>
                                         {line.replace(/^[•·\-*]\s*/, '')}
                                     </div>
@@ -451,7 +456,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                     >
                         <SectionTitle>References</SectionTitle>
                         <p
-                            className="text-gray-900 leading-relaxed whitespace-pre-line"
+                            className="text-gray-900  whitespace-pre-line"
                             style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
                         >
                             {data.referee}
@@ -505,7 +510,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
         <div
             className="resume-content text-gray-900"
             style={{
-                fontFamily: data.font || "'Georgia', 'Times New Roman', serif",
+                fontFamily: data.font ||"'Georgia', 'Times New Roman', serif",
                 lineHeight: data.lineHeight || 1.4,
                 paddingLeft: `${data.margins?.horizontal || 0.55}in`,
                 paddingRight: `${data.margins?.horizontal || 0.55}in`,

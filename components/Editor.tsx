@@ -29,6 +29,15 @@ import ElegantTemplate from './templates/ElegantTemplate';
 import ProfessionalTemplate from './templates/ProfessionalTemplate';
 import TwoColumnTemplate from './templates/TwoColumnTemplate';
 import SageTemplate from './templates/SageTemplate';
+import FreshGradTemplate from './templates/FreshGradTemplate';
+import FreshGradFinanceTemplate from './templates/FreshGradFinanceTemplate';
+import FreshGradCSTemplate from './templates/FreshGradCSTemplate';
+import FreshGradArtsTemplate from './templates/FreshGradArtsTemplate';
+import FreshGradEngTemplate from './templates/FreshGradEngTemplate';
+import FreshGradMarketingTemplate from './templates/FreshGradMarketingTemplate';
+import FreshGrad7Template from './templates/FreshGrad7Template';
+import FreshGrad8Template from './templates/FreshGrad8Template';
+import StudentTemplate from './templates/StudentTemplate';
 import CreditDisplay from './CreditDisplay';
 
 interface EditorProps {
@@ -134,7 +143,6 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
   }, [data.fullName]);
 
   const handleDownload = () => {
-    const subscriptionManager = new SubscriptionManager(userSubscription);
     if (!canAccessTemplate(userSubscription.planId, template)) {
       onShowPaywall?.('export');
       return;
@@ -174,10 +182,6 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
       // Add a small delay to ensure DOM is ready
       requestAnimationFrame(() => {
         // Trigger browser print dialog
-        // Note: For best results, users should:
-        // 1. Use Chrome/Edge browser
-        // 2. In print dialog, ensure "Background graphics" is enabled
-        // 3. Use "Save as PDF" (not "Print to PDF" which may rasterize)
         window.print();
         document.title = originalTitle;
         setIsDownloading(false);
@@ -186,8 +190,6 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
   };
 
   const handleCoverLetterDownload = (content: string) => {
-    const subscriptionManager = new SubscriptionManager(userSubscription);
-    // Optional: Check export permissions for Cover Letter too, if desired
     if (!canAccessTemplate(userSubscription.planId, template)) {
       onShowPaywall?.('export');
       return;
@@ -236,6 +238,15 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
       case 'professional': return <ProfessionalTemplate data={data} />;
       case 'twocolumn': return <TwoColumnTemplate data={data} />;
       case 'sage': return <SageTemplate data={data} />;
+      case 'freshgrad1': return <FreshGradTemplate data={data} />;
+      case 'freshgrad2': return <FreshGradFinanceTemplate data={data} />;
+      case 'freshgrad3': return <FreshGradCSTemplate data={data} />;
+      case 'freshgrad4': return <FreshGradArtsTemplate data={data} />;
+      case 'freshgrad5': return <FreshGradEngTemplate data={data} />;
+      case 'freshgrad6': return <FreshGradMarketingTemplate data={data} />;
+      case 'freshgrad7': return <FreshGrad7Template data={data} />;
+      case 'freshgrad8': return <FreshGrad8Template data={data} />;
+      case 'student': return <StudentTemplate data={data} />;
       default: return <VanguardTemplate data={data} />;
     }
   };

@@ -13,14 +13,19 @@ const formatMonthYear = (dateString: string | null | undefined) => {
 
 const FreshGrad8Template: React.FC<FreshGrad8TemplateProps> = ({ data }) => {
     const { fontSizes } = data;
+  const getSectionHeaderAlignment = () => {
+    if (data.bodyHeaderAlignment === 'center') return 'text-center';
+    if (data.bodyHeaderAlignment === 'right') return 'text-right';
+    return 'text-left';
+  };
     const bodySize = fontSizes?.body || 10.5;
     const smallSize = bodySize * 0.95;
 
     const renderSectionHeader = (title: string) => (
         <div className="mb-2 mt-4 break-inside-avoid">
             <h2
-                className="uppercase text-gray-900 font-serif"
-                style={{ fontSize: `${fontSizes?.sectionTitle || 13}pt`, letterSpacing: '0.05em' }}
+                className={`uppercase text-gray-900 font-serif ${getSectionHeaderAlignment()}`}
+                style={{ fontSize: `${fontSizes?.sectionTitle || 13}pt`, letterSpacing: '0.05em' , color: data.accentColor ||"#000000"}}
             >
                 {title}
             </h2>
@@ -33,7 +38,7 @@ const FreshGrad8Template: React.FC<FreshGrad8TemplateProps> = ({ data }) => {
             className="resume-content flex flex-col w-full h-full bg-white relative"
             style={{
                 lineHeight: data.lineHeight || 1.4,
-                fontFamily: data.font || "Georgia, 'Times New Roman', Times, serif",
+                fontFamily: data.font ||"Georgia, 'Times New Roman', Times, serif",
                 paddingLeft: `${data.margins?.horizontal || 0.75}in`,
                 paddingRight: `${data.margins?.horizontal || 0.75}in`,
                 paddingTop: `${data.margins?.vertical || 0.5}in`,
@@ -44,7 +49,7 @@ const FreshGrad8Template: React.FC<FreshGrad8TemplateProps> = ({ data }) => {
             <div className="w-full text-center mb-4 break-inside-avoid">
                 <h1
                     className="font-bold text-gray-900 font-serif"
-                    style={{
+                    style={{ marginBottom: `${data.headerItemGap || 0.08}in`, 
                         fontSize: `${fontSizes?.header || 26}pt`,
                     }}
                 >
@@ -79,7 +84,7 @@ const FreshGrad8Template: React.FC<FreshGrad8TemplateProps> = ({ data }) => {
 
             {/* EDUCATION */}
             {data.education && data.education.length > 0 && (
-                <section className="mb-4 break-inside-avoid">
+                <section className="mb-4 break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                     {renderSectionHeader('Education')}
                     <div className="space-y-3">
                         {data.education.map((edu) => (
@@ -88,7 +93,7 @@ const FreshGrad8Template: React.FC<FreshGrad8TemplateProps> = ({ data }) => {
                                     {edu.degree || 'Degree'} {edu.relevantCourses && `| ${edu.relevantCourses}`}
                                 </div>
                                 <div className="text-gray-800" style={{ fontSize: `${bodySize}pt` }}>
-                                    {edu.school} {edu.gpa && ` • ${edu.gpa} `} {edu.year && ` • ${edu.year}`}
+                                    {edu.school} {edu.gpa && ` • ${edu.gpa}`} {edu.year && ` • ${edu.year}`}
                                 </div>
                             </div>
                         ))}
@@ -98,7 +103,7 @@ const FreshGrad8Template: React.FC<FreshGrad8TemplateProps> = ({ data }) => {
 
             {/* EXPERIENCE */}
             {data.experience && data.experience.length > 0 && (
-                <section className="mb-4 break-inside-avoid">
+                <section className="mb-4 break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                     {renderSectionHeader('Experience')}
                     <div className="space-y-3">
                         {data.experience.map((exp) => (
@@ -135,7 +140,7 @@ const FreshGrad8Template: React.FC<FreshGrad8TemplateProps> = ({ data }) => {
 
             {/* INVOLVEMENT (Leadership data) */}
             {data.leadership && data.leadership.length > 0 && (
-                <section className="mb-4 break-inside-avoid">
+                <section className="mb-4 break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                     {renderSectionHeader('Leadership')}
                     <div className="space-y-3">
                         {data.leadership.map((lead) => (
@@ -169,7 +174,7 @@ const FreshGrad8Template: React.FC<FreshGrad8TemplateProps> = ({ data }) => {
 
             {/* SKILLS & INTERESTS */}
             {((data.additionalInfo && data.additionalInfo.length > 0) || data.skills) && (
-                <section className="break-inside-avoid">
+                <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
                     {renderSectionHeader('Skills')}
                     <div className="space-y-1">
                         {data.skills && (

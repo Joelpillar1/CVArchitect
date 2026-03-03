@@ -33,7 +33,7 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                             {t.professionalSummary}
                         </h2>
                         <p
-                            className="text-gray-700 leading-relaxed text-justify"
+                            className="text-gray-700  text-justify"
                             style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
                         >
                             {data.summary}
@@ -63,7 +63,7 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                                         style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
                                     >
                                         <span className="font-bold shrink-0 w-2 text-[9px] leading-none inline-block" style={{ color: accentColor }}>•</span>
-                                        <span className="text-gray-700 flex-1 leading-relaxed">{line.replace(/^[•-]\s*/, '')}</span>
+                                        <span className="text-gray-700 flex-1">{line.replace(/^[•-]\s*/, '')}</span>
                                     </div>
                                 )
                             )}
@@ -155,7 +155,7 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                                                         style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
                                                     >
                                                         <span className="font-bold shrink-0 w-2 text-[9px] leading-none inline-block" style={{ color: accentColor }}>•</span>
-                                                        <span className="flex-1 leading-relaxed">{line.replace(/^[•-]\s*/, '')}</span>
+                                                        <span className="flex-1">{line.replace(/^[•-]\s*/, '')}</span>
                                                     </li>
                                                 )
                                             )}

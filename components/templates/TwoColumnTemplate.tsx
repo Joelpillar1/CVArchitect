@@ -10,15 +10,20 @@ const formatMonthYear = (dateString: string | null | undefined) => {
 
 export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
   const { fontSizes } = data;
+  const getSectionHeaderAlignment = () => {
+    if (data.bodyHeaderAlignment === 'center') return 'text-center';
+    if (data.bodyHeaderAlignment === 'right') return 'text-right';
+    return 'text-left';
+  };
   const t = getTranslation(data.language as Language || 'en');
 
   return (
     <div
       className="w-full bg-white text-black relative"
       style={{
-        fontFamily: data.font || "Arial, Helvetica, sans-serif",
+        fontFamily: data.font ||"Arial, Helvetica, sans-serif",
         fontSize: `${fontSizes?.body || 10}pt`,
-        lineHeight: 1.4,
+        
         paddingTop: `${data.margins?.vertical || 0.5}in`,
         paddingBottom: `${data.margins?.vertical || 0.5}in`,
         paddingLeft: `${data.margins?.horizontal || 0.5}in`,
@@ -32,14 +37,14 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
       <div className="absolute right-0 top-0 bottom-0 w-[1px] bg-pink-300 opacity-40"></div>
 
       {/* Header - Full Width, Centered */}
-      <header className="text-center mb-6 break-inside-avoid pb-4 border-b border-gray-300">
+      <header className="text-center mb-6 break-inside-avoid pb-4 border-b border-gray-300" style={{ marginBottom: `${data.headerGap || 0.15}in` }}>
         <h1
           className="font-bold uppercase text-black mb-1"
-          style={{
+          style={{ marginBottom: `${data.headerItemGap || 0.08}in`, 
             fontSize: `${fontSizes?.header || 28}pt`,
           }}
         >
-          {data.fullName || "YOUR NAME"}
+          {data.fullName ||"YOUR NAME"}
         </h1>
         <p
           className="text-black mb-3"
@@ -47,7 +52,7 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
             fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt`,
           }}
         >
-          {data.jobTitle || "Title Here"}
+          {data.jobTitle ||"Title Here"}
         </p>
       </header>
 
@@ -58,10 +63,10 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
         {/* Left Column - Narrow */}
         <div className="space-y-5">
           {/* CONTACT Section */}
-          <section className="break-inside-avoid">
+          <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
             <h2
-              className="font-bold uppercase underline mb-2 text-left text-black"
-              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` }}
+              className={`font-bold uppercase underline mb-2  text-black ${getSectionHeaderAlignment()}`}
+              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000"}}
             >
               CONTACT
             </h2>
@@ -104,10 +109,10 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
 
           {/* EDUCATION Section */}
           {data.education && data.education.length > 0 && (
-            <section className="break-inside-avoid">
+            <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
               <h2
-                className="font-bold uppercase underline mb-2 text-left text-black"
-                style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` }}
+                className={`font-bold uppercase underline mb-2  text-black ${getSectionHeaderAlignment()}`}
+                style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000"}}
               >
                 EDUCATION
               </h2>
@@ -133,10 +138,10 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
 
           {/* CAREER HIGHLIGHTS Section */}
           {data.keyAchievements && (
-            <section className="break-inside-avoid">
+            <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
               <h2
-                className="font-bold uppercase underline mb-2 text-left text-black"
-                style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` }}
+                className={`font-bold uppercase underline mb-2  text-black ${getSectionHeaderAlignment()}`}
+                style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000"}}
               >
                 CAREER HIGHLIGHTS
               </h2>
@@ -166,10 +171,10 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
 
           {/* EXPERTISE Section */}
           {data.skills && data.skills.trim() && (
-            <section className="break-inside-avoid">
+            <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
               <h2
-                className="font-bold uppercase underline mb-2 text-left text-black"
-                style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` }}
+                className={`font-bold uppercase underline mb-2  text-black ${getSectionHeaderAlignment()}`}
+                style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000"}}
               >
                 EXPERTISE
               </h2>
@@ -189,15 +194,15 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
         <div className="space-y-5">
           {/* PROFESSIONAL SUMMARY Section */}
           {data.summary && (
-            <section className="break-inside-avoid">
+            <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
               <h2
-                className="font-bold uppercase underline mb-2 text-left text-black"
-                style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` }}
+                className={`font-bold uppercase underline mb-2  text-black ${getSectionHeaderAlignment()}`}
+                style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000"}}
               >
                 PROFESSIONAL SUMMARY
               </h2>
               <p
-                className="text-black text-justify leading-relaxed"
+                className="text-black text-justify"
                 style={{ fontSize: `${fontSizes?.body || 10}pt` }}
               >
                 {data.summary}
@@ -207,10 +212,10 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
 
           {/* EXPERIENCE Section */}
           {data.experience && data.experience.length > 0 && (
-            <section className="break-inside-avoid">
+            <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
               <h2
-                className="font-bold uppercase underline mb-2 text-left text-black"
-                style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` }}
+                className={`font-bold uppercase underline mb-2  text-black ${getSectionHeaderAlignment()}`}
+                style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000"}}
               >
                 EXPERIENCE
               </h2>
@@ -239,7 +244,7 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
                       {/* Overview paragraph (if exists) */}
                       {overview.trim() && (
                         <p
-                          className="text-black text-justify mb-2 leading-relaxed"
+                          className="text-black text-justify mb-2"
                           style={{ fontSize: `${fontSizes?.body || 10}pt` }}
                         >
                           {overview}

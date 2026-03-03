@@ -39,7 +39,7 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
                         >
                             {t.professionalSummary}
                         </h2>
-                        <p className="text-justify leading-relaxed text-gray-700" style={{ fontSize: `${bodySize}pt` }}>
+                        <p className="text-justify  text-gray-700" style={{ fontSize: `${bodySize}pt` }}>
                             {data.summary}
                         </p>
                     </section>

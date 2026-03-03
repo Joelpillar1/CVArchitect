@@ -29,7 +29,7 @@ export default function ClassicTemplate({ data }: { data: ResumeData }) {
             >
               {t.professionalSummary}
             </h2>
-            <p className="text-justify leading-relaxed text-gray-800" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{data.summary}</p>
+            <p className="text-justify  text-gray-800" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{data.summary}</p>
           </section>
         );
 
@@ -232,7 +232,7 @@ export default function ClassicTemplate({ data }: { data: ResumeData }) {
             >
               References
             </h2>
-            <p className="text-justify leading-relaxed text-gray-800 whitespace-pre-line" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{data.referee}</p>
+            <p className="text-justify  text-gray-800 whitespace-pre-line" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{data.referee}</p>
           </section>
         );
 

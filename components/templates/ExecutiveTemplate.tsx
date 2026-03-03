@@ -8,7 +8,7 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
   const { fontSizes } = data;
 
   const getSectionHeaderClass = () => {
-    const base = "font-black text-gray-900 uppercase tracking-[0.2em] mb-4";
+    const base ="font-black text-gray-900 uppercase tracking-[0.2em] mb-4";
     if (data.bodyHeaderAlignment === 'center') return `${base} text-center border-b pb-2`;
     if (data.bodyHeaderAlignment === 'right') return `${base} text-right border-r-2 pr-3`;
     return `${base} border-l-2 pl-3`;
@@ -22,7 +22,7 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
         return data.summary && (
           <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
             <h2 className={getSectionHeaderClass()} style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: data.accentColor || '#000000' }}>{t.professionalSummary}</h2>
-            <p className="text-gray-700 leading-loose text-justify font-medium">{data.summary}</p>
+            <p className="text-gray-700  text-justify font-medium">{data.summary}</p>
           </section>
         );
 
@@ -40,7 +40,7 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
             <h2 className={getSectionHeaderClass()} style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: data.accentColor || '#000000' }}>{t.technicalSkills}</h2>
             <div className={`grid gap-x-6 ${columnCount === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
               {skillColumns.map((column, colIndex) => (
-                <ul key={colIndex} className="list-disc ml-6 space-y-2 text-gray-700 leading-relaxed">
+                <ul key={colIndex} className="list-disc ml-6 space-y-2 text-gray-700">
                   {column.map((skill, index) => (
                     <li key={index} className="pl-1">
                       {skill}
@@ -58,7 +58,7 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
         return achievements.length > 0 && (
           <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
             <h2 className={getSectionHeaderClass()} style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: data.accentColor || '#000000' }}>Key Achievements</h2>
-            <ul className="list-disc ml-6 space-y-2 text-gray-700 leading-relaxed">
+            <ul className="list-disc ml-6 space-y-2 text-gray-700">
               {achievements.map((line, i) => (
                 line.trim() && (
                   <li key={i} className="pl-1">
@@ -125,7 +125,7 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
                       {project.technologies}
                     </div>
                   )}
-                  <div className="text-gray-700 leading-relaxed space-y-2">
+                  <div className="text-gray-700  space-y-2">
                     <div className="flex gap-3">
                       <span className="text-gray-300 mt-1.5 w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0 block"></span>
                       <span className="flex-1 whitespace-pre-line">{project.description}</span>
@@ -193,7 +193,7 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
               References
             </h2>
             <div
-              className="text-gray-700 leading-relaxed whitespace-pre-line pl-3"
+              className="text-gray-700  whitespace-pre-line pl-3"
               style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
             >
               {data.referee}

@@ -33,7 +33,7 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                             {t.professionalSummary}
                         </h2>
                         <div className="mb-4 h-px w-full" style={{ backgroundColor: accentColor }}></div>
-                        <p className="leading-relaxed text-justify text-gray-700">
+                        <p className="text-justify text-gray-700">
                             {data.summary}
                         </p>
                     </section>
@@ -242,7 +242,7 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                             References
                         </h2>
                         <div className="mb-4 h-px w-full" style={{ backgroundColor: accentColor }}></div>
-                        <div className="text-justify leading-relaxed text-gray-700 whitespace-pre-line">
+                        <div className="text-justify  text-gray-700 whitespace-pre-line">
                             {data.referee}
                         </div>
                     </section>

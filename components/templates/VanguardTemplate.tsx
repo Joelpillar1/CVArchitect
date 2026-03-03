@@ -40,7 +40,7 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
             >
               {t.professionalSummary}
             </h2>
-            <p className="leading-relaxed text-justify">{data.summary}</p>
+            <p className="text-justify">{data.summary}</p>
           </section>
         );
 

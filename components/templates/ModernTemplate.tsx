@@ -28,7 +28,7 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
             >
               {t.professionalSummary}
             </h2>
-            <p className="text-gray-700 leading-relaxed">{data.summary}</p>
+            <p className="text-gray-700">{data.summary}</p>
           </section>
         );
 
@@ -217,7 +217,7 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
               References
             </h2>
             <p
-              className="leading-relaxed text-gray-700 whitespace-pre-line"
+              className="text-gray-700 whitespace-pre-line"
               style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
             >
               {data.referee}

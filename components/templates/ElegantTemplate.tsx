@@ -49,7 +49,7 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
                 return data.summary && (
                     <section key="summary" style={{ marginBottom: sectionGap }}>
                         <SectionHeader title="Professional Summary" />
-                        <p className="text-justify leading-relaxed text-gray-700">
+                        <p className="text-justify  text-gray-700">
                             {data.summary}
                         </p>
                     </section>
@@ -70,7 +70,7 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
                             {skillColumns.map((column, colIndex) => (
                                 <ul key={colIndex} className="list-disc ml-5 space-y-1 text-gray-700">
                                     {column.map((skill, index) => (
-                                        <li key={index} className="pl-1 leading-relaxed">
+                                        <li key={index} className="pl-1">
                                             {skill}
                                         </li>
                                     ))}
@@ -229,7 +229,7 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
                         <ul className="list-disc ml-5 space-y-1 text-gray-700">
                             {achievements.map((achievement, index) => (
                                 achievement.trim() && (
-                                    <li key={index} className="pl-1 leading-relaxed">
+                                    <li key={index} className="pl-1">
                                         {achievement.replace(/^[•-]\s*/, '')}
                                     </li>
                                 )
@@ -263,7 +263,7 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
         <div
             className="w-[210mm] min-h-[297mm] bg-white text-gray-800 relative mx-auto"
             style={{
-                fontFamily: data.font || "Georgia, 'Times New Roman', Times, serif",
+                fontFamily: data.font ||"Georgia, 'Times New Roman', Times, serif",
                 fontSize: `${fontSizes?.body || 10.5}pt`,
                 lineHeight: data.lineHeight || 1.5,
                 paddingTop: `${data.margins?.vertical || 1.25}in`,
@@ -279,14 +279,14 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
                     style={{
                         fontSize: `${fontSizes?.header || 36}pt`,
                         color: accentColor,
-                        fontFamily: data.font || "Inter, sans-serif"
+                        fontFamily: data.font ||"Inter, sans-serif"
                     }}
                 >
-                    {data.fullName || "Your Name"}
+                    {data.fullName ||"Your Name"}
                 </h1>
 
                 <div className="text-gray-600 tracking-widest text-sm mb-3 font-bold" style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt` }}>
-                    {data.jobTitle || "Professional Title"}
+                    {data.jobTitle ||"Professional Title"}
                 </div>
 
                 <div className={`flex flex-wrap text-gray-600 text-sm ${flexAlignment}`} style={{ gap: headerItemGap }}>
