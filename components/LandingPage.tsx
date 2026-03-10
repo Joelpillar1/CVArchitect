@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, Check, Star, X, Menu, FileText, Sparkles, Download, NotebookPen, LayoutTemplate, Zap, Shield, MousePointer2, User } from 'lucide-react';
+import { ArrowRight, Check, Star, X, Menu, FileText, Sparkles, Download, NotebookPen, LayoutTemplate, Zap, Shield, MousePointer2, User, MessageCircle, Repeat2, Heart, Share, BadgeCheck, BarChart2, Bookmark, Upload, MoreHorizontal } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -280,7 +280,7 @@ export default function LandingPage() {
         whileInView="visible"
         viewport={{ once: true }}
         variants={staggerContainer}
-        className="pt-32 pb-20 px-6 text-center max-w-5xl mx-auto"
+        className="pt-32 pb-10 px-6 text-center max-w-5xl mx-auto flex flex-col items-center"
       >
         {/* Hero Image */}
         <motion.div
@@ -305,17 +305,24 @@ export default function LandingPage() {
 
         <motion.h1
           variants={fadeInUp}
-          className="text-4xl md:text-[52px] font-extrabold tracking-tight mb-8 leading-tight text-brand-dark max-w-5xl mx-auto"
+          className="text-4xl md:text-[52px] font-extrabold tracking-tight mb-6 leading-tight text-brand-dark max-w-4xl mx-auto"
           style={{ fontFamily: 'Graphik, sans-serif' }}
         >
-          <span className="block mb-2">Getting <span className="text-brand-green inline-block relative">
-            "Unfortunately"
+          <span className="block mb-2">Turn any job description into a</span>
+          <span className="block"><span className="text-brand-green inline-block relative">
+            tailored resume
             <svg className="absolute w-full h-2 bottom-0 left-0 text-brand-green/30" viewBox="0 0 100 10" preserveAspectRatio="none">
               <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="3" fill="none" />
             </svg>
-          </span> Message?</span>
-          <span className="block">Your Next Resume Should <span className="text-brand-green">Hit Different.</span></span>
+          </span> in seconds</span>
         </motion.h1>
+
+        <motion.p
+          variants={fadeInUp}
+          className="text-xl text-gray-600 font-medium mb-6 max-w-2xl mx-auto leading-relaxed"
+        >
+          Upload your resume. Paste the job description. CVArchitect optimizes your resume automatically.
+        </motion.p>
 
         <motion.div variants={fadeInUp}>
           <motion.button
@@ -331,9 +338,9 @@ export default function LandingPage() {
       </motion.header>
 
       {/* Section 2: Editor Preview & Value Prop */}
-      <section id="features" className="py-16 px-6 bg-white overflow-hidden">
+      <section id="features" className="pt-0 pb-16 px-6 bg-white overflow-hidden">
         <div className="max-w-6xl mx-auto">
-          {/* Top: Interactive Editor Demo (Supademo embed) */}
+          {/* Top: Interactive Editor Demo (YouTube video) */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 50 }}
             whileInView={{ opacity: 1, scale: 1, y: 0 }}
@@ -341,27 +348,20 @@ export default function LandingPage() {
             transition={{ duration: 0.8 }}
             className="mb-12 relative"
           >
-            {/* Supademo embed - hidden on mobile */}
-            <div className="hidden md:block relative w-full max-w-5xl mx-auto aspect-video overflow-hidden rounded-xl">
+            {/* Video embed - visible on all devices */}
+            <div className="relative w-full max-w-5xl mx-auto aspect-video overflow-hidden rounded-xl bg-black shadow-2xl border-2 md:border-4 border-brand-dark">
               <iframe
-                src="https://app.supademo.com/embed/cmli04cay1h0d53516ufxiyso?embed_v=2&utm_source=embed"
+                src="https://www.youtube.com/embed/5ul_UqO1T7g"
                 loading="lazy"
-                title="Build and Customize Your Professional Resume with CVArchitect"
-                allow="clipboard-write"
+                title="CV Architect Demo Video"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 frameBorder="0"
                 allowFullScreen
                 style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
               />
             </div>
 
-            {/* Mobile Image - shown only on mobile */}
-            <div className="md:hidden w-full max-w-sm mx-auto overflow-hidden rounded-2xl shadow-xl border border-gray-100 bg-white">
-              <img
-                src="/images/Resume Tutorial/mobile show.png"
-                alt="CV Architect Mobile Interface Demo"
-                className="w-full h-auto object-contain"
-              />
-            </div>
+
 
             {/* Green Banner Overlay */}
             <motion.div
@@ -369,7 +369,7 @@ export default function LandingPage() {
               whileInView={{ x: "-50%", opacity: 1, rotate: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 0.4, type: "spring" }}
-              className="absolute -bottom-6 left-1/2 w-[110%] md:w-3/4 bg-brand-green py-4 px-8 shadow-lg flex items-center justify-center z-10"
+              className="absolute -bottom-6 left-1/2 w-[110%] md:w-3/4 bg-brand-green py-4 px-8 shadow-lg hidden md:flex items-center justify-center z-10"
             >
               <p className="text-brand-dark font-bold text-lg md:text-xl text-center">
                 Click Build My Resume To See How CV Architect Is Different
@@ -378,7 +378,7 @@ export default function LandingPage() {
           </motion.div>
 
           {/* Bottom Content: Text + Image */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mt-24">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mt-12">
             <motion.div
               initial="hidden"
               whileInView="visible"
@@ -452,7 +452,7 @@ export default function LandingPage() {
             <motion.p variants={fadeInUp} className="text-xl text-gray-600 font-medium mb-4 leading-relaxed">
               You spend hours perfecting your resume. You hit 'Apply'. Silence.
             </motion.p>
-            <motion.p variants={fadeInUp} className="text-lg text-gray-500 mb-10 leading-relaxed max-w-md">
+            <motion.p variants={fadeInUp} className="text-lg text-gray-500 mb-6 leading-relaxed max-w-md">
               75% of resumes are rejected by ATS filters before a recruiter ever looks
             </motion.p>
 
@@ -660,23 +660,23 @@ export default function LandingPage() {
             {[
               {
                 icon: FileText,
-                title: "Insert Your Details",
-                desc: "Simple guided requirement about your experience and skills. No technical jargon.",
-                step: "Step One",
+                title: "Upload Your Resume",
+                desc: "Simplely upload your existing resume to proceed or start from scratch. No technical jargon.",
+                step: "Step 1",
                 rotate: "-2"
               },
               {
                 icon: Sparkles,
                 title: "Paste Job Description",
                 desc: "Clean formatting, real keywords, perfect structure. Built to pass automated filters.",
-                step: "Step Two",
+                step: "Step 2",
                 rotate: "2"
               },
               {
                 icon: Download,
                 title: "Download & Apply",
                 desc: "Get a resume that actually gets read. Ready in minutes, not hours. ATS-Optimized.",
-                step: "Step Three",
+                step: "Step 3",
                 rotate: "2"
               }
             ].map((item, idx) => (
@@ -818,7 +818,7 @@ export default function LandingPage() {
                 whileHover={{ scale: 1.05, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleGetStarted}
-                className="bg-brand-green hover:opacity-90 text-brand-dark px-12 py-5 rounded-full font-bold text-xl shadow-2xl transition-all mt-8 relative overflow-hidden group"
+                className="bg-brand-green hover:opacity-90 text-brand-dark px-12 py-5 rounded-full font-bold text-xl shadow-2xl transition-all mt-4 relative overflow-hidden group"
               >
                 <span className="relative z-10">Build My Resume</span>
                 <div className="absolute inset-0 h-full w-full bg-white/20 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
@@ -876,81 +876,179 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-extrabold text-center mb-16 text-brand-dark" style={{ fontFamily: 'Graphik, sans-serif' }}
+            className="text-4xl md:text-5xl font-extrabold text-center mb-16 text-brand-dark px-6" style={{ fontFamily: 'Graphik, sans-serif' }}
           >
             Built On <span className="text-brand-green">Results</span>, Not Promises.
           </motion.h2>
 
-          {/* Testimonial Cards */}
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={staggerContainer}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            {[
-              {
-                name: "Sarah Mitchell",
-                role: "Senior Marketing Manager · B2B SaaS",
-                avatar: "/images/testimonials/sarah-mitchell.jpg",
-                quote: "I applied to 15 roles with my old resume—zero responses. After rebuilding with CV Architect and tailoring for each posting, I booked 3 interviews in the first week and accepted an offer in 10 days."
-              },
-              {
-                name: "James Chen",
-                role: "Senior Software Engineer · Fintech",
-                avatar: "/images/testimonials/james-chen.jpg",
-                quote: "The AI rewrite feature turned vague bullets into concrete impact. My resume finally read like the work I actually do. Recruiters started commenting on specific projects instead of sending generic rejections."
-              },
-              {
-                name: "Priya Reddy",
-                role: "Product Designer · Consumer Apps",
-                avatar: "/images/testimonials/priya-reddy.jpg",
-                quote: "Every other builder made my resume look like a template. CV Architect gave me a layout that feels premium and still parses perfectly through ATS. My Dribbble portfolio gets more clicks now because the story is clear."
-              },
-              {
-                name: "Marcus Johnson",
-                role: "Enterprise Sales Director · Cybersecurity",
-                avatar: "/images/testimonials/marcus-johnson.jpg",
-                quote: "The Job Match score took the guesswork out of tailoring. I went from sending out 40 generic resumes a month to 8 targeted applications—with 5 turning into pipeline conversations."
-              },
-              {
-                name: "Elena García",
-                role: "HR Business Partner · Manufacturing",
-                avatar: "/images/testimonials/elena-garcia.jpg",
-                quote: "As someone who reads resumes all day, I can tell when a candidate used CV Architect. The structure is clean, the bullets are outcome-driven, and the key details are impossible to miss."
-              },
-              {
-                name: "David Kim",
-                role: "Recent Graduate · Data Analyst",
-                avatar: "/images/testimonials/david-kim.jpg",
-                quote: "I had internships but no \"brand name\" experience. The AI suggestions helped me frame school projects and part‑time work as real impact. I landed my first full‑time analyst role within 3 weeks of graduation."
+          {/* Testimonial Cards - Infinite Scrolling Marquee */}
+          <div className="flex flex-col gap-6 relative w-full overflow-hidden">
+            <style>{`
+              @keyframes customMarquee {
+                0% { transform: translateX(0%); }
+                100% { transform: translateX(-50%); }
               }
-            ].map((t, idx) => (
-              <motion.div
-                key={idx}
-                variants={fadeInUp}
-                whileHover={{ y: -5 }}
-                className="bg-brand-dark rounded-2xl p-6 text-white shadow-lg border border-gray-700 hover:border-brand-green transition-colors"
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <img
-                    src={t.avatar}
-                    alt={t.name}
-                    loading="lazy"
-                    className="w-12 h-12 rounded-full object-cover border border-gray-600"
-                  />
-                  <div>
-                    <p className="font-bold">{t.name}</p>
-                    <p className="text-sm text-gray-400">{t.role}</p>
-                  </div>
-                </div>
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  "{t.quote}"
-                </p>
-              </motion.div>
-            ))}
-          </motion.div>
+              @keyframes customMarqueeReverse {
+                0% { transform: translateX(-50%); }
+                100% { transform: translateX(0%); }
+              }
+              .animate-marquee-left {
+                animation: customMarquee 50s linear infinite;
+              }
+              .animate-marquee-right {
+                animation: customMarqueeReverse 50s linear infinite;
+              }
+            `}</style>
+            {/* Top Row Marquee */}
+            <div className="flex w-full group">
+              <div className="flex animate-marquee-left group-hover:[animation-play-state:paused] min-w-max pb-2">
+                {[...Array(6)].map((_, arrayIndex) => (
+                  <React.Fragment key={arrayIndex}>
+                    {[
+                      {
+                        name: "Sarah Mitchell",
+                        handle: "sarah_m_tech",
+                        date: "12m",
+                        avatar: "/images/testimonials/sarah-mitchell.jpg",
+                        quote: "I applied to 15 roles with my old resume, zero responses.\n\nAfter rebuilding with CV Architect and tailoring for each posting, I booked 3 interviews in the first week and accepted an offer in 10 days.",
+                        views: "1.2K", replies: "3", retweets: "5", likes: "48", verified: true, theme: "light"
+                      },
+                      {
+                        name: "Michael Torres",
+                        handle: "mike_torres_dev",
+                        date: "2h",
+                        avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+                        quote: "The Job Matching Feature on CVArchitect is literally a cheat code.\n\nI pasted my dream job's description against my standard resume and hit a 96% match score. Got an interview request in under 48 hours.",
+                        views: "2.8K", replies: "7", retweets: "12", likes: "156", verified: false, theme: "light"
+                      },
+                      {
+                        name: "Priya Reddy",
+                        handle: "priyareddy_ux",
+                        date: "6h",
+                        avatar: "/images/testimonials/priya-reddy.jpg",
+                        quote: "Every other builder made my resume look like a template.\n\nCV Architect gave me a layout that feels premium and still parses perfectly through ATS.\n\nMy Dribbble portfolio gets more clicks now.",
+                        views: "840", replies: "0", retweets: "2", likes: "32", verified: true, theme: "light"
+                      },
+                      {
+                        name: "Elena García",
+                        handle: "elena_hrbp",
+                        date: "10h",
+                        avatar: "/images/testimonials/elena-garcia.jpg",
+                        quote: "As someone who reads resumes all day, I can tell when a candidate used CV Architect.\n\nThe structure is clean, the bullets are outcome-driven, and the key details are impossible to miss.",
+                        views: "620", replies: "4", retweets: "8", likes: "41", verified: false, theme: "light"
+                      }
+                    ].map((t, idx) => (
+                      <div key={`top-${arrayIndex}-${idx}`} className={`rounded-2xl p-4 pb-3 border shadow-sm mx-3 min-w-[350px] max-w-[400px] whitespace-normal flex flex-col items-start text-left cursor-default transition-colors ${t.theme === 'dark' ? 'bg-black border-zinc-800 hover:bg-zinc-900' : 'bg-white border-gray-200 hover:bg-gray-50'}`}>
+                        <div className="flex gap-3 w-full">
+                          <img src={t.avatar} alt={t.name} loading="lazy" className="w-10 h-10 rounded-full object-cover shrink-0" />
+                          <div className="flex flex-col flex-1 w-full">
+                            <div className="flex items-center justify-between w-full">
+                              <div className="flex items-center gap-1 text-[15px]">
+                                <span className={`font-bold ${t.theme === 'dark' ? 'text-zinc-100' : 'text-gray-900'}`}>{t.name}</span>
+                                {t.verified && <BadgeCheck size={16} className="text-blue-500" fill="currentColor" stroke={t.theme === 'dark' ? 'black' : 'white'} />}
+                                <span className="text-gray-500">@{t.handle}</span>
+                                <span className="text-gray-500">·</span>
+                                <span className="text-gray-500 hover:underline cursor-pointer">{t.date}</span>
+                              </div>
+                              <MoreHorizontal size={18} className="text-gray-500 cursor-pointer" />
+                            </div>
+                            <div className={`text-[15px] mt-0.5 leading-snug whitespace-pre-wrap ${t.theme === 'dark' ? 'text-zinc-100' : 'text-gray-800'}`}>
+                              {t.quote}
+                            </div>
+                            <div className="flex items-center justify-between mt-3 text-gray-500 w-full pr-2">
+                              <div className="flex gap-1.5 items-center hover:text-blue-500 transition-colors cursor-pointer"><MessageCircle size={18} /><span>{t.replies}</span></div>
+                              <div className="flex gap-1.5 items-center hover:text-green-500 transition-colors cursor-pointer"><Repeat2 size={18} /><span>{t.retweets}</span></div>
+                              <div className="flex gap-1.5 items-center hover:text-red-500 transition-colors cursor-pointer"><Heart size={18} /><span>{t.likes}</span></div>
+                              <div className="flex gap-1.5 items-center hover:text-blue-500 transition-colors cursor-pointer"><BarChart2 size={18} /><span>{t.views}</span></div>
+                              <div className="flex gap-3 items-center">
+                                <div className="hover:text-blue-500 transition-colors cursor-pointer"><Bookmark size={18} /></div>
+                                <div className="hover:text-blue-500 transition-colors cursor-pointer"><Upload size={18} /></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+
+            {/* Bottom Row Marquee */}
+            <div className="flex w-full group">
+              <div className="flex animate-marquee-right group-hover:[animation-play-state:paused] min-w-max pb-2">
+                {[...Array(6)].map((_, arrayIndex) => (
+                  <React.Fragment key={arrayIndex}>
+                    {[
+                      {
+                        name: "James Chen",
+                        handle: "jchen_codes",
+                        date: "31m",
+                        avatar: "/images/testimonials/james-chen.jpg",
+                        quote: "The AI rewrite feature turned vague bullets into concrete impact.\n\nMy resume finally read like the work I actually do.\n\nRecruiters started commenting on specific projects instead of sending generic rejections.",
+                        views: "3.4K", replies: "9", retweets: "21", likes: "189", verified: true, theme: "light"
+                      },
+                      {
+                        name: "Marcus Johnson",
+                        handle: "marcus_sales",
+                        date: "3h",
+                        avatar: "/images/testimonials/marcus-johnson.jpg",
+                        quote: "The Job Match score took the guesswork out of tailoring.\n\nI went from sending out 40 generic resumes a month to 8 targeted applications with 5 turning into pipeline conversations.",
+                        views: "1.5K", replies: "5", retweets: "15", likes: "76", verified: false, theme: "light"
+                      },
+                      {
+                        name: "Aisha Patel",
+                        handle: "aishadesigns",
+                        date: "7h",
+                        avatar: "https://randomuser.me/api/portraits/women/44.jpg",
+                        quote: "I used to spend hours tweaking my resume for every single application.\n\nWith CVArchitect, I can generate a perfectly tailored, ATS-friendly version in literally seconds.\n\nIt's a game changer.",
+                        views: "450", replies: "1", retweets: "0", likes: "18", verified: false, theme: "light"
+                      },
+                      {
+                        name: "David Kim",
+                        handle: "david_data",
+                        date: "23h",
+                        avatar: "/images/testimonials/david-kim.jpg",
+                        quote: "I had internships but no \"brand name\" experience.\n\nThe AI suggestions helped me frame school projects and part-time work as real impact.\n\nI landed my first full-time analyst role in 3 weeks.",
+                        views: "2.1K", replies: "6", retweets: "4", likes: "92", verified: true, theme: "light"
+                      }
+                    ].map((t, idx) => (
+                      <div key={`bottom-${arrayIndex}-${idx}`} className={`rounded-2xl p-4 pb-3 border shadow-sm mx-3 min-w-[350px] max-w-[400px] whitespace-normal flex flex-col items-start text-left cursor-default transition-colors ${t.theme === 'dark' ? 'bg-black border-zinc-800 hover:bg-zinc-900' : 'bg-white border-gray-200 hover:bg-gray-50'}`}>
+                        <div className="flex gap-3 w-full">
+                          <img src={t.avatar} alt={t.name} loading="lazy" className="w-10 h-10 rounded-full object-cover shrink-0" />
+                          <div className="flex flex-col flex-1 w-full">
+                            <div className="flex items-center justify-between w-full">
+                              <div className="flex items-center gap-1 text-[15px]">
+                                <span className={`font-bold ${t.theme === 'dark' ? 'text-zinc-100' : 'text-gray-900'}`}>{t.name}</span>
+                                {t.verified && <BadgeCheck size={16} className="text-blue-500" fill="currentColor" stroke={t.theme === 'dark' ? 'black' : 'white'} />}
+                                <span className="text-gray-500">@{t.handle}</span>
+                                <span className="text-gray-500">·</span>
+                                <span className="text-gray-500 hover:underline cursor-pointer">{t.date}</span>
+                              </div>
+                              <MoreHorizontal size={18} className="text-gray-500 cursor-pointer" />
+                            </div>
+                            <div className={`text-[15px] mt-0.5 leading-snug whitespace-pre-wrap ${t.theme === 'dark' ? 'text-zinc-100' : 'text-gray-800'}`}>
+                              {t.quote}
+                            </div>
+                            <div className="flex items-center justify-between mt-3 text-gray-500 w-full pr-2">
+                              <div className="flex gap-1.5 items-center hover:text-blue-500 transition-colors cursor-pointer"><MessageCircle size={18} /><span>{t.replies}</span></div>
+                              <div className="flex gap-1.5 items-center hover:text-green-500 transition-colors cursor-pointer"><Repeat2 size={18} /><span>{t.retweets}</span></div>
+                              <div className="flex gap-1.5 items-center hover:text-red-500 transition-colors cursor-pointer"><Heart size={18} /><span>{t.likes}</span></div>
+                              <div className="flex gap-1.5 items-center hover:text-blue-500 transition-colors cursor-pointer"><BarChart2 size={18} /><span>{t.views}</span></div>
+                              <div className="flex gap-3 items-center">
+                                <div className="hover:text-blue-500 transition-colors cursor-pointer"><Bookmark size={18} /></div>
+                                <div className="hover:text-blue-500 transition-colors cursor-pointer"><Upload size={18} /></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

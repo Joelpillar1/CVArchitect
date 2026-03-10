@@ -1,0 +1,5 @@
+Variation A: Led a full brand identity overhaul covering {assets} visual assets across {channels} channels, completing the project {weeks} weeks ahead of schedule and under a {budget}+ budget.
+Variation B: Delivered a complete brand overhaul {weeks} weeks ahead of schedule by directing {assets} visual asset updates across {channels} channels within a {budget}+ budget.
+Variation C: Completed {assets}-asset brand overhaul across {channels} channels {weeks} weeks early and within a {budget}+ budget, receiving stakeholder sign-off in one round.
+Variation D: Directed full rebrand covering {assets} assets across {channels} channels, delivered {weeks} weeks early on a {budget}+ budget.
+Variables: assets (50-200, step 25) · channels (4-12, step 2) · weeks (1-4, step 1) · budget ($20,000-$100,000, step $10,000)

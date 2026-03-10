@@ -92,7 +92,7 @@ export default function JobMatchForm({ data, onChange, userSubscription, onAIAct
 
             onChange(updatedData);
             setRewriteSuccess(true);
-            try { sessionStorage.removeItem('cvarchitect_job_from_extension'); } catch (_) {}
+            try { sessionStorage.removeItem('cvarchitect_job_from_extension'); } catch (_) { }
             setTimeout(() => setRewriteSuccess(false), 5000);
         } catch (error) {
             console.error('Resume rewrite error:', error);
@@ -115,7 +115,7 @@ export default function JobMatchForm({ data, onChange, userSubscription, onAIAct
 
     const jobFromExtension = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('cvarchitect_job_from_extension') === '1';
     const clearJobFromExtensionFlag = () => {
-        try { sessionStorage.removeItem('cvarchitect_job_from_extension'); } catch (_) {}
+        try { sessionStorage.removeItem('cvarchitect_job_from_extension'); } catch (_) { }
     };
 
     return (
@@ -161,7 +161,7 @@ export default function JobMatchForm({ data, onChange, userSubscription, onAIAct
                 <div className="space-y-1">
                     <textarea
                         value={data.jobDescription || ''}
-                        onChange={(e) => handleChange('jobDescription', e.target.value)}
+                        onChange={(e) => onChange({ ...data, jobDescription: e.target.value, hasJobMatchRun: false })}
                         rows={10}
                         className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all resize-none leading-relaxed"
                         placeholder="Paste the full job description here..."
@@ -239,15 +239,15 @@ export default function JobMatchForm({ data, onChange, userSubscription, onAIAct
                             <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Job Match Score</h4>
                             <div className="flex items-baseline gap-2">
                                 <span className={`text-5xl font-bold tracking-tight ${matchScore >= 80 ? 'text-gray-900' :
-                                        matchScore >= 60 ? 'text-gray-900' : 'text-gray-900'
+                                    matchScore >= 60 ? 'text-gray-900' : 'text-gray-900'
                                     }`}>
                                     {matchScore}
                                 </span>
                                 <span className="text-2xl text-gray-300 font-light">/100</span>
                             </div>
                             <div className={`mt-2 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${matchScore >= 80 ? 'bg-green-50 text-green-700' :
-                                    matchScore >= 60 ? 'bg-yellow-50 text-yellow-700' :
-                                        'bg-red-50 text-red-700'
+                                matchScore >= 60 ? 'bg-yellow-50 text-yellow-700' :
+                                    'bg-red-50 text-red-700'
                                 }`}>
                                 {matchScore >= 80 ? <CheckCircle size={12} /> : matchScore >= 60 ? <AlertCircle size={12} /> : <AlertCircle size={12} />}
                                 {matchScore >= 80 ? 'Excellent Match' : matchScore >= 60 ? 'Good Potential' : 'Needs Optimization'}

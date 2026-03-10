@@ -1,0 +1,10 @@
+Renumbered bullets. Total count: 970
+- TECH: 500
+- DATA: 400
+- PROD: 10
+- WEB3: 10
+- CYBER: 10
+- CLOUD: 10
+- AIML: 10
+- GAME: 10
+- TELCO: 10
