@@ -280,28 +280,27 @@ export default function LandingPage() {
         whileInView="visible"
         viewport={{ once: true }}
         variants={staggerContainer}
-        className="pt-32 pb-10 px-6 text-center max-w-5xl mx-auto flex flex-col items-center"
+        className="relative pt-32 pb-10 px-6 text-center max-w-7xl mx-auto flex flex-col items-center overflow-visible"
       >
-        {/* Hero Image */}
+        {/* Background Mesh Glows */}
+        <div className="absolute top-20 -left-20 w-72 h-72 bg-brand-green/10 rounded-full blur-[100px] pointer-events-none"></div>
+        <div className="absolute bottom-40 -right-20 w-96 h-96 bg-blue-400/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+        {/* Featured Badges */}
         <motion.div
           variants={fadeInUp}
-          className="mx-auto mb-12 w-full max-w-4xl"
+          className="flex flex-col sm:flex-row items-center gap-4 mb-12 relative z-10"
         >
-          <div>
-            {/* Mobile Image */}
-            <img
-              src="/images/Illustration Mobile.png"
-              alt="CV Architect AI resume builder mobile interface"
-              className="w-full h-auto object-contain mx-auto md:hidden"
-            />
-            {/* Desktop Image */}
-            <img
-              src="/images/Illustration Desktop.png"
-              alt="CV Architect AI resume builder desktop interface showing ATS optimization"
-              className="w-full h-auto object-contain mx-auto hidden md:block drop-shadow-2xl"
-            />
-          </div>
+          <a href="https://www.producthunt.com/products/cv-architect/launches/cv-architect?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-cv-architect" target="_blank" rel="noopener noreferrer" className="hover:opacity-90 transition-opacity">
+            <img alt="CV Architect - The #1 AI resume builder, tailoring your resume to job | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1077802&theme=neutral&t=1773159577905" className="h-[48px] md:h-[54px] w-auto" />
+          </a>
+
+          <a href="https://vcodinglist.com/products/cv-architect" target="_blank" rel="noopener" className="hover:opacity-90 transition-opacity">
+            <img src="https://vcodinglist.com/badges/featured-light.svg" alt="CV Architect — Featured on VcodingList" width="250" height="54" className="h-[48px] md:h-[54px] w-auto" />
+          </a>
         </motion.div>
+
+
 
         <motion.h1
           variants={fadeInUp}
@@ -309,11 +308,8 @@ export default function LandingPage() {
           style={{ fontFamily: 'Graphik, sans-serif' }}
         >
           <span className="block mb-2">Turn any job description into a</span>
-          <span className="block"><span className="text-brand-green inline-block relative">
+          <span className="block"><span className="text-brand-green">
             tailored resume
-            <svg className="absolute w-full h-2 bottom-0 left-0 text-brand-green/30" viewBox="0 0 100 10" preserveAspectRatio="none">
-              <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="3" fill="none" />
-            </svg>
           </span> in seconds</span>
         </motion.h1>
 
@@ -324,16 +320,38 @@ export default function LandingPage() {
           Upload your resume. Paste the job description. CVArchitect optimizes your resume automatically.
         </motion.p>
 
-        <motion.div variants={fadeInUp}>
+        <motion.div variants={fadeInUp} className="flex flex-col items-center">
           <motion.button
             whileHover={{ scale: 1.05, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
             whileTap={{ scale: 0.95 }}
             onClick={handleGetStarted}
-            className="bg-brand-green hover:opacity-90 text-brand-dark px-10 py-4 rounded-full font-bold text-lg shadow-xl transition-all relative overflow-hidden group"
+            className="bg-brand-green hover:opacity-90 text-brand-dark px-10 py-4 rounded-full font-bold text-lg shadow-xl transition-all relative overflow-hidden group mb-6"
           >
-            <span className="relative z-10">{user ? 'Go to Dashboard' : 'Build My Resume'}</span>
+            <span className="relative z-10">{user ? 'Go to Dashboard' : 'Try it for free'}</span>
             <div className="absolute inset-0 h-full w-full bg-white/20 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
           </motion.button>
+
+          {/* Trust Marker */}
+          <div className="flex items-center gap-4 text-gray-500">
+            <div className="flex -space-x-2">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-gray-100 overflow-hidden">
+                  <img src={`https://i.pravatar.cc/100?u=${i}`} alt="user" />
+                </div>
+              ))}
+              <div className="w-8 h-8 rounded-full border-2 border-white bg-brand-green flex items-center justify-center text-[10px] font-bold text-brand-dark">
+                +1k
+              </div>
+            </div>
+            <div className="flex flex-col items-start">
+              <div className="flex items-center gap-0.5">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} size={12} className="fill-brand-green text-brand-green" />
+                ))}
+              </div>
+              <p className="text-xs font-medium">Join 1,000+ job seekers</p>
+            </div>
+          </div>
         </motion.div>
       </motion.header>
 
@@ -372,7 +390,7 @@ export default function LandingPage() {
               className="absolute -bottom-6 left-1/2 w-[110%] md:w-3/4 bg-brand-green py-4 px-8 shadow-lg hidden md:flex items-center justify-center z-10"
             >
               <p className="text-brand-dark font-bold text-lg md:text-xl text-center">
-                Click Build My Resume To See How CV Architect Is Different
+                Click Try it for free To See How CV Architect Is Different
               </p>
             </motion.div>
           </motion.div>
@@ -463,7 +481,7 @@ export default function LandingPage() {
               onClick={handleGetStarted}
               className="bg-brand-green hover:opacity-90 text-brand-dark px-10 py-4 rounded-full font-bold text-lg shadow-xl transition-all relative overflow-hidden group"
             >
-              <span className="relative z-10">Build My Resume</span>
+              <span className="relative z-10">Try it for free</span>
               <div className="absolute inset-0 h-full w-full bg-white/20 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
             </motion.button>
           </motion.div>
@@ -645,7 +663,7 @@ export default function LandingPage() {
               onClick={handleGetStarted}
               className="bg-brand-green hover:opacity-90 text-brand-dark px-10 py-4 rounded-full font-bold text-lg shadow-xl transition-all hidden md:block relative overflow-hidden group"
             >
-              <span className="relative z-10">Build My Resume</span>
+              <span className="relative z-10">Try it for free</span>
               <div className="absolute inset-0 h-full w-full bg-white/20 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
             </motion.button>
           </div>
@@ -820,7 +838,7 @@ export default function LandingPage() {
                 onClick={handleGetStarted}
                 className="bg-brand-green hover:opacity-90 text-brand-dark px-12 py-5 rounded-full font-bold text-xl shadow-2xl transition-all mt-4 relative overflow-hidden group"
               >
-                <span className="relative z-10">Build My Resume</span>
+                <span className="relative z-10">Try it for free</span>
                 <div className="absolute inset-0 h-full w-full bg-white/20 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
               </motion.button>
             </motion.div>
