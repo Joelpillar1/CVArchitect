@@ -286,20 +286,6 @@ export default function LandingPage() {
         <div className="absolute top-20 -left-20 w-72 h-72 bg-brand-green/10 rounded-full blur-[100px] pointer-events-none"></div>
         <div className="absolute bottom-40 -right-20 w-96 h-96 bg-blue-400/5 rounded-full blur-[120px] pointer-events-none"></div>
 
-        {/* Featured Badges */}
-        <motion.div
-          variants={fadeInUp}
-          className="flex flex-col sm:flex-row items-center gap-4 mb-12 relative z-10"
-        >
-          <a href="https://www.producthunt.com/products/cv-architect/launches/cv-architect?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-cv-architect" target="_blank" rel="noopener noreferrer" className="hover:opacity-90 transition-opacity">
-            <img alt="CV Architect - The #1 AI resume builder, tailoring your resume to job | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1077802&theme=neutral&t=1773159577905" className="h-[48px] md:h-[54px] w-auto" />
-          </a>
-
-          <a href="https://vcodinglist.com/products/cv-architect" target="_blank" rel="noopener" className="hover:opacity-90 transition-opacity">
-            <img src="https://vcodinglist.com/badges/featured-light.svg" alt="CV Architect — Featured on VcodingList" width="250" height="54" className="h-[48px] md:h-[54px] w-auto" />
-          </a>
-        </motion.div>
-
 
 
         <motion.h1
@@ -367,7 +353,7 @@ export default function LandingPage() {
             className="mb-12 relative"
           >
             {/* Video embed - visible on all devices */}
-            <div className="relative w-full max-w-5xl mx-auto aspect-video overflow-hidden rounded-xl bg-black shadow-2xl border-2 md:border-4 border-brand-dark">
+            <div className="relative w-full max-w-5xl mx-auto aspect-video overflow-hidden rounded-xl bg-black border-2 md:border-4 border-brand-dark">
               <iframe
                 src="https://www.youtube.com/embed/5ul_UqO1T7g"
                 loading="lazy"
@@ -381,18 +367,25 @@ export default function LandingPage() {
 
 
 
-            {/* Green Banner Overlay */}
-            <motion.div
-              initial={{ x: -50, opacity: 0, rotate: 0 }}
-              whileInView={{ x: "-50%", opacity: 1, rotate: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.4, type: "spring" }}
-              className="absolute -bottom-6 left-1/2 w-[110%] md:w-3/4 bg-brand-green py-4 px-8 shadow-lg hidden md:flex items-center justify-center z-10"
-            >
-              <p className="text-brand-dark font-bold text-lg md:text-xl text-center">
-                Click Try it for free To See How CV Architect Is Different
-              </p>
-            </motion.div>
+          </motion.div>
+
+          {/* Social Proof Logos */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="flex flex-col items-center mt-20 mb-12"
+          >
+            <p className="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-6">Featured on & Loved by</p>
+            <div className="flex flex-row flex-wrap justify-center items-center gap-6 md:gap-8 opacity-90 hover:opacity-100 transition-opacity duration-300">
+              <a href="https://www.producthunt.com/products/cv-architect/launches/cv-architect?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-cv-architect" target="_blank" rel="noopener noreferrer" className="transition-transform hover:-translate-y-1 duration-300">
+                <img alt="Product Hunt" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1077802&theme=neutral&t=1773159577905" className="h-[46px] w-auto drop-shadow-sm transition-all duration-300" />
+              </a>
+
+              <a href="https://vcodinglist.com/products/cv-architect" target="_blank" rel="noopener" className="transition-transform hover:-translate-y-1 duration-300">
+                <img src="https://vcodinglist.com/badges/featured-light.svg" alt="Featured on VcodingList" className="h-[46px] w-auto drop-shadow-sm transition-all duration-300" />
+              </a>
+            </div>
           </motion.div>
 
           {/* Bottom Content: Text + Image */}
