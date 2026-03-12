@@ -9,6 +9,7 @@ export default function PublicFooter() {
             title: 'AI Resume',
             links: [
                 { label: 'AI Resume Builder', href: '/signup' },
+                { label: 'Resume Match Checker', href: '/resume-checker' },
                 { label: 'ATS Resume Checker', href: '/blog/how-to-beat-ats-resume-2026' },
                 { label: 'Resume Keyword Scanner', href: '/blog/resume-keywords-that-get-you-hired' },
                 { label: 'Resume Summary Generator', href: '/signup' },

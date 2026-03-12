@@ -1,0 +1,2336 @@
+{
+  "customer relationship management": [
+    "CRM",
+    "crm platform",
+    "client relationship management"
+  ],
+  "search engine optimization": [
+    "SEO",
+    "organic search",
+    "seo optimization"
+  ],
+  "search engine marketing": [
+    "SEM",
+    "paid search",
+    "search ads"
+  ],
+  "artificial intelligence": [
+    "AI",
+    "ai systems",
+    "intelligent automation"
+  ],
+  "machine learning": [
+    "ML",
+    "machine-learning",
+    "ml models"
+  ],
+  "natural language processing": [
+    "NLP",
+    "language models",
+    "text analytics"
+  ],
+  "business intelligence": [
+    "BI",
+    "dashboarding",
+    "business reporting"
+  ],
+  "financial modeling": [
+    "finance modeling",
+    "3-statement modeling",
+    "valuation modeling"
+  ],
+  "continuous integration": [
+    "CI",
+    "build automation",
+    "pipeline automation"
+  ],
+  "continuous deployment": [
+    "CD",
+    "release automation",
+    "deployment pipeline"
+  ],
+  "software as a service": [
+    "SaaS",
+    "subscription software",
+    "cloud software"
+  ],
+  "infrastructure as code": [
+    "IaC",
+    "iac",
+    "infra as code"
+  ],
+  "identity and access management": [
+    "IAM",
+    "identity access management",
+    "access governance"
+  ],
+  "extract transform load": [
+    "ETL",
+    "data pipelines",
+    "batch processing"
+  ],
+  "human resources": [
+    "HR",
+    "people operations",
+    "people team"
+  ],
+  "customer success": [
+    "client success",
+    "account retention",
+    "post-sales support"
+  ],
+  "quality assurance": [
+    "QA",
+    "testing",
+    "quality control"
+  ],
+  "application programming interface": [
+    "API",
+    "apis",
+    "service integration"
+  ],
+  "project management office": [
+    "PMO",
+    "project governance",
+    "program office"
+  ],
+  "key performance indicators": [
+    "KPI",
+    "KPIs",
+    "performance metrics"
+  ],
+  "service level agreement": [
+    "SLA",
+    "slas",
+    "service targets"
+  ],
+  "environmental social and governance": [
+    "ESG",
+    "sustainability reporting",
+    "non-financial reporting"
+  ],
+  "electronic medical record": [
+    "EMR",
+    "EHR",
+    "patient records"
+  ],
+  "know your customer": [
+    "KYC",
+    "customer due diligence",
+    "identity verification"
+  ],
+  "anti money laundering": [
+    "AML",
+    "transaction monitoring",
+    "financial crime compliance"
+  ],
+  "point of sale": [
+    "POS",
+    "checkout system",
+    "retail system"
+  ],
+  "enterprise resource planning": [
+    "ERP",
+    "erp systems",
+    "business systems"
+  ],
+  "learning management system": [
+    "LMS",
+    "learning platform",
+    "course platform"
+  ],
+  "user experience": [
+    "UX",
+    "customer experience design",
+    "usability"
+  ],
+  "user interface": [
+    "UI",
+    "interface design",
+    "visual interface"
+  ],
+  "augmented reality": [
+    "AR",
+    "mixed reality",
+    "spatial overlays"
+  ],
+  "virtual reality": [
+    "VR",
+    "immersive simulation",
+    "headset experience"
+  ],
+  "software development": [
+    "software dev",
+    "software-development"
+  ],
+  "object-oriented programming": [
+    "object oriented programming",
+    "object-oriented-programming"
+  ],
+  "rest apis": [
+    "rest-apis"
+  ],
+  "system design": [
+    "system-design"
+  ],
+  "distributed systems": [
+    "distributed-systems"
+  ],
+  "unit testing": [
+    "unit-testing"
+  ],
+  "integration testing": [
+    "integration-testing"
+  ],
+  "backend services": [
+    "backend-services"
+  ],
+  "frontend architecture": [
+    "frontend-architecture"
+  ],
+  "data analysis": [
+    "data-analysis"
+  ],
+  "sql querying": [
+    "sql-querying"
+  ],
+  "data visualization": [
+    "data-visualization"
+  ],
+  "data modeling": [
+    "data-modeling"
+  ],
+  "a/b testing": [
+    "a/b-testing",
+    "a b testing"
+  ],
+  "data storytelling": [
+    "data-storytelling"
+  ],
+  "report automation": [
+    "report-automation"
+  ],
+  "product strategy": [
+    "product-strategy"
+  ],
+  "feature prioritization": [
+    "feature-prioritization"
+  ],
+  "user research": [
+    "user-research"
+  ],
+  "product discovery": [
+    "product-discovery"
+  ],
+  "go-to-market": [
+    "go to market"
+  ],
+  "backlog management": [
+    "backlog mgmt",
+    "backlog-management"
+  ],
+  "customer feedback": [
+    "customer-feedback"
+  ],
+  "product analytics": [
+    "product-analytics"
+  ],
+  "stakeholder alignment": [
+    "stakeholder-alignment"
+  ],
+  "experiment design": [
+    "experiment-design"
+  ],
+  "smart contracts": [
+    "smart-contracts"
+  ],
+  "wallet integration": [
+    "wallet-integration"
+  ],
+  "on-chain analytics": [
+    "on chain analytics",
+    "on-chain-analytics"
+  ],
+  "defi protocols": [
+    "defi-protocols"
+  ],
+  "dao governance": [
+    "dao-governance"
+  ],
+  "nft marketplaces": [
+    "nft-marketplaces"
+  ],
+  "block explorers": [
+    "block-explorers"
+  ],
+  "l2 scaling": [
+    "l2-scaling"
+  ],
+  "bridge security": [
+    "bridge-security"
+  ],
+  "token launches": [
+    "token-launches"
+  ],
+  "threat detection": [
+    "threat-detection"
+  ],
+  "incident response": [
+    "incident-response"
+  ],
+  "vulnerability management": [
+    "vulnerability mgmt",
+    "vulnerability-management"
+  ],
+  "identity access management": [
+    "identity access mgmt",
+    "identity-access-management"
+  ],
+  "penetration testing": [
+    "penetration-testing"
+  ],
+  "security audits": [
+    "security-audits"
+  ],
+  "risk assessment": [
+    "risk-assessment"
+  ],
+  "network security": [
+    "network-security"
+  ],
+  "endpoint security": [
+    "endpoint-security"
+  ],
+  "security awareness": [
+    "security-awareness"
+  ],
+  "compliance controls": [
+    "compliance-controls"
+  ],
+  "cloud architecture": [
+    "cloud-architecture"
+  ],
+  "saas delivery": [
+    "saas-delivery"
+  ],
+  "container orchestration": [
+    "container-orchestration"
+  ],
+  "cloud migration": [
+    "cloud-migration"
+  ],
+  "multi-tenant architecture": [
+    "multi tenant architecture",
+    "multi-tenant-architecture"
+  ],
+  "cost optimization": [
+    "cost-optimization"
+  ],
+  "backup recovery": [
+    "backup-recovery"
+  ],
+  "service reliability": [
+    "service-reliability"
+  ],
+  "model training": [
+    "model-training"
+  ],
+  "feature engineering": [
+    "feature-engineering"
+  ],
+  "model deployment": [
+    "model-deployment"
+  ],
+  "deep learning": [
+    "deep-learning"
+  ],
+  "computer vision": [
+    "computer-vision"
+  ],
+  "model monitoring": [
+    "model-monitoring"
+  ],
+  "hyperparameter tuning": [
+    "hyperparameter-tuning"
+  ],
+  "inference optimization": [
+    "inference-optimization"
+  ],
+  "experiment tracking": [
+    "experiment-tracking"
+  ],
+  "game design": [
+    "game-design"
+  ],
+  "gameplay systems": [
+    "gameplay-systems"
+  ],
+  "level design": [
+    "level-design"
+  ],
+  "player progression": [
+    "player-progression"
+  ],
+  "live ops": [
+    "live-ops"
+  ],
+  "multiplayer systems": [
+    "multiplayer-systems"
+  ],
+  "game balancing": [
+    "game-balancing"
+  ],
+  "physics systems": [
+    "physics-systems"
+  ],
+  "rendering optimization": [
+    "rendering-optimization"
+  ],
+  "user retention": [
+    "user-retention"
+  ],
+  "in-game economy": [
+    "in game economy",
+    "in-game-economy"
+  ],
+  "performance profiling": [
+    "performance-profiling"
+  ],
+  "network operations": [
+    "network ops",
+    "network-operations"
+  ],
+  "telecommunications infrastructure": [
+    "telecommunications-infrastructure"
+  ],
+  "fiber deployment": [
+    "fiber-deployment"
+  ],
+  "radio access network": [
+    "radio-access-network"
+  ],
+  "noc monitoring": [
+    "noc-monitoring"
+  ],
+  "latency optimization": [
+    "latency-optimization"
+  ],
+  "service assurance": [
+    "service-assurance"
+  ],
+  "bss/oss": [
+    "bss oss"
+  ],
+  "network planning": [
+    "network-planning"
+  ],
+  "coverage analysis": [
+    "coverage-analysis"
+  ],
+  "subscriber management": [
+    "subscriber mgmt",
+    "subscriber-management"
+  ],
+  "financial analysis": [
+    "financial-analysis"
+  ],
+  "financial reporting": [
+    "financial-reporting"
+  ],
+  "general ledger": [
+    "general-ledger"
+  ],
+  "month-end close": [
+    "month end close",
+    "month-end-close"
+  ],
+  "variance analysis": [
+    "variance-analysis"
+  ],
+  "cash flow": [
+    "cash-flow"
+  ],
+  "internal controls": [
+    "internal-controls"
+  ],
+  "audit support": [
+    "audit-support"
+  ],
+  "cost accounting": [
+    "cost-accounting"
+  ],
+  "claims processing": [
+    "claims-processing"
+  ],
+  "policy administration": [
+    "policy admin",
+    "policy-administration"
+  ],
+  "actuarial analysis": [
+    "actuarial-analysis"
+  ],
+  "risk selection": [
+    "risk-selection"
+  ],
+  "loss ratios": [
+    "loss-ratios"
+  ],
+  "premium calculations": [
+    "premium-calculations"
+  ],
+  "policy renewals": [
+    "policy-renewals"
+  ],
+  "broker relations": [
+    "broker-relations"
+  ],
+  "regulatory compliance": [
+    "regulatory-compliance"
+  ],
+  "fraud detection": [
+    "fraud-detection"
+  ],
+  "claims adjudication": [
+    "claims-adjudication"
+  ],
+  "deal sourcing": [
+    "deal-sourcing"
+  ],
+  "investment memos": [
+    "investment-memos"
+  ],
+  "portfolio monitoring": [
+    "portfolio-monitoring"
+  ],
+  "valuation analysis": [
+    "valuation-analysis"
+  ],
+  "market diligence": [
+    "market-diligence"
+  ],
+  "term sheets": [
+    "term-sheets"
+  ],
+  "cap tables": [
+    "cap-tables"
+  ],
+  "lp reporting": [
+    "lp-reporting"
+  ],
+  "portfolio support": [
+    "portfolio-support"
+  ],
+  "exit planning": [
+    "exit-planning"
+  ],
+  "investment committee": [
+    "investment-committee"
+  ],
+  "m&a execution": [
+    "m&a-execution"
+  ],
+  "pitch books": [
+    "pitch-books"
+  ],
+  "due diligence": [
+    "due-diligence"
+  ],
+  "capital raising": [
+    "capital-raising"
+  ],
+  "deal structuring": [
+    "deal-structuring"
+  ],
+  "dcf analysis": [
+    "dcf-analysis"
+  ],
+  "comparable companies": [
+    "comparable-companies"
+  ],
+  "transaction support": [
+    "transaction-support"
+  ],
+  "sell-side process": [
+    "sell side process",
+    "sell-side-process"
+  ],
+  "buy-side advisory": [
+    "buy side advisory",
+    "buy-side-advisory"
+  ],
+  "portfolio management": [
+    "portfolio mgmt",
+    "portfolio-management"
+  ],
+  "asset allocation": [
+    "asset-allocation"
+  ],
+  "client advisory": [
+    "client-advisory"
+  ],
+  "retirement planning": [
+    "retirement-planning"
+  ],
+  "financial planning": [
+    "financial-planning"
+  ],
+  "investment policy": [
+    "investment-policy"
+  ],
+  "risk profiling": [
+    "risk-profiling"
+  ],
+  "estate planning": [
+    "estate-planning"
+  ],
+  "tax-efficient investing": [
+    "tax efficient investing",
+    "tax-efficient-investing"
+  ],
+  "wealth preservation": [
+    "wealth-preservation"
+  ],
+  "relationship management": [
+    "relationship mgmt",
+    "relationship-management"
+  ],
+  "fiduciary standards": [
+    "fiduciary-standards"
+  ],
+  "digital payments": [
+    "digital-payments"
+  ],
+  "payment gateways": [
+    "payment-gateways"
+  ],
+  "financial apis": [
+    "financial-apis"
+  ],
+  "fraud prevention": [
+    "fraud-prevention"
+  ],
+  "ledger reconciliation": [
+    "ledger-reconciliation"
+  ],
+  "embedded finance": [
+    "embedded-finance"
+  ],
+  "open banking": [
+    "open-banking"
+  ],
+  "card issuing": [
+    "card-issuing"
+  ],
+  "wallet operations": [
+    "wallet ops",
+    "wallet-operations"
+  ],
+  "transaction monitoring": [
+    "transaction-monitoring"
+  ],
+  "patient care": [
+    "patient-care"
+  ],
+  "clinical documentation": [
+    "clinical-documentation"
+  ],
+  "care coordination": [
+    "care-coordination"
+  ],
+  "patient safety": [
+    "patient-safety"
+  ],
+  "quality improvement": [
+    "quality-improvement"
+  ],
+  "treatment planning": [
+    "treatment-planning"
+  ],
+  "healthcare compliance": [
+    "healthcare-compliance"
+  ],
+  "hospital operations": [
+    "hospital ops",
+    "hospital-operations"
+  ],
+  "discharge planning": [
+    "discharge-planning"
+  ],
+  "clinical workflows": [
+    "clinical-workflows"
+  ],
+  "clinical trials": [
+    "clinical-trials"
+  ],
+  "drug safety": [
+    "drug-safety"
+  ],
+  "regulatory submissions": [
+    "regulatory-submissions"
+  ],
+  "laboratory research": [
+    "laboratory-research"
+  ],
+  "assay development": [
+    "assay dev",
+    "assay-development"
+  ],
+  "medical writing": [
+    "medical-writing"
+  ],
+  "protocol compliance": [
+    "protocol-compliance"
+  ],
+  "adverse event reporting": [
+    "adverse-event-reporting"
+  ],
+  "behavioral health": [
+    "behavioral-health"
+  ],
+  "case notes": [
+    "case-notes"
+  ],
+  "treatment plans": [
+    "treatment-plans"
+  ],
+  "crisis intervention": [
+    "crisis-intervention"
+  ],
+  "patient intake": [
+    "patient-intake"
+  ],
+  "group therapy": [
+    "group-therapy"
+  ],
+  "trauma-informed care": [
+    "trauma informed care",
+    "trauma-informed-care"
+  ],
+  "care pathways": [
+    "care-pathways"
+  ],
+  "clinical supervision": [
+    "clinical-supervision"
+  ],
+  "mental health advocacy": [
+    "mental-health-advocacy"
+  ],
+  "patient assessment": [
+    "patient-assessment"
+  ],
+  "preventive care": [
+    "preventive-care"
+  ],
+  "chairside support": [
+    "chairside-support"
+  ],
+  "vision screening": [
+    "vision-screening"
+  ],
+  "medical histories": [
+    "medical-histories"
+  ],
+  "sterilization protocols": [
+    "sterilization-protocols"
+  ],
+  "appointment scheduling": [
+    "appointment-scheduling"
+  ],
+  "patient education": [
+    "patient-education"
+  ],
+  "insurance verification": [
+    "insurance-verification"
+  ],
+  "clinical charting": [
+    "clinical-charting"
+  ],
+  "quality care": [
+    "quality-care"
+  ],
+  "animal care": [
+    "animal-care"
+  ],
+  "clinical examinations": [
+    "clinical-examinations"
+  ],
+  "diagnostic testing": [
+    "diagnostic-testing"
+  ],
+  "surgical assistance": [
+    "surgical-assistance"
+  ],
+  "client education": [
+    "client-education"
+  ],
+  "treatment protocols": [
+    "treatment-protocols"
+  ],
+  "vaccine schedules": [
+    "vaccine-schedules"
+  ],
+  "medical records": [
+    "medical-records"
+  ],
+  "anesthesia monitoring": [
+    "anesthesia-monitoring"
+  ],
+  "animal welfare": [
+    "animal-welfare"
+  ],
+  "laboratory samples": [
+    "laboratory-samples"
+  ],
+  "pharmacy inventory": [
+    "pharmacy-inventory"
+  ],
+  "digital health": [
+    "digital-health"
+  ],
+  "patient engagement": [
+    "patient-engagement"
+  ],
+  "remote monitoring": [
+    "remote-monitoring"
+  ],
+  "health data integration": [
+    "health-data-integration"
+  ],
+  "care management platforms": [
+    "care mgmt platforms",
+    "care-management-platforms"
+  ],
+  "hipaa compliance": [
+    "hipaa-compliance"
+  ],
+  "provider enablement": [
+    "provider-enablement"
+  ],
+  "digital marketing": [
+    "digital-marketing"
+  ],
+  "content marketing": [
+    "content-marketing"
+  ],
+  "email marketing": [
+    "email-marketing"
+  ],
+  "paid social": [
+    "paid-social"
+  ],
+  "conversion optimization": [
+    "conversion-optimization"
+  ],
+  "lead generation": [
+    "lead-generation"
+  ],
+  "campaign analytics": [
+    "campaign-analytics"
+  ],
+  "audience segmentation": [
+    "audience-segmentation"
+  ],
+  "brand positioning": [
+    "brand-positioning"
+  ],
+  "marketing automation": [
+    "marketing-automation"
+  ],
+  "pipeline management": [
+    "pipeline mgmt",
+    "pipeline-management"
+  ],
+  "lead qualification": [
+    "lead-qualification"
+  ],
+  "account management": [
+    "account mgmt",
+    "account-management"
+  ],
+  "deal negotiation": [
+    "deal-negotiation"
+  ],
+  "revenue growth": [
+    "revenue-growth"
+  ],
+  "territory planning": [
+    "territory-planning"
+  ],
+  "sales forecasting": [
+    "sales-forecasting"
+  ],
+  "crm hygiene": [
+    "crm-hygiene"
+  ],
+  "partnership development": [
+    "partnership dev",
+    "partnership-development"
+  ],
+  "client retention": [
+    "client-retention"
+  ],
+  "visual design": [
+    "visual-design"
+  ],
+  "brand identity": [
+    "brand-identity"
+  ],
+  "creative direction": [
+    "creative-direction"
+  ],
+  "layout design": [
+    "layout-design"
+  ],
+  "design systems": [
+    "design-systems"
+  ],
+  "user-centered design": [
+    "user centered design",
+    "user-centered-design"
+  ],
+  "art direction": [
+    "art-direction"
+  ],
+  "motion graphics": [
+    "motion-graphics"
+  ],
+  "creative briefs": [
+    "creative-briefs"
+  ],
+  "asset production": [
+    "asset-production"
+  ],
+  "communications strategy": [
+    "communications-strategy"
+  ],
+  "public relations": [
+    "public-relations"
+  ],
+  "media outreach": [
+    "media-outreach"
+  ],
+  "press releases": [
+    "press-releases"
+  ],
+  "editorial planning": [
+    "editorial-planning"
+  ],
+  "brand messaging": [
+    "brand-messaging"
+  ],
+  "reputation management": [
+    "reputation mgmt",
+    "reputation-management"
+  ],
+  "internal communications": [
+    "internal-communications"
+  ],
+  "media monitoring": [
+    "media-monitoring"
+  ],
+  "content calendars": [
+    "content-calendars"
+  ],
+  "video production": [
+    "video-production"
+  ],
+  "script development": [
+    "script dev",
+    "script-development"
+  ],
+  "pre-production": [
+    "pre production"
+  ],
+  "shoot scheduling": [
+    "shoot-scheduling"
+  ],
+  "camera operations": [
+    "camera ops",
+    "camera-operations"
+  ],
+  "editing workflows": [
+    "editing-workflows"
+  ],
+  "post-production": [
+    "post production"
+  ],
+  "location management": [
+    "location mgmt",
+    "location-management"
+  ],
+  "lighting setup": [
+    "lighting-setup"
+  ],
+  "audio capture": [
+    "audio-capture"
+  ],
+  "distribution deliverables": [
+    "distribution-deliverables"
+  ],
+  "audio production": [
+    "audio-production"
+  ],
+  "sound design": [
+    "sound-design"
+  ],
+  "recording sessions": [
+    "recording-sessions"
+  ],
+  "music editing": [
+    "music-editing"
+  ],
+  "signal flow": [
+    "signal-flow"
+  ],
+  "daw workflows": [
+    "daw-workflows"
+  ],
+  "podcast production": [
+    "podcast-production"
+  ],
+  "live sound": [
+    "live-sound"
+  ],
+  "audio post-production": [
+    "audio post production",
+    "audio-post-production"
+  ],
+  "trend forecasting": [
+    "trend-forecasting"
+  ],
+  "product development": [
+    "product dev",
+    "product-development"
+  ],
+  "technical design": [
+    "technical-design"
+  ],
+  "garment construction": [
+    "garment-construction"
+  ],
+  "line planning": [
+    "line-planning"
+  ],
+  "fit sessions": [
+    "fit-sessions"
+  ],
+  "vendor sourcing": [
+    "vendor-sourcing"
+  ],
+  "seasonal assortment": [
+    "seasonal-assortment"
+  ],
+  "fabric selection": [
+    "fabric-selection"
+  ],
+  "quality standards": [
+    "quality-standards"
+  ],
+  "inventory planning": [
+    "inventory-planning"
+  ],
+  "architectural design": [
+    "architectural-design"
+  ],
+  "space planning": [
+    "space-planning"
+  ],
+  "construction documentation": [
+    "construction-documentation"
+  ],
+  "3d modeling": [
+    "3d-modeling"
+  ],
+  "site analysis": [
+    "site-analysis"
+  ],
+  "design development": [
+    "design dev",
+    "design-development"
+  ],
+  "permit drawings": [
+    "permit-drawings"
+  ],
+  "material selection": [
+    "material-selection"
+  ],
+  "client presentations": [
+    "client-presentations"
+  ],
+  "building codes": [
+    "building-codes"
+  ],
+  "schematic design": [
+    "schematic-design"
+  ],
+  "bim coordination": [
+    "bim-coordination"
+  ],
+  "manuscript review": [
+    "manuscript-review"
+  ],
+  "content acquisition": [
+    "content-acquisition"
+  ],
+  "publication schedules": [
+    "publication-schedules"
+  ],
+  "fact checking": [
+    "fact-checking"
+  ],
+  "rights management": [
+    "rights mgmt",
+    "rights-management"
+  ],
+  "layout coordination": [
+    "layout-coordination"
+  ],
+  "author relations": [
+    "author-relations"
+  ],
+  "style guides": [
+    "style-guides"
+  ],
+  "production workflows": [
+    "production-workflows"
+  ],
+  "operations management": [
+    "operations mgmt",
+    "ops management",
+    "operations-management"
+  ],
+  "logistics coordination": [
+    "logistics-coordination"
+  ],
+  "service delivery": [
+    "service-delivery"
+  ],
+  "resource planning": [
+    "resource-planning"
+  ],
+  "dispatch management": [
+    "dispatch mgmt",
+    "dispatch-management"
+  ],
+  "capacity planning": [
+    "capacity-planning"
+  ],
+  "kpi reporting": [
+    "kpi-reporting"
+  ],
+  "vendor management": [
+    "vendor mgmt",
+    "vendor-management"
+  ],
+  "process improvement": [
+    "process-improvement"
+  ],
+  "inventory control": [
+    "inventory-control"
+  ],
+  "inventory optimization": [
+    "inventory-optimization"
+  ],
+  "demand planning": [
+    "demand-planning"
+  ],
+  "supplier management": [
+    "supplier mgmt",
+    "supplier-management"
+  ],
+  "purchase orders": [
+    "purchase-orders"
+  ],
+  "supply continuity": [
+    "supply-continuity"
+  ],
+  "warehouse operations": [
+    "warehouse ops",
+    "warehouse-operations"
+  ],
+  "forecast accuracy": [
+    "forecast-accuracy"
+  ],
+  "logistics planning": [
+    "logistics-planning"
+  ],
+  "vendor scorecards": [
+    "vendor-scorecards"
+  ],
+  "order fulfillment": [
+    "order-fulfillment"
+  ],
+  "production planning": [
+    "production-planning"
+  ],
+  "lean manufacturing": [
+    "lean-manufacturing"
+  ],
+  "quality control": [
+    "quality-control"
+  ],
+  "process engineering": [
+    "process-engineering"
+  ],
+  "continuous improvement": [
+    "continuous-improvement"
+  ],
+  "safety compliance": [
+    "safety-compliance"
+  ],
+  "equipment maintenance": [
+    "equipment-maintenance"
+  ],
+  "root cause analysis": [
+    "root-cause-analysis"
+  ],
+  "sop adherence": [
+    "sop-adherence"
+  ],
+  "yield optimization": [
+    "yield-optimization"
+  ],
+  "six sigma": [
+    "six-sigma"
+  ],
+  "fleet operations": [
+    "fleet ops",
+    "fleet-operations"
+  ],
+  "transport compliance": [
+    "transport-compliance"
+  ],
+  "route optimization": [
+    "route-optimization"
+  ],
+  "vehicle maintenance": [
+    "vehicle-maintenance"
+  ],
+  "driver safety": [
+    "driver-safety"
+  ],
+  "dispatch planning": [
+    "dispatch-planning"
+  ],
+  "transport scheduling": [
+    "transport-scheduling"
+  ],
+  "fuel efficiency": [
+    "fuel-efficiency"
+  ],
+  "delivery performance": [
+    "delivery-performance"
+  ],
+  "dot compliance": [
+    "dot-compliance"
+  ],
+  "asset utilization": [
+    "asset-utilization"
+  ],
+  "flight operations": [
+    "flight ops",
+    "flight-operations"
+  ],
+  "maintenance planning": [
+    "maintenance-planning"
+  ],
+  "avionics systems": [
+    "avionics-systems"
+  ],
+  "safety management systems": [
+    "safety mgmt systems",
+    "safety-management-systems"
+  ],
+  "technical records": [
+    "technical-records"
+  ],
+  "component traceability": [
+    "component-traceability"
+  ],
+  "mission planning": [
+    "mission-planning"
+  ],
+  "engineering change control": [
+    "engineering-change-control"
+  ],
+  "reliability analysis": [
+    "reliability-analysis"
+  ],
+  "upstream operations": [
+    "upstream ops",
+    "upstream-operations"
+  ],
+  "downstream operations": [
+    "downstream ops",
+    "downstream-operations"
+  ],
+  "production optimization": [
+    "production-optimization"
+  ],
+  "asset integrity": [
+    "asset-integrity"
+  ],
+  "drilling operations": [
+    "drilling ops",
+    "drilling-operations"
+  ],
+  "pipeline operations": [
+    "pipeline ops",
+    "pipeline-operations"
+  ],
+  "refinery processes": [
+    "refinery-processes"
+  ],
+  "preventive maintenance": [
+    "preventive-maintenance"
+  ],
+  "energy trading": [
+    "energy-trading"
+  ],
+  "permit to work": [
+    "permit-to-work"
+  ],
+  "renewable energy": [
+    "renewable-energy"
+  ],
+  "grid operations": [
+    "grid ops",
+    "grid-operations"
+  ],
+  "energy efficiency": [
+    "energy-efficiency"
+  ],
+  "power systems": [
+    "power-systems"
+  ],
+  "outage management": [
+    "outage mgmt",
+    "outage-management"
+  ],
+  "asset maintenance": [
+    "asset-maintenance"
+  ],
+  "solar projects": [
+    "solar-projects"
+  ],
+  "wind operations": [
+    "wind ops",
+    "wind-operations"
+  ],
+  "load forecasting": [
+    "load-forecasting"
+  ],
+  "sustainability reporting": [
+    "sustainability-reporting"
+  ],
+  "grid reliability": [
+    "grid-reliability"
+  ],
+  "mine planning": [
+    "mine-planning"
+  ],
+  "ore processing": [
+    "ore-processing"
+  ],
+  "geology support": [
+    "geology-support"
+  ],
+  "equipment reliability": [
+    "equipment-reliability"
+  ],
+  "production targets": [
+    "production-targets"
+  ],
+  "environmental compliance": [
+    "environmental-compliance"
+  ],
+  "blasting coordination": [
+    "blasting-coordination"
+  ],
+  "site operations": [
+    "site ops",
+    "site-operations"
+  ],
+  "resource estimation": [
+    "resource-estimation"
+  ],
+  "shift supervision": [
+    "shift-supervision"
+  ],
+  "crop management": [
+    "crop mgmt",
+    "crop-management"
+  ],
+  "farm operations": [
+    "farm ops",
+    "farm-operations"
+  ],
+  "yield forecasting": [
+    "yield-forecasting"
+  ],
+  "soil health": [
+    "soil-health"
+  ],
+  "irrigation planning": [
+    "irrigation-planning"
+  ],
+  "harvest scheduling": [
+    "harvest-scheduling"
+  ],
+  "food safety": [
+    "food-safety"
+  ],
+  "supply planning": [
+    "supply-planning"
+  ],
+  "sustainability practices": [
+    "sustainability-practices"
+  ],
+  "last-mile delivery": [
+    "last mile delivery",
+    "last-mile-delivery"
+  ],
+  "dispatch systems": [
+    "dispatch-systems"
+  ],
+  "fulfillment analytics": [
+    "fulfillment-analytics"
+  ],
+  "eta prediction": [
+    "eta-prediction"
+  ],
+  "driver apps": [
+    "driver-apps"
+  ],
+  "order orchestration": [
+    "order-orchestration"
+  ],
+  "fleet visibility": [
+    "fleet-visibility"
+  ],
+  "delivery slas": [
+    "delivery-slas"
+  ],
+  "warehouse integration": [
+    "warehouse-integration"
+  ],
+  "customer notifications": [
+    "customer-notifications"
+  ],
+  "talent acquisition": [
+    "talent-acquisition"
+  ],
+  "employee relations": [
+    "employee-relations"
+  ],
+  "performance management": [
+    "performance mgmt",
+    "performance-management"
+  ],
+  "workforce planning": [
+    "workforce-planning"
+  ],
+  "hr compliance": [
+    "hr-compliance"
+  ],
+  "engagement surveys": [
+    "engagement-surveys"
+  ],
+  "learning and development": [
+    "learning & development",
+    "learning and dev",
+    "learning-and-development"
+  ],
+  "succession planning": [
+    "succession-planning"
+  ],
+  "hr analytics": [
+    "hr-analytics"
+  ],
+  "customer support": [
+    "customer-support"
+  ],
+  "case management": [
+    "case mgmt",
+    "case-management"
+  ],
+  "ticket resolution": [
+    "ticket-resolution"
+  ],
+  "service recovery": [
+    "service-recovery"
+  ],
+  "sla adherence": [
+    "sla-adherence"
+  ],
+  "customer satisfaction": [
+    "customer-satisfaction"
+  ],
+  "escalation handling": [
+    "escalation-handling"
+  ],
+  "knowledge base": [
+    "knowledge-base"
+  ],
+  "call quality": [
+    "call-quality"
+  ],
+  "issue triage": [
+    "issue-triage"
+  ],
+  "voice of customer": [
+    "voice-of-customer"
+  ],
+  "candidate sourcing": [
+    "candidate-sourcing"
+  ],
+  "interview coordination": [
+    "interview-coordination"
+  ],
+  "ats management": [
+    "ats mgmt",
+    "ats-management"
+  ],
+  "job postings": [
+    "job-postings"
+  ],
+  "talent pipelines": [
+    "talent-pipelines"
+  ],
+  "offer management": [
+    "offer mgmt",
+    "offer-management"
+  ],
+  "client requirements": [
+    "client-requirements"
+  ],
+  "recruitment metrics": [
+    "recruitment-metrics"
+  ],
+  "stakeholder communication": [
+    "stakeholder-communication"
+  ],
+  "employer branding": [
+    "employer-branding"
+  ],
+  "business strategy": [
+    "business-strategy"
+  ],
+  "operating model": [
+    "operating-model"
+  ],
+  "market analysis": [
+    "market-analysis"
+  ],
+  "change management": [
+    "change mgmt",
+    "change-management"
+  ],
+  "executive presentations": [
+    "executive-presentations"
+  ],
+  "pmo support": [
+    "pmo-support"
+  ],
+  "contract review": [
+    "contract-review"
+  ],
+  "legal research": [
+    "legal-research"
+  ],
+  "litigation support": [
+    "litigation-support"
+  ],
+  "regulatory analysis": [
+    "regulatory-analysis"
+  ],
+  "document drafting": [
+    "document-drafting"
+  ],
+  "policy interpretation": [
+    "policy-interpretation"
+  ],
+  "corporate governance": [
+    "corporate-governance"
+  ],
+  "legal operations": [
+    "legal ops",
+    "legal-operations"
+  ],
+  "e-discovery": [
+    "e discovery"
+  ],
+  "contract lifecycle management": [
+    "contract lifecycle mgmt",
+    "contract-lifecycle-management"
+  ],
+  "legal workflow automation": [
+    "legal-workflow-automation"
+  ],
+  "compliance technology": [
+    "compliance tech",
+    "compliance-technology"
+  ],
+  "document automation": [
+    "document-automation"
+  ],
+  "knowledge management": [
+    "knowledge mgmt",
+    "knowledge-management"
+  ],
+  "legal analytics": [
+    "legal-analytics"
+  ],
+  "saas implementation": [
+    "saas-implementation"
+  ],
+  "product adoption": [
+    "product-adoption"
+  ],
+  "requirements gathering": [
+    "requirements-gathering"
+  ],
+  "support operations": [
+    "support ops",
+    "support-operations"
+  ],
+  "privacy controls": [
+    "privacy-controls"
+  ],
+  "audit planning": [
+    "audit-planning"
+  ],
+  "tax compliance": [
+    "tax-compliance"
+  ],
+  "client accounting": [
+    "client-accounting"
+  ],
+  "financial statements": [
+    "financial-statements"
+  ],
+  "regulatory standards": [
+    "regulatory-standards"
+  ],
+  "close process": [
+    "close-process"
+  ],
+  "assurance services": [
+    "assurance-services"
+  ],
+  "event planning": [
+    "event-planning"
+  ],
+  "vendor coordination": [
+    "vendor-coordination"
+  ],
+  "run of show": [
+    "run-of-show"
+  ],
+  "budget tracking": [
+    "budget-tracking"
+  ],
+  "speaker management": [
+    "speaker mgmt",
+    "speaker-management"
+  ],
+  "registration operations": [
+    "registration ops",
+    "registration-operations"
+  ],
+  "venue logistics": [
+    "venue-logistics"
+  ],
+  "client communication": [
+    "client-communication"
+  ],
+  "sponsorship fulfillment": [
+    "sponsorship-fulfillment"
+  ],
+  "onsite execution": [
+    "onsite-execution"
+  ],
+  "post-event reporting": [
+    "post event reporting",
+    "post-event-reporting"
+  ],
+  "guest experience": [
+    "guest-experience"
+  ],
+  "fitness programming": [
+    "fitness-programming"
+  ],
+  "client coaching": [
+    "client-coaching"
+  ],
+  "exercise assessment": [
+    "exercise-assessment"
+  ],
+  "wellness plans": [
+    "wellness-plans"
+  ],
+  "member retention": [
+    "member-retention"
+  ],
+  "class scheduling": [
+    "class-scheduling"
+  ],
+  "performance tracking": [
+    "performance-tracking"
+  ],
+  "injury prevention": [
+    "injury-prevention"
+  ],
+  "nutrition guidance": [
+    "nutrition-guidance"
+  ],
+  "community engagement": [
+    "community-engagement"
+  ],
+  "facility operations": [
+    "facility ops",
+    "facility-operations"
+  ],
+  "customer service": [
+    "customer-service"
+  ],
+  "client consultations": [
+    "client-consultations"
+  ],
+  "service quality": [
+    "service-quality"
+  ],
+  "retail sales": [
+    "retail-sales"
+  ],
+  "appointment management": [
+    "appointment mgmt",
+    "appointment-management"
+  ],
+  "sanitation standards": [
+    "sanitation-standards"
+  ],
+  "customer retention": [
+    "customer-retention"
+  ],
+  "product knowledge": [
+    "product-knowledge"
+  ],
+  "booking optimization": [
+    "booking-optimization"
+  ],
+  "inventory management": [
+    "inventory mgmt",
+    "inventory-management"
+  ],
+  "brand standards": [
+    "brand-standards"
+  ],
+  "lesson planning": [
+    "lesson-planning"
+  ],
+  "curriculum development": [
+    "curriculum dev",
+    "curriculum-development"
+  ],
+  "student assessment": [
+    "student-assessment"
+  ],
+  "classroom management": [
+    "classroom mgmt",
+    "classroom-management"
+  ],
+  "learning outcomes": [
+    "learning-outcomes"
+  ],
+  "instructional delivery": [
+    "instructional-delivery"
+  ],
+  "differentiated instruction": [
+    "differentiated-instruction"
+  ],
+  "academic support": [
+    "academic-support"
+  ],
+  "parent communication": [
+    "parent-communication"
+  ],
+  "education technology": [
+    "education tech",
+    "education-technology"
+  ],
+  "student engagement": [
+    "student-engagement"
+  ],
+  "research design": [
+    "research-design"
+  ],
+  "data collection": [
+    "data-collection"
+  ],
+  "literature review": [
+    "literature-review"
+  ],
+  "hypothesis testing": [
+    "hypothesis-testing"
+  ],
+  "statistical analysis": [
+    "statistical-analysis"
+  ],
+  "laboratory protocols": [
+    "laboratory-protocols"
+  ],
+  "publication writing": [
+    "publication-writing"
+  ],
+  "grant support": [
+    "grant-support"
+  ],
+  "experimental design": [
+    "experimental-design"
+  ],
+  "scientific communication": [
+    "scientific-communication"
+  ],
+  "ethics compliance": [
+    "ethics-compliance"
+  ],
+  "student records": [
+    "student-records"
+  ],
+  "academic scheduling": [
+    "academic-scheduling"
+  ],
+  "faculty support": [
+    "faculty-support"
+  ],
+  "committee coordination": [
+    "committee-coordination"
+  ],
+  "admissions support": [
+    "admissions-support"
+  ],
+  "program operations": [
+    "program ops",
+    "program-operations"
+  ],
+  "compliance tracking": [
+    "compliance-tracking"
+  ],
+  "calendar management": [
+    "calendar mgmt",
+    "calendar-management"
+  ],
+  "learning platforms": [
+    "learning-platforms"
+  ],
+  "curriculum mapping": [
+    "curriculum-mapping"
+  ],
+  "lms integration": [
+    "lms-integration"
+  ],
+  "instructional design": [
+    "instructional-design"
+  ],
+  "user onboarding": [
+    "user-onboarding"
+  ],
+  "learning analytics": [
+    "learning-analytics"
+  ],
+  "implementation planning": [
+    "implementation-planning"
+  ],
+  "usage reporting": [
+    "usage-reporting"
+  ],
+  "content authoring": [
+    "content-authoring"
+  ],
+  "property management": [
+    "property mgmt",
+    "property-management"
+  ],
+  "property valuations": [
+    "property-valuations"
+  ],
+  "tenant relations": [
+    "tenant-relations"
+  ],
+  "rent rolls": [
+    "rent-rolls"
+  ],
+  "asset management": [
+    "asset mgmt",
+    "asset-management"
+  ],
+  "broker coordination": [
+    "broker-coordination"
+  ],
+  "deal analysis": [
+    "deal-analysis"
+  ],
+  "portfolio reporting": [
+    "portfolio-reporting"
+  ],
+  "site visits": [
+    "site-visits"
+  ],
+  "project scheduling": [
+    "project-scheduling"
+  ],
+  "site supervision": [
+    "site-supervision"
+  ],
+  "cost estimation": [
+    "cost-estimation"
+  ],
+  "construction safety": [
+    "construction-safety"
+  ],
+  "subcontractor management": [
+    "subcontractor mgmt",
+    "subcontractor-management"
+  ],
+  "change orders": [
+    "change-orders"
+  ],
+  "quality inspections": [
+    "quality-inspections"
+  ],
+  "permit coordination": [
+    "permit-coordination"
+  ],
+  "project controls": [
+    "project-controls"
+  ],
+  "drawings review": [
+    "drawings-review"
+  ],
+  "feasibility studies": [
+    "feasibility-studies"
+  ],
+  "land acquisition": [
+    "land-acquisition"
+  ],
+  "planning approvals": [
+    "planning-approvals"
+  ],
+  "pro forma modeling": [
+    "pro-forma-modeling"
+  ],
+  "project financing": [
+    "project-financing"
+  ],
+  "development budgets": [
+    "dev budgets",
+    "development-budgets"
+  ],
+  "stakeholder engagement": [
+    "stakeholder-engagement"
+  ],
+  "site due diligence": [
+    "site-due-diligence"
+  ],
+  "design coordination": [
+    "design-coordination"
+  ],
+  "construction oversight": [
+    "construction-oversight"
+  ],
+  "leasing strategy": [
+    "leasing-strategy"
+  ],
+  "risk management": [
+    "risk mgmt",
+    "risk-management"
+  ],
+  "public administration": [
+    "public admin",
+    "public-administration"
+  ],
+  "policy implementation": [
+    "policy-implementation"
+  ],
+  "program delivery": [
+    "program-delivery"
+  ],
+  "grant administration": [
+    "grant admin",
+    "grant-administration"
+  ],
+  "budget oversight": [
+    "budget-oversight"
+  ],
+  "community services": [
+    "community-services"
+  ],
+  "public reporting": [
+    "public-reporting"
+  ],
+  "procurement compliance": [
+    "procurement-compliance"
+  ],
+  "service improvement": [
+    "service-improvement"
+  ],
+  "program management": [
+    "program mgmt",
+    "program-management"
+  ],
+  "grant writing": [
+    "grant-writing"
+  ],
+  "community outreach": [
+    "community-outreach"
+  ],
+  "donor relations": [
+    "donor-relations"
+  ],
+  "impact measurement": [
+    "impact-measurement"
+  ],
+  "volunteer coordination": [
+    "volunteer-coordination"
+  ],
+  "budget stewardship": [
+    "budget-stewardship"
+  ],
+  "advocacy campaigns": [
+    "advocacy-campaigns"
+  ],
+  "policy analysis": [
+    "policy-analysis"
+  ],
+  "stakeholder mapping": [
+    "stakeholder-mapping"
+  ],
+  "legislative research": [
+    "legislative-research"
+  ],
+  "advocacy strategy": [
+    "advocacy-strategy"
+  ],
+  "public affairs": [
+    "public-affairs"
+  ],
+  "briefing notes": [
+    "briefing-notes"
+  ],
+  "coalition building": [
+    "coalition-building"
+  ],
+  "government relations": [
+    "government-relations"
+  ],
+  "issue campaigns": [
+    "issue-campaigns"
+  ],
+  "public consultation": [
+    "public-consultation"
+  ],
+  "regulatory monitoring": [
+    "regulatory-monitoring"
+  ],
+  "operational readiness": [
+    "operational-readiness"
+  ],
+  "security protocols": [
+    "security-protocols"
+  ],
+  "situational awareness": [
+    "situational-awareness"
+  ],
+  "logistics support": [
+    "logistics-support"
+  ],
+  "intelligence analysis": [
+    "intelligence-analysis"
+  ],
+  "training coordination": [
+    "training-coordination"
+  ],
+  "command communications": [
+    "command-communications"
+  ],
+  "asset accountability": [
+    "asset-accountability"
+  ],
+  "incident reporting": [
+    "incident-reporting"
+  ],
+  "service standards": [
+    "service-standards"
+  ],
+  "reservation management": [
+    "reservation mgmt",
+    "reservation-management"
+  ],
+  "front office": [
+    "front-office"
+  ],
+  "housekeeping operations": [
+    "housekeeping ops",
+    "housekeeping-operations"
+  ],
+  "restaurant operations": [
+    "restaurant ops",
+    "restaurant-operations"
+  ],
+  "p&l management": [
+    "p&l mgmt",
+    "p&l-management"
+  ],
+  "labor scheduling": [
+    "labor-scheduling"
+  ],
+  "pricing strategy": [
+    "pricing-strategy"
+  ],
+  "catalog management": [
+    "catalog mgmt",
+    "catalog-management"
+  ],
+  "omnichannel operations": [
+    "omnichannel ops",
+    "omnichannel-operations"
+  ],
+  "digital campaigns": [
+    "digital-campaigns"
+  ],
+  "sales reporting": [
+    "sales-reporting"
+  ],
+  "returns management": [
+    "returns mgmt",
+    "returns-management"
+  ],
+  "marketplace operations": [
+    "marketplace ops",
+    "marketplace-operations"
+  ],
+  "trip planning": [
+    "trip-planning"
+  ],
+  "itinerary design": [
+    "itinerary-design"
+  ],
+  "booking management": [
+    "booking mgmt",
+    "booking-management"
+  ],
+  "guest relations": [
+    "guest-relations"
+  ],
+  "revenue management": [
+    "revenue mgmt",
+    "revenue-management"
+  ],
+  "destination knowledge": [
+    "destination-knowledge"
+  ],
+  "reservation systems": [
+    "reservation-systems"
+  ],
+  "travel compliance": [
+    "travel-compliance"
+  ],
+  "group travel": [
+    "group-travel"
+  ],
+  "project planning": [
+    "project-planning"
+  ],
+  "scope management": [
+    "scope mgmt",
+    "scope-management"
+  ],
+  "risk logs": [
+    "risk-logs"
+  ],
+  "stakeholder management": [
+    "stakeholder mgmt",
+    "stakeholder-management"
+  ],
+  "schedule tracking": [
+    "schedule-tracking"
+  ],
+  "budget control": [
+    "budget-control"
+  ],
+  "status reporting": [
+    "status-reporting"
+  ],
+  "raid logs": [
+    "raid-logs"
+  ],
+  "delivery assurance": [
+    "delivery-assurance"
+  ],
+  "document control": [
+    "document-control"
+  ],
+  "meeting coordination": [
+    "meeting-coordination"
+  ],
+  "travel arrangements": [
+    "travel-arrangements"
+  ],
+  "expense reports": [
+    "expense-reports"
+  ],
+  "executive support": [
+    "executive-support"
+  ],
+  "records management": [
+    "records mgmt",
+    "records-management"
+  ],
+  "office operations": [
+    "office ops",
+    "office-operations"
+  ],
+  "presentation formatting": [
+    "presentation-formatting"
+  ],
+  "data entry": [
+    "data-entry"
+  ],
+  "esg reporting": [
+    "esg-reporting"
+  ],
+  "carbon accounting": [
+    "carbon-accounting"
+  ],
+  "sustainability strategy": [
+    "sustainability-strategy"
+  ],
+  "climate risk": [
+    "climate-risk"
+  ],
+  "renewable projects": [
+    "renewable-projects"
+  ],
+  "emissions tracking": [
+    "emissions-tracking"
+  ],
+  "materiality assessments": [
+    "materiality-assessments"
+  ],
+  "circular economy": [
+    "circular-economy"
+  ],
+  "sustainability disclosures": [
+    "sustainability-disclosures"
+  ],
+  "space systems": [
+    "space-systems"
+  ],
+  "mission design": [
+    "mission-design"
+  ],
+  "payload integration": [
+    "payload-integration"
+  ],
+  "orbital analysis": [
+    "orbital-analysis"
+  ],
+  "systems engineering": [
+    "systems-engineering"
+  ],
+  "ground operations": [
+    "ground ops",
+    "ground-operations"
+  ],
+  "flight software": [
+    "flight-software"
+  ],
+  "requirements management": [
+    "requirements mgmt",
+    "requirements-management"
+  ],
+  "test campaigns": [
+    "test-campaigns"
+  ],
+  "robotics integration": [
+    "robotics-integration"
+  ],
+  "automation systems": [
+    "automation-systems"
+  ],
+  "plc programming": [
+    "plc-programming"
+  ],
+  "control systems": [
+    "control-systems"
+  ],
+  "machine vision": [
+    "machine-vision"
+  ],
+  "robot path planning": [
+    "robot-path-planning"
+  ],
+  "sensor integration": [
+    "sensor-integration"
+  ],
+  "industrial automation": [
+    "industrial-automation"
+  ],
+  "safety interlocks": [
+    "safety-interlocks"
+  ],
+  "predictive maintenance": [
+    "predictive-maintenance"
+  ],
+  "systems testing": [
+    "systems-testing"
+  ],
+  "3d interaction": [
+    "3d-interaction"
+  ],
+  "real-time rendering": [
+    "real time rendering",
+    "real-time-rendering"
+  ],
+  "spatial computing": [
+    "spatial-computing"
+  ],
+  "ux prototyping": [
+    "ux-prototyping"
+  ],
+  "asset pipelines": [
+    "asset-pipelines"
+  ],
+  "immersive storytelling": [
+    "immersive-storytelling"
+  ],
+  "gesture controls": [
+    "gesture-controls"
+  ],
+  "performance optimization": [
+    "performance-optimization"
+  ],
+  "scene lighting": [
+    "scene-lighting"
+  ],
+  "user testing": [
+    "user-testing"
+  ],
+  "kpi tracking": [
+    "kpi-tracking"
+  ],
+  "cross-functional collaboration": [
+    "cross functional collaboration",
+    "cross-functional-collaboration"
+  ],
+  "business analysis": [
+    "business-analysis"
+  ],
+  "project delivery": [
+    "project-delivery"
+  ],
+  "service excellence": [
+    "service-excellence"
+  ]
+}

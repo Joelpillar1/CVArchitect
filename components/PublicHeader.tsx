@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Menu, X, User } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import ToolsDropdown from './ToolsDropdown';
 
 export default function PublicHeader() {
     const navigate = useNavigate();
@@ -11,14 +12,27 @@ export default function PublicHeader() {
 
     const handleGetStarted = () => {
         if (user) {
-            navigate('/');
+            navigate('/dashboard');
         } else {
-            navigate('/');
+            navigate('/signup');
         }
     };
 
     const handleSignIn = () => {
-        navigate('/');
+        navigate('/login');
+    };
+
+    const handleNavigation = (path: string) => {
+        if (path.startsWith('/#')) {
+            navigate('/');
+            setTimeout(() => {
+                const id = path.substring(2);
+                document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        } else {
+            navigate(path);
+        }
+        setIsMobileMenuOpen(false);
     };
 
     return (
@@ -44,23 +58,14 @@ export default function PublicHeader() {
                     ].map((item, idx) => (
                         <button
                             key={idx}
-                            onClick={() => {
-                                if (item.path.startsWith('/#')) {
-                                    navigate('/');
-                                    setTimeout(() => {
-                                        const id = item.path.substring(2);
-                                        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                    }, 100);
-                                } else {
-                                    navigate(item.path);
-                                }
-                            }}
+                            onClick={() => handleNavigation(item.path)}
                             className="text-sm font-medium text-gray-600 hover:text-brand-dark transition-colors relative group"
                         >
                             {item.label}
                             <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-green transition-all group-hover:w-full"></span>
                         </button>
                     ))}
+                    <ToolsDropdown />
                 </div>
 
                 {/* Right Side Actions (Desktop) */}
@@ -74,13 +79,12 @@ export default function PublicHeader() {
                                 </span>
                             </div>
                             <motion.button
-                                whileHover={{ scale: 1.05, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)" }}
+                                whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={handleGetStarted}
-                                className="bg-brand-green hover:opacity-90 text-brand-dark px-6 py-2.5 rounded-full font-bold text-sm transition-all shadow-sm relative overflow-hidden group"
+                                className="bg-brand-green hover:opacity-90 text-brand-dark px-6 py-2.5 rounded-full font-bold text-sm transition-all shadow-sm"
                             >
-                                <span className="relative z-10">Go to Dashboard</span>
-                                <div className="absolute inset-0 h-full w-full bg-white/20 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
+                                Go to Dashboard
                             </motion.button>
                         </>
                     ) : (
@@ -92,13 +96,12 @@ export default function PublicHeader() {
                                 Sign in
                             </button>
                             <motion.button
-                                whileHover={{ scale: 1.05, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)" }}
+                                whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={handleGetStarted}
-                                className="bg-brand-green hover:opacity-90 text-brand-dark px-6 py-2.5 rounded-full font-bold text-sm transition-all shadow-sm relative overflow-hidden group"
+                                className="bg-brand-green hover:opacity-90 text-brand-dark px-6 py-2.5 rounded-full font-bold text-sm transition-all shadow-sm"
                             >
-                                <span className="relative z-10">Get Started</span>
-                                <div className="absolute inset-0 h-full w-full bg-white/20 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
+                                Get Started
                             </motion.button>
                         </>
                     )}
@@ -132,23 +135,14 @@ export default function PublicHeader() {
                             ].map((item, idx) => (
                                 <button
                                     key={idx}
-                                    onClick={() => {
-                                        if (item.path.startsWith('/#')) {
-                                            navigate('/');
-                                            setTimeout(() => {
-                                                const id = item.path.substring(2);
-                                                document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                            }, 100);
-                                        } else {
-                                            navigate(item.path);
-                                        }
-                                        setIsMobileMenuOpen(false);
-                                    }}
-                                    className="text-lg font-medium text-gray-800 hover:text-brand-green text-left py-2 border-b border-gray-50 last:border-0"
+                                    onClick={() => handleNavigation(item.path)}
+                                    className="text-lg font-bold text-brand-dark hover:text-brand-green text-left py-2 border-b border-gray-50 last:border-0"
                                 >
                                     {item.label}
                                 </button>
                             ))}
+
+                            <ToolsDropdown isMobile={true} onClose={() => setIsMobileMenuOpen(false)} />
 
                             <div className="pt-4 flex flex-col gap-4">
                                 {user ? (

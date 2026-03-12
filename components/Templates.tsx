@@ -31,9 +31,10 @@ import { FREE_TEMPLATES } from '../utils/pricingConfig';
 interface TemplatesProps {
     onSelect: (template: TemplateType) => void;
     data: ResumeData;
+    isPublic?: boolean;
 }
 
-export default function Templates({ onSelect, data }: TemplatesProps) {
+export default function Templates({ onSelect, data, isPublic }: TemplatesProps) {
     const [previewTemplate, setPreviewTemplate] = useState<TemplateType | null>(null);
 
     // Fixed, fully-filled sample resume used for ALL template previews
@@ -427,7 +428,10 @@ export default function Templates({ onSelect, data }: TemplatesProps) {
         return 'Professional';
     };
 
-    const categories = ['All', 'Professional', 'Modern', 'Student', 'Executive', 'Academic', 'Free', 'Pro'];
+    const categories = ['All', 'Professional', 'Modern', 'Student', 'Executive', 'Academic', 'Free', 'Pro'].filter(cat => {
+        if (isPublic && (cat === 'Free' || cat === 'Pro')) return false;
+        return true;
+    });
 
     const getPreviewDataForTemplate = (templateId: string): ResumeData => {
         const template = templates.find(t => t.id === templateId);
@@ -565,17 +569,19 @@ export default function Templates({ onSelect, data }: TemplatesProps) {
                                             </div>
 
                                             {/* Badge */}
-                                            <div className="shrink-0">
-                                                {isFree ? (
-                                                    <div className="bg-brand-green/10 text-brand-green px-2 py-1 rounded text-[10px] font-bold tracking-wider uppercase flex items-center gap-1 border border-brand-green/20">
-                                                        FREE
-                                                    </div>
-                                                ) : (
-                                                    <div className="bg-brand-green/90 text-white px-2 py-1 rounded text-[10px] font-bold tracking-wider uppercase flex items-center gap-1 shadow-sm">
-                                                        <Crown size={10} className="text-[#1a1a2e] fill-current" /> PRO
-                                                    </div>
-                                                )}
-                                            </div>
+                                            {!isPublic && (
+                                                <div className="shrink-0">
+                                                    {isFree ? (
+                                                        <div className="bg-brand-green/10 text-brand-green px-2 py-1 rounded text-[10px] font-bold tracking-wider uppercase flex items-center gap-1 border border-brand-green/20">
+                                                            FREE
+                                                        </div>
+                                                    ) : (
+                                                        <div className="bg-brand-green/90 text-white px-2 py-1 rounded text-[10px] font-bold tracking-wider uppercase flex items-center gap-1 shadow-sm">
+                                                            <Crown size={10} className="text-[#1a1a2e] fill-current" /> PRO
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 );

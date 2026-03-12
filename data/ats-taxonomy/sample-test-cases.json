@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Senior Software Engineer - FinTech",
+    "jd": "Seeking a Senior Software Engineer with expertise in Java, microservices, and REST APIs. Experience with AWS and CI/CD pipelines is required. Knowledge of financial modeling is a plus.",
+    "resume": "Experienced engineer with 5 years in Java development. Built scalable microservices using Spring Boot and connected via REST APIs. Deployed to AWS using Jenkins CI/CD. Strong background in finance modeling and valuation.",
+    "expected_industry": "Software / Tech",
+    "expected_roles": [
+      "software engineer"
+    ]
+  },
+  {
+    "name": "Marketing Manager - E-commerce",
+    "jd": "We need a Marketing Manager to drive lead generation and conversion optimization. Proficiency in SEO, Google Ads, and HubSpot is essential. Strong stakeholder management skills required.",
+    "resume": "Performance-driven marketer with a focus on SEO and Google Ads. Successfully increased lead generation by 40%. used HubSpot for campaign tracking and managed cross-functional stakeholders.",
+    "expected_industry": "Marketing / Advertising",
+    "expected_roles": [
+      "marketing manager"
+    ]
+  }
+]

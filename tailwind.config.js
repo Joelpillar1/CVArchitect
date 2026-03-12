@@ -13,6 +13,8 @@ export default {
                     dark: '#333C4D',      // Text / Deep elements
                     green: '#70E098',     // Buttons / Accents
                     greenHover: '#5CD685',
+                    blue: '#0870b8',
+                    blueHover: '#065a94',
                     bg: '#F8F8F8',        // Main background
                     surface: '#FFFFFF',   // Cards / Paper
                     secondary: '#F3F3F3', // Secondary backgrounds

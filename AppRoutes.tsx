@@ -16,6 +16,7 @@ import PricingPage from './components/PricingPage';
 import BlogPage from './components/BlogPage';
 import BlogPost from './components/BlogPost';
 import Support from './components/Support';
+import ResumeMatchChecker from './components/ResumeMatchChecker';
 
 // New dashboard with nested routing
 import Dashboard from './pages/Dashboard';
@@ -109,6 +110,11 @@ function TermsOfServiceWrapper() {
     return <TermsOfService onBack={() => navigate(-1)} />;
 }
 
+function RefundPolicyWrapper() {
+    const navigate = useNavigate();
+    return <RefundPolicy onBack={() => navigate(-1)} />;
+}
+
 // Wrapper component for ResetPassword that provides onSuccess callback
 function ResetPasswordWrapper() {
     const navigate = useNavigate();
@@ -129,9 +135,10 @@ export default function AppRoutes() {
             <Route path="/privacy" element={<PrivacyPolicyWrapper />} />
             <Route path="/terms" element={<TermsOfServiceWrapper />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/refund-policy" element={<RefundPolicy />} />
+            <Route path="/refund-policy" element={<RefundPolicyWrapper />} />
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/support" element={<Support />} />
+            <Route path="/resume-checker" element={<ResumeMatchChecker />} />
 
             {/* Blog */}
             <Route path="/blog" element={<BlogPage />} />

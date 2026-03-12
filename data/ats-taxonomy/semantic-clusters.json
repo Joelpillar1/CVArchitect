@@ -1,0 +1,47 @@
+{
+  "leadership_and_execution": [
+    "leadership",
+    "stakeholder management",
+    "project management",
+    "resource planning",
+    "delivery management",
+    "decision making",
+    "prioritization"
+  ],
+  "analysis_and_reporting": [
+    "data analysis",
+    "reporting",
+    "dashboarding",
+    "forecasting",
+    "trend analysis",
+    "root cause analysis",
+    "insights"
+  ],
+  "operations_and_process": [
+    "process improvement",
+    "workflow optimization",
+    "SOPs",
+    "quality assurance",
+    "continuous improvement",
+    "service delivery",
+    "compliance"
+  ],
+  "customer_and_client": [
+    "customer satisfaction",
+    "client management",
+    "relationship management",
+    "service excellence",
+    "retention",
+    "issue resolution",
+    "communication"
+  ],
+  "digital_and_tools": [
+    "automation",
+    "systems integration",
+    "documentation",
+    "tool administration",
+    "platform adoption",
+    "data governance",
+    "digital transformation"
+  ]
+}

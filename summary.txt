@@ -1,0 +1,13 @@
+paragraph | False
+student-resumes-with-no-experience | False
+how-to-beat-ats-resume-2026 | False
+best-resume-format-2026 | False
+ai-resume-builder-vs-traditional | False
+resume-keywords-that-get-you-hired | False
+cover-letter-guide-2026 | False
+resume-mistakes-to-avoid | False
+best-resume-templates-2026 | True
+student-resume-no-experience-guide | False
+how-to-write-resume-step-by-step | False
+free-resume-builder-comparison-2026 | False
+resume-examples-by-industry-2026 | True

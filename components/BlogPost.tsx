@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Clock, ArrowLeft, ArrowRight, User, Calendar, Tag } from 'lucide-react';
+import { Clock, ArrowLeft, ArrowRight, User, Calendar, Tag, Maximize2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getPostBySlug, blogPosts, BlogSection } from '../utils/blogData';
 import PublicHeader from './PublicHeader';
@@ -9,6 +9,7 @@ import SEO from './SEO';
 import ResumePreview from './ResumePreview';
 import { TemplateType } from '../types';
 import { SAMPLE_RESUME_DATA, STUDENT_RESUME_DATA } from '../utils/sampleResumeData';
+import { JUNIOR_ACCOUNTANT_RESUME_DATA } from '../utils/juniorAccountantData';
 
 const fadeUp = {
     hidden: { opacity: 0, y: 20 },
@@ -92,27 +93,38 @@ function renderSection(section: BlogSection, index: number) {
                 </figure>
             );
         case 'templatePreview':
+            const isStudent = section.templateId === 'student';
+            // Use Accountant data for most previews except student specific ones
+            const resumeData = isStudent ? STUDENT_RESUME_DATA : JUNIOR_ACCOUNTANT_RESUME_DATA;
+
             return (
-                <div key={index} className="my-10 flex flex-col items-center">
-                    <div className="relative w-full max-w-[800px] bg-gray-100 rounded-xl overflow-hidden shadow-lg border border-gray-200" style={{ height: '500px' }}>
-                        {section.templateId && (
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[210mm] origin-top transform scale-[0.45] pointer-events-none select-none my-8">
-                                <ResumePreview data={section.templateId === 'student' ? STUDENT_RESUME_DATA : SAMPLE_RESUME_DATA} template={section.templateId as TemplateType} />
+                <div key={index} className="my-16 flex flex-col items-center w-full">
+                    <div className="relative w-full max-w-[850px] bg-white rounded-3xl overflow-hidden shadow-[0_20px_80px_rgba(112,224,152,0.25)] border-[3px] border-brand-green/40 group/preview transition-all hover:border-brand-green/70">
+                        {/* Resume Preview Container */}
+                        <div className="relative w-full bg-white overflow-hidden" style={{ height: '640px' }}>
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[210mm] origin-top transform scale-[0.68] pointer-events-none select-none mt-12 mb-20 shadow-2xl">
+                                <ResumePreview data={resumeData} template={section.templateId as TemplateType} />
                             </div>
-                        )}
-                        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+                            
+                            {/* Fade effect at the bottom to transition into CTA */}
+                            <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-white via-white/95 to-transparent z-10" />
+                        </div>
+
+                        {/* Call to Action Section Overlay/Bottom */}
+                        <div className="relative z-20 -mt-32 pb-14 px-8 flex flex-col items-center text-center">
+                            {section.content && (
+                                <p className="text-gray-500 font-light italic text-xl mb-10 max-w-xl drop-shadow-sm">
+                                    {section.content}
+                                </p>
+                            )}
+                            <a
+                                href="/signup"
+                                className="inline-flex items-center gap-2 bg-brand-green text-brand-dark px-12 py-4 rounded-xl font-semibold text-lg hover:bg-brand-greenHover hover:scale-105 active:scale-95 transition-all shadow-[0_15px_30px_rgba(112,224,152,0.35)]"
+                            >
+                                Use This Template
+                            </a>
+                        </div>
                     </div>
-                    {section.content && (
-                        <p className="text-center text-sm text-gray-500 mt-4 italic max-w-2xl">
-                            {section.content}
-                        </p>
-                    )}
-                    <a
-                        href="/signup"
-                        className="mt-6 inline-flex items-center gap-2 bg-brand-dark text-white px-6 py-3 rounded-xl font-bold hover:bg-brand-green hover:text-brand-dark transition-all shadow-md group"
-                    >
-                        Use This Template <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                    </a>
                 </div>
             );
         default:

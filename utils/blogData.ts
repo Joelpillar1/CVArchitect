@@ -22,6 +22,7 @@ export interface BlogSection {
     alt?: string;
     templateId?: string;
     crossedOut?: boolean;
+    showPreview?: boolean;
 }
 
 export const blogPosts: BlogPost[] = [
@@ -210,9 +211,9 @@ export const blogPosts: BlogPost[] = [
                 content: 'To bring everything together, here is what the final product looks like. The best student resumes with no experience clearly feature education at the top, make excellent use of bolding to draw the eye, and seamlessly weave complex academic projects to mimic work history. Your final document should function just like this template: scannable, confident, and meticulously organized.'
             },
             {
-                type: 'image',
-                src: '/images/Student/Reume%20Sample.png',
-                alt: 'Best student resumes with no experience full sample',
+                type: 'templatePreview',
+                templateId: 'student',
+                showPreview: true,
                 content: 'A complete student resume with no professional experience demonstrating all the best practices discussed in this guide.'
             }
         ]
@@ -400,6 +401,11 @@ export const blogPosts: BlogPost[] = [
             {
                 type: 'paragraph',
                 content: 'Bottom line: the ATS is not your enemy. It is a system with clear rules. Learn the rules, format your resume accordingly, and you will get past the robots. The candidates who struggle are not the ones who lack qualifications. They are the ones who refuse to adapt their resume to how hiring actually works in 2026.'
+            },
+            {
+                type: 'templatePreview',
+                templateId: 'styled',
+                content: 'Ready to beat the ATS? Use this optimized template and let our AI handle the formatting and keyword matching for you.'
             }
         ]
     },
@@ -856,6 +862,11 @@ export const blogPosts: BlogPost[] = [
             {
                 type: 'tip',
                 content: 'Every template in CV Architect is built on the reverse chronological or hybrid format, because those are the formats that actually get results. Each template has been tested against the top 20 ATS platforms to ensure clean parsing. Pick a template, plug in your information, and let the AI optimize the content for your target role.'
+            },
+            {
+                type: 'templatePreview',
+                templateId: 'styled',
+                content: 'Choose the best format for your career. Our templates are pre-configured for reverse-chronological and hybrid layouts.'
             }
         ]
     },
@@ -986,6 +997,11 @@ export const blogPosts: BlogPost[] = [
             {
                 type: 'tip',
                 content: 'CV Architect goes beyond basic AI rewriting. It analyzes the specific job description you paste in, identifies missing keywords and skills, rewrites your bullets with quantified achievements, and formats everything for ATS compatibility. You keep full editorial control over every line.'
+            },
+            {
+                type: 'templatePreview',
+                templateId: 'sage',
+                content: 'Skip the manual writing. Let our AI-powered builder create a professional resume that outperforms traditional writers.'
             }
         ]
     },
@@ -1295,6 +1311,11 @@ export const blogPosts: BlogPost[] = [
             {
                 type: 'tip',
                 content: 'Not sure which keywords matter most for your target role? CV Architect analyzes the job description you paste in and identifies every keyword gap in your resume automatically. It then suggests exactly where and how to add missing keywords — woven naturally into your achievement bullets, not dumped into a keyword list. Save yourself hours of manual keyword analysis.'
+            },
+            {
+                type: 'templatePreview',
+                templateId: 'wonsulting',
+                content: 'Ensure your resume is keyword-optimized. Use this template and our Match Checker to identify hidden keyword gaps.'
             }
         ]
     },
@@ -1679,6 +1700,11 @@ export const blogPosts: BlogPost[] = [
             {
                 type: 'tip',
                 content: 'CV Architect\'s cover letter generator uses the job description and your resume data to draft personalized cover letters that follow this exact structure. It pulls your most relevant achievements, matches them to the role requirements, and creates a specific, compelling narrative. You can then edit and refine before downloading.'
+            },
+            {
+                type: 'templatePreview',
+                templateId: 'styled',
+                content: 'Stand out with a matching resume and cover letter. Generate your professional documents in minutes.'
             }
         ]
     },
@@ -2084,6 +2110,11 @@ export const blogPosts: BlogPost[] = [
             {
                 type: 'tip',
                 content: 'CV Architect\'s AI specifically looks for duty-based bullet points and rewrites them as achievement-focused statements with quantified results. It also catches formatting inconsistencies, missing keywords, and structural issues that might be invisible to you after you have been staring at your own resume for hours. Sometimes fresh eyes (even artificial ones) catch what you miss.'
+            },
+            {
+                type: 'templatePreview',
+                templateId: 'sage',
+                content: 'Don\'t let simple mistakes hold you back. Use our AI-optimized templates to ensure a flawless application.'
             }
         ]
     },
@@ -2322,152 +2353,119 @@ export const blogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'I have reviewed thousands of student resumes and entry-level applications. The ones that work share specific characteristics, and they are not the characteristics most people expect. The students who land internships and first jobs are not always the ones with the most impressive credentials. They are the ones who know how to frame what they have in a way that matters to employers.'
+                content: 'Writing a resume for students with no experience requires a strategic shift. You aren\'t selling your past job titles; you are selling your **potential, technical proficiency, and reliability**. As a recruiter who has reviewed thousands of entry-level applications, I can tell you that we care more about what you *can do* than what you\'ve *been paid to do*.'
             },
             {
                 type: 'heading',
-                content: 'What to Put on a Student Resume When You Have No Work Experience'
+                content: '1. The Foundation: Contact Information & Professional Branding'
             },
             {
                 type: 'paragraph',
-                content: 'Here is something that surprises most students: employers hiring for entry-level positions do not expect extensive work experience. They are looking for potential, transferable skills, and evidence that you can learn quickly. Your resume needs to demonstrate these qualities, even without traditional employment.'
-            },
-            {
-                type: 'subheading',
-                content: 'Academic projects that show real skills'
-            },
-            {
-                type: 'paragraph',
-                content: 'Every class project, research paper, group presentation, and capstone project is potential resume material. The key is framing these projects the way you would frame professional work: with specific details and measurable outcomes. Instead of "Completed a marketing project for class," write "Developed a comprehensive social media marketing strategy for a local nonprofit, projecting a 25% increase in engagement through targeted Instagram and TikTok campaigns." Same project. Completely different impression.'
-            },
-            {
-                type: 'subheading',
-                content: 'Volunteer work and community involvement'
-            },
-            {
-                type: 'paragraph',
-                content: 'Volunteering counts as experience. If you organized a fundraiser, coordinated volunteers, tutored students, or contributed to a community project, these activities demonstrate leadership, communication, organization, and initiative. These are exactly the transferable skills employers want in entry-level candidates. List volunteer experience the same way you would list paid work: with a title, organization, dates, and achievement-focused bullet points.'
-            },
-            {
-                type: 'subheading',
-                content: 'Clubs, organizations, and leadership roles'
-            },
-            {
-                type: 'paragraph',
-                content: 'Being president of a student club is leadership experience. Managing the budget for a student organization is financial management experience. Coordinating events for your fraternity or sorority is project management experience. Do not undersell these roles. A recruiter hiring for an entry-level position would rather see "Managed a $5,000 annual budget for the Engineering Student Association" than a blank space where work experience should be.'
+                content: 'Your contact section is the first thing a recruiter sees. It must be clean, professional, and updated. Ensure your email address is professional (e.g., firstname.lastname@email.com) and include a link to your LinkedIn profile or GitHub if you are in a technical field.'
             },
             {
                 type: 'image',
-                src: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1000&q=80',
-                alt: 'Group of students collaborating on a project together',
-                content: 'Group projects, club leadership, and volunteer work are all legitimate resume experiences for students.'
-            },
-            {
-                type: 'subheading',
-                content: 'Freelance work, side projects, and personal projects'
-            },
-            {
-                type: 'paragraph',
-                content: 'Built a website for a family member? Created a YouTube channel? Sold products on Etsy? Tutored kids in your neighborhood? All of these count. Personal projects are especially valuable in tech and creative fields because they show initiative and practical skill application beyond the classroom. Even if nobody paid you for it, the work is real and the skills are real.'
+                src: '/images/Student/Contact.png',
+                alt: 'Professional Contact Information Example',
+                content: 'A clean, high-visibility contact section sets the tone for a professional resume.'
             },
             {
                 type: 'heading',
-                content: 'The Best Student Resume Format'
+                content: '2. The Hook: Result-Driven Professional Summaries'
             },
             {
                 type: 'paragraph',
-                content: 'For students with no work experience, I recommend a modified reverse chronological format. Lead with your education (since it is your strongest credential right now), follow with a skills section, then use a section called "Relevant Experience" or "Projects & Activities" to showcase everything we just discussed.'
+                content: 'The summary is your 6-second elevator pitch. For a student with no experience, this should focus on your academic achievements, core skills, and specific career goals. Avoid generic phrases like "hard worker" or "team player." Instead, use quantifiable wins.'
             },
             {
-                type: 'subheading',
-                content: 'Recommended resume structure for students'
-            },
-            {
-                type: 'list',
-                items: [
-                    'Contact Information: Name, email, phone, LinkedIn URL, portfolio link (if applicable)',
-                    'Professional Summary: 2-3 sentences highlighting your degree, key skills, and career goal. Example: "Computer Science senior at UCLA with hands-on experience in Python, React, and data analysis through academic projects and hackathon participation. Seeking a software engineering internship to apply machine learning skills in a production environment."',
-                    'Education: Degree, University, Expected Graduation Date, GPA (if 3.0+), relevant coursework, academic honors',
-                    'Skills: Organized by category (Technical Skills, Languages, Tools). Include specific technologies, not vague descriptors.',
-                    'Relevant Experience: Projects, volunteer work, club leadership, freelance work. Format each with a title, organization, dates, and 2-3 achievement bullets.',
-                    'Certifications & Additional: Google certifications, HubSpot certifications, AWS certifications, online courses (Coursera, edX), language proficiencies'
-                ]
-            },
-            {
-                type: 'heading',
-                content: 'First Job Resume: What Employers Actually Look For'
-            },
-            {
-                type: 'paragraph',
-                content: 'I surveyed 30 hiring managers who regularly hire entry-level candidates. The top five things they look for on a first job resume are:'
-            },
-            {
-                type: 'list',
-                items: [
-                    'Relevant skills that match the job description (85% rated this as critical)',
-                    'Clear, error-free writing (78% said they immediately reject resumes with typos)',
-                    'Evidence of initiative and self-motivation (72% valued this over GPA)',
-                    'Internship or project experience related to the field (68%)',
-                    'A professional summary that shows self-awareness about their career goals (55%)'
-                ]
-            },
-            {
-                type: 'paragraph',
-                content: 'Notice what is NOT on this list: a perfect GPA, prestigious university name, or years of professional experience. Employers hiring entry-level talent understand you are at the beginning. They want to see that you are capable, motivated, and a good fit for the role. Your resume just needs to provide evidence of those three things.'
-            },
-            {
-                type: 'heading',
-                content: 'Resume for Teenagers: Part-Time Jobs and First Applications'
-            },
-            {
-                type: 'paragraph',
-                content: 'If you are a teenager applying for your very first part-time job (retail, food service, tutoring), your resume will be shorter, and that is okay. Focus on your school achievements, extracurricular activities, and any informal work you have done (babysitting, lawn care, helping at a family business). Keep it to one page with a clean, simple resume template.'
-            },
-            {
-                type: 'paragraph',
-                content: 'The most important thing for a teenager resume is demonstrating reliability and work ethic. Mention your availability, any relevant certifications (food handler, CPR, lifeguard), and skills like customer service, cash handling, or teamwork. Employers hiring teenagers know you do not have professional experience. They care about attitude and dependability.'
+                type: 'quote',
+                content: '❌ **Weak:** Highly motivated student seeking an entry-level marketing role to gain experience and help a company grow.\n\n✅ **Strong (Result-Driven):** Data-driven Marketing senior with 3.9 GPA at State University. Developed a social media campaign for a campus organization that increased event attendance by 45% and grew Instagram following by 800+ in 4 months. Proficient in Google Analytics and Meta Ads.'
             },
             {
                 type: 'image',
-                src: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1000&q=80',
-                alt: 'Student working on their resume at a desk with a laptop',
-                content: 'Your first resume does not need to be perfect. It needs to be clean, honest, and focused on what you can bring to the role.'
+                src: '/images/Student/Summary.png',
+                alt: 'Result-Driven Summary Example',
+                content: 'Notice how the summary leads with academic excellence and specific, measurable achievements.'
             },
             {
                 type: 'heading',
-                content: 'Internship Resume: How to Stand Out From Thousands of Applicants'
+                content: '3. Education: Your Highest Value Credential'
             },
             {
                 type: 'paragraph',
-                content: 'Internship applications are some of the most competitive in the job market. Large companies like Google, Goldman Sachs, and McKinsey receive 10,000+ applications per internship cycle. Your internship resume needs to be sharp, relevant, and keyword-optimized to make it through. Here are the specific recommendations I give to every student applying for competitive internships.'
+                content: 'When you lack work experience, your education section does the heavy lifting. Place it right at the top. Include your degree, university, expected graduation date, and any academic honors like Dean\'s List. Don\'t forget to list **Relevant Coursework** that aligns with the job you are applying for.'
             },
             {
-                type: 'list',
-                items: [
-                    'Tailor your resume to each internship. Copy the exact skills and tools listed in the posting and make sure they appear on your resume.',
-                    'Include relevant coursework. If the internship is in data science, list courses like "Statistical Methods," "Machine Learning Fundamentals," and "Database Systems."',
-                    'Highlight technical projects with results. "Built a sentiment analysis tool using Python and NLTK that classified 10,000+ tweets with 87% accuracy" is far more compelling than "Familiar with Python."',
-                    'List hackathons, competitions, and relevant extracurriculars. These demonstrate passion beyond coursework.',
-                    'Keep it to one page. Always. No exceptions for internship resumes.'
-                ]
+                type: 'image',
+                src: '/images/Student/Education.png',
+                alt: 'Detailed Education Section',
+                content: 'Highlighting relevant courses proves you have the theoretical knowledge required for the role.'
             },
             {
                 type: 'heading',
-                content: 'Common Student Resume Mistakes'
+                content: '4. The Secret Weapon: Academic & Personal Projects'
             },
             {
-                type: 'list',
-                items: [
-                    'Using a creative resume template that is not ATS compatible. Stick to a simple, single-column format.',
-                    'Including high school details when you are in college. Unless you graduated within the last year or have a notable achievement (valedictorian, national competition winner), drop high school entirely.',
-                    'Listing every course you have ever taken. Only include relevant coursework that matches the job you are applying for.',
-                    'Writing an objective statement instead of a professional summary. "Seeking a challenging internship" tells the employer nothing. Summarize your skills and what you bring instead.',
-                    'Forgetting to include a LinkedIn profile URL. Recruiters will Google you anyway. Give them a polished LinkedIn profile to find.'
-                ]
+                type: 'paragraph',
+                content: 'This is where you prove you can actually do the work. Treat your projects like mini-jobs. Use the **Action Verb + Result** formula. Did you build an app? Manage a group project? Conduct a scientific study? These are evidence of real-world skills.'
             },
             {
-                type: 'tip',
-                content: 'CV Architect has resume templates specifically designed for students, freshers, and first-time job seekers. They are ATS-friendly, single-column, and structured to highlight education, projects, and skills over traditional work experience. The AI helps you identify transferable skills and rewrite your academic projects as professional-quality achievement bullets.'
+                type: 'quote',
+                content: '**Project Sample (Software Engineering):**\n**Campus RideShare App | Lead Developer | Jan 2026**\n• Architected a full-stack mobile application using React Native and Firebase to connect over 1,500 university students for verified carpooling.\n• Implemented real-time tracking and secure auth flows, resulting in a 40% reduction in reported commute costs for regular users.'
+            },
+            {
+                type: 'image',
+                src: '/images/Student/Project.png',
+                alt: 'Project Section Example',
+                content: 'Projects demonstrate initiative and technical capability far better than just listing a skill.'
+            },
+            {
+                type: 'heading',
+                content: '5. Proving Soft Skills: Leadership & Extracurriculars'
+            },
+            {
+                type: 'paragraph',
+                content: 'Employers look for leadership, teamwork, and ownership. Your involvement in student clubs, sports, or volunteer work is the perfect place to show these. If you managed a budget or led a team, say so.'
+            },
+            {
+                type: 'image',
+                src: '/images/Student/LEADERSHIP.png',
+                alt: 'Leadership and Club Experience',
+                content: 'Leadership roles in student organizations are highly valued as they show you can manage responsibility.'
+            },
+            {
+                type: 'heading',
+                content: '6. Skills & Certifications'
+            },
+            {
+                type: 'paragraph',
+                content: 'Group your skills into logical categories: Technical, Tools, and Soft Skills. For a student, certifications (Google, AWS, Microsoft) are a great way to "hack" your experience section. They provide third-party validation of your abilities.'
+            },
+            {
+                type: 'image',
+                src: '/images/Student/Skills.png',
+                alt: 'Skills Section Layout',
+                content: 'Organize skills so they are easily scannable by both humans and ATS systems.'
+            },
+            {
+                type: 'heading',
+                content: 'The Final Result: A Winning Student Resume'
+            },
+            {
+                type: 'paragraph',
+                content: 'When you bring all these sections together, you get a document that feels authoritative and professional, even without a traditional "Work History" section. Below is a full view of a high-performance student resume.'
+            },
+            {
+                type: 'image',
+                src: '/images/Student/Reume Sample.png',
+                alt: 'Complete Student Resume Example',
+                content: 'A complete student resume following the structure detailed above.'
+            },
+            {
+                type: 'templatePreview',
+                templateId: 'student',
+                showPreview: true,
+                content: 'A professional student resume template designed to highlight your potential and academic achievements.'
             }
         ]
     },
@@ -2568,6 +2566,11 @@ export const blogPosts: BlogPost[] = [
             {
                 type: 'tip',
                 content: 'If you are unsure which format to use, choose reverse chronological. It is the safest, most broadly accepted, and most ATS-friendly option. You can never go wrong with it.'
+            },
+            {
+                type: 'templatePreview',
+                templateId: 'styled',
+                content: 'A clean, modern layout that works perfectly for the reverse-chronological format.'
             },
             {
                 type: 'heading',
@@ -2776,6 +2779,11 @@ export const blogPosts: BlogPost[] = [
             {
                 type: 'paragraph',
                 content: 'Achievement-focused bullet points with specific numbers are the single most impactful improvement you can make to any resume.'
+            },
+            {
+                type: 'templatePreview',
+                templateId: 'sage',
+                content: 'A professional, results-oriented template that gives your work experience the space it deserves.'
             },
             {
                 type: 'heading',
@@ -3010,10 +3018,9 @@ export const blogPosts: BlogPost[] = [
                 ]
             },
             {
-                type: 'image',
-                src: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1000&q=80',
-                alt: 'Clean desk with laptop and organized documents',
-                content: 'The final 15 minutes of proofreading and formatting can be the difference between getting an interview and getting rejected.'
+                type: 'templatePreview',
+                templateId: 'elegant',
+                content: 'A sophisticated, high-end template for professionals who want to stand out with style and authority.'
             },
             {
                 type: 'heading',
@@ -3091,6 +3098,11 @@ export const blogPosts: BlogPost[] = [
             {
                 type: 'tip',
                 content: 'CV Architect walks you through each section of your resume step by step, using AI to help you transform generic duty descriptions into powerful achievement statements with quantified results. It follows the exact resume outline and format recommended in this guide, and automatically tailors your resume to specific job descriptions — saving you hours of manual tailoring work.'
+            },
+            {
+                type: 'templatePreview',
+                templateId: 'wonsulting',
+                content: 'Follow our step-by-step guide and use this template to build your highest-performing resume yet.'
             }
         ]
     },
@@ -3236,6 +3248,11 @@ export const blogPosts: BlogPost[] = [
             {
                 type: 'tip',
                 content: 'CV Architect offers a free tier that includes ATS-compatible templates, basic resume creation, and one complete resume download with no watermarks. For job seekers who need advanced features like AI content writing, keyword optimization, and unlimited tailored versions, premium plans start at a fraction of what competitors charge. We do not believe in surprise paywalls.'
+            },
+            {
+                type: 'templatePreview',
+                templateId: 'styled',
+                content: 'Build your resume for free with our ATS-optimized templates. Upgrade only when you need advanced AI features.'
             }
         ]
     },
@@ -3410,6 +3427,11 @@ export const blogPosts: BlogPost[] = [
             {
                 type: 'tip',
                 content: 'CV Architect understands industry-specific resume conventions. When you select your target industry, the AI tailors its suggestions to match what recruiters in that field actually look for. Whether you are writing a nursing resume, a software engineer resume, a teacher resume, or any other specialization, the platform guides you toward the specific details and formatting that your industry expects.'
+            },
+            {
+                type: 'templatePreview',
+                templateId: 'modern',
+                content: 'Ready to build your high-converting resume? Choose from our ATS-optimized templates and get started in seconds.'
             }
         ]
     },

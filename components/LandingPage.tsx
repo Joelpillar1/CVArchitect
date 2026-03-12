@@ -4,7 +4,10 @@ import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import SEO from './SEO';
+import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
+import Templates from './Templates';
+import { INITIAL_DATA } from '../types';
 
 // Animation Variants
 const fadeInUp = {
@@ -52,6 +55,108 @@ const float = {
       ease: "easeInOut"
     }
   }
+};
+
+const MARKEE_BULLETS_1 = [
+  "Launched 5 social media campaigns, reaching 150,000 total impressions and generating 3,200 new leads.",
+  "Increased email newsletter subscriptions by 4,500 in 3 months through targeted campaigns and A/B testing.",
+  "Managed product backlog of 200+ tasks, coordinating with 5 engineers to release 3 major features on schedule.",
+  "Developed 3 backend services handling 50,000+ requests per day with 99.9% uptime.",
+  "Designed and delivered 45 pages of web and app interfaces in 10 weeks, ensuring brand consistency.",
+  "Managed a marketing budget of $75,000, achieving a 12% reduction in costs while maximizing ROI."
+];
+
+const MARKEE_BULLETS_2 = [
+  "Conducted user testing sessions with 60 participants, producing actionable insights that reduced onboarding time by 20%.",
+  "Optimized query performance, reducing API response time from 1.8s to 0.4s across 50 endpoints.",
+  "Redesigned checkout flow for web app, reducing cart abandonment by 18%.",
+  "Implemented SEO strategy for 15 pages, increasing organic traffic by 18,000 visitors in 4 months.",
+  "Built automated testing framework reducing regression testing time by 70% for 12 modules.",
+  "Led UI/UX design for mobile app used by 25,000+ users, improving task completion time by 15%."
+];
+
+// Re-writing highlightMetrics with a more reliable approach
+const HighlightedText = ({ text }: { text: string }) => {
+  // Use non-capturing groups (?:...) for sub-patterns to avoid duplicate entries in the split array
+  const greenPattern = /\d+(?:,\d{3})*(?:\.\d+)?%|\d+(?:,\d{3})*(?:\.\d+)?\s*(?:leads|impressions|visitors|views|reduction|growth|increase|decrease)/gi;
+  const darkPattern = /\$?\d+(?:,\d{3})*(?:\.\d+)?(?!\s%(?:leads|impressions|visitors|views))|\d+\+?\s*(?:tasks|engineers|features|articles|months|years|units|users|participants|requests|endpoints|modules)/gi;
+
+  // Combine with a single outer capturing group for the split
+  const combinedPattern = new RegExp(`(${greenPattern.source}|${darkPattern.source})`, 'gi');
+  const parts = text.split(combinedPattern);
+
+  return (
+    <span>
+      {parts.map((part, i) => {
+        if (!part) return null;
+
+        // Test against the source patterns without global flags for precision
+        if (new RegExp(`^${greenPattern.source}$`, 'i').test(part)) {
+          return <span key={i} className="text-[#5CD685] font-extrabold">{part}</span>;
+        }
+        if (new RegExp(`^${darkPattern.source}$`, 'i').test(part)) {
+          return <span key={i} className="text-brand-dark font-extrabold">{part}</span>;
+        }
+        return <span key={i}>{part}</span>;
+      })}
+      <BadgeCheck size={16} className="text-[#5CD685] fill-[#5CD685]/10 inline-block ml-1 align-text-bottom shrink-0" />
+    </span>
+  );
+};
+
+// Simplified utility function
+const highlightMetricsFinal = (text: string) => <HighlightedText text={text} />;
+
+const SectionAnalysisOverlay = () => {
+  const sections = [
+    { name: "Personal Info", score: 100 },
+    { name: "Summary", score: 100 },
+    { name: "Experience", score: 100 },
+    { name: "Education", score: 100 },
+    { name: "Skills", score: 100 },
+    { name: "Achievements", score: 100 },
+    { name: "Projects", score: 50 },
+    { name: "Certifications", score: 100 }
+  ];
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, x: 20 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: 0.5, duration: 0.8 }}
+      className="absolute top-8 right-8 z-30 w-64 bg-white/95 backdrop-blur-md rounded-2xl shadow-float border border-gray-100 p-5 pointer-events-none hidden lg:block"
+    >
+      <div className="flex items-center gap-2 mb-6">
+        <div className="p-1.5 bg-brand-dark/5 rounded-lg">
+          <FileText size={18} className="text-brand-dark" />
+        </div>
+        <h3 className="font-bold text-brand-dark text-[15px]">Section Analysis</h3>
+      </div>
+      
+      <div className="space-y-5">
+        {sections.map((section, idx) => (
+          <div key={idx} className="space-y-1.5">
+            <div className="flex justify-between items-center px-0.5">
+              <span className="text-[13px] font-semibold text-brand-dark/70 tracking-tight">{section.name}</span>
+              <span className={`text-[13px] font-black ${section.score === 100 ? 'text-brand-dark' : 'text-slate-800'}`}>
+                {section.score}%
+              </span>
+            </div>
+            <div className="h-[5px] w-full bg-gray-100 rounded-full overflow-hidden">
+              <motion.div 
+                initial={{ width: 0 }}
+                whileInView={{ width: `${section.score}%` }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.8 + (idx * 0.1), duration: 1, ease: "easeOut" }}
+                className={`h-full rounded-full ${section.score === 100 ? 'bg-brand-green' : 'bg-rose-500'}`}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
 };
 
 export default function LandingPage() {
@@ -133,146 +238,7 @@ export default function LandingPage() {
       />
 
       {/* Navbar */}
-      <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="fixed w-full bg-white/80 backdrop-blur-md z-50 border-b border-gray-100"
-      >
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <img src="/images/logo icon.png" alt="CV Architect Logo" className="w-8 h-8 object-contain" />
-            <span className="text-xl font-bold tracking-tight text-brand-dark">CV Architect</span>
-          </div>
-
-          {/* Centered Navigation (Desktop) */}
-          <div className="hidden md:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2">
-            {[
-              { label: 'Features', action: () => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) },
-              { label: 'The Difference', action: () => document.getElementById('the-difference')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) },
-              { label: 'Pricing', action: () => navigate('/pricing') },
-              { label: 'Blog', action: () => navigate('/blog') }
-            ].map((item, idx) => (
-              <button
-                key={idx}
-                onClick={item.action}
-                className="text-sm font-medium text-gray-600 hover:text-brand-dark transition-colors relative group"
-              >
-                {item.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-green transition-all group-hover:w-full"></span>
-              </button>
-            ))}
-          </div>
-
-          {/* Right Side Actions (Desktop) */}
-          <div className="hidden md:flex items-center gap-4">
-            {user ? (
-              <>
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-full">
-                  <User size={16} className="text-gray-600" />
-                  <span className="text-sm font-medium text-gray-700">
-                    {user.user_metadata?.full_name || user.email}
-                  </span>
-                </div>
-                <motion.button
-                  whileHover={{ scale: 1.05, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)" }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleGetStarted}
-                  className="bg-brand-green hover:opacity-90 text-brand-dark px-6 py-2.5 rounded-full font-bold text-sm transition-all shadow-sm relative overflow-hidden group"
-                >
-                  <span className="relative z-10">Go to Dashboard</span>
-                  <div className="absolute inset-0 h-full w-full bg-white/20 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
-                </motion.button>
-              </>
-            ) : (
-              <>
-                <button
-                  onClick={handleSignIn}
-                  className="text-sm font-medium text-brand-dark hover:text-brand-green transition-colors"
-                >
-                  Sign in
-                </button>
-                <motion.button
-                  whileHover={{ scale: 1.05, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)" }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleGetStarted}
-                  className="bg-brand-green hover:opacity-90 text-brand-dark px-6 py-2.5 rounded-full font-bold text-sm transition-all shadow-sm relative overflow-hidden group"
-                >
-                  <span className="relative z-10">Get Started</span>
-                  <div className="absolute inset-0 h-full w-full bg-white/20 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
-                </motion.button>
-              </>
-            )}
-          </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-brand-dark p-2"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-
-        {/* Mobile Menu Overlay */}
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="md:hidden bg-white border-t border-gray-100 overflow-hidden"
-            >
-              <div className="p-6 flex flex-col gap-6">
-                {[
-                  { label: 'Features', action: () => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) },
-                  { label: 'The Difference', action: () => document.getElementById('the-difference')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) },
-                  { label: 'Pricing', action: () => navigate('/pricing') },
-                  { label: 'Blog', action: () => navigate('/blog') }
-                ].map((item, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => {
-                      item.action();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="text-lg font-medium text-gray-800 hover:text-brand-green text-left py-2 border-b border-gray-50 last:border-0"
-                  >
-                    {item.label}
-                  </button>
-                ))}
-
-                <div className="pt-4 flex flex-col gap-4">
-                  {user ? (
-                    <button
-                      onClick={handleGetStarted}
-                      className="w-full bg-brand-green text-brand-dark py-3 rounded-lg font-bold shadow-sm"
-                    >
-                      Go to Dashboard
-                    </button>
-                  ) : (
-                    <>
-                      <button
-                        onClick={handleSignIn}
-                        className="w-full border border-gray-200 text-brand-dark py-3 rounded-lg font-medium hover:bg-gray-50"
-                      >
-                        Sign In
-                      </button>
-                      <button
-                        onClick={handleGetStarted}
-                        className="w-full bg-brand-green text-brand-dark py-3 rounded-lg font-bold shadow-sm hover:opacity-90"
-                      >
-                        Get Started
-                      </button>
-                    </>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.nav>
+      <PublicHeader />
 
       {/* Hero Section */}
       <motion.header
@@ -352,22 +318,40 @@ export default function LandingPage() {
             transition={{ duration: 0.8 }}
             className="mb-12 relative"
           >
-            {/* Video embed - visible on all devices */}
-            <div className="relative w-full max-w-5xl mx-auto aspect-video overflow-hidden rounded-xl bg-black border-2 md:border-4 border-brand-dark">
-              <iframe
-                src="https://www.youtube.com/embed/5ul_UqO1T7g"
-                loading="lazy"
-                title="CV Architect Demo Video"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                frameBorder="0"
-                allowFullScreen
-                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+            {/* Template Section replacement for YouTube video */}
+            <div className="relative w-full max-w-7xl mx-auto h-[650px] overflow-hidden rounded-xl border-2 md:border-4 border-brand-dark bg-brand-bg">
+              <Templates
+                onSelect={() => {
+                  if (user) navigate('/dashboard/templates');
+                  else navigate('/signup');
+                }}
+                data={INITIAL_DATA}
+                isPublic={true}
               />
+              
+              {/* Professional Section Analysis Overlay */}
+              <SectionAnalysisOverlay />
             </div>
-
-
-
           </motion.div>
+
+          {/* Metric-Driven Bullet Points Marquee */}
+          <div className="relative w-full overflow-hidden py-4 -mt-4">
+            <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-white via-white/80 to-transparent z-10"></div>
+            <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-white via-white/80 to-transparent z-10"></div>
+
+            <div className="flex flex-col gap-8">
+              {/* Single Row: Moving Right */}
+              <div className="flex animate-marquee-reverse">
+                {[...MARKEE_BULLETS_1, ...MARKEE_BULLETS_2, ...MARKEE_BULLETS_1, ...MARKEE_BULLETS_2, ...MARKEE_BULLETS_1, ...MARKEE_BULLETS_2].map((bullet, idx) => (
+                  <div key={idx} className="flex-shrink-0 mx-2 px-4 py-3 bg-white border-[3px] border-brand-dark rounded-[20px] shadow-soft hover:shadow-float transition-all duration-300 cursor-default group relative w-[230px]">
+                    <p className="text-gray-700 font-medium whitespace-normal text-xs leading-relaxed">
+                      {highlightMetricsFinal(bullet)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
 
           {/* Social Proof Logos */}
           <motion.div
@@ -824,16 +808,6 @@ export default function LandingPage() {
                 </div>
               </motion.div>
 
-              <motion.button
-                variants={fadeInUp}
-                whileHover={{ scale: 1.05, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleGetStarted}
-                className="bg-brand-green hover:opacity-90 text-brand-dark px-12 py-5 rounded-full font-bold text-xl shadow-2xl transition-all mt-4 relative overflow-hidden group"
-              >
-                <span className="relative z-10">Try it for free</span>
-                <div className="absolute inset-0 h-full w-full bg-white/20 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
-              </motion.button>
             </motion.div>
 
             {/* Right: Resume Preview */}

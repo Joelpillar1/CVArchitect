@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom';
 type SEOProps = {
   title: string;
   description?: string;
+  keywords?: string;
   canonicalPath?: string;
   ogImage?: string;
   noindex?: boolean;
@@ -27,6 +28,7 @@ const getBaseUrl = () => {
 export default function SEO({
   title,
   description,
+  keywords,
   canonicalPath,
   ogImage,
   noindex,
@@ -52,6 +54,7 @@ export default function SEO({
     <Helmet>
       <title>{title}</title>
       {description && <meta name="description" content={description} />}
+      {keywords && <meta name="keywords" content={keywords} />}
 
       <link rel="canonical" href={url} />
       <meta name="robots" content={robots} />
