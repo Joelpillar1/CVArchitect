@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, X, ArrowRight, Zap, Target, FileSearch, Sparkles, Layout, Trophy, PartyPopper } from 'lucide-react';
+import { Check, X, ArrowRight, Zap, Target, FileSearch, Sparkles, Layout, Trophy, PartyPopper, BarChart2 } from 'lucide-react';
 import SEO from './SEO';
 import PublicFooter from './PublicFooter';
 import PublicHeader from './PublicHeader';
@@ -211,11 +211,23 @@ export default function ResumeMatchChecker() {
                         >
                             <div className="bg-white rounded-3xl border-2 border-brand-border shadow-float p-8 md:p-12">
                                 <div className="flex flex-col items-center text-center mb-12">
-                                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-brand-green/10 text-brand-greenHover rounded-full text-sm font-bold mb-6">
-                                        <Target size={14} />
-                                        Industry: {results.detected_industry}
+                                    <div className="flex flex-wrap justify-center gap-3 mb-6">
+                                        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-brand-green/10 text-brand-greenHover rounded-full text-sm font-bold">
+                                            <Target size={14} />
+                                            Industry: {results.detected_industry}
+                                        </div>
+                                        {results.recruiter_insights.role_level_match !== 'unclear' && (
+                                            <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold ${
+                                                results.recruiter_insights.role_level_match === 'match' 
+                                                ? 'bg-blue-50 text-blue-600' 
+                                                : 'bg-rose-50 text-rose-600'
+                                            }`}>
+                                                {results.recruiter_insights.role_level_match === 'match' ? <Check size={14} /> : <X size={14} />}
+                                                Level: {results.recruiter_insights.role_level_match.toUpperCase()}
+                                            </div>
+                                        )}
                                     </div>
-                                    <h2 className="text-3xl font-bold mb-8">Match Analysis</h2>
+                                    <h2 className="text-3xl font-bold mb-8">Recruiter Analysis</h2>
                                     
                                     {/* Score Display */}
                                     <div className="relative w-48 h-48 flex items-center justify-center mb-6">
@@ -248,10 +260,51 @@ export default function ResumeMatchChecker() {
                                         </div>
                                     </div>
                                     <p className="text-gray-500 font-medium max-w-md">
-                                        {results.score_breakdown.overall_score > 80 ? "Excellent! Your resume is highly optimized for this role." : 
-                                         results.score_breakdown.overall_score > 50 ? "Good start, but there's room for improvement by adding more keywords." : 
-                                         "Your resume is missing critical keywords. A recruiter or ATS might filter you out."}
+                                        {results.score_breakdown.overall_score > 80 ? "Excellent signal! A recruiter would likely move you to the next stage." : 
+                                         results.score_breakdown.overall_score > 50 ? "Good potential, but needs more impact metrics and keyword alignment." : 
+                                         "Weak hiring signal. Your resume lacks both key terms and quantified results."}
                                     </p>
+                                </div>
+
+                                {/* NEW: Recruiter Insights Grid */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                                    <div className="bg-brand-dark text-white rounded-2xl p-6 shadow-float relative overflow-hidden group">
+                                        <div className="absolute -top-4 -right-4 opacity-10 group-hover:rotate-12 transition-transform">
+                                            <BarChart2 size={120} />
+                                        </div>
+                                        <h3 className="text-brand-green font-bold text-xs uppercase tracking-[0.2em] mb-4">Impact Metrics</h3>
+                                        <div className="flex items-end gap-2 mb-4">
+                                            <span className="text-4xl font-black">{results.recruiter_insights.quantification_score}%</span>
+                                            <span className="text-brand-green/60 text-xs pb-1 font-bold">Quantification</span>
+                                        </div>
+                                        <p className="text-white/70 text-sm leading-relaxed mb-4">
+                                            Recruiters look for data. Your resume has <b>{results.recruiter_insights.detected_metrics.length}</b> distinct data points.
+                                        </p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {results.recruiter_insights.detected_metrics.slice(0, 4).map((m, i) => (
+                                                <span key={i} className="text-[10px] font-bold px-2 py-1 bg-white/10 rounded-md border border-white/5">{m}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white border-2 border-brand-dark rounded-2xl p-6 shadow-soft relative overflow-hidden group">
+                                        <div className="absolute -top-4 -right-4 text-brand-dark/5 group-hover:-rotate-12 transition-transform">
+                                            <Zap size={120} />
+                                        </div>
+                                        <h3 className="text-brand-dark/40 font-bold text-xs uppercase tracking-[0.2em] mb-4">Action Verb Strength</h3>
+                                        <div className="flex items-end gap-2 mb-4">
+                                            <span className="text-4xl font-black text-brand-dark">{results.recruiter_insights.action_verb_strength}%</span>
+                                            <span className="text-gray-400 text-xs pb-1 font-bold">Power Verbs</span>
+                                        </div>
+                                        <p className="text-gray-500 text-sm leading-relaxed mb-4">
+                                            You are using <b>{results.recruiter_insights.power_verbs_found.length}</b> unique high-impact action verbs.
+                                        </p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {results.recruiter_insights.power_verbs_found.slice(0, 4).map((v, i) => (
+                                                <span key={i} className="text-[10px] font-bold px-2 py-1 bg-brand-bg rounded-md border border-gray-100 uppercase text-brand-dark/60">{v}</span>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {/* Scoring Logic Visual Breakdown */}
@@ -262,32 +315,37 @@ export default function ResumeMatchChecker() {
                                             Match Breakdown by Category
                                         </h3>
                                         <div className="flex gap-4 text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
-                                            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-brand-green"></div> 0.9-1.0 (Strong)</div>
-                                            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-orange-400"></div> 0.7-0.8 (Close)</div>
+                                            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-brand-green"></div> Strong</div>
+                                            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-brand-dark"></div> Meta</div>
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
                                         {[
-                                            { label: 'Hard Skills', score: results.score_breakdown.hard_skills, weight: '30%' },
-                                            { label: 'Tools', score: results.score_breakdown.tools, weight: '25%' },
-                                            { label: 'Industry', score: results.score_breakdown.industry_terms, weight: '20%' },
-                                            { label: 'Methods', score: results.score_breakdown.methodologies, weight: '15%' },
-                                            { label: 'Soft Skills', score: results.score_breakdown.soft_skills, weight: '10%' }
+                                            { label: 'Hard Skills', score: results.score_breakdown.hard_skills, weight: '25%', tip: 'Core competency' },
+                                            { label: 'Tools', score: results.score_breakdown.tools, weight: '20%', tip: 'Technical stack' },
+                                            { label: 'Industry', score: results.score_breakdown.industry_terms, weight: '15%', tip: 'Domain context' },
+                                            { label: 'Methods', score: results.score_breakdown.methodologies, weight: '15%', tip: 'Process maturity' },
+                                            { label: 'Soft Skills', score: results.score_breakdown.soft_skills, weight: '5%', tip: 'Team culture/ATS' },
+                                            { label: 'Impact', score: results.score_breakdown.quantification, weight: '10%', tip: 'Performance data' },
+                                            { label: 'Verbs', score: results.score_breakdown.verb_strength, weight: '10%', tip: 'Action/Authority' }
                                         ].map((s, i) => (
-                                            <div key={i} className="bg-white p-3 rounded-xl border border-gray-100 flex flex-col items-center">
+                                            <div key={i} className="bg-white p-3 rounded-xl border border-gray-100 flex flex-col items-center group/cat relative">
+                                                <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-brand-dark text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover/cat:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10 shadow-float">
+                                                    {s.tip} ({s.weight})
+                                                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-brand-dark"></div>
+                                                </div>
                                                 <div className="text-[10px] font-bold text-gray-400 mb-1">{s.label}</div>
-                                                <div className="text-lg font-black text-brand-dark">
+                                                <div className={`text-sm font-black ${s.score !== null ? (s.score > 70 ? 'text-brand-green' : 'text-orange-400') : 'text-gray-300'}`}>
                                                     {s.score !== null ? `${Math.round(s.score)}%` : 'N/A'}
                                                 </div>
                                                 <div className="w-full h-1 bg-gray-50 rounded-full mt-2 overflow-hidden">
                                                     {s.score !== null && (
                                                         <div 
-                                                            className={`h-full ${s.score > 70 ? 'bg-brand-green' : 'bg-orange-400'}`} 
+                                                            className={`h-full ${s.score > 70 ? 'bg-brand-green' : (i >= 5 ? 'bg-brand-dark' : 'bg-orange-400')}`} 
                                                             style={{ width: `${s.score}%` }}
                                                         ></div>
                                                     )}
                                                 </div>
-                                                <div className="text-[9px] text-gray-300 mt-1 uppercase">Weight: {s.weight}</div>
                                             </div>
                                         ))}
                                     </div>
@@ -337,28 +395,63 @@ export default function ResumeMatchChecker() {
                                     </div>
                                 </div>
 
-                                {/* AI Suggestions */}
-                                <div className="mt-12 bg-white rounded-2xl border-2 border-brand-green/10 p-6">
-                                    <h3 className="text-sm font-bold text-brand-dark uppercase tracking-widest mb-4 flex items-center gap-2">
-                                        <Sparkles size={16} className="text-brand-green" />
-                                        Optimization Suggestions
-                                    </h3>
-                                    <ul className="space-y-3">
-                                        {results.resume_improvement_suggestions.map((s, i) => (
-                                            <li key={i} className="flex items-start gap-3 text-sm text-gray-600 leading-relaxed">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-brand-green mt-1.5 flex-shrink-0"></div>
-                                                {s}
-                                            </li>
-                                        ))}
-                                        {results.resume_improvement_suggestions.length === 0 && (
-                                            <li className="text-sm text-gray-400 italic">No specific improvements detected. Your resume matches well!</li>
-                                        )}
-                                    </ul>
-                                </div>
+                                 {/* AI Suggestions & Highlighting */}
+                                 <div className="mt-12 bg-white rounded-2xl border-2 border-brand-green/10 p-6">
+                                     <h3 className="text-sm font-bold text-brand-dark uppercase tracking-widest mb-6 flex items-center gap-2">
+                                         <Sparkles size={16} className="text-brand-green" />
+                                         Recruiter Insights & Advice
+                                     </h3>
+                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                         <ul className="space-y-4">
+                                             {results.resume_improvement_suggestions.map((s, i) => (
+                                                 <li key={i} className={`flex items-start gap-3 text-sm leading-relaxed ${s.includes('Recruiters') || s.includes('numbers') ? 'text-brand-dark font-bold' : 'text-gray-600'}`}>
+                                                     <div className={`w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${s.includes('Recruiters') || s.includes('numbers') ? 'bg-brand-dark shadow-[0_0_5px_rgba(51,60,77,0.3)]' : 'bg-brand-green'}`}></div>
+                                                     {s}
+                                                 </li>
+                                             ))}
+                                             <li className="flex items-start gap-3 text-sm text-gray-500 italic mt-4 pt-4 border-t border-brand-green/10">
+                                                 <Sparkles size={14} className="mt-0.5 shrink-0" />
+                                                 {results.recruiter_insights.length_advice}
+                                             </li>
+                                         </ul>
+
+                                         {/* Achievement Highlighter Feed */}
+                                         <div className="bg-brand-bg/30 rounded-xl p-5 relative overflow-hidden flex flex-col">
+                                             <h4 className="text-[10px] font-black text-brand-dark/30 uppercase tracking-[0.2em] mb-3">Achievement Visualizer</h4>
+                                             <div className="bg-white border border-gray-100 rounded-lg p-4 text-[12px] leading-relaxed text-gray-400 h-48 overflow-y-auto shadow-inner font-mono scrollbar-thin">
+                                                 {(() => {
+                                                     let highlightedText = resume;
+                                                     
+                                                     // Highlight metrics (Green)
+                                                     results.recruiter_insights.detected_metrics.forEach(m => {
+                                                         const regex = new RegExp(`\\b${m}\\b`, 'gi');
+                                                         highlightedText = highlightedText.replace(regex, `<em style="background: rgba(112,224,152,0.2); color: #3d8c5c; font-weight: 800; font-style: normal; padding: 0 2px; border-radius: 2px;">${m}</em>`);
+                                                     });
+
+                                                     // Highlight power verbs (Dark)
+                                                     results.recruiter_insights.power_verbs_found.forEach(v => {
+                                                         const regex = new RegExp(`\\b${v}\\b`, 'gi');
+                                                         highlightedText = highlightedText.replace(regex, `<em style="background: #333c4d; color: white; font-weight: 800; font-style: normal; padding: 0 2px; border-radius: 2px;">${v}</em>`);
+                                                     });
+
+                                                     return <div dangerouslySetInnerHTML={{ __html: highlightedText }} />;
+                                                 })()}
+                                             </div>
+                                             <div className="flex gap-4 mt-3">
+                                                 <div className="flex items-center gap-1.5 text-[9px] font-bold text-brand-greenHover uppercase tracking-tighter">
+                                                     <div className="w-1.5 h-1.5 rounded-full bg-brand-green"></div> Impact Metrics
+                                                 </div>
+                                                 <div className="flex items-center gap-1.5 text-[9px] font-bold text-brand-dark/60 uppercase tracking-tighter">
+                                                     <div className="w-1.5 h-1.5 rounded-full bg-brand-dark"></div> Power Verbs
+                                                 </div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
 
                                 {/* Conversion Section */}
                                 <div className="mt-16 pt-12 border-t border-brand-border text-center">
-                                    {results.score_breakdown.overall_score === 100 && results.missing_keywords.length === 0 ? (
+                                    {results.score_breakdown.raw_score >= 100 && results.missing_keywords.length === 0 ? (
                                         <motion.div 
                                             initial={{ scale: 0.9, opacity: 0 }}
                                             animate={{ scale: 1, opacity: 1 }}

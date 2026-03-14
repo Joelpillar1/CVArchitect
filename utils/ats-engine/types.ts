@@ -15,13 +15,25 @@ export type KeywordCategory =
   | 'methodologies' 
   | 'soft_skills';
 
-export interface ScoreBreakdown {
+export interface ScoreBreakdown extends Record<KeywordCategory | string, number | null> {
   hard_skills: number | null;
   tools: number | null;
   industry_terms: number | null;
   methodologies: number | null;
   soft_skills: number | null;
+  quantification: number | null;
+  verb_strength: number | null;
+  raw_score: number;
   overall_score: number;
+}
+
+export interface RecruiterInsights {
+  quantification_score: number;
+  action_verb_strength: number;
+  role_level_match: 'match' | 'mismatch' | 'unclear';
+  detected_metrics: string[];
+  power_verbs_found: string[];
+  length_advice: string;
 }
 
 export interface ATSEngineResult {
@@ -31,6 +43,7 @@ export interface ATSEngineResult {
   missing_keywords: KeywordMatch[];
   ignored_keywords: string[];
   score_breakdown: ScoreBreakdown;
+  recruiter_insights: RecruiterInsights;
   resume_improvement_suggestions: string[];
 }
 
