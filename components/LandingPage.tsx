@@ -213,7 +213,7 @@ export default function LandingPage() {
                 "name": "How much does CV Architect cost?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "CV Architect offers a 7-day Career Sprint for $9 (one-time payment) and a monthly Career Marathon plan for $19/month. There's also a guest tier with basic features and 10 AI credits."
+                  "text": "CV Architect offers a Free Forever plan with basic features. For serious job seekers, we offer a 7-day Career Sprint for $9 and a monthly Career Marathon plan for $19/month."
                 }
               },
               {
@@ -226,10 +226,10 @@ export default function LandingPage() {
               },
               {
                 "@type": "Question",
-                "name": "Does CV Architect offer a resume builder?",
+                "name": "Does CV Architect offer a free version?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Yes! CV Architect offers guest access with 1 resume project, access to basic templates, and 10 complimentary AI credits to test the builder before committing to a paid plan."
+                  "text": "Yes! CV Architect offers a Free Forever plan which includes 1 resume project, access to basic templates, and 10 complimentary AI credits to test the builder."
                 }
               }
             ]
@@ -341,10 +341,10 @@ export default function LandingPage() {
 
             <div className="flex flex-col gap-8">
               {/* Single Row: Moving Right */}
-              <div className="flex animate-marquee-reverse">
-                {[...MARKEE_BULLETS_1, ...MARKEE_BULLETS_2, ...MARKEE_BULLETS_1, ...MARKEE_BULLETS_2, ...MARKEE_BULLETS_1, ...MARKEE_BULLETS_2].map((bullet, idx) => (
-                  <div key={idx} className="flex-shrink-0 mx-2 px-4 py-3 bg-white border-[3px] border-brand-dark rounded-[20px] shadow-soft hover:shadow-float transition-all duration-300 cursor-default group relative w-[230px]">
-                    <p className="text-gray-700 font-medium whitespace-normal text-xs leading-relaxed">
+              <div className="flex animate-marquee-reverse whitespace-nowrap will-change-transform">
+                {[...MARKEE_BULLETS_1, ...MARKEE_BULLETS_2, ...MARKEE_BULLETS_1, ...MARKEE_BULLETS_2].map((bullet, idx) => (
+                  <div key={idx} className="flex-shrink-0 mx-2 px-4 py-3 bg-white border-[3px] border-brand-dark rounded-[20px] shadow-soft hover:shadow-float transition-all duration-300 cursor-default group relative w-[260px] md:w-[320px]">
+                    <p className="text-gray-700 font-medium whitespace-normal text-xs md:text-sm leading-relaxed">
                       {highlightMetricsFinal(bullet)}
                     </p>
                   </div>
@@ -1060,8 +1060,48 @@ export default function LandingPage() {
             whileInView="visible"
             viewport={{ once: true }}
             variants={staggerContainer}
-            className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-stretch max-w-4xl mx-auto"
+            className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto"
           >
+            {/* FREE FOREVER PLAN */}
+            <motion.div
+              variants={fadeInUp}
+              className="bg-white border border-gray-200 rounded-3xl p-8 md:p-10 flex flex-col"
+            >
+              <div className="mb-8">
+                <h3 className="text-xl font-bold text-brand-dark mb-1">Free Forever</h3>
+                <p className="text-sm text-gray-500">Perfect for testing the builder.</p>
+                <div className="mt-4 flex items-baseline gap-1">
+                  <span className="text-5xl font-bold text-brand-dark">$0</span>
+                </div>
+                <p className="text-sm text-gray-500 font-medium mt-3">No credit card required.</p>
+              </div>
+
+              <ul className="space-y-3 mb-8 flex-1">
+                {[
+                  "1 Resume Project",
+                  "10 AI Credits",
+                  "Basic Templates",
+                  "Standard Export",
+                  "Standard Support"
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3 text-sm text-gray-600">
+                    <Check size={16} className="text-brand-green mt-0.5" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-2">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleGetStarted}
+                  className="w-full py-4 rounded-full border-2 border-brand-dark hover:bg-brand-dark hover:text-white text-brand-dark text-sm font-semibold transition-all shadow-sm"
+                >
+                  Create free account
+                </motion.button>
+              </div>
+            </motion.div>
             {/* SPRINT PLAN (Focus) */}
             <motion.div
               variants={fadeInUp}
@@ -1155,27 +1195,6 @@ export default function LandingPage() {
                 </div>
               </div>
             </motion.div>
-          </motion.div>
-
-          {/* Guest Tier Link */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-center mt-12"
-          >
-            <p className="text-gray-500 text-lg">
-              Not ready to commit?{' '}
-              <button
-                onClick={handleGetStarted}
-                className="text-brand-dark font-bold underline decoration-2 underline-offset-4 hover:text-brand-green transition-colors"
-              >
-                Start with Guest Access
-              </button>
-            </p>
-            <p className="text-sm text-gray-400 mt-2 max-w-lg mx-auto">
-              Includes 1 resume project, access to basic templates, and 10 complimentary AI credits to test the builder.
-            </p>
           </motion.div>
         </div>
       </section>

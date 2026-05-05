@@ -23,15 +23,29 @@ export const findPhraseInText = (phrase: string, text: string): MatchType | null
   }
 
   // 2. Singular/Plural Match fallback
-  // If the phrase is plural, try singular. If singular, try plural is harder without a dict,
-  // but we can try a few common patterns.
   const words = normalizedPhrase.split(' ');
   const singularPhrase = words.map(w => singularize(w)).join(' ');
   
-  if (singularPhrase !== normalizedPhrase) {
-    const singularRegex = new RegExp(`\\b${escapeRegExp(singularPhrase)}\\b`, 'i');
-    if (singularRegex.test(normalizedText)) {
-      return 'normalized';
+  // Try singular version
+  const singularRegex = new RegExp(`\\b${escapeRegExp(singularPhrase)}\\b`, 'i');
+  if (singularRegex.test(normalizedText)) {
+    return 'normalized';
+  }
+
+  // Try common pluralizations if singular didn't match
+  if (words.length === 1) {
+    const word = words[0];
+    const pluralPatterns = [
+        `${word}s`,
+        `${word}es`,
+        word.endsWith('y') ? `${word.slice(0, -1)}ies` : null
+    ].filter(Boolean);
+
+    for (const plural of pluralPatterns) {
+        const pluralRegex = new RegExp(`\\b${escapeRegExp(plural!)}\\b`, 'i');
+        if (pluralRegex.test(normalizedText)) {
+            return 'normalized';
+        }
     }
   }
 

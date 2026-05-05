@@ -53,8 +53,44 @@ export default function PricingPage() {
             </div>
 
             {/* Pricing Options */}
-            <div className="max-w-4xl mx-auto px-6 py-20">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-stretch">
+            <div className="max-w-6xl mx-auto px-6 py-20">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+
+                    {/* FREE FOREVER PLAN */}
+                    <div className="bg-white border border-gray-200 rounded-3xl p-8 md:p-10 flex flex-col shadow-sm">
+                        <div className="mb-8">
+                            <h3 className="text-xl font-bold text-brand-dark mb-1">Free Forever</h3>
+                            <p className="text-sm text-gray-500">Perfect for testing the builder.</p>
+                            <div className="mt-4 flex items-baseline gap-1">
+                                <span className="text-5xl font-bold text-brand-dark">$0</span>
+                            </div>
+                            <p className="text-sm text-gray-500 font-medium mt-3">No credit card required.</p>
+                        </div>
+
+                        <ul className="space-y-3 mb-8 flex-1">
+                            {[
+                                "1 Resume Project",
+                                "10 AI Credits",
+                                "Basic Templates",
+                                "Standard Export",
+                                "Standard Support"
+                            ].map((item, i) => (
+                                <li key={i} className="flex items-center gap-3 text-sm text-gray-600">
+                                    <Check size={16} className="text-brand-green mt-0.5" />
+                                    <span>{item}</span>
+                                </li>
+                            ))}
+                        </ul>
+
+                        <div className="mt-2">
+                            <button
+                                onClick={() => navigate('/signup')}
+                                className="w-full py-4 rounded-full border-2 border-brand-dark hover:bg-brand-dark hover:text-white text-brand-dark text-sm font-semibold transition-all shadow-sm"
+                            >
+                                Create free account
+                            </button>
+                        </div>
+                    </div>
 
                     {/* SPRINT PLAN (Focus) */}
                     <div className="relative bg-white border-2 border-brand-green rounded-3xl p-8 md:p-10 shadow-2xl shadow-brand-green/10 max-w-sm w-full mx-auto flex flex-col">

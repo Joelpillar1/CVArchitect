@@ -5,28 +5,16 @@ import { useNavigate } from 'react-router-dom';
 
 export const FREE_TOOLS = [
     {
+        label: 'Action Words for Resume',
+        link: '/action-words',
+        description: 'High-impact action verbs and examples for your resume.',
+        icon: Sparkles
+    },
+    {
         label: 'Resume Match Checker',
         link: '/resume-checker',
         description: 'Scan your resume against any job description.',
         icon: Target
-    },
-    {
-        label: 'ATS Resume Checker',
-        link: '/blog/ats-resume-checker-free',
-        description: 'Check if your resume is readable by ATS algorithms.',
-        icon: FileSearch
-    },
-    {
-        label: 'Resume Keyword Scanner',
-        link: '/blog/free-resume-keyword-scanner',
-        description: 'Find missing keywords in your resume instantly.',
-        icon: Sparkles
-    },
-    {
-        label: 'Cover Letter Writer',
-        link: '/dashboard/cover-letter',
-        description: 'AI-powered cover letter generator.',
-        icon: FileText
     }
 ];
 
@@ -60,7 +48,7 @@ export default function ToolsDropdown({ isMobile, onClose }: ToolsDropdownProps)
                     onClick={() => setIsOpen(!isOpen)}
                     className="flex items-center justify-between w-full text-lg font-bold text-brand-dark py-2"
                 >
-                    Tools
+                    Free Tools
                     <ChevronDown size={20} className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
                 </button>
                 <AnimatePresence>
@@ -97,7 +85,7 @@ export default function ToolsDropdown({ isMobile, onClose }: ToolsDropdownProps)
             onMouseLeave={() => setIsOpen(false)}
         >
             <button className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-brand-dark transition-colors py-2">
-                Tools
+                Free Tools
                 <ChevronDown size={14} className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 

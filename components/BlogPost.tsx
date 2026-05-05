@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Clock, ArrowLeft, ArrowRight, User, Calendar, Tag, Maximize2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Clock, ArrowLeft, ArrowRight, User, Calendar, Tag, Maximize2, Check, Copy, Sparkles, Search } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { getPostBySlug, blogPosts, BlogSection } from '../utils/blogData';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
@@ -16,24 +16,86 @@ const fadeUp = {
     visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
 };
 
+function renderText(text: string) {
+    if (!text) return null;
+    
+    // Patterns based on LandingPage.tsx for consistency
+    const greenPattern = /\d+(?:,\d{3})*(?:\.\d+)?%|\d+(?:,\d{3})*(?:\.\d+)?\s*(?:leads|impressions|visitors|views|reduction|growth|increase|decrease)/gi;
+    const darkPattern = /\$?\d+(?:,\d{3})*(?:\.\d+)?(?!\s%(?:leads|impressions|visitors|views))|\d+\+?\s*(?:tasks|engineers|features|articles|months|years|units|users|participants|requests|endpoints|modules)/gi;
+    
+    // Bold and Link patterns
+    const boldPatternSource = '\\*\\*.*?\\*\\*';
+    const linkPatternSource = '\\[.*?\\]\\(.*?\\)';
+
+    // Combined split regex
+    const combinedRegex = new RegExp(`(${boldPatternSource}|${linkPatternSource}|${greenPattern.source}|${darkPattern.source})`, 'gi');
+    
+    const parts = text.split(combinedRegex);
+    
+    return parts.map((part, i) => {
+        if (!part) return null;
+
+        // Bold
+        if (part.startsWith('**') && part.endsWith('**')) {
+            const inner = part.slice(2, -2);
+            // Check if inner itself matches a metric pattern for nested-like behavior
+            if (new RegExp(`^${greenPattern.source}$`, 'i').test(inner)) {
+                return <strong key={i} className="text-brand-green font-extrabold">{inner}</strong>;
+            }
+            if (new RegExp(`^${darkPattern.source}$`, 'i').test(inner)) {
+                return <strong key={i} className="text-brand-dark font-extrabold">{inner}</strong>;
+            }
+            return <strong key={i} className="font-bold text-brand-dark">{inner}</strong>;
+        }
+
+        // Link
+        const linkMatch = part.match(/^\[(.*?)\]\((.*?)\)$/);
+        if (linkMatch) {
+            const [_, linkText, url] = linkMatch;
+            const isExternal = url.startsWith('http');
+            return (
+                <a 
+                    key={i} 
+                    href={url}
+                    target={isExternal ? "_blank" : undefined}
+                    rel={isExternal ? "noopener noreferrer" : undefined}
+                    className="text-brand-green font-semibold hover:underline decoration-2 underline-offset-4"
+                >
+                    {linkText}
+                </a>
+            );
+        }
+
+        // Standalone Metrics
+        if (new RegExp(`^${greenPattern.source}$`, 'i').test(part)) {
+            return <span key={i} className="text-brand-green font-extrabold">{part}</span>;
+        }
+        if (new RegExp(`^${darkPattern.source}$`, 'i').test(part)) {
+            return <span key={i} className="text-brand-dark font-extrabold">{part}</span>;
+        }
+
+        return part;
+    });
+}
+
 function renderSection(section: BlogSection, index: number) {
     switch (section.type) {
         case 'heading':
             return (
                 <h2 key={index} className="text-2xl md:text-3xl font-bold text-brand-dark mt-10 mb-4 leading-tight">
-                    {section.content}
+                    {renderText(section.content || '')}
                 </h2>
             );
         case 'subheading':
             return (
                 <h3 key={index} className="text-xl font-semibold text-brand-dark mt-8 mb-3">
-                    {section.content}
+                    {renderText(section.content || '')}
                 </h3>
             );
         case 'paragraph':
             return (
                 <p key={index} className="text-gray-700 leading-relaxed mb-4 text-[17px]">
-                    {section.content}
+                    {renderText(section.content || '')}
                 </p>
             );
         case 'list':
@@ -42,7 +104,7 @@ function renderSection(section: BlogSection, index: number) {
                     {section.items?.map((item, i) => (
                         <li key={i} className="flex gap-3 text-gray-700 leading-relaxed text-[17px]">
                             <span className="text-brand-green font-bold mt-1 shrink-0">•</span>
-                            <span>{item}</span>
+                            <span>{renderText(item)}</span>
                         </li>
                     ))}
                 </ul>
@@ -51,7 +113,7 @@ function renderSection(section: BlogSection, index: number) {
             return (
                 <blockquote key={index} className="border-l-4 border-brand-green pl-6 py-4 my-8 bg-brand-green/5 rounded-r-xl">
                     <p className="text-gray-700 italic text-lg leading-relaxed">
-                        {section.content}
+                        {renderText(section.content || '')}
                     </p>
                 </blockquote>
             );
@@ -63,7 +125,7 @@ function renderSection(section: BlogSection, index: number) {
                             TIP
                         </span>
                         <p className="text-gray-700 leading-relaxed text-[17px]">
-                            {section.content}
+                            {renderText(section.content || '')}
                         </p>
                     </div>
                 </div>
@@ -87,7 +149,7 @@ function renderSection(section: BlogSection, index: number) {
                     </div>
                     {section.content && (
                         <figcaption className="text-center text-sm text-gray-400 mt-3 italic">
-                            {section.content}
+                            {renderText(section.content)}
                         </figcaption>
                     )}
                 </figure>
@@ -114,7 +176,7 @@ function renderSection(section: BlogSection, index: number) {
                         <div className="relative z-20 -mt-32 pb-14 px-8 flex flex-col items-center text-center">
                             {section.content && (
                                 <p className="text-gray-500 font-light italic text-xl mb-10 max-w-xl drop-shadow-sm">
-                                    {section.content}
+                                    {renderText(section.content)}
                                 </p>
                             )}
                             <a
@@ -127,10 +189,127 @@ function renderSection(section: BlogSection, index: number) {
                     </div>
                 </div>
             );
+        case 'bulletShowcase':
+            return <BulletShowcase key={index} bullets={section.bullets || []} categories={section.categories || []} />;
         default:
             return null;
     }
 }
+
+const BulletShowcase = ({ bullets, categories }: { bullets: { category: string; text: string }[], categories: string[] }) => {
+    const [activeCategory, setActiveCategory] = React.useState(categories[0] || 'All');
+    const [copiedIndex, setCopiedIndex] = React.useState<number | null>(null);
+    const [searchQuery, setSearchQuery] = React.useState('');
+
+    const filteredBullets = bullets.filter(b => 
+        (activeCategory === 'All' || b.category === activeCategory) &&
+        (b.text.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+
+    const handleCopy = (text: string, index: number) => {
+        navigator.clipboard.writeText(text);
+        setCopiedIndex(index);
+        setTimeout(() => setCopiedIndex(null), 2000);
+    };
+
+    return (
+        <div className="my-12 bg-slate-50 rounded-3xl p-6 md:p-10 border border-slate-100 shadow-xl overflow-hidden relative">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-green/5 rounded-full blur-[100px] -mr-32 -mt-32"></div>
+            
+            <div className="relative z-10 mb-10">
+                <div className="flex items-center gap-2 mb-6">
+                    <Sparkles className="text-brand-green" size={24} />
+                    <h3 className="text-2xl font-bold text-brand-dark">The Recruiter's Bullet Vault</h3>
+                </div>
+
+                <div className="flex flex-col md:flex-row gap-4 mb-8">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                        <input 
+                            type="text"
+                            placeholder="Search by keyword (e.g. 'SQL', 'Management')..."
+                            className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green transition-all"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
+                    <div className="flex overflow-x-auto gap-2 pb-2 md:pb-0 scrollbar-hide">
+                        {['All', ...categories].map(cat => (
+                            <button
+                                key={cat}
+                                onClick={() => setActiveCategory(cat)}
+                                className={`px-5 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${
+                                    activeCategory === cat 
+                                    ? 'bg-brand-dark text-white shadow-lg shadow-brand-dark/20' 
+                                    : 'bg-white text-gray-500 border border-slate-200 hover:border-brand-green'
+                                }`}
+                            >
+                                {cat}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                    <AnimatePresence mode="popLayout">
+                        {filteredBullets.map((bullet, idx) => (
+                            <motion.div
+                                layout
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.9 }}
+                                key={`${bullet.category}-${idx}`}
+                                className="group relative bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-brand-green/30 transition-all duration-300"
+                            >
+                                <div className="flex justify-between items-start gap-4">
+                                    <p className="text-gray-700 text-sm leading-relaxed font-medium">
+                                        {renderText(bullet.text)}
+                                    </p>
+                                    <button
+                                        onClick={() => handleCopy(bullet.text, idx)}
+                                        className={`shrink-0 p-2 rounded-lg transition-all ${
+                                            copiedIndex === idx 
+                                            ? 'bg-brand-green text-brand-dark' 
+                                            : 'bg-slate-50 text-gray-400 hover:bg-brand-green/10 hover:text-brand-green'
+                                        }`}
+                                    >
+                                        {copiedIndex === idx ? <Check size={14} /> : <Copy size={14} />}
+                                    </button>
+                                </div>
+                                <div className="mt-3 flex items-center justify-between">
+                                    <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">{bullet.category}</span>
+                                    {copiedIndex === idx && (
+                                        <span className="text-[10px] font-bold text-brand-green animate-pulse">COPIED!</span>
+                                    )}
+                                </div>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                </div>
+                
+                {filteredBullets.length === 0 && (
+                    <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-slate-200">
+                        <p className="text-gray-400 font-medium">No bullet points found for "{searchQuery}"</p>
+                    </div>
+                )}
+            </div>
+
+            <div className="mt-8 pt-8 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-brand-green/10 flex items-center justify-center">
+                        <Sparkles className="text-brand-green" size={20} />
+                    </div>
+                    <p className="text-sm text-gray-500 max-w-xs leading-tight">
+                        <span className="font-bold text-brand-dark">Pro Tip:</span> Tap any card to copy the high-impact structure.
+                    </p>
+                </div>
+                <a href="/signup" className="w-full md:w-auto bg-brand-dark text-white px-8 py-3 rounded-xl font-bold text-sm hover:scale-105 transition-all shadow-lg shadow-brand-dark/20 text-center">
+                    Optimize My Bullets Now
+                </a>
+            </div>
+        </div>
+    );
+};
 
 export default function BlogPost() {
     const { slug } = useParams<{ slug: string }>();
@@ -250,8 +429,16 @@ export default function BlogPost() {
                     {/* Author & Date */}
                     <div className="flex items-center gap-6 text-sm text-gray-500 pb-6 border-b border-gray-100">
                         <span className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-brand-green/20 flex items-center justify-center">
-                                <User size={14} className="text-brand-dark" />
+                            <div className="w-8 h-8 rounded-full overflow-hidden bg-brand-green/10 flex items-center justify-center">
+                                {post.author === 'CV Architect Team' ? (
+                                    <img 
+                                        src="/images/logo icon.png" 
+                                        alt="CV Architect Team" 
+                                        className="w-5 h-5 object-contain"
+                                    />
+                                ) : (
+                                    <User size={14} className="text-brand-dark" />
+                                )}
                             </div>
                             {post.author}
                         </span>

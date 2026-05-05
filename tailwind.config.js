@@ -33,8 +33,8 @@ export default {
             },
             animation: {
                 fadeIn: 'fadeIn 0.5s ease-in-out forwards',
-                'marquee': 'marquee 40s linear infinite',
-                'marquee-reverse': 'marquee-reverse 40s linear infinite',
+                'marquee': 'marquee 50s linear infinite',
+                'marquee-reverse': 'marquee-reverse 50s linear infinite',
             },
             keyframes: {
                 fadeIn: {

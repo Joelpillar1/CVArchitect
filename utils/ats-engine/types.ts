@@ -36,6 +36,12 @@ export interface RecruiterInsights {
   length_advice: string;
 }
 
+export interface BulletSuggestion {
+  text: string;
+  role: string;
+  keywords_addressed: string[];
+}
+
 export interface ATSEngineResult {
   detected_industry: string;
   detected_roles: string[];
@@ -45,6 +51,7 @@ export interface ATSEngineResult {
   score_breakdown: ScoreBreakdown;
   recruiter_insights: RecruiterInsights;
   resume_improvement_suggestions: string[];
+  bullet_suggestions: BulletSuggestion[];
 }
 
 export interface TaxonomyRole {

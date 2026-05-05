@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, X, ArrowRight, Zap, Target, FileSearch, Sparkles, Layout, Trophy, PartyPopper, BarChart2 } from 'lucide-react';
+import { Check, X, ArrowRight, Zap, Target, FileSearch, Sparkles, Layout, Trophy, PartyPopper, BarChart2, Copy } from 'lucide-react';
 import SEO from './SEO';
 import PublicFooter from './PublicFooter';
 import PublicHeader from './PublicHeader';
@@ -394,6 +394,74 @@ export default function ResumeMatchChecker() {
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* Smart Recommendations */}
+                                {results.bullet_suggestions.length > 0 && (
+                                    <div className="mt-12 bg-white rounded-2xl border-2 border-brand-green/20 shadow-float overflow-hidden">
+                                        <div className="bg-brand-green/5 px-6 py-4 border-b border-brand-green/10 flex items-center justify-between">
+                                            <h3 className="text-sm font-bold text-brand-dark uppercase tracking-widest flex items-center gap-2">
+                                                <Sparkles size={16} className="text-brand-green" />
+                                                Smart Industry Recommendations
+                                            </h3>
+                                            <div className="text-[10px] font-bold text-brand-green bg-white px-2 py-1 rounded-full border border-brand-green/20 shadow-sm animate-pulse">
+                                                AI POWERED
+                                            </div>
+                                        </div>
+                                        <div className="p-6">
+                                            {results.bullet_suggestions.length > 0 ? (
+                                                <>
+                                                    <p className="text-sm text-gray-500 mb-6 italic">
+                                                        We've generated high-impact bullet points that incorporate your missing keywords for the <span className="font-bold text-brand-dark">{results.detected_roles[0] || results.detected_industry}</span> role.
+                                                    </p>
+                                                    <div className="grid grid-cols-1 gap-4">
+                                                        {results.bullet_suggestions.map((bullet, i) => (
+                                                            <motion.div 
+                                                                key={i}
+                                                                initial={{ opacity: 0, x: -10 }}
+                                                                animate={{ opacity: 1, x: 0 }}
+                                                                transition={{ delay: i * 0.1 }}
+                                                                className="group relative bg-brand-bg/40 hover:bg-white p-5 rounded-xl border border-brand-border hover:border-brand-green/40 hover:shadow-soft transition-all"
+                                                            >
+                                                                <div className="flex justify-between items-start gap-4 mb-3">
+                                                                    <div className="flex flex-wrap gap-2">
+                                                                        {bullet.keywords_addressed.map((kw, ki) => (
+                                                                            <span key={ki} className="text-[9px] font-black px-2 py-0.5 bg-brand-green text-brand-dark rounded-full uppercase tracking-tighter">
+                                                                                +{kw}
+                                                                            </span>
+                                                                        ))}
+                                                                    </div>
+                                                                    <button 
+                                                                        onClick={() => {
+                                                                            navigator.clipboard.writeText(bullet.text);
+                                                                        }}
+                                                                        className="p-2 text-gray-400 hover:text-brand-green hover:bg-brand-green/5 rounded-lg transition-all"
+                                                                        title="Copy Bullet Point"
+                                                                    >
+                                                                        <Copy size={16} />
+                                                                    </button>
+                                                                </div>
+                                                                <p className="text-sm text-brand-dark/80 leading-relaxed font-medium">
+                                                                    {bullet.text}
+                                                                </p>
+                                                                <div className="mt-3 flex items-center gap-2">
+                                                                    <div className="w-1 h-3 bg-brand-green rounded-full"></div>
+                                                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{bullet.role}</span>
+                                                                </div>
+                                                            </motion.div>
+                                                        ))}
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <div className="py-8 text-center bg-brand-bg/20 rounded-xl border border-dashed border-brand-border">
+                                                    <p className="text-sm text-gray-500 italic">
+                                                        No specific bullet point recommendations found for this role and missing keywords. 
+                                                        Try adding more detail to the job description!
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
 
                                  {/* AI Suggestions & Highlighting */}
                                  <div className="mt-12 bg-white rounded-2xl border-2 border-brand-green/10 p-6">

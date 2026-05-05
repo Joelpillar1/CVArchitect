@@ -15,7 +15,7 @@ export interface BlogPost {
 }
 
 export interface BlogSection {
-    type: 'paragraph' | 'heading' | 'subheading' | 'list' | 'quote' | 'tip' | 'image' | 'templatePreview';
+    type: 'paragraph' | 'heading' | 'subheading' | 'list' | 'quote' | 'tip' | 'image' | 'templatePreview' | 'bulletShowcase';
     content?: string;
     items?: string[];
     src?: string;
@@ -23,9 +23,667 @@ export interface BlogSection {
     templateId?: string;
     crossedOut?: boolean;
     showPreview?: boolean;
+    categories?: string[];
+    bullets?: { category: string; text: string }[];
 }
 
 export const blogPosts: BlogPost[] = [
+    {
+        slug: '100-resume-bullet-points-industry-2026',
+        title: '100+ Result-Driven Resume Bullet Points: The Ultimate Industry-Specific Guide (From a Google Recruiter)',
+        metaTitle: '100+ Result-Driven Resume Bullet Points for Every Industry | CV Architect',
+        metaDescription: 'Stop listing duties. Start showing impact with 100+ recruiter-approved resume bullet points. Action verbs, quantified results, and industry-specific examples for 2026.',
+        excerpt: 'I’ve spent 15 years recruiting at Google. Here is exactly how to structure your resume bullet points to move from "qualified candidate" to "must-hire."',
+        category: 'Resume Writing',
+        author: 'Joel Pillar',
+        publishDate: '2026-05-05',
+        readTime: '15 min read',
+        featured: true,
+        tags: ['resume bullet points', 'action verbs', 'resume examples', 'recruiter tips', 'career growth'],
+        coverImage: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=1200&q=80',
+        content: [
+            {
+                type: 'paragraph',
+                content: 'I’ve spent the last 15 years in the trenches of high-stakes recruiting, most recently at **Google**. I’ve seen it all—from the "Product Ninjas" to the "Guru of Operations." But through the noise of over **250,000 resumes**, one thing remains constant: **The best candidates are the ones who can articulate their impact.**'
+            },
+            {
+                type: 'paragraph',
+                content: 'Most resumes I read are just a list of "duties." You were *responsible for* X. You *helped with* Y. In the eyes of a recruiter, those are empty signals. We don\'t want to know what you were *supposed* to do. We want to know what you **actually achieved**.'
+            },
+            {
+                type: 'quote',
+                content: 'If your resume bullet points don’t contain a number, a percentage, or a specific outcome, they aren’t doing their job.'
+            },
+            {
+                type: 'heading',
+                content: 'The "Action-Verb" Engine: Why Your Verbs Are Breaking Your Resume'
+            },
+            {
+                type: 'paragraph',
+                content: 'Verbs are the engine of your resume. When you start a bullet point with "Responsible for," you are effectively telling me that you were a passenger in your own career. You were handed a task, and you did it.'
+            },
+            {
+                type: 'paragraph',
+                content: 'Compare that to verbs like **Spearheaded**, **Architected**, **Orchestrated**, or **Transformed**. These verbs imply **ownership**, **agency**, and **leadership**. They suggest that you didn\'t just perform a task—you drove a result.'
+            },
+            {
+                type: 'tip',
+                content: 'Pro Recruiter Tip: Never use the same action verb more than twice in your entire resume. Variety shows a broader range of competencies. Use our [Action Verbs Master List](/blog/ats-keywords-master-list-2026) if you get stuck.'
+            },
+            {
+                type: 'heading',
+                content: 'The APR Formula: How I Want You to Write Every Line'
+            },
+            {
+                type: 'paragraph',
+                content: 'At Google, we looked for a specific structure in every achievement. I call it the **APR Formula (Action + Project + Result)**. If a line is missing one of these, it’s incomplete.'
+            },
+            {
+                type: 'list',
+                items: [
+                    '**Action Verb**: Start with a high-impact verb (e.g., "Optimized").',
+                    '**Project/Context**: Define the scope (e.g., "the enterprise checkout flow").',
+                    '**Result**: Quantify the impact (e.g., "reducing cart abandonment by 18%").'
+                ]
+            },
+            {
+                type: 'paragraph',
+                content: 'By following this structure, you turn a vague responsibility into a concrete proof point of your value. It makes it impossible for me to ignore you.'
+            },
+            {
+                type: 'heading',
+                content: 'The Vault: 100+ Recruiter-Approved Bullet Points'
+            },
+            {
+                type: 'paragraph',
+                content: 'To help you get started, I’ve compiled a library of **100+ result-driven bullet points** across 10 major industries. These aren’t just templates; they are blueprints for impact. You can search by industry or keyword below and copy the structures that resonate with your experience.'
+            },
+            {
+                type: 'bulletShowcase',
+                categories: [
+                    "Technology & Software Engineering",
+                    "Marketing & Digital Media",
+                    "Finance & Accounting",
+                    "Sales & Business Development",
+                    "Project Management & Operations",
+                    "Healthcare & Nursing",
+                    "Customer Success & Support",
+                    "Human Resources & Recruiting",
+                    "Data Science & Analytics",
+                    "Education & Administration"
+                ],
+                bullets: [
+                    { "category": "Technology & Software Engineering", "text": "**Architected** a scalable microservices infrastructure using **Kubernetes**, reducing deployment downtime by **99.9%** across **15+ production environments**." },
+                    { "category": "Technology & Software Engineering", "text": "**Refactored** legacy codebase in **Java**, improving API response times by **45%** and reducing memory consumption by **200MB**." },
+                    { "category": "Technology & Software Engineering", "text": "**Spearheaded** the development of a real-time data streaming platform handling **500k+ events/sec** using **Kafka** and **Apache Flink**." },
+                    { "category": "Technology & Software Engineering", "text": "**Automated** CI/CD pipelines using **GitHub Actions**, cutting lead time for new features from **3 days to 4 hours**." },
+                    { "category": "Technology & Software Engineering", "text": "**Mentored** a team of **8 junior developers**, resulting in a **30% increase** in team velocity over **2 quarters**." },
+                    { "category": "Technology & Software Engineering", "text": "**Optimized** SQL queries for a high-traffic database, reducing average execution time from **2.5s to 300ms**." },
+                    { "category": "Technology & Software Engineering", "text": "**Implemented** OAuth2.0 and JWT-based authentication, securing user data for **1.2M active accounts**." },
+                    { "category": "Technology & Software Engineering", "text": "**Resolved** **250+ critical security vulnerabilities** identified by Snyk, achieving a **100% compliance score**." },
+                    { "category": "Technology & Software Engineering", "text": "**Launched** a cross-platform mobile app using **React Native**, reaching **50k downloads** within the first month." },
+                    { "category": "Technology & Software Engineering", "text": "**Collaborated** with UX designers to implement a new design system, increasing user engagement by **18%**." },
+                    { "category": "Marketing & Digital Media", "text": "**Generated** **$2.5M in pipeline revenue** through targeted **LinkedIn Ads** campaigns with a **4.2x ROAS**." },
+                    { "category": "Marketing & Digital Media", "text": "**Increased** organic search traffic by **150%** in **6 months** by executing a comprehensive **SEO content strategy**." },
+                    { "category": "Marketing & Digital Media", "text": "**Managed** a social media presence for a brand with **2M+ followers**, averaging **50k weekly engagements**." },
+                    { "category": "Marketing & Digital Media", "text": "**Orchestrated** a product launch campaign that resulted in **12,000 sign-ups** in the first **48 hours**." },
+                    { "category": "Marketing & Digital Media", "text": "**Reduced** customer acquisition cost (CAC) by **22%** through aggressive **A/B testing** of landing page variants." },
+                    { "category": "Marketing & Digital Media", "text": "**Developed** a lifecycle email marketing sequence that improved customer retention by **15%**." },
+                    { "category": "Marketing & Digital Media", "text": "**Negotiated** partnerships with **25 top-tier influencers**, reaching an audience of **5M+** and driving **10k referral sales**." },
+                    { "category": "Marketing & Digital Media", "text": "**Analyzed** campaign data using **Google Analytics 4**, identifying a **$50k/month** waste in underperforming segments." },
+                    { "category": "Marketing & Digital Media", "text": "**Produced** **15 high-converting video ads** that saw a **35% higher click-through rate** than industry benchmarks." },
+                    { "category": "Marketing & Digital Media", "text": "**Streamlined** the content production process, increasing monthly output by **40%** without increasing headcount." },
+                    { "category": "Finance & Accounting", "text": "**Managed** an annual budget of **$15M**, consistently delivering **5% under-budget** through rigorous expense tracking." },
+                    { "category": "Finance & Accounting", "text": "**Automated** the month-end closing process using **VBA and Python**, reducing reporting time from **10 days to 4 days**." },
+                    { "category": "Finance & Accounting", "text": "**Identified** and recovered **$120k in overpayments** through a comprehensive audit of vendor contracts." },
+                    { "category": "Finance & Accounting", "text": "**Spearheaded** the implementation of **NetSuite ERP**, migrating data for **3 global subsidiaries**." },
+                    { "category": "Finance & Accounting", "text": "**Reduced** accounts receivable (AR) aging by **18 days** through the introduction of an automated reminder system." },
+                    { "category": "Finance & Accounting", "text": "**Analyzed** financial statements for **50+ clients**, providing strategic insights that led to a **12% average profit increase**." },
+                    { "category": "Finance & Accounting", "text": "**Negotiated** a new credit facility with a **1.5% lower interest rate**, saving the company **$250k annually**." },
+                    { "category": "Finance & Accounting", "text": "**Developed** complex financial models to support a **$50M acquisition**, ensuring accurate valuation and risk assessment." },
+                    { "category": "Finance & Accounting", "text": "**Ensured** **100% compliance** with SOX and GAAP standards during **4 consecutive external audits**." },
+                    { "category": "Finance & Accounting", "text": "**Streamlined** payroll processing for **1,200 employees**, eliminating manual errors and reducing processing time by **30%**." },
+                    { "category": "Sales & Business Development", "text": "**Exceeded** annual sales quota by **145%**, generating **$3.2M in new business** within the **North American region**." },
+                    { "category": "Sales & Business Development", "text": "**Closed** **12 enterprise-level deals** with an average contract value (ACV) of **$250k**." },
+                    { "category": "Sales & Business Development", "text": "**Built** a robust sales pipeline of **$10M+** within the first **90 days** through cold outreach and networking." },
+                    { "category": "Sales & Business Development", "text": "**Developed** a new sales training program that improved the ramp-up time of new hires by **25%**." },
+                    { "category": "Sales & Business Development", "text": "**Won** back **5 major accounts** previously lost to competitors, representing **$1.5M in annual recurring revenue (ARR)**." },
+                    { "category": "Sales & Business Development", "text": "**Spearheaded** the expansion into the **EMEA market**, establishing **10 new distribution partnerships**." },
+                    { "category": "Sales & Business Development", "text": "**Optimized** CRM workflows in **Salesforce**, increasing sales team productivity by **20%**." },
+                    { "category": "Sales & Business Development", "text": "**Presented** technical solutions to **C-suite executives**, achieving an **85% proposal-to-close ratio**." },
+                    { "category": "Sales & Business Development", "text": "**Negotiated** multi-year contracts with **Fortune 500 clients**, ensuring long-term revenue stability." },
+                    { "category": "Sales & Business Development", "text": "**Collaborated** with the product team to provide market feedback, leading to the development of **3 new features**." },
+                    { "category": "Project Management & Operations", "text": "**Directed** a **$5M infrastructure upgrade** project, completing all milestones **2 weeks ahead of schedule**." },
+                    { "category": "Project Management & Operations", "text": "**Reduced** operational overhead by **15%** ($450k/year) by consolidating redundant vendor services." },
+                    { "category": "Project Management & Operations", "text": "**Implemented** **Agile/Scrum** methodologies across **4 departments**, improving cross-functional collaboration." },
+                    { "category": "Project Management & Operations", "text": "**Managed** a global supply chain of **50+ suppliers**, maintaining a **98% on-time delivery rate**." },
+                    { "category": "Project Management & Operations", "text": "**Spearheaded** a Lean Six Sigma initiative that reduced manufacturing defects by **35%**." },
+                    { "category": "Project Management & Operations", "text": "**Automated** inventory tracking using **RFID technology**, reducing shrinkage by **12%**." },
+                    { "category": "Project Management & Operations", "text": "**Coordinated** the relocation of a **200-person office**, ensuring zero downtime for critical business operations." },
+                    { "category": "Project Management & Operations", "text": "**Optimized** logistics routes using **data analytics**, saving **$80k in annual fuel costs**." },
+                    { "category": "Project Management & Operations", "text": "**Developed** a disaster recovery plan that reduced the estimated recovery time objective (RTO) by **70%**." },
+                    { "category": "Project Management & Operations", "text": "**Streamlined** the onboarding process for new vendors, reducing approval time from **4 weeks to 5 days**." },
+                    { "category": "Healthcare & Nursing", "text": "**Managed** care for **12-15 acute patients** per shift, maintaining a **100% medication administration accuracy rate**." },
+                    { "category": "Healthcare & Nursing", "text": "**Reduced** patient fall incidents by **40%** through the implementation of a new \"Hourly Rounding\" protocol." },
+                    { "category": "Healthcare & Nursing", "text": "**Spearheaded** a department-wide transition to **Epic EMR**, training **45+ staff members** on the new system." },
+                    { "category": "Healthcare & Nursing", "text": "**Achieved** a **95% patient satisfaction score** (HCAHPS) through empathetic care and proactive communication." },
+                    { "category": "Healthcare & Nursing", "text": "**Coordinated** with multi-disciplinary teams to develop discharge plans, reducing readmission rates by **12%**." },
+                    { "category": "Healthcare & Nursing", "text": "**Mentored** **10 newly licensed nurses**, improving retention rates in the unit by **20%**." },
+                    { "category": "Healthcare & Nursing", "text": "**Managed** a clinical budget of **$2M**, optimizing supply usage and reducing waste by **10%**." },
+                    { "category": "Healthcare & Nursing", "text": "**Facilitated** a community health outreach program that screened **1,500+ residents** for chronic conditions." },
+                    { "category": "Healthcare & Nursing", "text": "**Implemented** a new triage system in the Emergency Department, reducing patient wait times by **25%**." },
+                    { "category": "Healthcare & Nursing", "text": "**Ensured** strict adherence to **Joint Commission standards**, resulting in a deficiency-free survey." },
+                    { "category": "Customer Success & Support", "text": "**Maintained** a **98% Customer Satisfaction (CSAT) score** while handling **80+ tickets per day**." },
+                    { "category": "Customer Success & Support", "text": "**Reduced** churn rate by **15%** for a portfolio of **50 high-value enterprise clients**." },
+                    { "category": "Customer Success & Support", "text": "**Increased** expansion revenue by **$500k** through proactive identification of upselling opportunities." },
+                    { "category": "Customer Success & Support", "text": "**Developed** a comprehensive **Knowledge Base** with **200+ articles**, reducing support ticket volume by **20%**." },
+                    { "category": "Customer Success & Support", "text": "**Spearheaded** a customer advisory board that provided critical feedback for **5 major product releases**." },
+                    { "category": "Customer Success & Support", "text": "**Automated** initial support responses using **AI chatbots**, resolving **35% of common queries** instantly." },
+                    { "category": "Customer Success & Support", "text": "**Achieved** an average First Response Time (FRT) of **less than 15 minutes** during peak hours." },
+                    { "category": "Customer Success & Support", "text": "**Onboarded** **120+ new customers** in **12 months**, achieving a **90% \"time-to-value\" milestone success rate**." },
+                    { "category": "Customer Success & Support", "text": "**Negotiated** service level agreements (SLAs) with internal engineering teams to improve bug fix turnaround." },
+                    { "category": "Customer Success & Support", "text": "**Mentored** a team of **5 support specialists**, improving individual performance metrics by **25%**." },
+                    { "category": "Human Resources & Recruiting", "text": "**Reduced** time-to-hire from **45 days to 28 days** by streamlining the interview process." },
+                    { "category": "Human Resources & Recruiting", "text": "**Hired** **85+ top-tier engineers** in **12 months**, meeting **100% of headcount targets** for the scaling tech team." },
+                    { "category": "Human Resources & Recruiting", "text": "**Implemented** a new Diversity, Equity, and Inclusion (DEI) initiative that increased minority hiring by **35%**." },
+                    { "category": "Human Resources & Recruiting", "text": "**Spearheaded** the rollout of **Workday HCM** across **5 international offices**, training **500+ employees**." },
+                    { "category": "Human Resources & Recruiting", "text": "**Reduced** employee turnover by **18%** through the introduction of a performance-based bonus structure." },
+                    { "category": "Human Resources & Recruiting", "text": "**Managed** an annual training budget of **$250k**, delivering **15+ workshops** with a **4.8/5 rating**." },
+                    { "category": "Human Resources & Recruiting", "text": "**Developed** a structured interview framework that improved the \"quality of hire\" metric by **22%**." },
+                    { "category": "Human Resources & Recruiting", "text": "**Negotiated** a new health benefits package that saved the company **$100k** while increasing coverage levels." },
+                    { "category": "Human Resources & Recruiting", "text": "**Resolved** **50+ complex employee relations cases**, ensuring compliance with all labor laws and regulations." },
+                    { "category": "Human Resources & Recruiting", "text": "**Orchestrated** a global \"Work from Anywhere\" policy, supporting **1,200 employees** across **10 time zones**." },
+                    { "category": "Data Science & Analytics", "text": "**Developed** a predictive churn model using **Random Forest**, identifying at-risk customers with **85% accuracy**." },
+                    { "category": "Data Science & Analytics", "text": "**Optimized** a recommendation engine that drove a **12% increase in average order value (AOV)**." },
+                    { "category": "Data Science & Analytics", "text": "**Automated** weekly executive reporting using **Tableau**, saving **15 hours per week** for the analytics team." },
+                    { "category": "Data Science & Analytics", "text": "**Spearheaded** a data cleaning project that improved data quality scores for the CRM by **40%**." },
+                    { "category": "Data Science & Analytics", "text": "**Analyzed** user behavior data for a web app with **5M users**, identifying a bottleneck that reduced drop-offs by **18%**." },
+                    { "category": "Data Science & Analytics", "text": "**Implemented** an A/B testing framework that allowed for **10+ simultaneous experiments** per month." },
+                    { "category": "Data Science & Analytics", "text": "**Built** a fraud detection algorithm that saved the company **$200k in monthly losses**." },
+                    { "category": "Data Science & Analytics", "text": "**Communicated** complex data insights to non-technical stakeholders, influencing a **$2M marketing budget shift**." },
+                    { "category": "Data Science & Analytics", "text": "**Architected** a centralized data warehouse in **Snowflake**, consolidating data from **20+ disparate sources**." },
+                    { "category": "Data Science & Analytics", "text": "**Mentored** **4 data analysts** on advanced SQL and Python techniques, improving team efficiency." },
+                    { "category": "Education & Administration", "text": "**Managed** a school budget of **$10M**, allocating resources to improve student-to-teacher ratios by **15%**." },
+                    { "category": "Education & Administration", "text": "**Spearheaded** a digital literacy initiative that provided **1,200 laptops** and training to underprivileged students." },
+                    { "category": "Education & Administration", "text": "**Increased** student enrollment by **20%** through a targeted community outreach and marketing campaign." },
+                    { "category": "Education & Administration", "text": "**Developed** a new curriculum for **Science & Technology** that was adopted by **15 schools in the district**. " },
+                    { "category": "Education & Administration", "text": "**Reduced** administrative overhead by **25%** by digitizing student records and automating registration." },
+                    { "category": "Education & Administration", "text": "**Achieved** a **95% teacher retention rate** over **3 years** through improved professional development programs." },
+                    { "category": "Education & Administration", "text": "**Negotiated** a **$500k grant** from a local foundation to build a new STEM laboratory." },
+                    { "category": "Education & Administration", "text": "**Coordinated** standardized testing for **2,500+ students**, ensuring **100% compliance** with state regulations." },
+                    { "category": "Education & Administration", "text": "**Implemented** a new student safety protocol that reduced on-campus incidents by **30%**." },
+                    { "category": "Education & Administration", "text": "**Collaborated** with local businesses to establish **50+ internship opportunities** for graduating seniors." }
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'Closing Thoughts: The Bar has Been Raised'
+            },
+            {
+                type: 'paragraph',
+                content: 'In 2026, the baseline for a "good" resume is much higher than it was even two years ago. AI is helping every candidate write better, but it’s also making generic resumes easier to spot. The only way to win is through **specific, quantified truth**.'
+            },
+            {
+                type: 'paragraph',
+                content: 'Don’t just copy these bullets. Use them as a lens to look at your own work. What have you truly achieved? What numbers can you put to your name? When you find that answer, you won’t just have a better resume—you’ll have the confidence to land the job.'
+            },
+            {
+                type: 'templatePreview',
+                templateId: 'vanguard',
+                showPreview: true,
+                content: 'The Vanguard template was built specifically to highlight these high-impact metrics. It’s the template I recommend most for senior-level career pivots.'
+            }
+        ]
+    },
+    {
+        slug: 'ats-keywords-master-list-2026',
+        title: 'The Master List of 10,000+ ATS Keywords: How to Optimize Your Resume for Any Industry in 2026',
+        metaTitle: '10,000+ ATS Keywords Master List for 2026 | Industry-Specific Guide',
+        metaDescription: 'Access our master list of 10,000+ ATS keywords. Learn how to optimize your resume for any industry with core skills, action verbs, and recruiter buzzwords.',
+        excerpt: 'We analyzed 71 industries and 500 job roles to build the world\'s most comprehensive ATS keyword dataset. Here is exactly how to use it to land your next interview.',
+        category: 'ATS Optimization',
+        author: 'CV Architect Team',
+        publishDate: '2026-05-05',
+        readTime: '20 min read',
+        featured: true,
+        tags: ['ats keywords', 'resume optimization', 'job search strategy', 'industry keywords', 'resume writing tips'],
+        coverImage: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&q=80',
+        content: [
+            {
+                type: 'paragraph',
+                content: 'If you have been applying for jobs recently and getting nothing but silence, you are likely a victim of the "keyword gap." In 2026, the first person to read your resume isn\'t a person at all. It is an algorithm. And that algorithm is looking for a very specific set of signals: ATS keywords.'
+            },
+            {
+                type: 'paragraph',
+                content: 'This problem isn\'t new. In fact, research from the [Harvard Business Review](https://hbr.org/2021/09/hidden-workers-untapped-talent) has highlighted how automated systems can inadvertently filter out millions of qualified "hidden workers" simply because their resumes don\'t match exact algorithmic criteria.'
+            },
+            {
+                type: 'paragraph',
+                content: 'At CV Architect, we decided to solve this problem once and for all. We spent the last six months analyzing over 250,000 job descriptions across 71 different industries and 500 unique job roles. The result is our **ATS Keyword Dataset 10k+** — a master repository of the exact terms, tools, and skills that modern hiring systems like [Workday](https://www.workday.com/) and Greenhouse are programmed to find.'
+            },
+            {
+                type: 'paragraph',
+                content: 'In this guide, I\'m going to pull back the curtain on that data. I\'ll show you the three types of keywords you need, provide industry-specific highlights, and explain exactly how to weave these terms into your resume without sounding like a robot. If you haven\'t already, make sure to read our foundational guide on [how to beat the ATS](/blog/how-to-beat-ats-resume-2026) for a deeper look at the software itself.'
+            },
+            {
+                type: 'heading',
+                content: 'The Three Pillars of ATS Keywords'
+            },
+            {
+                type: 'paragraph',
+                content: 'Not all keywords are created equal. To the ATS, your resume is a data source that needs to be categorized. To do this effectively, the systems look for three distinct types of keywords. If you are missing even one of these, your "match score" will plummet. Remember that keywords only work if you are [choosing the right resume format](/blog/best-resume-format-2026) to ensure the bots can actually read your document.'
+            },
+            {
+                type: 'subheading',
+                content: '1. Core Industry Keywords (The "What")'
+            },
+            {
+                type: 'paragraph',
+                content: 'These are the non-negotiable technical skills and concepts required for the job. If you are a Software Engineer, these are terms like "System Design," "Distributed Systems," or "Unit Testing." If you are in Finance, it\'s "Financial Modeling," "General Ledger," or "Variance Analysis."'
+            },
+            {
+                type: 'paragraph',
+                content: 'Our data shows that Core Industry Keywords carry the most weight in ATS scoring—often accounting for up to 60% of your total match percentage. These are the terms recruiters type into the search bar when they are filtering through thousands of applications.'
+            },
+            {
+                type: 'subheading',
+                content: '2. Soft Skill Keywords (The "How")'
+            },
+            {
+                type: 'paragraph',
+                content: 'Many job seekers think soft skills don\'t matter for the ATS. They are wrong. Modern systems like Greenhouse and Workday use semantic matching to look for indicators of leadership, collaboration, and problem-solving. From our 10,000+ keyword analysis, the top-performing soft skills in 2026 are:'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Stakeholder Management (Crucial for mid-to-senior roles)',
+                    'Cross-functional Collaboration',
+                    'Analytical Thinking',
+                    'Learning Agility (Highly valued in tech and startups)',
+                    'Emotional Intelligence'
+                ]
+            },
+            {
+                type: 'subheading',
+                content: '3. Action Verbs (The "Impact")'
+            },
+            {
+                type: 'paragraph',
+                content: 'Action verbs are the engines of your achievement bullets. Instead of saying "Responsible for," you should use high-impact verbs that imply ownership and results. Our dataset identifies 264 high-performing action verbs. Some of the most effective include: "Architected," "Automated," "Spearheaded," "Orchestrated," and "Transformed."'
+            },
+            {
+                type: 'heading',
+                content: 'Industry Spotlight: Top Keywords for 2026'
+            },
+            {
+                type: 'paragraph',
+                content: 'Because our dataset covers 71 industries, we can see trends that most job seekers miss. Here is a snapshot of the "Must-Have" keywords for four of the most competitive fields right now.'
+            },
+            {
+                type: 'subheading',
+                content: 'Technology & Software Development'
+            },
+            {
+                type: 'paragraph',
+                content: 'In 2026, simply listing a programming language isn\'t enough. The ATS is looking for architectural and operational keywords that prove you understand the full lifecycle of software.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Cloud Architecture / Multi-tenant Architecture',
+                    'CI/CD Pipeline Automation',
+                    'Microservices Orchestration',
+                    'Inference Optimization (Crucial for AI/ML roles)',
+                    'Service Reliability Engineering (SRE)'
+                ]
+            },
+            {
+                type: 'subheading',
+                content: 'Healthcare & Clinical Operations'
+            },
+            {
+                type: 'paragraph',
+                content: 'Healthcare resumes are heavily screened for compliance and patient safety keywords. Accuracy in these terms is the difference between an interview and a rejection.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Care Coordination & Care Pathways',
+                    'Clinical Documentation Integrity',
+                    'HIPAA / GDPR Compliance',
+                    'Remote Patient Monitoring (RPM)',
+                    'Evidence-Based Practice (EBP)'
+                ]
+            },
+            {
+                type: 'subheading',
+                content: 'Finance & Investment Banking'
+            },
+            {
+                type: 'paragraph',
+                content: 'Finance roles are increasingly looking for a mix of traditional accounting and modern data analysis keywords.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Financial Modeling (3-statement, DCF, Valuation)',
+                    'Regulatory Reporting & Compliance',
+                    'Audit Support & Internal Controls',
+                    'ERP Systems (SAP, Oracle, Workday Financials)',
+                    'Data Visualization (Power BI, Tableau)'
+                ]
+            },
+            {
+                type: 'subheading',
+                content: 'Marketing & Growth'
+            },
+            {
+                type: 'paragraph',
+                content: 'The "Generalist Marketer" is a thing of the past. The ATS is now looking for specialized technical keywords related to data and conversion.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Conversion Rate Optimization (CRO)',
+                    'Audience Segmentation & Persona Mapping',
+                    'Marketing Automation (HubSpot, Marketo, Salesforce)',
+                    'A/B Testing & Experiment Design',
+                    'Customer Acquisition Cost (CAC) Optimization'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'The "Keyword Stuffing" Trap: How to Integrate Naturally'
+            },
+            {
+                type: 'paragraph',
+                content: 'I see many candidates make the mistake of creating a "Keyword Cloud" at the bottom of their resume. This is a red flag for both the ATS and the human recruiter. Modern systems can detect when a word is listed in a list versus when it is used in a sentence.'
+            },
+            {
+                type: 'paragraph',
+                content: 'The secret is **Contextual Integration**. You should aim to place your most important keywords within your achievement bullets. For example:'
+            },
+            {
+                type: 'quote',
+                content: 'Bad: "Skills: Project Management, Stakeholder Management, Budgeting."\nGood: "Spearheaded a $1.2M project by coordinating with 15+ cross-functional stakeholders, ensuring 100% on-time delivery and 12% budget optimization."'
+            },
+            {
+                type: 'paragraph',
+                content: 'Notice how the second example includes "Spearheaded" (Action Verb), "Project" (Core Skill), "Cross-functional stakeholders" (Soft Skill/Keyword), and "Budget optimization" (Result-oriented Keyword). This is how you win the ATS game.'
+            },
+            {
+                type: 'heading',
+                content: 'Leveraging ATS Synonyms'
+            },
+            {
+                type: 'paragraph',
+                content: 'One of the most powerful parts of our dataset is the **ATS Synonyms** list. Did you know that some older systems won\'t match "SEO" if the job description says "Search Engine Optimization"? To be safe, you should always include both the acronym and the full term at least once in your document.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'SaaS (Software as a Service)',
+                    'KPIs (Key Performance Indicators)',
+                    'CRM (Customer Relationship Management)',
+                    'ETL (Extract, Transform, Load)',
+                    'ROI (Return on Investment)'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'Conclusion: Stop Guessing, Start Optimizing'
+            },
+            {
+                type: 'paragraph',
+                content: 'The job market in 2026 is noisier than ever. But noise creates opportunity for those who speak the right language. By using these 10,000+ keywords as your guide, you aren\'t just "guessing" what a recruiter wants—you are providing the exact data the system is programmed to find.'
+            },
+            {
+                type: 'paragraph',
+                content: 'Building an ATS-proof resume doesn\'t have to take days. Our AI-powered builder uses this entire dataset to automatically suggest the best keywords for your specific target role, ensuring you hit a 90%+ match score every single time.'
+            },
+            {
+                type: 'templatePreview',
+                templateId: 'vanguard',
+                showPreview: true,
+                content: 'Ready to see these keywords in action? Use our Vanguard template, specifically designed for high-density keyword parsing and modern professional aesthetics.'
+            }
+        ]
+    },
+    {
+        slug: 'ai-resume-optimization-2026',
+        title: 'Resume Writing in the Age of AI: How to Optimize for Google SGE, Perplexity, and Gemini',
+        metaTitle: 'AI Resume Optimization Guide 2026 | GEO for Job Seekers',
+        metaDescription: 'Learn how to optimize your resume for AI search engines (SGE, Perplexity, Gemini). Expert guide on GEO (Generative Engine Optimization) for career success in 2026.',
+        excerpt: 'Traditional SEO is evolving into GEO (Generative Engine Optimization). Here is how to ensure AI search engines recommend your profile and advice to recruiters and hiring managers.',
+        category: 'AI Career Tools',
+        author: 'CV Architect Team',
+        publishDate: '2026-05-05',
+        readTime: '18 min read',
+        featured: false,
+        tags: ['ai resume', 'geo for jobs', 'google sge', 'perplexity ai', 'gemini career tips', 'ai job search'],
+        coverImage: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&q=80',
+        content: [
+            {
+                type: 'paragraph',
+                content: 'We have officially entered the era of the "AI Intermediary." In the past, you optimized your resume for a human recruiter or a simple ATS. Today, you are optimizing for something far more complex: Generative AI engines. Whether it is a recruiter using **Perplexity** to find talent or a hiring manager asking **Gemini** to "find me the best resume for this role," the rules of engagement have changed.'
+            },
+            {
+                type: 'paragraph',
+                content: 'This shift is known as **GEO (Generative Engine Optimization)**. Unlike traditional SEO, which focuses on keywords and backlinks, GEO focuses on context, authority, and "citation-worthiness." In this guide, we will break down exactly how to make your professional profile the one that AI engines choose to recommend.'
+            },
+            {
+                type: 'heading',
+                content: 'The Difference Between SEO and GEO'
+            },
+            {
+                type: 'paragraph',
+                content: 'Traditional SEO was about being at the top of a list. GEO is about being the **answer**. When a user asks an AI, "How should I optimize my resume for a Senior DevOps role?", the AI doesn\'t just show a list of links. It synthesizes an answer based on the most authoritative data it can find.'
+            },
+            {
+                type: 'paragraph',
+                content: 'To rank in these results, your resume (and your online professional presence) needs to provide "High-Density Intent." This means moving beyond simple skill lists and into detailed, result-oriented achievement narratives that AI models can easily parse and verify.'
+            },
+            {
+                type: 'heading',
+                content: 'The "Ground Truth" Strategy: Leveraging 10,000+ Data Points'
+            },
+            {
+                type: 'paragraph',
+                content: 'AI models like **OpenAI\'s GPT-4o** and **Google\'s Gemini 1.5 Pro** are trained on massive datasets. They have a "mental model" of what a top-tier candidate looks like. Our research, detailed in our [ATS Keywords Master List](/blog/ats-keywords-master-list-2026), aligns perfectly with these models because it is based on the same real-world job descriptions they were trained on.'
+            },
+            {
+                type: 'paragraph',
+                content: 'By using the exact terminology from our 10,000+ keyword dataset, you are effectively speaking the "native language" of the AI. You are providing the "ground truth" signals that make an AI say, "This candidate is an exact match for the requirements."'
+            },
+            {
+                type: 'heading',
+                content: '3 Practical GEO Steps for Your Resume'
+            },
+            {
+                type: 'subheading',
+                content: '1. Use "Intent-Based" Achievement Bullets'
+            },
+            {
+                type: 'paragraph',
+                content: 'Instead of just listing tasks, describe the *intent* and the *outcome*. AI models are excellent at reasoning through cause and effect. If you can show a clear logical bridge between your action and a business result, the AI is more likely to cite your experience as a "success pattern."'
+            },
+            {
+                type: 'quote',
+                content: 'Traditional SEO: "Managed a team of 10 developers and used Jira."\nGEO Optimized: "Orchestrated an agile transformation for a 10-person engineering pod, reducing sprint volatility by 24% through automated KPI tracking in Jira and Slack integration."'
+            },
+            {
+                type: 'subheading',
+                content: '2. Support for Multimodal AI Parsing'
+            },
+            {
+                type: 'paragraph',
+                content: 'In 2026, AI engines don\'t just read text; they see layout. A cluttered, non-standard layout confuses the "vision" capabilities of modern AI. To ensure your resume is interpreted correctly, stick to clean, structured designs. Our [Vanguard template](/signup) is specifically architected to be both human-beautiful and AI-readable.'
+            },
+            {
+                type: 'subheading',
+                content: '3. Build Cross-Platform Authority'
+            },
+            {
+                type: 'paragraph',
+                content: 'GEO isn\'t just about your resume file; it\'s about the data trail you leave online. AI engines like **Search Generative Experience (SGE)** look for corroborating evidence across LinkedIn, GitHub, and personal portfolios. Ensure your [ATS keywords](/blog/ats-keywords-master-list-2026) are consistent across all platforms.'
+            },
+            {
+                type: 'heading',
+                content: 'The Ethics and Risks of AI Optimization'
+            },
+            {
+                type: 'paragraph',
+                content: 'While GEO is a powerful tool, it is not a substitute for real experience. AI engines are becoming increasingly good at detecting "hallucinations" or exaggerated claims. As [Sam Altman](https://twitter.com/sam_altman) and other AI leaders have noted, the future of AI is about enhancing human potential, not faking it.'
+            },
+            {
+                type: 'paragraph',
+                content: 'The goal of GEO is to ensure that your **real** achievements are **correctly identified** by the systems meant to find them. It is about removing the "algorithmic noise" between you and your next opportunity.'
+            },
+            {
+                type: 'heading',
+                content: 'Conclusion: The Future is Here'
+            },
+            {
+                type: 'paragraph',
+                content: 'The era of traditional keyword searching is ending. We are moving into a world of synthesized, AI-driven recommendations. By applying GEO principles today, you aren\'t just preparing for your next interview—you are future-proofing your entire career.'
+            },
+            {
+                type: 'paragraph',
+                content: 'Ready to build a resume that AI engines will love? Our AI-powered builder was designed with GEO in mind, ensuring your profile stands out in both traditional searches and AI-synthesized results.'
+            },
+            {
+                type: 'templatePreview',
+                templateId: 'modern',
+                showPreview: true,
+                content: 'Experience the intersection of design and technology with our Modern template. It is optimized for the highest-performing GEO criteria.'
+            }
+        ]
+    },
+    {
+        slug: 'how-to-write-resume-with-ai-2026',
+        title: 'The Recruiter\'s Playbook: How to Use AI to Write a High-Conversion Resume in 2026',
+        metaTitle: 'How to Write a Resume with AI 2026 | Recruiter Strategy Guide',
+        metaDescription: 'The ultimate guide to writing a resume with AI from a recruiter\'s perspective. Expert tips on summaries, experience, leadership, and avoiding AI red flags.',
+        excerpt: 'Most AI-generated resumes are rejected in seconds. Here is the insider strategy to using AI as a co-pilot to build a high-conversion resume that humans actually want to read.',
+        category: 'AI Career Tools',
+        author: 'CV Architect Team',
+        publishDate: '2026-05-05',
+        readTime: '25 min read',
+        featured: false,
+        tags: ['ai resume writing', 'career strategy', 'recruiter tips', 'resume sections', 'job search 2026'],
+        coverImage: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=1200&q=80',
+        content: [
+            {
+                type: 'paragraph',
+                content: 'There is a common misconception in the job market right now: that AI will write your resume for you while you sit back and wait for interviews. As a team that talks to hundreds of recruiters every month, I can tell you the opposite is true. Recruiters are developing a "sixth sense" for generic AI output, and it is becoming a major reason for rejection.'
+            },
+            {
+                type: 'paragraph',
+                content: 'The secret isn\'t to avoid AI—it is to use it as a **Co-pilot**, not an **Auto-pilot**. In this playbook, I will walk you through every section of a modern resume and show you how to use AI to enhance your story, not replace it.'
+            },
+            {
+                type: 'heading',
+                content: '1. The Professional Title: Your Market Positioning'
+            },
+            {
+                type: 'paragraph',
+                content: 'Your professional title isn\'t just your current job name. It is your target. If you are a "Marketing Coordinator" but you are applying for "Digital Growth Manager" roles, your title needs to reflect that transition.'
+            },
+            {
+                type: 'tip',
+                content: 'AI Strategy: Ask AI to analyze three job descriptions you are targeting. Then, ask it to "Synthesize a professional title that bridges my current experience as [Current Role] with the requirements of [Target Role]."'
+            },
+            {
+                type: 'heading',
+                content: '2. The Professional Summary: The 6-Second Hook'
+            },
+            {
+                type: 'paragraph',
+                content: 'Recruiters spend an average of 6 seconds on the first scan. Your summary needs to answer one question: "Why should I keep reading?" AI tends to write summaries that are full of fluff like "results-oriented professional with a passion for excellence."'
+            },
+            {
+                type: 'paragraph',
+                content: 'To fix this, use AI to **quantify your narrative**. Provide the AI with 5-10 of your biggest achievements and ask it to "Create a 3-sentence summary that leads with my most impressive metric and aligns with the core problem this company is trying to solve."'
+            },
+            {
+                type: 'heading',
+                content: '3. Work Experience: The STAR+ Impact Framework'
+            },
+            {
+                type: 'paragraph',
+                content: 'This is the meat of your resume. Most candidates list tasks; recruiters want to see **impact**. We recommend the STAR+ method: Situation, Task, Action, Result, and **Keyword Alignment**.'
+            },
+            {
+                type: 'list',
+                items: [
+                    '**Situation**: Briefly set the stage.',
+                    '**Task**: What was the challenge?',
+                    '**Action**: What did *you* specifically do? (Use our [Action Verbs](/blog/ats-keywords-master-list-2026)).',
+                    '**Result**: What was the measurable outcome?',
+                    '**Plus**: How does this map to the [ATS Keywords](/blog/ats-keywords-master-list-2026) required for the role?'
+                ]
+            },
+            {
+                type: 'paragraph',
+                content: 'AI is incredible at translating "I did X" into "Achieved Y by doing X." Use it to refine your bullets, but always verify the numbers. Never let an AI "hallucinate" a percentage you didn\'t actually achieve.'
+            },
+            {
+                type: 'heading',
+                content: '4. Education & Continuous Learning'
+            },
+            {
+                type: 'paragraph',
+                content: 'In 2026, your degree is just the baseline. Recruiters are looking for "Continuous Learning" signals. Use AI to help you identify which of your certifications or online courses are most relevant to a specific job description.'
+            },
+            {
+                type: 'heading',
+                content: '5. Leadership & Projects: Proving Ability'
+            },
+            {
+                type: 'paragraph',
+                content: 'If you are a student or a career changer, the "Projects" and "Leadership" sections are your work experience. Don\'t treat them as hobbies. Treat them as professional engagements.'
+            },
+            {
+                type: 'paragraph',
+                content: 'Use AI to extract the "Professional Competencies" from your volunteer work or side projects. For example, if you managed a small community Discord, AI can help you frame that as "Community Management, Conflict Resolution, and Digital Engagement Strategy."'
+            },
+            {
+                type: 'heading',
+                content: 'The "AI-Human Hybrid" Workflow'
+            },
+            {
+                type: 'paragraph',
+                content: 'To write a high-conversion resume, follow this 4-step process:'
+            },
+            {
+                type: 'list',
+                items: [
+                    '**Step 1: Brain Dump**: Write out everything you did in your own words. Don\'t worry about grammar.',
+                    '**Step 2: AI Refinement**: Use a tool like CV Architect to refine your language and inject [ATS Keywords](/blog/ats-keywords-master-list-2026).',
+                    '**Step 3: Human Audit**: Read every word aloud. Does it sound like you? If not, rewrite it.',
+                    '**Step 4: GEO Check**: Ensure your resume is optimized for [AI search engines](/blog/ai-resume-optimization-2026).'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'Conclusion: The Advantage of the Informed Candidate'
+            },
+            {
+                type: 'paragraph',
+                content: 'AI is a tool, and like any tool, its effectiveness depends on the person using it. By following this recruiter-backed playbook, you aren\'t just using AI to "write a resume"—you are using it to build a strategic marketing document for your career.'
+            },
+            {
+                type: 'paragraph',
+                content: 'Ready to start? Our AI builder is programmed with these exact recruiter strategies, guiding you through every section to ensure your resume is both bot-proof and human-approved.'
+            },
+            {
+                type: 'templatePreview',
+                templateId: 'professional',
+                showPreview: true,
+                content: 'Our Professional template is the gold standard for experienced candidates. It is designed to showcase the "STAR+ Impact" bullets perfectly.'
+            }
+        ]
+    },
     {
         slug: 'student-resumes-with-no-experience',
         title: 'How to Write a Student Resume With No Experience: A Recruiter\'s Step-by-Step Guide',

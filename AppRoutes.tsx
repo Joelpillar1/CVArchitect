@@ -17,6 +17,7 @@ import BlogPage from './components/BlogPage';
 import BlogPost from './components/BlogPost';
 import Support from './components/Support';
 import ResumeMatchChecker from './components/ResumeMatchChecker';
+import ActionVerbs from './components/ActionVerbs';
 
 // New dashboard with nested routing
 import Dashboard from './pages/Dashboard';
@@ -139,6 +140,7 @@ export default function AppRoutes() {
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/support" element={<Support />} />
             <Route path="/resume-checker" element={<ResumeMatchChecker />} />
+            <Route path="/action-words" element={<ActionVerbs />} />
 
             {/* Blog */}
             <Route path="/blog" element={<BlogPage />} />
