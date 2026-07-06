@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { getPendingCheckoutPlan } from '../utils/pendingCheckout';
+import { getAppUrl } from '../utils/appUrl';
 
 interface AuthContextType {
     user: User | null;
@@ -129,8 +130,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
             const pendingPlan = getPendingCheckoutPlan();
             const redirectTo = pendingPlan
-                ? `${window.location.origin}/dashboard?plan=${pendingPlan}`
-                : `${window.location.origin}/dashboard`;
+                ? getAppUrl(`/dashboard?plan=${pendingPlan}`)
+                : getAppUrl('/dashboard');
 
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
@@ -157,7 +158,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const resetPassword = async (email: string) => {
         try {
             const { error } = await supabase.auth.resetPasswordForEmail(email, {
-                redirectTo: `${window.location.origin}/reset-password`,
+                redirectTo: getAppUrl('/reset-password'),
             });
 
             if (error) throw error;

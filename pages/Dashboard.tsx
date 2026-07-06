@@ -33,7 +33,7 @@ import { saveToStorage, debouncedSaveToStorage, loadFromStorage } from '../utils
 <meta name="google-site-verification" content="tM8NcOMoT43REWAXI4sUDCX6usdXgja0epq5QCK1Ygc" />
 
 export default function Dashboard() {
-    const { user, signOut, loading: authLoading } = useAuth();
+    const { user, session, signOut, loading: authLoading } = useAuth();
     const { showToast } = useToast();
     const navigate = useNavigate();
     const location = useLocation();
@@ -125,6 +125,7 @@ export default function Dashboard() {
 
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const pendingCheckoutStarted = React.useRef(false);
+    const checkoutErrorShown = React.useRef(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [showPaywall, setShowPaywall] = useState(false);
     const [showPricingModal, setShowPricingModal] = useState(false);
@@ -470,7 +471,7 @@ export default function Dashboard() {
 
     // After signup/OAuth: resume checkout for the plan selected on pricing/landing
     useEffect(() => {
-        if (authLoading || !user) return;
+        if (authLoading || !user || !session?.access_token) return;
 
         syncPendingPlanFromSearch(window.location.search);
 
@@ -500,18 +501,20 @@ export default function Dashboard() {
                 }
             } catch (error) {
                 console.error('Pending checkout redirect failed:', error);
-                pendingCheckoutStarted.current = false;
-                showToast(
-                    error instanceof Error
-                        ? error.message
-                        : 'Could not start checkout. Try upgrading from settings.',
-                    'error'
-                );
+                if (!checkoutErrorShown.current) {
+                    checkoutErrorShown.current = true;
+                    showToast(
+                        error instanceof Error
+                            ? error.message
+                            : 'Could not start checkout. Try upgrading from settings.',
+                        'error'
+                    );
+                }
             }
         };
 
         run();
-    }, [user, authLoading, showToast]);
+    }, [user, session, authLoading, showToast]);
 
     // Pre-fill job description from Chrome extension ( ?job= base64 payload )
     // Use window.location so we always read the actual address bar (long URLs can differ from router state)

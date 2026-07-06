@@ -1,17 +1,22 @@
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { PlanId } from '../types/pricing';
-
-const EDGE_FUNCTION_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
+import { getAppOrigin } from '../utils/appUrl';
 
 interface CheckoutSessionResponse {
-  checkoutUrl: string;
+  checkoutUrl?: string;
   sessionId?: string;
   error?: string;
 }
 
+function getSupabaseAnonKey(): string {
+  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+  return anonKey || publishableKey || '';
+}
+
 /** Wait for Supabase session after OAuth or signup (token may lag behind user state). */
-export async function waitForAuthSession(timeoutMs = 10000): Promise<Session> {
+export async function waitForAuthSession(timeoutMs = 15000): Promise<Session> {
   const deadline = Date.now() + timeoutMs;
 
   while (Date.now() < deadline) {
@@ -25,43 +30,118 @@ export async function waitForAuthSession(timeoutMs = 10000): Promise<Session> {
   throw new Error('Please sign in to upgrade your plan.');
 }
 
-/**
- * Create a Dodo Payments checkout session via Supabase Edge Function.
- * Dodo API keys are read from Supabase secrets server-side.
- */
-export async function createCheckoutSession(planId: PlanId): Promise<string> {
-  const session = await waitForAuthSession();
+async function invokeEdgeCheckout(planId: PlanId, returnOrigin: string): Promise<string | null> {
+  const { data, error } = await supabase.functions.invoke<CheckoutSessionResponse>(
+    'create-checkout-session',
+    {
+      body: { planId, returnOrigin },
+    }
+  );
 
-  const supabaseKey =
-    import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
-    import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-  const response = await fetch(`${EDGE_FUNCTION_URL}/create-checkout-session`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${session.access_token}`,
-      apikey: supabaseKey,
-    },
-    body: JSON.stringify({ planId }),
-  });
-
-  const data: CheckoutSessionResponse = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    throw new Error(data.error || 'Failed to start checkout. Please try again.');
+  if (!error && data?.checkoutUrl) {
+    return data.checkoutUrl;
   }
 
-  if (!data.checkoutUrl) {
-    throw new Error('Checkout URL was not returned. Please contact support.');
+  if (error) {
+    console.warn('Edge checkout invoke failed:', error.message, error);
   }
 
-  return data.checkoutUrl;
+  return null;
+}
+
+async function fetchVercelCheckout(
+  planId: PlanId,
+  session: Session,
+  returnOrigin: string
+): Promise<string | null> {
+  try {
+    const response = await fetch('/api/create-checkout-session', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ planId, returnOrigin }),
+    });
+
+    const data: CheckoutSessionResponse = await response.json().catch(() => ({}));
+
+    if (response.ok && data.checkoutUrl) {
+      return data.checkoutUrl;
+    }
+
+    console.warn('Vercel checkout fallback failed:', data.error || response.status);
+  } catch (err) {
+    console.warn('Vercel checkout fallback error:', err);
+  }
+
+  return null;
+}
+
+async function fetchDirectEdgeCheckout(
+  planId: PlanId,
+  session: Session,
+  returnOrigin: string
+): Promise<string | null> {
+  const edgeUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout-session`;
+  const apikey = getSupabaseAnonKey();
+
+  if (!edgeUrl || !apikey) return null;
+
+  try {
+    const response = await fetch(edgeUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+        apikey,
+      },
+      body: JSON.stringify({ planId, returnOrigin }),
+    });
+
+    const data: CheckoutSessionResponse = await response.json().catch(() => ({}));
+
+    if (response.ok && data.checkoutUrl) {
+      return data.checkoutUrl;
+    }
+
+    const detail = data.error || `HTTP ${response.status}`;
+    console.warn('Direct edge checkout failed:', detail);
+    if (!response.ok) {
+      throw new Error(data.error || `Checkout failed (${response.status}). Is create-checkout-session deployed?`);
+    }
+  } catch (err) {
+    if (err instanceof Error && err.message.includes('Checkout failed')) {
+      throw err;
+    }
+    console.warn('Direct edge checkout error:', err);
+  }
+
+  return null;
 }
 
 /**
- * Redirect the user to Dodo Payments hosted checkout.
+ * Create a Dodo Payments checkout session via Supabase Edge Function (with fallbacks).
  */
+export async function createCheckoutSession(planId: PlanId): Promise<string> {
+  const session = await waitForAuthSession();
+  const returnOrigin = getAppOrigin();
+
+  const checkoutUrl =
+    (await invokeEdgeCheckout(planId, returnOrigin)) ||
+    (await fetchDirectEdgeCheckout(planId, session, returnOrigin)) ||
+    (await fetchVercelCheckout(planId, session, returnOrigin));
+
+  if (!checkoutUrl) {
+    throw new Error(
+      'Failed to start checkout. Ensure create-checkout-session is deployed to Supabase and Dodo secrets are set.'
+    );
+  }
+
+  return checkoutUrl;
+}
+
+/** Redirect the user to Dodo Payments hosted checkout. */
 export async function redirectToCheckout(planId: PlanId): Promise<void> {
   const checkoutUrl = await createCheckoutSession(planId);
   window.location.assign(checkoutUrl);

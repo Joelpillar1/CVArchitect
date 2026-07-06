@@ -7,6 +7,7 @@ import {
   getProductIdForPlan,
   isDodoCheckoutConfigured,
 } from './lib/dodoConfig';
+import { resolveReturnOrigin } from './lib/resolveReturnOrigin';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -35,7 +36,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(401).json({ error: 'Invalid or expired session.' });
   }
 
-  const { planId: rawPlanId } = req.body || {};
+  const { planId: rawPlanId, returnOrigin } = req.body || {};
   const planId = normalizePlanId(rawPlanId || '');
   if (!planId) {
     return res.status(400).json({ error: 'Invalid plan selected.' });
@@ -55,7 +56,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const host = req.headers['x-forwarded-host'] || req.headers.host;
   const proto = req.headers['x-forwarded-proto'] || 'https';
-  const origin = host ? `${proto}://${host}` : config.appUrl.replace(/\/$/, '');
+  const requestOrigin = host ? `${proto}://${host}` : config.appUrl.replace(/\/$/, '');
+  const origin = resolveReturnOrigin(returnOrigin || requestOrigin, config.appUrl);
   const returnUrl = `${origin}/dashboard?payment=success&plan=${planId}`;
 
   try {

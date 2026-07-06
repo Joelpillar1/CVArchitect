@@ -7,6 +7,7 @@ import {
   isDodoCheckoutConfigured,
 } from './_shared/dodoConfig.ts';
 import { normalizePlanId } from './_shared/subscriptionActivation.ts';
+import { resolveReturnOrigin } from './_shared/resolveReturnOrigin.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -62,7 +63,7 @@ serve(async (req) => {
     });
   }
 
-  const { planId: rawPlanId } = await req.json().catch(() => ({}));
+  const { planId: rawPlanId, returnOrigin } = await req.json().catch(() => ({}));
   const planId = normalizePlanId(rawPlanId || '');
 
   if (!planId) {
@@ -87,7 +88,7 @@ serve(async (req) => {
     user.email?.split('@')[0] ||
     'Customer';
 
-  const origin = config.appUrl.replace(/\/$/, '');
+  const origin = resolveReturnOrigin(returnOrigin, config.appUrl);
   const returnUrl = `${origin}/dashboard?payment=success&plan=${planId}`;
 
   try {
