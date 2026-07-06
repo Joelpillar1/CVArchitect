@@ -1,5 +1,10 @@
 # Free User Credits Update - Summary
 
+> **⚠️ SUPERSEDED — July 2026**  
+> Foundation tier now uses **1 credit**, not 10. See `FREE_TIER_REFERENCE.md`.
+
+---
+
 ## Overview
 Updated the free user credit allocation from **3 credits** to **10 credits** upon signup.
 

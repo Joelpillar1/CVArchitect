@@ -1,5 +1,10 @@
 # Paywall Issue - FIXED ✅
 
+> **⚠️ OBSOLETE — July 2026**  
+> Checkout now uses Dodo Payments via `services/dodoPaymentsService.ts`. See **[DODO_PAYMENTS_SETUP.md](../DODO_PAYMENTS_SETUP.md)**.
+
+---
+
 **Date:** January 19, 2026  
 **Issue:** Paywall button not redirecting to Whop checkout  
 **Status:** 🟢 RESOLVED

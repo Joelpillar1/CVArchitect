@@ -21,12 +21,19 @@ import { subscriptionService } from '../services/subscriptionService';
 import { profileService, UserProfile } from '../services/profileService';
 import { coverLetterService, SavedCoverLetter } from '../services/coverLetterService';
 import { SubscriptionManager } from '../utils/subscriptionManager';
+import { isPaidPlan } from '../utils/pricingConfig';
+import {
+    clearPendingCheckoutPlan,
+    getPendingCheckoutPlan,
+    redirectToPendingCheckoutIfAny,
+    syncPendingPlanFromSearch,
+} from '../utils/pendingCheckout';
 import { saveToStorage, debouncedSaveToStorage, loadFromStorage } from '../utils/statePersistence';
 
 <meta name="google-site-verification" content="tM8NcOMoT43REWAXI4sUDCX6usdXgja0epq5QCK1Ygc" />
 
 export default function Dashboard() {
-    const { user, signOut } = useAuth();
+    const { user, signOut, loading: authLoading } = useAuth();
     const { showToast } = useToast();
     const navigate = useNavigate();
     const location = useLocation();
@@ -117,6 +124,7 @@ export default function Dashboard() {
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+    const pendingCheckoutStarted = React.useRef(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [showPaywall, setShowPaywall] = useState(false);
     const [showPricingModal, setShowPricingModal] = useState(false);
@@ -333,7 +341,7 @@ export default function Dashboard() {
         };
     }, [user]);
 
-    // Handle payment return from Whop
+    // Handle payment return from Dodo Payments
     useEffect(() => {
         if (!user) return;
 
@@ -366,7 +374,7 @@ export default function Dashboard() {
 
                     console.log('Current subscription:', sub);
 
-                    if (sub && (sub.planId === 'week_pass' || sub.planId === 'pro_monthly')) {
+                    if (sub && isPaidPlan(sub.planId)) {
                         // Subscription activated!
                         console.log('Subscription activated! Plan:', sub.planId);
                         setUserSubscription(sub);
@@ -399,7 +407,7 @@ export default function Dashboard() {
 
                                     console.log('Final subscription result:', refreshedSub);
 
-                                    if (refreshedSub && (refreshedSub.planId === 'week_pass' || refreshedSub.planId === 'pro_monthly')) {
+                                    if (refreshedSub && isPaidPlan(refreshedSub.planId)) {
                                         setUserSubscription(refreshedSub);
                                         showToast('✅ Subscription activated! You now have unlimited access.', 'success');
                                         window.history.replaceState({}, '', '/dashboard');
@@ -414,7 +422,7 @@ export default function Dashboard() {
 
                                         // Log for debugging
                                         console.error('Subscription still not activated after timeout. Current subscription:', refreshedSub);
-                                        console.error('Expected plan: week_pass or pro_monthly');
+                                        console.error('Expected a paid plan (sprint, build, or blueprint)');
                                         console.error('User ID:', user.id);
                                     }
                                 } catch (err) {
@@ -459,6 +467,51 @@ export default function Dashboard() {
             isPolling = false;
         };
     }, [user, showToast]);
+
+    // After signup/OAuth: resume checkout for the plan selected on pricing/landing
+    useEffect(() => {
+        if (authLoading || !user) return;
+
+        syncPendingPlanFromSearch(window.location.search);
+
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('payment')) return;
+
+        const pendingPlan = getPendingCheckoutPlan();
+        if (!pendingPlan || pendingCheckoutStarted.current) return;
+
+        pendingCheckoutStarted.current = true;
+
+        const run = async () => {
+            try {
+                try {
+                    const sub = await subscriptionService.getSubscription(user.id);
+                    if (sub && isPaidPlan(sub.planId)) {
+                        clearPendingCheckoutPlan();
+                        return;
+                    }
+                } catch (subError) {
+                    console.warn('Could not load subscription before checkout, continuing:', subError);
+                }
+
+                const redirected = await redirectToPendingCheckoutIfAny();
+                if (!redirected) {
+                    pendingCheckoutStarted.current = false;
+                }
+            } catch (error) {
+                console.error('Pending checkout redirect failed:', error);
+                pendingCheckoutStarted.current = false;
+                showToast(
+                    error instanceof Error
+                        ? error.message
+                        : 'Could not start checkout. Try upgrading from settings.',
+                    'error'
+                );
+            }
+        };
+
+        run();
+    }, [user, authLoading, showToast]);
 
     // Pre-fill job description from Chrome extension ( ?job= base64 payload )
     // Use window.location so we always read the actual address bar (long URLs can differ from router state)

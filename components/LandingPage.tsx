@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import SEO from './SEO';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
+import PricingPlans from './PricingPlans';
 import Templates from './Templates';
 import { INITIAL_DATA } from '../types';
 
@@ -162,18 +163,7 @@ const SectionAnalysisOverlay = () => {
 export default function LandingPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const pricingFeatures = [
-    "Unlimited resume uploads & analyses",
-    "Unlimited AI rewrites & bullet optimizations",
-    "Unlimited Job Match reports",
-    "Unlimited cover letter generation",
-    "Access to every premium template",
-    "Up to 10-page resumes",
-    "Priority processing & unlimited versions",
-  ];
 
   // Navigation handlers
   const handleGetStarted = () => {
@@ -213,7 +203,7 @@ export default function LandingPage() {
                 "name": "How much does CV Architect cost?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "CV Architect offers a Free Forever plan with basic features. For serious job seekers, we offer a 7-day Career Sprint for $9 and a monthly Career Marathon plan for $19/month."
+                  "text": "CV Architect offers a free Foundation tier with 1 AI-tailored resume. Paid plans start at $2.99/week (Sprint), $9.99/month (Build), or $29 every 3 months (Blueprint Pass)."
                 }
               },
               {
@@ -229,7 +219,7 @@ export default function LandingPage() {
                 "name": "Does CV Architect offer a free version?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Yes! CV Architect offers a Free Forever plan which includes 1 resume project, access to basic templates, and 10 complimentary AI credits to test the builder."
+                  "text": "Yes! CV Architect offers a Foundation free tier — 1 AI-tailored resume on a base template with a full download. No credit card required."
                 }
               }
             ]
@@ -1038,164 +1028,16 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="py-20 px-6 bg-slate-50 overflow-hidden">
-        <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeInUp}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-extrabold mb-6 text-brand-dark" style={{ fontFamily: 'Graphik, sans-serif' }}>
-              The "Get Hired" Pricing Model
-            </h2>
-            <p className="text-xl text-gray-500 max-w-2xl mx-auto">
-              Most users find a job in less than 7 days. Why pay for a monthly subscription you don't need?
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={staggerContainer}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto"
-          >
-            {/* FREE FOREVER PLAN */}
-            <motion.div
-              variants={fadeInUp}
-              className="bg-white border border-gray-200 rounded-3xl p-8 md:p-10 flex flex-col"
-            >
-              <div className="mb-8">
-                <h3 className="text-xl font-bold text-brand-dark mb-1">Free Forever</h3>
-                <p className="text-sm text-gray-500">Perfect for testing the builder.</p>
-                <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-5xl font-bold text-brand-dark">$0</span>
-                </div>
-                <p className="text-sm text-gray-500 font-medium mt-3">No credit card required.</p>
-              </div>
-
-              <ul className="space-y-3 mb-8 flex-1">
-                {[
-                  "1 Resume Project",
-                  "10 AI Credits",
-                  "Basic Templates",
-                  "Standard Export",
-                  "Standard Support"
-                ].map((item, i) => (
-                  <li key={i} className="flex items-center gap-3 text-sm text-gray-600">
-                    <Check size={16} className="text-brand-green mt-0.5" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="mt-2">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleGetStarted}
-                  className="w-full py-4 rounded-full border-2 border-brand-dark hover:bg-brand-dark hover:text-white text-brand-dark text-sm font-semibold transition-all shadow-sm"
-                >
-                  Create free account
-                </motion.button>
-              </div>
-            </motion.div>
-            {/* SPRINT PLAN (Focus) */}
-            <motion.div
-              variants={fadeInUp}
-              className="relative bg-white border-2 border-brand-green rounded-3xl p-8 md:p-10 shadow-2xl shadow-brand-green/10 max-w-sm w-full mx-auto flex flex-col"
-            >
-              <div className="mb-8">
-                <div className="flex items-center justify-between gap-3 mb-1">
-                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-brand-dark whitespace-nowrap">The Career Sprint</h3>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-brand-green text-brand-dark text-[10px] sm:text-xs font-semibold uppercase tracking-wide whitespace-nowrap">
-                    Most popular
-                  </span>
-                </div>
-                <p className="text-sm text-gray-500">Best for focused 7-day job search sprints.</p>
-                <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-6xl font-extrabold text-brand-dark">$9</span>
-                  <span className="text-gray-500 font-medium">/ 7 days</span>
-                </div>
-                <p className="text-sm text-brand-green font-semibold mt-3">
-                  One-time payment, no auto-renew.
-                </p>
-              </div>
-
-              <ul className="space-y-3 mb-8 flex-1">
-                {pricingFeatures.map((item, i) => (
-                  <li key={i} className="flex items-center gap-3 text-sm text-gray-600">
-                    <Check size={16} className="text-brand-green mt-0.5" />
-                    <span className={i === 0 ? 'font-semibold' : ''}>{item}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="mt-2">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleGetStarted}
-                  className="w-full py-4 rounded-full bg-brand-green hover:opacity-90 text-brand-dark text-sm font-semibold transition-all shadow-md flex items-center justify-center gap-2"
-                >
-                  Start 7-day access
-                </motion.button>
-                <div className="flex items-center gap-2 mt-3 text-xs text-gray-500">
-                  <Shield size={14} className="text-brand-green" />
-                  <p>Backed by a 7-day money-back guarantee.</p>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* MARATHON PLAN */}
-            <motion.div
-              variants={fadeInUp}
-              className="bg-white border border-gray-200 rounded-3xl p-8 md:p-10 mt-4 md:mt-0 max-w-sm w-full mx-auto flex flex-col"
-            >
-              <div className="mb-8">
-                <div className="flex items-center justify-between gap-3 mb-1">
-                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-brand-dark whitespace-nowrap">The Career Marathon</h3>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-brand-green text-brand-dark text-[10px] sm:text-xs font-semibold uppercase tracking-wide whitespace-nowrap">
-                    Best deal
-                  </span>
-                </div>
-                <p className="text-sm text-gray-500">Best for ongoing applications and long-term career moves.</p>
-                <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-5xl font-bold text-brand-dark">$19</span>
-                  <span className="text-gray-500 font-medium">/ month</span>
-                </div>
-                <p className="text-sm text-gray-500 font-medium mt-3">Recurring subscription. Cancel anytime.</p>
-              </div>
-
-              <div className="space-y-4 mb-8 flex-1">
-                <ul className="space-y-3">
-                  {pricingFeatures.map((item, i) => (
-                    <li key={i} className="flex items-center gap-3 text-sm text-gray-600">
-                      <Check size={16} className="text-brand-green mt-0.5" />
-                      <span className={i === 0 ? 'font-semibold' : ''}>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="mt-2">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleGetStarted}
-                  className="w-full py-4 rounded-full bg-brand-green hover:opacity-90 text-brand-dark text-sm font-semibold transition-all shadow-md flex items-center justify-center gap-2"
-                >
-                  Start monthly access
-                </motion.button>
-                <div className="flex items-center gap-2 mt-3 text-xs text-gray-500">
-                  <Shield size={14} className="text-brand-green" />
-                  <p>Cancel anytime. Your changes are always saved.</p>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
+      <section id="pricing" className="py-20 px-6 bg-white overflow-hidden relative">
+        <div
+          className="absolute inset-0 opacity-60"
+          style={{
+            backgroundImage: 'linear-gradient(#EAEAEA 1px, transparent 1px), linear-gradient(90deg, #EAEAEA 1px, transparent 1px)',
+            backgroundSize: '40px 40px',
+          }}
+        />
+        <div className="max-w-6xl mx-auto relative z-10">
+          <PricingPlans onFreeClick={handleGetStarted} />
         </div>
       </section>
 

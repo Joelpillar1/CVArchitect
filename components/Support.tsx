@@ -66,7 +66,7 @@ const FAQS: FAQ[] = [
         question: 'What is included in the free plan?',
         answer: (
             <p>
-                Every new account receives free AI credits that unlock the core AI rewriting and ATS analysis features. Free users can also create and save resumes using any template, export to PDF, and access the Job Match tool. Once credits are used, you can purchase additional credits or upgrade to a paid plan for unlimited access.
+                The Foundation free plan includes 1 AI-tailored resume on our base template with full PDF download. To continue with unlimited AI tailoring, all templates, and unlimited downloads, upgrade to Sprint, Build, or Blueprint Pass.
             </p>
         ),
     },
@@ -157,7 +157,7 @@ const FAQS: FAQ[] = [
         question: 'What are AI credits and how do I get more?',
         answer: (
             <p>
-                Each AI operation (rewriting a section, generating a cover letter, running an ATS check) consumes a small number of credits. You start with free credits, and you can purchase more at any time from your dashboard or upgrade to a plan with a monthly credit allowance. Credits never expire.
+                Credits are only used on the Foundation free tier. Paid plans (Sprint, Build, Blueprint Pass) include unlimited AI tailoring and do not consume credits.
             </p>
         ),
     },
@@ -168,7 +168,7 @@ const FAQS: FAQ[] = [
         question: 'What payment methods do you accept?',
         answer: (
             <p>
-                We accept all major credit and debit cards (Visa, Mastercard, American Express) as well as Apple Pay and Google Pay. All payments are processed securely through Stripe — we never store your payment details.
+                We accept standard card payments through our secure Dodo Payments checkout. We never store your full card details in CV Architect.
             </p>
         ),
     },
@@ -192,7 +192,7 @@ const FAQS: FAQ[] = [
                 <Link to="/refund-policy" className="text-brand-green font-semibold hover:underline">
                     Refund Policy
                 </Link>{' '}
-                for full details. In general, we offer a 7-day refund on subscription purchases if you have not used the AI features extensively. Credit purchases are non-refundable once used.
+                for full details. In general, eligible subscription purchases can be refunded within the policy window. Credit purchases are non-refundable once used.
             </p>
         ),
     },
@@ -202,7 +202,7 @@ const FAQS: FAQ[] = [
         question: 'Is my payment information secure?',
         answer: (
             <p>
-                Absolutely. All payments are processed by Stripe, a PCI-DSS Level 1 certified payment processor. CV Architect never stores your card details on our servers.
+                Absolutely. All payments are processed by Dodo Payments, and CV Architect never stores your full card details on our servers.
             </p>
         ),
     },

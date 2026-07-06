@@ -25,7 +25,7 @@ import PricingPage from './components/PricingPage';
 import { UserSubscription, PlanId } from './types/pricing';
 import { SubscriptionManager, createDefaultSubscription, upgradePlan } from './utils/subscriptionManager';
 import { subscriptionService } from './services/subscriptionService';
-import { canAccessTemplate, PLANS } from './utils/pricingConfig';
+import { canAccessTemplate, PLANS, getPlanDisplayName } from './utils/pricingConfig';
 import { auditResume } from './components/utils/aiEnhancer';
 import { useAuth } from './contexts/AuthContext';
 import { useToast } from './contexts/ToastContext';
@@ -210,7 +210,7 @@ export default function App() {
     }
   }, [user]);
 
-  // Handle payment return from Whop
+    // Handle payment return from Dodo Payments
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const paymentStatus = params.get('payment');
@@ -495,7 +495,7 @@ export default function App() {
     return true;
   };
 
-  const handleSelectPlan = async (planId: PlanId, billingCycle?: 'monthly' | 'yearly' | 'lifetime') => {
+  const handleSelectPlan = async (planId: PlanId, billingCycle?: 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'lifetime') => {
     if (!user) {
       showToast('Please sign in to upgrade your plan', 'error');
       return;
@@ -1183,15 +1183,7 @@ export default function App() {
                   <p className="text-sm font-semibold text-brand-dark truncate">
                     {userProfile?.full_name || user?.email?.split('@')[0] || 'User'}
                   </p>
-                  <p className="text-xs text-gray-500 truncate">
-                    {userSubscription.planId === 'week_pass'
-                      ? 'Career Sprint'
-                      : userSubscription.planId === 'pro_monthly'
-                        ? 'Career Marathon'
-                        : userSubscription.planId === 'free'
-                          ? 'Guest Tier'
-                          : 'Guest Plan'}
-                  </p>
+                  <p className="text-xs text-gray-500 truncate">{getPlanDisplayName(userSubscription.planId)}</p>
                 </div>
               </div>
               <button onClick={handleLogout} title="Logout" className={`flex items-center gap-2 p-2 rounded-lg text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors text-sm font-semibold ${isSidebarCollapsed ? 'w-full justify-center' : ''}`}>

@@ -1,5 +1,10 @@
 # Whop Documentation Compliance - Fixes Applied
 
+> **⚠️ OBSOLETE — July 2026**  
+> Whop integration was replaced by Dodo Payments. See **[DODO_PAYMENTS_SETUP.md](../DODO_PAYMENTS_SETUP.md)**.
+
+---
+
 ## ✅ Changes Made Based on Whop Documentation
 
 ### 1. **Webhook Event Types** (Fixed ✅)

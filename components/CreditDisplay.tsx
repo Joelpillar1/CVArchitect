@@ -1,7 +1,7 @@
 import React from 'react';
-import { Zap, Crown, Sparkles, TrendingUp } from 'lucide-react';
+import { Zap, Crown, Sparkles } from 'lucide-react';
 import { UserSubscription } from '../types/pricing';
-import { PLANS } from '../utils/pricingConfig';
+import { PLANS, isPaidPlan } from '../utils/pricingConfig';
 
 interface CreditDisplayProps {
     userSubscription: UserSubscription;
@@ -9,26 +9,24 @@ interface CreditDisplayProps {
 }
 
 export default function CreditDisplay({ userSubscription, onUpgradeClick }: CreditDisplayProps) {
-    const plan = PLANS[userSubscription.planId];
-    // Check for Pro plans
-    const isPro = userSubscription.planId === 'pro_monthly';
-    const isWeekPass = userSubscription.planId === 'week_pass';
+    const plan = PLANS[userSubscription.planId] ?? PLANS.free;
+    const isPaid = isPaidPlan(userSubscription.planId);
     const isFree = userSubscription.planId === 'free';
 
-    // Calculate credit percentage for visual indicator
-    const maxCredits = plan?.creditRules.monthlyCredits || plan?.creditRules.lifetimeCredits || plan?.creditRules.startingCredits || 10;
+    const maxCredits = plan?.creditRules.monthlyCredits || plan?.creditRules.lifetimeCredits || plan?.creditRules.startingCredits || 1;
     const creditPercentage = (userSubscription.credits / maxCredits) * 100;
 
-    // Get color based on credit level
     const getColorClass = () => {
-        if (isPro) return 'from-purple-500 to-purple-600';
+        if (userSubscription.planId === 'build' || userSubscription.planId === 'blueprint') {
+            return 'from-purple-500 to-purple-600';
+        }
         if (creditPercentage > 50) return 'from-green-500 to-emerald-600';
         if (creditPercentage > 20) return 'from-yellow-500 to-orange-500';
         return 'from-red-500 to-red-600';
     };
 
     const getPlanBadge = () => {
-        if (isPro) {
+        if (userSubscription.planId === 'build' || userSubscription.planId === 'blueprint') {
             return (
                 <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg text-xs font-bold shadow-lg">
                     <Crown size={14} className="fill-current" />
@@ -36,24 +34,22 @@ export default function CreditDisplay({ userSubscription, onUpgradeClick }: Cred
                 </div>
             );
         }
-        if (isWeekPass) {
+        if (isPaid) {
             return (
                 <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg text-xs font-bold shadow-lg">
-                    <TrendingUp size={14} />
-                    PASS
+                    <Sparkles size={14} />
+                    {plan.name.toUpperCase()}
                 </div>
             );
         }
-        // Default to FREE only if it's explicitly free or unknown
         return (
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-200 text-gray-700 rounded-lg text-xs font-bold">
-                GUEST
+                FOUNDATION
             </div>
         );
     };
 
-    if (isPro) {
-        // Pro users have unlimited credits
+    if (isPaid) {
         return (
             <div className="flex items-center gap-3">
                 {getPlanBadge()}
@@ -66,7 +62,6 @@ export default function CreditDisplay({ userSubscription, onUpgradeClick }: Cred
     }
 
     if (isFree) {
-        // Free users see upgrade prompt
         return (
             <div className="flex items-center gap-3">
                 {getPlanBadge()}
@@ -81,7 +76,6 @@ export default function CreditDisplay({ userSubscription, onUpgradeClick }: Cred
         );
     }
 
-    // Basic and Lifetime users see credit count
     return (
         <div className="flex items-center gap-3">
             {getPlanBadge()}
@@ -91,15 +85,14 @@ export default function CreditDisplay({ userSubscription, onUpgradeClick }: Cred
                     <Zap size={16} className="text-white fill-current" />
                     <div className="flex flex-col">
                         <span className="text-xs font-bold text-white leading-tight">
-                            {userSubscription.credits} {isWeekPass ? 'Weekly' : 'Monthly'}
+                            {userSubscription.credits} Credits
                         </span>
                         <span className="text-[10px] text-white/80 leading-tight">
-                            Credits Left
+                            Remaining
                         </span>
                     </div>
                 </div>
 
-                {/* Tooltip on hover */}
                 <div className="absolute top-full mt-2 right-0 w-64 bg-white rounded-lg shadow-xl border border-gray-200 p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
                     <div className="space-y-3">
                         <div>
@@ -130,7 +123,7 @@ export default function CreditDisplay({ userSubscription, onUpgradeClick }: Cred
                                 onClick={onUpgradeClick}
                                 className="w-full py-2 bg-gradient-to-r from-brand-green to-emerald-500 hover:from-emerald-400 hover:to-emerald-600 text-brand-dark rounded-lg text-xs font-bold transition-all"
                             >
-                                {isPro ? 'Upgrade Plan' : 'Extend Pass'}
+                                Upgrade Plan
                             </button>
                         )}
                     </div>

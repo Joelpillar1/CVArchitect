@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
+import { syncPendingPlanFromSearch } from './utils/pendingCheckout';
 
 // Page Components
 import LandingPage from './components/LandingPage';
@@ -57,6 +58,7 @@ interface PublicRouteProps {
 
 function PublicRoute({ children }: PublicRouteProps) {
     const { user, loading } = useAuth();
+    const location = useLocation();
 
     if (loading) {
         return (
@@ -70,7 +72,8 @@ function PublicRoute({ children }: PublicRouteProps) {
     }
 
     if (user) {
-        return <Navigate to="/dashboard" replace />;
+        const plan = syncPendingPlanFromSearch(location.search);
+        return <Navigate to={plan ? `/dashboard?plan=${plan}` : '/dashboard'} replace />;
     }
 
     return <>{children}</>;

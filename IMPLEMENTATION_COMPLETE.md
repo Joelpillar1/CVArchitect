@@ -1,5 +1,10 @@
 # 🎯 IMPLEMENTATION COMPLETE - 10 Credits Update
 
+> **⚠️ SUPERSEDED — July 2026**  
+> Free tier is now **Foundation** (1 AI-tailored resume). See `FREE_TIER_REFERENCE.md` and `utils/pricingConfig.ts`. This doc is historical.
+
+---
+
 ## ✅ Status: READY FOR DEPLOYMENT
 
 All code changes have been successfully implemented to increase the free user credit allocation from **3 to 10 credits**.

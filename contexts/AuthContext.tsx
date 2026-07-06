@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import { getPendingCheckoutPlan } from '../utils/pendingCheckout';
 
 interface AuthContextType {
     user: User | null;
@@ -126,10 +127,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const signInWithGoogle = async () => {
         try {
-            const { data, error } = await supabase.auth.signInWithOAuth({
+            const pendingPlan = getPendingCheckoutPlan();
+            const redirectTo = pendingPlan
+                ? `${window.location.origin}/dashboard?plan=${pendingPlan}`
+                : `${window.location.origin}/dashboard`;
+
+            const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: `${window.location.origin}/dashboard`,
+                    redirectTo,
                     queryParams: {
                         access_type: 'offline',
                         prompt: 'consent',

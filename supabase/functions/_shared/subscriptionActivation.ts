@@ -1,0 +1,167 @@
+import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
+import { DodoConfig } from './dodoConfig.ts';
+
+export type AppPlanId = 'sprint' | 'build' | 'blueprint';
+
+const LEGACY_PLAN_MAP: Record<string, AppPlanId> = {
+  week_pass: 'sprint',
+  pro_monthly: 'build',
+};
+
+export function normalizePlanId(planId: string): AppPlanId | null {
+  if (planId === 'sprint' || planId === 'build' || planId === 'blueprint') {
+    return planId;
+  }
+  return LEGACY_PLAN_MAP[planId] ?? null;
+}
+
+export function getSupabaseAdmin(config: DodoConfig): SupabaseClient {
+  return createClient(config.supabaseUrl, config.serviceRoleKey);
+}
+
+export function mapProductToPlan(
+  productId: string | undefined,
+  config: DodoConfig
+): AppPlanId | null {
+  if (!productId) return null;
+  if (productId === config.sprintProductId) return 'sprint';
+  if (productId === config.buildProductId) return 'build';
+  if (productId === config.blueprintProductId) return 'blueprint';
+  return null;
+}
+
+function getPlanDates(planId: AppPlanId) {
+  const subscriptionStart = new Date();
+
+  if (planId === 'sprint') {
+    const subscriptionEnd = new Date(subscriptionStart);
+    subscriptionEnd.setDate(subscriptionEnd.getDate() + 7);
+    return { billingCycle: 'weekly', subscriptionStart, subscriptionEnd };
+  }
+
+  if (planId === 'build') {
+    const subscriptionEnd = new Date(subscriptionStart);
+    subscriptionEnd.setMonth(subscriptionEnd.getMonth() + 1);
+    return { billingCycle: 'monthly', subscriptionStart, subscriptionEnd };
+  }
+
+  const subscriptionEnd = new Date(subscriptionStart);
+  subscriptionEnd.setMonth(subscriptionEnd.getMonth() + 3);
+  return { billingCycle: 'quarterly', subscriptionStart, subscriptionEnd };
+}
+
+export async function findUserIdByEmail(
+  supabaseAdmin: SupabaseClient,
+  email: string | undefined
+): Promise<string | null> {
+  if (!email) return null;
+
+  const { data: authUsers, error } = await supabaseAdmin.auth.admin.listUsers();
+  if (error || !authUsers?.users) return null;
+
+  const match = authUsers.users.find(
+    (user) => user.email?.toLowerCase() === email.toLowerCase()
+  );
+  return match?.id ?? null;
+}
+
+export async function activateSubscription(
+  supabaseAdmin: SupabaseClient,
+  userId: string,
+  planId: AppPlanId
+): Promise<{ success: boolean; error?: string }> {
+  const { billingCycle, subscriptionStart, subscriptionEnd } = getPlanDates(planId);
+  const credits = 999999;
+
+  const { data: existingSub } = await supabaseAdmin
+    .from('subscriptions')
+    .select('id')
+    .eq('user_id', userId)
+    .single();
+
+  const payload = {
+    plan_id: planId,
+    credits,
+    billing_cycle: billingCycle,
+    subscription_start: subscriptionStart.toISOString(),
+    subscription_end: subscriptionEnd.toISOString(),
+    is_active: true,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (existingSub) {
+    const { error } = await supabaseAdmin
+      .from('subscriptions')
+      .update(payload)
+      .eq('user_id', userId);
+
+    if (error) return { success: false, error: error.message };
+    return { success: true };
+  }
+
+  const { error } = await supabaseAdmin.from('subscriptions').insert({
+    user_id: userId,
+    ...payload,
+    created_at: new Date().toISOString(),
+  });
+
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+export async function downgradeSubscription(
+  supabaseAdmin: SupabaseClient,
+  userId: string
+): Promise<{ success: boolean; error?: string }> {
+  const { data: currentSub } = await supabaseAdmin
+    .from('subscriptions')
+    .select('plan_id, credits')
+    .eq('user_id', userId)
+    .single();
+
+  const newCredits = currentSub?.plan_id === 'free' ? currentSub.credits : 1;
+
+  const { error } = await supabaseAdmin
+    .from('subscriptions')
+    .update({
+      plan_id: 'free',
+      credits: newCredits,
+      billing_cycle: 'monthly',
+      subscription_start: new Date().toISOString(),
+      subscription_end: null,
+      is_active: true,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('user_id', userId);
+
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+export function extractMetadata(event: Record<string, unknown>) {
+  const data = (event.data ?? {}) as Record<string, unknown>;
+  const metadata = (data.metadata ?? data.custom_metadata ?? {}) as Record<string, string>;
+
+  const customer = (data.customer ?? {}) as Record<string, string>;
+  const productCart = data.product_cart as Array<{ product_id?: string }> | undefined;
+  const products = data.products as Array<{ product_id?: string }> | undefined;
+
+  const productId =
+    (data.product_id as string | undefined) ||
+    productCart?.[0]?.product_id ||
+    products?.[0]?.product_id;
+
+  const planIdRaw = metadata.plan_id || metadata.planId;
+  const normalizedPlan = planIdRaw ? normalizePlanId(planIdRaw) : null;
+
+  return {
+    userId: metadata.user_id || metadata.userId,
+    planId: normalizedPlan ?? undefined,
+    email:
+      metadata.email ||
+      customer.email ||
+      (data.customer_email as string | undefined) ||
+      (data.email as string | undefined),
+    productId,
+  };
+}

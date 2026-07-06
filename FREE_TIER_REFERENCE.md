@@ -1,148 +1,124 @@
 # Free Tier Features - Quick Reference
 
-## 🎁 Free Tier Overview
+## Foundation (Free) Overview
 
 **Price**: $0 (Free Forever)  
-**Starting Credits**: **10** ✨  
-**Perfect For**: Testing the builder and exploring features
+**Starting allowance**: **1 AI-tailored resume**  
+**Perfect For**: Trying the builder before subscribing
 
 ---
 
-## ✅ What's Included
+## What's Included
 
 | Feature | Limit | Notes |
 |---------|-------|-------|
-| **Starting Credits** | **10** | Use for AI features |
+| **AI tailoring** | **1** | One full tailored resume pass |
 | Resume Uploads | 1 | Upload your existing resume |
-| Resume Analyses | 10 | AI-powered resume analysis |
-| AI Rewrites | 10 | Enhance your content with AI |
-| Bullet Optimizations | 10 | Optimize bullet points |
-| Job Matches | 1 | Match resume to job description |
+| Template Access | Base | Foundation template included |
+| PDF Export | Yes | Full download included |
+| Watermark-Free | No | Paid plans only |
 | Cover Letter Generation | 0 | Upgrade required |
-| CV Regenerations | 0 | Upgrade required |
-| PDF Export | ✅ Yes | Export your resume |
-| Watermark-Free | ❌ No | Upgrade for watermark-free |
-| Template Access | Basic | 3 free templates |
-| Max Resume Pages | 1 | Single page resume |
-| Priority Processing | ❌ No | Upgrade for priority |
-| Multiple Versions | ❌ No | Upgrade for versions |
-| Live Editing | ✅ Yes | Real-time editing |
+| Premium Templates | No | Upgrade for all 29+ templates |
+| Unlimited AI | No | Upgrade for unlimited |
+| Priority Processing | No | Paid plans only |
 
 ---
 
-## 💳 Credit System
+## Credit System (Foundation)
 
-### How Credits Work:
-- Each AI action costs **1 credit**
-- Free users start with **10 credits**
-- Credits don't reset monthly (one-time allocation)
-- Upgrade for unlimited AI actions
+Foundation uses a **minimal credit model** (1 starting credit), not the legacy 10-credit trial.
 
-### Credit Costs:
+### How it works:
+- New users start with **1 credit**
+- Each major AI action costs **1 credit** on free tier
+- Credits do not reset monthly
+- Upgrade for unlimited AI (no credits on paid plans)
+
+### Credit costs (free tier):
 | Action | Cost |
 |--------|------|
-| Full Rewrite | 1 credit |
-| CV Regeneration | 1 credit |
-| Resume Upload | 1 credit |
-| Cover Letter | 1 credit |
-| Bullet Optimization | 1 credit |
-| Keyword Enhancement | 1 credit |
+| Full rewrite / tailoring | 1 credit |
+| Resume upload | 1 credit |
+| Bullet optimization | 1 credit |
+| Job match | 1 credit |
 
 ---
 
-## 🎯 What You Can Do With 10 Credits
+## What You Can Do on Foundation
 
-### Example Usage Scenario:
-1. **Upload Resume** (1 credit) → 9 remaining
-2. **Run Resume Analysis** (1 credit) → 8 remaining
-3. **Rewrite Summary** (1 credit) → 7 remaining
-4. **Optimize 3 Bullet Points** (3 credits) → 4 remaining
-5. **Run Job Match** (1 credit) → 3 remaining
-6. **Rewrite 2 More Sections** (2 credits) → 1 remaining
-7. **Final Optimization** (1 credit) → 0 remaining
+### Example first session:
+1. **Upload resume** (uses your 1 credit if combined with tailoring)
+2. **Run one AI tailor** → optimized resume
+3. **Download** on base template
 
-**Result**: Fully optimized, ATS-ready resume! 🎉
+**Result:** Real product value before paywall.
 
 ---
 
-## 🚀 Upgrade Options
+## Upgrade Options
 
-### Career Sprint ($9 / 7 days)
-- ✅ **Unlimited** AI Rewrites
-- ✅ **Unlimited** Resume Analyses
-- ✅ **Unlimited** Job Matches
-- ✅ **Unlimited** Bullet Optimizations
-- ✅ All Premium Templates
-- ✅ Watermark-Free Exports
-- ✅ Priority Processing
+### Sprint ($2.99 / week)
+- Unlimited AI tailoring
+- All premium templates
+- Watermark-free exports
+- Cover letters, priority processing
+- Renews weekly — cancel anytime
 
-### Career Marathon ($19 / month)
-- ✅ Everything in Sprint
-- ✅ Continuous Access
-- ✅ Cancel Anytime
+### Build ($9.99 / month) — highlighted default
+- Everything in Sprint
+- Monthly billing for active searches
 
----
-
-## 📊 Comparison
-
-| Feature | Free | Sprint | Marathon |
-|---------|------|--------|----------|
-| Credits | 10 | Unlimited | Unlimited |
-| AI Rewrites | 10 | Unlimited | Unlimited |
-| Job Matches | 1 | Unlimited | Unlimited |
-| Templates | 3 Basic | All Premium | All Premium |
-| Watermark | ❌ | ✅ | ✅ |
-| Duration | Forever | 7 Days | Monthly |
-| Price | $0 | $9 | $19/mo |
+### Blueprint Pass ($29 / 3 months)
+- Everything in Sprint/Build
+- Quarterly billing for longer transitions
 
 ---
 
-## 💡 Tips for Free Users
+## Comparison
 
-1. **Plan Your Credits**: Think about which sections need AI help most
-2. **Start with Analysis**: Use 1 credit to analyze your resume first
-3. **Focus on Impact**: Use AI rewrites on your most important sections
-4. **Job Match Last**: Save job match for when your resume is polished
-5. **Export Early**: Download your resume to avoid losing work
-
----
-
-## 🎓 Best Practices
-
-### Getting the Most Value:
-- ✅ Upload a well-formatted resume to start
-- ✅ Use AI rewrites strategically on key sections
-- ✅ Optimize bullets for your strongest achievements
-- ✅ Run job match when applying to dream jobs
-- ✅ Export and save versions as you go
-
-### When to Upgrade:
-- 🎯 Applying to multiple jobs (need unlimited job matches)
-- 🎯 Want access to premium templates
-- 🎯 Need watermark-free exports
-- 🎯 Require priority processing
-- 🎯 Want to create multiple resume versions
+| Feature | Foundation | Sprint | Build | Blueprint |
+|---------|------------|--------|-------|-----------|
+| AI tailoring | 1 | Unlimited | Unlimited | Unlimited |
+| Templates | Base | All | All | All |
+| Watermark-free | No | Yes | Yes | Yes |
+| Billing | Free | Weekly | Monthly | Quarterly |
+| Price | $0 | $2.99/wk | $9.99/mo | $29/3 mo |
 
 ---
 
-## ❓ FAQ
+## Tips for Free Users
 
-**Q: Do credits reset monthly?**  
-A: No, free tier credits are a one-time allocation.
-
-**Q: Can I buy more credits?**  
-A: Yes! Or upgrade to Sprint/Marathon for unlimited AI actions.
-
-**Q: What happens when I run out of credits?**  
-A: You can still edit your resume manually, but AI features will be locked until you upgrade or purchase credits.
-
-**Q: Can I export my resume for free?**  
-A: Yes! Free users can export to PDF (with watermark).
-
-**Q: How long does the free tier last?**  
-A: Forever! There's no time limit on the free tier.
+1. **Make the one tailor count** — upload a solid resume and target one role
+2. **Download your result** — you get a full export on Foundation
+3. **Upgrade when applying widely** — unlimited job matches and templates need a paid plan
 
 ---
 
-**Last Updated**: January 13, 2026  
-**Version**: 2.0 (10 Credits Update)
+## When to Upgrade
+
+- Applying to multiple roles (need unlimited tailoring)
+- Want premium templates
+- Need watermark-free exports
+- Cover letter generation
+- Priority processing
+
+---
+
+## FAQ
+
+**Q: Do free credits reset monthly?**  
+A: No. Foundation is a one-time allowance (1 tailored resume), not a monthly credit refill.
+
+**Q: Can I buy more credits without subscribing?**  
+A: Export credit packs exist for PDF exports; unlimited AI requires Sprint, Build, or Blueprint.
+
+**Q: What happens after I use my free tailor?**  
+A: Manual editing remains; AI features and premium templates require upgrade.
+
+**Q: Can I export for free?**  
+A: Yes — Foundation includes a full download on the base template.
+
+---
+
+**Last Updated**: July 2026  
+**Payment provider**: Dodo Payments (see `DODO_PAYMENTS_SETUP.md`)

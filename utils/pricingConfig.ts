@@ -1,4 +1,25 @@
-import { Plan, CreditPack } from '../types/pricing';
+import { Plan, CreditPack, PlanId } from '../types/pricing';
+
+// ========================================================
+// SHARED COPY
+// ========================================================
+
+export const PAID_PLAN_FEATURES = [
+    'Unlimited AI tailoring',
+    'All templates unlocked',
+    'Unlimited downloads',
+];
+
+export const FOUNDATION_FEATURES = [
+    '1 free AI-tailored resume',
+    'Base template included',
+    'Full download included',
+];
+
+export const PAID_PLAN_IDS: PlanId[] = ['sprint', 'build', 'blueprint'];
+
+/** @deprecated Legacy paid plan IDs still stored for some users */
+export const LEGACY_PAID_PLAN_IDS = ['week_pass', 'pro_monthly'];
 
 // ========================================================
 // PLAN CONFIGURATIONS
@@ -7,16 +28,20 @@ import { Plan, CreditPack } from '../types/pricing';
 export const PLANS: Record<string, Plan> = {
     free: {
         id: 'free',
-        name: 'Guest Tier',
-        description: 'Explore the builder.',
+        name: 'Foundation',
+        tagline: 'Try before you pay',
+        description: 'Try the tailoring before you pay for anything.',
         price: { monthly: 0 },
+        billingLabel: 'Free',
+        renewalNote: 'No credit card required.',
+        ctaLabel: 'Try it free',
         features: {
             resumeUploads: 1,
-            resumeAnalyses: 10,
-            aiRewrites: 10,
+            resumeAnalyses: 1,
+            aiRewrites: 1,
             jobMatches: 1,
             coverLetterGeneration: 0,
-            bulletOptimizations: 10,
+            bulletOptimizations: 1,
             cvRegenerations: 0,
             pdfExport: true,
             watermarkFree: false,
@@ -25,11 +50,11 @@ export const PLANS: Record<string, Plan> = {
             maxResumePages: 1,
             priorityProcessing: false,
             multipleVersions: false,
-            liveEditing: true
+            liveEditing: true,
         },
         creditRules: {
             usesCredits: true,
-            startingCredits: 10,
+            startingCredits: 1,
             monthlyCredits: 0,
             creditsReset: false,
             creditCosts: {
@@ -38,15 +63,19 @@ export const PLANS: Record<string, Plan> = {
                 resumeUpload: 1,
                 coverLetter: 1,
                 bulletOptimization: 1,
-                keywordEnhancement: 1
-            }
-        }
+                keywordEnhancement: 1,
+            },
+        },
     },
-    week_pass: {
-        id: 'week_pass',
-        name: 'Career Sprint',
-        description: 'Get hired fast. 7 days of unlimited power.',
-        price: { lifetime: 9.00 }, // Using lifetime key for one-time payment
+    sprint: {
+        id: 'sprint',
+        name: 'Sprint',
+        tagline: 'For a quick push',
+        description: 'Unlimited AI tailoring for 7 days.',
+        price: { weekly: 2.99 },
+        billingLabel: '$2.99 / week',
+        renewalNote: 'Renews weekly at $2.99. Cancel anytime.',
+        ctaLabel: 'Start this week',
         features: {
             resumeUploads: 'unlimited',
             resumeAnalyses: 'unlimited',
@@ -62,7 +91,7 @@ export const PLANS: Record<string, Plan> = {
             maxResumePages: 10,
             priorityProcessing: true,
             multipleVersions: true,
-            liveEditing: true
+            liveEditing: true,
         },
         creditRules: {
             usesCredits: false,
@@ -74,16 +103,19 @@ export const PLANS: Record<string, Plan> = {
                 resumeUpload: 0,
                 coverLetter: 0,
                 bulletOptimization: 0,
-                keywordEnhancement: 0
-            }
+                keywordEnhancement: 0,
+            },
         },
-        popular: true
     },
-    pro_monthly: {
-        id: 'pro_monthly',
-        name: 'Career Marathon',
-        description: 'For the long-term career strategist.',
-        price: { monthly: 19.00 },
+    build: {
+        id: 'build',
+        name: 'Build',
+        tagline: 'For an active search',
+        description: 'Unlimited AI tailoring, every month.',
+        price: { monthly: 9.99 },
+        billingLabel: '$9.99 / month',
+        renewalNote: 'Renews monthly at $9.99. Cancel anytime.',
+        ctaLabel: 'Start monthly',
         features: {
             resumeUploads: 'unlimited',
             resumeAnalyses: 'unlimited',
@@ -99,12 +131,12 @@ export const PLANS: Record<string, Plan> = {
             maxResumePages: 10,
             priorityProcessing: true,
             multipleVersions: true,
-            liveEditing: true
+            liveEditing: true,
         },
         creditRules: {
             usesCredits: false,
-            startingCredits: 9999,
-            monthlyCredits: 9999,
+            startingCredits: 999999,
+            monthlyCredits: 999999,
             creditsReset: true,
             creditCosts: {
                 fullRewrite: 0,
@@ -112,16 +144,56 @@ export const PLANS: Record<string, Plan> = {
                 resumeUpload: 0,
                 coverLetter: 0,
                 bulletOptimization: 0,
-                keywordEnhancement: 0
-            }
-        }
-    }
+                keywordEnhancement: 0,
+            },
+        },
+        popular: true,
+        highlight: true,
+    },
+    blueprint: {
+        id: 'blueprint',
+        name: 'Blueprint Pass',
+        tagline: 'For one focused push',
+        description: 'Unlimited AI tailoring for 3 months.',
+        price: { quarterly: 29 },
+        billingLabel: '$29 / 3 months',
+        renewalNote: 'Renews every 3 months at $29. Cancel anytime.',
+        ctaLabel: 'Start 3-month plan',
+        features: {
+            resumeUploads: 'unlimited',
+            resumeAnalyses: 'unlimited',
+            aiRewrites: 'unlimited',
+            jobMatches: 'unlimited',
+            coverLetterGeneration: 'unlimited',
+            bulletOptimizations: 'unlimited',
+            cvRegenerations: 'unlimited',
+            pdfExport: true,
+            watermarkFree: true,
+            allTemplates: true,
+            templateAccess: 'all',
+            maxResumePages: 10,
+            priorityProcessing: true,
+            multipleVersions: true,
+            liveEditing: true,
+        },
+        creditRules: {
+            usesCredits: false,
+            startingCredits: 999999,
+            creditsReset: true,
+            creditCosts: {
+                fullRewrite: 0,
+                cvRegeneration: 0,
+                resumeUpload: 0,
+                coverLetter: 0,
+                bulletOptimization: 0,
+                keywordEnhancement: 0,
+            },
+        },
+    },
 };
 
-// Credit packs are deprecated in favor of the Sprint/Marathon model
 export const CREDIT_PACKS: CreditPack[] = [];
 
-// Export credit packs (separate from AI credits)
 export const EXPORT_CREDIT_PACKS: CreditPack[] = [
     {
         credits: 10,
@@ -145,10 +217,6 @@ export const EXPORT_CREDIT_PACKS: CreditPack[] = [
         savings: '33% off',
     },
 ];
-
-// ========================================================
-// FREE TEMPLATES
-// ========================================================
 
 export const FREE_TEMPLATES = ['free', 'simplepro', 'minimalist', 'twocolumn', 'freshgrad1'];
 
@@ -184,21 +252,32 @@ export const ALL_TEMPLATES = [
     'student',
 ];
 
-// ========================================================
-// HELPER FUNCTIONS
-// ========================================================
-
 export const getPlanById = (planId: string): Plan | undefined => {
     return PLANS[planId];
 };
 
-export const isPro = (planId: string): boolean => {
-    return planId === 'week_pass' || planId === 'pro_monthly';
+export const getPlanDisplayName = (planId?: string): string => {
+    if (!planId) return 'Foundation';
+    const plan = PLANS[planId];
+    if (plan) return plan.name;
+    if (planId === 'week_pass') return 'Sprint (legacy)';
+    if (planId === 'pro_monthly') return 'Build (legacy)';
+    return 'Foundation';
 };
+
+export const isPaidPlan = (planId: string): boolean => {
+    return PAID_PLAN_IDS.includes(planId as PlanId) || LEGACY_PAID_PLAN_IDS.includes(planId);
+};
+
+/** @deprecated Use isPaidPlan */
+export const isPro = (planId: string): boolean => isPaidPlan(planId);
 
 export const getTemplatesForPlan = (planId: string): string[] => {
     const plan = getPlanById(planId);
-    if (!plan) return FREE_TEMPLATES;
+    if (!plan) {
+        if (isPaidPlan(planId)) return ALL_TEMPLATES;
+        return FREE_TEMPLATES;
+    }
 
     switch (plan.features.templateAccess) {
         case 'free':
@@ -215,4 +294,13 @@ export const getTemplatesForPlan = (planId: string): string[] => {
 export const canAccessTemplate = (planId: string, templateId: string): boolean => {
     const allowedTemplates = getTemplatesForPlan(planId);
     return allowedTemplates.includes(templateId);
+};
+
+export const formatPlanPrice = (plan: Plan): { amount: string; period: string } => {
+    if (plan.price.weekly != null) return { amount: '$2.99', period: '/ week' };
+    if (plan.price.monthly != null && plan.price.monthly > 0) {
+        return { amount: `$${plan.price.monthly.toFixed(2).replace(/\.00$/, '')}`, period: '/ month' };
+    }
+    if (plan.price.quarterly != null) return { amount: '$29', period: '/ 3 months' };
+    return { amount: '$0', period: '' };
 };

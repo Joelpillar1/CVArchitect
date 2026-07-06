@@ -19,7 +19,7 @@ export class SubscriptionManager {
     /**
      * Get current user plan
      */
-    getUserPlan(): PlanId {
+    getUserPlan(): UserSubscription['planId'] {
         return this.subscription.planId;
     }
 
@@ -48,7 +48,7 @@ export class SubscriptionManager {
 
         switch (feature) {
             case 'resume_upload':
-                // Check if Pro (Unlimited) - Sprint/Marathon plans
+                // Unlimited plans
                 if (plan.features.resumeUploads === 'unlimited') {
                     // Pro plans don't use credits, so they're always allowed
                     if (!plan.creditRules.usesCredits) {
@@ -93,7 +93,7 @@ export class SubscriptionManager {
                 if (plan.features.jobMatches === 'unlimited') return { allowed: true };
                 const matchCount = this.getUsageCount('job_match');
                 if (matchCount >= plan.features.jobMatches) {
-                    return { allowed: false, reason: 'Job match limit reached. Upgrade to Pro for unlimited matching.' };
+                    return { allowed: false, reason: 'Job match limit reached. Upgrade to a paid plan for unlimited matching.' };
                 }
                 return { allowed: true };
 
@@ -114,7 +114,7 @@ export class SubscriptionManager {
                 if (this.subscription.credits <= 0) {
                     return {
                         allowed: false,
-                        reason: 'Out of credits. Upgrade to Career Sprint or Marathon for unlimited access.'
+                        reason: 'Out of credits. Upgrade to Sprint, Build, or Blueprint for unlimited access.'
                     };
                 }
 
@@ -166,7 +166,7 @@ export class SubscriptionManager {
                 cost = 0;
         }
 
-        // If plan doesn't use credits (Sprint / Marathon), treat as free action but still log usage
+        // If plan doesn't use credits, treat as free action but still log usage
         if (!plan.creditRules.usesCredits || this.isPro()) {
             this.logUsage(action, 0);
             return { success: true, remainingCredits: this.subscription.credits };
@@ -255,7 +255,7 @@ export const createDefaultSubscription = (userId: string): UserSubscription => {
     return {
         userId,
         planId: 'free',
-        credits: 10, // Updated to match new free tier allocation
+        credits: 1,
         isActive: true,
         usageHistory: [],
     };
@@ -267,10 +267,23 @@ export const createDefaultSubscription = (userId: string): UserSubscription => {
 export const upgradePlan = (
     subscription: UserSubscription,
     newPlanId: PlanId,
-    billingCycle?: 'monthly' | 'yearly' | 'lifetime'
+    billingCycle?: 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'lifetime'
 ): UserSubscription => {
     const newPlan = PLANS[newPlanId];
     if (!newPlan) return subscription;
+
+    const now = Date.now();
+    let subscriptionEnd: Date | undefined;
+
+    if (newPlanId === 'sprint') {
+        subscriptionEnd = new Date(now + 7 * 24 * 60 * 60 * 1000);
+    } else if (newPlanId === 'build') {
+        subscriptionEnd = new Date(now);
+        subscriptionEnd.setMonth(subscriptionEnd.getMonth() + 1);
+    } else if (newPlanId === 'blueprint') {
+        subscriptionEnd = new Date(now);
+        subscriptionEnd.setMonth(subscriptionEnd.getMonth() + 3);
+    }
 
     return {
         ...subscription,
@@ -278,9 +291,7 @@ export const upgradePlan = (
         credits: newPlan.creditRules.startingCredits,
         billingCycle,
         subscriptionStart: new Date(),
-        subscriptionEnd: newPlanId === 'week_pass'
-            ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-            : newPlan.price.lifetime ? undefined : new Date(Date.now() + (billingCycle === 'yearly' ? 365 : 30) * 24 * 60 * 60 * 1000),
+        subscriptionEnd,
         isActive: true,
     };
 };

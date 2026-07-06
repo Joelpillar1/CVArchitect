@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, CreditCard, Bell, Shield, Zap, Crown, TrendingUp, Calendar, Download, Trash2, Check, X, Eye, EyeOff } from 'lucide-react';
 import { UserSubscription, PlanId } from '../types/pricing';
-import { PLANS, CREDIT_PACKS } from '../utils/pricingConfig';
+import { PLANS, CREDIT_PACKS, isPaidPlan } from '../utils/pricingConfig';
 import { profileService } from '../services/profileService';
 import { subscriptionService } from '../services/subscriptionService';
 import { useAuth } from '../contexts/AuthContext';
@@ -121,21 +121,24 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
     marketingEmails: false,
   });
 
-  const plan = PLANS[userSubscription.planId];
-  const isSprint = userSubscription.planId === 'week_pass';
-  const isMarathon = userSubscription.planId === 'pro_monthly';
+  const plan = PLANS[userSubscription.planId] ?? PLANS.free;
+  const isPaid = isPaidPlan(userSubscription.planId);
   const isFree = userSubscription.planId === 'free';
 
   const getPlanIcon = () => {
-    if (isSprint) return <Zap className="text-brand-dark fill-current" size={24} />;
-    if (isMarathon) return <Crown className="text-purple-600 fill-current" size={24} />;
+    if (userSubscription.planId === 'build' || userSubscription.planId === 'blueprint' || userSubscription.planId === 'pro_monthly') {
+      return <Crown className="text-purple-600 fill-current" size={24} />;
+    }
+    if (isPaid) return <Zap className="text-brand-dark fill-current" size={24} />;
     return <User className="text-gray-600" size={24} />;
   };
 
   const getPlanColor = () => {
-    if (isSprint) return 'from-brand-green to-emerald-500 text-brand-dark';
-    if (isMarathon) return 'from-purple-500 to-indigo-600 text-white';
-    return 'from-gray-100 to-gray-200 text-gray-800'; // Guest plan style
+    if (userSubscription.planId === 'build' || userSubscription.planId === 'blueprint' || userSubscription.planId === 'pro_monthly') {
+      return 'from-purple-500 to-indigo-600 text-white';
+    }
+    if (isPaid) return 'from-brand-green to-emerald-500 text-brand-dark';
+    return 'from-gray-100 to-gray-200 text-gray-800';
   };
 
   const formatDate = (date?: Date) => {
@@ -613,15 +616,13 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
                       <div>
                         <p className="font-bold text-2xl">{plan?.name || 'Current Plan'}</p>
                         <p className="text-white/80 text-sm">
-                          {isFree && 'Guest Tier'}
-                          {isSprint && '$9 / 7 days'}
-                          {isMarathon && '$19 / month'}
+                          {isFree ? 'Foundation — free tier' : (plan?.billingLabel ?? '')}
                         </p>
                       </div>
                     </div>
                     {!isFree && (
                       <div className="text-right">
-                        <p className="text-sm text-white/80">{isSprint ? 'Expires on' : 'Renews on'}</p>
+                        <p className="text-sm text-white/80">Renews on</p>
                         <p className="font-semibold">{formatDate(userSubscription.subscriptionEnd)}</p>
                       </div>
                     )}
@@ -632,7 +633,7 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
                   <div className="p-4 bg-gray-50 rounded-xl">
                     <p className="text-sm text-gray-500 mb-1">Credits</p>
                     <p className="text-2xl font-bold text-brand-dark">
-                      {(isSprint || isMarathon) ? 'Unlimited' : userSubscription.credits}
+                      {isPaid ? 'Unlimited' : userSubscription.credits}
                     </p>
                   </div>
                   <div className="p-4 bg-gray-50 rounded-xl">
@@ -672,16 +673,7 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
                     </button>
                   )}
 
-                  {isSprint && (
-                    <button
-                      onClick={onUpgrade}
-                      className="bg-brand-dark text-white px-6 py-3 rounded-xl font-semibold text-sm hover:bg-gray-800 transition-colors"
-                    >
-                      Extenth Sprint / Upgrade
-                    </button>
-                  )}
-
-                  {isMarathon && (
+                  {isPaid && (
                     <>
                       <button
                         onClick={onUpgrade}
@@ -728,7 +720,7 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
                   <div className="text-center p-6 bg-purple-50 rounded-xl">
                     <p className="text-sm text-purple-600 font-semibold mb-2">Credits Remaining</p>
                     <p className="text-4xl font-bold text-purple-700">
-                      {(isSprint || isMarathon) ? '∞' : userSubscription.credits}
+                      {isPaid ? '∞' : userSubscription.credits}
                     </p>
                   </div>
                 </div>

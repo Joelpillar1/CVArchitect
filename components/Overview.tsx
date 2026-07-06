@@ -2,6 +2,7 @@ import React from 'react';
 import { Plus, FileText, Zap, Crown, ArrowRight, Trash2, AlertTriangle, Eye, Edit } from 'lucide-react';
 import { SavedTemplate } from '../types';
 import { UserSubscription } from '../types/pricing';
+import { getPlanDisplayName } from '../utils/pricingConfig';
 import ResumePreview from './ResumePreview';
 import { getTemplateMetadata } from '../utils/templateConfig';
 
@@ -26,13 +27,7 @@ export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, 
     }
   };
 
-  const getPlanName = (id?: string) => {
-    switch (id) {
-      case 'week_pass': return 'Career Sprint';
-      case 'pro_monthly': return 'Career Marathon';
-      default: return 'Guest Plan';
-    }
-  };
+  const getPlanName = (id?: string) => getPlanDisplayName(id);
 
   // Dynamic greeting based on time of day
   const getGreeting = () => {

@@ -27,7 +27,7 @@ When you or your developer open the code, here are the most important folders in
     *   `Editor.tsx` & the `Sidebar` files - The main workspace where the user builds their resume.
     *   `*Form.tsx` files (e.g., `ExperienceForm.tsx`, `SummaryForm.tsx`) - The input form layout elements.
     *   `ResumePreview.tsx` - The live preview engine that renders the resume as they type.
-    *   `PaywallModal.tsx` & `CreditPurchaseModal.tsx` - Your monetization UI using Whop Checkout.
+    *   `PaywallModal.tsx` & `PricingModal.tsx` - Monetization UI; checkout via Dodo Payments (`services/dodoPaymentsService.ts`).
 *   📂 **`components/templates/`** - Contains the code for the 29+ different resume templates (e.g., Vanguard, Modern, Elite).
 *   📂 **`pages/`** - Full-page views like your `Dashboard.tsx`, `BlogPage.tsx`, and `CoverLetterPage.tsx`.
 *   📂 **`utils/`** - The engine room. Helper functions that do the heavy lifting:
@@ -48,29 +48,33 @@ You will see `AIEnhanceButton.tsx` components sprinkled throughout the UI forms.
 We intentionally do not use an expensive server to generate PDFs. When the user clicks "Download", the `pdfGenerator.ts` script takes an exact snapshot of what is rendered in the `ResumePreview` DOM element and converts it into a high-quality PDF locally right then and there.
 
 ### The Freemium UI / Monetization
-The app is built around a credit system to drive product-led growth. Users sign up and get free credits. If a user tries to click an AI button or download a premium functionality and their credit balance is 0, the `PaywallModal.tsx` is triggered, intercepting the action and prompting them to upgrade seamlessly via the integrated Whop SDK.
+The app uses a low-friction free tier plus subscription upsells. New users get **Foundation** (1 AI-tailored resume on the base template). When they need unlimited AI, premium templates, or watermark-free exports, `PaywallModal.tsx` opens checkout via **Dodo Payments** (`services/dodoPaymentsService.ts` → Supabase Edge Function `create-checkout-session`).
 
 ## 5. Pricing Plans & Tier Mechanics
 
-The subscription configurations (managed in `utils/pricingConfig.ts`) are split into three core tiers to appeal to different users:
+Plan definitions live in `utils/pricingConfig.ts`. Shared pricing UI is in `components/PricingPlans.tsx`.
 
-*   **Free (Guest Tier) - $0**
-    *   **Limits:** 10 AI credits to try the system, 1 Resume Upload.
-    *   **Features:** Access to basic templates, PDF exports (watermarked).
-*   **Week Pass (Career Sprint) - $9.00 (One-Time)**
-    *   **Ideal for:** Users needing a quick fix to apply for jobs immediately.
-    *   **Limits:** Unlimited AI actions for 7 days.
-    *   **Features:** Access to all 29+ templates, Cover Letter Generation, removes PDF watermarks, allows up to 10 resume pages, priority processing.
-*   **Pro Monthly (Career Marathon) - $19.00 / mo**
-    *   **Ideal for:** Long-term career strategists.
-    *   **Limits & Features:** Same unrestricted access as the Week Pass, but billed on a recurring monthly cycle.
+*   **Foundation (free) — $0**
+    *   **Limits:** 1 AI-tailored resume, 1 upload, base template.
+    *   **Features:** Full download included; premium templates and unlimited AI require upgrade.
+*   **Sprint — $2.99/week**
+    *   **Ideal for:** Short, urgent application pushes.
+    *   **Features:** Unlimited AI, all templates, watermark-free PDFs, cover letters. Renews weekly.
+*   **Build — $9.99/month** *(highlighted default)*
+    *   **Ideal for:** Active multi-week job searches.
+    *   **Features:** Same as Sprint on a monthly cycle.
+*   **Blueprint Pass — $29 / 3 months**
+    *   **Ideal for:** Longer focused career transitions.
+    *   **Features:** Same unlimited access; renews quarterly.
+
+Legacy plan IDs `week_pass` and `pro_monthly` may still appear in the database for older subscribers.
 
 ## 6. How to Make Common Changes
 
 *   **Editing the Landing Page Copy:** Open `components/LandingPage.tsx`. It is standard React markup styled with Tailwind. Just search for the text you want to change and overwrite it.
 *   **Changing Global Brand Colors:** Look at `tailwind.config.js` and `index.css`. This is where the primary brand colors and global styling variables are defined.
 *   **Modifying a Resume Template:** Go to `components/templates/`. You can edit the Tailwind classes adjusting margins, fonts, and layouts for any specific resume template.
-*   **Tweaking Pricing UI Details:** Open `components/LandingPage.tsx` (scroll to pricing section) or `components/PricingModal.tsx`.
+*   **Tweaking Pricing UI Details:** Open `components/PricingPlans.tsx`, `components/PricingPage.tsx`, or `components/PricingModal.tsx`. Plan prices and copy: `utils/pricingConfig.ts`.
 
 ## 7. How to Run It Locally
 

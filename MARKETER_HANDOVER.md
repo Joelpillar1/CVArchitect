@@ -21,40 +21,47 @@ These are the "Aha!" features you should highlight in your ad copy, TikToks, and
 
 ## 3. Onboarding & The Freemium Funnel
 
-We utilize a **Product-Led Growth (PLG)** strategy heavily reliant on a credit system.
+We utilize a **Product-Led Growth (PLG)** strategy with a low-friction free tier and subscription upsells.
 
 *   **Frictionless Sign-Up:** We use Google OAuth. One click and they are in the application.
-*   **The "10 Credit" Magnet:** Every new user gets **10 Free AI Credits**. 
-    *   *Why this matters to you:* 10 credits is carefully calculated. It gives them enough usage to upload their resume, get an AI analysis, and rewrite 3-4 bullet points. They get to experience the core value (the magic of the AI rewrite) *before* hitting a paywall.
-*   **The Upsell:** As soon as they hit 0 credits or try to access a premium feature (like removing the watermark from their PDF or keeping a generated cover letter), our integrated Whop checkout paywall beautifully slides in.
+*   **Foundation (Free) Tier:** Every new user gets **1 free AI-tailored resume** on the base template with a full download included.
+    *   *Why this matters to you:* They experience the core value—the AI rewrite and a real downloadable resume—before hitting a paywall. The hook is "try before you pay," not a large credit bank.
+*   **The Upsell:** When they need unlimited tailoring, premium templates, watermark-free exports, or cover letters, the Dodo Payments checkout flow opens from `PaywallModal` or the pricing page.
 
 ## 4. Pricing Plans & Buyer Personas
 
-The platform operates on three pricing tiers, designed to capture different types of job seekers:
+The platform operates on four tiers (one free, three paid subscriptions). Prices and copy are defined in `utils/pricingConfig.ts`.
 
-### Tier 1: Guest Tier (Free)
-*   **The Hook:** 10 AI credits to try the system, 1 Resume Upload.
-*   **The Catch:** PDFs have a watermark, access is restricted to basic templates, and advanced AI features are locked.
+### Tier 1: Foundation (Free)
+*   **The Hook:** 1 AI-tailored resume, base template, full download.
+*   **The Catch:** Limited to one tailored pass; premium templates and unlimited AI are locked behind paid plans.
 
-### Tier 2: Career Sprint - $9.00 (One-Time)
-*   **The Target Persona:** The "Desperate Searcher." They need a resume *tonight* because the application closes tomorrow.
-*   **What They Get:** 7 Days of unlimited AI actions, all 29+ templates, no watermarks, Cover Letter generation, and priority processing.
-*   **Marketing Angle:** "Skip the monthly subscription. For less than a coffee and a sandwich, get unlimited power for the week you actually need it."
+### Tier 2: Sprint — $2.99/week
+*   **The Target Persona:** The "urgent applicant." They have applications due this week and need unlimited power now.
+*   **What They Get:** Unlimited AI tailoring, all templates, unlimited downloads, cover letters, priority processing. Renews weekly; cancel anytime.
+*   **Marketing Angle:** "Less than a coffee per week for unlimited resume power while you're actively applying."
 
-### Tier 3: Career Marathon - $19.00 / mo
-*   **The Target Persona:** The strategic job hunter in an active, long-term search (e.g., seniors, execs, or pivoting industries).
-*   **What They Get:** The same unrestricted access as the Week Pass, but on a recurring monthly cycle.
+### Tier 3: Build — $9.99/month *(Start here — highlighted plan)*
+*   **The Target Persona:** The active job hunter running a multi-week search.
+*   **What They Get:** Same unlimited access as Sprint, on a monthly subscription. Best default for ongoing searches.
+*   **Marketing Angle:** "The plan most job seekers choose—unlimited tailoring for the length of your search."
+
+### Tier 4: Blueprint Pass — $29 / 3 months
+*   **The Target Persona:** Someone in a focused career transition (pivot, relocation, senior move) who wants a longer runway without thinking about weekly renewals.
+*   **What They Get:** Unlimited access for a full quarter. Renews every 3 months; cancel anytime.
+*   **Marketing Angle:** "One price, three months of unlimited career architecture."
 
 ## 5. Where to Find Marketing Levers in the App
 
 If you are working with a developer or designer to tweak the marketing assets within the app, here is where those things live:
 
-*   **Landing Page Copy & Hero Text:** Located in `components/LandingPage.tsx`.
-*   **Pricing Page & Modal Copy:** Located in `components/PricingPage.tsx` and `components/PricingModal.tsx`.
-*   **The Core Pricing Logic (The prices themselves):** Controlled globally in `utils/pricingConfig.ts`.
+*   **Landing Page Copy & Hero Text:** `components/LandingPage.tsx`
+*   **Shared Pricing Cards:** `components/PricingPlans.tsx` (used on landing and pricing page)
+*   **Pricing Page & Modal:** `components/PricingPage.tsx`, `components/PricingModal.tsx`
+*   **Plan prices, names, and features (source of truth):** `utils/pricingConfig.ts`
 
 ## 6. Immediate Strategy Recommendations
 
-
-1.  **Optimize the First 5 Minutes:** Since users get 10 free credits, track what they do with them. We want to ensure their very first credit is spent on their biggest "pain point" (likely rewriting their Summary or a job bullet) so they feel maximum value right away.
-2.  **A/B Test the Paywall Copy:** The $9 "Sprint" vs. the $19 "Marathon" is a unique pricing strategy. Test the messaging when they hit 0 credits to ensure it emphasizes the speed and low commitment of the $9 pass.
+1.  **Optimize the First Session:** Free users get one tailored resume—ensure onboarding pushes them through upload → job match or enhance → download so they feel the "Aha!" moment before the paywall.
+2.  **A/B Test Paywall Copy:** Sprint ($2.99/week) vs Build ($9.99/mo) vs Blueprint ($29/quarter) targets different urgency and commitment levels. Test which message converts best at zero credits or premium feature gates.
+3.  **Lead with Build:** The app highlights Build as "Start here"; align landing page and ad creative with monthly unlimited as the default recommendation.

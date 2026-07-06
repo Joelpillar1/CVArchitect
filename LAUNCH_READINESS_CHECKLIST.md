@@ -2,19 +2,27 @@
 
 ## ✅ **CRITICAL - Must Complete Before Launch**
 
-### 1. **Environment Variables (Vercel)**
+### 1. **Environment Variables**
+
+**Vercel (frontend):**
 - [ ] `VITE_SUPABASE_URL` - Supabase project URL
 - [ ] `VITE_SUPABASE_ANON_KEY` - Supabase anonymous key
-- [ ] `VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY` (if using)
-- [ ] `SUPABASE_SERVICE_ROLE_KEY` - For webhooks (server-side only)
-- [ ] `VITE_WHOP_SPRINT_PLAN_ID` - Career Sprint plan ID
-- [ ] `VITE_WHOP_MARATHON_PLAN_ID` - Career Marathon plan ID
-- [ ] `WHOP_WEBHOOK_SECRET` - Webhook signature verification
-- [ ] `WHOP_SPRINT_PRODUCT_ID` - Server-side Sprint product ID
-- [ ] `WHOP_MARATHON_PRODUCT_ID` - Server-side Marathon product ID
+- [ ] `APP_URL` - Production app URL (e.g. `https://cvarchitect.app`)
 - [ ] `VITE_OPENAI_API_KEY` (if using OpenAI directly)
 
-**Action:** Verify all variables are set in Vercel Dashboard → Settings → Environment Variables
+**Supabase Edge Function secrets** (Dashboard → Edge Functions → Secrets):
+- [ ] `DODO_PAYMENTS_API_KEY`
+- [ ] `DODO_PAYMENTS_ENVIRONMENT` (`test_mode` or `live_mode`)
+- [ ] `DODO_PAYMENTS_WEBHOOK_KEY`
+- [ ] `DODO_SPRINT_PRODUCT_ID` — Sprint weekly $2.99
+- [ ] `DODO_BUILD_PRODUCT_ID` — Build monthly $9.99
+- [ ] `DODO_BLUEPRINT_PRODUCT_ID` — Blueprint quarterly $29
+- [ ] `APP_URL`
+- [ ] `SUPABASE_SERVICE_ROLE_KEY` (for local/Vercel fallback only; auto-injected in Edge Functions)
+
+See `.env.example` and `DODO_PAYMENTS_SETUP.md` for full list and aliases.
+
+**Action:** Verify secrets in Supabase; verify Vercel env vars for frontend.
 
 ---
 
@@ -36,19 +44,16 @@
 
 ---
 
-### 3. **Whop Payment Integration**
-- [ ] Whop webhook URL configured: `https://www.cvarchitect.app/api/whop-webhook`
-- [ ] Webhook events enabled:
-  - [ ] `payment.succeeded`
-  - [ ] `membership.activated`
-  - [ ] `invoice.paid`
-  - [ ] `membership.deactivated`
-  - [ ] `payment.failed`
-- [ ] Test webhook endpoint: `https://www.cvarchitect.app/api/whop-webhook` (should return success)
-- [ ] Verify plan IDs match between Whop dashboard and environment variables
-- [ ] Test checkout flow end-to-end (test payment)
+### 3. **Dodo Payments Integration**
+- [ ] Three subscription products created in Dodo (Sprint, Build, Blueprint)
+- [ ] Edge Functions deployed: `create-checkout-session`, `dodo-webhook`
+- [ ] Webhook URL: `https://<project-ref>.supabase.co/functions/v1/dodo-webhook`
+- [ ] Webhook secret matches `DODO_PAYMENTS_WEBHOOK_KEY`
+- [ ] Product IDs match `DODO_SPRINT_PRODUCT_ID`, `DODO_BUILD_PRODUCT_ID`, `DODO_BLUEPRINT_PRODUCT_ID`
+- [ ] Test checkout flow end-to-end (test payment in `test_mode`)
+- [ ] Return URL: `/dashboard?payment=success&plan={planId}`
 
-**Action:** Configure webhook in Whop dashboard and test with a real payment
+**Action:** Follow `DODO_PAYMENTS_SETUP.md`
 
 ---
 
@@ -90,11 +95,12 @@
   - [ ] Credit deduction working correctly
 
 - [ ] **Subscription Management:**
-  - [ ] Free plan: 10 credits, limited templates
-  - [ ] Career Sprint: Unlimited access for 7 days ($9)
-  - [ ] Career Marathon: Monthly unlimited ($19)
-  - [ ] Subscription activation after payment
-  - [ ] Credit tracking and usage logs
+  - [ ] Foundation: 1 tailored resume, base template
+  - [ ] Sprint: Unlimited access, $2.99/week
+  - [ ] Build: Unlimited access, $9.99/month
+  - [ ] Blueprint: Unlimited access, $29/quarter
+  - [ ] Subscription activation after Dodo webhook
+  - [ ] Dashboard polls after `?payment=success`
 
 **Action:** Test all features end-to-end with real user accounts
 
@@ -213,7 +219,7 @@
 - Core resume editing functionality
 - Template system
 - AI features integration
-- Payment integration (Whop)
+- Payment integration (Dodo Payments + Supabase Edge Functions)
 - Authentication system
 - Database schema
 - Error handling improvements
@@ -236,7 +242,7 @@
 
 ## 🚨 **Critical Issues to Resolve:**
 
-1. **Webhook Testing:** Test with real Whop payment to ensure subscription activation works
+1. **Webhook Testing:** Test with real Dodo payment to ensure subscription activation works
 2. **Environment Variables:** Verify all are set in Vercel
 3. **Database:** Run schema.sql and verify all tables/policies exist
 4. **Payment Flow:** End-to-end test of checkout → payment → webhook → subscription activation

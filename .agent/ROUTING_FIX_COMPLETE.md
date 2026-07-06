@@ -51,7 +51,7 @@ The routing structure is in place, but we still need to:
 
 Would you like to:
 - **Continue with routing migration** (move app logic to Dashboard)
-- **Go back to Whop integration** (payment system)
+- **Payment integration:** Dodo Payments — see `DODO_PAYMENTS_SETUP.md`
 - **Something else**
 
 Let me know! 🚀

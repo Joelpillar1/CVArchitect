@@ -1,5 +1,10 @@
 # Whop Webhook Debugging Guide
 
+> **⚠️ OBSOLETE — July 2026**  
+> Whop was removed. See **[DODO_PAYMENTS_SETUP.md](../DODO_PAYMENTS_SETUP.md)** for current payment debugging.
+
+---
+
 ## Issue: Webhook Not Working / Vercel Not Showing Anything
 
 If Vercel is not showing any logs, the webhook might not be receiving requests or the function might not be deployed correctly.

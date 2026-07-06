@@ -1,5 +1,10 @@
 # 🚀 Deployment Guide - 10 Credits Update
 
+> **⚠️ SUPERSEDED — July 2026**  
+> For current launch steps see `LAUNCH_READINESS_CHECKLIST.md` and `DODO_PAYMENTS_SETUP.md`.
+
+---
+
 ## Overview
 This guide walks you through deploying the 10 credits update for free users.
 

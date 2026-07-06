@@ -1,5 +1,10 @@
 # Free User Credits Implementation - Complete Summary
 
+> **⚠️ SUPERSEDED — July 2026**  
+> Foundation tier now uses **1 credit**, not 10. See `FREE_TIER_REFERENCE.md`.
+
+---
+
 ## Overview
 Successfully implemented the 10 credit limit for free users throughout the entire application, replacing the previous 3 credit allocation.
 

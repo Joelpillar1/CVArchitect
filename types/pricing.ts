@@ -1,11 +1,16 @@
 // Pricing and Subscription Type Definitions
 
-export type PlanId = 'free' | 'week_pass' | 'pro_monthly';
+export type PlanId = 'free' | 'sprint' | 'build' | 'blueprint';
 
-export type BillingCycle = 'monthly' | 'yearly' | 'lifetime';
+/** @deprecated Legacy plan IDs — kept for existing subscribers */
+export type LegacyPlanId = 'week_pass' | 'pro_monthly';
+
+export type BillingCycle = 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'lifetime';
 
 export interface PlanPrice {
+    weekly?: number;
     monthly?: number;
+    quarterly?: number;
     yearly?: number;
     lifetime?: number;
 }
@@ -47,11 +52,16 @@ export interface CreditRules {
 export interface Plan {
     id: PlanId;
     name: string;
+    tagline: string;
     description: string;
     price: PlanPrice;
+    billingLabel: string;
+    renewalNote: string;
+    ctaLabel: string;
     features: PlanFeatures;
     creditRules: CreditRules;
     popular?: boolean;
+    highlight?: boolean;
 }
 
 export interface CreditPack {
@@ -64,7 +74,7 @@ export interface CreditPack {
 
 export interface UserSubscription {
     userId: string;
-    planId: PlanId;
+    planId: PlanId | LegacyPlanId;
     credits: number;
     billingCycle?: BillingCycle;
     subscriptionStart?: Date;

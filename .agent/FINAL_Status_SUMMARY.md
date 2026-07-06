@@ -1,8 +1,11 @@
 # System Status Summary
 
-## ✅ Whop Integration: READY
-Code implementation is Complete.
-**Action Required:** Run the correct SQL migration in Supabase (see below).
+> **⚠️ PARTIALLY OBSOLETE — July 2026**  
+> Payment provider is now **Dodo Payments**. See **[DODO_PAYMENTS_SETUP.md](../DODO_PAYMENTS_SETUP.md)**. Login redirect notes below may still apply.
+
+---
+
+## ✅ Dodo Payments Integration: READY (deploy Edge Functions to activate)
 
 ## ✅ Login Redirect: FIXED
 The issue where logging in showed the landing page is fixed.

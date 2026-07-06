@@ -1,5 +1,10 @@
 # Whop Webhook Not Activating Subscription - Troubleshooting
 
+> **⚠️ OBSOLETE — July 2026**  
+> Webhooks now use Dodo at `https://<project-ref>.supabase.co/functions/v1/dodo-webhook`. See **[DODO_PAYMENTS_SETUP.md](../DODO_PAYMENTS_SETUP.md)**.
+
+---
+
 **Issue:** Payment completed but subscription not activated
 **Date:** January 19, 2026
 

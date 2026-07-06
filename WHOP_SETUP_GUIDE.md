@@ -1,5 +1,10 @@
 # Whop Integration Setup Guide
 
+> **⚠️ OBSOLETE — July 2026**  
+> CV Architect migrated from Whop to **Dodo Payments**. Use **[DODO_PAYMENTS_SETUP.md](../DODO_PAYMENTS_SETUP.md)** instead. This file is kept for historical reference only.
+
+---
+
 ## Issue: Subscription Not Activating After Payment
 
 When users complete payment on Whop, they're redirected back but don't get premium access because:

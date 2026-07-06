@@ -1,8 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Mail, Lock, Eye, EyeOff, Zap } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import SEO from './SEO';
+import { PlanId } from '../types/pricing';
+import { PLANS } from '../utils/pricingConfig';
+import {
+    getPendingPlanLabel,
+    redirectToPendingCheckoutIfAny,
+    setPendingCheckoutPlan,
+    syncPendingPlanFromSearch,
+} from '../utils/pendingCheckout';
 
 export default function SignIn() {
     const navigate = useNavigate();
@@ -13,7 +21,32 @@ export default function SignIn() {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [pendingPlan, setPendingPlan] = useState<PlanId | null>(null);
     const { signIn, signInWithGoogle } = useAuth();
+
+    useEffect(() => {
+        setPendingPlan(syncPendingPlanFromSearch(window.location.search));
+    }, [searchParams]);
+
+    const selectedPlan = pendingPlan ? PLANS[pendingPlan] : null;
+    const planQuery = pendingPlan ? `?plan=${pendingPlan}` : '';
+
+    const handlePostAuthNavigation = async () => {
+        try {
+            const redirected = await redirectToPendingCheckoutIfAny();
+            if (redirected) return;
+        } catch (checkoutError) {
+            console.error('Checkout redirect failed:', checkoutError);
+            setError(
+                checkoutError instanceof Error
+                    ? checkoutError.message
+                    : 'Signed in, but checkout could not start. Try upgrading from the dashboard.'
+            );
+            return;
+        }
+
+        navigate(redirectTo && redirectTo.startsWith('/dashboard') ? redirectTo : '/dashboard', { replace: true });
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -29,19 +62,15 @@ export default function SignIn() {
             const { data, error } = await signIn(email, password);
             if (error) throw error;
 
-            // Check if session was actually created (might be pending email verification)
             if (!data?.session) {
-                // If no session but no error, usually means email confirmation required
                 setError('Please verify your email address before signing in.');
                 return;
             }
 
-            console.log('Sign in successful', data.user?.id);
-            // Go to redirect URL (e.g. from extension: /dashboard/editor?job=...) or dashboard
-            navigate(redirectTo && redirectTo.startsWith('/dashboard') ? redirectTo : '/dashboard', { replace: true });
-        } catch (err: any) {
+            await handlePostAuthNavigation();
+        } catch (err: unknown) {
             console.error('Sign in error:', err);
-            setError(err.message || 'Failed to sign in');
+            setError(err instanceof Error ? err.message : 'Failed to sign in');
         } finally {
             setLoading(false);
         }
@@ -51,11 +80,13 @@ export default function SignIn() {
         setError('');
         setLoading(true);
         try {
+            if (pendingPlan) {
+                setPendingCheckoutPlan(pendingPlan);
+            }
             const { error } = await signInWithGoogle();
             if (error) throw error;
-            // OAuth will redirect, so no need to navigate here
-        } catch (err: any) {
-            setError(err.message || 'Failed to sign in with Google');
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Failed to sign in with Google');
             setLoading(false);
         }
     };
@@ -68,7 +99,6 @@ export default function SignIn() {
                 canonicalPath="/login"
             />
             <div className="w-full max-w-md">
-                {/* Back Button */}
                 <div className="flex justify-center mb-8">
                     <button
                         onClick={() => navigate('/')}
@@ -79,15 +109,28 @@ export default function SignIn() {
                     </button>
                 </div>
 
-                {/* Header */}
                 <div className="text-center mb-8">
                     <h1 className="text-3xl md:text-4xl font-extrabold text-brand-dark mb-2" style={{ fontFamily: 'Graphik, sans-serif' }}>
                         Welcome Back
                     </h1>
-                    <p className="text-gray-500">Sign in to continue building your resume</p>
+                    <p className="text-gray-500">
+                        {selectedPlan
+                            ? `Sign in to continue to ${getPendingPlanLabel(pendingPlan!)} checkout`
+                            : 'Sign in to continue building your resume'}
+                    </p>
                 </div>
 
-                {/* Sign In Form */}
+                {selectedPlan && (
+                    <div className="mb-6 flex items-center gap-3 rounded-xl border border-brand-green/30 bg-brand-green/10 px-4 py-3">
+                        <Zap size={18} className="text-brand-green shrink-0 fill-brand-green" />
+                        <div className="text-sm text-brand-dark">
+                            <span className="font-semibold">{selectedPlan.name}</span>
+                            <span className="text-gray-600"> — {selectedPlan.billingLabel}</span>
+                            <p className="text-xs text-gray-500 mt-0.5">You&apos;ll go to secure checkout after sign in.</p>
+                        </div>
+                    </div>
+                )}
+
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {error && (
                         <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
@@ -155,10 +198,9 @@ export default function SignIn() {
                         disabled={loading}
                         className="w-full bg-brand-green hover:opacity-90 text-brand-dark px-6 py-3 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {loading ? 'Signing in...' : 'Sign In'}
+                        {loading ? 'Signing in...' : selectedPlan ? 'Sign in & continue' : 'Sign In'}
                     </button>
 
-                    {/* Divider */}
                     <div className="relative my-6">
                         <div className="absolute inset-0 flex items-center">
                             <div className="w-full border-t border-gray-300"></div>
@@ -168,7 +210,6 @@ export default function SignIn() {
                         </div>
                     </div>
 
-                    {/* Google Sign In */}
                     <button
                         type="button"
                         onClick={handleGoogleSignIn}
@@ -185,10 +226,9 @@ export default function SignIn() {
                     </button>
                 </form>
 
-                {/* Sign Up Link */}
                 <p className="text-center text-gray-600 mt-6">
-                    Don't have an account?{' '}
-                    <button onClick={() => navigate('/signup')} className="text-brand-green hover:text-green-700 font-semibold">
+                    Don&apos;t have an account?{' '}
+                    <button onClick={() => navigate(`/signup${planQuery}`)} className="text-brand-green hover:text-green-700 font-semibold">
                         Sign up
                     </button>
                 </p>

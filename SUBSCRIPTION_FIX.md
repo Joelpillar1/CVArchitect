@@ -132,10 +132,10 @@ After adding the function:
 
 1. **Sign up** with a new account
 2. **Check Supabase** → Table Editor → subscriptions
-   - Should see 1 row with `plan_id: 'free'`, `credits: 10`
-3. **Upgrade** to a paid plan (e.g., Week Pass)
+   - Should see 1 row with `plan_id: 'free'`, `credits: 1`
+3. **Upgrade** to a paid plan (e.g., Sprint via Dodo checkout)
 4. **Check Supabase** again
-   - Should see `plan_id: 'week_pass'`, `credits: 50`
+   - Should see `plan_id: 'sprint'` (or `build` / `blueprint`), `credits: 999999`, `is_active: true`
 5. **Reload the page** (F5)
 6. **Check if plan persists** ✅
 

@@ -1,11 +1,21 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { ArrowLeft, Mail, Lock, User, Eye, EyeOff, Zap } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 import SEO from './SEO';
+import { PlanId } from '../types/pricing';
+import { PLANS } from '../utils/pricingConfig';
+import {
+    getPendingPlanLabel,
+    redirectToPendingCheckoutIfAny,
+    setPendingCheckoutPlan,
+    syncPendingPlanFromSearch,
+} from '../utils/pendingCheckout';
 
 export default function SignUp() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -16,7 +26,15 @@ export default function SignUp() {
     const [success, setSuccess] = useState('');
     const [agreedToTerms, setAgreedToTerms] = useState(false);
     const [loading, setLoading] = useState(false);
-    const { signUp, signInWithGoogle } = useAuth();
+    const [pendingPlan, setPendingPlan] = useState<PlanId | null>(null);
+    const { signUp, signIn, signInWithGoogle } = useAuth();
+
+    useEffect(() => {
+        setPendingPlan(syncPendingPlanFromSearch(window.location.search));
+    }, [searchParams]);
+
+    const selectedPlan = pendingPlan ? PLANS[pendingPlan] : null;
+    const planQuery = pendingPlan ? `?plan=${pendingPlan}` : '';
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -47,11 +65,9 @@ export default function SignUp() {
         try {
             const { error } = await signUp(email, password, name);
             if (error) {
-                // Normalize message for reliable duplicate-email detection
                 const rawMessage = (error.message || '').toString();
                 const msg = rawMessage.toLowerCase();
 
-                // Supabase commonly uses "User already registered" / "already exists" / similar wording
                 if (
                     msg.includes('already') &&
                     (msg.includes('registered') || msg.includes('exists') || msg.includes('email'))
@@ -65,14 +81,50 @@ export default function SignUp() {
                 return;
             }
 
-            setSuccess('Account created! Please check your email to verify your account.');
-
-            // Fire welcome email in the background — don't block signup flow
             fetch('/api/welcome', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email }),
-            }).catch(err => console.warn('Welcome email failed (non-critical):', err));
+            }).catch((err) => console.warn('Welcome email failed (non-critical):', err));
+
+            if (pendingPlan) {
+                setPendingCheckoutPlan(pendingPlan);
+            }
+
+            let { data: { session } } = await supabase.auth.getSession();
+
+            if (!session) {
+                const { data: signInData, error: signInError } = await signIn(email, password);
+                if (!signInError && signInData?.session) {
+                    session = signInData.session;
+                }
+            }
+
+            if (session) {
+                try {
+                    const redirected = await redirectToPendingCheckoutIfAny();
+                    if (redirected) return;
+                } catch (checkoutError) {
+                    console.error('Checkout redirect failed:', checkoutError);
+                    setError(
+                        checkoutError instanceof Error
+                            ? checkoutError.message
+                            : 'Account created, but checkout could not start. Sign in and try upgrading again.'
+                    );
+                    return;
+                }
+
+                navigate('/dashboard', { replace: true });
+                return;
+            }
+
+            if (pendingPlan) {
+                setSuccess(
+                    `Account created! Verify your email, then sign in to complete your ${getPendingPlanLabel(pendingPlan)} checkout.`
+                );
+            } else {
+                setSuccess('Account created! Please check your email to verify your account.');
+            }
         } finally {
             setLoading(false);
         }
@@ -83,11 +135,15 @@ export default function SignUp() {
         setSuccess('');
         setLoading(true);
         try {
+            if (pendingPlan) {
+                setPendingCheckoutPlan(pendingPlan);
+            }
+
             const { error } = await signInWithGoogle();
             if (error) throw error;
-            // OAuth will redirect, so no need to show success message
-        } catch (err: any) {
-            setError(err.message || 'Failed to sign up with Google');
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Failed to sign up with Google';
+            setError(message);
             setLoading(false);
         }
     };
@@ -100,7 +156,6 @@ export default function SignUp() {
                 canonicalPath="/signup"
             />
             <div className="w-full max-w-md">
-                {/* Back Button */}
                 <div className="flex justify-center mb-8">
                     <button
                         onClick={() => navigate('/')}
@@ -111,18 +166,28 @@ export default function SignUp() {
                     </button>
                 </div>
 
-                {/* Header */}
                 <div className="text-center mb-8">
                     <h1 className="text-3xl md:text-4xl font-extrabold text-brand-dark mb-2" style={{ fontFamily: 'Graphik, sans-serif' }}>
                         Create Account
                     </h1>
-                    <p className="text-gray-500">Start building your ATS-optimized resume</p>
+                    <p className="text-gray-500">
+                        {selectedPlan
+                            ? `Sign up to continue to ${selectedPlan.name} checkout`
+                            : 'Start building your ATS-optimized resume'}
+                    </p>
                 </div>
 
-                {/* Google Sign Up */}
+                {selectedPlan && (
+                    <div className="mb-6 flex items-center gap-3 rounded-xl border border-brand-green/30 bg-brand-green/10 px-4 py-3">
+                        <Zap size={18} className="text-brand-green shrink-0 fill-brand-green" />
+                        <div className="text-sm text-brand-dark">
+                            <span className="font-semibold">{selectedPlan.name}</span>
+                            <span className="text-gray-600"> — {selectedPlan.billingLabel}</span>
+                            <p className="text-xs text-gray-500 mt-0.5">You&apos;ll go to secure checkout right after signup.</p>
+                        </div>
+                    </div>
+                )}
 
-
-                {/* Sign Up Form */}
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {error && (
                         <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
@@ -243,10 +308,13 @@ export default function SignUp() {
                         disabled={loading}
                         className="w-full bg-brand-green hover:opacity-90 text-brand-dark px-6 py-3 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {loading ? 'Creating Account...' : 'Create Account'}
+                        {loading
+                            ? 'Creating Account...'
+                            : selectedPlan
+                              ? `Create account & continue`
+                              : 'Create Account'}
                     </button>
 
-                    {/* Divider */}
                     <div className="relative my-6">
                         <div className="absolute inset-0 flex items-center">
                             <div className="w-full border-t border-gray-300"></div>
@@ -256,7 +324,6 @@ export default function SignUp() {
                         </div>
                     </div>
 
-                    {/* Google Sign Up */}
                     <button
                         type="button"
                         onClick={handleGoogleSignUp}
@@ -273,10 +340,9 @@ export default function SignUp() {
                     </button>
                 </form>
 
-                {/* Sign In Link */}
                 <p className="text-center text-gray-600 mt-6">
                     Already have an account?{' '}
-                    <button onClick={() => navigate('/login')} className="text-brand-green hover:text-green-700 font-semibold">
+                    <button onClick={() => navigate(`/login${planQuery}`)} className="text-brand-green hover:text-green-700 font-semibold">
                         Sign in
                     </button>
                 </p>

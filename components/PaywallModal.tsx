@@ -32,18 +32,18 @@ export default function PaywallModal({ isOpen, onClose, onUpgrade, feature, curr
                     title: "Out of Credits",
                     description: currentPlan === 'lifetime'
                         ? "Purchase a credit pack to continue using AI features."
-                        : "Upgrade to Pro for unlimited AI rewrites or buy a credit pack.",
+                        : "Upgrade to a paid plan for unlimited AI rewrites or buy a credit pack.",
                     icon: <Lock className="text-brand-dark" size={32} />,
                 };
             case 'export':
                 return {
                     title: "Premium Template",
-                    description: "This template requires a Career Sprint or Marathon pass to export.",
+                    description: "This template requires a paid plan to export.",
                     icon: <Star className="text-brand-dark fill-brand-dark" size={32} />,
                 };
             default:
                 return {
-                    title: "Upgrade to Pro",
+                    title: "Upgrade Plan",
                     description: "Unlock all premium features and unlimited AI power.",
                     icon: <Star className="text-brand-dark fill-brand-dark" size={32} />,
                 };

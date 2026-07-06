@@ -80,8 +80,8 @@ L:\CVArchitect/
 2. **subscriptions** - User subscription data
    - `id` (uuid)
    - `user_id` (uuid, FK to auth.users)
-   - `plan_id` (text: 'free', 'week_pass', 'pro_monthly')
-   - `credits` (integer, default: 10)
+   - `plan_id` (text: 'free', 'sprint', 'build', 'blueprint'; legacy: 'week_pass', 'pro_monthly')
+   - `credits` (integer; Foundation starts at 1, paid plans use 999999)
    - `billing_cycle`, `subscription_start`, `subscription_end`
    - `is_active` (boolean)
 
@@ -132,32 +132,30 @@ L:\CVArchitect/
 
 ### **Plans**
 
-1. **Free Tier** (`free`)
-   - 10 starting credits (no reset)
-   - 1 resume upload, 10 AI rewrites, 1 job match
-   - Access to 3 free templates: 'free', 'simplepro', 'minimalist'
-   - PDF export with watermark
-   - 1 page max
+1. **Foundation** (`free`)
+   - 1 starting credit (one AI-tailored resume)
+   - Base template, full download
+   - PDF may include watermark; premium templates locked
 
-2. **Career Sprint** (`week_pass`) - $9 one-time
-   - 7 days unlimited access
+2. **Sprint** (`sprint`) - $2.99/week
    - Unlimited AI features
-   - All 17 templates
-   - Watermark-free PDF export
-   - 10 pages max
-   - **POPULAR**
+   - All templates, watermark-free export
+   - Renews weekly
 
-3. **Career Marathon** (`pro_monthly`) - $19/month
-   - Monthly unlimited access
-   - Unlimited AI features
-   - All 17 templates
-   - Watermark-free PDF export
-   - 10 pages max
+3. **Build** (`build`) - $9.99/month — **highlighted default**
+   - Same unlimited access as Sprint
+   - Monthly renewal
+
+4. **Blueprint Pass** (`blueprint`) - $29/quarter
+   - Same unlimited access
+   - Renews every 3 months
+
+**Legacy IDs:** `week_pass` (Sprint), `pro_monthly` (Build) — still honored for existing subscribers.
 
 ### **Credit System**
-- Free users: 10 credits (no monthly reset)
-- Pro users: Unlimited (9999 credits, resets monthly)
-- Credit costs:
+- Foundation users: 1 credit (no monthly reset)
+- Paid users: Unlimited (999999 credits)
+- Credit costs (Foundation only):
   - Full rewrite: 1 credit
   - CV regeneration: 1 credit
   - Resume upload: 1 credit
@@ -279,7 +277,7 @@ All templates in `components/templates/`:
 1. **Sign Up**
    - Email/password or Google OAuth
    - Trigger: `handle_new_user()` function
-   - Auto-creates profile + free subscription (10 credits)
+   - Auto-creates profile + Foundation subscription (1 credit)
 
 2. **Sign In**
    - Email/password or Google OAuth
@@ -371,7 +369,7 @@ interface ResumeData {
 ```typescript
 interface UserSubscription {
   userId: string;
-  planId: PlanId; // 'free' | 'week_pass' | 'pro_monthly'
+  planId: PlanId; // 'free' | 'sprint' | 'build' | 'blueprint'
   credits: number;
   billingCycle?: BillingCycle;
   subscriptionStart?: Date;
@@ -560,7 +558,7 @@ npm run preview  # Preview production build
 2. **Set Up Environment**
    - Copy `.env.example` to `.env`
    - Add Supabase credentials
-   - Add Whop API keys (for payments)
+   - Add Dodo Payments secrets to Supabase (see `DODO_PAYMENTS_SETUP.md`)
 
 3. **Run Development Server**
    ```bash
