@@ -8,6 +8,7 @@ import {
 } from './_shared/dodoConfig.ts';
 import { normalizePlanId } from './_shared/subscriptionActivation.ts';
 import { resolveReturnOrigin } from './_shared/resolveReturnOrigin.ts';
+import { formatDodoCheckoutError } from './_shared/dodoCheckoutErrors.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -92,7 +93,10 @@ serve(async (req) => {
   const returnUrl = `${origin}/dashboard?payment=success&plan=${planId}`;
 
   try {
-    const response = await fetch(`${getDodoApiBaseUrl(config.environment)}/checkouts`, {
+    const apiBase = getDodoApiBaseUrl(config.environment);
+    console.log('Creating Dodo checkout', { environment: config.environment, apiBase, planId });
+
+    const response = await fetch(`${apiBase}/checkouts`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -116,9 +120,14 @@ serve(async (req) => {
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      console.error('Dodo checkout session error:', data);
+      console.error('Dodo checkout session error:', { status: response.status, data, planId, environment: config.environment });
+      const userMessage = formatDodoCheckoutError(data, config.environment);
       return new Response(
-        JSON.stringify({ error: 'Failed to create checkout session.', details: data }),
+        JSON.stringify({
+          error: userMessage,
+          details: data,
+          environment: config.environment,
+        }),
         {
           status: response.status,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -137,7 +146,11 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ checkoutUrl: data.checkout_url, sessionId: data.session_id }),
+      JSON.stringify({
+        checkoutUrl: data.checkout_url,
+        sessionId: data.session_id,
+        environment: config.environment,
+      }),
       {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

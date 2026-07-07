@@ -126,6 +126,7 @@ export default function Dashboard() {
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const pendingCheckoutStarted = React.useRef(false);
     const checkoutErrorShown = React.useRef(false);
+    const paymentReturnHandledRef = React.useRef(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [showPaywall, setShowPaywall] = useState(false);
     const [showPricingModal, setShowPricingModal] = useState(false);
@@ -349,99 +350,99 @@ export default function Dashboard() {
         const params = new URLSearchParams(window.location.search);
         const paymentStatus = params.get('payment');
         const planParam = params.get('plan');
+        const dodoStatus = params.get('status');
+        const subscriptionId = params.get('subscription_id');
 
-        // Track polling state for cleanup
+        if (paymentStatus !== 'success' && paymentStatus !== 'cancelled') return;
+        if (paymentReturnHandledRef.current) return;
+
+        const returnKey = `${user.id}:${subscriptionId || planParam || paymentStatus}`;
+        const handledKey = 'cvarchitect_payment_return_handled';
+        if (sessionStorage.getItem(handledKey) === returnKey) {
+            paymentReturnHandledRef.current = true;
+            window.history.replaceState({}, '', planParam ? `/dashboard?plan=${planParam}` : '/dashboard');
+            return;
+        }
+
+        paymentReturnHandledRef.current = true;
+        sessionStorage.setItem(handledKey, returnKey);
+
+        // Strip Dodo return params immediately so this effect cannot retrigger.
+        window.history.replaceState({}, '', planParam ? `/dashboard?plan=${planParam}` : '/dashboard');
+
         let isPolling = false;
 
         if (paymentStatus === 'success') {
             console.log('Payment success detected, starting subscription check for user:', user.id);
-            showToast('🎉 Payment successful! Activating your subscription...', 'success');
+            showToast('🎉 Payment successful! Activating your subscription...', 'success', 4000);
 
-            // Poll for subscription update (webhook might take a few seconds)
             let attempts = 0;
-            const maxAttempts = 15; // Increased to 15 attempts (30 seconds total)
-            const pollInterval = 2000; // 2 seconds
+            const maxAttempts = dodoStatus === 'active' ? 20 : 15;
+            const pollInterval = 2000;
             isPolling = true;
 
+            const finishSuccess = (sub: UserSubscription) => {
+                setUserSubscription(sub);
+                showToast('✅ Subscription activated! You now have unlimited access.', 'success', 5000);
+            };
+
             const checkSubscription = async () => {
-                if (!isPolling) return false; // Component unmounted, stop polling
+                if (!isPolling) return false;
 
                 attempts++;
                 console.log(`Checking subscription (attempt ${attempts}/${maxAttempts})...`);
 
                 try {
                     const sub = await subscriptionService.getSubscription(user.id);
-                    if (!isPolling) return false; // Component unmounted during fetch
-
-                    console.log('Current subscription:', sub);
+                    if (!isPolling) return false;
 
                     if (sub && isPaidPlan(sub.planId)) {
-                        // Subscription activated!
-                        console.log('Subscription activated! Plan:', sub.planId);
-                        setUserSubscription(sub);
-                        showToast('✅ Subscription activated! You now have unlimited access.', 'success');
-
-                        // Clean URL
-                        window.history.replaceState({}, '', '/dashboard');
+                        finishSuccess(sub);
                         return true;
-                    } else {
-                        console.log(`Subscription not yet activated. Current plan: ${sub?.planId || 'none'}, Attempt: ${attempts}/${maxAttempts}`);
-
-                        if (attempts < maxAttempts && isPolling) {
-                            // Keep polling
-                            setTimeout(checkSubscription, pollInterval);
-                            return false;
-                        } else {
-                            if (!isPolling) return false; // Component unmounted
-
-                            // Timeout - show message with manual refresh option
-                            console.warn('Subscription activation timeout after', maxAttempts, 'attempts');
-
-                            // Try one more time after a short delay
-                            setTimeout(async () => {
-                                if (!isPolling) return; // Component unmounted
-
-                                try {
-                                    console.log('Final subscription check after timeout...');
-                                    const refreshedSub = await subscriptionService.getSubscription(user.id);
-                                    if (!isPolling) return; // Component unmounted during fetch
-
-                                    console.log('Final subscription result:', refreshedSub);
-
-                                    if (refreshedSub && isPaidPlan(refreshedSub.planId)) {
-                                        setUserSubscription(refreshedSub);
-                                        showToast('✅ Subscription activated! You now have unlimited access.', 'success');
-                                        window.history.replaceState({}, '', '/dashboard');
-                                    } else {
-                                        // Still not activated - show message to user
-                                        showToast(
-                                            'Payment received! If your subscription doesn\'t appear, please refresh the page or contact support.',
-                                            'info',
-                                            10000
-                                        );
-                                        window.history.replaceState({}, '', '/dashboard');
-
-                                        // Log for debugging
-                                        console.error('Subscription still not activated after timeout. Current subscription:', refreshedSub);
-                                        console.error('Expected a paid plan (sprint, build, or blueprint)');
-                                        console.error('User ID:', user.id);
-                                    }
-                                } catch (err) {
-                                    console.error('Error in final subscription check:', err);
-                                    showToast('Payment received! Please refresh the page to see your updated subscription.', 'info');
-                                    window.history.replaceState({}, '', '/dashboard');
-                                }
-                            }, 3000);
-
-                            return false;
-                        }
                     }
-                } catch (err) {
-                    if (!isPolling) return false; // Component unmounted, stop polling
 
-                    // Ignore AbortError - it's not a real error
-                    if (err?.name === 'AbortError' || err?.message?.includes('aborted')) {
-                        console.log('Subscription check was aborted');
+                    if (attempts < maxAttempts && isPolling) {
+                        setTimeout(checkSubscription, pollInterval);
+                        return false;
+                    }
+
+                    if (!isPolling) return false;
+
+                    console.warn('Subscription activation timeout after', maxAttempts, 'attempts');
+
+                    setTimeout(async () => {
+                        if (!isPolling) return;
+
+                        try {
+                            const refreshedSub = await subscriptionService.getSubscription(user.id);
+                            if (!isPolling) return;
+
+                            if (refreshedSub && isPaidPlan(refreshedSub.planId)) {
+                                finishSuccess(refreshedSub);
+                            } else if (dodoStatus === 'active') {
+                                showToast(
+                                    'Payment confirmed! Your plan may take a moment to appear — refresh if needed.',
+                                    'info',
+                                    8000
+                                );
+                            } else {
+                                showToast(
+                                    'Payment received! If your subscription doesn\'t appear, please refresh the page or contact support.',
+                                    'info',
+                                    8000
+                                );
+                            }
+                        } catch (err) {
+                            console.error('Error in final subscription check:', err);
+                            showToast('Payment received! Please refresh the page to see your updated subscription.', 'info', 8000);
+                        }
+                    }, 3000);
+
+                    return false;
+                } catch (err) {
+                    if (!isPolling) return false;
+
+                    if (err?.name === 'AbortError' || (err as Error)?.message?.includes('aborted')) {
                         return false;
                     }
 
@@ -449,25 +450,21 @@ export default function Dashboard() {
                     if (attempts < maxAttempts && isPolling) {
                         setTimeout(checkSubscription, pollInterval);
                     } else if (isPolling) {
-                        showToast('Payment received! Please refresh the page to see your updated subscription.', 'info');
-                        window.history.replaceState({}, '', '/dashboard');
+                        showToast('Payment received! Please refresh the page to see your updated subscription.', 'info', 8000);
                     }
                     return false;
                 }
             };
 
-            // Start polling immediately, then every 2 seconds
             checkSubscription();
         } else if (paymentStatus === 'cancelled') {
-            showToast('Payment cancelled. You can upgrade anytime from settings.', 'info');
-            window.history.replaceState({}, '', '/dashboard');
+            showToast('Payment cancelled. You can upgrade anytime from settings.', 'info', 5000);
         }
 
-        // Cleanup function to stop polling if component unmounts
         return () => {
             isPolling = false;
         };
-    }, [user, showToast]);
+    }, [user]);
 
     // After signup/OAuth: resume checkout for the plan selected on pricing/landing
     useEffect(() => {

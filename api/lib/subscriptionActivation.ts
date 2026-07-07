@@ -161,23 +161,34 @@ export async function downgradeSubscription(
   return { success: true };
 }
 
+export function extractWebhookPayload(event: Record<string, unknown>): Record<string, unknown> {
+  const data = (event.data ?? {}) as Record<string, unknown>;
+  const nested = data.object as Record<string, unknown> | undefined;
+  if (nested && typeof nested === 'object' && !Array.isArray(nested)) {
+    return { ...data, ...nested };
+  }
+  return data;
+}
+
 export function extractMetadata(event: Record<string, unknown>): {
   userId?: string;
   planId?: AppPlanId;
   email?: string;
   productId?: string;
 } {
-  const data = (event.data ?? {}) as Record<string, unknown>;
+  const data = extractWebhookPayload(event);
   const metadata = (data.metadata ?? data.custom_metadata ?? {}) as Record<string, string>;
 
   const customer = (data.customer ?? {}) as Record<string, string>;
   const productCart = data.product_cart as Array<{ product_id?: string }> | undefined;
   const products = data.products as Array<{ product_id?: string }> | undefined;
+  const lineItems = data.line_items as Array<{ product_id?: string }> | undefined;
 
   const productId =
     (data.product_id as string | undefined) ||
     productCart?.[0]?.product_id ||
-    products?.[0]?.product_id;
+    products?.[0]?.product_id ||
+    lineItems?.[0]?.product_id;
 
   const planIdRaw = metadata.plan_id || metadata.planId;
   const normalizedPlan = planIdRaw ? normalizePlanId(planIdRaw) : null;

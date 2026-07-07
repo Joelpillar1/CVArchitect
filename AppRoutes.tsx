@@ -1,7 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
-import { syncPendingPlanFromSearch } from './utils/pendingCheckout';
+import { applyPendingPlanFromSearch } from './utils/pendingCheckout';
 
 // Page Components
 import LandingPage from './components/LandingPage';
@@ -72,7 +72,7 @@ function PublicRoute({ children }: PublicRouteProps) {
     }
 
     if (user) {
-        const plan = syncPendingPlanFromSearch(location.search);
+        const plan = applyPendingPlanFromSearch(location.search);
         return <Navigate to={plan ? `/dashboard?plan=${plan}` : '/dashboard'} replace />;
     }
 

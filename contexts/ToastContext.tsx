@@ -2,17 +2,19 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 import Toast, { ToastType } from '../components/Toast';
 
 interface ToastContextType {
-    showToast: (message: string, type?: ToastType) => void;
+    showToast: (message: string, type?: ToastType, duration?: number) => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
-    const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
+    const [toast, setToast] = useState<{ message: string; type: ToastType; duration: number } | null>(null);
 
-    const showToast = (message: string, type: ToastType = 'success') => {
-        setToast({ message, type });
-    };
+    const showToast = React.useCallback((message: string, type: ToastType = 'success', duration = 3000) => {
+        setToast({ message, type, duration });
+    }, []);
+
+    const clearToast = React.useCallback(() => setToast(null), []);
 
     return (
         <ToastContext.Provider value={{ showToast }}>
@@ -21,7 +23,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 <Toast
                     message={toast.message}
                     type={toast.type}
-                    onClose={() => setToast(null)}
+                    duration={toast.duration}
+                    onClose={clearToast}
                 />
             )}
         </ToastContext.Provider>

@@ -1,4 +1,4 @@
-import { Session } from '@supabase/supabase-js';
+import { FunctionsHttpError, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { PlanId } from '../types/pricing';
 import { getAppOrigin } from '../utils/appUrl';
@@ -7,12 +7,27 @@ interface CheckoutSessionResponse {
   checkoutUrl?: string;
   sessionId?: string;
   error?: string;
+  details?: unknown;
+  environment?: string;
 }
 
 function getSupabaseAnonKey(): string {
   const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
   const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
   return anonKey || publishableKey || '';
+}
+
+function getCheckoutErrorMessage(data: CheckoutSessionResponse, fallback: string): string {
+  if (data.error) return data.error;
+  return fallback;
+}
+
+async function readFunctionsError(error: FunctionsHttpError): Promise<CheckoutSessionResponse> {
+  try {
+    return (await error.context.json()) as CheckoutSessionResponse;
+  } catch {
+    return {};
+  }
 }
 
 /** Wait for Supabase session after OAuth or signup (token may lag behind user state). */
@@ -40,6 +55,13 @@ async function invokeEdgeCheckout(planId: PlanId, returnOrigin: string): Promise
 
   if (!error && data?.checkoutUrl) {
     return data.checkoutUrl;
+  }
+
+  if (error instanceof FunctionsHttpError) {
+    const body = await readFunctionsError(error);
+    const message = getCheckoutErrorMessage(body, error.message);
+    console.warn('Edge checkout invoke failed:', message, body);
+    throw new Error(message);
   }
 
   if (error) {
@@ -70,8 +92,15 @@ async function fetchVercelCheckout(
       return data.checkoutUrl;
     }
 
-    console.warn('Vercel checkout fallback failed:', data.error || response.status);
+    const message = getCheckoutErrorMessage(data, `Checkout failed (${response.status})`);
+    console.warn('Vercel checkout fallback failed:', message, data);
+    if (!response.ok) {
+      throw new Error(message);
+    }
   } catch (err) {
+    if (err instanceof Error) {
+      throw err;
+    }
     console.warn('Vercel checkout fallback error:', err);
   }
 
@@ -105,13 +134,16 @@ async function fetchDirectEdgeCheckout(
       return data.checkoutUrl;
     }
 
-    const detail = data.error || `HTTP ${response.status}`;
-    console.warn('Direct edge checkout failed:', detail);
+    const message = getCheckoutErrorMessage(
+      data,
+      `Checkout failed (${response.status}). Is create-checkout-session deployed?`
+    );
+    console.warn('Direct edge checkout failed:', message, data);
     if (!response.ok) {
-      throw new Error(data.error || `Checkout failed (${response.status}). Is create-checkout-session deployed?`);
+      throw new Error(message);
     }
   } catch (err) {
-    if (err instanceof Error && err.message.includes('Checkout failed')) {
+    if (err instanceof Error && err.message.includes('Checkout')) {
       throw err;
     }
     console.warn('Direct edge checkout error:', err);
@@ -127,8 +159,15 @@ export async function createCheckoutSession(planId: PlanId): Promise<string> {
   const session = await waitForAuthSession();
   const returnOrigin = getAppOrigin();
 
+  try {
+    const checkoutUrl = await invokeEdgeCheckout(planId, returnOrigin);
+    if (checkoutUrl) return checkoutUrl;
+  } catch (err) {
+    // Surface explicit Dodo/config errors from the primary edge path.
+    throw err;
+  }
+
   const checkoutUrl =
-    (await invokeEdgeCheckout(planId, returnOrigin)) ||
     (await fetchDirectEdgeCheckout(planId, session, returnOrigin)) ||
     (await fetchVercelCheckout(planId, session, returnOrigin));
 

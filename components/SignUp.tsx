@@ -7,10 +7,10 @@ import SEO from './SEO';
 import { PlanId } from '../types/pricing';
 import { PLANS } from '../utils/pricingConfig';
 import {
+    applyPendingPlanFromSearch,
     getPendingPlanLabel,
     redirectToPendingCheckoutIfAny,
     setPendingCheckoutPlan,
-    syncPendingPlanFromSearch,
 } from '../utils/pendingCheckout';
 
 export default function SignUp() {
@@ -30,7 +30,7 @@ export default function SignUp() {
     const { signUp, signIn, signInWithGoogle } = useAuth();
 
     useEffect(() => {
-        setPendingPlan(syncPendingPlanFromSearch(window.location.search));
+        setPendingPlan(applyPendingPlanFromSearch(window.location.search));
     }, [searchParams]);
 
     const selectedPlan = pendingPlan ? PLANS[pendingPlan] : null;

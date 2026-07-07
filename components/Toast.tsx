@@ -6,17 +6,18 @@ export type ToastType = 'success' | 'error' | 'info';
 interface ToastProps {
   message: string;
   type?: ToastType;
+  duration?: number;
   onClose: () => void;
 }
 
-export default function Toast({ message, type = 'success', onClose }: ToastProps) {
+export default function Toast({ message, type = 'success', duration = 3000, onClose }: ToastProps) {
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose();
-    }, 3000);
+    }, duration);
 
     return () => clearTimeout(timer);
-  }, [onClose]);
+  }, [duration, onClose]);
 
   const getIcon = () => {
     switch (type) {

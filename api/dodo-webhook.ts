@@ -109,7 +109,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (
     eventType === 'payment.succeeded' ||
     eventType === 'subscription.active' ||
-    eventType === 'subscription.renewed'
+    eventType === 'subscription.renewed' ||
+    eventType === 'subscription.updated' ||
+    eventType === 'checkout.session.completed'
   ) {
     const { userId, planId } = await resolveUserAndPlan(event);
 

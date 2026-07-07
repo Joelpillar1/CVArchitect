@@ -3,6 +3,16 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { getPendingCheckoutPlan, syncPendingPlanFromSearch } from '../utils/pendingCheckout';
 
+async function waitForOAuthSession(timeoutMs = 8000): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.access_token) return;
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+}
+
 /**
  * After Google OAuth, Supabase may land on Site URL (/) with #access_token in the hash.
  * Parse the session, strip tokens from the URL, and route to dashboard with any pending plan.
@@ -18,7 +28,7 @@ export default function OAuthRedirectHandler() {
         let cancelled = false;
 
         (async () => {
-            await supabase.auth.getSession();
+            await waitForOAuthSession();
             if (cancelled) return;
 
             syncPendingPlanFromSearch(location.search);
@@ -32,7 +42,7 @@ export default function OAuthRedirectHandler() {
 
             window.history.replaceState(null, '', targetPath);
 
-            if (!onDashboard) {
+            if (!onDashboard || location.search !== (planQuery || '')) {
                 navigate(targetPath, { replace: true });
             }
         })();

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, CreditCard, Bell, Shield, Zap, Crown, TrendingUp, Calendar, Download, Trash2, Check, X, Eye, EyeOff } from 'lucide-react';
+import { User, CreditCard, Bell, Shield, Zap, Crown, TrendingUp, Calendar, Download, Trash2, Check, X, Eye, EyeOff, AlertTriangle } from 'lucide-react';
 import { UserSubscription, PlanId } from '../types/pricing';
 import { PLANS, CREDIT_PACKS, isPaidPlan } from '../utils/pricingConfig';
 import { profileService } from '../services/profileService';
@@ -90,6 +90,8 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState(false);
+  const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+  const [deleteAccountError, setDeleteAccountError] = useState('');
 
 
   // Update form when userProfile changes (but preserve user edits from localStorage)
@@ -270,22 +272,19 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
   const handleDeleteAccount = async () => {
     if (!user) return;
 
-    // Clear any previous errors
     setSaveError('');
     setSaveSuccess(false);
+    setDeleteAccountError('');
     setIsSaving(true);
 
     try {
-      // Delete user data and sign out
       await profileService.deleteUser(user.id);
-
-      // The profileService.deleteUser already calls signOut internally
-      // But we'll navigate to home page to ensure clean state
       window.location.href = '/';
-
     } catch (error: any) {
       console.error('Delete account error:', error);
-      setSaveError('Failed to delete account. Please try again or contact support.');
+      const message = 'Failed to delete account. Please try again or contact support.';
+      setDeleteAccountError(message);
+      setSaveError(message);
       setIsSaving(false);
     }
   };
@@ -426,9 +425,8 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
                 <div className="pt-4 border-t">
                   <button
                     onClick={() => {
-                      if (window.confirm('Are you absolutely sure? This action cannot be undone and will permanently delete your account and all data.')) {
-                        handleDeleteAccount();
-                      }
+                      setDeleteAccountError('');
+                      setShowDeleteAccountModal(true);
                     }}
                     disabled={isSaving}
                     className="text-red-600 hover:text-red-700 font-semibold text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -815,9 +813,8 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
                 </button>
                 <button
                   onClick={() => {
-                    if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-                      handleDeleteAccount();
-                    }
+                    setDeleteAccountError('');
+                    setShowDeleteAccountModal(true);
                   }}
                   disabled={isSaving}
                   className="w-full md:w-auto flex items-center gap-2 border border-red-300 text-red-600 px-6 py-3 rounded-xl font-semibold text-sm hover:bg-red-50 transition-colors disabled:opacity-50"
@@ -874,6 +871,77 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
           </div>
         )}
       </div>
+
+      {showDeleteAccountModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-brand-dark/50 backdrop-blur-sm"
+            onClick={() => {
+              if (!isSaving) setShowDeleteAccountModal(false);
+            }}
+          />
+          <div className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full animate-fadeIn">
+            <button
+              onClick={() => {
+                if (!isSaving) setShowDeleteAccountModal(false);
+              }}
+              disabled={isSaving}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
+              aria-label="Close"
+            >
+              <X size={24} />
+            </button>
+
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-brand-dark">Delete your account?</h3>
+                <p className="text-sm text-gray-500 mt-2 leading-relaxed">
+                  This will permanently delete your account, resumes, templates, and subscription data.
+                  This action cannot be undone.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-8">
+              {deleteAccountError && (
+                <p className="text-sm text-red-600 sm:mr-auto sm:self-center">{deleteAccountError}</p>
+              )}
+              <button
+                onClick={() => {
+                  if (!isSaving) {
+                    setDeleteAccountError('');
+                    setShowDeleteAccountModal(false);
+                  }
+                }}
+                disabled={isSaving}
+                className="px-5 py-2.5 rounded-xl font-semibold text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={isSaving}
+                className="px-5 py-2.5 rounded-xl font-semibold text-sm text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isSaving ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 size={16} />
+                    Yes, delete my account
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

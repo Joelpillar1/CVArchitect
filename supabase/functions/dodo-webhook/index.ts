@@ -111,12 +111,14 @@ serve(async (req) => {
   if (
     eventType === 'payment.succeeded' ||
     eventType === 'subscription.active' ||
-    eventType === 'subscription.renewed'
+    eventType === 'subscription.renewed' ||
+    eventType === 'subscription.updated' ||
+    eventType === 'checkout.session.completed'
   ) {
     const { userId, planId } = await resolveUserAndPlan(event, config);
 
     if (!userId) {
-      console.error('Missing userId in Dodo event:', JSON.stringify(event));
+      console.error('Missing userId in Dodo event:', eventType, JSON.stringify(event));
       return new Response(JSON.stringify({ error: 'Could not resolve user for payment event' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -133,6 +135,7 @@ serve(async (req) => {
 
     const result = await activateSubscription(supabaseAdmin, userId, planId);
     if (!result.success) {
+      console.error('Subscription activation failed:', result.error, { userId, planId, eventType });
       return new Response(JSON.stringify({ error: result.error || 'Failed to activate subscription' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

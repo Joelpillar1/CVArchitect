@@ -8,6 +8,7 @@ import {
   isDodoCheckoutConfigured,
 } from './lib/dodoConfig';
 import { resolveReturnOrigin } from './lib/resolveReturnOrigin';
+import { formatDodoCheckoutError } from './lib/dodoCheckoutErrors';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -61,7 +62,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const returnUrl = `${origin}/dashboard?payment=success&plan=${planId}`;
 
   try {
-    const response = await fetch(`${getDodoApiBaseUrl(config.environment)}/checkouts`, {
+    const apiBase = getDodoApiBaseUrl(config.environment);
+    console.log('Creating Dodo checkout', { environment: config.environment, apiBase, planId });
+
+    const response = await fetch(`${apiBase}/checkouts`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -78,10 +82,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      console.error('Dodo checkout session error:', data);
+      console.error('Dodo checkout session error:', { status: response.status, data, planId, environment: config.environment });
       return res.status(response.status).json({
-        error: 'Failed to create checkout session.',
+        error: formatDodoCheckoutError(data, config.environment),
         details: data,
+        environment: config.environment,
       });
     }
 
@@ -89,7 +94,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(500).json({ error: 'Checkout URL was not returned by payment provider.' });
     }
 
-    return res.status(200).json({ checkoutUrl: data.checkout_url, sessionId: data.session_id });
+    return res.status(200).json({
+      checkoutUrl: data.checkout_url,
+      sessionId: data.session_id,
+      environment: config.environment,
+    });
   } catch (error) {
     console.error('Checkout session creation failed:', error);
     return res.status(500).json({ error: 'Failed to create checkout session.' });

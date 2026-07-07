@@ -14,21 +14,14 @@ function writePlanToStorage(planId: PlanId): void {
     } catch {
         // ignore
     }
-    try {
-        localStorage.setItem(STORAGE_KEY, planId);
-    } catch {
-        // ignore
-    }
 }
 
 function readPlanFromStorage(): PlanId | null {
-    for (const store of [sessionStorage, localStorage]) {
-        try {
-            const value = store.getItem(STORAGE_KEY);
-            if (isCheckoutPlanId(value)) return value;
-        } catch {
-            // ignore
-        }
+    try {
+        const value = sessionStorage.getItem(STORAGE_KEY);
+        if (isCheckoutPlanId(value)) return value;
+    } catch {
+        // ignore
     }
     return null;
 }
@@ -54,10 +47,29 @@ export function clearPendingCheckoutPlan(): void {
     }
 }
 
+/** Plan from ?plan= only — does not read session storage. */
+export function getPlanFromSearch(search: string): PlanId | null {
+    const fromUrl = new URLSearchParams(search).get('plan');
+    return isCheckoutPlanId(fromUrl) ? fromUrl : null;
+}
+
+/**
+ * Auth pages: persist plan when ?plan= is present; clear stale checkout state otherwise.
+ */
+export function applyPendingPlanFromSearch(search: string): PlanId | null {
+    const fromUrl = getPlanFromSearch(search);
+    if (fromUrl) {
+        setPendingCheckoutPlan(fromUrl);
+        return fromUrl;
+    }
+    clearPendingCheckoutPlan();
+    return null;
+}
+
 /** Read ?plan= from URL, persist if valid, otherwise return stored pending plan. */
 export function syncPendingPlanFromSearch(search: string): PlanId | null {
-    const fromUrl = new URLSearchParams(search).get('plan');
-    if (isCheckoutPlanId(fromUrl)) {
+    const fromUrl = getPlanFromSearch(search);
+    if (fromUrl) {
         setPendingCheckoutPlan(fromUrl);
         return fromUrl;
     }

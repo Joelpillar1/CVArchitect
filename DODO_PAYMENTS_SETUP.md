@@ -58,6 +58,32 @@ supabase secrets set APP_URL=https://cvarchitect.app
 
 See `.env.example` for supported alias names.
 
+### Test mode vs live mode (important)
+
+**Toggling test/live in the Dodo dashboard does not change your app.** Checkout mode is controlled entirely by server secrets:
+
+| Secret | Test checkout | Live checkout |
+|--------|---------------|---------------|
+| `DODO_PAYMENTS_ENVIRONMENT` | `test_mode` | `live_mode` |
+| `DODO_PAYMENTS_API_KEY` | API key from **Test** mode in Dodo | API key from **Live** mode |
+| `DODO_*_PRODUCT_ID` | Product IDs created in **Test** mode | Product IDs created in **Live** mode |
+
+If checkout opens `live.dodopayments.com`, your secrets still point at live — usually `DODO_PAYMENTS_ENVIRONMENT=live_mode` and/or a **live** API key on **Supabase Edge secrets** and/or **Vercel** (fallback route).
+
+**Fix for test checkout:**
+
+1. In Dodo → switch to **Test** mode → copy the **test** API key and **test** product IDs.
+2. Update **Supabase** → Project Settings → Edge Functions → Secrets:
+   - `DODO_PAYMENTS_ENVIRONMENT` = `test_mode`
+   - `DODO_PAYMENTS_API_KEY` = test API key
+   - `DODO_SPRINT_PRODUCT_ID`, `DODO_BUILD_PRODUCT_ID`, `DODO_BLUEPRINT_PRODUCT_ID` = test product IDs
+3. If you use Vercel fallback, set the **same** values in Vercel → Project → Environment Variables.
+4. Redeploy edge functions (or wait ~1 min for secrets to propagate). No app redeploy needed for secret-only changes.
+
+**Verify:** After starting checkout, the URL should be `https://test.dodopayments.com/...`. Edge function logs show `environment: test_mode`.
+
+Accepted values for `DODO_PAYMENTS_ENVIRONMENT`: `test_mode`, `live_mode`, `test`, `live`, `production`, `prod` (case-insensitive).
+
 ---
 
 ## Step 3: Deploy Edge Functions
@@ -115,8 +141,9 @@ Ensure `APP_URL` matches your production domain.
 | Symptom | Likely cause | Fix |
 |---------|--------------|-----|
 | Checkout fails immediately | Edge Function not deployed | Deploy `create-checkout-session` |
-| Payment succeeds, plan stays free | Webhook not reaching server | Verify webhook URL and secret in Dodo |
-| Unknown product ID in logs | Product ID mismatch | Match `DODO_*_PRODUCT_ID` to Dodo dashboard |
+| Payment succeeds, plan stays free | Webhook failed or DB rejected plan ID | Ensure webhook URL is set; `plan_id` must allow `sprint`/`build`/`blueprint` (see migration `allow_dodo_plan_ids`) |
+| Webhook returns 500 in logs | `valid_plan_id` constraint blocked update | Run migration to allow new plan IDs; retry webhook from Dodo dashboard |
+| Checkout opens live.dodopayments.com | Secrets still use live mode / live API key | Set `DODO_PAYMENTS_ENVIRONMENT=test_mode`, test API key, and test product IDs in Supabase + Vercel |
 | 403 on `supabase functions deploy` | CLI account permissions | Use project owner or Dashboard deploy |
 
 **Logs:** Supabase Dashboard → Edge Functions → `dodo-webhook` or `create-checkout-session` → Logs

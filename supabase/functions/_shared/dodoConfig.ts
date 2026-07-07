@@ -1,5 +1,16 @@
 /** Resolve Supabase/Dodo secrets with common alias fallbacks. */
 
+export type DodoEnvironment = 'test_mode' | 'live_mode';
+
+/** Normalize env values; defaults to test_mode (safe for development). */
+export function normalizeDodoEnvironment(raw: string | undefined): DodoEnvironment {
+  const value = (raw || 'test_mode').trim().replace(/^["']|["']$/g, '').toLowerCase();
+  if (['live_mode', 'live', 'production', 'prod'].includes(value)) {
+    return 'live_mode';
+  }
+  return 'test_mode';
+}
+
 function getEnv(...keys: string[]): string {
   for (const key of keys) {
     const value = Deno.env.get(key);
@@ -10,7 +21,7 @@ function getEnv(...keys: string[]): string {
 
 export interface DodoConfig {
   apiKey: string;
-  environment: string;
+  environment: DodoEnvironment;
   webhookKey: string;
   sprintProductId: string;
   buildProductId: string;
@@ -23,7 +34,9 @@ export interface DodoConfig {
 export function getDodoConfig(): DodoConfig {
   return {
     apiKey: getEnv('DODO_PAYMENTS_API_KEY', 'DODO_API_KEY'),
-    environment: getEnv('DODO_PAYMENTS_ENVIRONMENT', 'DODO_ENVIRONMENT') || 'test_mode',
+    environment: normalizeDodoEnvironment(
+      getEnv('DODO_PAYMENTS_ENVIRONMENT', 'DODO_ENVIRONMENT') || 'test_mode'
+    ),
     webhookKey: getEnv(
       'DODO_PAYMENTS_WEBHOOK_KEY',
       'DODO_WEBHOOK_SECRET',
@@ -41,7 +54,7 @@ export function getDodoConfig(): DodoConfig {
   };
 }
 
-export function getDodoApiBaseUrl(environment: string): string {
+export function getDodoApiBaseUrl(environment: DodoEnvironment): string {
   return environment === 'live_mode'
     ? 'https://live.dodopayments.com'
     : 'https://test.dodopayments.com';
