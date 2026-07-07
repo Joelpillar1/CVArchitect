@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { User, CreditCard, Bell, Shield, Zap, Crown, TrendingUp, Calendar, Download, Trash2, Check, X, Eye, EyeOff, AlertTriangle } from 'lucide-react';
 import { UserSubscription, PlanId } from '../types/pricing';
 import { PLANS, CREDIT_PACKS, isPaidPlan } from '../utils/pricingConfig';
@@ -8,10 +8,12 @@ import { subscriptionService } from '../services/subscriptionService';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { saveToStorage, loadFromStorage, debouncedSaveToStorage } from '../utils/statePersistence';
+import PaidPlanPicker from './PaidPlanPicker';
+
+type SettingsTab = 'account' | 'plan' | 'subscription' | 'usage' | 'preferences';
 
 interface SettingsProps {
   userSubscription: UserSubscription;
-  onUpgrade: () => void;
   onCancelSubscription?: () => void;
   userProfile?: { full_name: string | null; avatar_url: string | null };
   userEmail?: string;
@@ -20,18 +22,26 @@ interface SettingsProps {
   onNavigateToTerms?: () => void;
 }
 
-export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, userProfile, userEmail, onProfileUpdate, onNavigateToPrivacy, onNavigateToTerms }: SettingsProps) => {
+export const Settings = ({ userSubscription, onCancelSubscription, userProfile, userEmail, onProfileUpdate, onNavigateToPrivacy, onNavigateToTerms }: SettingsProps) => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   // Restore active tab from localStorage
-  const [activeTab, setActiveTabState] = useState<'account' | 'subscription' | 'usage' | 'preferences'>(() => {
-    return loadFromStorage<'account' | 'subscription' | 'usage' | 'preferences'>('settings_active_tab', 'account');
+  const [activeTab, setActiveTabState] = useState<SettingsTab>(() => {
+    return loadFromStorage<SettingsTab>('settings_active_tab', 'account');
   });
 
-  const setActiveTab = useCallback((tab: 'account' | 'subscription' | 'usage' | 'preferences') => {
+  const setActiveTab = useCallback((tab: SettingsTab) => {
     setActiveTabState(tab);
     saveToStorage('settings_active_tab', tab);
   }, []);
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'account' || tab === 'plan' || tab === 'subscription' || tab === 'usage' || tab === 'preferences') {
+      setActiveTab(tab);
+    }
+  }, [searchParams, setActiveTab]);
 
   // Parse user name from profile or email
   const fullName = userProfile?.full_name || userEmail?.split('@')[0] || 'User';
@@ -293,10 +303,11 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
 
   const tabs = [
     { id: 'account', label: 'Account', icon: User },
+    { id: 'plan', label: 'Plan', icon: Zap },
     { id: 'subscription', label: 'Subscription', icon: CreditCard },
     { id: 'usage', label: 'Usage', icon: TrendingUp },
     { id: 'preferences', label: 'Preferences', icon: Bell },
-  ];
+  ] as const;
 
   return (
     <div className="h-full bg-brand-bg overflow-y-auto">
@@ -309,7 +320,7 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-3 font-semibold text-sm transition-all whitespace-nowrap ${activeTab === tab.id
                 ? 'text-brand-dark border-b-2 border-brand-green'
                 : 'text-gray-500 hover:text-brand-dark'
@@ -664,7 +675,7 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
 
                   {isFree && (
                     <button
-                      onClick={onUpgrade}
+                      onClick={() => setActiveTab('plan')}
                       className="bg-gradient-to-r from-brand-green to-emerald-500 hover:from-emerald-400 hover:to-emerald-600 text-brand-dark px-6 py-3 rounded-xl font-bold text-sm transition-all shadow-lg"
                     >
                       Upgrade Plan
@@ -674,7 +685,7 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
                   {isPaid && (
                     <>
                       <button
-                        onClick={onUpgrade}
+                        onClick={() => setActiveTab('plan')}
                         className="border border-brand-green text-brand-dark px-6 py-3 rounded-xl font-semibold text-sm hover:bg-brand-green/10 transition-colors"
                       >
                         Change Plan
@@ -692,6 +703,23 @@ export const Settings = ({ userSubscription, onUpgrade, onCancelSubscription, us
             </div>
 
             {/* Credit Packs removed */}
+          </div>
+        )}
+
+        {/* Plan Tab */}
+        {activeTab === 'plan' && (
+          <div className="space-y-6">
+            <div className="bg-white shadow-soft rounded-2xl border border-brand-border overflow-hidden">
+              <div className="p-8 border-b border-brand-border">
+                <h3 className="text-xl font-bold text-brand-dark">Pick your job hunt timeline</h3>
+                <p className="text-sm text-gray-500 mt-1 font-medium">
+                  Unlimited AI tailoring, all templates, and unlimited downloads on every paid plan.
+                </p>
+              </div>
+              <div className="p-8">
+                <PaidPlanPicker currentPlanId={userSubscription.planId} />
+              </div>
+            </div>
           </div>
         )}
 

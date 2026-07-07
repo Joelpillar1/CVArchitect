@@ -20,7 +20,6 @@ import ResetPassword from './components/ResetPassword';
 import Onboarding from './components/Onboarding';
 import TemplateOnboardingModal from './components/TemplateOnboardingModal';
 import PaywallModal from './components/PaywallModal';
-import PricingModal from './components/PricingModal';
 import PricingPage from './components/PricingPage';
 import { UserSubscription, PlanId } from './types/pricing';
 import { SubscriptionManager, createDefaultSubscription, upgradePlan } from './utils/subscriptionManager';
@@ -28,6 +27,7 @@ import { subscriptionService } from './services/subscriptionService';
 import { canAccessTemplate, PLANS, getPlanDisplayName } from './utils/pricingConfig';
 import { auditResume } from './components/utils/aiEnhancer';
 import { useAuth } from './contexts/AuthContext';
+import { saveToStorage } from './utils/statePersistence';
 import { useToast } from './contexts/ToastContext';
 import { resumeService } from './services/resumeService';
 import { profileService, UserProfile } from './services/profileService';
@@ -167,7 +167,6 @@ export default function App() {
     createDefaultSubscription('user_' + Date.now())
   );
   const [showPaywall, setShowPaywall] = useState(false);
-  const [showPricingModal, setShowPricingModal] = useState(false);
   const [paywallFeature, setPaywallFeature] = useState<'templates' | 'job-match' | 'general' | 'credits' | 'export'>('general');
 
   // Load user subscription
@@ -495,81 +494,10 @@ export default function App() {
     return true;
   };
 
-  const handleSelectPlan = async (planId: PlanId, billingCycle?: 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'lifetime') => {
-    if (!user) {
-      showToast('Please sign in to upgrade your plan', 'error');
-      return;
-    }
-
-    try {
-      // Get the selected plan details
-      const selectedPlan = PLANS[planId];
-      if (!selectedPlan) {
-        showToast('Invalid plan selected', 'error');
-        return;
-      }
-
-      // Calculate credits based on plan
-      let credits = selectedPlan.creditRules.startingCredits;
-      if (billingCycle === 'yearly' && selectedPlan.creditRules.lifetimeCredits) {
-        credits = selectedPlan.creditRules.lifetimeCredits;
-      } else if (selectedPlan.creditRules.monthlyCredits) {
-        credits = selectedPlan.creditRules.monthlyCredits;
-      }
-
-      // Calculate subscription dates
-      const subscriptionStart = new Date();
-      let subscriptionEnd: Date | undefined;
-
-      subscriptionEnd = new Date();
-      if (billingCycle === 'yearly') {
-        subscriptionEnd.setFullYear(subscriptionEnd.getFullYear() + 1);
-      } else if (billingCycle === 'monthly') {
-        subscriptionEnd.setMonth(subscriptionEnd.getMonth() + 1);
-      } else {
-        // Week pass
-        subscriptionEnd.setDate(subscriptionEnd.getDate() + 7);
-      }
-
-      // Update Supabase database
-      const { subscriptionService } = await import('./services/subscriptionService');
-      await subscriptionService.updateSubscription(user.id, {
-        plan_id: planId,
-        credits: credits,
-        billing_cycle: billingCycle,
-        subscription_start: subscriptionStart.toISOString(),
-        subscription_end: subscriptionEnd?.toISOString(),
-        is_active: true,
-      } as any);
-
-      // Update local state
-      setUserSubscription({
-        userId: user.id,
-        planId: planId,
-        credits: credits,
-        billingCycle: billingCycle,
-        subscriptionStart: subscriptionStart,
-        subscriptionEnd: subscriptionEnd,
-        isActive: true,
-        usageHistory: userSubscription.usageHistory || [],
-      });
-
-      // Close modals
-      setShowPricingModal(false);
-      setShowPaywall(false);
-
-      // Show success message
-      showToast(`Successfully upgraded to ${selectedPlan.name}!`, 'success');
-
-    } catch (error) {
-      console.error('Failed to upgrade plan:', error);
-      showToast('Failed to upgrade plan. Please try again.', 'error');
-    }
-  };
-
   const handleUpgrade = () => {
     setShowPaywall(false);
-    setShowPricingModal(true);
+    saveToStorage('settings_active_tab', 'plan');
+    setCurrentView(View.SETTINGS);
   };
 
 
@@ -966,9 +894,6 @@ export default function App() {
             userProfile={userProfile}
             userEmail={user?.email}
             onProfileUpdate={handleRefreshProfile}
-            onUpgrade={() => {
-              setShowPricingModal(true);
-            }}
             onCancelSubscription={() => {
               // Handle subscription cancellation
               if (confirm('Are you sure you want to cancel your subscription?')) {
@@ -1096,12 +1021,6 @@ export default function App() {
           onUpgrade={handleUpgrade}
           feature={paywallFeature}
           currentPlan={userSubscription.planId}
-        />
-        <PricingModal
-          isOpen={showPricingModal}
-          onClose={() => setShowPricingModal(false)}
-          onSelectPlan={handleSelectPlan}
-          currentPlanId={userSubscription.planId}
         />
       </AppWrapper>
     );
@@ -1300,12 +1219,6 @@ export default function App() {
         onUpgrade={handleUpgrade}
         feature={paywallFeature}
         currentPlan={userSubscription.planId}
-      />
-      <PricingModal
-        isOpen={showPricingModal}
-        onClose={() => setShowPricingModal(false)}
-        onSelectPlan={handleSelectPlan}
-        currentPlanId={userSubscription.planId}
       />
       <CoverLetterModal
         isOpen={showCoverLetterModal}

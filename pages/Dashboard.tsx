@@ -10,7 +10,6 @@ import MyTemplates from '../components/MyTemplates';
 import MyCoverLetters from '../components/MyCoverLetters';
 import TemplateOnboardingModal from '../components/TemplateOnboardingModal';
 import PaywallModal from '../components/PaywallModal';
-import PricingModal from '../components/PricingModal';
 import CoverLetterPage from './CoverLetterPage';
 import InterviewPrep from './interview';
 import { useAuth } from '../contexts/AuthContext';
@@ -129,7 +128,6 @@ export default function Dashboard() {
     const paymentReturnHandledRef = React.useRef(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [showPaywall, setShowPaywall] = useState(false);
-    const [showPricingModal, setShowPricingModal] = useState(false);
     const [showOnboardingModal, setShowOnboardingModal] = useState(false);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
@@ -1110,7 +1108,6 @@ export default function Dashboard() {
                         element={
                             <Settings
                                 userSubscription={userSubscription}
-                                onUpgrade={() => setShowPricingModal(true)}
                                 userProfile={userProfile ? { full_name: userProfile.full_name, avatar_url: userProfile.avatar_url || null } : undefined}
                                 userEmail={user?.email || undefined}
                                 onProfileUpdate={() => {
@@ -1134,21 +1131,10 @@ export default function Dashboard() {
                 onClose={() => setShowPaywall(false)}
                 onUpgrade={() => {
                     setShowPaywall(false);
-                    setShowPricingModal(true);
+                    navigate('/dashboard/settings?tab=plan');
                 }}
                 feature="general"
                 currentPlan={userSubscription.planId}
-            />
-
-            <PricingModal
-                isOpen={showPricingModal}
-                onClose={() => setShowPricingModal(false)}
-                onSelectPlan={(planId: PlanId) => {
-                    // In this dashboard preview, just log the selection.
-                    // Full subscription handling lives in the main app flow.
-                    console.log('Selected plan from dashboard:', planId);
-                }}
-                currentPlanId={userSubscription.planId}
             />
 
             {/* Onboarding modal: upload vs start from scratch */}
