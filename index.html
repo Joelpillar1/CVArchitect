@@ -210,9 +210,20 @@
         }
       }
 
-      /* Hide app chrome, show only resume (do not collapse layout) */
-      body * {
-        visibility: hidden !important;
+      /* Hide the entire app during print. We remove it from the render
+         tree with display:none (instead of visibility:hidden) so that
+         GPU-composited layers from the app UI - transform: scale() on the
+         preview, backdrop-blur, animations, etc. - are gone. If those
+         layers remain, the browser rasterizes the whole print output,
+         producing an image-based PDF whose text cannot be selected or
+         copied. The print portal is a direct child of <body> (rendered
+         via createPortal) and is the only thing shown. */
+      body > *:not(.print-root) {
+        display: none !important;
+      }
+
+      .print-root {
+        display: block !important;
       }
 
       .print-resume,

@@ -51,12 +51,13 @@ function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <>{children}</>;
 }
 
-// Public Route Component (redirect to dashboard if already logged in)
+// Public Route Component (optionally redirect authenticated users, e.g. login/signup)
 interface PublicRouteProps {
     children: React.ReactNode;
+    redirectIfAuthenticated?: boolean;
 }
 
-function PublicRoute({ children }: PublicRouteProps) {
+function PublicRoute({ children, redirectIfAuthenticated = true }: PublicRouteProps) {
     const { user, loading } = useAuth();
     const location = useLocation();
 
@@ -71,7 +72,7 @@ function PublicRoute({ children }: PublicRouteProps) {
         );
     }
 
-    if (user) {
+    if (user && redirectIfAuthenticated) {
         const plan = applyPendingPlanFromSearch(location.search);
         return <Navigate to={plan ? `/dashboard?plan=${plan}` : '/dashboard'} replace />;
     }
@@ -129,7 +130,7 @@ export default function AppRoutes() {
     return (
         <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
+            <Route path="/" element={<PublicRoute redirectIfAuthenticated={false}><LandingPage /></PublicRoute>} />
             <Route path="/login" element={<PublicRoute><SignIn /></PublicRoute>} />
             <Route path="/signup" element={<PublicRoute><SignUp /></PublicRoute>} />
             <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />

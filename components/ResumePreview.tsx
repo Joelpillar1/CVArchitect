@@ -20,12 +20,6 @@ import MinimalistTemplate from './templates/MinimalistTemplate';
 import ProfessionalTemplate from './templates/ProfessionalTemplate';
 import TwoColumnTemplate from './templates/TwoColumnTemplate';
 import FreshGradTemplate from './templates/FreshGradTemplate';
-import FreshGradFinanceTemplate from './templates/FreshGradFinanceTemplate';
-import FreshGradCSTemplate from './templates/FreshGradCSTemplate';
-import FreshGradArtsTemplate from './templates/FreshGradArtsTemplate';
-import FreshGradEngTemplate from './templates/FreshGradEngTemplate';
-import FreshGradMarketingTemplate from './templates/FreshGradMarketingTemplate';
-import FreshGrad7Template from './templates/FreshGrad7Template';
 import FreshGrad8Template from './templates/FreshGrad8Template';
 import SageTemplate from './templates/SageTemplate';
 import StudentTemplate from './templates/StudentTemplate';
@@ -39,8 +33,8 @@ export default function ResumePreview({ data, template }: ResumePreviewProps) {
   // Dynamic Font Application
   const containerStyle = {
     fontFamily: data.font || 'Inter, sans-serif',
-    fontSize: `${data.fontSizes?.body || 10.5}pt`,
-    lineHeight: data.lineHeight || 1.4,
+    fontSize: `${data.fontSizes?.body || 9.5}pt`,
+    lineHeight: data.lineHeight || 1.7,
   };
 
   const renderTemplate = () => {
@@ -65,14 +59,16 @@ export default function ResumePreview({ data, template }: ResumePreviewProps) {
         case 'minimalist': return <MinimalistTemplate data={data} />;
         case 'professional': return <ProfessionalTemplate data={data} />;
         case 'twocolumn': return <TwoColumnTemplate data={data} />;
-        case 'freshgrad1': return <FreshGradTemplate data={data} />;
-        case 'freshgrad2': return <FreshGradFinanceTemplate data={data} />;
-        case 'freshgrad3': return <FreshGradCSTemplate data={data} />;
-        case 'freshgrad4': return <FreshGradArtsTemplate data={data} />;
-        case 'freshgrad5': return <FreshGradEngTemplate data={data} />;
-        case 'freshgrad6': return <FreshGradMarketingTemplate data={data} />;
-        case 'freshgrad7': return <FreshGrad7Template data={data} />;
-        case 'freshgrad8': return <FreshGrad8Template data={data} />;
+        case 'freshgrad1':
+        case 'freshgrad2':
+        case 'freshgrad4':
+        case 'freshgrad5':
+        case 'freshgrad6':
+          return <FreshGradTemplate data={data} />;
+        case 'freshgrad3':
+        case 'freshgrad7':
+        case 'freshgrad8':
+          return <FreshGrad8Template data={data} />;
         case 'sage': return <SageTemplate data={data} />;
         case 'student': return <StudentTemplate data={data} />;
         default: return <VanguardTemplate data={data} />;
@@ -87,7 +83,7 @@ export default function ResumePreview({ data, template }: ResumePreviewProps) {
     <div className="w-full flex justify-center relative">
       {/* Single page container - let CSS handle page breaks */}
       <div
-        className="resume-page w-[210mm] bg-white shadow-lg mx-auto relative print:shadow-none"
+        className="resume-page w-[210mm] bg-white border border-brand-border mx-auto relative print:border-0"
         style={{
           ...containerStyle,
           minHeight: '297mm',

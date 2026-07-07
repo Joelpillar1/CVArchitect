@@ -228,7 +228,7 @@ export default function CoverLetterPage({ resumeData, userSubscription, onDeduct
             {/* Hidden print element - only visible during print */}
             {/* Simplified structure for single-page cover letter */}
             {generatedLetter && createPortal(
-                <div className="hidden print:block absolute top-0 left-0 w-full h-auto bg-white z-[9999] print:w-full print:max-w-[210mm]">
+                <div className="print-root hidden print:block absolute top-0 left-0 w-full h-auto bg-white z-[9999] print:w-full print:max-w-[210mm]">
                     <div className="print-cover-letter" style={{ padding: '0 8mm' }}>
                         {selectedTemplate === 'structured' ? (
                             <StructuredCoverLetter

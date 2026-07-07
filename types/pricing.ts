@@ -80,6 +80,10 @@ export interface UserSubscription {
     subscriptionStart?: Date;
     subscriptionEnd?: Date;
     isActive: boolean;
+    dodoSubscriptionId?: string;
+    dodoCustomerId?: string;
+    cancelAtPeriodEnd?: boolean;
+    scheduledPlanId?: PlanId | LegacyPlanId;
     usageHistory: UsageRecord[];
     usageStats?: {
         totalActions: number;

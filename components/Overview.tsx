@@ -105,7 +105,7 @@ export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, 
                 {/* Template Preview Area - Real Render */}
                 <div className="relative flex-1 bg-gray-100 overflow-hidden w-full">
                   {/* Scaled Resume Preview - Centered */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[210mm] origin-top transform scale-[0.45] pointer-events-none select-none shadow-md">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[210mm] origin-top transform scale-[0.45] pointer-events-none select-none">
                     <ResumePreview data={template.data} template={template.baseTemplate} />
                   </div>
 

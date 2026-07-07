@@ -8,12 +8,15 @@ import {
     FOUNDATION_FEATURES,
     PAID_PLAN_IDS,
     formatPlanPrice,
+    isPaidPlan,
 } from '../utils/pricingConfig';
-import { redirectToCheckout } from '../services/dodoPaymentsService';
+import { upgradeToPlan } from '../services/dodoPaymentsService';
 import { setPendingCheckoutPlan } from '../utils/pendingCheckout';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { useNavigate } from 'react-router-dom';
+import { subscriptionService } from '../services/subscriptionService';
+import { UserSubscription } from '../types/pricing';
 
 const fadeInUp = {
     hidden: { opacity: 0, y: 24 },
@@ -30,11 +33,37 @@ interface PricingPlansProps {
     compact?: boolean;
 }
 
+function normalizePlanIdForPicker(planId: string): string {
+    if (planId === 'week_pass') return 'sprint';
+    if (planId === 'pro_monthly') return 'build';
+    return planId;
+}
+
 export default function PricingPlans({ onFreeClick, compact = false }: PricingPlansProps) {
     const { user, loading: authLoading } = useAuth();
     const { showToast } = useToast();
     const navigate = useNavigate();
     const [loadingPlanId, setLoadingPlanId] = useState<PlanId | null>(null);
+    const [subscription, setSubscription] = useState<UserSubscription | null>(null);
+
+    React.useEffect(() => {
+        if (!user) {
+            setSubscription(null);
+            return;
+        }
+
+        let cancelled = false;
+        subscriptionService.getSubscription(user.id).then((sub) => {
+            if (!cancelled) setSubscription(sub);
+        });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [user]);
+
+    const currentPlanId = subscription ? normalizePlanIdForPicker(subscription.planId) : 'free';
+    const isPaidSubscriber = subscription ? isPaidPlan(subscription.planId) : false;
 
     const handleFree = () => {
         if (onFreeClick) {
@@ -55,7 +84,29 @@ export default function PricingPlans({ onFreeClick, compact = false }: PricingPl
 
         setLoadingPlanId(planId);
         try {
-            await redirectToCheckout(planId);
+            if (isPaidSubscriber) {
+                const result = await upgradeToPlan(planId, {
+                    hasDodoSubscription: Boolean(subscription?.dodoSubscriptionId),
+                });
+
+                if (!result.usedCheckout) {
+                    showToast(
+                        result.scheduled
+                            ? result.message || 'Plan change scheduled for your next billing date.'
+                            : result.message || 'Plan updated successfully.',
+                        'success'
+                    );
+                    const refreshed = await subscriptionService.getSubscription(user.id);
+                    if (refreshed) setSubscription(refreshed);
+                    setLoadingPlanId(null);
+                }
+                return;
+            }
+
+            const result = await upgradeToPlan(planId, { hasDodoSubscription: false });
+            if (!result.usedCheckout) {
+                setLoadingPlanId(null);
+            }
         } catch (error) {
             console.error('Checkout failed:', error);
             showToast(
@@ -100,16 +151,19 @@ export default function PricingPlans({ onFreeClick, compact = false }: PricingPl
                 {PAID_PLAN_IDS.map((planId) => {
                     const plan = PLANS[planId];
                     const { amount, period } = formatPlanPrice(plan);
-                    const isHighlighted = plan.highlight;
+                    const isHighlighted = plan.highlight && !isPaidSubscriber;
+                    const isCurrent = isPaidSubscriber && currentPlanId === planId;
 
                     return (
                         <motion.div
                             key={planId}
                             variants={fadeInUp}
                             className={`relative rounded-2xl p-6 md:p-7 flex flex-col border transition-all bg-white ${
-                                isHighlighted
-                                    ? 'border-brand-green shadow-float ring-2 ring-brand-green/25'
-                                    : 'border-brand-border shadow-soft hover:border-brand-green/40 hover:shadow-float'
+                                isCurrent
+                                    ? 'border-brand-border opacity-75'
+                                    : isHighlighted
+                                      ? 'border-brand-green shadow-float ring-2 ring-brand-green/25'
+                                      : 'border-brand-border shadow-soft hover:border-brand-green/40 hover:shadow-float'
                             }`}
                         >
                             {isHighlighted && (
@@ -154,18 +208,24 @@ export default function PricingPlans({ onFreeClick, compact = false }: PricingPl
 
                             <button
                                 onClick={() => handlePaidPlan(planId)}
-                                disabled={!!loadingPlanId}
-                                className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-70 ${
-                                    isHighlighted
-                                        ? 'bg-brand-green hover:bg-brand-greenHover text-brand-dark shadow-lg'
-                                        : 'bg-brand-dark hover:opacity-90 text-white'
+                                disabled={!!loadingPlanId || isCurrent}
+                                className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 disabled:cursor-not-allowed ${
+                                    isCurrent
+                                        ? 'bg-gray-100 text-gray-500'
+                                        : isHighlighted
+                                          ? 'bg-brand-green hover:bg-brand-greenHover text-brand-dark shadow-lg disabled:opacity-70'
+                                          : 'bg-brand-dark hover:opacity-90 text-white disabled:opacity-70'
                                 }`}
                             >
                                 {loadingPlanId === planId ? (
                                     <>
                                         <Loader2 size={16} className="animate-spin" />
-                                        Redirecting...
+                                        {isPaidSubscriber && subscription?.dodoSubscriptionId
+                                            ? 'Updating...'
+                                            : 'Redirecting...'}
                                     </>
+                                ) : isCurrent ? (
+                                    'Current plan'
                                 ) : (
                                     plan.ctaLabel
                                 )}

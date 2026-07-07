@@ -1,7 +1,7 @@
 import React from 'react';
 import { ResumeData } from '../../types';
 import { getTranslation, Language } from '../../i18n/translations';
-import { formatDate, parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil } from '../../utils/templateUtils';
+import { formatDate, parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, CONTACT_SEPARATOR, formatJobTitleDisplay} from '../../utils/templateUtils';
 
 export default function ImpactTemplate({ data }: { data: ResumeData }) {
     const { fontSizes } = data;
@@ -14,10 +14,11 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
 
 
     // Calculate relative font sizes based on body size
-    const bodySize = fontSizes?.body || 10.5;
-    const smallSize = bodySize * 0.85; // For contact info and dates
-    const mediumSize = bodySize * 0.95; // For role summary and smaller text
-    const largeSize = bodySize * 1.05; // For company names
+    const bodySize = fontSizes?.body || 9.5;
+    const smallSize = bodySize * 0.85;
+    const mediumSize = bodySize * 0.95;
+    const largeSize = bodySize * 1.05;
+    const sectionGap = getSectionGapIn(data, 'compact');
 
     const getSectionHeaderAlignment = () => {
         if (data.bodyHeaderAlignment === 'center') return 'text-center';
@@ -29,11 +30,11 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
         switch (id) {
             case 'summary':
                 return data.summary && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${sectionGap}in` }}>
                         <h2
                             className={`font-bold tracking-wide mb-3 ${getSectionHeaderAlignment()} ${data.sectionHeaderCase || 'uppercase'}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000'
                             }}
                         >
@@ -47,49 +48,53 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
 
             case 'skills':
                 return data.skills && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${sectionGap}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wide mb-3 ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wide mb-2 ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000'
                             }}
                         >
                             {t.technicalSkills}
                         </h2>
-                        <div className={`grid gap-x-4 gap-y-1 ${data.skillsColumnCount === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
-                            {data.skills.split(',').map((skill, i) => (
-                                <ul
-                                    key={i}
-                                    className="list-disc list-outside ml-4 space-y-1 text-gray-700"
-                                    style={{ fontSize: `${bodySize}pt` }}
-                                >
-                                    {skill.trim() && (
-                                        <li className="pl-1">
-                                            {skill.trim()}
-                                        </li>
-                                    )}
-                                </ul>
-                            ))}
+                        <div className="flex flex-wrap gap-1.5">
+                            {data.skills.split(',').map((skill, i) =>
+                                skill.trim() ? (
+                                    <span
+                                        key={i}
+                                        className="px-2 py-0.5 rounded-sm font-medium border"
+                                        style={{
+                                            fontSize: `${bodySize * 0.9}pt`,
+                                            borderColor: data.accentColor || '#000000',
+                                            color: data.accentColor || '#000000',
+                                            backgroundColor: `${data.accentColor || '#000000'}08`,
+                                        }}
+                                    >
+                                        {skill.trim()}
+                                    </span>
+                                ) : null
+                            )}
                         </div>
                     </section>
                 );
 
+            case 'keyAchievements':
             case 'achievements': {
                 const achievements = parseAchievementBullets(data.keyAchievements || '');
                 return achievements.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${sectionGap}in` }}>
                         <h2
                             className={`font-bold uppercase tracking-wide mb-3 ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000'
                             }}
                         >
                             Key Achievements
                         </h2>
                         <ul
-                            className="list-disc list-outside ml-4 space-y-1 text-gray-700 text-justify"
+                            className="list-disc list-outside ml-5 space-y-1 text-gray-700 text-justify"
                             style={{ fontSize: `${bodySize}pt` }}
                         >
                             {achievements.map((line, i) => (
@@ -106,11 +111,11 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
 
             case 'experience':
                 return data.experience.length > 0 && (
-                    <section style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
                             className={`font-bold uppercase tracking-wide mb-4 ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000'
                             }}
                         >
@@ -121,7 +126,7 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
                                 <div
                                     key={exp.id}
                                     className="break-inside-avoid"
-                                    style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${data.sectionGap || 0.14}in` }}
+                                    style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${getSectionGapIn(data)}in` }}
                                 >
                                     <div className="flex justify-between items-baseline mb-1">
                                         <h3 className="font-bold text-black" style={{ fontSize: `${largeSize}pt` }}>
@@ -145,7 +150,7 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
                                         </p>
                                     )}
                                     <ul
-                                        className="list-disc list-outside ml-4 space-y-1 text-gray-700"
+                                        className="list-disc list-outside ml-5 space-y-1 text-gray-700"
                                         style={{ fontSize: `${bodySize}pt` }}
                                     >
                                         {descriptionToString(exp.description).split('\n').map((line, i) => (
@@ -164,11 +169,11 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
 
             case 'projects':
                 return data.projects && data.projects.length > 0 && (
-                    <section style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
                             className={`font-bold uppercase tracking-wide mb-4 ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000'
                             }}
                         >
@@ -203,11 +208,11 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
 
             case 'certifications':
                 return data.certifications && data.certifications.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${sectionGap}in` }}>
                         <h2
                             className={`font-bold uppercase tracking-wide mb-4 ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000'
                             }}
                         >
@@ -242,11 +247,11 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
 
             case 'education':
                 return data.education.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${sectionGap}in` }}>
                         <h2
                             className={`font-bold uppercase tracking-wide mb-4 ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000'
                             }}
                         >
@@ -264,7 +269,7 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
                                             {edu.degree}
                                         </span>
                                     </div>
-                                    <div className="italic text-gray-600" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
+                                    <div className="italic text-gray-600" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                                         {edu.year}
                                     </div>
                                 </div>
@@ -275,11 +280,11 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
 
             case 'additionalInfo':
                 return data.additionalInfo && data.additionalInfo.length > 0 && data.additionalInfo.some(item => item.label.trim() && item.value.trim()) && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${sectionGap}in` }}>
                         <h2
                             className={`font-bold uppercase tracking-wide mb-3 ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000'
                             }}
                         >
@@ -302,7 +307,7 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
                         <h2
                             className={`font-bold uppercase tracking-wide mb-3 ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000'
                             }}
                         >
@@ -321,46 +326,53 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
 
     return (
         <div
-            className="resume-content text-gray-800"
+            className="resume-content text-gray-800 relative"
             style={{
-                lineHeight: data.lineHeight || 1.4,
-                paddingLeft: `${data.margins?.horizontal || 0.39}in`,
-                paddingRight: `${data.margins?.horizontal || 0.39}in`,
-                paddingTop: `${data.margins?.vertical || 0.45}in`,
-                paddingBottom: `${data.margins?.vertical || 0.45}in`,
+                lineHeight: data.lineHeight || 1.7,
+                ...getPagePaddingStyle(data, 'compact'),
             }}
         >
             {/* Header */}
-            <header className="break-inside-avoid" style={{ marginBottom: `${data.headerGap || 0.15}in` }}>
-                <div className={`flex flex-col mb-2 ${data.headerAlignment === 'center' ? 'items-center text-center' : data.headerAlignment === 'right' ? 'items-end text-right' : 'items-start text-left'}`}>
+            <header className="break-inside-avoid" style={{ marginBottom: `${getHeaderGapIn(data, 'compact')}in` }}>
+                <div className={`flex flex-col ${data.headerAlignment === 'center' ? 'items-center text-center' : data.headerAlignment === 'right' ? 'items-end text-right' : 'items-start text-left'}`}>
                     <h1
-                        className={`font-bold tracking-tight ${data.headerCase || 'uppercase'}`}
-                        style={{ fontSize: `${fontSizes?.header || 32}pt`, color: data.accentColor || '#000000', marginBottom: `${data.headerItemGap || 0.05}in` }}
+                        className={`font-bold ${data.headerCase === 'uppercase' ? 'uppercase' : data.headerCase === 'lowercase' ? 'lowercase' : ''}`}
+                        style={{ fontSize: `${fontSizes?.header || 18}pt`, color: data.accentColor || '#000000', marginBottom: `${getHeaderItemGapIn(data)}in`, lineHeight: 1.1 }}
                     >
-                        {data.fullName}
+                        {formatNameDisplay(data.fullName, data.headerCase)}
                     </h1>
-                    <div
-                        className="text-gray-500 uppercase tracking-widest"
-                        style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt`, letterSpacing: '0.2em', marginBottom: `${data.headerItemGap || 0.08}in` }}
-                    >
-                        {data.jobTitle}
-                    </div>
-                </div>
 
                 {/* Contact Info */}
-                <div className={`text-gray-600 flex flex-wrap gap-2 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${smallSize}pt` }}>
-                    {data.phone && <span>{data.phone}</span>}
-                    {data.phone && (data.email || data.address || data.linkedin) && <span>|</span>}
-                    {data.email && <a href={`mailto:${data.email}`} style={{ textDecoration: 'none', color: 'inherit' }}>{data.email}</a>}
-                    {data.email && (data.address || data.linkedin) && <span>|</span>}
-                    {data.address && <span>{data.address}</span>}
-                    {data.address && data.linkedin && <span>|</span>}
-                    {data.linkedin && <a href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>{data.linkedin.replace(/^https?:\/\//, '')}</a>}
+                <div className={`text-gray-600 flex flex-wrap gap-2 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${smallSize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
+                    {(() => {
+                        const items: React.ReactNode[] = [];
+                        if (data.address) items.push(<span key="address">{formatContactText(data.address)}</span>);
+                        if (data.phone) items.push(<span key="phone">{formatContactText(data.phone)}</span>);
+                        if (data.email) items.push(<a key="email" href={`mailto:${formatContactText(data.email)}`} style={{ textDecoration: 'none', color: 'inherit' }}>{formatContactText(data.email)}</a>);
+                        if (data.linkedin) items.push(<a key="linkedin" href={getLinkedInHref(data.linkedin)} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>{formatLinkedInDisplay(data.linkedin)}</a>);
+                        return items.map((item, index) => (
+                            <React.Fragment key={index}>
+                                {index > 0 && <span>{CONTACT_SEPARATOR}</span>}
+                                {item}
+                            </React.Fragment>
+                        ));
+                    })()}
+                </div>
+                <div
+                    className="h-px w-full"
+                    style={{ backgroundColor: data.accentColor || '#000000', opacity: 0.25 }}
+                />
+                <div
+                    className={`font-semibold ${data.headerAlignment === 'center' ? 'text-center' : data.headerAlignment === 'right' ? 'text-right' : 'text-left'}`}
+                    style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: data.accentColor || '#000000' }}
+                >
+                    {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+                </div>
                 </div>
             </header>
 
             {/* Dynamic Sections */}
-            {(data.sectionOrder || ['summary', 'experience', 'education', 'projects', 'skills', 'certifications', 'achievements', 'additionalInfo', 'references']).map(id => (
+            {getNormalizedSectionOrder(data.sectionOrder, ['summary', 'experience', 'education', 'projects', 'skills', 'certifications', 'achievements', 'additionalInfo', 'references']).map(id => (
                 <React.Fragment key={id}>
                     {renderSection(id)}
                 </React.Fragment>

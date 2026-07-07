@@ -56,19 +56,33 @@ export async function findUserIdByEmail(
 ): Promise<string | null> {
   if (!email) return null;
 
-  const { data: authUsers, error } = await supabaseAdmin.auth.admin.listUsers();
-  if (error || !authUsers?.users) return null;
+  try {
+    const { data: authUsers, error } = await supabaseAdmin.auth.admin.listUsers();
+    if (error || !authUsers?.users) return null;
 
-  const match = authUsers.users.find(
-    (user) => user.email?.toLowerCase() === email.toLowerCase()
-  );
-  return match?.id ?? null;
+    const match = authUsers.users.find(
+      (user) => user.email?.toLowerCase() === email.toLowerCase()
+    );
+    return match?.id ?? null;
+  } catch (error) {
+    console.error('Error finding user by email:', error);
+    return null;
+  }
+}
+
+export interface ActivateSubscriptionOptions {
+  dodoSubscriptionId?: string;
+  dodoCustomerId?: string;
+  subscriptionEnd?: string | null;
+  cancelAtPeriodEnd?: boolean;
+  scheduledPlanId?: string | null;
 }
 
 export async function activateSubscription(
   supabaseAdmin: SupabaseClient,
   userId: string,
-  planId: AppPlanId
+  planId: AppPlanId,
+  options: ActivateSubscriptionOptions = {}
 ): Promise<{ success: boolean; error?: string }> {
   const { billingCycle, subscriptionStart, subscriptionEnd } = getPlanDates(planId);
   const credits = 999999;
@@ -79,15 +93,20 @@ export async function activateSubscription(
     .eq('user_id', userId)
     .single();
 
-  const payload = {
+  const payload: Record<string, unknown> = {
     plan_id: planId,
     credits,
     billing_cycle: billingCycle,
     subscription_start: subscriptionStart.toISOString(),
-    subscription_end: subscriptionEnd.toISOString(),
+    subscription_end: options.subscriptionEnd ?? subscriptionEnd.toISOString(),
     is_active: true,
+    cancel_at_period_end: options.cancelAtPeriodEnd ?? false,
+    scheduled_plan_id: options.scheduledPlanId ?? null,
     updated_at: new Date().toISOString(),
   };
+
+  if (options.dodoSubscriptionId) payload.dodo_subscription_id = options.dodoSubscriptionId;
+  if (options.dodoCustomerId) payload.dodo_customer_id = options.dodoCustomerId;
 
   if (existingSub) {
     const { error } = await supabaseAdmin
@@ -109,7 +128,61 @@ export async function activateSubscription(
   return { success: true };
 }
 
-export async function downgradeSubscription(
+export async function markCancelAtPeriodEnd(
+  supabaseAdmin: SupabaseClient,
+  userId: string
+): Promise<{ success: boolean; error?: string }> {
+  const { error } = await supabaseAdmin
+    .from('subscriptions')
+    .update({
+      cancel_at_period_end: true,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('user_id', userId);
+
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+export async function schedulePlanChange(
+  supabaseAdmin: SupabaseClient,
+  userId: string,
+  scheduledPlanId: AppPlanId
+): Promise<{ success: boolean; error?: string }> {
+  const { error } = await supabaseAdmin
+    .from('subscriptions')
+    .update({
+      scheduled_plan_id: scheduledPlanId,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('user_id', userId);
+
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+export async function linkDodoSubscription(
+  supabaseAdmin: SupabaseClient,
+  userId: string,
+  dodoSubscriptionId: string,
+  dodoCustomerId?: string
+): Promise<{ success: boolean; error?: string }> {
+  const payload: Record<string, unknown> = {
+    dodo_subscription_id: dodoSubscriptionId,
+    updated_at: new Date().toISOString(),
+  };
+  if (dodoCustomerId) payload.dodo_customer_id = dodoCustomerId;
+
+  const { error } = await supabaseAdmin
+    .from('subscriptions')
+    .update(payload)
+    .eq('user_id', userId);
+
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+export async function finalizeDowngrade(
   supabaseAdmin: SupabaseClient,
   userId: string
 ): Promise<{ success: boolean; error?: string }> {
@@ -130,6 +203,10 @@ export async function downgradeSubscription(
       subscription_start: new Date().toISOString(),
       subscription_end: null,
       is_active: true,
+      dodo_subscription_id: null,
+      dodo_customer_id: null,
+      cancel_at_period_end: false,
+      scheduled_plan_id: null,
       updated_at: new Date().toISOString(),
     })
     .eq('user_id', userId);
@@ -137,6 +214,9 @@ export async function downgradeSubscription(
   if (error) return { success: false, error: error.message };
   return { success: true };
 }
+
+/** @deprecated Use finalizeDowngrade */
+export const downgradeSubscription = finalizeDowngrade;
 
 export function extractWebhookPayload(event: Record<string, unknown>): Record<string, unknown> {
   const data = (event.data ?? {}) as Record<string, unknown>;
@@ -165,6 +245,16 @@ export function extractMetadata(event: Record<string, unknown>) {
   const planIdRaw = metadata.plan_id || metadata.planId;
   const normalizedPlan = planIdRaw ? normalizePlanId(planIdRaw) : null;
 
+  const subscriptionId =
+    (data.subscription_id as string | undefined) ||
+    (data.id as string | undefined) ||
+    metadata.subscription_id;
+
+  const customerId =
+    (data.customer_id as string | undefined) ||
+    customer.customer_id ||
+    customer.id;
+
   return {
     userId: metadata.user_id || metadata.userId,
     planId: normalizedPlan ?? undefined,
@@ -174,5 +264,9 @@ export function extractMetadata(event: Record<string, unknown>) {
       (data.customer_email as string | undefined) ||
       (data.email as string | undefined),
     productId,
+    subscriptionId,
+    customerId,
+    cancelAtNextBillingDate: Boolean(data.cancel_at_next_billing_date),
+    nextBillingDate: data.next_billing_date as string | undefined,
   };
 }

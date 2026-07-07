@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil } from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay} from '../../utils/templateUtils';
 import { getTranslation, Language } from '../../i18n/translations';
 
 const formatMonthYear = (dateString: string | null | undefined) => {
@@ -22,9 +22,9 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
         switch (id) {
             case 'summary':
                 return data.summary && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.2}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wider mb-3 pb-2 border-b-2 border-gray-300 ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wider mb-1.5 pb-0.5 border-b-2 leading-tight border-gray-300 ${getSectionHeaderAlignment()}`}
                             style={{
                                 fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor
@@ -34,19 +34,20 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                         </h2>
                         <p
                             className="text-gray-700  text-justify"
-                            style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                            style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                         >
                             {data.summary}
                         </p>
                     </section>
                 );
 
+            case 'keyAchievements':
             case 'achievements': {
                 const achievements = parseAchievementBullets(data.keyAchievements || '');
                 return achievements.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.2}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wider mb-3 pb-2 border-b-2 border-gray-300 ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wider mb-1.5 pb-0.5 border-b-2 leading-tight border-gray-300 ${getSectionHeaderAlignment()}`}
                             style={{
                                 fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor
@@ -60,7 +61,7 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                                     <div
                                         key={i}
                                         className="flex gap-2 items-baseline"
-                                        style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                                        style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                                     >
                                         <span className="font-bold shrink-0 w-2 text-[9px] leading-none inline-block" style={{ color: accentColor }}>•</span>
                                         <span className="text-gray-700 flex-1">{line.replace(/^[•-]\s*/, '')}</span>
@@ -74,9 +75,9 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
 
             case 'skills':
                 return data.skills && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.2}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wider mb-3 pb-2 border-b-2 border-gray-300 ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wider mb-1.5 pb-0.5 border-b-2 leading-tight border-gray-300 ${getSectionHeaderAlignment()}`}
                             style={{
                                 fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor
@@ -89,7 +90,7 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                                 <div
                                     key={i}
                                     className="flex items-baseline gap-2"
-                                    style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
+                                    style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}
                                 >
                                     <span className="font-bold shrink-0 w-2 text-[9px] leading-none inline-block" style={{ color: accentColor }}>•</span>
                                     <span className="text-gray-700 font-medium">{skill.trim()}</span>
@@ -101,9 +102,9 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
 
             case 'experience':
                 return data.experience.length > 0 && (
-                    <section style={{ marginBottom: `${data.sectionGap || 0.2}in` }}>
+                    <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wider mb-4 pb-2 border-b-2 border-gray-300 break-inside-avoid ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wider mb-1.5 pb-0.5 border-b-2 leading-tight border-gray-300 break-inside-avoid ${getSectionHeaderAlignment()}`}
                             style={{
                                 fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor
@@ -118,14 +119,14 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                                     <div
                                         key={exp.id}
                                         className="break-inside-avoid"
-                                        style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${data.sectionGap || 0.2}in` }}
+                                        style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${getSectionGapIn(data)}in` }}
                                     >
                                         <div className="mb-2">
                                             <div className="flex justify-between items-baseline mb-1">
                                                 <h3
                                                     className="font-bold"
                                                     style={{
-                                                        fontSize: `${(fontSizes?.body || 10.5) * 1.15}pt`,
+                                                        fontSize: `${(fontSizes?.body || 9.5) * 1.15}pt`,
                                                         color: accentColor
                                                     }}
                                                 >
@@ -133,14 +134,14 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                                                 </h3>
                                                 <span
                                                     className="text-gray-500 font-medium"
-                                                    style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.85}pt` }}
+                                                    style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.85}pt` }}
                                                 >
                                                     {formatMonthYear(exp.startDate)} – {formatMonthYear(exp.endDate)}
                                                 </span>
                                             </div>
                                             <div
                                                 className="font-semibold text-gray-600"
-                                                style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
+                                                style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}
                                             >
                                                 {exp.company}
                                                 {exp.location && <span className="text-gray-400 font-normal"> | {exp.location}</span>}
@@ -152,7 +153,7 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                                                     <li
                                                         key={i}
                                                         className="flex gap-2 items-baseline text-gray-700"
-                                                        style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
+                                                        style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}
                                                     >
                                                         <span className="font-bold shrink-0 w-2 text-[9px] leading-none inline-block" style={{ color: accentColor }}>•</span>
                                                         <span className="flex-1">{line.replace(/^[•-]\s*/, '')}</span>
@@ -169,9 +170,9 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
 
             case 'projects':
                 return data.projects && data.projects.length > 0 && (
-                    <section style={{ marginBottom: `${data.sectionGap || 0.2}in` }}>
+                    <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wider mb-4 pb-2 border-b-2 border-gray-300 break-inside-avoid ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wider mb-1.5 pb-0.5 border-b-2 leading-tight border-gray-300 break-inside-avoid ${getSectionHeaderAlignment()}`}
                             style={{
                                 fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor
@@ -187,7 +188,7 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                                             <h3
                                                 className="font-bold"
                                                 style={{
-                                                    fontSize: `${(fontSizes?.body || 10.5) * 1.15}pt`,
+                                                    fontSize: `${(fontSizes?.body || 9.5) * 1.15}pt`,
                                                     color: accentColor
                                                 }}
                                             >
@@ -202,7 +203,7 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                                         {project.technologies && (
                                             <div
                                                 className="font-semibold text-gray-600"
-                                                style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
+                                                style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}
                                             >
                                                 {project.technologies}
                                             </div>
@@ -210,7 +211,7 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                                     </div>
                                     <p
                                         className="text-gray-700 whitespace-pre-line"
-                                        style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
+                                        style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}
                                     >
                                         {project.description}
                                     </p>
@@ -222,9 +223,9 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
 
             case 'certifications':
                 return data.certifications && data.certifications.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.2}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wider mb-3 pb-2 border-b-2 border-gray-300 ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wider mb-1.5 pb-0.5 border-b-2 leading-tight border-gray-300 ${getSectionHeaderAlignment()}`}
                             style={{
                                 fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor
@@ -237,14 +238,14 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                                 <div key={cert.id}>
                                     <div
                                         className="font-bold text-gray-900"
-                                        style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
+                                        style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}
                                     >
                                         {cert.name}
                                     </div>
                                     {cert.issuer && (
                                         <div
                                             className="text-gray-600 mt-0.5"
-                                            style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.85}pt` }}
+                                            style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.85}pt` }}
                                         >
                                             {cert.issuer}
                                         </div>
@@ -252,7 +253,7 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                                     {cert.date && (
                                         <div
                                             className="text-gray-500 text-xs mt-0.5"
-                                            style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.8}pt` }}
+                                            style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.8}pt` }}
                                         >
                                             {cert.date}
                                         </div>
@@ -265,9 +266,9 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
 
             case 'education':
                 return data.education.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.2}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wider mb-3 pb-2 border-b-2 border-gray-300 ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wider mb-1.5 pb-0.5 border-b-2 leading-tight border-gray-300 ${getSectionHeaderAlignment()}`}
                             style={{
                                 fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor
@@ -281,20 +282,20 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                                     <div>
                                         <div
                                             className="font-bold text-gray-900"
-                                            style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                                            style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                                         >
                                             {edu.degree}
                                         </div>
                                         <div
                                             className="text-gray-600 mt-0.5"
-                                            style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.9}pt` }}
+                                            style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.9}pt` }}
                                         >
                                             {edu.school}
                                         </div>
                                     </div>
                                     <div
                                         className="font-semibold text-gray-500"
-                                        style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.85}pt` }}
+                                        style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.85}pt` }}
                                     >
                                         {edu.year}
                                     </div>
@@ -306,9 +307,9 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
 
             case 'additionalInfo':
                 return data.additionalInfo && data.additionalInfo.length > 0 && data.additionalInfo.some(item => item.label.trim() && item.value.trim()) && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.2}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wider mb-3 pb-2 border-b-2 border-gray-300 ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wider mb-1.5 pb-0.5 border-b-2 leading-tight border-gray-300 ${getSectionHeaderAlignment()}`}
                             style={{
                                 fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor
@@ -331,7 +332,7 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                 return data.referee && data.referee.trim() && (
                     <section className="break-inside-avoid">
                         <h2
-                            className={`font-bold uppercase tracking-wider mb-3 pb-2 border-b-2 border-gray-300 ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wider mb-1.5 pb-0.5 border-b-2 leading-tight border-gray-300 ${getSectionHeaderAlignment()}`}
                             style={{
                                 fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor
@@ -341,7 +342,7 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                         </h2>
                         <p
                             className="text-gray-700 italic whitespace-pre-line"
-                            style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                            style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                         >
                             {data.referee}
                         </p>
@@ -357,76 +358,72 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
         <div
             className="resume-content text-gray-900 bg-white"
             style={{
-                lineHeight: data.lineHeight || 1.5,
-                paddingLeft: `${data.margins?.horizontal || 0.5}in`,
-                paddingRight: `${data.margins?.horizontal || 0.5}in`,
-                paddingTop: `${data.margins?.vertical || 0.5}in`,
-                paddingBottom: `${data.margins?.vertical || 0.5}in`,
+                lineHeight: data.lineHeight || 1.7,
+                paddingLeft: `${getMarginHorizontalIn(data)}in`,
+                paddingRight: `${getMarginHorizontalIn(data)}in`,
+                paddingTop: `${getMarginVerticalIn(data)}in`,
+                paddingBottom: `${getMarginVerticalIn(data)}in`,
             }}
         >
             {/* Header Section */}
-            <header className="break-inside-avoid" style={{ marginBottom: `${data.headerGap || 0.15}in` }}>
-                <div className={`border-b-2 border-gray-300 pb-4 flex flex-col ${data.headerAlignment === 'center' ? 'items-center text-center' : data.headerAlignment === 'right' ? 'items-end text-right' : 'items-start text-left'}`}>
+            <header className="break-inside-avoid" style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
+                <div className={`flex flex-col ${data.headerAlignment === 'center' ? 'items-center text-center' : data.headerAlignment === 'right' ? 'items-end text-right' : 'items-start text-left'}`}>
                     <h1
                         className="font-bold leading-tight"
                         style={{
-                            fontSize: `${fontSizes?.header || 32}pt`,
+                            fontSize: `${fontSizes?.header || 18}pt`,
                             color: accentColor,
-                            letterSpacing: '-0.01em',
-                            marginBottom: `${data.headerItemGap || 0.08}in`
+                            marginBottom: `${getHeaderItemGapIn(data)}in`, lineHeight: 1.1
                         }}
                     >
-                        {data.fullName}
+                        {formatNameDisplay(data.fullName, data.headerCase)}
                     </h1>
-                    <div
-                        className="font-semibold tracking-wider"
-                        style={{
-                            fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt`,
-                            color: '#64748b',
-                            letterSpacing: '0.1em',
-                            marginBottom: `${data.headerItemGap || 0.08}in`
-                        }}
-                    >
-                        {data.jobTitle}
-                    </div>
 
                     {/* Contact Bar */}
-                    <div className={`flex flex-wrap gap-x-6 gap-y-2 text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.9}pt` }}>
+                    <div className={`flex flex-wrap gap-x-6 gap-y-2 text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.9}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
+                        {data.address && (
+                            <div className="flex items-center gap-2">
+                                <span>{formatContactText(data.address)}</span>
+                            </div>
+                        )}
                         {data.email && (
                             <div className="flex items-center gap-2">
-                                <a href={`mailto:${data.email}`} style={{ textDecoration: 'none', color: 'inherit' }}>{data.email}</a>
+                                <a href={`mailto:${formatContactText(data.email)}`} style={{ textDecoration: 'none', color: 'inherit' }}>{formatContactText(data.email)}</a>
                             </div>
                         )}
                         {data.phone && (
                             <div className="flex items-center gap-2">
-                                <span>{data.phone}</span>
-                            </div>
-                        )}
-
-                        {data.address && (
-                            <div className="flex items-center gap-2">
-                                <span>{data.address}</span>
+                                <span>{formatContactText(data.phone)}</span>
                             </div>
                         )}
                         {data.linkedin && (
                             <div className="flex items-center gap-2">
                                 <a
-                                    href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`}
+                                    href={getLinkedInHref(data.linkedin)}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     style={{ textDecoration: 'none', color: 'inherit' }}
                                     className="text-sm"
                                 >
-                                    {data.linkedin.replace(/^https?:\/\/(www\.)?/, '')}
+                                    {formatLinkedInDisplay(data.linkedin)}
                                 </a>
                             </div>
                         )}
+                    </div>
+                    <div
+                        className="font-semibold"
+                        style={{
+                            fontSize: `${fontSizes?.jobTitle || 11}pt`,
+                            color: accentColor,
+                        }}
+                    >
+                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
                     </div>
                 </div>
             </header>
 
             {/* Dynamic Sections */}
-            {(data.sectionOrder || ['summary', 'achievements', 'skills', 'experience', 'projects', 'certifications', 'education', 'additionalInfo', 'references']).map(id => (
+            {getNormalizedSectionOrder(data.sectionOrder, ['summary', 'achievements', 'skills', 'experience', 'projects', 'certifications', 'education', 'additionalInfo', 'references']).map(id => (
                 <React.Fragment key={id}>
                     {renderSection(id)}
                 </React.Fragment>

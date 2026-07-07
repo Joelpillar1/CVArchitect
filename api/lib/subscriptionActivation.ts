@@ -1,23 +1,23 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { getDodoConfig } from './dodoConfig';
+import { DodoConfig, getDodoConfig } from './dodoConfig';
 
 export type AppPlanId = 'sprint' | 'build' | 'blueprint';
 
 const LEGACY_PLAN_MAP: Record<string, AppPlanId> = {
-    week_pass: 'sprint',
-    pro_monthly: 'build',
+  week_pass: 'sprint',
+  pro_monthly: 'build',
 };
 
 export function normalizePlanId(planId: string): AppPlanId | null {
-    if (planId === 'sprint' || planId === 'build' || planId === 'blueprint') {
-        return planId;
-    }
-    return LEGACY_PLAN_MAP[planId] ?? null;
+  if (planId === 'sprint' || planId === 'build' || planId === 'blueprint') {
+    return planId;
+  }
+  return LEGACY_PLAN_MAP[planId] ?? null;
 }
 
-export function getSupabaseAdmin(): SupabaseClient {
-  const config = getDodoConfig();
-  return createClient(config.supabaseUrl, config.serviceRoleKey);
+export function getSupabaseAdmin(config?: DodoConfig): SupabaseClient {
+  const resolved = config || getDodoConfig();
+  return createClient(resolved.supabaseUrl, resolved.serviceRoleKey);
 }
 
 export function mapProductToPlan(
@@ -25,19 +25,35 @@ export function mapProductToPlan(
   sprintProductId: string,
   buildProductId: string,
   blueprintProductId: string
+): AppPlanId | null;
+export function mapProductToPlan(
+  productId: string | undefined,
+  config: DodoConfig
+): AppPlanId | null;
+export function mapProductToPlan(
+  productId: string | undefined,
+  configOrSprint: DodoConfig | string,
+  buildProductId?: string,
+  blueprintProductId?: string
 ): AppPlanId | null {
   if (!productId) return null;
-  if (productId === sprintProductId) return 'sprint';
-  if (productId === buildProductId) return 'build';
-  if (productId === blueprintProductId) return 'blueprint';
+
+  const sprint =
+    typeof configOrSprint === 'string' ? configOrSprint : configOrSprint.sprintProductId;
+  const build =
+    typeof configOrSprint === 'string' ? buildProductId || '' : configOrSprint.buildProductId;
+  const blueprint =
+    typeof configOrSprint === 'string'
+      ? blueprintProductId || ''
+      : configOrSprint.blueprintProductId;
+
+  if (productId === sprint) return 'sprint';
+  if (productId === build) return 'build';
+  if (productId === blueprint) return 'blueprint';
   return null;
 }
 
-export function getPlanDates(planId: AppPlanId): {
-  billingCycle: 'weekly' | 'monthly' | 'quarterly';
-  subscriptionStart: Date;
-  subscriptionEnd: Date;
-} {
+function getPlanDates(planId: AppPlanId) {
   const subscriptionStart = new Date();
 
   if (planId === 'sprint') {
@@ -77,10 +93,19 @@ export async function findUserIdByEmail(
   }
 }
 
+export interface ActivateSubscriptionOptions {
+  dodoSubscriptionId?: string;
+  dodoCustomerId?: string;
+  subscriptionEnd?: string | null;
+  cancelAtPeriodEnd?: boolean;
+  scheduledPlanId?: string | null;
+}
+
 export async function activateSubscription(
   supabaseAdmin: SupabaseClient,
   userId: string,
-  planId: AppPlanId
+  planId: AppPlanId,
+  options: ActivateSubscriptionOptions = {}
 ): Promise<{ success: boolean; error?: string }> {
   const { billingCycle, subscriptionStart, subscriptionEnd } = getPlanDates(planId);
   const credits = 999999;
@@ -91,26 +116,24 @@ export async function activateSubscription(
     .eq('user_id', userId)
     .single();
 
-  const payload = {
+  const payload: Record<string, unknown> = {
     plan_id: planId,
     credits,
     billing_cycle: billingCycle,
     subscription_start: subscriptionStart.toISOString(),
-    subscription_end: subscriptionEnd.toISOString(),
+    subscription_end: options.subscriptionEnd ?? subscriptionEnd.toISOString(),
     is_active: true,
+    cancel_at_period_end: options.cancelAtPeriodEnd ?? false,
+    scheduled_plan_id: options.scheduledPlanId ?? null,
     updated_at: new Date().toISOString(),
   };
 
-  if (existingSub) {
-    const { error } = await supabaseAdmin
-      .from('subscriptions')
-      .update(payload)
-      .eq('user_id', userId);
+  if (options.dodoSubscriptionId) payload.dodo_subscription_id = options.dodoSubscriptionId;
+  if (options.dodoCustomerId) payload.dodo_customer_id = options.dodoCustomerId;
 
-    if (error) {
-      console.error('Failed to update subscription:', error);
-      return { success: false, error: error.message };
-    }
+  if (existingSub) {
+    const { error } = await supabaseAdmin.from('subscriptions').update(payload).eq('user_id', userId);
+    if (error) return { success: false, error: error.message };
     return { success: true };
   }
 
@@ -120,15 +143,55 @@ export async function activateSubscription(
     created_at: new Date().toISOString(),
   });
 
-  if (error) {
-    console.error('Failed to create subscription:', error);
-    return { success: false, error: error.message };
-  }
-
+  if (error) return { success: false, error: error.message };
   return { success: true };
 }
 
-export async function downgradeSubscription(
+export async function markCancelAtPeriodEnd(
+  supabaseAdmin: SupabaseClient,
+  userId: string
+): Promise<{ success: boolean; error?: string }> {
+  const { error } = await supabaseAdmin
+    .from('subscriptions')
+    .update({ cancel_at_period_end: true, updated_at: new Date().toISOString() })
+    .eq('user_id', userId);
+
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+export async function schedulePlanChange(
+  supabaseAdmin: SupabaseClient,
+  userId: string,
+  scheduledPlanId: AppPlanId
+): Promise<{ success: boolean; error?: string }> {
+  const { error } = await supabaseAdmin
+    .from('subscriptions')
+    .update({ scheduled_plan_id: scheduledPlanId, updated_at: new Date().toISOString() })
+    .eq('user_id', userId);
+
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+export async function linkDodoSubscription(
+  supabaseAdmin: SupabaseClient,
+  userId: string,
+  dodoSubscriptionId: string,
+  dodoCustomerId?: string
+): Promise<{ success: boolean; error?: string }> {
+  const payload: Record<string, unknown> = {
+    dodo_subscription_id: dodoSubscriptionId,
+    updated_at: new Date().toISOString(),
+  };
+  if (dodoCustomerId) payload.dodo_customer_id = dodoCustomerId;
+
+  const { error } = await supabaseAdmin.from('subscriptions').update(payload).eq('user_id', userId);
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+export async function finalizeDowngrade(
   supabaseAdmin: SupabaseClient,
   userId: string
 ): Promise<{ success: boolean; error?: string }> {
@@ -149,17 +212,19 @@ export async function downgradeSubscription(
       subscription_start: new Date().toISOString(),
       subscription_end: null,
       is_active: true,
+      dodo_subscription_id: null,
+      dodo_customer_id: null,
+      cancel_at_period_end: false,
+      scheduled_plan_id: null,
       updated_at: new Date().toISOString(),
     })
     .eq('user_id', userId);
 
-  if (error) {
-    console.error('Failed to downgrade subscription:', error);
-    return { success: false, error: error.message };
-  }
-
+  if (error) return { success: false, error: error.message };
   return { success: true };
 }
+
+export const downgradeSubscription = finalizeDowngrade;
 
 export function extractWebhookPayload(event: Record<string, unknown>): Record<string, unknown> {
   const data = (event.data ?? {}) as Record<string, unknown>;
@@ -170,15 +235,9 @@ export function extractWebhookPayload(event: Record<string, unknown>): Record<st
   return data;
 }
 
-export function extractMetadata(event: Record<string, unknown>): {
-  userId?: string;
-  planId?: AppPlanId;
-  email?: string;
-  productId?: string;
-} {
+export function extractMetadata(event: Record<string, unknown>) {
   const data = extractWebhookPayload(event);
   const metadata = (data.metadata ?? data.custom_metadata ?? {}) as Record<string, string>;
-
   const customer = (data.customer ?? {}) as Record<string, string>;
   const productCart = data.product_cart as Array<{ product_id?: string }> | undefined;
   const products = data.products as Array<{ product_id?: string }> | undefined;
@@ -193,6 +252,14 @@ export function extractMetadata(event: Record<string, unknown>): {
   const planIdRaw = metadata.plan_id || metadata.planId;
   const normalizedPlan = planIdRaw ? normalizePlanId(planIdRaw) : null;
 
+  const subscriptionId =
+    (data.subscription_id as string | undefined) ||
+    (data.id as string | undefined) ||
+    metadata.subscription_id;
+
+  const customerId =
+    (data.customer_id as string | undefined) || customer.customer_id || customer.id;
+
   return {
     userId: metadata.user_id || metadata.userId,
     planId: normalizedPlan ?? undefined,
@@ -202,5 +269,9 @@ export function extractMetadata(event: Record<string, unknown>): {
       (data.customer_email as string | undefined) ||
       (data.email as string | undefined),
     productId,
+    subscriptionId,
+    customerId,
+    cancelAtNextBillingDate: Boolean(data.cancel_at_next_billing_date),
+    nextBillingDate: data.next_billing_date as string | undefined,
   };
 }

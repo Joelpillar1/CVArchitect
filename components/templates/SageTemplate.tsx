@@ -5,7 +5,11 @@ import {
     descriptionToString,
     parseAchievementBullets,
     formatMonthYear as formatMonthYearUtil,
-} from '../../utils/templateUtils';
+    getNormalizedSectionOrder,
+    getMarginHorizontalIn,
+    getMarginVerticalIn,
+    getHeaderGapIn,
+    getHeaderItemGapIn, getHeaderContactGapIn, formatNameDisplay, formatJobTitleDisplay, CONTACT_SEPARATOR} from '../../utils/templateUtils';
 import { getTranslation, Language } from '../../i18n/translations';
 
 const formatDate = (dateString: string | null | undefined) =>
@@ -44,7 +48,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
             <h2
                 className={`font-bold tracking-wide uppercase ${getSectionHeaderAlignment()}`}
                 style={{
-                    fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                    fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                     color: accentColor,
                     letterSpacing: '0.04em',
                 }}
@@ -67,7 +71,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                         <SectionTitle>Professional Summary</SectionTitle>
                         <p
                             className="text-gray-900"
-                            style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                            style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                         >
                             {data.summary}
                         </p>
@@ -95,13 +99,13 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                                     <div className="flex justify-between items-baseline">
                                         <span
                                             className="font-bold text-gray-900"
-                                            style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                                            style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                                         >
                                             {exp.role}
                                         </span>
                                         <span
                                             className="text-gray-700 shrink-0 ml-2"
-                                            style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                                            style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                                         >
                                             {formatDate(exp.startDate)}
                                             {exp.startDate && exp.endDate ? '—' : ''}
@@ -112,7 +116,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                                     {/* Row 2: Company (italic) */}
                                     <div
                                         className="italic text-gray-700"
-                                        style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                                        style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                                     >
                                         {exp.company}
                                     </div>
@@ -120,7 +124,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                                     {/* Bullet points */}
                                     <div
                                         className="text-gray-900 pl-4 mt-0.5"
-                                        style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                                        style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                                     >
                                         {descriptionToString(exp.description)
                                             .split('\n')
@@ -159,14 +163,14 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                                     {/* Row 1: Role (bold) */}
                                     <div
                                         className="font-bold text-gray-900"
-                                        style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                                        style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                                     >
                                         {exp.role}
                                     </div>
                                     {/* Row 2: Company · Date */}
                                     <div
                                         className="text-gray-700"
-                                        style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                                        style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                                     >
                                         {exp.company}
                                         {exp.startDate
@@ -176,7 +180,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                                     {/* Description */}
                                     <div
                                         className="text-gray-900 pl-4"
-                                        style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                                        style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                                     >
                                         {descriptionToString(exp.description)
                                             .split('\n')
@@ -206,14 +210,14 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                                     {/* Degree (bold) */}
                                     <div
                                         className="font-bold text-gray-900"
-                                        style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                                        style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                                     >
                                         {edu.degree}
                                     </div>
                                     {/* School · Scholarship · Year */}
                                     <div
                                         className="text-gray-700"
-                                        style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                                        style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                                     >
                                         {edu.school}
                                         {edu.year ? ` · ${edu.year}` : ''}
@@ -222,7 +226,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                                     {edu.relevantCourses && (
                                         <div
                                             className="text-gray-600 italic"
-                                            style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.9}pt` }}
+                                            style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.9}pt` }}
                                         >
                                             {edu.relevantCourses}
                                         </div>
@@ -260,7 +264,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                         <SectionTitle>Expert-Level Skills</SectionTitle>
                         <div
                             style={{
-                                fontSize: `${fontSizes?.body || 10.5}pt`,
+                                fontSize: `${fontSizes?.body || 9.5}pt`,
                                 display: columnCount > 1 ? 'grid' : 'block',
                                 gridTemplateColumns:
                                     columnCount > 1 ? `repeat(${columnCount}, minmax(0, 1fr))` : undefined,
@@ -313,6 +317,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                 );
 
             /* ── ACHIEVEMENTS ── */
+            case 'keyAchievements':
             case 'achievements': {
                 const achievements = parseAchievementBullets(data.keyAchievements || '');
                 return achievements.length > 0 ? (
@@ -323,7 +328,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                         <SectionTitle>Key Achievements</SectionTitle>
                         <div
                             className="text-gray-900 pl-4"
-                            style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                            style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                         >
                             {achievements.map((line, i) =>
                                 line.trim() ? (
@@ -348,7 +353,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                                 <div key={project.id} className="break-inside-avoid">
                                     <div
                                         className="font-bold text-gray-900"
-                                        style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                                        style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                                     >
                                         {project.name}
                                         {project.link && (
@@ -369,14 +374,14 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                                     {project.technologies && (
                                         <div
                                             className="italic text-gray-600"
-                                            style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                                            style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                                         >
                                             {project.technologies}
                                         </div>
                                     )}
                                     <div
                                         className="text-gray-900 pl-4"
-                                        style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                                        style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                                     >
                                         <div className="relative pl-2">
                                             <span className="absolute left-[-1rem] text-gray-600">·</span>
@@ -402,7 +407,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                                 <div
                                     key={cert.id}
                                     className="flex justify-between"
-                                    style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                                    style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                                 >
                                     <div>
                                         <span className="font-bold text-gray-900">{cert.name}</span>
@@ -433,7 +438,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                         <SectionTitle>Additional Information</SectionTitle>
                         <div
                             className="space-y-0.5"
-                            style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                            style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                         >
                             {data.additionalInfo
                                 .filter((item) => item.label.trim() && item.value.trim())
@@ -457,7 +462,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                         <SectionTitle>References</SectionTitle>
                         <p
                             className="text-gray-900  whitespace-pre-line"
-                            style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                            style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                         >
                             {data.referee}
                         </p>
@@ -491,7 +496,10 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
         'references',
     ];
 
-    let sectionOrder = data.sectionOrder && data.sectionOrder.length > 0 ? data.sectionOrder : defaultOrder;
+    let sectionOrder = getNormalizedSectionOrder(
+        data.sectionOrder && data.sectionOrder.length > 0 ? data.sectionOrder : defaultOrder,
+        defaultOrder
+    );
 
     // Ensure leadership is included if data exists
     if (
@@ -511,49 +519,38 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
             className="resume-content text-gray-900"
             style={{
                 fontFamily: data.font ||"'Georgia', 'Times New Roman', serif",
-                lineHeight: data.lineHeight || 1.4,
-                paddingLeft: `${data.margins?.horizontal || 0.55}in`,
-                paddingRight: `${data.margins?.horizontal || 0.55}in`,
-                paddingTop: `${data.margins?.vertical || 0.45}in`,
-                paddingBottom: `${data.margins?.vertical || 0.45}in`,
+                lineHeight: data.lineHeight || 1.7,
+                paddingLeft: `${getMarginHorizontalIn(data)}in`,
+                paddingRight: `${getMarginHorizontalIn(data)}in`,
+                paddingTop: `${getMarginVerticalIn(data)}in`,
+                paddingBottom: `${getMarginVerticalIn(data)}in`,
             }}
         >
             {/* ── Header ── */}
             <div
                 className={`break-inside-avoid ${headerAlign}`}
-                style={{ marginBottom: `${data.headerGap || 0.18}in` }}
+                style={{ marginBottom: `${getHeaderGapIn(data)}in` }}
             >
                 {/* Name */}
                 <h1
-                    className="font-bold tracking-tight"
+                    className="font-bold"
                     style={{
-                        fontSize: `${fontSizes?.header || 26}pt`,
+                        fontSize: `${fontSizes?.header || 18}pt`,
                         color: accentColor,
-                        marginBottom: `${data.headerItemGap || 0.04}in`,
+                        marginBottom: `${getHeaderItemGapIn(data)}in`,
+                        lineHeight: 1.1,
                     }}
                 >
-                    {data.fullName}
+                    {formatNameDisplay(data.fullName, data.headerCase)}
                 </h1>
-
-                {/* Job title (optional) */}
-                {data.jobTitle && (
-                    <div
-                        className="text-gray-600 italic"
-                        style={{
-                            fontSize: `${fontSizes?.jobTitle || 11}pt`,
-                            marginBottom: `${data.headerItemGap || 0.04}in`,
-                        }}
-                    >
-                        {data.jobTitle}
-                    </div>
-                )}
 
                 {/* Contact line — all items separated by a small centered dot */}
                 {contactParts.length > 0 && (
                     <div
                         className="flex flex-wrap items-center gap-1 text-gray-700"
                         style={{
-                            fontSize: `${(fontSizes?.body || 10.5) * 0.92}pt`,
+                            fontSize: `${(fontSizes?.body || 9.5) * 0.92}pt`,
+                            marginBottom: `${getHeaderContactGapIn(data)}in`,
                             justifyContent:
                                 data.headerAlignment === 'left'
                                     ? 'flex-start'
@@ -564,7 +561,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                     >
                         {contactParts.map((part, i) => (
                             <React.Fragment key={i}>
-                                {i > 0 && <span className="text-gray-400 mx-0.5">■</span>}
+                                {i > 0 && <span className="text-gray-400 mx-0.5">{CONTACT_SEPARATOR}</span>}
                                 {part.includes('@') ? (
                                     <a
                                         href={`mailto:${part}`}
@@ -588,6 +585,19 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                                 )}
                             </React.Fragment>
                         ))}
+                    </div>
+                )}
+
+                {/* Job title (optional) */}
+                {data.jobTitle && (
+                    <div
+                        className="italic"
+                        style={{
+                            fontSize: `${fontSizes?.jobTitle || 11}pt`,
+                            color: accentColor,
+                        }}
+                    >
+                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
                     </div>
                 )}
             </div>

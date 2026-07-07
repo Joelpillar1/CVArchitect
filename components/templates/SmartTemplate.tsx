@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, formatDate as formatDateUtil } from '../../utils/templateUtils';
+import { parseDescriptionBullets, formatDate as formatDateUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, CONTACT_SEPARATOR, formatJobTitleDisplay} from '../../utils/templateUtils';
 
 interface SmartTemplateProps {
     data: ResumeData;
@@ -9,9 +9,10 @@ interface SmartTemplateProps {
 export default function SmartTemplate({ data }: SmartTemplateProps) {
     const { fontSizes } = data;
     const accentColor = data.accentColor || '#000000';
-    const sectionGap = data.sectionGap !== undefined ? `${data.sectionGap}in` : '0.25in';
-    const headerGap = data.headerGap !== undefined ? `${data.headerGap}in` : '0.3in';
-    const headerItemGap = data.headerItemGap !== undefined ? `${data.headerItemGap}in` : '0.1in';
+    const sectionGap = `${getSectionGapIn(data)}in`;
+    const headerGap = `${getHeaderGapIn(data)}in`;
+    const headerItemGap = `${getHeaderItemGapIn(data)}in`;
+    const headerContactGap = `${getHeaderContactGapIn(data)}in`;
 
     const bodyAlignment = data.bodyHeaderAlignment || 'left';
 
@@ -22,7 +23,7 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
                 <div className="flex-1 border-b-[2px] border-dotted border-gray-400 relative top-[1px]"></div>
             )}
             <h2
-                className="uppercase tracking-widest font-bold font-serif whitespace-nowrap"
+                className="uppercase tracking-widest font-bold whitespace-nowrap"
                 style={{
                     fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                     color: accentColor
@@ -69,7 +70,7 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
                         <SectionHeader title="Areas of Expertise" />
                         <div className={`grid ${columnCount === 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-x-6`}>
                             {skillColumns.map((column, colIndex) => (
-                                <ul key={colIndex} className="list-disc ml-6 space-y-2 text-gray-800 marker:text-black">
+                                <ul key={colIndex} className="list-disc ml-5 space-y-2 text-gray-800 marker:text-black">
                                     {column.map((skill, index) => (
                                         <li key={index} className="pl-1">
                                             {skill}
@@ -94,7 +95,7 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
                                 >
                                     {/* Line 1: Job Title | Start - End */}
                                     <div className="flex justify-between items-baseline mb-0.5">
-                                        <div className="font-bold text-black" style={{ fontSize: `${(fontSizes?.body || 10.5) + 0.5}pt` }}>
+                                        <div className="font-bold text-black" style={{ fontSize: `${(fontSizes?.body || 9.5) + 0.5}pt` }}>
                                             {exp.role} <span className="font-normal mx-1">|</span> <span className="font-normal">{formatDate(exp.startDate)} – {formatDate(exp.endDate)}</span>
                                         </div>
                                     </div>
@@ -107,7 +108,7 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
                                     {/* Description */}
                                     {exp.description && (
                                         <div className="pl-2">
-                                            <ul className="list-disc ml-4 space-y-1 text-gray-800 marker:text-black">
+                                            <ul className="list-disc ml-5 space-y-1 text-gray-800 marker:text-black">
                                                 {parseDescriptionBullets(exp.description).map((line, i) => (
                                                     line && (
                                                         <li key={i} className="pl-1">{line}</li>
@@ -129,7 +130,7 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
                             {data.education.map((edu) => (
                                 <div key={edu.id} className="break-inside-avoid">
                                     <div className="text-black">
-                                        <span className="font-bold">{edu.degree}</span>, {edu.school} | <span style={{ fontSize: `${fontSizes?.body || 10}pt` }}>{edu.year}</span>
+                                        <span className="font-bold">{edu.degree}</span>, {edu.school} | <span style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{edu.year}</span>
                                     </div>
                                 </div>
                             ))}
@@ -144,14 +145,14 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
                             {data.leadership.map((exp) => (
                                 <div key={exp.id} className="break-inside-avoid">
                                     <div className="flex justify-between items-baseline mb-0.5">
-                                        <div className="font-bold text-black" style={{ fontSize: `${(fontSizes?.body || 10.5) + 0.5}pt` }}>
+                                        <div className="font-bold text-black" style={{ fontSize: `${(fontSizes?.body || 9.5) + 0.5}pt` }}>
                                             {exp.role} <span className="font-normal mx-1">|</span> <span className="font-normal">{formatDate(exp.startDate)} – {formatDate(exp.endDate)}</span>
                                         </div>
                                     </div>
                                     <div className="font-bold text-black mb-2" style={{ color: accentColor }}>
                                         {exp.company}, {exp.location}
                                     </div>
-                                    <ul className="list-disc ml-6 space-y-1 text-gray-800 marker:text-black">
+                                    <ul className="list-disc ml-5 space-y-1 text-gray-800 marker:text-black">
                                         {parseDescriptionBullets(exp.description).map((line, i) => (
                                             line && (
                                                 <li key={i} className="pl-1">{line}</li>
@@ -206,7 +207,7 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
                 return data.keyAchievements && (
                     <section key="keyAchievements" style={{ marginBottom: sectionGap }}>
                         <SectionHeader title="Key Achievements" />
-                        <ul className="list-disc ml-6 space-y-2 text-gray-800 marker:text-black">
+                        <ul className="list-disc ml-5 space-y-2 text-gray-800 marker:text-black">
                             {parseDescriptionBullets(data.keyAchievements).map((achievement, index) => (
                                 achievement && (
                                     <li key={index} className="pl-1">
@@ -248,65 +249,61 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
         'languages'
     ];
 
-    // Deduplicate and normalize section order handling aliases
-    const uniqueSectionOrder = Array.from(new Set(sectionOrder.map(s =>
-        s === 'achievements' ? 'keyAchievements' : s
-    )));
+    const uniqueSectionOrder = getNormalizedSectionOrder(sectionOrder, [
+        'summary',
+        'skills',
+        'experience',
+        'leadership',
+        'education',
+        'certifications',
+        'projects',
+        'languages'
+    ]);
 
     return (
         <div
             className="w-[210mm] min-h-[297mm] bg-white text-gray-800 mx-auto"
             style={{
                 fontFamily: data.font ||"Georgia, 'Times New Roman', Times, serif",
-                fontSize: `${fontSizes?.body || 10.5}pt`,
-                lineHeight: data.lineHeight || 1.4,
-                paddingTop: `${data.margins?.vertical || 0.8}in`,
-                paddingBottom: `${data.margins?.vertical || 0.8}in`,
-                paddingLeft: `${data.margins?.horizontal || 0.8}in`,
-                paddingRight: `${data.margins?.horizontal || 0.8}in`,
+                fontSize: `${fontSizes?.body || 9.5}pt`,
+                lineHeight: data.lineHeight || 1.7,
+                paddingTop: `${getMarginVerticalIn(data)}in`,
+                paddingBottom: `${getMarginVerticalIn(data)}in`,
+                paddingLeft: `${getMarginHorizontalIn(data)}in`,
+                paddingRight: `${getMarginHorizontalIn(data)}in`,
             }}
         >
             {/* Header */}
             <div className={`${textAlignment}`} style={{ marginBottom: headerGap }}>
                 <h1
-                    className="font-bold text-4xl mb-2 text-black"
+                    className="font-bold text-4xl  text-black"
                     style={{
-                        fontSize: `${fontSizes?.header || 32}pt`,
-                        color: accentColor
+                        fontSize: `${fontSizes?.header || 18}pt`,
+                        color: accentColor,
+                        marginBottom: headerItemGap, lineHeight: 1.1,
                     }}
                 >
-                    {data.fullName ||"YOUR NAME"}
+                    {formatNameDisplay(data.fullName, data.headerCase) ||"YOUR NAME"}
                 </h1>
 
-                <div className="text-gray-500 text-lg mb-3 font-serif" style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt` }}>
-                    {data.jobTitle ||"Professional Title"}
+                <div className={`flex flex-wrap text-black text-sm border-t-0 pt-0 ${flexAlignment}`} style={{ gap: headerItemGap, marginBottom: headerContactGap }}>
+                    {(() => {
+                        const items: React.ReactNode[] = [];
+                        if (data.location) items.push(<span key="location">{formatContactText(data.location)}</span>);
+                        if (data.phone) items.push(<span key="phone">{formatContactText(data.phone)}</span>);
+                        if (data.email) items.push(<a key="email" href={`mailto:${formatContactText(data.email)}`} className="text-black no-underline">{formatContactText(data.email)}</a>);
+                        if (data.linkedin) items.push(<a key="linkedin" href={getLinkedInHref(data.linkedin)} target="_blank" rel="noopener noreferrer" className="text-black no-underline">{formatLinkedInDisplay(data.linkedin)}</a>);
+                        return items.map((item, index) => (
+                            <React.Fragment key={index}>
+                                {index > 0 && <span className="mx-1">{CONTACT_SEPARATOR}</span>}
+                                {item}
+                            </React.Fragment>
+                        ));
+                    })()}
                 </div>
 
-                <div className={`flex flex-wrap text-black text-sm border-t-0 pt-0 ${flexAlignment}`} style={{ gap: headerItemGap }}>
-                    {/* Phone | City, ST | Email | LinkedIn */}
-                    {data.phone && (
-                        <>
-                            <span>{data.phone}</span>
-                            <span className="mx-1">|</span>
-                        </>
-                    )}
-                    {data.location && (
-                        <>
-                            <span>{data.location}</span>
-                            <span className="mx-1">|</span>
-                        </>
-                    )}
-                    {data.email && (
-                        <>
-                            <a href={`mailto:${data.email}`} className="text-black no-underline">{data.email}</a>
-                            {data.linkedin && <span className="mx-1">|</span>}
-                        </>
-                    )}
-                    {data.linkedin && (
-                        <a href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`} target="_blank" rel="noopener noreferrer" className="text-black no-underline">
-                            {data.linkedin.replace(/^https?:\/\//, '')}
-                        </a>
-                    )}
+                <div className="text-lg" style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: accentColor }}>
+                    {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase) ||"Job Title"}
                 </div>
             </div>
 

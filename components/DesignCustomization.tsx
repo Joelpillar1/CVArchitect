@@ -165,7 +165,7 @@ export default function DesignCustomization({
                             min="8"
                             max="14"
                             step="0.5"
-                            value={data.fontSizes?.body || 10.5}
+                            value={data.fontSizes?.body || 9.5}
                             onChange={(e) => handleNestedChange('fontSizes', 'body', parseFloat(e.target.value))}
                             className="w-full accent-brand-green"
                         />
@@ -179,7 +179,7 @@ export default function DesignCustomization({
                             min="1"
                             max="2"
                             step="0.1"
-                            value={data.lineHeight || 1.4}
+                            value={data.lineHeight || 1.7}
                             onChange={(e) => handleChange('lineHeight', parseFloat(e.target.value))}
                             className="w-full accent-brand-green"
                         />

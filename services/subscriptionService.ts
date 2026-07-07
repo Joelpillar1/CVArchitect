@@ -57,6 +57,10 @@ export const subscriptionService = {
                 subscriptionStart: subscription.subscription_start ? new Date(subscription.subscription_start) : undefined,
                 subscriptionEnd: subscription.subscription_end ? new Date(subscription.subscription_end) : undefined,
                 isActive: subscription.is_active,
+                dodoSubscriptionId: subscription.dodo_subscription_id || undefined,
+                dodoCustomerId: subscription.dodo_customer_id || undefined,
+                cancelAtPeriodEnd: subscription.cancel_at_period_end || false,
+                scheduledPlanId: subscription.scheduled_plan_id || undefined,
                 usageHistory,
                 usageStats: {
                     totalActions,

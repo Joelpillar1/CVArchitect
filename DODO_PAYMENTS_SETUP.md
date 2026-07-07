@@ -8,6 +8,7 @@ CV Architect uses [Dodo Payments](https://docs.dodopayments.com/developer-resour
 2. Edge Function creates a Dodo checkout session → user redirects to Dodo hosted checkout
 3. After payment, Dodo sends webhook → `dodo-webhook` Edge Function activates subscription in Supabase
 4. User returns to `/dashboard?payment=success&plan={planId}` → Dashboard polls until plan is active
+5. Plan changes and cancellations use `manage-subscription` Edge Function (Dodo change-plan / cancel APIs)
 
 **Vercel fallback routes** (`api/create-checkout-session.ts`, `api/dodo-webhook.ts`) exist but production should use Supabase Edge Functions.
 
@@ -93,6 +94,7 @@ supabase login
 supabase link --project-ref <your-project-ref>
 supabase functions deploy create-checkout-session
 supabase functions deploy dodo-webhook
+supabase functions deploy manage-subscription
 ```
 
 If deploy returns **403**, your CLI account lacks privileges on the project. Use an owner account, deploy via Supabase Dashboard, or request access.
@@ -160,6 +162,8 @@ Ensure `APP_URL` matches your production domain.
 | `services/dodoPaymentsService.ts` | Client checkout API call |
 | `supabase/functions/create-checkout-session/` | Creates Dodo checkout session |
 | `supabase/functions/dodo-webhook/` | Activates/downgrades subscriptions |
+| `supabase/functions/manage-subscription/` | Cancel, change plan, billing portal |
+| `api/manage-subscription.ts` | Vercel fallback for subscription management |
 | `api/lib/subscriptionActivation.ts` | Shared activation logic (Vercel fallback) |
 | `components/PricingModal.tsx` | In-app upgrade UI |
 

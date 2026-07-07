@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, formatDate as formatDateUtil } from '../../utils/templateUtils';
+import { parseDescriptionBullets, formatDate as formatDateUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, CONTACT_SEPARATOR, formatJobTitleDisplay} from '../../utils/templateUtils';
 
 interface StyledTemplateProps {
     data: ResumeData;
@@ -14,9 +14,10 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
     return 'text-left';
   };
     const accentColor = data.accentColor || '#374151'; // Default to gray-700 if no accent
-    const sectionGap = data.sectionGap !== undefined ? `${data.sectionGap}rem` : '1rem';
-    const headerGap = data.headerGap !== undefined ? `${data.headerGap}rem` : '1.5rem';
-    const headerItemGap = data.headerItemGap !== undefined ? `${data.headerItemGap}rem` : '0.5rem';
+    const sectionGap = `${getSectionGapIn(data)}in`;
+    const headerGap = `${getHeaderGapIn(data)}in`;
+    const headerItemGap = `${getHeaderItemGapIn(data)}in`;
+    const headerContactGap = `${getHeaderContactGapIn(data)}in`;
 
     // Helper for section headers
     const SectionHeader = ({ title }: { title: string }) => (
@@ -24,7 +25,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
             className="text-center py-1 mt-0 mb-3 bg-gray-100 break-inside-avoid"
         >
             <h2
-                className={`uppercase tracking-widest font-bold font-serif ${getSectionHeaderAlignment()}`}
+                className={`uppercase tracking-widest font-bold ${getSectionHeaderAlignment()}`}
                 style={{
                     fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                     color: accentColor
@@ -82,7 +83,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                                         <div className="flex-1">
                                             <span>{exp.role}</span>, <span className="italic text-gray-500">{exp.company}{exp.location && ` • ${exp.location}`}</span>
                                         </div>
-                                        <div className="text-right whitespace-nowrap bg-white pl-2" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
+                                        <div className="text-right whitespace-nowrap bg-white pl-2" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                                             {formatDate(exp.startDate)} – {formatDate(exp.endDate)}
                                         </div>
                                     </div>
@@ -111,7 +112,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                                         <div>
                                             <span className="font-bold">{edu.degree}</span>, {edu.school}
                                         </div>
-                                        <div className="text-right" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>{edu.year}</div>
+                                        <div className="text-right" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{edu.year}</div>
                                     </div>
                                 </div>
                             ))}
@@ -129,7 +130,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                                         <div className="flex-1">
                                             <span>{exp.role}</span>, <span className="italic text-gray-500">{exp.company}</span>
                                         </div>
-                                        <div className="text-right whitespace-nowrap bg-white pl-2 font-normal text-gray-600" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
+                                        <div className="text-right whitespace-nowrap bg-white pl-2 font-normal text-gray-600" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                                             {formatDate(exp.startDate)} – {formatDate(exp.endDate)}
                                         </div>
                                     </div>
@@ -157,7 +158,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                                     <div>
                                         <span className="font-bold">{cert.name}</span>, {cert.issuer}
                                     </div>
-                                    <div style={{ fontSize: `${fontSizes?.body || 10}pt` }}>{cert.date}</div>
+                                    <div style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{cert.date}</div>
                                 </div>
                             ))}
                         </div>
@@ -233,50 +234,57 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
         'languages'
     ];
 
-    // Deduplicate and normalize section order handling aliases
-    const uniqueSectionOrder = Array.from(new Set(sectionOrder.map(s =>
-        s === 'achievements' ? 'keyAchievements' : s
-    )));
+    const uniqueSectionOrder = getNormalizedSectionOrder(sectionOrder, [
+        'summary',
+        'skills',
+        'achievements',
+        'experience',
+        'leadership',
+        'education',
+        'certifications',
+        'projects',
+        'languages'
+    ]);
 
     return (
         <div
             className="w-[210mm] min-h-[297mm] bg-white text-gray-800 mx-auto"
             style={{
                 fontFamily: data.font ||"Georgia, 'Times New Roman', Times, serif",
-                fontSize: `${fontSizes?.body || 10}pt`,
-                lineHeight: data.lineHeight || 1.4,
-                paddingTop: `${data.margins?.vertical || 0.8}in`,
-                paddingBottom: `${data.margins?.vertical || 0.8}in`,
-                paddingLeft: `${data.margins?.horizontal || 0.8}in`,
-                paddingRight: `${data.margins?.horizontal || 0.8}in`,
+                fontSize: `${fontSizes?.body || 9.5}pt`,
+                lineHeight: data.lineHeight || 1.7,
+                paddingTop: `${getMarginVerticalIn(data)}in`,
+                paddingBottom: `${getMarginVerticalIn(data)}in`,
+                paddingLeft: `${getMarginHorizontalIn(data)}in`,
+                paddingRight: `${getMarginHorizontalIn(data)}in`,
             }}
         >
             {/* Header */}
             <div className={`${textAlignment}`} style={{ marginBottom: headerGap }}>
                 <h1
-                    className="uppercase tracking-widest text-4xl mb-1 text-gray-800"
-                    style={{ marginBottom: `${data.headerItemGap || 0.08}in`, 
-                        fontSize: `${fontSizes?.header || 28}pt`,
+                    className="text-4xl text-gray-800"
+                    style={{ marginBottom: `${getHeaderItemGapIn(data)}in`, lineHeight: 1.1,
+                        fontSize: `${fontSizes?.header || 18}pt`,
                         color: accentColor
                     }}
                 >
-                    {data.fullName ||"YOUR NAME"}
+                    {formatNameDisplay(data.fullName, data.headerCase) ||"YOUR NAME"}
                 </h1>
 
-                <div className={`flex flex-wrap text-gray-600 uppercase tracking-wider text-xs mb-3 ${flexAlignment}`} style={{ gap: headerItemGap }}>
+                <div className={`flex flex-wrap text-gray-600 text-xs ${flexAlignment}`} style={{ gap: headerItemGap, marginBottom: headerContactGap }}>
                     {(() => {
                         const items: React.ReactNode[] = [];
 
                         if (data.location) {
-                            items.push(<span key="location">{data.location}</span>);
+                            items.push(<span key="location">{formatContactText(data.location)}</span>);
                         }
                         if (data.phone) {
-                            items.push(<span key="phone">{data.phone}</span>);
+                            items.push(<span key="phone">{formatContactText(data.phone)}</span>);
                         }
                         if (data.email) {
                             items.push(
-                                <a key="email" href={`mailto:${data.email}`}>
-                                    {data.email}
+                                <a key="email" href={`mailto:${formatContactText(data.email)}`}>
+                                    {formatContactText(data.email)}
                                 </a>
                             );
                         }
@@ -284,29 +292,34 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                             items.push(
                                 <a
                                     key="linkedin"
-                                    href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`}
+                                    href={getLinkedInHref(data.linkedin)}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                 >
-                                    {data.linkedin.replace(/^https?:\/\/(www\.)?/, '')}
+                                    {formatLinkedInDisplay(data.linkedin)}
                                 </a>
                             );
                         }
 
                         return items.map((item, index) => (
                             <React.Fragment key={index}>
-                                {index > 0 && <span>|</span>}
+                                {index > 0 && <span>{CONTACT_SEPARATOR}</span>}
                                 {item}
                             </React.Fragment>
                         ));
                     })()}
                 </div>
 
-                <div className="border-t border-b border-gray-400 py-1.5 mb-4">
-                    <p className="tracking-[0.2em] font-bold text-gray-700 text-sm" style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt` }}>
-                        {data.jobTitle ||"Professional Title"}
-                    </p>
-                </div>
+                {data.jobTitle && (
+                    <div>
+                        <p
+                            className="font-bold text-sm"
+                            style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: accentColor }}
+                        >
+                            {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+                        </p>
+                    </div>
+                )}
             </div>
 
             {/* Dynamic Content */}

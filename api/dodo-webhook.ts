@@ -3,11 +3,13 @@ import { Webhook } from 'standardwebhooks';
 import { getDodoConfig } from './lib/dodoConfig';
 import {
   activateSubscription,
-  downgradeSubscription,
   extractMetadata,
+  finalizeDowngrade,
   findUserIdByEmail,
   getSupabaseAdmin,
+  linkDodoSubscription,
   mapProductToPlan,
+  markCancelAtPeriodEnd,
   AppPlanId,
 } from './lib/subscriptionActivation';
 
@@ -67,18 +69,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       success: true,
       message: 'Dodo Payments webhook endpoint is active',
       timestamp: new Date().toISOString(),
-      environment: {
-        hasWebhookSecret: !!config.webhookKey,
-        hasSprintProductId: !!config.sprintProductId,
-        hasBuildProductId: !!config.buildProductId,
-        hasBlueprintProductId: !!config.blueprintProductId,
-      },
     });
   }
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
-  }
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
   const rawBody = await getRawBody(req);
   let event: Record<string, unknown>;
@@ -105,12 +99,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const eventType = (event.type as string) || '';
   const supabaseAdmin = getSupabaseAdmin();
+  const meta = extractMetadata(event);
+
+  if (eventType === 'subscription.updated' && meta.cancelAtNextBillingDate) {
+    const finalUserId = meta.userId ?? (await findUserIdByEmail(supabaseAdmin, meta.email));
+    if (!finalUserId) {
+      return res.status(400).json({ error: 'Could not resolve user for cancellation event' });
+    }
+
+    await markCancelAtPeriodEnd(supabaseAdmin, finalUserId);
+    if (meta.subscriptionId) {
+      await linkDodoSubscription(supabaseAdmin, finalUserId, meta.subscriptionId, meta.customerId);
+    }
+
+    return res.status(200).json({ success: true, message: 'Cancellation scheduled', userId: finalUserId });
+  }
 
   if (
     eventType === 'payment.succeeded' ||
     eventType === 'subscription.active' ||
     eventType === 'subscription.renewed' ||
     eventType === 'subscription.updated' ||
+    eventType === 'subscription.plan_changed' ||
     eventType === 'checkout.session.completed'
   ) {
     const { userId, planId } = await resolveUserAndPlan(event);
@@ -119,7 +129,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Could not resolve user or plan for payment event' });
     }
 
-    const result = await activateSubscription(supabaseAdmin, userId, planId);
+    const result = await activateSubscription(supabaseAdmin, userId, planId, {
+      dodoSubscriptionId: meta.subscriptionId,
+      dodoCustomerId: meta.customerId,
+      subscriptionEnd: meta.nextBillingDate ?? undefined,
+      cancelAtPeriodEnd: meta.cancelAtNextBillingDate ? true : false,
+    });
+
     if (!result.success) {
       return res.status(500).json({ error: result.error || 'Failed to activate subscription' });
     }
@@ -132,14 +148,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     eventType === 'payment.failed' ||
     eventType === 'refund.succeeded'
   ) {
-    const { userId, email } = extractMetadata(event);
-    const finalUserId = userId ?? (await findUserIdByEmail(supabaseAdmin, email));
-
+    const finalUserId = meta.userId ?? (await findUserIdByEmail(supabaseAdmin, meta.email));
     if (!finalUserId) {
       return res.status(400).json({ error: 'Could not resolve user for downgrade event' });
     }
 
-    const result = await downgradeSubscription(supabaseAdmin, finalUserId);
+    const result = await finalizeDowngrade(supabaseAdmin, finalUserId);
     if (!result.success) {
       return res.status(500).json({ error: result.error || 'Failed to downgrade subscription' });
     }

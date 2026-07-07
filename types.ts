@@ -78,10 +78,12 @@ export interface ResumeData {
   };
   headerCase?: 'uppercase' | 'lowercase' | 'capitalize';
   sectionHeaderCase?: 'uppercase' | 'lowercase' | 'capitalize';
+  jobTitleCase?: 'uppercase' | 'sentence';
   lineHeight?: number;
   sectionGap?: number;
   headerGap?: number; // Gap between header and body sections
-  headerItemGap?: number; // Gap between header items (name, title, contact)
+  headerItemGap?: number; // Gap between name and contact
+  headerContactGap?: number; // Gap between contact and job title
   margins?: {
     horizontal: number;
     vertical: number;
@@ -214,18 +216,19 @@ export const INITIAL_DATA: ResumeData = {
   referee: "Available upon request",
   font: 'Merriweather, serif',
   fontSizes: {
-    header: 20,       // Header / Name
-    jobTitle: 10,     // Professional Title (matches body)
-    sectionTitle: 13, // Section title
-    body: 10,         // Body text, bullets, company & job title
+    header: 18,       // Header / Name
+    jobTitle: 11,     // Job title
+    sectionTitle: 11, // Section title
+    body: 9.5,        // Body text, bullets, company & job title
   },
-  lineHeight: 1.4,
-  sectionGap: 0.14,
-  headerGap: 0.15,
-  headerItemGap: 0.08,
+  lineHeight: 1.7,
+  sectionGap: 0.16,
+  headerGap: 0.08,
+  headerItemGap: 0.01,
+  headerContactGap: 0.02,
   margins: {
-    horizontal: 0.4,
-    vertical: 0.4,
+    horizontal: 0.5,
+    vertical: 0.5,
   },
   currentTag: '',
   language: 'en',

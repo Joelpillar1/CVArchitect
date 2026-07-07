@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil } from '../../utils/templateUtils';
+import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay} from '../../utils/templateUtils';
 
 interface FreshGradArtsTemplateProps {
   data: ResumeData;
@@ -17,14 +17,14 @@ const FreshGradArtsTemplate: React.FC<FreshGradArtsTemplateProps> = ({ data }) =
     if (data.bodyHeaderAlignment === 'right') return 'text-right';
     return 'text-left';
   };
-  const bodySize = fontSizes?.body || 10.5;
+  const bodySize = fontSizes?.body || 9.5;
   const smallSize = bodySize * 0.85;
 
   const sectionGap = data.sectionGap || 0.18;
 
   const renderSectionHeader = (title: string) => (
     <h2
-      className={`uppercase font-bold tracking-[0.14em] text-xs border-b border-black pb-1 mb-2 ${getSectionHeaderAlignment()}`}
+      className={`uppercase font-bold tracking-[0.14em] text-xs border-b leading-tight border-black pb-0.5 mb-2 ${getSectionHeaderAlignment()}`}
       style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000", borderColor: data.accentColor ||"#000000"}}
     >
       {title}
@@ -35,38 +35,48 @@ const FreshGradArtsTemplate: React.FC<FreshGradArtsTemplateProps> = ({ data }) =
     <div
       className="resume-content text-gray-900"
       style={{
-        lineHeight: data.lineHeight || 1.25,
-        paddingLeft: `${data.margins?.horizontal || 0.75}in`,
-        paddingRight: `${data.margins?.horizontal || 0.75}in`,
-        paddingTop: `${data.margins?.vertical || 0.7}in`,
-        paddingBottom: `${data.margins?.vertical || 0.7}in`,
+        lineHeight: data.lineHeight || 1.7,
+        paddingLeft: `${getMarginHorizontalIn(data)}in`,
+        paddingRight: `${getMarginHorizontalIn(data)}in`,
+        paddingTop: `${getMarginVerticalIn(data)}in`,
+        paddingBottom: `${getMarginVerticalIn(data)}in`,
         fontFamily: data.font ||"Times New Roman, serif",
       }}
     >
       {/* Header (right aligned block) */}
-      <header className="mb-4" style={{ marginBottom: `${data.headerGap || 0.15}in` }}>
+      <header className="mb-4" style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
         <div className="flex justify-between items-start">
           <div />
           <div className="text-right">
             <h1
               className="font-bold"
-              style={{ marginBottom: `${data.headerItemGap || 0.08}in`,  fontSize: `${fontSizes?.header || 24}pt` }}
+              style={{ marginBottom: `${getHeaderItemGapIn(data)}in`, lineHeight: 1.1,  fontSize: `${fontSizes?.header || 18}pt` }}
             >
-              {data.fullName || 'Your Name'}
+              {formatNameDisplay(data.fullName, data.headerCase) || 'Your Name'}
             </h1>
             <div
-              className="mt-1 text-gray-900"
-              style={{ fontSize: `${smallSize}pt` }}
+              className="text-gray-900"
+              style={{ fontSize: `${smallSize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}
             >
               {[
-                data.location || data.address,
-                data.email,
-                data.phone,
-                data.linkedin ? data.linkedin.replace(/https?:\/\/(www\.)?/, '') : undefined,
+                formatContactText(data.location || data.address) || undefined,
+                formatContactText(data.email) || undefined,
+                formatContactText(data.phone) || undefined,
+                formatLinkedInDisplay(data.linkedin) || undefined,
               ]
                 .filter(Boolean)
                 .join(' | ')}
             </div>
+            {data.jobTitle && (
+              <p
+                style={{
+                  fontSize: `${fontSizes?.jobTitle || 11}pt`,
+                  color: data.accentColor || '#000000',
+                  }}
+              >
+                {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+              </p>
+            )}
           </div>
         </div>
       </header>
@@ -91,7 +101,7 @@ const FreshGradArtsTemplate: React.FC<FreshGradArtsTemplateProps> = ({ data }) =
                   </div>
                   <div
                     className="text-gray-900"
-                    style={{ fontSize: `${smallSize}pt` }}
+                    style={{ fontSize: `${smallSize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}
                   >
                     {edu.year}
                   </div>
@@ -152,7 +162,7 @@ const FreshGradArtsTemplate: React.FC<FreshGradArtsTemplateProps> = ({ data }) =
                   </div>
                   <div
                     className="text-gray-900"
-                    style={{ fontSize: `${smallSize}pt` }}
+                    style={{ fontSize: `${smallSize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}
                   >
                     {formatMonthYear(exp.startDate)} –{' '}
                     {formatMonthYear(exp.endDate)}
@@ -209,7 +219,7 @@ const FreshGradArtsTemplate: React.FC<FreshGradArtsTemplateProps> = ({ data }) =
                   </div>
                   <div
                     className="text-gray-900"
-                    style={{ fontSize: `${smallSize}pt` }}
+                    style={{ fontSize: `${smallSize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}
                   >
                     {formatMonthYear(lead.startDate)} –{' '}
                     {formatMonthYear(lead.endDate)}
@@ -246,7 +256,7 @@ const FreshGradArtsTemplate: React.FC<FreshGradArtsTemplateProps> = ({ data }) =
 
       {/* SKILLS */}
       {(data.additionalInfo && data.additionalInfo.length > 0) || data.skills?.trim() ? (
-        <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+        <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
           {renderSectionHeader('Skills')}
 
           <div

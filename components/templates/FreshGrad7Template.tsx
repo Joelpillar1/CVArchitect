@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil } from '../../utils/templateUtils';
+import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay} from '../../utils/templateUtils';
 import { MapPin, Mail, Smartphone, Linkedin } from 'lucide-react';
 
 interface FreshGrad7TemplateProps {
@@ -18,7 +18,7 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
     if (data.bodyHeaderAlignment === 'right') return 'text-right';
     return 'text-left';
   };
-    const bodySize = fontSizes?.body || 10.5;
+    const bodySize = fontSizes?.body || 9.5;
     const smallSize = bodySize * 0.9;
 
     // The user image showed a gray background block at the top with dark text.
@@ -28,7 +28,7 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
         <div className="mb-2">
             <h2
                 className={`uppercase text-gray-900 ${getSectionHeaderAlignment()}`}
-                style={{ fontSize: `${fontSizes?.sectionTitle || 13}pt`, fontFamily:"Georgia, 'Times New Roman', serif" , color: data.accentColor ||"#000000"}}
+                style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt`, color: data.accentColor ||"#000000"}}
             >
                 {title}
             </h2>
@@ -40,7 +40,7 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
         <div
             className="resume-content flex flex-col w-full h-full bg-white relative"
             style={{
-                lineHeight: data.lineHeight || 1.4,
+                lineHeight: data.lineHeight || 1.7,
                 fontFamily: data.font ||"Georgia, 'Times New Roman', Times, serif",
             }}
         >
@@ -51,41 +51,51 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
             >
                 <h1
                     className="font-bold text-gray-900"
-                    style={{ marginBottom: `${data.headerItemGap || 0.08}in`, 
-                        fontSize: `${fontSizes?.header || 28}pt`,
+                    style={{ marginBottom: `${getHeaderItemGapIn(data)}in`, lineHeight: 1.1, 
+                        fontSize: `${fontSizes?.header || 18}pt`,
                     }}
                 >
-                    {data.fullName || 'Name'}
+                    {formatNameDisplay(data.fullName, data.headerCase) || 'Name'}
                 </h1>
                 <div
-                    className="mt-2 text-gray-900 font-sans"
-                    style={{ fontSize: `${smallSize}pt` }}
+                    className="text-gray-900"
+                    style={{ fontSize: `${smallSize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}
                 >
                     {[
-                        data.location || data.address,
-                        data.email,
-                        data.phone,
-                        data.linkedin ? data.linkedin.replace(/https?:\/\/(www\.)?/, '') : undefined,
+                        formatContactText(data.location || data.address) || undefined,
+                        formatContactText(data.email) || undefined,
+                        formatContactText(data.phone) || undefined,
+                        formatLinkedInDisplay(data.linkedin) || undefined,
                     ]
                         .filter(Boolean)
                         .join(' | ')}
                 </div>
+                {data.jobTitle && (
+                    <p
+                        style={{
+                            fontSize: `${fontSizes?.jobTitle || 11}pt`,
+                            color: data.accentColor || '#000000',
+                            }}
+                    >
+                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+                    </p>
+                )}
             </div>
 
             {/* Main Content Area (padding matches other templates) */}
             <div
                 className="flex-1"
                 style={{
-                    paddingLeft: `${data.margins?.horizontal || 0.75}in`,
-                    paddingRight: `${data.margins?.horizontal || 0.75}in`,
-                    paddingTop: `${data.margins?.vertical || 0.5}in`,
-                    paddingBottom: `${data.margins?.vertical || 0.5}in`,
+                    paddingLeft: `${getMarginHorizontalIn(data)}in`,
+                    paddingRight: `${getMarginHorizontalIn(data)}in`,
+                    paddingTop: `${getMarginVerticalIn(data)}in`,
+                    paddingBottom: `${getMarginVerticalIn(data)}in`,
                 }}
             >
 
                 {/* EDUCATION */}
                 {data.education && data.education.length > 0 && (
-                    <section className="mb-4 break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={sectionMarginBottom(data)}>
                         {renderSectionHeader('Education')}
                         <div className="space-y-3">
                             {data.education.map((edu) => (
@@ -109,7 +119,7 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
 
                 {/* EXPERIENCE */}
                 {data.experience && data.experience.length > 0 && (
-                    <section className="mb-4 break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={sectionMarginBottom(data)}>
                         {renderSectionHeader('Experience')}
                         <div className="space-y-3">
                             {data.experience.map((exp) => (
@@ -125,7 +135,7 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
                                     </div>
                                     {exp.description && (
                                         <div
-                                            className="text-gray-800 font-sans"
+                                            className="text-gray-800"
                                             style={{ fontSize: `${bodySize}pt`, paddingLeft: '0.25rem' }}
                                         >
                                             {parseDescriptionBullets(exp.description).map((line, i) =>
@@ -146,7 +156,7 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
 
                 {/* LEADERSHIP (Instead of Involvement) */}
                 {data.leadership && data.leadership.length > 0 && (
-                    <section className="mb-4 break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={sectionMarginBottom(data)}>
                         {renderSectionHeader('Leadership')}
                         <div className="space-y-3">
                             {data.leadership.map((lead) => (
@@ -165,7 +175,7 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
                                     </div>
                                     {lead.description && (
                                         <div
-                                            className="text-gray-800 font-sans"
+                                            className="text-gray-800"
                                             style={{ fontSize: `${bodySize}pt`, paddingLeft: '0.25rem' }}
                                         >
                                             {parseDescriptionBullets(lead.description).map((line, i) =>
@@ -186,18 +196,18 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
 
                 {/* SKILLS & INTERESTS */}
                 {((data.additionalInfo && data.additionalInfo.length > 0) || data.skills) && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         {renderSectionHeader('Skills & Interests')}
                         <div className="space-y-1">
                             {data.skills && (
-                                <div className="text-gray-900 font-sans" style={{ fontSize: `${bodySize}pt` }}>
+                                <div className="text-gray-900" style={{ fontSize: `${bodySize}pt` }}>
                                     <span className="font-semibold">Technical Skills:</span> {data.skills}
                                 </div>
                             )}
                             {data.additionalInfo?.filter((item) => item.label.trim() && item.value.trim()).map((item) => (
                                 <div
                                     key={item.id}
-                                    className="text-gray-900 font-sans"
+                                    className="text-gray-900"
                                     style={{ fontSize: `${bodySize}pt` }}
                                 >
                                     <span className="font-semibold">{item.label}:</span>{' '}

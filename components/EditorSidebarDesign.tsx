@@ -125,6 +125,26 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
                         </button>
                     </div>
                 </div>
+
+                <div>
+                    <h3 className="text-xs font-bold text-gray-900 mb-3">Job Title Case</h3>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => onChange({ ...data, jobTitleCase: 'sentence' })}
+                            className={`px-3 py-1.5 rounded text-xs font-medium hover:bg-brand-secondary ${(!data.jobTitleCase || data.jobTitleCase === 'sentence') ? 'bg-brand-secondary text-brand-dark' : 'text-gray-400'}`}
+                            title="Sentence case (as typed)"
+                        >
+                            Sentence
+                        </button>
+                        <button
+                            onClick={() => onChange({ ...data, jobTitleCase: 'uppercase' })}
+                            className={`px-3 py-1.5 rounded text-xs font-medium hover:bg-brand-secondary ${data.jobTitleCase === 'uppercase' ? 'bg-brand-secondary text-brand-dark' : 'text-gray-400'}`}
+                            title="Uppercase"
+                        >
+                            UPPERCASE
+                        </button>
+                    </div>
+                </div>
                 {/* Skills Layout */}
                 <div>
                     <h3 className="text-xs font-bold text-gray-900 mb-3">Skills Layout</h3>
@@ -188,14 +208,14 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
                         <div className="space-y-1">
                             <div className="flex justify-between items-center">
                                 <span className="text-xs text-gray-600">Header / Name</span>
-                                <span className="text-xs text-gray-400">{data.fontSizes?.header || 24}pt</span>
+                                <span className="text-xs text-gray-400">{data.fontSizes?.header || 18}pt</span>
                             </div>
                             <input
                                 type="range"
                                 min="16"
                                 max="36"
                                 step="1"
-                                value={data.fontSizes?.header || 24}
+                                value={data.fontSizes?.header || 18}
                                 onChange={(e) => handleNestedChange('fontSizes', 'header', parseFloat(e.target.value))}
                                 className="w-full accent-brand-green"
                             />
@@ -204,15 +224,15 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
                         {/* Job Title Size */}
                         <div className="space-y-1">
                             <div className="flex justify-between items-center">
-                                <span className="text-xs text-gray-600">Professional Title</span>
-                                <span className="text-xs text-gray-400">{data.fontSizes?.jobTitle || data.fontSizes?.body || 10}pt</span>
+                                <span className="text-xs text-gray-600">Job Title</span>
+                                <span className="text-xs text-gray-400">{data.fontSizes?.jobTitle || 11}pt</span>
                             </div>
                             <input
                                 type="range"
                                 min="10"
                                 max="24"
                                 step="0.5"
-                                value={data.fontSizes?.jobTitle || data.fontSizes?.body || 10}
+                                value={data.fontSizes?.jobTitle || 11}
                                 onChange={(e) => handleNestedChange('fontSizes', 'jobTitle', parseFloat(e.target.value))}
                                 className="w-full accent-brand-green"
                             />
@@ -222,14 +242,14 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
                         <div className="space-y-1">
                             <div className="flex justify-between items-center">
                                 <span className="text-xs text-gray-600">Section Titles</span>
-                                <span className="text-xs text-gray-400">{data.fontSizes?.sectionTitle || 14}pt</span>
+                                <span className="text-xs text-gray-400">{data.fontSizes?.sectionTitle || 11}pt</span>
                             </div>
                             <input
                                 type="range"
                                 min="10"
                                 max="20"
                                 step="0.5"
-                                value={data.fontSizes?.sectionTitle || 14}
+                                value={data.fontSizes?.sectionTitle || 11}
                                 onChange={(e) => handleNestedChange('fontSizes', 'sectionTitle', parseFloat(e.target.value))}
                                 className="w-full accent-brand-green"
                             />
@@ -239,14 +259,14 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
                         <div className="space-y-1">
                             <div className="flex justify-between items-center">
                                 <span className="text-xs text-gray-600">Body Text</span>
-                                <span className="text-xs text-gray-400">{data.fontSizes?.body || 10.5}pt</span>
+                                <span className="text-xs text-gray-400">{data.fontSizes?.body || 9.5}pt</span>
                             </div>
                             <input
                                 type="range"
                                 min="8"
                                 max="14"
                                 step="0.5"
-                                value={data.fontSizes?.body || 10.5}
+                                value={data.fontSizes?.body || 9.5}
                                 onChange={(e) => handleNestedChange('fontSizes', 'body', parseFloat(e.target.value))}
                                 className="w-full accent-brand-green"
                             />
@@ -299,14 +319,14 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
                     <div className="space-y-2">
                         <label className="text-xs font-medium text-gray-700 flex justify-between">
                             <span>Line Height</span>
-                            <span className="text-gray-400">{data.lineHeight || 1.4}</span>
+                            <span className="text-gray-400">{data.lineHeight || 1.7}</span>
                         </label>
                         <input
                             type="range"
                             min="1.0"
                             max="2.0"
                             step="0.1"
-                            value={data.lineHeight || 1.4}
+                            value={data.lineHeight || 1.7}
                             onChange={(e) => onChange({ ...data, lineHeight: parseFloat(e.target.value) })}
                             className="w-full accent-brand-green"
                         />
@@ -314,7 +334,7 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
 
                     <div className="space-y-2">
                         <label className="text-xs font-medium text-gray-700 flex justify-between">
-                            <span>Section Gap</span>
+                            <span>Space Between Sections</span>
                             <span className="text-gray-400">{data.sectionGap || 0.2}in</span>
                         </label>
                         <input
@@ -330,7 +350,7 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
 
                     <div className="space-y-2">
                         <label className="text-xs font-medium text-gray-700 flex justify-between">
-                            <span>Header Gap</span>
+                            <span>Space Below Header</span>
                             <span className="text-gray-400">{data.headerGap || 0.15}in</span>
                         </label>
                         <input
@@ -346,7 +366,7 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
 
                     <div className="space-y-2">
                         <label className="text-xs font-medium text-gray-700 flex justify-between">
-                            <span>Header Item Gap</span>
+                            <span>Name to Contact Spacing</span>
                             <span className="text-gray-400">{data.headerItemGap || 0.08}in</span>
                         </label>
                         <input
@@ -356,6 +376,22 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
                             step="0.01"
                             value={data.headerItemGap || 0.08}
                             onChange={(e) => onChange({ ...data, headerItemGap: parseFloat(e.target.value) })}
+                            className="w-full accent-brand-green"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-xs font-medium text-gray-700 flex justify-between">
+                            <span>Contact to Job Title Spacing</span>
+                            <span className="text-gray-400">{(data.headerContactGap ?? 0.02)}in</span>
+                        </label>
+                        <input
+                            type="range"
+                            min="0"
+                            max="0.3"
+                            step="0.01"
+                            value={data.headerContactGap ?? 0.02}
+                            onChange={(e) => onChange({ ...data, headerContactGap: parseFloat(e.target.value) })}
                             className="w-full accent-brand-green"
                         />
                     </div>

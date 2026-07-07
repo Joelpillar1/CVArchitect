@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatDate as formatDateUtil } from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatDate as formatDateUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, CONTACT_SEPARATOR, formatJobTitleDisplay} from '../../utils/templateUtils';
 
 interface ElegantTemplateProps {
     data: ResumeData;
@@ -9,9 +9,10 @@ interface ElegantTemplateProps {
 export default function ElegantTemplate({ data }: ElegantTemplateProps) {
     const { fontSizes } = data;
     const accentColor = data.accentColor || '#1a237e'; // Navy blue from image
-    const sectionGap = data.sectionGap !== undefined ? `${data.sectionGap}in` : '0.25in';
-    const headerGap = data.headerGap !== undefined ? `${data.headerGap}in` : '0.3in';
-    const headerItemGap = data.headerItemGap !== undefined ? `${data.headerItemGap}in` : '0.1in';
+    const sectionGap = `${getSectionGapIn(data)}in`;
+    const headerGap = `${getHeaderGapIn(data)}in`;
+    const headerItemGap = `${getHeaderItemGapIn(data)}in`;
+    const headerContactGap = `${getHeaderContactGapIn(data)}in`;
 
     const bodyAlignment = data.bodyHeaderAlignment || 'center';
 
@@ -22,7 +23,7 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
                 <div className="flex-1 border-t border-dashed border-gray-400"></div>
             )}
             <h2
-                className="uppercase tracking-[0.2em] font-bold font-serif whitespace-nowrap"
+                className="uppercase tracking-normal font-bold whitespace-nowrap"
                 style={{
                     fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                     color: accentColor
@@ -92,13 +93,13 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
                                     style={{ marginBottom: index === data.experience.length - 1 ? 0 : sectionGap }}
                                 >
                                     <div className="flex justify-between items-baseline mb-1">
-                                        <div className="font-bold text-gray-800" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
+                                        <div className="font-bold text-gray-800" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                                             {exp.role}
                                             <span className="font-normal text-gray-600 mx-1">,</span>
                                             <span className="font-normal text-gray-600">{exp.company}</span>
                                             {exp.location && <span className="font-normal text-gray-600"> | {exp.location}</span>}
                                         </div>
-                                        <div className="text-gray-600 whitespace-nowrap ml-4" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
+                                        <div className="text-gray-600 whitespace-nowrap ml-4" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                                             {formatDate(exp.startDate)} – {formatDate(exp.endDate)}
                                         </div>
                                     </div>
@@ -126,7 +127,7 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
                         <div className="space-y-2">
                             {data.education.map((edu) => (
                                 <div key={edu.id} className="break-inside-avoid">
-                                    <div className="flex justify-between text-gray-800" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
+                                    <div className="flex justify-between text-gray-800" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                                         <div>
                                             <span className="font-bold">{edu.degree}</span>, {edu.school}
                                         </div>
@@ -145,12 +146,12 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
                             {data.leadership.map((exp) => (
                                 <div key={exp.id} className="break-inside-avoid">
                                     <div className="flex justify-between items-baseline mb-1">
-                                        <div className="font-bold text-gray-800" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
+                                        <div className="font-bold text-gray-800" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                                             {exp.role}
                                             <span className="font-normal text-gray-600 mx-1">,</span>
                                             <span className="font-normal text-gray-600">{exp.company}</span>
                                         </div>
-                                        <div className="text-gray-600 whitespace-nowrap ml-4" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
+                                        <div className="text-gray-600 whitespace-nowrap ml-4" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                                             {formatDate(exp.startDate)} – {formatDate(exp.endDate)}
                                         </div>
                                     </div>
@@ -254,65 +255,77 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
         'languages'
     ];
 
-    // Deduplicate and normalize section order handling aliases
-    const uniqueSectionOrder = Array.from(new Set(sectionOrder.map(s =>
-        s === 'achievements' ? 'keyAchievements' : s
-    )));
+    const uniqueSectionOrder = getNormalizedSectionOrder(sectionOrder, [
+        'summary',
+        'skills',
+        'experience',
+        'leadership',
+        'education',
+        'certifications',
+        'projects',
+        'languages'
+    ]);
 
     return (
         <div
             className="w-[210mm] min-h-[297mm] bg-white text-gray-800 relative mx-auto"
             style={{
                 fontFamily: data.font ||"Georgia, 'Times New Roman', Times, serif",
-                fontSize: `${fontSizes?.body || 10.5}pt`,
-                lineHeight: data.lineHeight || 1.5,
-                paddingTop: `${data.margins?.vertical || 1.25}in`,
-                paddingBottom: `${data.margins?.vertical || 1.25}in`,
-                paddingLeft: `${data.margins?.horizontal || 1}in`,
-                paddingRight: `${data.margins?.horizontal || 1}in`,
+                fontSize: `${fontSizes?.body || 9.5}pt`,
+                lineHeight: data.lineHeight || 1.7,
+                paddingTop: `${getMarginVerticalIn(data)}in`,
+                paddingBottom: `${getMarginVerticalIn(data)}in`,
+                paddingLeft: `${getMarginHorizontalIn(data)}in`,
+                paddingRight: `${getMarginHorizontalIn(data)}in`,
             }}
         >
             {/* Header - Centered by design in this template, but we can respect alignment roughly */}
             <div className={`${textAlignment}`} style={{ marginBottom: headerGap }}>
                 <h1
-                    className="font-normal text-5xl mb-3"
+                    className="font-normal text-5xl "
                     style={{
-                        fontSize: `${fontSizes?.header || 36}pt`,
+                        fontSize: `${fontSizes?.header || 18}pt`,
                         color: accentColor,
-                        fontFamily: data.font ||"Inter, sans-serif"
+                        marginBottom: headerItemGap, lineHeight: 1.1,
                     }}
                 >
-                    {data.fullName ||"Your Name"}
+                    {formatNameDisplay(data.fullName, data.headerCase) ||"Your Name"}
                 </h1>
 
-                <div className="text-gray-600 tracking-widest text-sm mb-3 font-bold" style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt` }}>
-                    {data.jobTitle ||"Professional Title"}
+                <div className={`flex flex-wrap text-gray-600 text-sm ${flexAlignment}`} style={{ gap: headerItemGap, marginBottom: headerContactGap }}>
+                    {(() => {
+                        const items: React.ReactNode[] = [];
+                        if (data.location) {
+                            items.push(<span key="location">{formatContactText(data.location)}</span>);
+                        }
+                        if (data.phone) {
+                            items.push(<span key="phone">{formatContactText(data.phone)}</span>);
+                        }
+                        if (data.email) {
+                            items.push(
+                                <a key="email" href={`mailto:${formatContactText(data.email)}`} className="text-gray-600 no-underline">
+                                    {formatContactText(data.email)}
+                                </a>
+                            );
+                        }
+                        if (data.linkedin) {
+                            items.push(
+                                <a key="linkedin" href={getLinkedInHref(data.linkedin)} target="_blank" rel="noopener noreferrer" className="text-gray-600 no-underline">
+                                    {formatLinkedInDisplay(data.linkedin)}
+                                </a>
+                            );
+                        }
+                        return items.map((item, index) => (
+                            <React.Fragment key={index}>
+                                {index > 0 && <span className="mx-0.5">{CONTACT_SEPARATOR}</span>}
+                                {item}
+                            </React.Fragment>
+                        ));
+                    })()}
                 </div>
 
-                <div className={`flex flex-wrap text-gray-600 text-sm ${flexAlignment}`} style={{ gap: headerItemGap }}>
-                    {data.phone && (
-                        <>
-                            <span>{data.phone}</span>
-                            <span className="mx-2">|</span>
-                        </>
-                    )}
-                    {data.email && (
-                        <>
-                            <a href={`mailto:${data.email}`} className="text-gray-600 no-underline">{data.email}</a>
-                            {(data.location || data.linkedin) && <span className="mx-2">|</span>}
-                        </>
-                    )}
-                    {data.location && (
-                        <>
-                            <span>{data.location}</span>
-                            {data.linkedin && <span className="mx-2">|</span>}
-                        </>
-                    )}
-                    {data.linkedin && (
-                        <a href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`} target="_blank" rel="noopener noreferrer" className="text-gray-600 no-underline">
-                            {data.linkedin.replace(/^https?:\/\//, '')}
-                        </a>
-                    )}
+                <div className="text-sm font-bold" style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: accentColor }}>
+                    {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase) ||"Job Title"}
                 </div>
             </div>
 

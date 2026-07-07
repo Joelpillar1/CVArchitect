@@ -22,7 +22,39 @@ import {
 } from 'lucide-react';
 import { TemplateType } from '../types';
 
+/** Legacy FreshGrad IDs mapped to the two consolidated layouts */
+export const FRESHGRAD_ACADEMIC_IDS: TemplateType[] = [
+    'freshgrad1',
+    'freshgrad2',
+    'freshgrad4',
+    'freshgrad5',
+    'freshgrad6',
+];
+
+export const FRESHGRAD_MODERN_IDS: TemplateType[] = [
+    'freshgrad3',
+    'freshgrad7',
+    'freshgrad8',
+];
+
+export const FRESHGRAD_GALLERY_IDS: TemplateType[] = ['freshgrad1', 'freshgrad8'];
+
+export function isFreshGradTemplate(id: TemplateType): boolean {
+    return FRESHGRAD_ACADEMIC_IDS.includes(id) || FRESHGRAD_MODERN_IDS.includes(id);
+}
+
+export function isFreshGradAcademic(id: TemplateType): boolean {
+    return FRESHGRAD_ACADEMIC_IDS.includes(id);
+}
+
 export const TEMPLATE_CONFIG: { id: TemplateType; name: string; subtitle: string; icon: React.ReactNode; bg: string }[] = [
+    {
+        id: 'student',
+        name: "Student Profile",
+        subtitle: "Student",
+        icon: <BookOpen className="text-blue-500" size={20} />,
+        bg: "bg-[#FFFFFF]"
+    },
     {
         id: 'free',
         name: "CareerCraft",
@@ -32,56 +64,14 @@ export const TEMPLATE_CONFIG: { id: TemplateType; name: string; subtitle: string
     },
     {
         id: 'freshgrad1',
-        name: "Campus Starter",
-        subtitle: "Graduate",
+        name: "Campus Classic",
+        subtitle: "Academic",
         icon: <GraduationCap className="text-emerald-600" size={20} />,
         bg: "bg-[#FFFFFF]"
     },
     {
-        id: 'freshgrad2',
-        name: "Campus Finance",
-        subtitle: "Finance",
-        icon: <LineChart className="text-indigo-600" size={20} />,
-        bg: "bg-[#FFFFFF]"
-    },
-    {
-        id: 'freshgrad3',
-        name: "Campus Engineer",
-        subtitle: "Engineering",
-        icon: <Code className="text-sky-600" size={20} />,
-        bg: "bg-[#FFFFFF]"
-    },
-    {
-        id: 'freshgrad4',
-        name: "Campus Creative",
-        subtitle: "Creative",
-        icon: <Palette className="text-rose-600" size={20} />,
-        bg: "bg-[#FFFFFF]"
-    },
-    {
-        id: 'freshgrad5',
-        name: "Campus ChemE",
-        subtitle: "Chemical Eng",
-        icon: <Leaf className="text-lime-600" size={20} />,
-        bg: "bg-[#FFFFFF]"
-    },
-    {
-        id: 'freshgrad6',
-        name: "Campus Strat",
-        subtitle: "Marketing",
-        icon: <Megaphone className="text-amber-600" size={20} />,
-        bg: "bg-[#FFFFFF]"
-    },
-    {
-        id: 'freshgrad7',
-        name: "Executive Start",
-        subtitle: "Leadership",
-        icon: <Crown className="text-gray-700" size={20} />,
-        bg: "bg-[#FFFFFF]"
-    },
-    {
         id: 'freshgrad8',
-        name: "Business Classic",
+        name: "Campus Modern",
         subtitle: "Graduate",
         icon: <Briefcase className="text-indigo-700" size={20} />,
         bg: "bg-[#FFFFFF]"
@@ -117,7 +107,7 @@ export const TEMPLATE_CONFIG: { id: TemplateType; name: string; subtitle: string
     {
         id: 'impact',
         name: "Impact",
-        subtitle: "Bold Design",
+        subtitle: "Compact",
         icon: <Award className="text-red-600" size={20} />,
         bg: "bg-[#FFFFFF]"
     },
@@ -196,6 +186,13 @@ export const TEMPLATE_CONFIG: { id: TemplateType; name: string; subtitle: string
         name: "Minimalist",
         subtitle: "Clean",
         icon: <LayoutTemplate className="text-gray-400" size={20} />,
+        bg: "bg-[#FFFFFF]"
+    },
+    {
+        id: 'twocolumn',
+        name: "Two Column Pro",
+        subtitle: "Sidebar",
+        icon: <LayoutTemplate className="text-slate-600" size={20} />,
         bg: "bg-[#FFFFFF]"
     },
     {

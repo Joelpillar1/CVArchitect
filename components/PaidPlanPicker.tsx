@@ -2,15 +2,21 @@ import React, { useState } from 'react';
 import { Check, Loader2 } from 'lucide-react';
 import { PlanId } from '../types/pricing';
 import { PLANS, PAID_PLAN_FEATURES, PAID_PLAN_IDS, formatPlanPrice } from '../utils/pricingConfig';
-import { redirectToCheckout } from '../services/dodoPaymentsService';
+import { upgradeToPlan } from '../services/dodoPaymentsService';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 
 interface PaidPlanPickerProps {
     currentPlanId?: string;
+    dodoSubscriptionId?: string;
+    onPlanChanged?: () => void;
 }
 
-export default function PaidPlanPicker({ currentPlanId = 'free' }: PaidPlanPickerProps) {
+export default function PaidPlanPicker({
+    currentPlanId = 'free',
+    dodoSubscriptionId,
+    onPlanChanged,
+}: PaidPlanPickerProps) {
     const { user } = useAuth();
     const { showToast } = useToast();
     const [loadingPlanId, setLoadingPlanId] = useState<PlanId | null>(null);
@@ -23,11 +29,24 @@ export default function PaidPlanPicker({ currentPlanId = 'free' }: PaidPlanPicke
 
         setLoadingPlanId(planId);
         try {
-            await redirectToCheckout(planId);
+            const result = await upgradeToPlan(planId, {
+                hasDodoSubscription: Boolean(dodoSubscriptionId),
+            });
+
+            if (!result.usedCheckout) {
+                showToast(
+                    result.scheduled
+                        ? result.message || 'Plan change scheduled for your next billing date.'
+                        : result.message || 'Plan updated successfully.',
+                    'success'
+                );
+                onPlanChanged?.();
+                setLoadingPlanId(null);
+            }
         } catch (error) {
-            console.error('Checkout redirect failed:', error);
+            console.error('Plan change failed:', error);
             showToast(
-                error instanceof Error ? error.message : 'Failed to start checkout. Please try again.',
+                error instanceof Error ? error.message : 'Failed to update plan. Please try again.',
                 'error'
             );
             setLoadingPlanId(null);
@@ -92,7 +111,7 @@ export default function PaidPlanPicker({ currentPlanId = 'free' }: PaidPlanPicke
                             {loadingPlanId === planId ? (
                                 <>
                                     <Loader2 size={16} className="animate-spin" />
-                                    Redirecting...
+                                    {dodoSubscriptionId ? 'Updating...' : 'Redirecting...'}
                                 </>
                             ) : isCurrent ? (
                                 'Current plan'

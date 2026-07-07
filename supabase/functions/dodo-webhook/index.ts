@@ -3,11 +3,13 @@ import { Webhook } from 'https://esm.sh/standardwebhooks@1.0.0';
 import { getDodoConfig } from './_shared/dodoConfig.ts';
 import {
   activateSubscription,
-  downgradeSubscription,
   extractMetadata,
+  finalizeDowngrade,
   findUserIdByEmail,
   getSupabaseAdmin,
+  linkDodoSubscription,
   mapProductToPlan,
+  markCancelAtPeriodEnd,
   AppPlanId,
 } from './_shared/subscriptionActivation.ts';
 
@@ -107,12 +109,39 @@ serve(async (req) => {
   console.log('Dodo webhook received:', eventType);
 
   const supabaseAdmin = getSupabaseAdmin(config);
+  const meta = extractMetadata(event);
+
+  if (eventType === 'subscription.updated' && meta.cancelAtNextBillingDate) {
+    const finalUserId = meta.userId ?? (await findUserIdByEmail(supabaseAdmin, meta.email));
+
+    if (!finalUserId) {
+      return new Response(JSON.stringify({ error: 'Could not resolve user for cancellation event' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    await markCancelAtPeriodEnd(supabaseAdmin, finalUserId);
+
+    if (meta.subscriptionId) {
+      await linkDodoSubscription(supabaseAdmin, finalUserId, meta.subscriptionId, meta.customerId);
+    }
+
+    return new Response(
+      JSON.stringify({ success: true, message: 'Cancellation scheduled', userId: finalUserId }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
+  }
 
   if (
     eventType === 'payment.succeeded' ||
     eventType === 'subscription.active' ||
     eventType === 'subscription.renewed' ||
     eventType === 'subscription.updated' ||
+    eventType === 'subscription.plan_changed' ||
     eventType === 'checkout.session.completed'
   ) {
     const { userId, planId } = await resolveUserAndPlan(event, config);
@@ -133,7 +162,14 @@ serve(async (req) => {
       });
     }
 
-    const result = await activateSubscription(supabaseAdmin, userId, planId);
+    const result = await activateSubscription(supabaseAdmin, userId, planId, {
+      dodoSubscriptionId: meta.subscriptionId,
+      dodoCustomerId: meta.customerId,
+      subscriptionEnd: meta.nextBillingDate ?? undefined,
+      cancelAtPeriodEnd: meta.cancelAtNextBillingDate ? true : false,
+      scheduledPlanId: eventType === 'subscription.plan_changed' && meta.cancelAtNextBillingDate ? planId : null,
+    });
+
     if (!result.success) {
       console.error('Subscription activation failed:', result.error, { userId, planId, eventType });
       return new Response(JSON.stringify({ error: result.error || 'Failed to activate subscription' }), {
@@ -156,8 +192,7 @@ serve(async (req) => {
     eventType === 'payment.failed' ||
     eventType === 'refund.succeeded'
   ) {
-    const { userId, email } = extractMetadata(event);
-    const finalUserId = userId ?? (await findUserIdByEmail(supabaseAdmin, email));
+    const finalUserId = meta.userId ?? (await findUserIdByEmail(supabaseAdmin, meta.email));
 
     if (!finalUserId) {
       return new Response(JSON.stringify({ error: 'Could not resolve user for downgrade event' }), {
@@ -166,7 +201,7 @@ serve(async (req) => {
       });
     }
 
-    const result = await downgradeSubscription(supabaseAdmin, finalUserId);
+    const result = await finalizeDowngrade(supabaseAdmin, finalUserId);
     if (!result.success) {
       return new Response(JSON.stringify({ error: result.error || 'Failed to downgrade subscription' }), {
         status: 500,

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ArrowRight, Check, Star, X, Menu, FileText, Sparkles, Download, NotebookPen, LayoutTemplate, Zap, Shield, MousePointer2, User, MessageCircle, Repeat2, Heart, Share, BadgeCheck, BarChart2, Bookmark, Upload, MoreHorizontal } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -161,9 +161,18 @@ const SectionAnalysisOverlay = () => {
 };
 
 export default function LandingPage() {
-  const { user } = useAuth();
+  const { user, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const heroFeatures = [
+    { icon: FileText, label: 'Resume upload' },
+    { icon: Sparkles, label: 'AI tailoring' },
+    { icon: Shield, label: 'ATS optimized' },
+    { icon: Download, label: 'PDF export' },
+    { icon: LayoutTemplate, label: 'Templates' },
+    { icon: BarChart2, label: 'Job match' },
+    { icon: Zap, label: '60 sec' },
+  ];
 
   // Navigation handlers
   const handleGetStarted = () => {
@@ -174,13 +183,14 @@ export default function LandingPage() {
     }
   };
 
-  const handleSignIn = () => {
-    navigate('/login');
+  const handleGoogleSignIn = async () => {
+    const { error } = await signInWithGoogle();
+    if (error) console.error('Google sign in failed:', error);
   };
 
 
   return (
-    <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-green-200 overflow-x-hidden">
+    <div className="min-h-screen bg-brand-bg font-sans text-brand-dark selection:bg-brand-green/30 overflow-x-hidden">
       <SEO
         title="CV Architect — AI Resume Builder | Beat ATS & Land Interviews 3x Faster"
         description="Stop getting rejected by ATS robots. CV Architect uses advanced AI to rewrite your resume, optimize for ATS scanners, and help you land interviews 3x faster. Professional resume templates, AI cover letters, and job match scoring."
@@ -228,61 +238,89 @@ export default function LandingPage() {
       />
 
       {/* Navbar */}
-      <PublicHeader />
+      <PublicHeader variant="floating" />
 
       {/* Hero Section */}
       <motion.header
         initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
+        animate="visible"
         variants={staggerContainer}
-        className="relative pt-32 pb-10 px-6 text-center max-w-7xl mx-auto flex flex-col items-center overflow-visible"
+        className="relative isolate overflow-hidden bg-white pt-32 pb-16 md:pt-40 md:pb-24 px-6"
       >
-        {/* Background Mesh Glows */}
-        <div className="absolute top-20 -left-20 w-72 h-72 bg-brand-green/10 rounded-full blur-[100px] pointer-events-none"></div>
-        <div className="absolute bottom-40 -right-20 w-96 h-96 bg-blue-400/5 rounded-full blur-[120px] pointer-events-none"></div>
-
-
-
-        <motion.h1
-          variants={fadeInUp}
-          className="text-4xl md:text-[52px] font-extrabold tracking-tight mb-6 leading-tight text-brand-dark max-w-4xl mx-auto"
-          style={{ fontFamily: 'Graphik, sans-serif' }}
-        >
-          <span className="block mb-2">Turn any job description into a</span>
-          <span className="block"><span className="text-brand-green">
-            tailored resume
-          </span> in seconds</span>
-        </motion.h1>
-
-        <motion.p
-          variants={fadeInUp}
-          className="text-xl text-gray-600 font-medium mb-6 max-w-2xl mx-auto leading-relaxed"
-        >
-          Upload your resume. Paste the job description. CVArchitect optimizes your resume automatically.
-        </motion.p>
-
-        <motion.div variants={fadeInUp} className="flex flex-col items-center">
-          <motion.button
-            whileHover={{ scale: 1.05, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleGetStarted}
-            className="bg-brand-green hover:opacity-90 text-brand-dark px-10 py-4 rounded-full font-bold text-lg shadow-xl transition-all relative overflow-hidden group mb-6"
+        <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center text-center">
+          <motion.h1
+            variants={fadeInUp}
+            className="text-[2.5rem] font-extrabold leading-[1.08] tracking-tight md:text-[3.75rem] lg:text-[4.25rem]"
+            style={{ fontFamily: 'Graphik, sans-serif' }}
           >
-            <span className="relative z-10">{user ? 'Go to Dashboard' : 'Try it for free'}</span>
-            <div className="absolute inset-0 h-full w-full bg-white/20 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
-          </motion.button>
+            <span className="block text-brand-dark">Beat the ATS.</span>
+            <span className="block text-brand-green">Land Interviews.</span>
+          </motion.h1>
 
-          {/* Trust Marker */}
-          <div className="flex items-center gap-4 text-gray-500">
+          <motion.p
+            variants={fadeInUp}
+            className="mt-6 max-w-2xl text-lg font-medium leading-relaxed text-gray-600 md:text-xl"
+          >
+            Upload your resume, paste a job description, and get a tailored,
+            ATS-optimized version in seconds.
+          </motion.p>
+
+          <motion.div
+            variants={fadeInUp}
+            className="mt-10 flex flex-wrap items-center justify-center gap-3 md:gap-4"
+          >
+            {heroFeatures.map(({ icon: Icon, label }) => (
+              <div
+                key={label}
+                title={label}
+                className="flex h-11 w-11 items-center justify-center rounded-xl border border-brand-border/80 bg-white transition-transform hover:-translate-y-0.5 md:h-12 md:w-12"
+              >
+                <Icon size={20} className="text-brand-dark/70" strokeWidth={1.75} />
+              </div>
+            ))}
+          </motion.div>
+
+          <motion.div
+            variants={fadeInUp}
+            className="mt-10 flex w-full max-w-lg flex-col items-stretch gap-3 sm:flex-row sm:justify-center"
+          >
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleGetStarted}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-green px-8 py-4 text-base font-bold text-brand-dark transition-colors hover:bg-brand-greenHover"
+            >
+              {user ? 'Go to Dashboard' : 'Try it free'}
+              <ArrowRight size={18} />
+            </motion.button>
+
+            {!user && (
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleGoogleSignIn}
+                className="inline-flex items-center justify-center gap-3 rounded-xl border border-brand-border bg-white px-8 py-4 text-base font-semibold text-brand-dark transition-colors hover:bg-brand-secondary"
+              >
+                <svg className="h-5 w-5" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                </svg>
+                Join with Google
+              </motion.button>
+            )}
+          </motion.div>
+
+          <motion.div variants={fadeInUp} className="mt-8 flex items-center gap-4 text-gray-500">
             <div className="flex -space-x-2">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-gray-100 overflow-hidden">
-                  <img src={`https://i.pravatar.cc/100?u=${i}`} alt="user" />
+                <div key={i} className="h-8 w-8 overflow-hidden rounded-full border-2 border-white bg-gray-100">
+                  <img src={`https://i.pravatar.cc/100?u=${i}`} alt="" />
                 </div>
               ))}
-              <div className="w-8 h-8 rounded-full border-2 border-white bg-brand-green flex items-center justify-center text-[10px] font-bold text-brand-dark">
-                +1k
+              <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-brand-green text-[10px] font-bold text-brand-dark">
+                +200
               </div>
             </div>
             <div className="flex flex-col items-start">
@@ -291,10 +329,10 @@ export default function LandingPage() {
                   <Star key={i} size={12} className="fill-brand-green text-brand-green" />
                 ))}
               </div>
-              <p className="text-xs font-medium">Join 1,000+ job seekers</p>
+              <p className="text-xs font-medium">Trusted by 200+ job seekers</p>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </motion.header>
 
       {/* Section 2: Editor Preview & Value Prop */}

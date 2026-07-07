@@ -1,7 +1,7 @@
 import React from 'react';
 import { ResumeData } from '../../types';
 import { getTranslation, Language } from '../../i18n/translations';
-import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil } from '../../utils/templateUtils';
+import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, splitSkillsIntoColumns, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay} from '../../utils/templateUtils';
 
 export default function FreeTemplate({ data }: { data: ResumeData }) {
     const { fontSizes } = data;
@@ -12,8 +12,11 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
     };
 
     // Calculate relative font sizes
-    const bodySize = fontSizes?.body || 10.5;
+    const bodySize = fontSizes?.body || 9.5;
     const smallSize = bodySize * 0.85;
+
+    const columnCount = data.skillsColumnCount || 3;
+    const skillColumns = splitSkillsIntoColumns(data.skills || '', columnCount);
 
     const getSectionHeaderAlignment = () => {
         if (data.bodyHeaderAlignment === 'center') return 'text-center';
@@ -25,11 +28,11 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
         switch (id) {
             case 'summary':
                 return data.summary && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
                             className={`font-bold mb-3 ${getSectionHeaderAlignment()} ${data.sectionHeaderCase || 'uppercase'}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000'
                             }}
                         >
@@ -43,48 +46,47 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
 
             case 'skills':
                 return data.skills && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
                             className={`font-bold mb-3 ${getSectionHeaderAlignment()} ${data.sectionHeaderCase || 'uppercase'}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000'
                             }}
                         >
                             {t.technicalSkills}
                         </h2>
-                        <div className={`grid gap-x-4 gap-y-1 ${data.skillsColumnCount === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
-                            {data.skills.split(',').map((skill, i) => (
-                                skill.trim() && (
-                                    <ul
-                                        key={i}
-                                        className="list-disc list-outside ml-4 space-y-1 text-gray-700"
-                                        style={{ fontSize: `${bodySize}pt` }}
-                                    >
-                                        <li className="pl-1">
-                                            {skill.trim()}
-                                        </li>
-                                    </ul>
-                                )
+                        <div className={`grid gap-x-4 gap-y-1 ${columnCount === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+                            {skillColumns.map((col, colIndex) => (
+                                <ul
+                                    key={colIndex}
+                                    className={`${BULLET_LIST_CLASS} text-gray-700`}
+                                    style={{ fontSize: `${bodySize}pt` }}
+                                >
+                                    {col.map((skill, i) => (
+                                        <li key={i} className="pl-1">{skill}</li>
+                                    ))}
+                                </ul>
                             ))}
                         </div>
                     </section>
                 );
 
+            case 'keyAchievements':
             case 'achievements':
                 return data.keyAchievements && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
                             className={`font-bold uppercase mb-3 ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000'
                             }}
                         >
                             Key Achievements
                         </h2>
                         <ul
-                            className="list-disc list-outside ml-4 space-y-1 text-gray-700 text-justify"
+                            className="list-disc list-outside ml-5 space-y-1 text-gray-700 text-justify"
                             style={{ fontSize: `${bodySize}pt` }}
                         >
                             {parseDescriptionBullets(data.keyAchievements).map((line, i) => (
@@ -100,11 +102,11 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
 
             case 'experience':
                 return data.experience.length > 0 && (
-                    <section style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
                             className={`font-bold uppercase mb-3 ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000'
                             }}
                         >
@@ -115,7 +117,7 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
                                 <div
                                     key={exp.id}
                                     className="break-inside-avoid"
-                                    style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${data.sectionGap || 0.14}in` }}
+                                    style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${getSectionGapIn(data)}in` }}
                                 >
                                     <div className="flex justify-between items-baseline mb-2">
                                         <div>
@@ -133,7 +135,7 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
                                         </div>
                                     </div>
                                     <ul
-                                        className="list-disc list-outside ml-4 space-y-1 text-gray-700"
+                                        className="list-disc list-outside ml-5 space-y-1 text-gray-700"
                                         style={{ fontSize: `${bodySize}pt` }}
                                     >
                                         {parseDescriptionBullets(exp.description).map((line, i) => (
@@ -152,11 +154,11 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
 
             case 'projects':
                 return data.projects && data.projects.length > 0 && (
-                    <section style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
                             className={`font-bold uppercase mb-3 ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000'
                             }}
                         >
@@ -193,18 +195,18 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
 
             case 'certifications':
                 return data.certifications && data.certifications.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
                             className={`font-bold uppercase mb-3 ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000'
                             }}
                         >
                             {t.certifications}
                         </h2>
                         <ul
-                            className="list-disc list-outside ml-4 space-y-1 text-gray-700"
+                            className="list-disc list-outside ml-5 space-y-1 text-gray-700"
                             style={{ fontSize: `${bodySize}pt` }}
                         >
                             {data.certifications.map((cert) => (
@@ -220,11 +222,11 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
 
             case 'education':
                 return data.education.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
                             className={`font-bold uppercase mb-3 ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000'
                             }}
                         >
@@ -238,7 +240,7 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
                                             {edu.degree}, {edu.school}
                                         </span>
                                     </div>
-                                    <div className="italic text-gray-600" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
+                                    <div className="italic text-gray-600" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                                         {edu.year}
                                     </div>
                                 </div>
@@ -249,11 +251,11 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
 
             case 'additionalInfo':
                 return data.additionalInfo && data.additionalInfo.length > 0 && data.additionalInfo.some(item => item.label.trim() && item.value.trim()) && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
                             className={`font-bold uppercase mb-3 ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000'
                             }}
                         >
@@ -276,7 +278,7 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
                         <h2
                             className={`font-bold uppercase mb-3 ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000'
                             }}
                         >
@@ -297,57 +299,46 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
         <div
             className="resume-content text-gray-800"
             style={{
-                lineHeight: data.lineHeight || 1.4,
-                paddingLeft: `${data.margins?.horizontal || 0.39}in`,
-                paddingRight: `${data.margins?.horizontal || 0.39}in`,
-                paddingTop: `${data.margins?.vertical || 0.45}in`,
-                paddingBottom: `${data.margins?.vertical || 0.45}in`,
+                lineHeight: data.lineHeight || 1.7,
+                paddingLeft: `${getMarginHorizontalIn(data)}in`,
+                paddingRight: `${getMarginHorizontalIn(data)}in`,
+                paddingTop: `${getMarginVerticalIn(data)}in`,
+                paddingBottom: `${getMarginVerticalIn(data)}in`,
             }}
         >
             {/* Header */}
-            <header className="break-inside-avoid" style={{ marginBottom: `${data.headerGap || 0.15}in` }}>
-                <div className={`${data.headerAlignment === 'center' ? 'flex flex-col items-center text-center' : data.headerAlignment === 'right' ? 'flex flex-col items-end text-right' : 'flex justify-between items-start'}`}>
-                    <div className={data.headerAlignment === 'center' || data.headerAlignment === 'right' ? 'text-center' : ''}>
-                        <h1
-                            className={`font-bold mb-1 ${data.headerCase || 'uppercase'}`}
-                            style={{ fontSize: `${fontSizes?.header || 28}pt`, color: data.accentColor || '#000000' }}
-                        >
-                            {data.fullName}
-                        </h1>
-                        <div className="text-gray-600" style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt`, marginBottom: `${data.headerItemGap || 0.08}in` }}>
-                            {data.jobTitle}
-                        </div>
-                    </div>
-
-                    {/* Contact Info */}
-                    <div className={`text-gray-700 ${data.headerAlignment === 'center' ? 'flex flex-wrap justify-center gap-4 mt-3' : data.headerAlignment === 'right' ? 'text-right mt-3' : 'text-right'}`} style={{ fontSize: `${smallSize}pt` }}>
-                        {data.email && (
-                            <div className={data.headerAlignment === 'center' ? '' : 'mb-1'}>
-                                <span className="font-semibold">Email</span> <a href={`mailto:${data.email}`} style={{ textDecoration: 'none', color: 'inherit' }}>{data.email}</a>
-                            </div>
-                        )}
-                        {data.phone && (
-                            <div className={data.headerAlignment === 'center' ? '' : 'mb-1'}>
-                                <span className="font-semibold">Phone</span> {data.phone}
-                            </div>
-                        )}
-                        {data.linkedin && (
-                            <div className={data.headerAlignment === 'center' ? '' : 'mb-1'}>
-                                <span className="font-semibold">LinkedIn</span> <a href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>{data.linkedin.replace(/^https?:\/\//, '')}</a>
-                            </div>
-                        )}
-                        {data.address && (
-                            <div className={data.headerAlignment === 'center' ? '' : ''}>
-                                <span className="font-semibold">Address</span> {data.address}
-                            </div>
-                        )}
-                    </div>
+            <header className={`break-inside-avoid ${data.headerAlignment === 'center' ? 'text-center' : data.headerAlignment === 'right' ? 'text-right' : 'text-left'}`} style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
+                <h1
+                    className={`font-bold ${data.headerCase === 'uppercase' ? 'uppercase' : data.headerCase === 'lowercase' ? 'lowercase' : ''}`}
+                    style={{ fontSize: `${fontSizes?.header || 18}pt`, color: data.accentColor || '#000000', marginBottom: `${getHeaderItemGapIn(data)}in`, lineHeight: 1.1 }}
+                >
+                    {formatNameDisplay(data.fullName, data.headerCase)}
+                </h1>
+                <div
+                    className={`text-gray-700 flex flex-wrap gap-x-4 gap-y-1 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`}
+                    style={{ fontSize: `${smallSize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}
+                >
+                    {data.address && <span>{formatContactText(data.address)}</span>}
+                    {data.email && (
+                        <a href={`mailto:${formatContactText(data.email)}`} style={{ textDecoration: 'none', color: 'inherit' }}>{formatContactText(data.email)}</a>
+                    )}
+                    {data.phone && <span>{formatContactText(data.phone)}</span>}
+                    {data.linkedin && (
+                        <a href={getLinkedInHref(data.linkedin)} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>{formatLinkedInDisplay(data.linkedin)}</a>
+                    )}
                 </div>
+                {data.jobTitle && (
+                    <div
+                        style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: data.accentColor || '#000000' }}
+                    >
+                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+                    </div>
+                )}
             </header>
 
             {/* Dynamic Sections */}
             {
-                (data.sectionOrder || ['summary', 'skills', 'achievements', 'experience', 'projects', 'education', 'certifications', 'additionalInfo', 'references']).map(id => (
+                getNormalizedSectionOrder(data.sectionOrder, ['summary', 'skills', 'achievements', 'experience', 'projects', 'education', 'certifications', 'additionalInfo', 'references']).map(id => (
                     <React.Fragment key={id}>
                         {renderSection(id)}
                     </React.Fragment>

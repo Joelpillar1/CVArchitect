@@ -2,7 +2,7 @@ import React from 'react';
 import { ResumeData } from '../../types';
 import { getTranslation, Language } from '../../i18n/translations';
 
-import { formatDate, parseDescriptionBullets, parseAchievementBullets } from '../../utils/templateUtils';
+import { formatDate, parseDescriptionBullets, parseAchievementBullets, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, CONTACT_SEPARATOR, formatJobTitleDisplay} from '../../utils/templateUtils';
 
 export default function ModernTemplate({ data }: { data: ResumeData }) {
   const { fontSizes } = data;
@@ -21,10 +21,10 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
     switch (id) {
       case 'summary':
         return data.summary && (
-          <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+          <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
             <h2
-              className={`text-xl font-bold uppercase tracking-wider border-b-2 border-gray-300 pb-2 mb-4 ${getSectionHeaderAlignment()}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 20}pt`, color: accentColor }}
+              className={`text-xl font-bold uppercase tracking-wider mb-2 ${getSectionHeaderAlignment()}`}
+              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt`, color: accentColor }}
             >
               {t.professionalSummary}
             </h2>
@@ -34,10 +34,10 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
 
       case 'skills':
         return data.skills && data.skills.trim() && (
-          <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+          <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
             <h2
-              className={`text-xl font-bold uppercase tracking-wider border-b-2 border-gray-300 pb-2 mb-4 ${getSectionHeaderAlignment()}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 20}pt`, color: accentColor }}
+              className={`text-xl font-bold uppercase tracking-wider mb-2 ${getSectionHeaderAlignment()}`}
+              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt`, color: accentColor }}
             >
               {t.technicalSkills}
             </h2>
@@ -53,10 +53,10 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
 
       case 'experience':
         return data.experience.length > 0 && (
-          <section style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+          <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
             <h2
-              className={`font-bold tracking-wider border-b-2 border-gray-300 pb-2 mb-6 break-inside-avoid ${getSectionHeaderAlignment()} ${data.sectionHeaderCase || 'uppercase'}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 20}pt`, color: accentColor }}
+              className={`font-bold tracking-wider mb-2 break-inside-avoid ${getSectionHeaderAlignment()} ${data.sectionHeaderCase || 'uppercase'}`}
+              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt`, color: accentColor }}
             >
               {t.experienceTitle}
             </h2>
@@ -65,21 +65,21 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
               <div
                 key={exp.id}
                 className="mb-4 break-inside-avoid"
-                style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${data.sectionGap || 0.14}in` }}
+                style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${getSectionGapIn(data)}in` }}
               >
                 <div className="flex justify-between items-baseline mb-1">
-                  <h3 className="font-bold text-gray-900" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>{exp.company}</h3>
-                  <span className="text-gray-500 italic" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
+                  <h3 className="font-bold text-gray-900" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{exp.company}</h3>
+                  <span className="text-gray-500 italic" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                     {formatDate(exp.startDate)} - {formatDate(exp.endDate)}
                   </span>
                 </div>
-                <p className="text-gray-700 font-medium mb-3" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
+                <p className="text-gray-700 font-medium mb-3" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                   {exp.role}
                   {exp.location && (
                     <span className="text-gray-500 font-normal"> • {exp.location}</span>
                   )}
                 </p>
-                <ul className="list-disc list-outside ml-4 space-y-1 text-gray-600" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
+                <ul className="list-disc list-outside ml-5 space-y-1 text-gray-600" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                   {parseDescriptionBullets(exp.description).map((line, i) => (
                     <li key={i}>{line}</li>
                   ))}
@@ -91,10 +91,10 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
 
       case 'projects':
         return data.projects && data.projects.length > 0 && (
-          <section style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+          <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
             <h2
-              className={`text-xl font-bold uppercase tracking-wider border-b-2 border-gray-300 pb-2 mb-6 break-inside-avoid ${getSectionHeaderAlignment()}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 20}pt`, color: accentColor }}
+              className={`text-xl font-bold uppercase tracking-wider mb-2 break-inside-avoid ${getSectionHeaderAlignment()}`}
+              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt`, color: accentColor }}
             >
               Projects
             </h2>
@@ -127,14 +127,14 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
       case 'achievements': {
         const achievements = parseAchievementBullets(data.keyAchievements || '');
         return achievements.length > 0 && (
-          <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+          <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
             <h2
-              className={`text-xl font-bold uppercase tracking-wider border-b-2 border-gray-300 pb-2 mb-4 ${getSectionHeaderAlignment()}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 20}pt`, color: accentColor }}
+              className={`text-xl font-bold uppercase tracking-wider mb-2 ${getSectionHeaderAlignment()}`}
+              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt`, color: accentColor }}
             >
               Key Achievements
             </h2>
-            <ul className="list-disc list-outside ml-5 space-y-1 text-gray-700" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+            <ul className="list-disc list-outside ml-5 space-y-1 text-gray-700" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
               {achievements.map((line, i) => (
                 line.trim() && (
                   <li key={i}>{line.replace(/^[•-]\s*/, '')}</li>
@@ -147,10 +147,10 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
 
       case 'certifications':
         return data.certifications && data.certifications.length > 0 && (
-          <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+          <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
             <h2
-              className={`text-xl font-bold uppercase tracking-wider border-b-2 border-gray-300 pb-2 mb-4 ${getSectionHeaderAlignment()}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 20}pt`, color: accentColor }}
+              className={`text-xl font-bold uppercase tracking-wider mb-2 ${getSectionHeaderAlignment()}`}
+              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt`, color: accentColor }}
             >
               {t.certifications}
             </h2>
@@ -168,10 +168,10 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
 
       case 'education':
         return data.education.length > 0 && (
-          <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+          <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
             <h2
-              className={`text-xl font-bold uppercase tracking-wider border-b-2 border-gray-300 pb-2 mb-4 ${getSectionHeaderAlignment()}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 20}pt`, color: accentColor }}
+              className={`text-xl font-bold uppercase tracking-wider mb-2 ${getSectionHeaderAlignment()}`}
+              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt`, color: accentColor }}
             >
               {t.educationTitle}
             </h2>
@@ -179,7 +179,7 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
               <div key={edu.id} className="mb-4">
                 <div className="flex justify-between">
                   <span className="font-bold">{edu.school}</span>
-                  <span className="italic text-gray-500" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>{edu.year}</span>
+                  <span className="italic text-gray-500" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{edu.year}</span>
                 </div>
                 <p className="text-gray-700">{edu.degree}</p>
               </div>
@@ -189,10 +189,10 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
 
       case 'additionalInfo':
         return data.additionalInfo && data.additionalInfo.length > 0 && data.additionalInfo.some(item => item.label.trim() && item.value.trim()) && (
-          <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+          <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
             <h2
-              className={`text-xl font-bold uppercase tracking-wider border-b-2 border-gray-300 pb-2 mb-4 ${getSectionHeaderAlignment()}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 20}pt`, color: accentColor }}
+              className={`text-xl font-bold uppercase tracking-wider mb-2 ${getSectionHeaderAlignment()}`}
+              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt`, color: accentColor }}
             >
               Additional Information
             </h2>
@@ -209,16 +209,16 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
 
       case 'references':
         return data.referee && data.referee.trim() && (
-          <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+          <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
             <h2
-              className={`text-xl font-bold uppercase tracking-wider border-b-2 border-gray-300 pb-2 mb-4 ${getSectionHeaderAlignment()}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 20}pt`, color: accentColor }}
+              className={`text-xl font-bold uppercase tracking-wider mb-2 ${getSectionHeaderAlignment()}`}
+              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt`, color: accentColor }}
             >
               References
             </h2>
             <p
-              className="text-gray-700 whitespace-pre-line"
-              style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+              className="leading-relaxed text-gray-700 whitespace-pre-line"
+              style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
             >
               {data.referee}
             </p>
@@ -233,58 +233,58 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
     <div
       className="resume-content text-gray-900"
       style={{
-        lineHeight: data.lineHeight || 1.4,
-        paddingLeft: `${data.margins?.horizontal || 0.39}in`,
-        paddingRight: `${data.margins?.horizontal || 0.39}in`,
-        paddingTop: `${data.margins?.vertical || 0.45}in`,
-        paddingBottom: `${data.margins?.vertical || 0.45}in`,
+        lineHeight: data.lineHeight || 1.7,
+        paddingLeft: `${getMarginHorizontalIn(data)}in`,
+        paddingRight: `${getMarginHorizontalIn(data)}in`,
+        paddingTop: `${getMarginVerticalIn(data)}in`,
+        paddingBottom: `${getMarginVerticalIn(data)}in`,
       }}
     >
-      <header className={`border-b-2 border-gray-300 pb-4 break-inside-avoid ${data.headerAlignment === 'center' ? 'text-center' : data.headerAlignment === 'right' ? 'text-right' : 'text-left'}`} style={{ marginBottom: `${data.headerGap || 0.15}in` }}>
-        <h1 className="text-4xl font-bold uppercase tracking-tight text-gray-900" style={{ marginBottom: `${data.headerItemGap || 0.08}in`, color: accentColor }}>{data.fullName}</h1>
-        <p className="font-medium text-gray-600 tracking-wider" style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt`, marginBottom: `${data.headerItemGap || 0.08}in` }}>{data.jobTitle}</p>
-        <div className={`flex flex-wrap gap-2 text-sm text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`}>
+      <header className={`break-inside-avoid ${data.headerAlignment === 'center' ? 'text-center' : data.headerAlignment === 'right' ? 'text-right' : 'text-left'}`} style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
+        <h1 className="font-bold text-gray-900" style={{ fontSize: `${fontSizes?.header || 18}pt`, marginBottom: `${getHeaderItemGapIn(data)}in`, lineHeight: 1.1, color: accentColor }}>{formatNameDisplay(data.fullName, data.headerCase)}</h1>
+        <div className={`flex flex-wrap gap-2 text-sm text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ marginBottom: `${getHeaderContactGapIn(data)}in` }}>
           {data.address && (
             <>
-              <span>{data.address}</span>
-              {(data.phone || data.email || data.linkedin) && <span className="text-gray-300 mx-1">|</span>}
+              <span>{formatContactText(data.address)}</span>
+              {(data.phone || data.email || data.linkedin) && <span className="text-gray-400 mx-0.5">{CONTACT_SEPARATOR}</span>}
             </>
           )}
 
           {data.phone && (
             <>
-              <span>{data.phone}</span>
-              {(data.email || data.linkedin) && <span className="text-gray-300 mx-1">|</span>}
+              <span>{formatContactText(data.phone)}</span>
+              {(data.email || data.linkedin) && <span className="text-gray-400 mx-0.5">{CONTACT_SEPARATOR}</span>}
             </>
           )}
 
           {data.email && (
             <>
               <a
-                href={`mailto:${data.email}`}
+                href={`mailto:${formatContactText(data.email)}`}
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
-                {data.email}
+                {formatContactText(data.email)}
               </a>
-              {data.linkedin && <span className="text-gray-300 mx-1">|</span>}
+              {data.linkedin && <span className="text-gray-400 mx-0.5">{CONTACT_SEPARATOR}</span>}
             </>
           )}
 
           {data.linkedin && (
             <a
-              href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`}
+              href={getLinkedInHref(data.linkedin)}
               target="_blank"
               rel="noopener noreferrer"
               style={{ textDecoration: 'none', color: 'inherit' }}
             >
-              {data.linkedin.replace(/^https?:\/\//, '')}
+              {formatLinkedInDisplay(data.linkedin)}
             </a>
           )}
         </div>
+        <p className="font-medium" style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: accentColor }}>{formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}</p>
       </header>
 
       {/* Dynamic Sections */}
-      {(data.sectionOrder || ['summary', 'skills', 'experience', 'projects', 'achievements', 'certifications', 'education', 'additionalInfo', 'references']).map(id => (
+      {getNormalizedSectionOrder(data.sectionOrder, ['summary', 'skills', 'experience', 'projects', 'achievements', 'certifications', 'education', 'additionalInfo', 'references']).map(id => (
         <React.Fragment key={id}>
           {renderSection(id)}
         </React.Fragment>

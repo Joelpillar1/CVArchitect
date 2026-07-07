@@ -27,6 +27,7 @@ import {
     redirectToPendingCheckoutIfAny,
     syncPendingPlanFromSearch,
 } from '../utils/pendingCheckout';
+import { linkDodoSubscriptionFromCheckout } from '../services/dodoPaymentsService';
 import { saveToStorage, debouncedSaveToStorage, loadFromStorage } from '../utils/statePersistence';
 
 <meta name="google-site-verification" content="tM8NcOMoT43REWAXI4sUDCX6usdXgja0epq5QCK1Ygc" />
@@ -341,6 +342,16 @@ export default function Dashboard() {
         };
     }, [user]);
 
+    const refreshUserSubscription = useCallback(async () => {
+        if (!user) return;
+        try {
+            const sub = await subscriptionService.getSubscription(user.id);
+            if (sub) setUserSubscription(sub);
+        } catch (err) {
+            console.error('Failed to refresh subscription:', err);
+        }
+    }, [user]);
+
     // Handle payment return from Dodo Payments
     useEffect(() => {
         if (!user) return;
@@ -373,6 +384,12 @@ export default function Dashboard() {
         if (paymentStatus === 'success') {
             console.log('Payment success detected, starting subscription check for user:', user.id);
             showToast('🎉 Payment successful! Activating your subscription...', 'success', 4000);
+
+            if (subscriptionId) {
+                linkDodoSubscriptionFromCheckout(subscriptionId).catch((err) => {
+                    console.warn('Failed to link Dodo subscription ID:', err);
+                });
+            }
 
             let attempts = 0;
             const maxAttempts = dodoStatus === 'active' ? 20 : 15;
@@ -1110,6 +1127,7 @@ export default function Dashboard() {
                                 userSubscription={userSubscription}
                                 userProfile={userProfile ? { full_name: userProfile.full_name, avatar_url: userProfile.avatar_url || null } : undefined}
                                 userEmail={user?.email || undefined}
+                                onSubscriptionRefresh={refreshUserSubscription}
                                 onProfileUpdate={() => {
                                     if (!user) return;
                                     profileService.getProfile(user.id)

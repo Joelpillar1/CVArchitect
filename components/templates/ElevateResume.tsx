@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, parseAchievementBullets, formatMonthYear as formatMonthYearUtil } from '../../utils/templateUtils';
+import { parseDescriptionBullets, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay} from '../../utils/templateUtils';
 import { Linkedin, Mail, Phone, MapPin, Send } from 'lucide-react';
 import { getTranslation, Language } from '../../i18n/translations';
 
@@ -25,11 +25,11 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                 // but it's good practice to include it if data exists, or maybe it was missed.
                 // Looking at the file, I don't see a summary section. I will add it.
                 return data.summary && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`section-header font-bold uppercase tracking-widest border-b mb-4 pb-1 ${getSectionHeaderAlignment()}`}
+                            className={`section-header font-bold uppercase tracking-widest border-b leading-tight mb-4 pb-0.5 ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 borderColor: data.accentColor || '#000000',
                                 color: data.accentColor || '#000000',
                             }}
@@ -42,11 +42,11 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
 
             case 'education':
                 return data.education.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`section-header font-bold uppercase tracking-widest border-b mb-4 pb-1 ${getSectionHeaderAlignment()}`}
+                            className={`section-header font-bold uppercase tracking-widest border-b leading-tight mb-4 pb-0.5 ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 borderColor: data.accentColor || '#000000',
                                 color: data.accentColor || '#000000',
                             }}
@@ -62,7 +62,7 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                                     </div>
                                     <div className="flex justify-between items-baseline mb-2">
                                         <div className="italic text-gray-800">{edu.degree}</div>
-                                        <div className="italic text-gray-600" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>{edu.year}</div>
+                                        <div className="italic text-gray-600" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{edu.year}</div>
                                     </div>
                                 </div>
                             ))}
@@ -70,14 +70,15 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                     </section>
                 );
 
+            case 'keyAchievements':
             case 'achievements': {
                 const achievements = parseAchievementBullets(data.keyAchievements || '');
                 return achievements.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`section-header font-bold uppercase tracking-widest border-b mb-4 pb-1 ${getSectionHeaderAlignment()}`}
+                            className={`section-header font-bold uppercase tracking-widest border-b leading-tight mb-4 pb-0.5 ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 borderColor: data.accentColor || '#000000',
                                 color: data.accentColor || '#000000',
                             }}
@@ -85,8 +86,8 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                             Key Achievements
                         </h2>
                         <ul
-                            className="list-disc list-outside ml-4 space-y-1 text-justify text-gray-700"
-                            style={{ fontSize: `${fontSizes?.body || 10}pt` }}
+                            className="list-disc list-outside ml-5 space-y-1 text-justify text-gray-700"
+                            style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                         >
                             {achievements.map((line, i) => (
                                 line.trim() && (
@@ -102,11 +103,11 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
 
             case 'experience':
                 return data.experience.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`section-header font-bold uppercase tracking-widest border-b mb-4 pb-1 ${getSectionHeaderAlignment()}`}
+                            className={`section-header font-bold uppercase tracking-widest border-b leading-tight mb-4 pb-0.5 ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 borderColor: data.accentColor || '#000000',
                                 color: data.accentColor || '#000000',
                             }}
@@ -119,20 +120,20 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                                 return (
                                     <div
                                         key={exp.id}
-                                        style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${data.sectionGap || 0.14}in` }}
+                                        style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${getSectionGapIn(data)}in` }}
                                     >
                                         <div className="flex justify-between items-baseline mb-1">
-                                            <div className="font-bold" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
+                                            <div className="font-bold" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                                                 {exp.company}{exp.location && <span className="font-normal italic text-gray-600"> • {exp.location}</span>}
                                             </div>
-                                            <div className="italic text-gray-600" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
+                                            <div className="italic text-gray-600" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                                                 {formatMonthYear(exp.startDate)} – {formatMonthYear(exp.endDate)}
                                             </div>
                                         </div>
                                         <div className="flex justify-between items-baseline mb-2">
-                                            <div className="italic text-gray-800" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>{exp.role}</div>
+                                            <div className="italic text-gray-800" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{exp.role}</div>
                                         </div>
-                                        <ul className="list-disc list-outside ml-4 space-y-1 text-justify" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
+                                        <ul className="list-disc list-outside ml-5 space-y-1 text-justify" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                                             {bullets.map((line, i) => (
                                                 <li key={i} className="pl-1">{line.replace(/^[•-]\s*/, '')}</li>
                                             ))}
@@ -146,11 +147,11 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
 
             case 'projects':
                 return data.projects && data.projects.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`section-header font-bold uppercase tracking-widest border-b mb-4 pb-1 ${getSectionHeaderAlignment()}`}
+                            className={`section-header font-bold uppercase tracking-widest border-b leading-tight mb-4 pb-0.5 ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 borderColor: data.accentColor || '#000000',
                                 color: data.accentColor || '#000000',
                             }}
@@ -186,11 +187,11 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
 
             case 'skills':
                 return data.skills && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`section-header font-bold uppercase tracking-widest border-b mb-4 pb-1 ${getSectionHeaderAlignment()}`}
+                            className={`section-header font-bold uppercase tracking-widest border-b leading-tight mb-4 pb-0.5 ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 borderColor: data.accentColor || '#000000',
                                 color: data.accentColor || '#000000',
                             }}
@@ -210,18 +211,18 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
 
             case 'certifications':
                 return data.certifications && data.certifications.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`section-header font-bold uppercase tracking-widest border-b mb-4 pb-1 ${getSectionHeaderAlignment()}`}
+                            className={`section-header font-bold uppercase tracking-widest border-b leading-tight mb-4 pb-0.5 ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 borderColor: data.accentColor || '#000000',
                                 color: data.accentColor || '#000000',
                             }}
                         >
                             {t.certifications}
                         </h2>
-                        <ul className="list-disc list-outside ml-4 space-y-1">
+                        <ul className="list-disc list-outside ml-5 space-y-1">
                             {data.certifications.map((cert) => (
                                 <li key={cert.id}>
                                     <span className="font-bold">{cert.name}</span>
@@ -235,11 +236,11 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
 
             case 'additionalInfo':
                 return data.additionalInfo && data.additionalInfo.length > 0 && data.additionalInfo.some(item => item.label.trim() && item.value.trim()) && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`section-header font-bold uppercase tracking-widest border-b mb-4 pb-1 ${getSectionHeaderAlignment()}`}
+                            className={`section-header font-bold uppercase tracking-widest border-b leading-tight mb-4 pb-0.5 ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 borderColor: data.accentColor || '#000000',
                                 color: data.accentColor || '#000000',
                             }}
@@ -261,9 +262,9 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                 return data.referee && data.referee.trim() && (
                     <section className="break-inside-avoid">
                         <h2
-                            className={`section-header font-bold uppercase tracking-widest border-b mb-4 pb-1 ${getSectionHeaderAlignment()}`}
+                            className={`section-header font-bold uppercase tracking-widest border-b leading-tight mb-4 pb-0.5 ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 borderColor: data.accentColor || '#000000',
                                 color: data.accentColor || '#000000',
                             }}
@@ -283,53 +284,44 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
         <div
             className="resume-content text-gray-900"
             style={{
-                lineHeight: data.lineHeight || 1.4,
-                paddingLeft: `${data.margins?.horizontal || 0.39}in`,
-                paddingRight: `${data.margins?.horizontal || 0.39}in`,
-                paddingTop: `${data.margins?.vertical || 0.45}in`,
-                paddingBottom: `${data.margins?.vertical || 0.45}in`,
+                lineHeight: data.lineHeight || 1.7,
+                paddingLeft: `${getMarginHorizontalIn(data)}in`,
+                paddingRight: `${getMarginHorizontalIn(data)}in`,
+                paddingTop: `${getMarginVerticalIn(data)}in`,
+                paddingBottom: `${getMarginVerticalIn(data)}in`,
             }}
         >
             {/* Header */}
-            <header className={`break-inside-avoid ${data.headerAlignment === 'left' ? 'text-left' : data.headerAlignment === 'right' ? 'text-right' : 'text-center'}`} style={{ marginBottom: `${data.headerGap || 0.15}in` }}>
+            <header className={`break-inside-avoid ${data.headerAlignment === 'left' ? 'text-left' : data.headerAlignment === 'right' ? 'text-right' : 'text-center'}`} style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
                 <h1
-                    className="font-bold uppercase tracking-widest"
+                    className="font-bold"
                     style={{
-                        fontSize: `${fontSizes?.header || 36}pt`,
+                        fontSize: `${fontSizes?.header || 18}pt`,
                         color: data.accentColor || '#000000',
-                        marginBottom: `${data.headerItemGap || 0.08}in`
+                        marginBottom: `${getHeaderItemGapIn(data)}in`, lineHeight: 1.1
                     }}
                 >
-                    {data.fullName}
+                    {formatNameDisplay(data.fullName, data.headerCase)}
                 </h1>
-                {/* Professional Title */}
-                {data.jobTitle && (
-                    <p
-                        className="text-gray-600 font-semibold"
-                        style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt`, marginBottom: `${data.headerItemGap || 0.08}in` }}
-                    >
-                        {data.jobTitle}
-                    </p>
-                )}
                 {/* Contact Icons */}
-                <div className={`flex flex-wrap items-center gap-4 text-xs text-gray-600 ${data.headerAlignment === 'left' ? 'justify-start' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-center'}`}>
+                <div className={`flex flex-wrap items-center gap-4 text-xs text-gray-600 ${data.headerAlignment === 'left' ? 'justify-start' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-center'}`} style={{ marginBottom: `${getHeaderContactGapIn(data)}in` }}>
                     {data.address && (
                         <div className="flex items-center gap-1">
                             <MapPin size={10} color={data.accentColor || '#000000'} />
-                            <span>{data.address}</span>
+                            <span>{formatContactText(data.address)}</span>
                         </div>
                     )}
                     {data.phone && (
                         <div className="flex items-center gap-1">
                             <Phone size={10} color={data.accentColor || '#000000'} />
-                            <span>{data.phone}</span>
+                            <span>{formatContactText(data.phone)}</span>
                         </div>
                     )}
                     {data.email && (
                         <div className="flex items-center gap-1">
                             <Mail size={10} color={data.accentColor || '#000000'} />
-                            <a href={`mailto:${data.email}`} className="no-underline" style={{ color: 'inherit' }}>
-                                {data.email}
+                            <a href={`mailto:${formatContactText(data.email)}`} className="no-underline" style={{ color: 'inherit' }}>
+                                {formatContactText(data.email)}
                             </a>
                         </div>
                     )}
@@ -337,13 +329,13 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                         <div className="flex items-center gap-1">
                             <Linkedin size={10} color={data.accentColor || '#000000'} />
                             <a
-                                href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`}
+                                href={getLinkedInHref(data.linkedin)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="no-underline"
                                 style={{ color: 'inherit' }}
                             >
-                                {data.linkedin.replace(/^https?:\/\//, '')}
+                                {formatLinkedInDisplay(data.linkedin)}
                             </a>
                         </div>
                     )}
@@ -354,10 +346,18 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                         </div>
                     )}
                 </div>
+                {data.jobTitle && (
+                    <p
+                        className="font-semibold"
+                        style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: data.accentColor || '#000000' }}
+                    >
+                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+                    </p>
+                )}
             </header>
 
             {/* Dynamic Sections */}
-            {(data.sectionOrder || ['summary', 'education', 'experience', 'projects', 'skills', 'certifications', 'achievements', 'additionalInfo', 'references']).map(id => (
+            {getNormalizedSectionOrder(data.sectionOrder, ['summary', 'education', 'experience', 'projects', 'skills', 'certifications', 'achievements', 'additionalInfo', 'references']).map(id => (
                 <React.Fragment key={id}>
                     {renderSection(id)}
                 </React.Fragment>

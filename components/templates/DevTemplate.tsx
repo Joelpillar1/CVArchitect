@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil } from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay} from '../../utils/templateUtils';
 import { Mail, Phone, Linkedin, Github, Globe, MapPin } from 'lucide-react';
 import { getTranslation, Language } from '../../i18n/translations';
 
@@ -23,11 +23,11 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
         switch (id) {
             case 'summary':
                 return data.summary && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
                             className="font-bold uppercase mb-2 flex items-center gap-2"
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor,
                                 letterSpacing: '0.05em'
                             }}
@@ -37,7 +37,7 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                         </h2>
                         <p
                             className="text-gray-700  text-justify"
-                            style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                            style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                         >
                             {data.summary}
                         </p>
@@ -46,11 +46,11 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
 
             case 'skills':
                 return data.skills && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
                             className="font-bold uppercase mb-2 flex items-center gap-2"
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor,
                                 letterSpacing: '0.05em'
                             }}
@@ -64,7 +64,7 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                                     key={i}
                                     className="px-3 py-1 rounded text-gray-700 font-medium border"
                                     style={{
-                                        fontSize: `${(fontSizes?.body || 10.5) * 0.9}pt`,
+                                        fontSize: `${(fontSizes?.body || 9.5) * 0.9}pt`,
                                         borderColor: accentColor,
                                         backgroundColor: `${accentColor}10`
                                     }}
@@ -76,14 +76,15 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                     </section>
                 );
 
+            case 'keyAchievements':
             case 'achievements': {
                 const achievements = parseAchievementBullets(data.keyAchievements || '');
                 return achievements.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
                             className="font-bold uppercase mb-2 flex items-center gap-2"
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor,
                                 letterSpacing: '0.05em'
                             }}
@@ -93,7 +94,7 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                         </h2>
                         <ul
                             className="list-none space-y-1 text-gray-700"
-                            style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
+                            style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}
                         >
                             {achievements.map((line, i) =>
                                 line.trim() && (
@@ -110,11 +111,11 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
 
             case 'experience':
                 return data.experience.length > 0 && (
-                    <section style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
                             className="font-bold uppercase mb-3 flex items-center gap-2 break-inside-avoid"
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor,
                                 letterSpacing: '0.05em'
                             }}
@@ -126,13 +127,13 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                             {data.experience.map((exp, index) => (
                                 <div
                                     key={exp.id}
-                                    style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${data.sectionGap || 0.14}in` }}
+                                    style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${getSectionGapIn(data)}in` }}
                                 >
                                     <div className="flex justify-between items-baseline mb-1">
                                         <h3
                                             className="font-bold"
                                             style={{
-                                                fontSize: `${fontSizes?.body || 10.5}pt`,
+                                                fontSize: `${fontSizes?.body || 9.5}pt`,
                                                 color: accentColor
                                             }}
                                         >
@@ -140,21 +141,21 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                                         </h3>
                                         <span
                                             className="text-gray-600 italic"
-                                            style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.85}pt` }}
+                                            style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.85}pt` }}
                                         >
                                             {formatMonthYear(exp.startDate)} - {formatMonthYear(exp.endDate)}
                                         </span>
                                     </div>
                                     <div
                                         className="font-semibold text-gray-700 mb-2"
-                                        style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
+                                        style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}
                                     >
                                         {exp.company}
                                         {exp.location && <span className="text-gray-500 font-normal"> • {exp.location}</span>}
                                     </div>
                                     <ul
                                         className="list-none space-y-1 text-gray-700"
-                                        style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
+                                        style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}
                                     >
                                         {descriptionToString(exp.description).split('\n').map((line, i) =>
                                             line.trim() && (
@@ -173,11 +174,11 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
 
             case 'projects':
                 return data.projects && data.projects.length > 0 && (
-                    <section style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
                             className="font-bold uppercase mb-3 flex items-center gap-2 break-inside-avoid"
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor,
                                 letterSpacing: '0.05em'
                             }}
@@ -185,52 +186,79 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                             <span className="w-1 h-4 rounded" style={{ backgroundColor: accentColor }}></span>
                             Projects
                         </h2>
-                        <div className="space-y-4">
-                            {data.projects.map((project) => (
-                                <div key={project.id}>
-                                    <div className="flex justify-between items-baseline mb-1">
-                                        <h3
-                                            className="font-bold"
-                                            style={{
-                                                fontSize: `${fontSizes?.body || 10.5}pt`,
-                                                color: accentColor
-                                            }}
-                                        >
-                                            {project.name}
-                                        </h3>
-                                        {project.link && (
-                                            <a href={project.link.startsWith('http') ? project.link : `https://${project.link}`} target="_blank" rel="noopener noreferrer" className="ml-2 font-normal italic text-gray-600 text-sm hover:underline">
-                                                Link
-                                            </a>
-                                        )}
-                                    </div>
-                                    {project.technologies && (
-                                        <div
-                                            className="font-semibold text-gray-700 mb-2"
-                                            style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
-                                        >
-                                            {project.technologies}
-                                        </div>
-                                    )}
-                                    <p
-                                        className="text-gray-700 whitespace-pre-line text-justify"
-                                        style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
+                        <div className="space-y-3">
+                            {data.projects.map((project) => {
+                                const bullets = parseDescriptionBullets(project.description || '');
+                                const techList = project.technologies
+                                    ? project.technologies.split(',').map((t) => t.trim()).filter(Boolean)
+                                    : [];
+                                return (
+                                    <div
+                                        key={project.id}
+                                        className="break-inside-avoid rounded border p-3"
+                                        style={{ borderColor: `${accentColor}40`, backgroundColor: `${accentColor}06` }}
                                     >
-                                        {project.description}
-                                    </p>
-                                </div>
-                            ))}
+                                        <div className="flex justify-between items-baseline gap-2 mb-1">
+                                            <h3
+                                                className="font-bold"
+                                                style={{
+                                                    fontSize: `${fontSizes?.body || 9.5}pt`,
+                                                    color: accentColor
+                                                }}
+                                            >
+                                                {project.name}
+                                            </h3>
+                                            {project.link && (
+                                                <a
+                                                    href={project.link.startsWith('http') ? project.link : `https://${project.link}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="shrink-0 font-medium italic text-gray-600 hover:underline"
+                                                    style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.85}pt` }}
+                                                >
+                                                    View →
+                                                </a>
+                                            )}
+                                        </div>
+                                        {techList.length > 0 && (
+                                            <div className="flex flex-wrap gap-1.5 mb-2">
+                                                {techList.map((tech, i) => (
+                                                    <span
+                                                        key={i}
+                                                        className="px-2 py-0.5 rounded font-medium border"
+                                                        style={{
+                                                            fontSize: `${(fontSizes?.body || 9.5) * 0.8}pt`,
+                                                            borderColor: accentColor,
+                                                            backgroundColor: `${accentColor}12`,
+                                                            color: accentColor,
+                                                        }}
+                                                    >
+                                                        {tech}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        )}
+                                        {bullets.length > 0 ? (
+                                            <ul className="list-disc ml-5 space-y-0.5 text-gray-700" style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}>
+                                                {bullets.map((line, i) =>
+                                                    line.trim() ? <li key={i}>{line.replace(/^[•-]\s*/, '')}</li> : null
+                                                )}
+                                            </ul>
+                                        ) : null}
+                                    </div>
+                                );
+                            })}
                         </div>
                     </section>
                 );
 
             case 'certifications':
                 return data.certifications && data.certifications.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
                             className="font-bold uppercase mb-2 flex items-center gap-2"
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor,
                                 letterSpacing: '0.05em'
                             }}
@@ -240,7 +268,7 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                         </h2>
                         <div
                             className="text-gray-700 space-y-1"
-                            style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
+                            style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}
                         >
                             {data.certifications.map((cert) => (
                                 <div key={cert.id} className="flex gap-2">
@@ -258,11 +286,11 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
 
             case 'education':
                 return data.education.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
                             className="font-bold uppercase mb-2 flex items-center gap-2"
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor,
                                 letterSpacing: '0.05em'
                             }}
@@ -276,20 +304,20 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                                     <div className="flex justify-between items-baseline">
                                         <span
                                             className="font-bold text-gray-900"
-                                            style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
+                                            style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}
                                         >
                                             {edu.degree}
                                         </span>
                                         <span
                                             className="text-gray-600"
-                                            style={{ fontSize: `${fontSizes?.body || 10}pt` }}
+                                            style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                                         >
                                             {edu.year}
                                         </span>
                                     </div>
                                     <div
                                         className="text-gray-700"
-                                        style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.9}pt` }}
+                                        style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.9}pt` }}
                                     >
                                         {edu.school}
                                     </div>
@@ -301,11 +329,11 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
 
             case 'additionalInfo':
                 return data.additionalInfo && data.additionalInfo.length > 0 && data.additionalInfo.some(item => item.label.trim() && item.value.trim()) && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
                             className="font-bold uppercase mb-2 flex items-center gap-2"
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor,
                                 letterSpacing: '0.05em'
                             }}
@@ -318,7 +346,7 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                                 <div
                                     key={item.id}
                                     className="text-gray-700"
-                                    style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
+                                    style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}
                                 >
                                     <span className="font-bold">{item.label}:</span>
                                     <span className="ml-2">{item.value}</span>
@@ -330,11 +358,11 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
 
             case 'references':
                 return data.referee && data.referee.trim() && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
                             className="font-bold uppercase mb-2 flex items-center gap-2"
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor,
                                 letterSpacing: '0.05em'
                             }}
@@ -344,7 +372,7 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                         </h2>
                         <div
                             className="text-gray-700"
-                            style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
+                            style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}
                         >
                             {data.referee}
                         </div>
@@ -360,80 +388,76 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
         <div
             className="resume-content text-gray-900"
             style={{
-                lineHeight: data.lineHeight || 1.4,
-                paddingLeft: `${data.margins?.horizontal || 0.39}in`,
-                paddingRight: `${data.margins?.horizontal || 0.39}in`,
-                paddingTop: `${data.margins?.vertical || 0.45}in`,
-                paddingBottom: `${data.margins?.vertical || 0.45}in`,
+                lineHeight: data.lineHeight || 1.7,
+                paddingLeft: `${getMarginHorizontalIn(data)}in`,
+                paddingRight: `${getMarginHorizontalIn(data)}in`,
+                paddingTop: `${getMarginVerticalIn(data)}in`,
+                paddingBottom: `${getMarginVerticalIn(data)}in`,
             }}
         >
             {/* Header Section */}
-            <header className="break-inside-avoid" style={{ marginBottom: `${data.headerGap || 0.15}in` }}>
+            <header className="break-inside-avoid" style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
                 <div className={`flex mb-2 ${data.headerAlignment === 'center' ? 'flex-col items-center text-center' : data.headerAlignment === 'right' ? 'flex-col items-end text-right' : 'items-start justify-between'}`}>
                     <div className="flex-1">
                         <h1
                             className="font-bold"
                             style={{
-                                fontSize: `${fontSizes?.header || 36}pt`,
+                                fontSize: `${fontSizes?.header || 18}pt`,
                                 color: accentColor,
-                                letterSpacing: '-0.02em',
-                                marginBottom: `${data.headerItemGap || 0.08}in`
+                                marginBottom: `${getHeaderItemGapIn(data)}in`, lineHeight: 1.1
                             }}
                         >
-                            {data.fullName}
+                            {formatNameDisplay(data.fullName, data.headerCase)}
                         </h1>
-                        <p
-                            className="font-semibold text-gray-700"
-                            style={{ fontSize: `${fontSizes?.body || fontSizes?.jobTitle || 10}pt`, marginBottom: `${data.headerItemGap || 0.08}in` }}
-                        >
-                            {data.jobTitle}
-                        </p>
                     </div>
                 </div>
 
                 {/* Contact Info - Single Line */}
-                <div className={`flex flex-wrap items-center gap-4 text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.9}pt` }}>
+                <div className={`flex flex-wrap items-center gap-4 text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.9}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
+                    {data.address && data.address.trim() && (
+                        <div className="flex items-center gap-2">
+                            <MapPin size={12} style={{ color: accentColor }} />
+                            <span>{formatContactText(data.address)}</span>
+                        </div>
+                    )}
                     {data.email && data.email.trim() && (
                         <div className="flex items-center gap-2">
                             <Mail size={12} style={{ color: accentColor }} />
-                            <a href={`mailto:${data.email}`} style={{ textDecoration: 'none', color: 'inherit' }}>{data.email}</a>
+                            <a href={`mailto:${formatContactText(data.email)}`} style={{ textDecoration: 'none', color: 'inherit' }}>{formatContactText(data.email)}</a>
                         </div>
                     )}
                     {data.phone && data.phone.trim() && (
                         <div className="flex items-center gap-2">
                             <Phone size={12} style={{ color: accentColor }} />
-                            <span>{data.phone}</span>
+                            <span>{formatContactText(data.phone)}</span>
                         </div>
                     )}
                     {data.linkedin && data.linkedin.trim() && (
                         <div className="flex items-center gap-2">
                             <Linkedin size={12} style={{ color: accentColor }} />
                             <a
-                                href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`}
+                                href={getLinkedInHref(data.linkedin)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="truncate"
                                 style={{ textDecoration: 'none', color: 'inherit' }}
                             >
-                                {data.linkedin.replace(/^https?:\/\/(www\.)?/, '')}
+                                {formatLinkedInDisplay(data.linkedin)}
                             </a>
-                        </div>
-                    )}
-
-                    {data.address && data.address.trim() && (
-                        <div className="flex items-center gap-2">
-                            <MapPin size={12} style={{ color: accentColor }} />
-                            <span>{data.address}</span>
                         </div>
                     )}
                 </div>
 
-                {/* Divider */}
-                <div className="mt-4 h-0.5" style={{ backgroundColor: accentColor, opacity: 0.3 }}></div>
+                <p
+                    className={`font-semibold ${data.headerAlignment === 'center' ? 'text-center' : data.headerAlignment === 'right' ? 'text-right' : 'text-left'}`}
+                    style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: accentColor }}
+                >
+                    {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+                </p>
             </header>
 
             {/* Dynamic Sections */}
-            {(data.sectionOrder || ['summary', 'skills', 'achievements', 'experience', 'projects', 'certifications', 'education', 'additionalInfo', 'references']).map(id => (
+            {getNormalizedSectionOrder(data.sectionOrder, ['summary', 'skills', 'achievements', 'experience', 'projects', 'certifications', 'education', 'additionalInfo', 'references']).map(id => (
                 <React.Fragment key={id}>
                     {renderSection(id)}
                 </React.Fragment>

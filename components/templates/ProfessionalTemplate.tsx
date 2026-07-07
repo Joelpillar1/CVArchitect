@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil } from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, CONTACT_SEPARATOR, formatJobTitleDisplay} from '../../utils/templateUtils';
 import { getTranslation, Language } from '../../i18n/translations';
 
 const formatMonthYear = (dateString: string | null | undefined) => {
@@ -24,13 +24,13 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
           <section className="break-inside-avoid" style={{ marginBottom: '0.5rem' }}>
             <h2
               className={`text-base font-bold uppercase underline mb-2  text-black ${getSectionHeaderAlignment()}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt` , color: data.accentColor ||"#000000"}}
+              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000"}}
             >
               {t.professionalSummary || 'PROFESSIONAL SUMMARY'}
             </h2>
             <p
               className="text-justify  text-black"
-              style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+              style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
             >
               {data.summary}
             </p>
@@ -42,11 +42,11 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
           <section className="break-inside-avoid" style={{ marginBottom: '0.5rem' }}>
             <h2
               className={`text-base font-bold uppercase underline mb-2  text-black ${getSectionHeaderAlignment()}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt` , color: data.accentColor ||"#000000"}}
+              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000"}}
             >
               SKILLS AND INTERESTS
             </h2>
-            <div className="text-black" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+            <div className="text-black" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
               <div className="mb-1">
                 <span className="font-bold">Language: </span>
                 <span>{(typeof data.skills === 'string' ? data.skills.split(',') : []).slice(0, 3).map(s => s.trim()).join(', ')}</span>
@@ -63,17 +63,18 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
           </section>
         );
 
+      case 'keyAchievements':
       case 'achievements': {
         const achievements = parseAchievementBullets(data.keyAchievements || '');
         return achievements.length > 0 && (
           <section className="break-inside-avoid" style={{ marginBottom: '0.5rem' }}>
             <h2
               className={`text-base font-bold uppercase underline mb-2  text-black ${getSectionHeaderAlignment()}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt` , color: data.accentColor ||"#000000"}}
+              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000"}}
             >
               KEY ACHIEVEMENTS
             </h2>
-            <div className="text-black pl-4" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+            <div className="text-black pl-4" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
               {achievements.map((line, i) => (
                 line.trim() ? (
                   <div key={i} className="mb-1 relative pl-2">
@@ -92,7 +93,7 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
           <div style={{ marginBottom: '0.5rem' }}>
             <h2
               className={`text-base font-bold uppercase underline mb-2 break-inside-avoid  text-black ${getSectionHeaderAlignment()}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt` , color: data.accentColor ||"#000000"}}
+              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000"}}
             >
               {t.experienceTitle || 'EXPERIENCE'}
             </h2>
@@ -104,25 +105,25 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
                   <div
                     key={exp.id}
                     className="break-inside-avoid"
-                    style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${data.sectionGap || 0.14}in` }}
+                    style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${getSectionGapIn(data)}in` }}
                   >
                     {/* Company Name (bold, left) and Location (regular, right) */}
                     <div className="flex justify-between items-center mb-0">
-                      <h3 className="font-bold text-black text-left" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{exp.company}</h3>
+                      <h3 className="font-bold text-black text-left" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{exp.company}</h3>
                       {exp.location && (
-                        <span className="text-black text-right" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{exp.location}</span>
+                        <span className="text-black text-right" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{exp.location}</span>
                       )}
                     </div>
                     {/* Job Title (italic, left) and Dates (regular, right) */}
                     <div className="flex justify-between items-center mb-1">
-                      <p className="italic text-black text-left" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{exp.role}</p>
-                      <span className="text-black text-right" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                      <p className="italic text-black text-left" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{exp.role}</p>
+                      <span className="text-black text-right" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                         {formatMonthYear(exp.startDate)} – {formatMonthYear(exp.endDate)}
                       </span>
                     </div>
                     {/* Bullet points */}
                     {bullets.length > 0 && (
-                      <div className="text-black pl-4" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                      <div className="text-black pl-4" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                         {bullets.map((bullet, i) => (
                           bullet.trim() ? (
                             <div key={i} className="mb-0.5 relative pl-2">
@@ -145,7 +146,7 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
           <section className="break-inside-avoid" style={{ marginBottom: '0.5rem' }}>
             <h2
               className={`text-base font-bold uppercase underline mb-2  text-black ${getSectionHeaderAlignment()}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt` , color: data.accentColor ||"#000000"}}
+              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000"}}
             >
               EDUCATION
             </h2>
@@ -154,15 +155,15 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
                 <div key={edu.id} className="break-inside-avoid">
                   {/* University Name (bold, left) - location can be added to school name if needed */}
                   <div className="flex justify-between items-center mb-0">
-                    <h3 className="font-bold text-black text-left" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{edu.school}</h3>
+                    <h3 className="font-bold text-black text-left" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{edu.school}</h3>
                   </div>
                   {/* Degree (italic, left) and Date (regular, right) */}
                   <div className="flex justify-between items-center mb-1">
-                    <p className="italic text-black text-left" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
+                    <p className="italic text-black text-left" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                       {edu.degree}
                     </p>
                     {edu.year && (
-                      <span className="text-black text-right" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
+                      <span className="text-black text-right" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                         {typeof edu.year === 'string' && (edu.year.includes('Expected') || edu.year.includes('May') || edu.year.includes('20')) ? edu.year : `Expected ${edu.year || ''}`}
                       </span>
                     )}
@@ -178,7 +179,7 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
           <section className="break-inside-avoid" style={{ marginBottom: '0.5rem' }}>
             <h2
               className={`text-base font-bold uppercase underline mb-2  text-black ${getSectionHeaderAlignment()}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt` , color: data.accentColor ||"#000000"}}
+              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000"}}
             >
               LEADERSHIP
             </h2>
@@ -189,21 +190,21 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
                   <div key={exp.id} className="break-inside-avoid">
                     {/* Company Name (bold, left) and Location (regular, right) */}
                     <div className="flex justify-between items-center mb-0">
-                      <h3 className="font-bold text-black text-left" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{exp.company}</h3>
+                      <h3 className="font-bold text-black text-left" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{exp.company}</h3>
                       {exp.location && (
-                        <span className="text-black text-right" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{exp.location}</span>
+                        <span className="text-black text-right" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{exp.location}</span>
                       )}
                     </div>
                     {/* Job Title (italic, left) and Dates (regular, right) */}
                     <div className="flex justify-between items-center mb-1">
-                      <p className="italic text-black text-left" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{exp.role}</p>
-                      <span className="text-black text-right" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                      <p className="italic text-black text-left" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{exp.role}</p>
+                      <span className="text-black text-right" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                         {formatMonthYear(exp.startDate)} – {formatMonthYear(exp.endDate)}
                       </span>
                     </div>
                     {/* Bullet points */}
                     {bullets.length > 0 && (
-                      <div className="text-black pl-4" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                      <div className="text-black pl-4" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                         {bullets.map((bullet, i) => (
                           bullet.trim() ? (
                             <div key={i} className="mb-0.5 relative pl-2">
@@ -226,7 +227,7 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
           <section className="break-inside-avoid" style={{ marginBottom: '0.5rem' }}>
             <h2
               className={`text-base font-bold uppercase underline mb-2  text-black ${getSectionHeaderAlignment()}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt` , color: data.accentColor ||"#000000"}}
+              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000"}}
             >
               CERTIFICATIONS
             </h2>
@@ -234,13 +235,13 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
               {data.certifications.map((cert) => (
                 <div key={cert.id} className="break-inside-avoid">
                   <div className="flex justify-between items-center">
-                    <span className="font-bold text-black" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{cert.name}</span>
+                    <span className="font-bold text-black" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{cert.name}</span>
                     {cert.date && (
-                      <span className="text-black text-right" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{cert.date}</span>
+                      <span className="text-black text-right" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{cert.date}</span>
                     )}
                   </div>
                   {cert.issuer && (
-                    <p className="italic text-black text-left" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{cert.issuer}</p>
+                    <p className="italic text-black text-left" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{cert.issuer}</p>
                   )}
                 </div>
               ))}
@@ -253,7 +254,7 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
           <section className="break-inside-avoid" style={{ marginBottom: '0.5rem' }}>
             <h2
               className={`text-base font-bold uppercase underline mb-2  text-black ${getSectionHeaderAlignment()}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt` , color: data.accentColor ||"#000000"}}
+              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000"}}
             >
               PROJECTS
             </h2>
@@ -261,7 +262,7 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
               {data.projects.map((project) => (
                 <div key={project.id} className="break-inside-avoid">
                   <div className="flex justify-between items-center mb-0">
-                    <p className="italic text-black text-left" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                    <p className="italic text-black text-left" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                       {project.name}
                       {project.link && typeof project.link === 'string' && (
                         <a 
@@ -276,7 +277,7 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
                     </p>
                   </div>
                   {project.description && (
-                    <div className="text-black pl-4" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                    <div className="text-black pl-4" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                       <div className="relative pl-2">
                         <span className="absolute left-[-0.5rem]">•</span>
                         {project.description}
@@ -305,55 +306,77 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
     'achievements'
   ];
 
-  // Deduplicate and normalize section order handling aliases
-  const uniqueSectionOrder = Array.from(new Set(sectionOrder.map(s =>
-    s === 'achievements' ? 'keyAchievements' : s
-  )));
+  const uniqueSectionOrder = getNormalizedSectionOrder(sectionOrder, [
+    'summary',
+    'experience',
+    'leadership',
+    'education',
+    'skills',
+    'certifications',
+    'projects',
+    'achievements'
+  ]);
 
   return (
     <div
       className="w-full bg-white text-black"
       style={{
         fontFamily: data.font ||"Arial, Helvetica, sans-serif",
-        fontSize: `${fontSizes?.body || 10.5}pt`,
+        fontSize: `${fontSizes?.body || 9.5}pt`,
         
-        paddingTop: `${data.margins?.vertical || 0.75}in`,
-        paddingBottom: `${data.margins?.vertical || 0.75}in`,
-        paddingLeft: `${data.margins?.horizontal || 0.75}in`,
-        paddingRight: `${data.margins?.horizontal || 0.75}in`,
+        paddingTop: `${getMarginVerticalIn(data)}in`,
+        paddingBottom: `${getMarginVerticalIn(data)}in`,
+        paddingLeft: `${getMarginHorizontalIn(data)}in`,
+        paddingRight: `${getMarginHorizontalIn(data)}in`,
       }}
     >
       {/* Header - Name, Professional Title, Contact */}
-      <div className="text-center mb-4">
+      <div className="text-center" style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
         <h1
-          className="font-bold text-black mb-1"
-          style={{ marginBottom: `${data.headerItemGap || 0.08}in`, 
-            fontSize: `${fontSizes?.header || 24}pt`,
+          className="font-bold text-black"
+          style={{ marginBottom: `${getHeaderItemGapIn(data)}in`, 
+            fontSize: `${fontSizes?.header || 18}pt`,
+            lineHeight: 1.1,
           }}
         >
-          {data.fullName ||"YOUR NAME"}
+          {formatNameDisplay(data.fullName, data.headerCase) ||"YOUR NAME"}
         </h1>
+        {/* Contact Information (smaller, regular, centered, separated by •) */}
+        <div className="text-black" style={{ fontSize: `${fontSizes?.body || 9.5}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
+          {(() => {
+            const items: React.ReactNode[] = [];
+            if (data.location || data.address) items.push(<span key="location">{formatContactText(data.location || data.address)}</span>);
+            if (data.phone) items.push(<span key="phone">{formatContactText(data.phone)}</span>);
+            if (data.email) items.push(
+              <a key="email" href={`mailto:${formatContactText(data.email)}`} className="text-black no-underline">
+                {formatContactText(data.email)}
+              </a>
+            );
+            if (data.linkedin) items.push(
+              <a key="linkedin" href={getLinkedInHref(data.linkedin)} target="_blank" rel="noopener noreferrer" className="text-black no-underline">
+                {formatLinkedInDisplay(data.linkedin)}
+              </a>
+            );
+            return items.map((item, index) => (
+              <React.Fragment key={index}>
+                {index > 0 && <span className="mx-1">{CONTACT_SEPARATOR}</span>}
+                {item}
+              </React.Fragment>
+            ));
+          })()}
+        </div>
         {/* Professional Title */}
         {data.jobTitle && (
           <p
-            className="font-semibold text-black mb-1"
+            className="font-semibold"
             style={{
-              fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt`,
+              fontSize: `${fontSizes?.jobTitle || 11}pt`,
+              color: data.accentColor || '#000000',
             }}
           >
-            {data.jobTitle}
+            {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
           </p>
         )}
-        {/* Contact Information (smaller, regular, centered, separated by •) */}
-        <div className="text-black" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
-          {data.phone && <span>{data.phone}</span>}
-          {data.phone && data.email && <span className="mx-1">•</span>}
-          {data.email && (
-            <a href={`mailto:${data.email}`} className="text-black no-underline">
-              {data.email}
-            </a>
-          )}
-        </div>
       </div>
 
       {/* Dynamic Content */}

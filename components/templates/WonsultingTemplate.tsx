@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil } from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay} from '../../utils/templateUtils';
 import { getTranslation, Language } from '../../i18n/translations';
 
 const formatMonthYear = (dateString: string | null | undefined) => {
@@ -23,42 +23,43 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
         switch (id) {
             case 'summary':
                 return data.summary && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         {/* No title for summary in some Wonsulting variants, but let's check the image. 
                  The image starts at"WORK EXPERIENCE', no summary visible. 
                  However, if summary exists, we should show it. I'll follow the style of other headers. 
              */}
-                        <p className="text-justify  text-gray-900" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{data.summary}</p>
+                        <p className="text-justify  text-gray-900" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{data.summary}</p>
                     </section>
                 );
 
             case 'skills':
                 return data.skills && data.skills.trim() && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase border-b-2 border-black mb-2 ${getSectionHeaderAlignment()}`}
-                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
+                            className={`font-bold uppercase border-b-2 leading-tight border-black mb-2 ${getSectionHeaderAlignment()}`}
+                            style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
                         >
                             {t.technicalSkills} & Interests
                         </h2>
-                        <div className="text-gray-900" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                        <div className="text-gray-900" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                             <span className="font-bold">Skills: </span>
                             {data.skills.split(',').map(s => s.trim()).join(' | ')}
                         </div>
                     </section>
                 );
 
+            case 'keyAchievements':
             case 'achievements': {
                 const achievements = parseAchievementBullets(data.keyAchievements || '');
                 return achievements.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase border-b-2 border-black mb-2 ${getSectionHeaderAlignment()}`}
-                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
+                            className={`font-bold uppercase border-b-2 leading-tight border-black mb-2 ${getSectionHeaderAlignment()}`}
+                            style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
                         >
                             Key Achievements
                         </h2>
-                        <div className="text-gray-900 pl-4" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                        <div className="text-gray-900 pl-4" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                             {achievements.map((line, i) => (
                                 line.trim() ? <div key={i} className="mb-1 relative pl-2">
                                     <span className="absolute left-[-1rem]">•</span>
@@ -72,10 +73,10 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
 
             case 'experience':
                 return data.experience.length > 0 && (
-                    <div style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <div style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase border-b-2 border-black mb-2 break-inside-avoid ${getSectionHeaderAlignment()}`}
-                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
+                            className={`font-bold uppercase border-b-2 leading-tight border-black mb-2 break-inside-avoid ${getSectionHeaderAlignment()}`}
+                            style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
                         >
                             {t.experienceTitle}
             </h2>
@@ -84,22 +85,22 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                 <div
                   key={exp.id}
                   className="break-inside-avoid"
-                  style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${data.sectionGap || 0.14}in` }}
+                  style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${getSectionGapIn(data)}in` }}
                 >
                                     {/* Company and Location */}
                                     <div className="flex justify-between items-baseline">
-                                        <h3 className="font-bold text-gray-900" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{exp.company}</h3>
-                                        <span className="font-bold text-gray-900" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{exp.location}</span>
+                                        <h3 className="font-bold text-gray-900" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{exp.company}</h3>
+                                        <span className="font-bold text-gray-900" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{exp.location}</span>
                                     </div>
                                     {/* Role and Date */}
                                     <div className="flex justify-between items-baseline mb-1">
-                                        <div className="italic text-gray-900" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{exp.role}</div>
-                                        <span className="italic text-gray-900" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                                        <div className="italic text-gray-900" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{exp.role}</div>
+                                        <span className="italic text-gray-900" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                                             {formatMonthYear(exp.startDate)} – {formatMonthYear(exp.endDate)}
                                         </span>
                                     </div>
 
-                                    <div className="text-gray-900 pl-4" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                                    <div className="text-gray-900 pl-4" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                                         {descriptionToString(exp.description).split('\n').map((line, i) => (
                                             line.trim() ? <div key={i} className="relative pl-2">
                                                 <span className="absolute left-[-1rem]">•</span>
@@ -115,10 +116,10 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
 
             case 'projects':
                 return data.projects && data.projects.length > 0 && (
-                    <div style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <div style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase border-b-2 border-black mb-2 break-inside-avoid ${getSectionHeaderAlignment()}`}
-                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
+                            className={`font-bold uppercase border-b-2 leading-tight border-black mb-2 break-inside-avoid ${getSectionHeaderAlignment()}`}
+                            style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
                         >
                             Projects
                         </h2>
@@ -126,7 +127,7 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                             {data.projects.map((project) => (
                                 <div key={project.id} className="break-inside-avoid">
                                     <div className="flex justify-between items-center mb-1">
-                                        <h3 className="font-bold text-gray-900" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                                        <h3 className="font-bold text-gray-900" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                                             {project.name}
                                             {project.link && (
                                                 <a href={project.link.startsWith('http') ? project.link : `https://${project.link}`} target="_blank" rel="noopener noreferrer" className="ml-2 font-normal text-blue-600 hover:underline">
@@ -136,11 +137,11 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                                         </h3>
                                     </div>
                                     {project.technologies && (
-                                        <p className="italic text-gray-900 mb-1" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                                        <p className="italic text-gray-900 mb-1" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                                             {project.technologies}
                                         </p>
                                     )}
-                                    <div className="text-gray-900 pl-4" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                                    <div className="text-gray-900 pl-4" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                                         <div className="relative pl-2 whitespace-pre-line">
                                             <span className="absolute left-[-1rem]">•</span>
                                             {project.description}
@@ -154,11 +155,11 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
 
             case 'certifications':
                 return data.certifications && data.certifications.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         {/* Reusing experience-like header if appropriate, or simpler list */}
                         <h2
-                            className={`font-bold uppercase border-b-2 border-black mb-2 ${getSectionHeaderAlignment()}`}
-                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
+                            className={`font-bold uppercase border-b-2 leading-tight border-black mb-2 ${getSectionHeaderAlignment()}`}
+                            style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
                         >
                             {t.certifications}
                         </h2>
@@ -166,10 +167,10 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                             {data.certifications.map((cert) => (
                                 <div key={cert.id} className="flex justify-between">
                                     <div>
-                                        <span className="font-bold text-gray-900" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{cert.name}</span>
-                                        {cert.issuer && <span className="italic text-gray-900 ml-2" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>| {cert.issuer}</span>}
+                                        <span className="font-bold text-gray-900" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{cert.name}</span>
+                                        {cert.issuer && <span className="italic text-gray-900 ml-2" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>| {cert.issuer}</span>}
                                     </div>
-                                    {cert.date && <span className="italic text-gray-900" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{cert.date}</span>}
+                                    {cert.date && <span className="italic text-gray-900" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{cert.date}</span>}
                                 </div>
                             ))}
                         </div>
@@ -178,10 +179,10 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
 
             case 'education':
                 return data.education.length > 0 && (
-                    <div style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <div style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase border-b-2 border-black mb-2 break-inside-avoid ${getSectionHeaderAlignment()}`}
-                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
+                            className={`font-bold uppercase border-b-2 leading-tight border-black mb-2 break-inside-avoid ${getSectionHeaderAlignment()}`}
+                            style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
                         >
                             {t.educationTitle}
                         </h2>
@@ -189,13 +190,13 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                             {data.education.map(edu => (
                                 <div key={edu.id} className="break-inside-avoid">
                                     <div className="flex justify-between items-baseline">
-                                        <span className="font-bold text-gray-900" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{edu.school}</span>
-                                        <span className="font-bold text-gray-900" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{/* Location if we had it, using year for now in next line usually but let's see image */}</span>
+                                        <span className="font-bold text-gray-900" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{edu.school}</span>
+                                        <span className="font-bold text-gray-900" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{/* Location if we had it, using year for now in next line usually but let's see image */}</span>
                                         {/* Image puts location on right for work, assume same for Edu */}
                                     </div>
                                     <div className="flex justify-between items-baseline">
-                                        <span className="italic text-gray-900" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{edu.degree}</span>
-                                        <span className="italic text-gray-900" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{edu.year}</span>
+                                        <span className="italic text-gray-900" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{edu.degree}</span>
+                                        <span className="italic text-gray-900" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{edu.year}</span>
                                     </div>
                                 </div>
                             ))}
@@ -205,14 +206,14 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
 
             case 'additionalInfo':
                 return data.additionalInfo && data.additionalInfo.length > 0 && data.additionalInfo.some(item => item.label.trim() && item.value.trim()) && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase border-b-2 border-black mb-2 ${getSectionHeaderAlignment()}`}
-                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
+                            className={`font-bold uppercase border-b-2 leading-tight border-black mb-2 ${getSectionHeaderAlignment()}`}
+                            style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
                         >
                             Additional Information
                         </h2>
-                        <div className="space-y-1" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                        <div className="space-y-1" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                             {data.additionalInfo.filter(item => item.label.trim() && item.value.trim()).map((item) => (
                                 <div key={item.id} className="text-gray-900">
                                     <span className="font-bold">{item.label}:</span> <span >{item.value}</span>
@@ -224,10 +225,10 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
 
             case 'leadership':
                 return data.leadership && data.leadership.length > 0 && (
-                    <div style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <div style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase border-b-2 border-black mb-2 break-inside-avoid ${getSectionHeaderAlignment()}`}
-                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
+                            className={`font-bold uppercase border-b-2 leading-tight border-black mb-2 break-inside-avoid ${getSectionHeaderAlignment()}`}
+                            style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
                         >
                             LEADERSHIP EXPERIENCE
                         </h2>
@@ -235,16 +236,16 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                             {data.leadership.map((exp) => (
                                 <div key={exp.id} className="break-inside-avoid">
                                     <div className="flex justify-between items-baseline">
-                                        <h3 className="font-bold text-gray-900" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{exp.company}</h3>
-                                        <span className="font-bold text-gray-900" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{exp.location}</span>
+                                        <h3 className="font-bold text-gray-900" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{exp.company}</h3>
+                                        <span className="font-bold text-gray-900" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{exp.location}</span>
                                     </div>
                                     <div className="flex justify-between items-baseline mb-1">
-                                        <div className="italic text-gray-900" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{exp.role}</div>
-                                        <span className="italic text-gray-900" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                                        <div className="italic text-gray-900" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{exp.role}</div>
+                                        <span className="italic text-gray-900" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                                             {formatMonthYear(exp.startDate)} – {formatMonthYear(exp.endDate)}
                                         </span>
                                     </div>
-                                    <div className="text-gray-900 pl-4" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>
+                                    <div className="text-gray-900 pl-4" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                                         {descriptionToString(exp.description).split('\n').map((line, i) => (
                                             line.trim() ? <div key={i} className="relative pl-2">
                                                 <span className="absolute left-[-1rem]">•</span>
@@ -260,14 +261,14 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
 
             case 'references':
                 return data.referee && data.referee.trim() && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase border-b-2 border-black mb-2 ${getSectionHeaderAlignment()}`}
-                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
+                            className={`font-bold uppercase border-b-2 leading-tight border-black mb-2 ${getSectionHeaderAlignment()}`}
+                            style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt`, borderColor: 'black' , color: data.accentColor ||"#000000"}}
                         >
                             References
                         </h2>
-                        <p className="text-justify  text-gray-900 whitespace-pre-line" style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}>{data.referee}</p>
+                        <p className="text-justify  text-gray-900 whitespace-pre-line" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{data.referee}</p>
                     </section>
                 );
 
@@ -279,45 +280,52 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
     // Header Info Construction
     const headerInfo = [
         data.location || data.address,
-        data.linkedin && `LinkedIn`, // Simplified as per image style usually just saying"LinkedIn" or URL. Image says"LinkedIn".
         data.phone,
-        data.email
+        data.email,
+        data.linkedin && `LinkedIn`, // Simplified as per image style usually just saying"LinkedIn" or URL. Image says"LinkedIn".
     ].filter(Boolean);
 
     return (
         <div
-            className="resume-content text-gray-900 font-sans"
+            className="resume-content text-gray-900"
             style={{
-                lineHeight: data.lineHeight || 1.3,
-                paddingLeft: `${data.margins?.horizontal || 0.5}in`,
-                paddingRight: `${data.margins?.horizontal || 0.5}in`,
-                paddingTop: `${data.margins?.vertical || 0.5}in`,
-                paddingBottom: `${data.margins?.vertical || 0.5}in`,
+                lineHeight: data.lineHeight || 1.7,
+                paddingLeft: `${getMarginHorizontalIn(data)}in`,
+                paddingRight: `${getMarginHorizontalIn(data)}in`,
+                paddingTop: `${getMarginVerticalIn(data)}in`,
+                paddingBottom: `${getMarginVerticalIn(data)}in`,
                 fontFamily: data.font ||"'Times New Roman', Times, serif"
             }}
         >
             {/* Header */}
-            <div className={`mb-6 break-inside-avoid ${data.headerAlignment === 'left' ? 'text-left' : data.headerAlignment === 'right' ? 'text-right' : 'text-center'}`} style={{ marginBottom: `${data.headerGap || 0.15}in` }}>
-                <h1 className="font-bold text-gray-900 mb-1" style={{ marginBottom: `${data.headerItemGap || 0.08}in`,  fontSize: `${fontSizes?.header || 24}pt` }}>{data.fullName}</h1>
-                {/* We can merge title if needed, but standard is separate line. Image:"Wonsulting Wendy [Professional]" looks like name. */}
-                {data.jobTitle && <div  style={{ fontSize: `${fontSizes?.body || fontSizes?.jobTitle || 10}pt` }}>{data.jobTitle}</div>}
+            <div className={`mb-6 break-inside-avoid ${data.headerAlignment === 'left' ? 'text-left' : data.headerAlignment === 'right' ? 'text-right' : 'text-center'}`} style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
+                <h1 className="font-bold text-gray-900" style={{ marginBottom: `${getHeaderItemGapIn(data)}in`, lineHeight: 1.1, fontSize: `${fontSizes?.header || 18}pt` }}>{formatNameDisplay(data.fullName, data.headerCase)}</h1>
 
-                <div className="flex flex-wrap justify-center gap-1 text-gray-900 mt-1" style={{ fontSize: `${fontSizes?.body || 10.5}pt`, justifyContent: data.headerAlignment === 'left' ? 'flex-start' : data.headerAlignment === 'right' ? 'flex-end' : 'center' }}>
-                    {/* Custom joining with | */}
-                    {data.location && <span>{data.location} |</span>}
-                    {data.linkedin && (
-                        <span>
-                            <a href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`} target="_blank" rel="noopener noreferrer" className="text-blue-700 underline">LinkedIn</a> |
-                        </span>
-                    )}
-                    {data.phone && <span>{data.phone} |</span>}
-                    {data.email && <a href={`mailto:${data.email}`} className="text-blue-700 underline">{data.email}</a>}
+                <div className="flex flex-wrap justify-center gap-1 text-gray-900" style={{ fontSize: `${fontSizes?.body || 9.5}pt`, marginBottom: `${getHeaderContactGapIn(data)}in`, justifyContent: data.headerAlignment === 'left' ? 'flex-start' : data.headerAlignment === 'right' ? 'flex-end' : 'center' }}>
+                    {(() => {
+                        const items: React.ReactNode[] = [];
+                        if (data.location || data.address) items.push(<span key="location">{formatContactText(data.location || data.address)}</span>);
+                        if (data.phone) items.push(<span key="phone">{formatContactText(data.phone)}</span>);
+                        if (data.email) items.push(<a key="email" href={`mailto:${formatContactText(data.email)}`} className="text-blue-700 underline">{formatContactText(data.email)}</a>);
+                        if (data.linkedin) items.push(<a key="linkedin" href={getLinkedInHref(data.linkedin)} target="_blank" rel="noopener noreferrer" className="text-blue-700 underline">{formatLinkedInDisplay(data.linkedin)}</a>);
+                        return items.map((item, index) => (
+                            <React.Fragment key={index}>
+                                {index > 0 && <span>|</span>}
+                                {item}
+                            </React.Fragment>
+                        ));
+                    })()}
                 </div>
+                {data.jobTitle && (
+                    <div style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: data.accentColor || '#000000' }}>
+                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+                    </div>
+                )}
             </div>
 
             {/* Dynamic Sections */}
             {(() => {
-                let sectionOrder = data.sectionOrder || ['experience', 'leadership', 'education', 'skills', 'projects', 'certifications', 'achievements', 'additionalInfo', 'references'];
+                let sectionOrder = getNormalizedSectionOrder(data.sectionOrder, ['experience', 'leadership', 'education', 'skills', 'projects', 'certifications', 'achievements', 'additionalInfo', 'references']);
 
                 // Fallback: If sectionOrder exists but doesn't include leadership (e.g. old save), but we have leadership data
                 if (data.leadership && data.leadership.length > 0 && !sectionOrder.includes('leadership')) {
@@ -328,7 +336,7 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                     } else {
                         newOrder.push('leadership');
                     }
-                    sectionOrder = newOrder;
+                    sectionOrder = getNormalizedSectionOrder(newOrder, sectionOrder);
                 }
 
                 return sectionOrder.map(id => (

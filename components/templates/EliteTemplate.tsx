@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil } from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay} from '../../utils/templateUtils';
 import { getTranslation, Language } from '../../i18n/translations';
 
 const formatMonthYear = (dateString: string | null | undefined) => {
@@ -23,9 +23,9 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
         switch (id) {
             case 'summary':
                 return data.summary && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.2}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wide mb-3 flex items-center gap-2 ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wide mb-1.5 flex items-center gap-2 ${getSectionHeaderAlignment()}`}
                             style={{
                                 fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor,
@@ -37,7 +37,7 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                         <div
                             className="text-gray-700"
                             style={{
-                                fontSize: `${fontSizes?.body || 10.5}pt`
+                                fontSize: `${fontSizes?.body || 9.5}pt`
                             }}
                         >
                             {data.summary}
@@ -45,10 +45,11 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                     </section>
                 );
 
+            case 'keyAchievements':
             case 'achievements': {
                 const achievements = parseAchievementBullets(data.keyAchievements || '');
                 return achievements.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.2}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
                             className={`font-bold uppercase tracking-wide mb-1.5 flex items-center gap-2 ${getSectionHeaderAlignment()}`}
                             style={{
@@ -66,7 +67,7 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                                         key={i}
                                         className="flex gap-2 items-baseline bg-white py-0.5"
                                         style={{
-                                            fontSize: `${fontSizes?.body || 10.5}pt`
+                                            fontSize: `${fontSizes?.body || 9.5}pt`
                                         }}
                                     >
                                         <span className="shrink-0 w-2 inline-block text-left leading-none" style={{ color: accentColor }}>•</span>
@@ -81,9 +82,9 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
 
             case 'skills':
                 return data.skills && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.2}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wide mb-3 flex items-center gap-2 ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wide mb-1.5 flex items-center gap-2 ${getSectionHeaderAlignment()}`}
                             style={{
                                 fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor,
@@ -97,7 +98,7 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                                 <div
                                     key={i}
                                     className="flex items-baseline gap-2 text-gray-700"
-                                    style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
+                                    style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}
                                 >
                                     <span className="shrink-0 w-2 inline-block text-left leading-none" style={{ color: accentColor }}>•</span>
                                     <span className="font-medium">{skill.trim()}</span>
@@ -109,9 +110,9 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
 
             case 'experience':
                 return data.experience.length > 0 && (
-                    <section style={{ marginBottom: `${data.sectionGap || 0.2}in` }}>
+                    <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wide mb-4 flex items-center gap-2 break-inside-avoid ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wide mb-1.5 flex items-center gap-2 break-inside-avoid ${getSectionHeaderAlignment()}`}
                             style={{
                                 fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor,
@@ -125,14 +126,14 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                                 <div
                                     key={exp.id}
                                     className="break-inside-avoid"
-                                    style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${data.sectionGap || 0.2}in` }}
+                                    style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${getSectionGapIn(data)}in` }}
                                 >
                                     <div className="flex justify-between items-start mb-2">
                                         <div className="flex-1">
                                             <h3
                                                 className="font-bold"
                                                 style={{
-                                                    fontSize: `${(fontSizes?.body || 10.5) * 1.1}pt`,
+                                                    fontSize: `${(fontSizes?.body || 9.5) * 1.1}pt`,
                                                     color: '#111827'
                                                 }}
                                             >
@@ -141,7 +142,7 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                                             <div
                                                 className="font-semibold mt-1"
                                                 style={{
-                                                    fontSize: `${fontSizes?.body || 10.5}pt`,
+                                                    fontSize: `${fontSizes?.body || 9.5}pt`,
                                                     color: accentColor
                                                 }}
                                             >
@@ -151,7 +152,7 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                                         </div>
                                         <div
                                             className="text-gray-600 font-medium text-right ml-4"
-                                            style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.9}pt` }}
+                                            style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.9}pt` }}
                                         >
                                             {formatMonthYear(exp.startDate)} – {formatMonthYear(exp.endDate)}
                                         </div>
@@ -162,7 +163,7 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                                                 <li
                                                     key={i}
                                                     className="flex gap-2 items-baseline text-gray-700"
-                                                    style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                                                    style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                                                 >
                                                     <span className="shrink-0 w-2 inline-block text-left leading-none" style={{ color: accentColor }}>•</span>
                                                     <span className="flex-1">{line.replace(/^[•-]\s*/, '')}</span>
@@ -178,9 +179,9 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
 
             case 'projects':
                 return data.projects && data.projects.length > 0 && (
-                    <section style={{ marginBottom: `${data.sectionGap || 0.2}in` }}>
+                    <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wide mb-4 flex items-center gap-2 break-inside-avoid ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wide mb-1.5 flex items-center gap-2 break-inside-avoid ${getSectionHeaderAlignment()}`}
                             style={{
                                 fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor,
@@ -197,7 +198,7 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                                             <h3
                                                 className="font-bold"
                                                 style={{
-                                                    fontSize: `${(fontSizes?.body || 10.5) * 1.1}pt`,
+                                                    fontSize: `${(fontSizes?.body || 9.5) * 1.1}pt`,
                                                     color: '#111827'
                                                 }}
                                             >
@@ -212,7 +213,7 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                                                 <div
                                                     className="font-semibold mt-1"
                                                     style={{
-                                                        fontSize: `${fontSizes?.body || 10.5}pt`,
+                                                        fontSize: `${fontSizes?.body || 9.5}pt`,
                                                         color: accentColor
                                                     }}
                                                 >
@@ -223,7 +224,7 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                                     </div>
                                     <div
                                         className="text-gray-700 whitespace-pre-line mt-2"
-                                        style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                                        style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                                     >
                                         {project.description}
                                     </div>
@@ -235,9 +236,9 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
 
             case 'certifications':
                 return data.certifications && data.certifications.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.2}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wide mb-3 flex items-center gap-2 ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wide mb-1.5 flex items-center gap-2 ${getSectionHeaderAlignment()}`}
                             style={{
                                 fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor,
@@ -250,7 +251,7 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                             {data.certifications.map((cert) => (
                                 <div key={cert.id} className="flex gap-2 items-start">
                                     <span style={{ color: accentColor }}>✓</span>
-                                    <div style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}>
+                                    <div style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}>
                                         <div className="font-bold text-gray-900">{cert.name}</div>
                                         {cert.issuer && (
                                             <div className="text-gray-600 text-sm">{cert.issuer}</div>
@@ -267,9 +268,9 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
 
             case 'education':
                 return data.education.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.2}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wide mb-3 flex items-center gap-2 ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wide mb-1.5 flex items-center gap-2 ${getSectionHeaderAlignment()}`}
                             style={{
                                 fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor,
@@ -284,20 +285,20 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                                     <div>
                                         <div
                                             className="font-bold text-gray-900"
-                                            style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                                            style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                                         >
                                             {edu.degree}
                                         </div>
                                         <div
                                             className="text-gray-600 mt-0.5"
-                                            style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}
+                                            style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}
                                         >
                                             {edu.school}
                                         </div>
                                     </div>
                                     <div
                                         className="font-semibold text-gray-500"
-                                        style={{ fontSize: `${fontSizes?.body || 10}pt` }}
+                                        style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                                     >
                                         {edu.year}
                                     </div>
@@ -309,9 +310,9 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
 
             case 'additionalInfo':
                 return data.additionalInfo && data.additionalInfo.length > 0 && data.additionalInfo.some(item => item.label.trim() && item.value.trim()) && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.2}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase tracking-wide mb-3 flex items-center gap-2 ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wide mb-1.5 flex items-center gap-2 ${getSectionHeaderAlignment()}`}
                             style={{
                                 fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor,
@@ -335,7 +336,7 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                 return data.referee && data.referee.trim() && (
                     <section className="break-inside-avoid">
                         <h2
-                            className={`font-bold uppercase tracking-wide mb-3 flex items-center gap-2 ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase tracking-wide mb-1.5 flex items-center gap-2 ${getSectionHeaderAlignment()}`}
                             style={{
                                 fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: accentColor,
@@ -346,7 +347,7 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                         </h2>
                         <p
                             className="text-gray-700 italic whitespace-pre-line"
-                            style={{ fontSize: `${fontSizes?.body || 10.5}pt` }}
+                            style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                         >
                             {data.referee}
                         </p>
@@ -362,77 +363,74 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
         <div
             className="resume-content text-gray-900 bg-white"
             style={{
-                lineHeight: data.lineHeight || 1.5,
-                paddingLeft: `${data.margins?.horizontal || 0.5}in`,
-                paddingRight: `${data.margins?.horizontal || 0.5}in`,
-                paddingTop: `${data.margins?.vertical || 0.5}in`,
-                paddingBottom: `${data.margins?.vertical || 0.5}in`,
+                lineHeight: data.lineHeight || 1.7,
+                paddingLeft: `${getMarginHorizontalIn(data)}in`,
+                paddingRight: `${getMarginHorizontalIn(data)}in`,
+                paddingTop: `${getMarginVerticalIn(data)}in`,
+                paddingBottom: `${getMarginVerticalIn(data)}in`,
             }}
         >
             {/* Header Section - Clean and Professional */}
-            <header className="break-inside-avoid" style={{ marginBottom: `${data.headerGap || 0.15}in` }}>
+            <header className="break-inside-avoid" style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
                 <div
                     className={`border-b pb-4 flex flex-col ${data.headerAlignment === 'center' ? 'items-center text-center' : data.headerAlignment === 'right' ? 'items-end text-right' : 'items-start text-left'}`}
                     style={{ borderColor: accentColor }}
                 >
                     <h1
-                        className="font-bold tracking-tight"
+                        className="font-bold"
                         style={{
-                            fontSize: `${fontSizes?.header || 32}pt`,
+                            fontSize: `${fontSizes?.header || 18}pt`,
                             color: '#1f2937',
-                            letterSpacing: '-0.02em',
-                            marginBottom: `${data.headerItemGap || 0.08}in`
+                            marginBottom: `${getHeaderItemGapIn(data)}in`, lineHeight: 1.1
                         }}
                     >
-                        {data.fullName}
+                        {formatNameDisplay(data.fullName, data.headerCase)}
                     </h1>
-                    <p
-                        className="font-semibold"
-                        style={{
-                            fontSize: `${fontSizes?.jobTitle || 13}pt`,
-                            color: accentColor,
-                            marginBottom: `${data.headerItemGap || 0.08}in`
-                        }}
-                    >
-                        {data.jobTitle}
-                    </p>
 
                     {/* Contact Bar */}
-                <div className={`flex flex-wrap gap-4 text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${(fontSizes?.body || 10.5) * 0.95}pt` }}>
+                <div className={`flex flex-wrap gap-4 text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
+                        {data.address && (
+                            <div className="flex items-center gap-1.5">
+                                <span>{formatContactText(data.address)}</span>
+                            </div>
+                        )}
                     {data.email && (
                         <div className="flex items-center gap-1.5">
-                            <a href={`mailto:${data.email}`} style={{ textDecoration: 'none', color: 'inherit' }}>{data.email}</a>
+                            <a href={`mailto:${formatContactText(data.email)}`} style={{ textDecoration: 'none', color: 'inherit' }}>{formatContactText(data.email)}</a>
                         </div>
                     )}
                         {data.phone && (
                             <div className="flex items-center gap-1.5">
-                                <span>{data.phone}</span>
-                            </div>
-                        )}
-
-                        {data.address && (
-                            <div className="flex items-center gap-1.5">
-                                <span>{data.address}</span>
+                                <span>{formatContactText(data.phone)}</span>
                             </div>
                         )}
                     {data.linkedin && (
                         <div className="flex items-center gap-1.5">
                             <a
-                                href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`}
+                                href={getLinkedInHref(data.linkedin)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 style={{ textDecoration: 'none', color: 'inherit' }}
                             >
-                                {data.linkedin.replace(/^https?:\/\/(www\.)?/, '')}
+                                {formatLinkedInDisplay(data.linkedin)}
                             </a>
                         </div>
                     )}
                     </div>
+                    <p
+                        className="font-semibold"
+                        style={{
+                            fontSize: `${fontSizes?.jobTitle || 11}pt`,
+                            color: accentColor,
+                        }}
+                    >
+                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+                    </p>
                 </div>
             </header>
 
             {/* Dynamic Sections */}
-            {(data.sectionOrder || ['summary', 'achievements', 'skills', 'experience', 'projects', 'certifications', 'education', 'additionalInfo', 'references']).map(id => (
+            {getNormalizedSectionOrder(data.sectionOrder, ['summary', 'achievements', 'skills', 'experience', 'projects', 'certifications', 'education', 'additionalInfo', 'references']).map(id => (
                 <React.Fragment key={id}>
                     {renderSection(id)}
                 </React.Fragment>

@@ -30,12 +30,6 @@ import ProfessionalTemplate from './templates/ProfessionalTemplate';
 import TwoColumnTemplate from './templates/TwoColumnTemplate';
 import SageTemplate from './templates/SageTemplate';
 import FreshGradTemplate from './templates/FreshGradTemplate';
-import FreshGradFinanceTemplate from './templates/FreshGradFinanceTemplate';
-import FreshGradCSTemplate from './templates/FreshGradCSTemplate';
-import FreshGradArtsTemplate from './templates/FreshGradArtsTemplate';
-import FreshGradEngTemplate from './templates/FreshGradEngTemplate';
-import FreshGradMarketingTemplate from './templates/FreshGradMarketingTemplate';
-import FreshGrad7Template from './templates/FreshGrad7Template';
 import FreshGrad8Template from './templates/FreshGrad8Template';
 import StudentTemplate from './templates/StudentTemplate';
 import CreditDisplay from './CreditDisplay';
@@ -78,7 +72,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
   const [coverLetterContent, setCoverLetterContent] = useState<string>('');
   const [isPrintingCoverLetter, setIsPrintingCoverLetter] = useState(false);
   const [zoomState, setZoomStateInternal] = useState(() => {
-    return loadFromStorage<number>('editor_zoom', 0.5);
+    return loadFromStorage<number>('editor_zoom', 1);
   });
 
   // Wrapper functions that persist immediately
@@ -104,19 +98,6 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
   const activeTab = activeTabState;
   const activeMobileTab = activeMobileTabState;
   const zoom = zoomState;
-
-  // Auto-adjust initial zoom based on screen width
-  React.useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 640) setZoom(0.45);
-      else if (window.innerWidth < 768) setZoom(0.6);
-      else if (window.innerWidth < 1024) setZoom(0.7);
-      else setZoom(0.8);
-    };
-    handleResize(); // Set initial
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.1, 1.5));
   const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.1, 0.3));
@@ -238,14 +219,16 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
       case 'professional': return <ProfessionalTemplate data={data} />;
       case 'twocolumn': return <TwoColumnTemplate data={data} />;
       case 'sage': return <SageTemplate data={data} />;
-      case 'freshgrad1': return <FreshGradTemplate data={data} />;
-      case 'freshgrad2': return <FreshGradFinanceTemplate data={data} />;
-      case 'freshgrad3': return <FreshGradCSTemplate data={data} />;
-      case 'freshgrad4': return <FreshGradArtsTemplate data={data} />;
-      case 'freshgrad5': return <FreshGradEngTemplate data={data} />;
-      case 'freshgrad6': return <FreshGradMarketingTemplate data={data} />;
-      case 'freshgrad7': return <FreshGrad7Template data={data} />;
-      case 'freshgrad8': return <FreshGrad8Template data={data} />;
+      case 'freshgrad1':
+      case 'freshgrad2':
+      case 'freshgrad4':
+      case 'freshgrad5':
+      case 'freshgrad6':
+        return <FreshGradTemplate data={data} />;
+      case 'freshgrad3':
+      case 'freshgrad7':
+      case 'freshgrad8':
+        return <FreshGrad8Template data={data} />;
       case 'student': return <StudentTemplate data={data} />;
       default: return <VanguardTemplate data={data} />;
     }
@@ -373,7 +356,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
                 width: '210mm',
                 height: '297mm'
               }}
-              className="absolute top-0 left-0 bg-white shadow-2xl"
+              className="absolute top-0 left-0"
             >
               <ResumePreview data={data} template={template} />
             </div>
@@ -427,7 +410,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
       {/* Hidden Print Container */}
       {/* Hidden Print Container - Rendered via Portal to escape app layout constraints */}
       {createPortal(
-        <div className="hidden print:block absolute top-0 left-0 w-full h-auto bg-white z-[9999] print:w-full print:max-w-[210mm]">
+        <div className="print-root hidden print:block absolute top-0 left-0 w-full h-auto bg-white z-[9999] print:w-full print:max-w-[210mm]">
           <table className="w-full">
             <thead>
               <tr>
@@ -444,8 +427,8 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
                     className="print-resume"
                     style={{
                       fontFamily: data.font || 'Inter, sans-serif',
-                      fontSize: `${data.fontSizes?.body || 10.5}pt`,
-                      lineHeight: data.lineHeight || 1.4,
+                      fontSize: `${data.fontSizes?.body || 9.5}pt`,
+                      lineHeight: data.lineHeight || 1.7,
                     }}
                   >
                     {renderPrintTemplate()}

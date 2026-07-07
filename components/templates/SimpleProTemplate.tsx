@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil } from '../../utils/templateUtils';
+import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay} from '../../utils/templateUtils';
 import { getTranslation, Language } from '../../i18n/translations';
 
 export default function SimpleProTemplate({ data }: { data: ResumeData }) {
@@ -12,7 +12,7 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
     };
 
     // Calculate relative font sizes
-    const bodySize = fontSizes?.body || 10.5;
+    const bodySize = fontSizes?.body || 9.5;
     const smallSize = bodySize * 0.85;
 
     const getSectionHeaderAlignment = () => {
@@ -25,10 +25,10 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
         switch (id) {
             case 'summary':
                 return data.summary && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
                             className={`font-bold uppercase mb-2 ${getSectionHeaderAlignment()}`}
-                            style={{ fontSize: `${fontSizes?.sectionTitle || 12}pt`, color: data.accentColor || '#000000', }}
+                            style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt`, color: data.accentColor || '#000000', }}
                         >
                             {t.professionalSummary}
                         </h2>
@@ -40,11 +40,11 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
 
             case 'skills':
                 return data.skills && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase mb-3 pb-1 border-b-2 ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase mb-3 pb-0.5 border-b-2 leading-tight ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000',
                                 borderColor: data.accentColor || '#000000',
                             }}
@@ -63,11 +63,11 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
 
             case 'experience':
                 return data.experience.length > 0 && (
-                    <section style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase mb-3 pb-1 border-b-2 ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase mb-3 pb-0.5 border-b-2 leading-tight ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000',
                                 borderColor: data.accentColor || '#000000',
                             }}
@@ -79,7 +79,7 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
                                 <div
                                     key={exp.id}
                                     className="break-inside-avoid"
-                                    style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${data.sectionGap || 0.14}in` }}
+                                    style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${getSectionGapIn(data)}in` }}
                                 >
                                     <div className="flex justify-between items-baseline mb-1">
                                         <h3 className="font-bold text-gray-900" style={{ fontSize: `${bodySize}pt` }}>
@@ -112,11 +112,11 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
 
             case 'projects':
                 return data.projects && data.projects.length > 0 && (
-                    <section style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase mb-3 pb-1 border-b-2 ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase mb-3 pb-0.5 border-b-2 leading-tight ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000',
                                 borderColor: data.accentColor || '#000000',
                             }}
@@ -150,13 +150,14 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
                     </section>
                 );
 
+            case 'keyAchievements':
             case 'achievements':
                 return data.keyAchievements && (
-                    <section style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase mb-3 pb-1 border-b-2 ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase mb-3 pb-0.5 border-b-2 leading-tight ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000',
                                 borderColor: data.accentColor || '#000000',
                             }}
@@ -178,11 +179,11 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
 
             case 'certifications':
                 return data.certifications && data.certifications.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase mb-3 pb-1 border-b-2 ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase mb-3 pb-0.5 border-b-2 leading-tight ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000',
                                 borderColor: data.accentColor || '#000000',
                             }}
@@ -213,11 +214,11 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
 
             case 'education':
                 return data.education.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase mb-3 pb-1 border-b-2 ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase mb-3 pb-0.5 border-b-2 leading-tight ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000',
                                 borderColor: data.accentColor || '#000000',
                             }}
@@ -235,7 +236,7 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
                                             {edu.degree}
                                         </div>
                                     </div>
-                                    <div className="text-gray-600" style={{ fontSize: `${fontSizes?.body || 10}pt` }}>
+                                    <div className="text-gray-600" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                                         {edu.year}
                                     </div>
                                 </div>
@@ -246,11 +247,11 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
 
             case 'additionalInfo':
                 return data.additionalInfo && data.additionalInfo.length > 0 && data.additionalInfo.some(item => item.label.trim() && item.value.trim()) && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase mb-3 pb-1 border-b-2 ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase mb-3 pb-0.5 border-b-2 leading-tight ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000',
                                 borderColor: data.accentColor || '#000000',
                             }}
@@ -270,11 +271,11 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
 
             case 'references':
                 return data.referee && data.referee.trim() && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${data.sectionGap || 0.14}in` }}>
+                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         <h2
-                            className={`font-bold uppercase mb-3 pb-1 border-b-2 ${getSectionHeaderAlignment()}`}
+                            className={`font-bold uppercase mb-3 pb-0.5 border-b-2 leading-tight ${getSectionHeaderAlignment()}`}
                             style={{
-                                fontSize: `${fontSizes?.sectionTitle || 12}pt`,
+                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                                 color: data.accentColor || '#000000',
                                 borderColor: data.accentColor || '#000000',
                             }}
@@ -296,53 +297,53 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
         <div
             className="resume-content text-gray-800"
             style={{
-                lineHeight: data.lineHeight || 1.4,
-                paddingLeft: `${data.margins?.horizontal || 0.39}in`,
-                paddingRight: `${data.margins?.horizontal || 0.39}in`,
-                paddingTop: `${data.margins?.vertical || 0.45}in`,
-                paddingBottom: `${data.margins?.vertical || 0.45}in`,
+                lineHeight: data.lineHeight || 1.7,
+                paddingLeft: `${getMarginHorizontalIn(data)}in`,
+                paddingRight: `${getMarginHorizontalIn(data)}in`,
+                paddingTop: `${getMarginVerticalIn(data)}in`,
+                paddingBottom: `${getMarginVerticalIn(data)}in`,
             }}
         >
             {/* Header */}
-            <header className={`break-inside-avoid ${data.headerAlignment === 'center' ? 'text-center' : data.headerAlignment === 'right' ? 'text-right' : 'text-left'}`} style={{ marginBottom: `${data.headerGap || 0.15}in` }}>
+            <header className={`break-inside-avoid ${data.headerAlignment === 'center' ? 'text-center' : data.headerAlignment === 'right' ? 'text-right' : 'text-left'}`} style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
                 <h1
-                    className="font-bold uppercase"
-                    style={{ fontSize: `${fontSizes?.header || 36}pt`, color: data.accentColor || '#000000', marginBottom: `${data.headerItemGap || 0.08}in` }}
+                    className="font-bold"
+                    style={{ fontSize: `${fontSizes?.header || 18}pt`, color: data.accentColor || '#000000', marginBottom: `${getHeaderItemGapIn(data)}in`, lineHeight: 1.1 }}
                 >
-                    {data.fullName}
+                    {formatNameDisplay(data.fullName, data.headerCase)}
                 </h1>
-                <div className="text-gray-900 font-semibold" style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt`, marginBottom: `${data.headerItemGap || 0.08}in` }}>
-                    {data.jobTitle}
-                </div>
 
                 {/* Contact Info */}
-                <div className={`flex gap-6 text-gray-700 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${smallSize}pt` }}>
+                <div className={`flex gap-6 text-gray-700 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${smallSize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
+                    {data.address && <div>{formatContactText(data.address)}</div>}
                     {data.email && (
                         <div>
-                            <a href={`mailto:${data.email}`} style={{ textDecoration: 'none', color: 'inherit' }}>{data.email}</a>
+                            <a href={`mailto:${formatContactText(data.email)}`} style={{ textDecoration: 'none', color: 'inherit' }}>{formatContactText(data.email)}</a>
                         </div>
                     )}
-                    {data.phone && <div>{data.phone}</div>}
-                    {data.address && <div>{data.address}</div>}
+                    {data.phone && <div>{formatContactText(data.phone)}</div>}
                     {data.linkedin && (
                         <div>
                             <a
-                                href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`}
+                                href={getLinkedInHref(data.linkedin)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 style={{ textDecoration: 'none', color: 'inherit' }}
                             >
-                                {data.linkedin.replace(/^https?:\/\//, '')}
+                                {formatLinkedInDisplay(data.linkedin)}
                             </a>
                         </div>
                     )}
+                </div>
+                <div className="font-semibold" style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: data.accentColor || '#000000' }}>
+                    {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
                 </div>
             </header>
 
             {/* Single Column Layout */}
             <div className="space-y-6">
                 {/* Dynamic Sections */}
-                {(data.sectionOrder || ['summary', 'skills', 'experience', 'projects', 'achievements', 'certifications', 'education', 'additionalInfo', 'references']).map(id => (
+                {getNormalizedSectionOrder(data.sectionOrder, ['summary', 'skills', 'experience', 'projects', 'achievements', 'certifications', 'education', 'additionalInfo', 'references']).map(id => (
                     <React.Fragment key={id}>
                         {renderSection(id)}
                     </React.Fragment>

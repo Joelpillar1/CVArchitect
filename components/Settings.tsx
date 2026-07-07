@@ -2,29 +2,32 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { User, CreditCard, Bell, Shield, Zap, Crown, TrendingUp, Calendar, Download, Trash2, Check, X, Eye, EyeOff, AlertTriangle } from 'lucide-react';
 import { UserSubscription, PlanId } from '../types/pricing';
-import { PLANS, CREDIT_PACKS, isPaidPlan } from '../utils/pricingConfig';
+import { PLANS, CREDIT_PACKS, isPaidPlan, getPlanDisplayName } from '../utils/pricingConfig';
 import { profileService } from '../services/profileService';
 import { subscriptionService } from '../services/subscriptionService';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { saveToStorage, loadFromStorage, debouncedSaveToStorage } from '../utils/statePersistence';
 import PaidPlanPicker from './PaidPlanPicker';
+import { cancelSubscription, openBillingPortal } from '../services/dodoPaymentsService';
+import { useToast } from '../contexts/ToastContext';
 
 type SettingsTab = 'account' | 'plan' | 'subscription' | 'usage' | 'preferences';
 
 interface SettingsProps {
   userSubscription: UserSubscription;
-  onCancelSubscription?: () => void;
   userProfile?: { full_name: string | null; avatar_url: string | null };
   userEmail?: string;
   onProfileUpdate?: () => void;
+  onSubscriptionRefresh?: () => void;
   onNavigateToPrivacy?: () => void;
   onNavigateToTerms?: () => void;
 }
 
-export const Settings = ({ userSubscription, onCancelSubscription, userProfile, userEmail, onProfileUpdate, onNavigateToPrivacy, onNavigateToTerms }: SettingsProps) => {
+export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUpdate, onSubscriptionRefresh, onNavigateToPrivacy, onNavigateToTerms }: SettingsProps) => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [searchParams] = useSearchParams();
   // Restore active tab from localStorage
   const [activeTab, setActiveTabState] = useState<SettingsTab>(() => {
@@ -102,6 +105,9 @@ export const Settings = ({ userSubscription, onCancelSubscription, userProfile, 
   const [passwordSuccess, setPasswordSuccess] = useState(false);
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
   const [deleteAccountError, setDeleteAccountError] = useState('');
+  const [showCancelSubscriptionModal, setShowCancelSubscriptionModal] = useState(false);
+  const [cancelSubscriptionError, setCancelSubscriptionError] = useState('');
+  const [isManagingSubscription, setIsManagingSubscription] = useState(false);
 
 
   // Update form when userProfile changes (but preserve user edits from localStorage)
@@ -296,6 +302,37 @@ export const Settings = ({ userSubscription, onCancelSubscription, userProfile, 
       setDeleteAccountError(message);
       setSaveError(message);
       setIsSaving(false);
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    setCancelSubscriptionError('');
+    setIsManagingSubscription(true);
+
+    try {
+      const message = await cancelSubscription();
+      setShowCancelSubscriptionModal(false);
+      showToast(message, 'info', 8000);
+      onSubscriptionRefresh?.();
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to cancel subscription. Please try again.';
+      setCancelSubscriptionError(message);
+    } finally {
+      setIsManagingSubscription(false);
+    }
+  };
+
+  const handleOpenBillingPortal = async () => {
+    setIsManagingSubscription(true);
+    try {
+      await openBillingPortal();
+    } catch (error: unknown) {
+      showToast(
+        error instanceof Error ? error.message : 'Could not open billing portal.',
+        'error'
+      );
+      setIsManagingSubscription(false);
     }
   };
 
@@ -638,6 +675,22 @@ export const Settings = ({ userSubscription, onCancelSubscription, userProfile, 
                   </div>
                 </div>
 
+                {userSubscription.cancelAtPeriodEnd && (
+                  <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                    Your subscription is set to cancel on{' '}
+                    <span className="font-semibold">{formatDate(userSubscription.subscriptionEnd)}</span>.
+                    You&apos;ll keep access until then.
+                  </div>
+                )}
+
+                {userSubscription.scheduledPlanId && (
+                  <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+                    Your plan will change to{' '}
+                    <span className="font-semibold">{getPlanDisplayName(userSubscription.scheduledPlanId)}</span>{' '}
+                    on your next billing date.
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                   <div className="p-4 bg-gray-50 rounded-xl">
                     <p className="text-sm text-gray-500 mb-1">Credits</p>
@@ -658,11 +711,8 @@ export const Settings = ({ userSubscription, onCancelSubscription, userProfile, 
                     onClick={async () => {
                       if (!user) return;
                       try {
-                        const sub = await subscriptionService.getSubscription(user.id);
-                        if (sub) {
-                          // Force refresh subscription in parent component
-                          window.location.reload();
-                        }
+                        onSubscriptionRefresh?.();
+                        showToast('Subscription status refreshed.', 'success');
                       } catch (err) {
                         console.error('Error refreshing subscription:', err);
                       }
@@ -673,6 +723,16 @@ export const Settings = ({ userSubscription, onCancelSubscription, userProfile, 
                     Refresh Status
                   </button>
 
+                  {isPaid && (userSubscription.dodoCustomerId || userSubscription.dodoSubscriptionId) && (
+                    <button
+                      onClick={handleOpenBillingPortal}
+                      disabled={isManagingSubscription}
+                      className="border border-gray-300 text-gray-700 px-4 py-2 rounded-xl font-semibold text-sm hover:bg-gray-50 transition-colors disabled:opacity-50"
+                    >
+                      Manage Billing
+                    </button>
+                  )}
+
                   {isFree && (
                     <button
                       onClick={() => setActiveTab('plan')}
@@ -682,7 +742,7 @@ export const Settings = ({ userSubscription, onCancelSubscription, userProfile, 
                     </button>
                   )}
 
-                  {isPaid && (
+                  {isPaid && !userSubscription.cancelAtPeriodEnd && (
                     <>
                       <button
                         onClick={() => setActiveTab('plan')}
@@ -691,8 +751,12 @@ export const Settings = ({ userSubscription, onCancelSubscription, userProfile, 
                         Change Plan
                       </button>
                       <button
-                        onClick={onCancelSubscription}
-                        className="border border-red-300 text-red-600 px-6 py-3 rounded-xl font-semibold text-sm hover:bg-red-50 transition-colors"
+                        onClick={() => {
+                          setCancelSubscriptionError('');
+                          setShowCancelSubscriptionModal(true);
+                        }}
+                        disabled={isManagingSubscription}
+                        className="border border-red-300 text-red-600 px-6 py-3 rounded-xl font-semibold text-sm hover:bg-red-50 transition-colors disabled:opacity-50"
                       >
                         Cancel Subscription
                       </button>
@@ -717,7 +781,11 @@ export const Settings = ({ userSubscription, onCancelSubscription, userProfile, 
                 </p>
               </div>
               <div className="p-8">
-                <PaidPlanPicker currentPlanId={userSubscription.planId} />
+                <PaidPlanPicker
+                  currentPlanId={userSubscription.planId}
+                  dodoSubscriptionId={userSubscription.dodoSubscriptionId}
+                  onPlanChanged={onSubscriptionRefresh}
+                />
               </div>
             </div>
           </div>
@@ -964,6 +1032,73 @@ export const Settings = ({ userSubscription, onCancelSubscription, userProfile, 
                     <Trash2 size={16} />
                     Yes, delete my account
                   </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showCancelSubscriptionModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-brand-dark/50 backdrop-blur-sm"
+            onClick={() => {
+              if (!isManagingSubscription) setShowCancelSubscriptionModal(false);
+            }}
+          />
+          <div className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full animate-fadeIn">
+            <button
+              onClick={() => {
+                if (!isManagingSubscription) setShowCancelSubscriptionModal(false);
+              }}
+              disabled={isManagingSubscription}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
+              aria-label="Close"
+            >
+              <X size={24} />
+            </button>
+
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-6 h-6 text-amber-600" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-brand-dark">Cancel subscription?</h3>
+                <p className="text-sm text-gray-500 mt-2 leading-relaxed">
+                  You&apos;ll keep access to {plan?.name || 'your plan'} until{' '}
+                  {formatDate(userSubscription.subscriptionEnd)}. After that, your account moves to Foundation (free).
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-8">
+              {cancelSubscriptionError && (
+                <p className="text-sm text-red-600 sm:mr-auto sm:self-center">{cancelSubscriptionError}</p>
+              )}
+              <button
+                onClick={() => {
+                  if (!isManagingSubscription) {
+                    setCancelSubscriptionError('');
+                    setShowCancelSubscriptionModal(false);
+                  }
+                }}
+                disabled={isManagingSubscription}
+                className="px-5 py-2.5 rounded-xl font-semibold text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors disabled:opacity-50"
+              >
+                Keep subscription
+              </button>
+              <button
+                onClick={handleCancelSubscription}
+                disabled={isManagingSubscription}
+                className="px-5 py-2.5 rounded-xl font-semibold text-sm text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isManagingSubscription ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                    Cancelling...
+                  </>
+                ) : (
+                  'Yes, cancel at period end'
                 )}
               </button>
             </div>

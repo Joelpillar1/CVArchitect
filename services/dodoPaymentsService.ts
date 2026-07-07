@@ -186,6 +186,136 @@ export async function redirectToCheckout(planId: PlanId): Promise<void> {
   window.location.assign(checkoutUrl);
 }
 
+export type ManageSubscriptionAction = 'cancel' | 'change_plan' | 'portal' | 'link_subscription';
+
+interface ManageSubscriptionResponse {
+  success?: boolean;
+  error?: string;
+  message?: string;
+  portalUrl?: string;
+  scheduled?: boolean;
+  planId?: PlanId;
+  requiresCheckout?: boolean;
+}
+
+async function invokeManageSubscription(
+  body: Record<string, unknown>
+): Promise<ManageSubscriptionResponse> {
+  const session = await waitForAuthSession();
+  const returnOrigin = getAppOrigin();
+
+  const { data, error } = await supabase.functions.invoke<ManageSubscriptionResponse>(
+    'manage-subscription',
+    { body: { ...body, returnOrigin } }
+  );
+
+  if (!error && data) {
+    if (data.error) {
+      const err = new Error(data.error) as Error & { requiresCheckout?: boolean };
+      if (data.requiresCheckout) err.requiresCheckout = true;
+      throw err;
+    }
+    return data;
+  }
+
+  if (error instanceof FunctionsHttpError) {
+    const errBody = await readFunctionsError(error);
+    if (errBody.error) {
+      const err = new Error(errBody.error) as Error & { requiresCheckout?: boolean };
+      if (errBody.requiresCheckout) err.requiresCheckout = true;
+      throw err;
+    }
+  }
+
+  const response = await fetch('/api/manage-subscription', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${session.access_token}`,
+    },
+    body: JSON.stringify({ ...body, returnOrigin }),
+  });
+
+  const fallbackData: ManageSubscriptionResponse = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const err = new Error(
+      fallbackData.error || `Subscription request failed (${response.status})`
+    ) as Error & { requiresCheckout?: boolean };
+    if (fallbackData.requiresCheckout) err.requiresCheckout = true;
+    throw err;
+  }
+
+  return fallbackData;
+}
+
+export async function linkDodoSubscriptionFromCheckout(subscriptionId: string): Promise<void> {
+  await invokeManageSubscription({ action: 'link_subscription', subscriptionId });
+}
+
+export async function cancelSubscription(): Promise<string> {
+  const data = await invokeManageSubscription({ action: 'cancel' });
+  return data.message || 'Subscription will cancel at the end of your billing period.';
+}
+
+export async function changeSubscriptionPlan(planId: PlanId): Promise<{
+  message: string;
+  scheduled: boolean;
+}> {
+  try {
+    const data = await invokeManageSubscription({ action: 'change_plan', planId });
+    return {
+      message: data.message || 'Plan updated successfully.',
+      scheduled: Boolean(data.scheduled),
+    };
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('checkout')) {
+      const checkoutError = error as Error & { requiresCheckout?: boolean };
+      throw checkoutError;
+    }
+    throw error;
+  }
+}
+
+export async function openBillingPortal(): Promise<void> {
+  const data = await invokeManageSubscription({ action: 'portal' });
+  if (!data.portalUrl) {
+    throw new Error('Billing portal link was not returned.');
+  }
+  window.location.assign(data.portalUrl);
+}
+
+/** Upgrade or change plan — uses Dodo change-plan API when subscribed, otherwise checkout. */
+export async function upgradeToPlan(
+  planId: PlanId,
+  options?: { hasDodoSubscription?: boolean }
+): Promise<{ usedCheckout: boolean; scheduled?: boolean; message?: string }> {
+  if (options?.hasDodoSubscription) {
+    try {
+      const result = await changeSubscriptionPlan(planId);
+      return { usedCheckout: false, scheduled: result.scheduled, message: result.message };
+    } catch (error) {
+      const requiresCheckout =
+        typeof error === 'object' &&
+        error !== null &&
+        'requiresCheckout' in error &&
+        Boolean((error as { requiresCheckout?: boolean }).requiresCheckout);
+
+      if (!requiresCheckout) {
+        const message = error instanceof Error ? error.message.toLowerCase() : '';
+        if (!message.includes('linked') && !message.includes('checkout')) {
+          throw error;
+        }
+      }
+
+      await redirectToCheckout(planId);
+      return { usedCheckout: true };
+    }
+  }
+
+  await redirectToCheckout(planId);
+  return { usedCheckout: true };
+}
+
 /** Webhook URL to register in Dodo dashboard (uses Supabase secrets). */
 export function getDodoWebhookUrl(): string {
   return `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/dodo-webhook`;

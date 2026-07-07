@@ -6,27 +6,12 @@ import {
     Eye,
     X,
     LayoutTemplate,
-    Briefcase,
-    GraduationCap,
-    Code,
-    Palette,
-    LineChart,
-    Building2,
-    User,
-    Award,
-    PenTool,
-    BookOpen,
-    Landmark,
-    Leaf,
-    Zap,
-    Anchor,
-    Feather,
-    Gem,
-    Megaphone,
     Search
 } from 'lucide-react';
 import ResumePreview from './ResumePreview';
 import { FREE_TEMPLATES } from '../utils/pricingConfig';
+import { getTemplatePreviewData } from '../utils/sampleResumeData';
+import { TEMPLATE_CONFIG } from '../utils/templateConfig';
 
 interface TemplatesProps {
     onSelect: (template: TemplateType) => void;
@@ -37,374 +22,7 @@ interface TemplatesProps {
 export default function Templates({ onSelect, data, isPublic }: TemplatesProps) {
     const [previewTemplate, setPreviewTemplate] = useState<TemplateType | null>(null);
 
-    // Fixed, fully-filled sample resume used for ALL template previews
-    const PREVIEW_DATA: ResumeData = {
-        fullName: 'YOUR NAME',
-        jobTitle: 'PROFESSIONAL TITLE',
-        email: 'youremail@gmail.com',
-        phone: '+1 (555) 000-000',
-        atHandle: '',
-        linkedin: 'linkedin.com/in/yourprofile',
-        location: 'City, Country',
-        address: '',
-        summary: 'Your professional summary highlighting your key strengths, experience, and career objectives using the XYZ formula. Your professional summary highlighting your key strengths, experience, and career objectives using the XYZ formula.',
-        experience: [
-            {
-                id: 'exp1',
-                company: 'Company',
-                role: 'Role Title',
-                location: 'City, Country',
-                startDate: 'YYYY',
-                endDate: 'YYYY',
-                roleSummary: '',
-                description: [
-                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.',
-                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.',
-                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.'
-                ],
-            },
-            {
-                id: 'exp2',
-                company: 'Company',
-                role: 'Role Title',
-                location: 'City, Country',
-                startDate: 'YYYY',
-                endDate: 'YYYY',
-                roleSummary: '',
-                description: [
-                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.',
-                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.',
-                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.'
-                ],
-            },
-            {
-                id: 'exp3',
-                company: 'Company',
-                role: 'Role Title',
-                location: 'City, Country',
-                startDate: 'YYYY',
-                endDate: 'YYYY',
-                roleSummary: '',
-                description: [
-                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.',
-                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.',
-                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.'
-                ],
-            }
-        ],
-        education: [
-            {
-                id: 'edu1',
-                school: 'School/University',
-                degree: 'Degree & Major',
-                year: 'YYYY - YYYY',
-                gpa: '',
-                relevantCourses: 'Relevant Courses',
-            },
-            {
-                id: 'edu2',
-                school: 'School/University',
-                degree: 'Degree & Major',
-                year: 'YYYY - YYYY',
-                gpa: '',
-                relevantCourses: 'Relevant Courses',
-            }
-        ],
-        skills: 'Enter your professional skill, Enter your professional skill, Enter your professional skill, Enter your professional skill, Enter your professional skill, Enter your professional skill, Enter your professional skill, Enter your professional skill, Enter your professional skill',
-        certifications: [
-            {
-                id: 'cert1',
-                name: 'Certification Title',
-                issuer: 'Issuing Organization',
-                date: 'YYYY'
-            }
-        ],
-        projects: [
-            {
-                id: 'proj1',
-                name: 'Project Title',
-                description: 'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.',
-                technologies: 'Skill 1, Skill 2, Skill 3',
-                link: ''
-            }
-        ],
-        leadership: [
-            {
-                id: 'lead1',
-                company: 'University',
-                role: 'Title',
-                location: '',
-                startDate: 'YYYY',
-                endDate: 'YYYY',
-                roleSummary: '',
-                description: [
-                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.',
-                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.'
-                ],
-            },
-            {
-                id: 'lead2',
-                company: 'University',
-                role: 'Title',
-                location: '',
-                startDate: 'YYYY',
-                endDate: 'YYYY',
-                roleSummary: '',
-                description: [
-                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.',
-                    'Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula, Your professional result driving bullet point using the XYZ formula.'
-                ],
-            }
-        ],
-        additionalInfo: [
-            {
-                id: 'lang1',
-                label: 'Languages',
-                value: 'English (Native), Spanish (Fluent)'
-            }
-        ],
-        keyAchievements: [
-            'Your professional result using the XYZ formula, Your professional result using the XYZ formula, Your professional result using the XYZ formula, Your professional result using the XYZ formula.',
-            'Your professional result using the XYZ formula, Your professional result using the XYZ formula, Your professional result using the XYZ formula, Your professional result using the XYZ formula.',
-            'Your professional result using the XYZ formula, Your professional result using the XYZ formula, Your professional result using the XYZ formula, Your professional result using the XYZ formula.'
-        ],
-        jobDescription: '',
-        referee: '',
-        font: 'Merriweather, serif',
-        fontSizes: {
-            header: 22,
-            jobTitle: 11,
-            sectionTitle: 12,
-            body: 9,
-        },
-        lineHeight: 1.3,
-        sectionGap: 0.15,
-        headerGap: 0.15,
-        headerItemGap: 0.05,
-        margins: {
-            horizontal: 0.5,
-            vertical: 0.5,
-        },
-        currentTag: '',
-        language: 'en',
-        accentColor: '#000000',
-        headerAlignment: 'center',
-        bodyHeaderAlignment: 'left',
-        contentAlignment: 'left',
-        skillsColumnCount: 3,
-        sectionOrder: [
-            'summary',
-            'experience',
-            'education',
-            'skills',
-            'leadership',
-            'projects',
-            'certifications',
-            'additionalInfo'
-        ],
-    };
-
-    const templates: { id: TemplateType; name: string; subtitle: string; icon: React.ReactNode; bg: string }[] = [
-        {
-            id: 'student',
-            name: "Student Profile",
-            subtitle: "Student",
-            icon: <BookOpen className="text-blue-500" size={20} />,
-            bg: "bg-[#FFFFFF]"
-        },
-        {
-            id: 'free',
-            name: "CareerCraft",
-            subtitle: "Entry Level",
-            icon: <User className="text-gray-600" size={20} />,
-            bg: "bg-[#FAFAFA]"
-        },
-        {
-            id: 'freshgrad1',
-            name: "Campus Starter",
-            subtitle: "Graduate",
-            icon: <GraduationCap className="text-emerald-600" size={20} />,
-            bg: "bg-[#FFFFFF]"
-        },
-        {
-            id: 'freshgrad2',
-            name: "Campus Finance",
-            subtitle: "Finance",
-            icon: <LineChart className="text-indigo-600" size={20} />,
-            bg: "bg-[#FFFFFF]"
-        },
-        {
-            id: 'freshgrad3',
-            name: "Campus Engineer",
-            subtitle: "Engineering",
-            icon: <Code className="text-sky-600" size={20} />,
-            bg: "bg-[#FFFFFF]"
-        },
-        {
-            id: 'freshgrad4',
-            name: "Campus Creative",
-            subtitle: "Creative",
-            icon: <Palette className="text-rose-600" size={20} />,
-            bg: "bg-[#FFFFFF]"
-        },
-        {
-            id: 'freshgrad5',
-            name: "Campus ChemE",
-            subtitle: "Chemical Eng",
-            icon: <Leaf className="text-lime-600" size={20} />,
-            bg: "bg-[#FFFFFF]"
-        },
-        {
-            id: 'freshgrad6',
-            name: "Campus Strat",
-            subtitle: "Marketing",
-            icon: <Megaphone className="text-amber-600" size={20} />,
-            bg: "bg-[#FFFFFF]"
-        },
-        {
-            id: 'freshgrad7',
-            name: "Executive Start",
-            subtitle: "Leadership",
-            icon: <Crown className="text-gray-700" size={20} />,
-            bg: "bg-[#FFFFFF]"
-        },
-        {
-            id: 'freshgrad8',
-            name: "Business Classic",
-            subtitle: "Graduate",
-            icon: <Briefcase className="text-indigo-700" size={20} />,
-            bg: "bg-[#FFFFFF]"
-        },
-        {
-            id: 'simplepro',
-            name: "SimplePro",
-            subtitle: "Professional",
-            icon: <Briefcase className="text-orange-500" size={20} />,
-            bg: "bg-[#FFFFFF]"
-        },
-        {
-            id: 'vanguard',
-            name: "The Vanguard",
-            subtitle: "Modern Tech",
-            icon: <Zap className="text-blue-600" size={20} />,
-            bg: "bg-[#F8F8F8]"
-        },
-        {
-            id: 'elevate',
-            name: "Elevate",
-            subtitle: "Corporate",
-            icon: <Building2 className="text-gray-700" size={20} />,
-            bg: "bg-[#FDFDFD]"
-        },
-        {
-            id: 'prime',
-            name: "Prime Profile",
-            subtitle: "Executive",
-            icon: <Crown className="text-amber-500" size={20} />,
-            bg: "bg-[#FFFEFA]"
-        },
-        {
-            id: 'impact',
-            name: "Impact",
-            subtitle: "Bold Design",
-            icon: <Award className="text-red-600" size={20} />,
-            bg: "bg-[#FFFFFF]"
-        },
-        {
-            id: 'dev',
-            name: "DevPro",
-            subtitle: "Developer",
-            icon: <Code className="text-slate-700" size={20} />,
-            bg: "bg-[#F8FAFC]"
-        },
-        {
-            id: 'elite',
-            name: "Elite Pro",
-            subtitle: "International",
-            icon: <Gem className="text-purple-600" size={20} />,
-            bg: "bg-[#FFFFFF]"
-        },
-        {
-            id: 'apex',
-            name: "Apex Exec",
-            subtitle: "Senior Leader",
-            icon: <Anchor className="text-navy-600" size={20} />,
-            bg: "bg-[#FAFAFA]"
-        },
-        {
-            id: 'modern',
-            name: "Modern",
-            subtitle: "Contemporary",
-            icon: <LayoutTemplate className="text-teal-600" size={20} />,
-            bg: "bg-[#FFFFFF]"
-        },
-        {
-            id: 'executive',
-            name: "Executive",
-            subtitle: "C-Suite",
-            icon: <Building2 className="text-slate-800" size={20} />,
-            bg: "bg-[#FAFAFA]"
-        },
-        {
-            id: 'classic',
-            name: "Classic",
-            subtitle: "Traditional",
-            icon: <BookOpen className="text-gray-600" size={20} />,
-            bg: "bg-[#F8F8F8]"
-        },
-        {
-            id: 'wonsulting',
-            name: "Ivy League",
-            subtitle: "Academic",
-            icon: <Landmark className="text-emerald-700" size={20} />,
-            bg: "bg-[#FFFFFF]"
-        },
-        {
-            id: 'styled',
-            name: "Styled",
-            subtitle: "Sophisticated",
-            icon: <PenTool className="text-blue-700" size={20} />,
-            bg: "bg-[#FFFFFF]"
-        },
-        {
-            id: 'smart',
-            name: "Smart",
-            subtitle: "Research",
-            icon: <BookOpen className="text-indigo-600" size={20} />,
-            bg: "bg-[#FFFFFF]"
-        },
-        {
-            id: 'elegant',
-            name: "Elegant",
-            subtitle: "Refined",
-            icon: <Feather className="text-slate-600" size={20} />,
-            bg: "bg-[#FFFFFF]"
-        },
-        {
-            id: 'minimalist',
-            name: "Minimalist",
-            subtitle: "Clean",
-            icon: <LayoutTemplate className="text-gray-400" size={20} />,
-            bg: "bg-[#FFFFFF]"
-        },
-        {
-            id: 'professional',
-            name: "Pro Clean",
-            subtitle: "Standard",
-            icon: <Briefcase className="text-blue-500" size={20} />,
-            bg: "bg-[#FFFFFF]"
-        },
-        {
-            id: 'sage',
-            name: "Sage",
-            subtitle: "Expert",
-            icon: <Feather className="text-green-700" size={20} />,
-            bg: "bg-[#FFFFFF]"
-        },
-    ];
-
-
-
+    const templates = TEMPLATE_CONFIG;
 
     // Sort templates: free templates first, then pro templates
     const sortedTemplates = [...templates].sort((a, b) => {
@@ -433,26 +51,8 @@ export default function Templates({ onSelect, data, isPublic }: TemplatesProps) 
         return true;
     });
 
-    const getPreviewDataForTemplate = (templateId: string): ResumeData => {
-        const template = templates.find(t => t.id === templateId);
-        if (!template) return PREVIEW_DATA;
-
-        const isStudent = getTemplateCategory(template) === 'Student';
-        return {
-            ...PREVIEW_DATA,
-            linkedin: isStudent ? '' : PREVIEW_DATA.linkedin,
-            sectionOrder: isStudent ? PREVIEW_DATA.sectionOrder : [
-                'summary',
-                'skills',
-                'achievements',
-                'experience',
-                'leadership',
-                'projects',
-                'education',
-                'certifications',
-                'additionalInfo'
-            ]
-        };
+    const getPreviewDataForTemplate = (templateId: TemplateType): ResumeData => {
+        return getTemplatePreviewData(templateId);
     };
 
     const filteredTemplates = sortedTemplates.filter(t => {
@@ -526,7 +126,7 @@ export default function Templates({ onSelect, data, isPublic }: TemplatesProps) 
                                         {/* Template Preview Area - Real Render */}
                                         <div className="relative flex-1 bg-gray-100 overflow-hidden w-full">
                                             {/* Scaled Resume Preview - Centered */}
-                                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[210mm] origin-top transform scale-[0.34] pointer-events-none select-none shadow-md">
+                                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[210mm] origin-top transform scale-[0.34] pointer-events-none select-none">
                                                 <ResumePreview data={getPreviewDataForTemplate(template.id)} template={template.id} />
                                             </div>
 
@@ -628,7 +228,7 @@ export default function Templates({ onSelect, data, isPublic }: TemplatesProps) 
                         </div>
 
                         <div className="flex-1 overflow-y-auto p-8 bg-[#525659] flex justify-center relative">
-                            <div className="scale-75 md:scale-90 origin-top transition-transform shadow-2xl">
+                            <div className="scale-75 md:scale-90 origin-top transition-transform">
                                 {previewTemplate && (
                                     <ResumePreview
                                         data={getPreviewDataForTemplate(previewTemplate)}

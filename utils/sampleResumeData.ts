@@ -1,4 +1,4 @@
-import { ResumeData } from '../types';
+import { ResumeData, TemplateType } from '../types';
 
 export const SAMPLE_RESUME_DATA: ResumeData = {
     fullName: "SARAH JENKINS",
@@ -83,15 +83,16 @@ export const SAMPLE_RESUME_DATA: ResumeData = {
     referee: "Available upon request",
     font: 'Inter, sans-serif',
     fontSizes: {
-        header: 22,
-        jobTitle: 12,
-        sectionTitle: 14,
-        body: 10,
+        header: 18,
+        jobTitle: 11,
+        sectionTitle: 11,
+        body: 9.5,
     },
-    lineHeight: 1.5,
+    lineHeight: 1.7,
     sectionGap: 0.18,
-    headerGap: 0.20,
-    headerItemGap: 0.10,
+    headerGap: 0.08,
+    headerItemGap: 0.01,
+    headerContactGap: 0.02,
     margins: {
         horizontal: 0.5,
         vertical: 0.5,
@@ -113,6 +114,72 @@ export const SAMPLE_RESUME_DATA: ResumeData = {
     ],
     source: 'scratch',
     hasJobMatchRun: false,
+};
+
+/** Polished resume content for template gallery thumbnails and quick-view modals */
+export const TEMPLATE_GALLERY_PREVIEW_DATA: ResumeData = {
+    ...SAMPLE_RESUME_DATA,
+    currentTag: '',
+    projects: [
+        {
+            id: '1',
+            name: 'Customer Insights Platform',
+            description: 'Led cross-functional delivery of an analytics platform adopted by 12 enterprise clients within six months of launch.',
+            technologies: 'React, Node.js, PostgreSQL, Tableau',
+            link: 'github.com/sjenkins/insights'
+        }
+    ],
+    leadership: [
+        {
+            id: '1',
+            company: 'Product Management Association',
+            role: 'Chapter President',
+            location: 'San Francisco, CA',
+            startDate: '2022-01',
+            endDate: 'Present',
+            description: [
+                'Organized monthly workshops for 150+ product professionals on roadmap planning and stakeholder management.',
+                'Secured $8,000 in sponsorships for the annual product leadership summit.'
+            ]
+        }
+    ],
+    additionalInfo: [
+        {
+            id: '1',
+            label: 'Languages',
+            value: 'English (Native), French (Professional)'
+        }
+    ],
+    sectionOrder: [
+        'summary',
+        'skills',
+        'achievements',
+        'experience',
+        'leadership',
+        'projects',
+        'education',
+        'certifications',
+        'additionalInfo'
+    ],
+};
+
+const STUDENT_TEMPLATE_IDS: TemplateType[] = [
+    'student',
+    'freshgrad1',
+    'freshgrad2',
+    'freshgrad3',
+    'freshgrad4',
+    'freshgrad5',
+    'freshgrad6',
+    'freshgrad7',
+    'freshgrad8',
+];
+
+export function getTemplatePreviewData(templateId: TemplateType): ResumeData {
+    if (STUDENT_TEMPLATE_IDS.includes(templateId)) {
+        return { ...STUDENT_RESUME_DATA, currentTag: '' };
+    }
+    return { ...TEMPLATE_GALLERY_PREVIEW_DATA };
 };
 
 export const STUDENT_RESUME_DATA: ResumeData = {
@@ -229,15 +296,16 @@ export const STUDENT_RESUME_DATA: ResumeData = {
     referee: "Available upon request",
     font: 'Inter, sans-serif',
     fontSizes: {
-        header: 22,
-        jobTitle: 12,
-        sectionTitle: 14,
-        body: 10,
+        header: 18,
+        jobTitle: 11,
+        sectionTitle: 11,
+        body: 9.5,
     },
-    lineHeight: 1.5,
+    lineHeight: 1.7,
     sectionGap: 0.18,
-    headerGap: 0.20,
-    headerItemGap: 0.10,
+    headerGap: 0.08,
+    headerItemGap: 0.01,
+    headerContactGap: 0.02,
     margins: {
         horizontal: 0.5,
         vertical: 0.5,

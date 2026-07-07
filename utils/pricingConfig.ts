@@ -304,3 +304,26 @@ export const formatPlanPrice = (plan: Plan): { amount: string; period: string } 
     if (plan.price.quarterly != null) return { amount: '$29', period: '/ 3 months' };
     return { amount: '$0', period: '' };
 };
+
+const PLAN_TIER_ORDER: Record<string, number> = {
+    free: 0,
+    sprint: 1,
+    week_pass: 1,
+    build: 2,
+    pro_monthly: 2,
+    blueprint: 3,
+};
+
+export type PlanChangeDirection = 'upgrade' | 'downgrade' | 'same';
+
+export function getPlanTier(planId: string): number {
+    return PLAN_TIER_ORDER[planId] ?? 0;
+}
+
+export function comparePlanChange(fromPlanId: string, toPlanId: string): PlanChangeDirection {
+    const fromTier = getPlanTier(fromPlanId);
+    const toTier = getPlanTier(toPlanId);
+    if (toTier > fromTier) return 'upgrade';
+    if (toTier < fromTier) return 'downgrade';
+    return 'same';
+}

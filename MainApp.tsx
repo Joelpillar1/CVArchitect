@@ -894,12 +894,6 @@ export default function App() {
             userProfile={userProfile}
             userEmail={user?.email}
             onProfileUpdate={handleRefreshProfile}
-            onCancelSubscription={() => {
-              // Handle subscription cancellation
-              if (confirm('Are you sure you want to cancel your subscription?')) {
-                showToast('Subscription cancelled. You will retain access until the end of your billing period.', 'info');
-              }
-            }}
             onNavigateToPrivacy={() => navigate('/privacy')}
             onNavigateToTerms={() => navigate('/terms')}
           />

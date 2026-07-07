@@ -1,3 +1,6 @@
+import React, { type CSSProperties } from 'react';
+import type { ResumeData } from '../types';
+
 export const formatDate = (dateString: string | null | undefined): string => {
     // Handle null, undefined, or empty strings
     if (!dateString || typeof dateString !== 'string' || dateString.trim() === '') {
@@ -134,8 +137,187 @@ export const parseDescriptionBullets = (description: string | string[]): string[
     return [description.trim()];
 };
 
+/** Shared spacing defaults for resume templates (inches) */
+export const TEMPLATE_SPACING = {
+    marginHorizontal: 0.5,
+    marginVertical: 0.5,
+    sectionGap: 0.16,
+    headerGap: 0.08,
+    headerItemGap: 0.01,
+    headerContactGap: 0.02,
+    compact: {
+        marginHorizontal: 0.35,
+        marginVertical: 0.35,
+        sectionGap: 0.10,
+        headerGap: 0.08,
+    },
+} as const;
+
+/** Standard bullet list classes — use on all templates for consistent indent */
+export const BULLET_LIST_CLASS = 'list-disc list-outside ml-5 space-y-1';
+
+export type SpacingVariant = 'default' | 'compact';
+
+export function getMarginHorizontalIn(data: ResumeData, variant: SpacingVariant = 'default'): number {
+    if (data.margins?.horizontal !== undefined) return data.margins.horizontal;
+    return variant === 'compact' ? TEMPLATE_SPACING.compact.marginHorizontal : TEMPLATE_SPACING.marginHorizontal;
+}
+
+export function getMarginVerticalIn(data: ResumeData, variant: SpacingVariant = 'default'): number {
+    if (data.margins?.vertical !== undefined) return data.margins.vertical;
+    return variant === 'compact' ? TEMPLATE_SPACING.compact.marginVertical : TEMPLATE_SPACING.marginVertical;
+}
+
+export function getSectionGapIn(data: ResumeData, variant: SpacingVariant = 'default'): number {
+    if (data.sectionGap !== undefined) return data.sectionGap;
+    return variant === 'compact' ? TEMPLATE_SPACING.compact.sectionGap : TEMPLATE_SPACING.sectionGap;
+}
+
+export function getHeaderGapIn(data: ResumeData, variant: SpacingVariant = 'default'): number {
+    if (data.headerGap !== undefined) return data.headerGap;
+    return variant === 'compact' ? TEMPLATE_SPACING.compact.headerGap : TEMPLATE_SPACING.headerGap;
+}
+
+export function getHeaderItemGapIn(data: ResumeData): number {
+    return data.headerItemGap ?? TEMPLATE_SPACING.headerItemGap;
+}
+
+/** Square bullet used between header contact items (Sage-style) */
+/**
+ * Contact separator rendered as a small, perfectly-centered circle.
+ * Uses em units so it scales with the surrounding font size, and
+ * `bg-current` so it inherits the text color of its container.
+ */
+export const CONTACT_SEPARATOR = React.createElement('span', {
+    style: {
+        display: 'inline-block',
+        width: '0.3em',
+        height: '0.3em',
+        borderRadius: '50%',
+        backgroundColor: 'currentColor',
+        verticalAlign: 'middle',
+        // nudge up slightly to sit at the optical center of the text
+        position: 'relative',
+        top: '-0.08em',
+    } as CSSProperties,
+    'aria-hidden': true,
+});
+
+export function getHeaderContactGapIn(data: ResumeData): number {
+    return data.headerContactGap ?? TEMPLATE_SPACING.headerContactGap;
+}
+
+export function getPagePaddingStyle(data: ResumeData, variant: SpacingVariant = 'default'): CSSProperties {
+    const h = getMarginHorizontalIn(data, variant);
+    const v = getMarginVerticalIn(data, variant);
+    return {
+        paddingLeft: `${h}in`,
+        paddingRight: `${h}in`,
+        paddingTop: `${v}in`,
+        paddingBottom: `${v}in`,
+    };
+}
+
+export function sectionMarginBottom(data: ResumeData, variant: SpacingVariant = 'default'): CSSProperties {
+    return { marginBottom: `${getSectionGapIn(data, variant)}in` };
+}
+
+export function splitSkillsList(skills: string): string[] {
+    return skills.split(',').map((s) => s.trim()).filter(Boolean);
+}
+
+export function splitSkillsIntoColumns(skills: string, columnCount: number = 3): string[][] {
+    const list = splitSkillsList(skills);
+    const cols = columnCount === 2 ? 2 : 3;
+    const perCol = Math.ceil(list.length / cols) || 1;
+    const columns: string[][] = [];
+    for (let i = 0; i < cols; i++) {
+        const slice = list.slice(i * perCol, (i + 1) * perCol);
+        if (slice.length > 0) columns.push(slice);
+    }
+    return columns;
+}
+
+/** Lowercase contact text for consistent header display */
+export function formatContactText(value: string | null | undefined): string {
+    if (!value || typeof value !== 'string') return '';
+    return value.trim().toLowerCase();
+}
+
+/** Title-case name display (sentence-style); respects headerCase when set */
+export function formatNameDisplay(
+    value: string | null | undefined,
+    headerCase?: ResumeData['headerCase']
+): string {
+    if (!value || typeof value !== 'string') return '';
+    const trimmed = value.trim();
+    if (!trimmed) return '';
+
+    switch (headerCase) {
+        case 'uppercase':
+            return trimmed.toUpperCase();
+        case 'lowercase':
+            return trimmed.toLowerCase();
+        case 'capitalize':
+        default:
+            return trimmed
+                .toLowerCase()
+                .replace(/(^|[\s\-'])(\w)/g, (_, sep, ch) => sep + ch.toUpperCase());
+    }
+}
+
+/** Job title display: Uppercase or Sentence case. Defaults to sentence case. */
+export function formatJobTitleDisplay(
+    value: string | null | undefined,
+    jobTitleCase?: ResumeData['jobTitleCase']
+): string {
+    if (!value || typeof value !== 'string') return '';
+    const trimmed = value.trim();
+    if (!trimmed) return '';
+    if (jobTitleCase === 'uppercase') return trimmed.toUpperCase();
+    // Sentence case: first letter capitalized, the rest lowercased.
+    const lower = trimmed.toLowerCase();
+    return lower.charAt(0).toUpperCase() + lower.slice(1);
+}
+
+/** Compact LinkedIn label: in/username */
+export function formatLinkedInDisplay(linkedin: string | null | undefined): string {
+    if (!linkedin || typeof linkedin !== 'string') return '';
+    let s = linkedin.trim().toLowerCase();
+    s = s.replace(/^https?:\/\//, '');
+    s = s.replace(/^www\./, '');
+    s = s.replace(/^linkedin\.com\//, '');
+    const inMatch = s.match(/(?:^|\/)in\/([^/?#\s]+)/);
+    if (inMatch) return `in/${inMatch[1]}`;
+    if (s.startsWith('in/')) return s.split('?')[0].split('#')[0];
+    if (s && !s.includes('/')) return `in/${s}`;
+    return s.split('?')[0].split('#')[0];
+}
+
+/** Full LinkedIn URL for href attributes */
+export function getLinkedInHref(linkedin: string | null | undefined): string {
+    const display = formatLinkedInDisplay(linkedin);
+    if (!display) return '';
+    return normalizeUrl(`linkedin.com/${display}`);
+}
+
 // Alias for achievements (same logic as descriptions)
 export const parseAchievementBullets = parseDescriptionBullets;
+
+/** Canonical section IDs used by template renderSection switches */
+export const normalizeSectionId = (id: string): string => {
+    if (id === 'keyAchievements') return 'achievements';
+    return id;
+};
+
+/** Deduplicated section order with alias normalization (e.g. keyAchievements → achievements) */
+export const getNormalizedSectionOrder = (
+    sectionOrder?: string[] | null,
+    fallback: string[] = []
+): string[] => {
+    const order = sectionOrder?.length ? sectionOrder : fallback;
+    return Array.from(new Set(order.map(normalizeSectionId)));
+};
 
 /**
  * Format date to month year format with different month styles

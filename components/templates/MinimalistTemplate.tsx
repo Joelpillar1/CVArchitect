@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatDate as formatDateUtil } from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatDate as formatDateUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, splitSkillsIntoColumns, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, CONTACT_SEPARATOR, formatJobTitleDisplay} from '../../utils/templateUtils';
 
 interface MinimalistTemplateProps {
     data: ResumeData;
@@ -9,15 +9,17 @@ interface MinimalistTemplateProps {
 export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
     const { fontSizes } = data;
     const accentColor = data.accentColor || '#000000';
-    const sectionGap = data.sectionGap !== undefined ? `${data.sectionGap}rem` : '1.5rem';
-    const headerGap = data.headerGap !== undefined ? `${data.headerGap}rem` : '2.5rem';
-    const headerItemGap = data.headerItemGap !== undefined ? `${data.headerItemGap}rem` : '0.25rem';
+    const sectionGap = `${getSectionGapIn(data)}in`;
+    const headerGap = `${getHeaderGapIn(data)}in`;
+    const headerItemGap = `${getHeaderItemGapIn(data)}in`;
+    const headerContactGap = `${getHeaderContactGapIn(data)}in`;
+    const skillColumns = splitSkillsIntoColumns(data.skills || '', data.skillsColumnCount || 3);
 
     // Helper for section headers with background
     const SectionHeader = ({ title }: { title: string }) => (
         <div className={`bg-[#F4F7FA] ${bodyAlignmentClass} py-1.5 mb-4 px-4 -mx-4 rounded-sm`}>
             <h2
-                className="uppercase tracking-[0.15em] font-normal font-serif text-sm"
+                className="uppercase tracking-[0.15em] font-normal text-sm"
                 style={{
                     color: accentColor,
                     fontSize: `${fontSizes?.sectionTitle || 11}pt`
@@ -54,16 +56,11 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
                     <section key="skills" style={{ marginBottom: sectionGap }}>
                         <SectionHeader title="Areas of Expertise" />
                         <div className={`grid ${data.skillsColumnCount === 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-x-4 gap-y-2 ${bodyAlignmentClass}`}>
-                            {data.skills.split(',').map((skill, index) => (
-                                <ul
-                                    key={index}
-                                    className="list-disc list-outside ml-8 space-y-1 text-black"
-                                >
-                                    {skill.trim() && (
-                                        <li className="pl-2">
-                                            {skill.trim()}
-                                        </li>
-                                    )}
+                            {skillColumns.map((col, colIndex) => (
+                                <ul key={colIndex} className={`${BULLET_LIST_CLASS} text-black`}>
+                                    {col.map((skill, i) => (
+                                        <li key={i} className="pl-2">{skill}</li>
+                                    ))}
                                 </ul>
                             ))}
                         </div>
@@ -84,15 +81,15 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
                                     >
                                         <div className="flex justify-between items-baseline mb-2 font-bold text-black tracking-wide">
                                             <div className="text-base">
-                                                {exp.role} <span className="mx-1">|</span> {exp.company}
+                                                {exp.role} <span className="mx-1">{CONTACT_SEPARATOR}</span> {exp.company}
                                             </div>
-                                            <div className="whitespace-nowrap font-serif">
+                                            <div className="whitespace-nowrap">
                                                 {formatDate(exp.startDate)} - {formatDate(exp.endDate)}
                                             </div>
                                         </div>
 
                                         {bullets.length > 0 && (
-                                            <ul className="list-disc ml-8 space-y-1.5 text-black">
+                                            <ul className="list-disc ml-5 space-y-1.5 text-black">
                                                 {bullets.map((line, i) =>
                                                     line.trim() && (
                                                         <li key={i} className="pl-2">
@@ -138,15 +135,15 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
                                     <div key={exp.id} className="break-inside-avoid">
                                         <div className="flex justify-between items-baseline mb-2 font-bold text-black tracking-wide">
                                             <div className="text-base">
-                                                {exp.role} <span className="mx-1">|</span> {exp.company}
+                                                {exp.role} <span className="mx-1">{CONTACT_SEPARATOR}</span> {exp.company}
                                             </div>
-                                            <div className="whitespace-nowrap font-serif">
+                                            <div className="whitespace-nowrap">
                                                 {formatDate(exp.startDate)} - {formatDate(exp.endDate)}
                                             </div>
                                         </div>
 
                                         {bullets.length > 0 && (
-                                            <ul className="list-disc ml-8 space-y-1.5 text-black">
+                                            <ul className="list-disc ml-5 space-y-1.5 text-black">
                                                 {bullets.map((line, i) =>
                                                     line.trim() && (
                                                         <li key={i} className="pl-2">
@@ -170,7 +167,7 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
                             {data.certifications.map((cert) => (
                                 <div key={cert.id} className="break-inside-avoid">
                                     <span className="font-bold">{cert.name}</span>
-                                    <span className="mx-2">|</span>
+                                    <span className="mx-0.5">{CONTACT_SEPARATOR}</span>
                                     <span>{cert.issuer}</span>
                                 </div>
                             ))}
@@ -220,7 +217,7 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
                 return achievements.length > 0 && (
                     <section key="keyAchievements" style={{ marginBottom: sectionGap }}>
                         <SectionHeader title="Key Achievements" />
-                        <ul className="list-disc ml-8 space-y-2 text-black">
+                        <ul className="list-disc ml-5 space-y-2 text-black">
                             {achievements.map((achievement, index) => (
                                 achievement.trim() && (
                                     <li key={index} className="pl-2">
@@ -248,65 +245,71 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
         'languages'
     ];
 
-    // Deduplicate and normalize section order handling aliases
-    const uniqueSectionOrder = Array.from(new Set(sectionOrder.map(s =>
-        s === 'achievements' ? 'keyAchievements' : s
-    )));
+    const uniqueSectionOrder = getNormalizedSectionOrder(sectionOrder, [
+        'summary',
+        'skills',
+        'experience',
+        'leadership',
+        'education',
+        'certifications',
+        'projects',
+        'languages'
+    ]);
 
     return (
         <div
             className="w-[210mm] min-h-[297mm] bg-white text-gray-900 mx-auto"
             style={{
                 fontFamily: data.font ||"Georgia, 'Times New Roman', Times, serif",
-                fontSize: `${fontSizes?.body || 10}pt`,
-                lineHeight: data.lineHeight || 1.5,
-                paddingTop: `${data.margins?.vertical || 1}in`,
-                paddingBottom: `${data.margins?.vertical || 1}in`,
-                paddingLeft: `${data.margins?.horizontal || 1}in`,
-                paddingRight: `${data.margins?.horizontal || 1}in`,
+                fontSize: `${fontSizes?.body || 9.5}pt`,
+                lineHeight: data.lineHeight || 1.7,
+                paddingTop: `${getMarginVerticalIn(data)}in`,
+                paddingBottom: `${getMarginVerticalIn(data)}in`,
+                paddingLeft: `${getMarginHorizontalIn(data)}in`,
+                paddingRight: `${getMarginHorizontalIn(data)}in`,
             }}
         >
             {/* Header */}
             <div className={`${textAlignment}`} style={{ marginBottom: headerGap }}>
                 <h1
-                    className="font-normal text-5xl mb-4 text-black"
+                    className="font-normal text-5xl text-black"
                     style={{
-                        fontSize: `${fontSizes?.header || 38}pt`,
-                        fontFamily: data.font ||"Inter, sans-serif",
-                        color: accentColor
+                        fontSize: `${fontSizes?.header || 18}pt`,
+                        color: accentColor,
+                        marginBottom: headerItemGap, lineHeight: 1.1,
                     }}
                 >
-                    {data.fullName ||"YOUR NAME"}
+                    {formatNameDisplay(data.fullName, data.headerCase) ||"YOUR NAME"}
                 </h1>
 
-                <div className="text-black tracking-[0.2em] text-sm mb-6 font-sans" style={{ fontSize: `${fontSizes?.jobTitle || fontSizes?.body || 10}pt` }}>
-                    {data.jobTitle ||"PROFESSIONAL TITLE"}
-                </div>
-
-                <div className={`flex flex-wrap text-black text-sm font-serif italic ${flexAlignment}`} style={{ gap: headerItemGap }}>
+                <div className={`flex flex-wrap text-black text-sm italic ${flexAlignment}`} style={{ gap: headerItemGap, marginBottom: headerContactGap }}>
                     {data.location && (
                         <>
-                            <span>{data.location}</span>
-                            <span className="mx-2">|</span>
+                            <span>{formatContactText(data.location)}</span>
+                            <span className="mx-0.5">{CONTACT_SEPARATOR}</span>
                         </>
                     )}
                     {data.email && (
                         <>
-                            <a href={`mailto:${data.email}`} className="text-black no-underline">{data.email}</a>
-                            {(data.phone || data.linkedin) && <span className="mx-2">|</span>}
+                            <a href={`mailto:${formatContactText(data.email)}`} className="text-black no-underline">{formatContactText(data.email)}</a>
+                            {(data.phone || data.linkedin) && <span className="mx-0.5">{CONTACT_SEPARATOR}</span>}
                         </>
                     )}
                     {data.phone && (
                         <>
-                            <span>{data.phone}</span>
-                            {data.linkedin && <span className="mx-2">|</span>}
+                            <span>{formatContactText(data.phone)}</span>
+                            {data.linkedin && <span className="mx-0.5">{CONTACT_SEPARATOR}</span>}
                         </>
                     )}
                     {data.linkedin && (
-                        <a href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`} target="_blank" rel="noopener noreferrer" className="text-black underline">
-                            LinkedIn
+                        <a href={getLinkedInHref(data.linkedin)} target="_blank" rel="noopener noreferrer" className="text-black underline">
+                            {formatLinkedInDisplay(data.linkedin)}
                         </a>
                     )}
+                </div>
+
+                <div className="text-sm" style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: accentColor }}>
+                    {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase) ||"JOB TITLE"}
                 </div>
             </div>
 
