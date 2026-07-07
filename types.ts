@@ -139,6 +139,7 @@ export type TemplateType =
   | 'freshgrad7'
   | 'freshgrad8'
   | 'sage'
+  | 'rezi'
   | 'student';
 
 export const INITIAL_DATA: ResumeData = {

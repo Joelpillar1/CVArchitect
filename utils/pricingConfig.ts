@@ -249,6 +249,7 @@ export const ALL_TEMPLATES = [
     'freshgrad7',
     'freshgrad8',
     'sage',
+    'rezi',
     'student',
 ];
 

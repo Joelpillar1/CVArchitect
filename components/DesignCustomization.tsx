@@ -93,7 +93,8 @@ export default function DesignCustomization({
         { id: 'minimalist', name: 'Minimalist Serif' },
         { id: 'professional', name: 'Professional Clean' },
         { id: 'twocolumn', name: 'Two Column Professional' },
-        { id: 'sage', name: 'Sage' }
+        { id: 'sage', name: 'Sage' },
+        { id: 'rezi', name: 'CVArchitect Pro' }
     ];
 
     // Sort templates: free templates first, then pro templates

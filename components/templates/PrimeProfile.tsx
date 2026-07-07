@@ -35,7 +35,7 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                             {t.professionalSummary}
                         </h2>
                         <div className="mb-2 h-px w-full" style={{ backgroundColor: accentColor }}></div>
-                        <p className="text-justify text-gray-700">
+                        <p className="text-justify text-gray-700" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                             {data.summary}
                         </p>
                     </section>
@@ -278,7 +278,7 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                 <div
                     className={`flex flex-wrap items-center gap-4 text-gray-600 ${data.headerAlignment === 'left' ? 'justify-start' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-center'}`}
                     style={{
-                        fontSize: '0.85em',
+                        fontSize: `${fontSizes?.body || 9.5}pt`,
                         marginBottom: `${getHeaderContactGapIn(data)}in`,
                     }}
                 >

@@ -40,7 +40,7 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
             >
               {t.professionalSummary}
             </h2>
-            <p className="text-justify">{data.summary}</p>
+            <p className="text-justify" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{data.summary}</p>
           </section>
         );
 
@@ -290,8 +290,8 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
 
         {/* Contact Info */}
         <section
-          className={`flex flex-wrap items-center gap-2 text-xs break-inside-avoid text-gray-700 ${data.headerAlignment === 'left' ? 'justify-start text-left' : data.headerAlignment === 'right' ? 'justify-end text-right' : 'justify-center text-center'}`}
-          style={{ marginBottom: `${getHeaderContactGapIn(data)}in` }}
+          className={`flex flex-wrap items-center gap-2 break-inside-avoid text-gray-700 ${data.headerAlignment === 'left' ? 'justify-start text-left' : data.headerAlignment === 'right' ? 'justify-end text-right' : 'justify-center text-center'}`}
+          style={{ fontSize: `${fontSizes?.body || 9.5}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}
         >
           {data.address && (
             <>

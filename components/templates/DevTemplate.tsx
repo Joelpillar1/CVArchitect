@@ -94,7 +94,7 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                         </h2>
                         <ul
                             className="list-none space-y-1 text-gray-700"
-                            style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}
+                            style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                         >
                             {achievements.map((line, i) =>
                                 line.trim() && (
@@ -155,7 +155,7 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                                     </div>
                                     <ul
                                         className="list-none space-y-1 text-gray-700"
-                                        style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}
+                                        style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                                     >
                                         {descriptionToString(exp.description).split('\n').map((line, i) =>
                                             line.trim() && (
@@ -239,7 +239,7 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                                             </div>
                                         )}
                                         {bullets.length > 0 ? (
-                                            <ul className="list-disc ml-5 space-y-0.5 text-gray-700" style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}>
+                                            <ul className="list-disc ml-5 space-y-0.5 text-gray-700" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                                                 {bullets.map((line, i) =>
                                                     line.trim() ? <li key={i}>{line.replace(/^[•-]\s*/, '')}</li> : null
                                                 )}
@@ -413,7 +413,7 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                 </div>
 
                 {/* Contact Info - Single Line */}
-                <div className={`flex flex-wrap items-center gap-4 text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.9}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
+                <div className={`flex flex-wrap items-center gap-4 text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${fontSizes?.body || 9.5}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
                     {data.address && data.address.trim() && (
                         <div className="flex items-center gap-2">
                             <MapPin size={12} style={{ color: accentColor }} />

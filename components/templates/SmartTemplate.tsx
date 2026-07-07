@@ -286,7 +286,7 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
                     {formatNameDisplay(data.fullName, data.headerCase) ||"YOUR NAME"}
                 </h1>
 
-                <div className={`flex flex-wrap text-black text-sm border-t-0 pt-0 ${flexAlignment}`} style={{ gap: headerItemGap, marginBottom: headerContactGap }}>
+                <div className={`flex flex-wrap text-black border-t-0 pt-0 ${flexAlignment}`} style={{ fontSize: `${fontSizes?.body || 9.5}pt`, gap: headerItemGap, marginBottom: headerContactGap }}>
                     {(() => {
                         const items: React.ReactNode[] = [];
                         if (data.location) items.push(<span key="location">{formatContactText(data.location)}</span>);

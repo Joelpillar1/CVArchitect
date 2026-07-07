@@ -56,7 +56,7 @@ const FreshGradTemplate: React.FC<FreshGradTemplateProps> = ({ data }) => {
         </h1>
         <div
           className="text-gray-800"
-          style={{ fontSize: `${smallSize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}
+          style={{ fontSize: `${bodySize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}
         >
           {[
             formatContactText(data.location || data.address) || undefined,

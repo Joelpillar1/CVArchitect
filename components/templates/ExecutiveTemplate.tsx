@@ -22,7 +22,7 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
         return data.summary && (
           <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
             <h2 className={getSectionHeaderClass()} style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt`, borderColor: data.accentColor || '#000000' }}>{t.professionalSummary}</h2>
-            <p className="text-gray-700  text-justify font-medium">{data.summary}</p>
+            <p className="text-gray-700  text-justify" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{data.summary}</p>
           </section>
         );
 
@@ -231,8 +231,8 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
           </h1>
         </div>
         <div
-          className={`flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`}
-          style={{ marginBottom: `${getHeaderContactGapIn(data)}in` }}
+          className={`flex flex-wrap gap-x-4 gap-y-1 text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`}
+          style={{ fontSize: `${fontSizes?.body || 9.5}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}
         >
           {data.location && <span>{formatContactText(data.location)}</span>}
           {data.email && (

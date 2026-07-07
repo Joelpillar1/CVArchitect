@@ -292,7 +292,7 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
                     {formatNameDisplay(data.fullName, data.headerCase) ||"Your Name"}
                 </h1>
 
-                <div className={`flex flex-wrap text-gray-600 text-sm ${flexAlignment}`} style={{ gap: headerItemGap, marginBottom: headerContactGap }}>
+                <div className={`flex flex-wrap text-gray-600 ${flexAlignment}`} style={{ fontSize: `${fontSizes?.body || 9.5}pt`, gap: headerItemGap, marginBottom: headerContactGap }}>
                     {(() => {
                         const items: React.ReactNode[] = [];
                         if (data.location) {

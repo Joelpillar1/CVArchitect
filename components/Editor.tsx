@@ -29,6 +29,7 @@ import ElegantTemplate from './templates/ElegantTemplate';
 import ProfessionalTemplate from './templates/ProfessionalTemplate';
 import TwoColumnTemplate from './templates/TwoColumnTemplate';
 import SageTemplate from './templates/SageTemplate';
+import ReziTemplate from './templates/ReziTemplate';
 import FreshGradTemplate from './templates/FreshGradTemplate';
 import FreshGrad8Template from './templates/FreshGrad8Template';
 import StudentTemplate from './templates/StudentTemplate';
@@ -219,6 +220,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
       case 'professional': return <ProfessionalTemplate data={data} />;
       case 'twocolumn': return <TwoColumnTemplate data={data} />;
       case 'sage': return <SageTemplate data={data} />;
+      case 'rezi': return <ReziTemplate data={data} />;
       case 'freshgrad1':
       case 'freshgrad2':
       case 'freshgrad4':

@@ -22,6 +22,7 @@ import TwoColumnTemplate from './templates/TwoColumnTemplate';
 import FreshGradTemplate from './templates/FreshGradTemplate';
 import FreshGrad8Template from './templates/FreshGrad8Template';
 import SageTemplate from './templates/SageTemplate';
+import ReziTemplate from './templates/ReziTemplate';
 import StudentTemplate from './templates/StudentTemplate';
 
 interface ResumePreviewProps {
@@ -70,6 +71,7 @@ export default function ResumePreview({ data, template }: ResumePreviewProps) {
         case 'freshgrad8':
           return <FreshGrad8Template data={data} />;
         case 'sage': return <SageTemplate data={data} />;
+        case 'rezi': return <ReziTemplate data={data} />;
         case 'student': return <StudentTemplate data={data} />;
         default: return <VanguardTemplate data={data} />;
       }

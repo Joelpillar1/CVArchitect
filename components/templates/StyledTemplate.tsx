@@ -271,7 +271,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                     {formatNameDisplay(data.fullName, data.headerCase) ||"YOUR NAME"}
                 </h1>
 
-                <div className={`flex flex-wrap text-gray-600 text-xs ${flexAlignment}`} style={{ gap: headerItemGap, marginBottom: headerContactGap }}>
+                <div className={`flex flex-wrap text-gray-600 ${flexAlignment}`} style={{ fontSize: `${fontSizes?.body || 9.5}pt`, gap: headerItemGap, marginBottom: headerContactGap }}>
                     {(() => {
                         const items: React.ReactNode[] = [];
 

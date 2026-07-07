@@ -549,7 +549,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                     <div
                         className="flex flex-wrap items-center gap-1 text-gray-700"
                         style={{
-                            fontSize: `${(fontSizes?.body || 9.5) * 0.92}pt`,
+                            fontSize: `${fontSizes?.body || 9.5}pt`,
                             marginBottom: `${getHeaderContactGapIn(data)}in`,
                             justifyContent:
                                 data.headerAlignment === 'left'

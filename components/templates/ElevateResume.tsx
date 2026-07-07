@@ -36,7 +36,7 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                         >
                             {t.professionalSummary}
                         </h2>
-                        <p className="text-justify  text-gray-900">{data.summary}</p>
+                        <p className="text-justify  text-gray-900" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{data.summary}</p>
                     </section>
                 );
 
@@ -304,7 +304,7 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                     {formatNameDisplay(data.fullName, data.headerCase)}
                 </h1>
                 {/* Contact Icons */}
-                <div className={`flex flex-wrap items-center gap-4 text-xs text-gray-600 ${data.headerAlignment === 'left' ? 'justify-start' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-center'}`} style={{ marginBottom: `${getHeaderContactGapIn(data)}in` }}>
+                <div className={`flex flex-wrap items-center gap-4 text-gray-600 ${data.headerAlignment === 'left' ? 'justify-start' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-center'}`} style={{ fontSize: `${fontSizes?.body || 9.5}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
                     {data.address && (
                         <div className="flex items-center gap-1">
                             <MapPin size={10} color={data.accentColor || '#000000'} />

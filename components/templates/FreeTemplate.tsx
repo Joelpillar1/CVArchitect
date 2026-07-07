@@ -316,7 +316,7 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
                 </h1>
                 <div
                     className={`text-gray-700 flex flex-wrap gap-x-4 gap-y-1 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`}
-                    style={{ fontSize: `${smallSize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}
+                    style={{ fontSize: `${bodySize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}
                 >
                     {data.address && <span>{formatContactText(data.address)}</span>}
                     {data.email && (

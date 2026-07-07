@@ -28,7 +28,7 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
             >
               {t.professionalSummary}
             </h2>
-            <p className="text-gray-700">{data.summary}</p>
+            <p className="text-gray-700" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{data.summary}</p>
           </section>
         );
 
@@ -242,7 +242,7 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
     >
       <header className={`break-inside-avoid ${data.headerAlignment === 'center' ? 'text-center' : data.headerAlignment === 'right' ? 'text-right' : 'text-left'}`} style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
         <h1 className="font-bold text-gray-900" style={{ fontSize: `${fontSizes?.header || 18}pt`, marginBottom: `${getHeaderItemGapIn(data)}in`, lineHeight: 1.1, color: accentColor }}>{formatNameDisplay(data.fullName, data.headerCase)}</h1>
-        <div className={`flex flex-wrap gap-2 text-sm text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ marginBottom: `${getHeaderContactGapIn(data)}in` }}>
+        <div className={`flex flex-wrap gap-2 text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${fontSizes?.body || 9.5}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
           {data.address && (
             <>
               <span>{formatContactText(data.address)}</span>

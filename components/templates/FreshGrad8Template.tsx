@@ -57,7 +57,7 @@ const FreshGrad8Template: React.FC<FreshGrad8TemplateProps> = ({ data }) => {
                 </h1>
                 <div
                     className="text-gray-700 flex flex-wrap justify-center items-center gap-3"
-                    style={{ fontSize: `${smallSize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}
+                    style={{ fontSize: `${bodySize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}
                 >
                     {data.location && (
                         <span className="flex items-center gap-1">

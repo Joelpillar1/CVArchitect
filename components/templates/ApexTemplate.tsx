@@ -90,7 +90,7 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                                 <div
                                     key={i}
                                     className="flex items-baseline gap-2"
-                                    style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}
+                                    style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                                 >
                                     <span className="font-bold shrink-0 w-2 text-[9px] leading-none inline-block" style={{ color: accentColor }}>•</span>
                                     <span className="text-gray-700 font-medium">{skill.trim()}</span>
@@ -153,7 +153,7 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                                                     <li
                                                         key={i}
                                                         className="flex gap-2 items-baseline text-gray-700"
-                                                        style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}
+                                                        style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                                                     >
                                                         <span className="font-bold shrink-0 w-2 text-[9px] leading-none inline-block" style={{ color: accentColor }}>•</span>
                                                         <span className="flex-1">{line.replace(/^[•-]\s*/, '')}</span>
@@ -211,7 +211,7 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                                     </div>
                                     <p
                                         className="text-gray-700 whitespace-pre-line"
-                                        style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}
+                                        style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
                                     >
                                         {project.description}
                                     </p>
@@ -380,7 +380,7 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                     </h1>
 
                     {/* Contact Bar */}
-                    <div className={`flex flex-wrap gap-x-6 gap-y-2 text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.9}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
+                    <div className={`flex flex-wrap gap-x-6 gap-y-2 text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${fontSizes?.body || 9.5}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
                         {data.address && (
                             <div className="flex items-center gap-2">
                                 <span>{formatContactText(data.address)}</span>

@@ -209,6 +209,13 @@ export const TEMPLATE_CONFIG: { id: TemplateType; name: string; subtitle: string
         icon: <Feather className="text-green-700" size={20} />,
         bg: "bg-[#FFFFFF]"
     },
+    {
+        id: 'rezi',
+        name: "CVArchitect Pro",
+        subtitle: "ATS Serif",
+        icon: <BookOpen className="text-teal-600" size={20} />,
+        bg: "bg-[#FFFFFF]"
+    },
 ];
 
 export const getTemplateMetadata = (id: TemplateType) => {

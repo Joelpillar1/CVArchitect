@@ -296,7 +296,7 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
                       </div>
                     )}
                     {project.description && (
-                      <p className="text-gray-800" style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}>
+                      <p className="text-gray-800" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
                         {typeof project.description === 'string'
                           ? project.description
                           : project.description.join(' ')}

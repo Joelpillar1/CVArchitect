@@ -282,7 +282,7 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
                     {formatNameDisplay(data.fullName, data.headerCase) ||"YOUR NAME"}
                 </h1>
 
-                <div className={`flex flex-wrap text-black text-sm italic ${flexAlignment}`} style={{ gap: headerItemGap, marginBottom: headerContactGap }}>
+                <div className={`flex flex-wrap text-black italic ${flexAlignment}`} style={{ fontSize: `${fontSizes?.body || 9.5}pt`, gap: headerItemGap, marginBottom: headerContactGap }}>
                     {data.location && (
                         <>
                             <span>{formatContactText(data.location)}</span>

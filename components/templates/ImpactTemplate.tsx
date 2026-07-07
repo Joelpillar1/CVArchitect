@@ -343,7 +343,7 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
                     </h1>
 
                 {/* Contact Info */}
-                <div className={`text-gray-600 flex flex-wrap gap-2 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${smallSize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
+                <div className={`text-gray-600 flex flex-wrap gap-2 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${bodySize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
                     {(() => {
                         const items: React.ReactNode[] = [];
                         if (data.address) items.push(<span key="address">{formatContactText(data.address)}</span>);

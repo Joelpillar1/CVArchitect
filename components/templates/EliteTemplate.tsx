@@ -388,7 +388,7 @@ export default function EliteTemplate({ data }: { data: ResumeData }) {
                     </h1>
 
                     {/* Contact Bar */}
-                <div className={`flex flex-wrap gap-4 text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
+                <div className={`flex flex-wrap gap-4 text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${fontSizes?.body || 9.5}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
                         {data.address && (
                             <div className="flex items-center gap-1.5">
                                 <span>{formatContactText(data.address)}</span>
