@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ResumeData } from '../types';
+import { ResumeData, TemplateType } from '../types';
 import { UserSubscription } from '../types/pricing';
 import { loadFromStorage } from '../utils/statePersistence';
 import EditorSidebarDesign from './EditorSidebarDesign';
@@ -12,11 +12,12 @@ interface EditorSidebarRightProps {
     onSave?: () => void;
     onSaveAsTemplate?: () => void;
     currentResumeId?: string | null;
+    currentTemplate?: TemplateType;
     userSubscription: UserSubscription;
     onAIAction: (action: 'ai_rewrite' | 'cv_regeneration' | 'cover_letter' | 'bullet_optimization') => boolean;
 }
 
-export default function EditorSidebarRight({ data, onChange, onSave, onSaveAsTemplate, currentResumeId, userSubscription, onAIAction }: EditorSidebarRightProps) {
+export default function EditorSidebarRight({ data, onChange, onSave, onSaveAsTemplate, currentResumeId, currentTemplate, userSubscription, onAIAction }: EditorSidebarRightProps) {
     const [activeTab, setActiveTab] = useState<'design' | 'job-match'>(() => {
         const openJobMatch = loadFromStorage<boolean>('editor_openJobMatchTab', false);
         if (openJobMatch) {
@@ -63,6 +64,7 @@ export default function EditorSidebarRight({ data, onChange, onSave, onSaveAsTem
                         onSave={onSave}
                         onSaveAsTemplate={onSaveAsTemplate}
                         currentResumeId={currentResumeId}
+                        currentTemplate={currentTemplate}
                     />
                 ) : (
                     <div className="h-full overflow-y-auto p-4">

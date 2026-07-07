@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay} from '../../utils/templateUtils';
+import { parseDescriptionBullets, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay, isTitleFirst } from '../../utils/templateUtils';
 import { getTranslation, Language } from '../../i18n/translations';
 import { Phone, Mail, MapPin, Linkedin } from 'lucide-react';
 
@@ -64,6 +64,17 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
         >
           {formatNameDisplay(data.fullName, data.headerCase) || 'YOUR NAME'}
         </h1>
+        {isTitleFirst(data, false) && data.jobTitle && (
+          <p
+            className="font-semibold"
+            style={{
+              fontSize: `${fontSizes?.jobTitle || 11}pt`,
+              color: accentColor,
+            }}
+          >
+            {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+          </p>
+        )}
         <div
           className={`flex flex-wrap items-center justify-center gap-2 text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`}
           style={{ fontSize: `${fontSizes?.body || 9.5}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}
@@ -96,7 +107,7 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
             ));
           })()}
         </div>
-        {data.jobTitle && (
+        {!isTitleFirst(data, false) && data.jobTitle && (
           <p
             className="font-semibold"
             style={{

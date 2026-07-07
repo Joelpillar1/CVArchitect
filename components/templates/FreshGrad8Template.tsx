@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay} from '../../utils/templateUtils';
+import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay, isTitleFirst } from '../../utils/templateUtils';
 import { MapPin, Mail, Smartphone, Linkedin } from 'lucide-react';
 
 interface FreshGrad8TemplateProps {
@@ -55,6 +55,17 @@ const FreshGrad8Template: React.FC<FreshGrad8TemplateProps> = ({ data }) => {
                 >
                     {formatNameDisplay(data.fullName, data.headerCase) || 'First Last'}
                 </h1>
+                {isTitleFirst(data, false) && data.jobTitle && (
+                    <p
+                        className="font-semibold text-gray-700"
+                        style={{
+                            fontSize: `${fontSizes?.jobTitle || 11}pt`,
+                            color: data.accentColor || '#000000',
+                        }}
+                    >
+                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+                    </p>
+                )}
                 <div
                     className="text-gray-700 flex flex-wrap justify-center items-center gap-3"
                     style={{ fontSize: `${bodySize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}
@@ -80,7 +91,7 @@ const FreshGrad8Template: React.FC<FreshGrad8TemplateProps> = ({ data }) => {
                         </span>
                     )}
                 </div>
-                {data.jobTitle && (
+                {!isTitleFirst(data, false) && data.jobTitle && (
                     <p
                         className="font-semibold text-gray-700"
                         style={{

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay} from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay, isTitleFirst } from '../../utils/templateUtils';
 import { getTranslation, Language } from '../../i18n/translations';
 
 const formatMonthYear = (dateString: string | null | undefined) => {
@@ -301,6 +301,11 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
             <div className={`mb-6 break-inside-avoid ${data.headerAlignment === 'left' ? 'text-left' : data.headerAlignment === 'right' ? 'text-right' : 'text-center'}`} style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
                 <h1 className="font-bold text-gray-900" style={{ marginBottom: `${getHeaderItemGapIn(data)}in`, lineHeight: 1.1, fontSize: `${fontSizes?.header || 18}pt` }}>{formatNameDisplay(data.fullName, data.headerCase)}</h1>
 
+                {isTitleFirst(data, false) && data.jobTitle && (
+                    <div style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: data.accentColor || '#000000' }}>
+                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+                    </div>
+                )}
                 <div className="flex flex-wrap justify-center gap-1 text-gray-900" style={{ fontSize: `${fontSizes?.body || 9.5}pt`, marginBottom: `${getHeaderContactGapIn(data)}in`, justifyContent: data.headerAlignment === 'left' ? 'flex-start' : data.headerAlignment === 'right' ? 'flex-end' : 'center' }}>
                     {(() => {
                         const items: React.ReactNode[] = [];
@@ -316,7 +321,7 @@ export default function WonsultingTemplate({ data }: { data: ResumeData }) {
                         ));
                     })()}
                 </div>
-                {data.jobTitle && (
+                {!isTitleFirst(data, false) && data.jobTitle && (
                     <div style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: data.accentColor || '#000000' }}>
                         {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
                     </div>

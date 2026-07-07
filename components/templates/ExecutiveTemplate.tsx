@@ -2,7 +2,7 @@ import React from 'react';
 import { ResumeData } from '../../types';
 import { getTranslation, Language } from '../../i18n/translations';
 
-import { formatDate, parseDescriptionBullets, parseAchievementBullets, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay} from '../../utils/templateUtils';
+import { formatDate, parseDescriptionBullets, parseAchievementBullets, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay, isTitleFirst } from '../../utils/templateUtils';
 
 export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
   const { fontSizes } = data;
@@ -230,6 +230,14 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
             {formatNameDisplay(data.fullName, data.headerCase)}
           </h1>
         </div>
+        {isTitleFirst(data, false) && (
+          <p
+            className={`font-semibold text-gray-900 ${data.headerAlignment === 'center' ? 'text-center' : data.headerAlignment === 'right' ? 'text-right' : 'text-left'}`}
+            style={{ fontSize: `${fontSizes?.jobTitle || 11}pt` }}
+          >
+            {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+          </p>
+        )}
         <div
           className={`flex flex-wrap gap-x-4 gap-y-1 text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`}
           style={{ fontSize: `${fontSizes?.body || 9.5}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}
@@ -252,12 +260,14 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
             </a>
           )}
         </div>
-        <p
-          className={`font-semibold text-gray-900 ${data.headerAlignment === 'center' ? 'text-center' : data.headerAlignment === 'right' ? 'text-right' : 'text-left'}`}
-          style={{ fontSize: `${fontSizes?.jobTitle || 11}pt` }}
-        >
-          {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
-        </p>
+        {!isTitleFirst(data, false) && (
+          <p
+            className={`font-semibold text-gray-900 ${data.headerAlignment === 'center' ? 'text-center' : data.headerAlignment === 'right' ? 'text-right' : 'text-left'}`}
+            style={{ fontSize: `${fontSizes?.jobTitle || 11}pt` }}
+          >
+            {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+          </p>
+        )}
       </div>
 
       {/* Dynamic Sections */}

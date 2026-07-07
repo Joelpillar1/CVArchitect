@@ -3,9 +3,9 @@ import {
     AlignLeft, AlignCenter, AlignRight, AlignJustify,
     Type, Bold, Italic, Underline, Strikethrough,
     MoveHorizontal, MoveVertical, Grid, Layers,
-    ChevronDown, ChevronRight, Settings, Sliders, Save, GitBranch
+    ChevronDown, ChevronUp, ChevronRight, Settings, Sliders, Save, GitBranch
 } from 'lucide-react';
-import { ResumeData } from '../types';
+import { ResumeData, TemplateType } from '../types';
 import VersionHistory from './VersionHistory';
 
 interface EditorSidebarDesignProps {
@@ -14,9 +14,10 @@ interface EditorSidebarDesignProps {
     onSave?: (data?: ResumeData) => void;
     onSaveAsTemplate?: (data?: ResumeData) => void;
     currentResumeId?: string | null;
+    currentTemplate?: TemplateType;
 }
 
-export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTemplate, currentResumeId }: EditorSidebarDesignProps) {
+export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTemplate, currentResumeId, currentTemplate }: EditorSidebarDesignProps) {
     const [templateName, setTemplateName] = useState('');
     const [isSaving, setIsSaving] = useState(false);
     const [showVersionHistory, setShowVersionHistory] = useState(false);
@@ -144,6 +145,51 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
                             UPPERCASE
                         </button>
                     </div>
+                </div>
+                {/* Header Order */}
+                <div>
+                    <h3 className="text-xs font-bold text-gray-900 mb-3">Header Order</h3>
+                    <p className="text-[11px] text-gray-500 mb-2">Reorder the job title and contact line under your name</p>
+                    {(() => {
+                        const nativeTitleFirst = currentTemplate === 'rezi';
+                        const titleFirst = data.headerOrder ? data.headerOrder === 'title-first' : nativeTitleFirst;
+                        const order = titleFirst ? ['title', 'contact'] : ['contact', 'title'];
+                        const labels: Record<string, string> = { title: 'Job Title', contact: 'Contact Info' };
+                        const move = (index: number, dir: -1 | 1) => {
+                            const target = index + dir;
+                            if (target < 0 || target >= order.length) return;
+                            const next = [...order];
+                            [next[index], next[target]] = [next[target], next[index]];
+                            onChange({ ...data, headerOrder: next[0] === 'title' ? 'title-first' : 'contact-first' });
+                        };
+                        return (
+                            <div className="space-y-2">
+                                {order.map((item, index) => (
+                                    <div key={item} className="flex items-center justify-between px-3 py-2 rounded-lg border border-brand-border bg-white">
+                                        <span className="text-xs font-medium text-gray-700">{labels[item]}</span>
+                                        <div className="flex items-center gap-1">
+                                            <button
+                                                onClick={() => move(index, -1)}
+                                                disabled={index === 0}
+                                                className="p-1 rounded hover:bg-brand-secondary text-gray-500 disabled:opacity-30 disabled:cursor-not-allowed"
+                                                title="Move up"
+                                            >
+                                                <ChevronUp size={16} />
+                                            </button>
+                                            <button
+                                                onClick={() => move(index, 1)}
+                                                disabled={index === order.length - 1}
+                                                className="p-1 rounded hover:bg-brand-secondary text-gray-500 disabled:opacity-30 disabled:cursor-not-allowed"
+                                                title="Move down"
+                                            >
+                                                <ChevronDown size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        );
+                    })()}
                 </div>
                 {/* Skills Layout */}
                 <div>

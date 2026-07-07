@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatDate as formatDateUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, CONTACT_SEPARATOR, formatJobTitleDisplay} from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatDate as formatDateUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, CONTACT_SEPARATOR, formatJobTitleDisplay, isTitleFirst } from '../../utils/templateUtils';
 
 interface ElegantTemplateProps {
     data: ResumeData;
@@ -292,6 +292,11 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
                     {formatNameDisplay(data.fullName, data.headerCase) ||"Your Name"}
                 </h1>
 
+                {isTitleFirst(data, false) && (
+                    <div className="text-sm font-bold" style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: accentColor }}>
+                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase) ||"Job Title"}
+                    </div>
+                )}
                 <div className={`flex flex-wrap text-gray-600 ${flexAlignment}`} style={{ fontSize: `${fontSizes?.body || 9.5}pt`, gap: headerItemGap, marginBottom: headerContactGap }}>
                     {(() => {
                         const items: React.ReactNode[] = [];
@@ -324,9 +329,11 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
                     })()}
                 </div>
 
-                <div className="text-sm font-bold" style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: accentColor }}>
-                    {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase) ||"Job Title"}
-                </div>
+                {!isTitleFirst(data, false) && (
+                    <div className="text-sm font-bold" style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: accentColor }}>
+                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase) ||"Job Title"}
+                    </div>
+                )}
             </div>
 
             {/* Dynamic Content */}

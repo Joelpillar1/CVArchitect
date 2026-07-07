@@ -207,6 +207,17 @@ export function getHeaderContactGapIn(data: ResumeData): number {
     return data.headerContactGap ?? TEMPLATE_SPACING.headerContactGap;
 }
 
+/**
+ * Whether the job title should render before the contact line in the header.
+ * When the user hasn't set a preference, each template keeps its own native
+ * order via the `nativeTitleFirst` fallback.
+ */
+export function isTitleFirst(data: ResumeData, nativeTitleFirst: boolean): boolean {
+    if (data.headerOrder === 'title-first') return true;
+    if (data.headerOrder === 'contact-first') return false;
+    return nativeTitleFirst;
+}
+
 export function getPagePaddingStyle(data: ResumeData, variant: SpacingVariant = 'default'): CSSProperties {
     const h = getMarginHorizontalIn(data, variant);
     const v = getMarginVerticalIn(data, variant);

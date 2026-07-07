@@ -1,7 +1,7 @@
 import React from 'react';
 import { ResumeData } from '../../types';
 import { getTranslation, Language } from '../../i18n/translations';
-import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, splitSkillsIntoColumns, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay} from '../../utils/templateUtils';
+import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, splitSkillsIntoColumns, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay, isTitleFirst } from '../../utils/templateUtils';
 
 export default function FreeTemplate({ data }: { data: ResumeData }) {
     const { fontSizes } = data;
@@ -314,6 +314,13 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
                 >
                     {formatNameDisplay(data.fullName, data.headerCase)}
                 </h1>
+                {isTitleFirst(data, false) && data.jobTitle && (
+                    <div
+                        style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: data.accentColor || '#000000' }}
+                    >
+                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+                    </div>
+                )}
                 <div
                     className={`text-gray-700 flex flex-wrap gap-x-4 gap-y-1 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`}
                     style={{ fontSize: `${bodySize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}
@@ -327,7 +334,7 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
                         <a href={getLinkedInHref(data.linkedin)} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>{formatLinkedInDisplay(data.linkedin)}</a>
                     )}
                 </div>
-                {data.jobTitle && (
+                {!isTitleFirst(data, false) && data.jobTitle && (
                     <div
                         style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: data.accentColor || '#000000' }}
                     >

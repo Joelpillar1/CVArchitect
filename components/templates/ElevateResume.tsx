@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay} from '../../utils/templateUtils';
+import { parseDescriptionBullets, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay, isTitleFirst } from '../../utils/templateUtils';
 import { Linkedin, Mail, Phone, MapPin, Send } from 'lucide-react';
 import { getTranslation, Language } from '../../i18n/translations';
 
@@ -303,6 +303,14 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                 >
                     {formatNameDisplay(data.fullName, data.headerCase)}
                 </h1>
+                {isTitleFirst(data, false) && data.jobTitle && (
+                    <p
+                        className="font-semibold"
+                        style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: data.accentColor || '#000000' }}
+                    >
+                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+                    </p>
+                )}
                 {/* Contact Icons */}
                 <div className={`flex flex-wrap items-center gap-4 text-gray-600 ${data.headerAlignment === 'left' ? 'justify-start' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-center'}`} style={{ fontSize: `${fontSizes?.body || 9.5}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
                     {data.address && (
@@ -346,7 +354,7 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                         </div>
                     )}
                 </div>
-                {data.jobTitle && (
+                {!isTitleFirst(data, false) && data.jobTitle && (
                     <p
                         className="font-semibold"
                         style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: data.accentColor || '#000000' }}

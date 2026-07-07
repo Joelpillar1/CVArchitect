@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay} from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay, isTitleFirst } from '../../utils/templateUtils';
 import { getTranslation, Language } from '../../i18n/translations';
 
 const formatMonthYear = (dateString: string | null | undefined) => {
@@ -379,6 +379,17 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                         {formatNameDisplay(data.fullName, data.headerCase)}
                     </h1>
 
+                    {isTitleFirst(data, false) && (
+                        <div
+                            className="font-semibold"
+                            style={{
+                                fontSize: `${fontSizes?.jobTitle || 11}pt`,
+                                color: accentColor,
+                            }}
+                        >
+                            {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+                        </div>
+                    )}
                     {/* Contact Bar */}
                     <div className={`flex flex-wrap gap-x-6 gap-y-2 text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${fontSizes?.body || 9.5}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
                         {data.address && (
@@ -410,15 +421,17 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
                             </div>
                         )}
                     </div>
-                    <div
-                        className="font-semibold"
-                        style={{
-                            fontSize: `${fontSizes?.jobTitle || 11}pt`,
-                            color: accentColor,
-                        }}
-                    >
-                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
-                    </div>
+                    {!isTitleFirst(data, false) && (
+                        <div
+                            className="font-semibold"
+                            style={{
+                                fontSize: `${fontSizes?.jobTitle || 11}pt`,
+                                color: accentColor,
+                            }}
+                        >
+                            {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+                        </div>
+                    )}
                 </div>
             </header>
 

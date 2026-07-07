@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay} from '../../utils/templateUtils';
+import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay, isTitleFirst } from '../../utils/templateUtils';
 import { getTranslation, Language } from '../../i18n/translations';
 
 export default function SimpleProTemplate({ data }: { data: ResumeData }) {
@@ -313,6 +313,11 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
                     {formatNameDisplay(data.fullName, data.headerCase)}
                 </h1>
 
+                {isTitleFirst(data, false) && (
+                    <div className="font-semibold" style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: data.accentColor || '#000000' }}>
+                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+                    </div>
+                )}
                 {/* Contact Info */}
                 <div className={`flex gap-6 text-gray-700 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${smallSize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
                     {data.address && <div>{formatContactText(data.address)}</div>}
@@ -335,9 +340,11 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
                         </div>
                     )}
                 </div>
-                <div className="font-semibold" style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: data.accentColor || '#000000' }}>
-                    {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
-                </div>
+                {!isTitleFirst(data, false) && (
+                    <div className="font-semibold" style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: data.accentColor || '#000000' }}>
+                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+                    </div>
+                )}
             </header>
 
             {/* Single Column Layout */}

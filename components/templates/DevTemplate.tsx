@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay} from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay, isTitleFirst } from '../../utils/templateUtils';
 import { Mail, Phone, Linkedin, Github, Globe, MapPin } from 'lucide-react';
 import { getTranslation, Language } from '../../i18n/translations';
 
@@ -412,6 +412,14 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                     </div>
                 </div>
 
+                {isTitleFirst(data, false) && (
+                    <p
+                        className={`font-semibold ${data.headerAlignment === 'center' ? 'text-center' : data.headerAlignment === 'right' ? 'text-right' : 'text-left'}`}
+                        style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: accentColor }}
+                    >
+                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+                    </p>
+                )}
                 {/* Contact Info - Single Line */}
                 <div className={`flex flex-wrap items-center gap-4 text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${fontSizes?.body || 9.5}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
                     {data.address && data.address.trim() && (
@@ -448,12 +456,14 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                     )}
                 </div>
 
-                <p
-                    className={`font-semibold ${data.headerAlignment === 'center' ? 'text-center' : data.headerAlignment === 'right' ? 'text-right' : 'text-left'}`}
-                    style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: accentColor }}
-                >
-                    {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
-                </p>
+                {!isTitleFirst(data, false) && (
+                    <p
+                        className={`font-semibold ${data.headerAlignment === 'center' ? 'text-center' : data.headerAlignment === 'right' ? 'text-right' : 'text-left'}`}
+                        style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: accentColor }}
+                    >
+                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+                    </p>
+                )}
             </header>
 
             {/* Dynamic Sections */}

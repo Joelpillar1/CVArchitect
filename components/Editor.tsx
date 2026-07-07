@@ -377,6 +377,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
             onSave={onSave}
             onSaveAsTemplate={onSaveAsTemplate}
             currentResumeId={currentResumeId}
+            currentTemplate={template}
             userSubscription={userSubscription}
             onAIAction={onAIAction}
           />

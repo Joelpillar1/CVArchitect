@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, splitSkillsIntoColumns, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay} from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, splitSkillsIntoColumns, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay, isTitleFirst } from '../../utils/templateUtils';
 import { Linkedin, Mail, Phone, MapPin, Send } from 'lucide-react';
 import { getTranslation, Language } from '../../i18n/translations';
 
@@ -274,6 +274,14 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                     {formatNameDisplay(data.fullName, data.headerCase)}
                 </h1>
 
+                {isTitleFirst(data, false) && (
+                    <p
+                        className="text-black"
+                        style={{ fontSize: `${fontSizes?.jobTitle || 11}pt` }}
+                    >
+                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+                    </p>
+                )}
                 {/* Contact Section with Gold Lines */}
                 <div
                     className={`flex flex-wrap items-center gap-4 text-gray-600 ${data.headerAlignment === 'left' ? 'justify-start' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-center'}`}
@@ -311,12 +319,14 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
                         ));
                     })()}
                 </div>
-                <p
-                    className="text-black"
-                    style={{ fontSize: `${fontSizes?.jobTitle || 11}pt` }}
-                >
-                    {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
-                </p>
+                {!isTitleFirst(data, false) && (
+                    <p
+                        className="text-black"
+                        style={{ fontSize: `${fontSizes?.jobTitle || 11}pt` }}
+                    >
+                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+                    </p>
+                )}
             </header>
 
             {/* Dynamic Sections */}

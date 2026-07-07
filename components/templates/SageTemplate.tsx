@@ -9,7 +9,7 @@ import {
     getMarginHorizontalIn,
     getMarginVerticalIn,
     getHeaderGapIn,
-    getHeaderItemGapIn, getHeaderContactGapIn, formatNameDisplay, formatJobTitleDisplay, CONTACT_SEPARATOR} from '../../utils/templateUtils';
+    getHeaderItemGapIn, getHeaderContactGapIn, formatNameDisplay, formatJobTitleDisplay, CONTACT_SEPARATOR, isTitleFirst} from '../../utils/templateUtils';
 import { getTranslation, Language } from '../../i18n/translations';
 
 const formatDate = (dateString: string | null | undefined) =>
@@ -514,6 +514,19 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
     }
 
     /* ──────────────────────── render ──────────────────────── */
+    const titleFirst = isTitleFirst(data, false);
+    const jobTitleBlock = data.jobTitle ? (
+        <div
+            className="italic"
+            style={{
+                fontSize: `${fontSizes?.jobTitle || 11}pt`,
+                color: accentColor,
+            }}
+        >
+            {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+        </div>
+    ) : null;
+
     return (
         <div
             className="resume-content text-gray-900"
@@ -544,6 +557,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                     {formatNameDisplay(data.fullName, data.headerCase)}
                 </h1>
 
+                {titleFirst && jobTitleBlock}
                 {/* Contact line — all items separated by a small centered dot */}
                 {contactParts.length > 0 && (
                     <div
@@ -588,18 +602,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                     </div>
                 )}
 
-                {/* Job title (optional) */}
-                {data.jobTitle && (
-                    <div
-                        className="italic"
-                        style={{
-                            fontSize: `${fontSizes?.jobTitle || 11}pt`,
-                            color: accentColor,
-                        }}
-                    >
-                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
-                    </div>
-                )}
+                {!titleFirst && jobTitleBlock}
             </div>
 
             {/* ── Body sections (dynamic order) ── */}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { ResumeData } from '../../types';
 import { getTranslation, Language } from '../../i18n/translations';
-import { formatDate, parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, CONTACT_SEPARATOR, formatJobTitleDisplay} from '../../utils/templateUtils';
+import { formatDate, parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, CONTACT_SEPARATOR, formatJobTitleDisplay, isTitleFirst } from '../../utils/templateUtils';
 
 export default function ImpactTemplate({ data }: { data: ResumeData }) {
     const { fontSizes } = data;
@@ -342,6 +342,14 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
                         {formatNameDisplay(data.fullName, data.headerCase)}
                     </h1>
 
+                {isTitleFirst(data, false) && (
+                    <div
+                        className={`font-semibold ${data.headerAlignment === 'center' ? 'text-center' : data.headerAlignment === 'right' ? 'text-right' : 'text-left'}`}
+                        style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: data.accentColor || '#000000', marginBottom: `${getHeaderContactGapIn(data)}in` }}
+                    >
+                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+                    </div>
+                )}
                 {/* Contact Info */}
                 <div className={`text-gray-600 flex flex-wrap gap-2 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${bodySize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
                     {(() => {
@@ -358,16 +366,20 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
                         ));
                     })()}
                 </div>
-                <div
-                    className="h-px w-full"
-                    style={{ backgroundColor: data.accentColor || '#000000', opacity: 0.25 }}
-                />
-                <div
-                    className={`font-semibold ${data.headerAlignment === 'center' ? 'text-center' : data.headerAlignment === 'right' ? 'text-right' : 'text-left'}`}
-                    style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: data.accentColor || '#000000' }}
-                >
-                    {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
-                </div>
+                {!isTitleFirst(data, false) && (
+                    <>
+                        <div
+                            className="h-px w-full"
+                            style={{ backgroundColor: data.accentColor || '#000000', opacity: 0.25 }}
+                        />
+                        <div
+                            className={`font-semibold ${data.headerAlignment === 'center' ? 'text-center' : data.headerAlignment === 'right' ? 'text-right' : 'text-left'}`}
+                            style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: data.accentColor || '#000000' }}
+                        >
+                            {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+                        </div>
+                    </>
+                )}
                 </div>
             </header>
 

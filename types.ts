@@ -89,6 +89,7 @@ export interface ResumeData {
     vertical: number;
   };
   headerAlignment?: 'left' | 'center' | 'right'; // Alignment for name, title, and contact info
+  headerOrder?: 'title-first' | 'contact-first'; // Order of job title vs contact line under the name
   bodyHeaderAlignment?: 'left' | 'center' | 'right'; // Alignment for section titles (Experience, Education, etc.)
   contentAlignment?: 'left' | 'center' | 'right'; // Alignment for body content (summary, experience, etc.)
   skillsColumnCount?: number; // Number of columns for skills section (2 or 3)

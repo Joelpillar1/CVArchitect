@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, CONTACT_SEPARATOR, formatJobTitleDisplay} from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, CONTACT_SEPARATOR, formatJobTitleDisplay, isTitleFirst} from '../../utils/templateUtils';
 import { getTranslation, Language } from '../../i18n/translations';
 
 const formatMonthYear = (dateString: string | null | undefined) => {
@@ -241,6 +241,11 @@ export default function ClassicTemplate({ data }: { data: ResumeData }) {
         return null;
     }
   };
+  const titleFirst = isTitleFirst(data, false);
+  const jobTitleBlock = (
+    <p className="font-semibold" style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: data.accentColor || '#000000' }}>{formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}</p>
+  );
+
   return (
     <div
       className="resume-content text-gray-900"
@@ -254,6 +259,7 @@ export default function ClassicTemplate({ data }: { data: ResumeData }) {
     >
       <div className={`break-inside-avoid ${data.headerAlignment === 'left' ? 'text-left' : data.headerAlignment === 'right' ? 'text-right' : 'text-center'}`} style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
         <h1 className="text-5xl font-bold" style={{ fontSize: `${fontSizes?.header || 18}pt`, marginBottom: `${getHeaderItemGapIn(data)}in`, lineHeight: 1.1 }}>{formatNameDisplay(data.fullName, data.headerCase)}</h1>
+        {titleFirst && jobTitleBlock}
         <div className="text-sm flex flex-wrap items-center justify-center gap-2" style={{ fontSize: `${fontSizes?.body || 9.5}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
           {data.address && <span>{formatContactText(data.address)}</span>}
           {data.address && (data.phone || data.email || data.linkedin) && (
@@ -289,7 +295,7 @@ export default function ClassicTemplate({ data }: { data: ResumeData }) {
             </a>
           )}
         </div>
-        <p className="font-semibold" style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: data.accentColor || '#000000' }}>{formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}</p>
+        {!titleFirst && jobTitleBlock}
       </div>
 
       {/* Dynamic Sections */}

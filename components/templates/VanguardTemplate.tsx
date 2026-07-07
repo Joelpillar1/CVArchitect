@@ -3,7 +3,7 @@ import { ResumeData } from '../../types';
 import { Linkedin, Mail, Phone, MapPin, Send } from 'lucide-react';
 import { getTranslation, Language } from '../../i18n/translations';
 
-import { formatDate, parseDescriptionBullets, parseAchievementBullets, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay} from '../../utils/templateUtils';
+import { formatDate, parseDescriptionBullets, parseAchievementBullets, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay, isTitleFirst } from '../../utils/templateUtils';
 
 export default function VanguardTemplate({ data }: { data: ResumeData }) {
   const { fontSizes } = data;
@@ -289,6 +289,11 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
         </h1>
 
         {/* Contact Info */}
+        {isTitleFirst(data, false) && (
+          <p style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: data.accentColor || '#000000' }}>
+            {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+          </p>
+        )}
         <section
           className={`flex flex-wrap items-center gap-2 break-inside-avoid text-gray-700 ${data.headerAlignment === 'left' ? 'justify-start text-left' : data.headerAlignment === 'right' ? 'justify-end text-right' : 'justify-center text-center'}`}
           style={{ fontSize: `${fontSizes?.body || 9.5}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}
@@ -343,9 +348,11 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
           )}
         </section>
 
-        <p style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: data.accentColor || '#000000' }}>
-          {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
-        </p>
+        {!isTitleFirst(data, false) && (
+          <p style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: data.accentColor || '#000000' }}>
+            {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+          </p>
+        )}
       </header>
 
       <hr className="border-t" style={{ borderColor: data.accentColor || '#000000', marginBottom: `${getSectionGapIn(data)}in` }} />

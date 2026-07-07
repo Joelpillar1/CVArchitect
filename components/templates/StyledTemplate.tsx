@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, formatDate as formatDateUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, CONTACT_SEPARATOR, formatJobTitleDisplay} from '../../utils/templateUtils';
+import { parseDescriptionBullets, formatDate as formatDateUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, CONTACT_SEPARATOR, formatJobTitleDisplay, isTitleFirst } from '../../utils/templateUtils';
 
 interface StyledTemplateProps {
     data: ResumeData;
@@ -271,6 +271,16 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                     {formatNameDisplay(data.fullName, data.headerCase) ||"YOUR NAME"}
                 </h1>
 
+                {isTitleFirst(data, false) && data.jobTitle && (
+                    <div>
+                        <p
+                            className="font-bold text-sm"
+                            style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: accentColor }}
+                        >
+                            {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+                        </p>
+                    </div>
+                )}
                 <div className={`flex flex-wrap text-gray-600 ${flexAlignment}`} style={{ fontSize: `${fontSizes?.body || 9.5}pt`, gap: headerItemGap, marginBottom: headerContactGap }}>
                     {(() => {
                         const items: React.ReactNode[] = [];
@@ -310,7 +320,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                     })()}
                 </div>
 
-                {data.jobTitle && (
+                {!isTitleFirst(data, false) && data.jobTitle && (
                     <div>
                         <p
                             className="font-bold text-sm"

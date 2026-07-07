@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay } from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay, isTitleFirst } from '../../utils/templateUtils';
 import { getTranslation, Language } from '../../i18n/translations';
 import { MapPin, Mail, Phone, Linkedin, Globe } from 'lucide-react';
 
@@ -224,6 +224,54 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
   const headerAlignClass = data.headerAlignment === 'left' ? 'items-start text-left' : data.headerAlignment === 'right' ? 'items-end text-right' : 'items-center text-center';
   const contactJustify = data.headerAlignment === 'left' ? 'justify-start' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-center';
 
+  const titleFirst = isTitleFirst(data, true);
+
+  const jobTitleBlock = data.jobTitle ? (
+    <p style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: headingColor, fontWeight: W_SEMIBOLD, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
+      {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+    </p>
+  ) : null;
+
+  const contactBlock = (
+    <div
+      className={`flex flex-row flex-wrap items-center gap-x-3 gap-y-1 ${contactJustify}`}
+      style={{ fontSize: `${metaPt}pt`, color: REZI_SLATE, fontWeight: W_BODY, marginBottom: `${getHeaderContactGapIn(data)}in` }}
+    >
+      {(data.location || data.address) && (
+        <span className="flex flex-row items-center gap-1">
+          <MapPin size="0.9em" style={{ color: REZI_SLATE }} />
+          <span>{formatContactText(data.location || data.address || '')}</span>
+        </span>
+      )}
+      {data.email && (
+        <span className="flex flex-row items-center gap-1">
+          <Mail size="0.9em" style={{ color: REZI_SLATE }} />
+          <a href={`mailto:${formatContactText(data.email)}`} style={{ color: REZI_SLATE, textDecoration: 'none' }}>{formatContactText(data.email)}</a>
+        </span>
+      )}
+      {data.phone && (
+        <span className="flex flex-row items-center gap-1">
+          <Phone size="0.9em" style={{ color: REZI_SLATE }} />
+          <span>{formatContactText(data.phone)}</span>
+        </span>
+      )}
+      {data.linkedin && (
+        <span className="flex flex-row items-center gap-1">
+          <Linkedin size="0.9em" style={{ color: REZI_SLATE }} />
+          <a href={getLinkedInHref(data.linkedin)} target="_blank" rel="noopener noreferrer" style={{ color: REZI_SLATE, textDecoration: 'none' }}>
+            {formatLinkedInDisplay(data.linkedin)}
+          </a>
+        </span>
+      )}
+      {data.atHandle && (
+        <span className="flex flex-row items-center gap-1">
+          <Globe size="0.9em" style={{ color: REZI_SLATE }} />
+          <span>{data.atHandle}</span>
+        </span>
+      )}
+    </div>
+  );
+
   return (
     <div
       className="resume-content"
@@ -244,49 +292,7 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
           {formatNameDisplay(data.fullName, data.headerCase)}
         </h1>
 
-        {data.jobTitle && (
-          <p style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: headingColor, fontWeight: W_SEMIBOLD, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
-            {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
-          </p>
-        )}
-
-        <div
-          className={`flex flex-row flex-wrap items-center gap-x-3 gap-y-1 ${contactJustify}`}
-          style={{ fontSize: `${metaPt}pt`, color: REZI_SLATE, fontWeight: W_BODY }}
-        >
-          {(data.location || data.address) && (
-            <span className="flex flex-row items-center gap-1">
-              <MapPin size="0.9em" style={{ color: REZI_SLATE }} />
-              <span>{formatContactText(data.location || data.address || '')}</span>
-            </span>
-          )}
-          {data.email && (
-            <span className="flex flex-row items-center gap-1">
-              <Mail size="0.9em" style={{ color: REZI_SLATE }} />
-              <a href={`mailto:${formatContactText(data.email)}`} style={{ color: REZI_SLATE, textDecoration: 'none' }}>{formatContactText(data.email)}</a>
-            </span>
-          )}
-          {data.phone && (
-            <span className="flex flex-row items-center gap-1">
-              <Phone size="0.9em" style={{ color: REZI_SLATE }} />
-              <span>{formatContactText(data.phone)}</span>
-            </span>
-          )}
-          {data.linkedin && (
-            <span className="flex flex-row items-center gap-1">
-              <Linkedin size="0.9em" style={{ color: REZI_SLATE }} />
-              <a href={getLinkedInHref(data.linkedin)} target="_blank" rel="noopener noreferrer" style={{ color: REZI_SLATE, textDecoration: 'none' }}>
-                {formatLinkedInDisplay(data.linkedin)}
-              </a>
-            </span>
-          )}
-          {data.atHandle && (
-            <span className="flex flex-row items-center gap-1">
-              <Globe size="0.9em" style={{ color: REZI_SLATE }} />
-              <span>{data.atHandle}</span>
-            </span>
-          )}
-        </div>
+        {titleFirst ? (<>{jobTitleBlock}{contactBlock}</>) : (<>{contactBlock}{jobTitleBlock}</>)}
       </header>
 
       {/* Dynamic Sections */}

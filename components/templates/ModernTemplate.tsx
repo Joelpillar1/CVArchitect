@@ -2,7 +2,7 @@ import React from 'react';
 import { ResumeData } from '../../types';
 import { getTranslation, Language } from '../../i18n/translations';
 
-import { formatDate, parseDescriptionBullets, parseAchievementBullets, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, CONTACT_SEPARATOR, formatJobTitleDisplay} from '../../utils/templateUtils';
+import { formatDate, parseDescriptionBullets, parseAchievementBullets, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, CONTACT_SEPARATOR, formatJobTitleDisplay, isTitleFirst } from '../../utils/templateUtils';
 
 export default function ModernTemplate({ data }: { data: ResumeData }) {
   const { fontSizes } = data;
@@ -242,6 +242,9 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
     >
       <header className={`break-inside-avoid ${data.headerAlignment === 'center' ? 'text-center' : data.headerAlignment === 'right' ? 'text-right' : 'text-left'}`} style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
         <h1 className="font-bold text-gray-900" style={{ fontSize: `${fontSizes?.header || 18}pt`, marginBottom: `${getHeaderItemGapIn(data)}in`, lineHeight: 1.1, color: accentColor }}>{formatNameDisplay(data.fullName, data.headerCase)}</h1>
+        {isTitleFirst(data, false) && (
+          <p className="font-medium" style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: accentColor }}>{formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}</p>
+        )}
         <div className={`flex flex-wrap gap-2 text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${fontSizes?.body || 9.5}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
           {data.address && (
             <>
@@ -280,7 +283,9 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
             </a>
           )}
         </div>
-        <p className="font-medium" style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: accentColor }}>{formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}</p>
+        {!isTitleFirst(data, false) && (
+          <p className="font-medium" style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: accentColor }}>{formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}</p>
+        )}
       </header>
 
       {/* Dynamic Sections */}

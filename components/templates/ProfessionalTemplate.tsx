@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, CONTACT_SEPARATOR, formatJobTitleDisplay} from '../../utils/templateUtils';
+import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, CONTACT_SEPARATOR, formatJobTitleDisplay, isTitleFirst } from '../../utils/templateUtils';
 import { getTranslation, Language } from '../../i18n/translations';
 
 const formatMonthYear = (dateString: string | null | undefined) => {
@@ -341,6 +341,17 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
         >
           {formatNameDisplay(data.fullName, data.headerCase) ||"YOUR NAME"}
         </h1>
+        {isTitleFirst(data, false) && data.jobTitle && (
+          <p
+            className="font-semibold"
+            style={{
+              fontSize: `${fontSizes?.jobTitle || 11}pt`,
+              color: data.accentColor || '#000000',
+            }}
+          >
+            {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+          </p>
+        )}
         {/* Contact Information (smaller, regular, centered, separated by •) */}
         <div className="text-black" style={{ fontSize: `${fontSizes?.body || 9.5}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
           {(() => {
@@ -366,7 +377,7 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
           })()}
         </div>
         {/* Professional Title */}
-        {data.jobTitle && (
+        {!isTitleFirst(data, false) && data.jobTitle && (
           <p
             className="font-semibold"
             style={{

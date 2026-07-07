@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, formatDate as formatDateUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, CONTACT_SEPARATOR, formatJobTitleDisplay} from '../../utils/templateUtils';
+import { parseDescriptionBullets, formatDate as formatDateUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, CONTACT_SEPARATOR, formatJobTitleDisplay, isTitleFirst } from '../../utils/templateUtils';
 
 interface SmartTemplateProps {
     data: ResumeData;
@@ -286,6 +286,11 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
                     {formatNameDisplay(data.fullName, data.headerCase) ||"YOUR NAME"}
                 </h1>
 
+                {isTitleFirst(data, false) && (
+                    <div className="text-lg" style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: accentColor }}>
+                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase) ||"Job Title"}
+                    </div>
+                )}
                 <div className={`flex flex-wrap text-black border-t-0 pt-0 ${flexAlignment}`} style={{ fontSize: `${fontSizes?.body || 9.5}pt`, gap: headerItemGap, marginBottom: headerContactGap }}>
                     {(() => {
                         const items: React.ReactNode[] = [];
@@ -302,9 +307,11 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
                     })()}
                 </div>
 
-                <div className="text-lg" style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: accentColor }}>
-                    {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase) ||"Job Title"}
-                </div>
+                {!isTitleFirst(data, false) && (
+                    <div className="text-lg" style={{ fontSize: `${fontSizes?.jobTitle || 11}pt`, color: accentColor }}>
+                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase) ||"Job Title"}
+                    </div>
+                )}
             </div>
 
             {/* Dynamic Content */}

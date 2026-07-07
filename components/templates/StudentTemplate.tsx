@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay} from '../../utils/templateUtils';
+import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay, isTitleFirst } from '../../utils/templateUtils';
 
 interface StudentTemplateProps {
     data: ResumeData;
@@ -52,6 +52,16 @@ const StudentTemplate: React.FC<StudentTemplateProps> = ({ data }) => {
                 >
                     {formatNameDisplay(data.fullName, data.headerCase) || 'YOUR NAME'}
                 </h1>
+                {isTitleFirst(data, false) && data.jobTitle && (
+                    <p
+                        style={{
+                            fontSize: `${fontSizes?.jobTitle || 11}pt`,
+                            color: accentColor,
+                            }}
+                    >
+                        {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+                    </p>
+                )}
                 <div
                     className="text-gray-700"
                     style={{ fontSize: `${bodySize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}
@@ -65,7 +75,7 @@ const StudentTemplate: React.FC<StudentTemplateProps> = ({ data }) => {
                         .filter(Boolean)
                         .join(' | ')}
                 </div>
-                {data.jobTitle && (
+                {!isTitleFirst(data, false) && data.jobTitle && (
                     <p
                         style={{
                             fontSize: `${fontSizes?.jobTitle || 11}pt`,
