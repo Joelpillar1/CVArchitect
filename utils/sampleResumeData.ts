@@ -184,7 +184,7 @@ export function getTemplatePreviewData(templateId: TemplateType): ResumeData {
 
 export const STUDENT_RESUME_DATA: ResumeData = {
     fullName: "DAVID CHEN",
-    jobTitle: "SOFTWARE ENGINEERING INTERN",
+    jobTitle: "",
     email: "david.chen@example.edu",
     phone: "+1 (617) 555-0199",
     atHandle: "",

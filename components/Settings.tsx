@@ -654,22 +654,22 @@ export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUp
               </div>
               <div className="p-8">
                 <div className={`p-6 bg-gradient-to-r ${getPlanColor()} rounded-xl text-white mb-6`}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-4 min-w-0">
                       <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
                         {getPlanIcon()}
                       </div>
-                      <div>
-                        <p className="font-bold text-2xl">{plan?.name || 'Current Plan'}</p>
-                        <p className="text-white/80 text-sm">
+                      <div className="min-w-0">
+                        <p className="font-bold text-xl sm:text-2xl break-words">{plan?.name || 'Current Plan'}</p>
+                        <p className="text-white/80 text-sm break-words">
                           {isFree ? 'Foundation — free tier' : (plan?.billingLabel ?? '')}
                         </p>
                       </div>
                     </div>
                     {!isFree && (
-                      <div className="text-right">
+                      <div className="text-left sm:text-right">
                         <p className="text-sm text-white/80">Renews on</p>
-                        <p className="font-semibold">{formatDate(userSubscription.subscriptionEnd)}</p>
+                        <p className="font-semibold break-words">{formatDate(userSubscription.subscriptionEnd)}</p>
                       </div>
                     )}
                   </div>

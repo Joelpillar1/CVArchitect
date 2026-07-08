@@ -27,7 +27,7 @@ export interface BlogSection {
     bullets?: { category: string; text: string }[];
 }
 
-export const blogPosts: BlogPost[] = [
+const rawBlogPosts: BlogPost[] = [
     {
         slug: '100-resume-bullet-points-industry-2026',
         title: '100+ Result-Driven Resume Bullet Points: The Ultimate Industry-Specific Guide (From a Google Recruiter)',
@@ -247,7 +247,7 @@ export const blogPosts: BlogPost[] = [
         readTime: '20 min read',
         featured: true,
         tags: ['ats keywords', 'resume optimization', 'job search strategy', 'industry keywords', 'resume writing tips'],
-        coverImage: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&q=80',
+        coverImage: '/images/blog/cvarchitect-feature-build-resume-generated.png',
         content: [
             {
                 type: 'paragraph',
@@ -4093,7 +4093,1229 @@ export const blogPosts: BlogPost[] = [
             }
         ]
     },
+    {
+        slug: 'build-your-resume-ats-friendly-resume-template-2026',
+        title: 'Build Your Resume With an ATS Friendly Resume Template (That Recruiters Actually Read)',
+        metaTitle: 'Build Your Resume: ATS Friendly Resume Template Guide (2026) | CV Architect',
+        metaDescription: 'Learn how to build your resume using an ATS friendly resume template. Step-by-step guide to improve interview callbacks with better structure, keywords, and formatting.',
+        excerpt: 'If you want more interviews, you need to build your resume for both ATS software and human recruiters. This guide shows exactly how to do it.',
+        category: 'Resume Writing',
+        author: 'CV Architect Team',
+        publishDate: '2026-07-08',
+        readTime: '14 min read',
+        featured: false,
+        tags: [
+            'build your resume',
+            'ats friendly resume template',
+            'online resume builder',
+            'professional resume writing services',
+            'executive resume writing services',
+            'ats resume',
+            'resume optimization'
+        ],
+        coverImage: '/images/blog/cvarchitect-feature-build-resume-generated.png',
+        content: [
+            {
+                type: 'paragraph',
+                content: 'Most job seekers still treat resume writing like a formatting task. Pick a template, list job duties, export PDF, apply everywhere. Then nothing happens. If that sounds familiar, the problem is usually not your experience. The problem is strategy.'
+            },
+            {
+                type: 'paragraph',
+                content: 'In 2026, you need to **build your resume** for two audiences at once: the ATS parser that scores relevance and the recruiter who scans for impact. A polished document that fails ATS never gets seen. An ATS-heavy document with weak storytelling gets ignored by hiring managers.'
+            },
+            {
+                type: 'heading',
+                content: 'Why "Build Your Resume" Is a High-Intent Search'
+            },
+            {
+                type: 'paragraph',
+                content: 'When someone searches "build your resume," they are not looking for theory. They are actively trying to get interview-ready quickly. They need structure, examples, and confidence that their resume can survive real hiring workflows.'
+            },
+            {
+                type: 'paragraph',
+                content: 'That is why this guide focuses on execution. You will learn how to choose an **ATS friendly resume template**, write achievement bullets with meaningful metrics, and tailor each version for specific roles without starting from scratch every time.'
+            },
+            {
+                type: 'heading',
+                content: 'What Is an ATS Friendly Resume Template?'
+            },
+            {
+                type: 'paragraph',
+                content: 'An **ATS friendly resume template** is a layout that can be parsed cleanly by applicant tracking systems while still being easy for recruiters to read in under 10 seconds. It prioritizes information architecture over decoration.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Uses clear section headings like Summary, Experience, Education, and Skills.',
+                    'Avoids text in images, complex tables, and layered columns that confuse parsers.',
+                    'Keeps typography simple and readable with consistent spacing.',
+                    'Preserves chronology and role titles in standard formats.',
+                    'Supports keyword relevance without keyword stuffing.'
+                ]
+            },
+            {
+                type: 'tip',
+                content: 'If a template looks beautiful but forces you into visual tricks, it is not ATS-friendly. Prioritize parseability first, then design quality.'
+            },
+            {
+                type: 'heading',
+                content: 'Step 1: Pick One Target Role Before You Write Anything'
+            },
+            {
+                type: 'paragraph',
+                content: 'The fastest way to weaken a resume is trying to make one version fit five different role types. A recruiter should immediately understand what role you are targeting from your title, summary, and first three experience bullets.'
+            },
+            {
+                type: 'paragraph',
+                content: 'Start by selecting one role family. Example: "Product Marketing Manager" instead of the vague "marketing professional." Then collect 8-12 recent job descriptions and extract repeated skills, tools, and business outcomes.'
+            },
+            {
+                type: 'heading',
+                content: 'Step 2: Build Your Resume Around Outcomes, Not Duties'
+            },
+            {
+                type: 'paragraph',
+                content: 'Most resumes fail because they describe responsibilities, not results. Hiring teams already know what a role generally does. They care about what changed because you were there.'
+            },
+            {
+                type: 'subheading',
+                content: 'Use this bullet formula'
+            },
+            {
+                type: 'paragraph',
+                content: '**Action + Scope + Business Metric**'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Weak: "Responsible for email marketing campaigns."',
+                    'Strong: "Launched lifecycle email campaigns across 4 customer segments, generating 1,850 qualified trial activations and recovering $420K in expansion pipeline in one quarter."',
+                    'Weak: "Managed sales reports."',
+                    'Strong: "Built weekly pipeline dashboards in Salesforce and Looker for a $12M sales pipeline, reducing manual reporting time by 6 hours per week and giving 14 account executives real-time deal visibility."'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'What Counts as a Good Resume Metric?'
+            },
+            {
+                type: 'paragraph',
+                content: 'Percentages can be useful, but they are often weaker than concrete metrics when they appear alone. "Improved efficiency by 20%" sounds nice, but it leaves the reader asking: 20% of what? How much money, time, volume, risk, or customer impact was involved?'
+            },
+            {
+                type: 'paragraph',
+                content: 'Good resume metrics make the scale of your work obvious. They help recruiters understand the size of the problem, the resources involved, and the business value created.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Revenue and pipeline: "$1.8M new ARR," "$420K expansion pipeline," "$75K monthly recurring revenue protected."',
+                    'Cost and savings: "$180K annual vendor savings," "$42K in recovered overpayments," "$12K monthly cloud spend reduction."',
+                    'Time and speed: "reduced close process from 10 days to 4 days," "saved 6 hours per week," "cut onboarding time from 30 days to 14 days."',
+                    'Volume and scale: "supported 1,200 employees," "processed 45K monthly invoices," "handled 500K API requests per day."',
+                    'Quality and reliability: "zero audit findings," "no P1 incidents across 12 months," "all priority tickets resolved within SLA targets."',
+                    'Leadership scope: "managed 8 analysts," "trained 35 new hires," "owned reporting for 4 regional teams."'
+                ]
+            },
+            {
+                type: 'tip',
+                content: 'Use percentages only when they clarify a real business result. A stronger bullet leads with the concrete metric: "saved 14 hours per week across a 9-person operations team by redesigning invoice processing."'
+            },
+            {
+                type: 'heading',
+                content: 'Step 3: Write a Summary That Positions You in 4 Lines'
+            },
+            {
+                type: 'paragraph',
+                content: 'Your summary should act like a strategic headline, not a personal statement. Mention your years of experience, core specialization, industry context, and quantified strengths.'
+            },
+            {
+                type: 'paragraph',
+                content: 'Example: "Growth-focused operations leader with 9+ years scaling systems across SaaS and e-commerce teams. Built cross-functional workflows for 4 regional teams, saving 120+ staff hours per month and improving on-time delivery across a $6.5M fulfillment operation. Expert in process design, KPI governance, and team enablement."'
+            },
+            {
+                type: 'heading',
+                content: 'Step 4: Make Keyword Matching Intentional'
+            },
+            {
+                type: 'paragraph',
+                content: 'ATS matching is largely a relevance game. If the job description emphasizes stakeholder management, forecasting, SQL, and dashboarding, those concepts should appear naturally in your summary, skills, and achievement bullets.'
+            },
+            {
+                type: 'paragraph',
+                content: 'Do not copy-paste the entire posting. Mirror important terminology where it is true for your background. Natural placement beats brute-force keyword stuffing every time.'
+            },
+            {
+                type: 'heading',
+                content: 'Step 5: Use an Online Resume Builder to Scale Tailoring'
+            },
+            {
+                type: 'paragraph',
+                content: 'A good **online resume builder** does more than give you templates. It helps you maintain clean formatting, preserve ATS compatibility, and duplicate versions quickly for different applications.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Keep one master resume with your full achievement inventory.',
+                    'Duplicate by role target (e.g., PMM, Growth Marketing, RevOps).',
+                    'Swap top summary and first bullets to match each posting.',
+                    'Adjust skills ordering based on job-specific priority.',
+                    'Export cleanly without broken spacing or hidden text.'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'Where Professional Resume Writing Services Fit'
+            },
+            {
+                type: 'paragraph',
+                content: 'If you are repeatedly applying and getting zero callbacks, outside expertise can be worth it. **Professional resume writing services** are most useful when your challenge is positioning, not effort.'
+            },
+            {
+                type: 'paragraph',
+                content: 'For senior leaders, **executive resume writing services** can help craft board-level narrative, transformation impact, and leadership scope in a way most DIY resumes miss. Executive hiring is as much about strategic framing as it is about credentials.'
+            },
+            {
+                type: 'tip',
+                content: 'Whether you use a writer or do it yourself, require ATS-safe formatting and quantifiable business outcomes. Those two factors are non-negotiable.'
+            },
+            {
+                type: 'heading',
+                content: 'Common Mistakes That Kill Response Rates'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Using one generic resume for every role.',
+                    'Writing long paragraphs instead of scannable bullets.',
+                    'Listing tools without proving business impact.',
+                    'Choosing design-heavy templates that break ATS parsing.',
+                    'Skipping concrete metrics such as revenue, cost savings, time saved, volume handled, team size, SLA quality, or customer/account scope.',
+                    'Leaving summary sections vague and interchangeable.'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'A Practical Quality Check Before You Apply'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Can a recruiter identify your target role in 5 seconds?',
+                    'Does each recent role include concrete metrics, not just vague percentages?',
+                    'Does your language match core terms from the job posting?',
+                    'Is your template ATS-friendly and visually clean?',
+                    'Is your top third (summary + first bullets) role-specific?',
+                    'Would this resume still be readable if printed in plain black and white?'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'Final Takeaway'
+            },
+            {
+                type: 'paragraph',
+                content: 'If your goal is more interviews, stop treating your resume like a static document. **Build your resume** like a conversion asset: targeted, measurable, and easy to parse. Start with an **ATS friendly resume template**, tailor for each role, and use an **online resume builder** to move faster without breaking structure.'
+            },
+            {
+                type: 'paragraph',
+                content: 'The market rewards clarity and relevance. When your resume proves both, callbacks follow.'
+            },
+            {
+                type: 'templatePreview',
+                templateId: 'rezi',
+                content: 'Ready to build your resume with ATS-safe structure and faster tailoring? Start with CV Architect and create your first optimized version in minutes.'
+            }
+        ]
+    },
+    {
+        slug: 'ats-friendly-resume-template-online-builder-guide-2026',
+        title: 'ATS Friendly Resume Template: How to Choose One and Build Your Resume Online',
+        metaTitle: 'ATS Friendly Resume Template + Online Resume Builder Guide | CV Architect',
+        metaDescription: 'Choose an ATS friendly resume template and build your resume online with confidence. Learn what ATS scanners read, what formats to avoid, and how to tailor your resume for better ranking.',
+        excerpt: 'Not every good-looking resume template is ATS friendly. Learn how to choose a clean template, build your resume online, and avoid formatting mistakes that block interviews.',
+        category: 'Resume Templates',
+        author: 'CV Architect Team',
+        publishDate: '2026-07-08',
+        readTime: '13 min read',
+        featured: false,
+        tags: [
+            'ats friendly resume template',
+            'build your resume',
+            'online resume builder',
+            'resume template',
+            'ats resume template',
+            'resume builder online',
+            'professional resume writing services',
+            'executive resume writing services',
+            'GEO resume guide',
+            'AI search resume advice'
+        ],
+        coverImage: '/images/blog/cvarchitect-feature-ats-template-builder.png',
+        content: [
+            {
+                type: 'paragraph',
+                content: 'Short answer: the best **ATS friendly resume template** is clean, keyword-readable, easy to scan, and built around standard resume sections. It should help you **build your resume** faster without hiding important information inside graphics, icons, tables, or decorative layouts.'
+            },
+            {
+                type: 'paragraph',
+                content: 'This matters because many job seekers lose interviews before a recruiter sees their application. The resume looks impressive on screen, but the applicant tracking system cannot reliably parse the job title, work history, dates, skills, or contact details.'
+            },
+            {
+                type: 'heading',
+                content: 'What Makes a Resume Template ATS Friendly?'
+            },
+            {
+                type: 'paragraph',
+                content: 'An ATS friendly resume template is designed for machine readability and human readability at the same time. It gives scanning software a clear structure while giving recruiters the context they need to make a fast decision.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Standard section labels: Summary, Skills, Work Experience, Education, Certifications, and Projects.',
+                    'Clean text hierarchy: name, job title, contact info, section headings, company names, roles, dates, and bullets.',
+                    'No critical text embedded in images, decorative shapes, charts, or icons.',
+                    'Consistent date formats, role titles, and bullet structure.',
+                    'Enough spacing to read quickly, but not so much design that it wastes the first page.'
+                ]
+            },
+            {
+                type: 'quote',
+                content: 'A template is ATS friendly when software can understand it and a recruiter can trust it within seconds.'
+            },
+            {
+                type: 'heading',
+                content: 'ATS Friendly vs. Pretty: The Difference That Affects Ranking'
+            },
+            {
+                type: 'paragraph',
+                content: 'A beautiful resume can still perform badly if it breaks parsing. ATS systems are not evaluating design taste. They are extracting data, matching keywords, reading chronology, and helping recruiters filter candidates.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Pretty but risky: heavy sidebars, text boxes, skill bars, headshot-heavy layouts, and image-based icons for contact details.',
+                    'ATS friendly and polished: clear columns when needed, simple typography, visible headings, readable bullets, and real text for all important details.',
+                    'Best outcome: a modern template that looks premium but still exports into a clean, parseable PDF.'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'How to Build Your Resume Online Without Breaking ATS'
+            },
+            {
+                type: 'paragraph',
+                content: 'Using an **online resume builder** can save hours, but only if the builder protects structure. The goal is not just to create something attractive. The goal is to create a resume that can be parsed, searched, ranked, and understood.'
+            },
+            {
+                type: 'subheading',
+                content: 'Step 1: Start with the job target'
+            },
+            {
+                type: 'paragraph',
+                content: 'Before selecting a template, decide the job family you are targeting. A customer success resume, executive resume, software resume, and student resume do not need the same emphasis. Your target role determines the sections, keywords, and examples that matter most.'
+            },
+            {
+                type: 'subheading',
+                content: 'Step 2: Choose a layout based on content, not taste'
+            },
+            {
+                type: 'paragraph',
+                content: 'If you have 10+ years of experience, prioritize space for accomplishments. If you are a student or early-career candidate, prioritize education, projects, internships, and skills. If you are technical, make tools and systems easy to find.'
+            },
+            {
+                type: 'subheading',
+                content: 'Step 3: Add keywords where they naturally belong'
+            },
+            {
+                type: 'paragraph',
+                content: 'Keywords should appear in context, not as a random block. Put tools in skills, responsibilities in experience, and outcomes in bullets. For example, if a posting mentions Salesforce, renewal forecasting, and enterprise accounts, your resume should show where you used those things and what business result followed.'
+            },
+            {
+                type: 'heading',
+                content: 'Use Better Metrics Than Percentages Alone'
+            },
+            {
+                type: 'paragraph',
+                content: 'Search engines, AI answer engines, recruiters, and ATS systems all reward specificity. A bullet that says "improved customer satisfaction by 15%" is less useful than one that says "resolved 1,200+ enterprise support tickets while maintaining SLA compliance across 4 product lines."'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Revenue: "$850K renewal portfolio," "$2.1M pipeline influenced," "$240K expansion revenue."',
+                    'Volume: "processed 18K invoices," "supported 600 users," "managed 75 weekly customer escalations."',
+                    'Time saved: "saved 9 hours weekly," "cut reporting from 3 days to same-day delivery."',
+                    'Risk reduced: "zero audit findings," "resolved 43 compliance gaps," "closed 28 security tickets before release."',
+                    'Scope: "managed 6 direct reports," "owned onboarding for 120 new hires," "supported 3 regional teams."'
+                ]
+            },
+            {
+                type: 'tip',
+                content: 'Percentages are fine when paired with real scale. If you use a percentage, add the unit behind it: money, time, users, accounts, tickets, employees, projects, systems, or customers.'
+            },
+            {
+                type: 'heading',
+                content: 'Online Resume Builder Checklist'
+            },
+            {
+                type: 'paragraph',
+                content: 'Before you commit to any **online resume builder**, check whether it supports the things that actually improve application performance.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Can you use an ATS friendly resume template without design clutter?',
+                    'Can you reorder sections for different career stages?',
+                    'Can you tailor your resume to a job description?',
+                    'Can you export a clean PDF without watermarks or broken formatting?',
+                    'Can you create multiple versions for different job targets?',
+                    'Can you control spacing, font size, contact order, and section order?'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'When Resume Writing Services Make Sense'
+            },
+            {
+                type: 'paragraph',
+                content: '**Professional resume writing services** can help if your challenge is not formatting but positioning. This includes career changes, employment gaps, unclear achievements, or repeated applications with no callbacks.'
+            },
+            {
+                type: 'paragraph',
+                content: '**Executive resume writing services** are useful when your resume needs to communicate leadership scope, transformation work, revenue ownership, board-facing communication, mergers, turnarounds, or enterprise-level impact. At that level, the writing must show strategy, not just responsibility.'
+            },
+            {
+                type: 'heading',
+                content: 'Direct Answer: What Is the Best ATS Friendly Resume Template?'
+            },
+            {
+                type: 'paragraph',
+                content: 'The best ATS friendly resume template is the one that matches your career level, keeps every important detail as real text, uses standard section labels, highlights relevant keywords, and gives recruiters measurable proof of impact on page one.'
+            },
+            {
+                type: 'paragraph',
+                content: 'For most job seekers, that means a clean one-column or carefully structured two-column template, a strong summary, a keyword-rich skills section, and achievement bullets built around concrete business metrics.'
+            },
+            {
+                type: 'heading',
+                content: 'Final Recommendation'
+            },
+            {
+                type: 'paragraph',
+                content: 'If you want to **build your resume** online, start with ATS compatibility first. Then improve the writing. Then tailor for the role. A strong template gets you parsed; strong metrics get you taken seriously.'
+            },
+            {
+                type: 'paragraph',
+                content: 'CV Architect is designed around that workflow: choose an ATS friendly resume template, customize the structure, improve the content, and create targeted versions without rebuilding from scratch.'
+            },
+            {
+                type: 'templatePreview',
+                templateId: 'styled',
+                content: 'Choose an ATS-friendly template, add strong metrics, and build your resume online with CV Architect.'
+            }
+        ]
+    },
+    {
+        slug: 'how-to-write-a-cv-with-no-experience-2026',
+        title: 'How to Write a CV With No Experience: A Practical Guide for Your First Real Application',
+        metaTitle: 'How to Write a CV With No Experience (Step-by-Step Guide) | CV Architect',
+        metaDescription: 'Learn how to write a CV with no experience using education, projects, skills, volunteer work, and first-job examples. A practical guide for students, graduates, and entry-level applicants.',
+        excerpt: 'No work experience does not mean you have nothing to write. This guide shows how to build a strong CV from education, projects, skills, volunteering, and everyday proof of responsibility.',
+        category: 'Career Advice',
+        author: 'CV Architect Team',
+        publishDate: '2026-07-08',
+        readTime: '20 min read',
+        featured: false,
+        tags: [
+            'how to write a cv with no experience',
+            'how to make a resume for your first job',
+            'first job cv',
+            'no experience cv',
+            'student cv',
+            'entry level resume',
+            'simple resume maker',
+            'job resume maker',
+            'how to do a cv for a job',
+            'build your resume'
+        ],
+        coverImage: '/images/blog/cvarchitect-feature-cv-no-experience.png',
+        content: [
+            {
+                type: 'paragraph',
+                content: 'The short answer: to write a CV with no experience, you should lead with your education, skills, projects, volunteer work, coursework, certifications, and any proof that you are reliable, teachable, and ready to work. You do not need to pretend you have job experience. You need to show evidence that you can learn, follow instructions, solve problems, and contribute.'
+            },
+            {
+                type: 'paragraph',
+                content: 'This guide is for students, recent graduates, school leavers, career starters, and anyone trying to get a first job without a long work history. It explains what to include, what to leave out, how to write each section, and how to make your CV strong enough to apply with confidence.'
+            },
+            {
+                type: 'heading',
+                content: 'First, Stop Thinking You Have Nothing to Put on a CV'
+            },
+            {
+                type: 'paragraph',
+                content: 'Most people with no formal work experience make the same mistake: they only count paid jobs as experience. Employers know entry-level applicants may not have a job history yet. They are looking for signs of potential.'
+            },
+            {
+                type: 'paragraph',
+                content: 'Potential can come from school projects, group assignments, personal projects, sports teams, family responsibilities, volunteering, church or community work, online courses, internships, clubs, competitions, and even small tasks you handled for someone else.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Did you complete a school project with deadlines and research? That shows planning and follow-through.',
+                    'Did you help organize an event? That shows coordination and responsibility.',
+                    'Did you care for siblings, support a family business, or help customers informally? That shows trust and people skills.',
+                    'Did you complete online courses or build something on your own? That shows initiative.',
+                    'Did you play a team sport or lead a club activity? That shows discipline, communication, and teamwork.'
+                ]
+            },
+            {
+                type: 'tip',
+                content: 'A first CV is not about proving you have done everything. It is about proving you are worth training.'
+            },
+            {
+                type: 'heading',
+                content: 'Best CV Format When You Have No Experience'
+            },
+            {
+                type: 'paragraph',
+                content: 'When you have little or no work history, the best CV format is a simple, ATS-friendly layout that puts your strongest evidence near the top. Do not hide your lack of experience with a fancy design. Use a clean structure that is easy to scan.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Name and contact details',
+                    'Short personal statement',
+                    'Education',
+                    'Skills',
+                    'Projects or coursework',
+                    'Volunteer work, activities, or leadership',
+                    'Certifications or online courses',
+                    'Awards, languages, or additional information'
+                ]
+            },
+            {
+                type: 'paragraph',
+                content: 'If you have one small job, internship, or volunteer role, include it. If you have none, move education, projects, and skills higher. The order should help the employer see your strongest proof first.'
+            },
+            {
+                type: 'heading',
+                content: 'What to Put in the Header'
+            },
+            {
+                type: 'paragraph',
+                content: 'Your header should be simple. Include your full name, phone number, professional email address, city or general location, and LinkedIn or portfolio link if you have one. You do not need your full home address.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Use a professional email address, not a nickname-heavy one.',
+                    'Make sure your phone number is correct.',
+                    'If you add LinkedIn, make sure the profile is not empty.',
+                    'If you add a portfolio, GitHub, Behance, website, or writing sample, make sure it supports the job you want.'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'How to Write a Personal Statement With No Experience'
+            },
+            {
+                type: 'paragraph',
+                content: 'Your personal statement should be short. Think 3 to 4 lines, not a long essay. The goal is to explain who you are, what kind of role you want, and what strengths you bring.'
+            },
+            {
+                type: 'subheading',
+                content: 'Simple formula'
+            },
+            {
+                type: 'paragraph',
+                content: '**Who you are + what you are looking for + what you can offer**'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Example for retail: "Reliable and friendly school leaver seeking a part-time retail role. Strong communication skills, comfortable helping customers, and experienced working in busy team settings through school projects and community activities."',
+                    'Example for admin: "Organized recent graduate looking for an entry-level administrative role. Confident using Microsoft Office and Google Workspace, with strong attention to detail developed through coursework, research assignments, and event planning."',
+                    'Example for customer service: "Motivated entry-level candidate with strong communication skills and a calm approach to problem-solving. Looking for a customer service role where I can support customers, learn quickly, and contribute to a dependable team."'
+                ]
+            },
+            {
+                type: 'paragraph',
+                content: 'Do not write that you are "hardworking, passionate, and motivated" without proof. Those words are common and easy to ignore. If you use them, connect them to something real.'
+            },
+            {
+                type: 'heading',
+                content: 'How to Write the Education Section'
+            },
+            {
+                type: 'paragraph',
+                content: 'If you have no work experience, education can carry more weight. Include your school, college, university, qualification, dates, relevant subjects, grades if strong, coursework, and projects that match the job.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'School or university name',
+                    'Qualification or course name',
+                    'Dates attended or expected graduation year',
+                    'Relevant subjects or modules',
+                    'Relevant projects, research, presentations, or group assignments',
+                    'Awards, scholarships, or strong grades if they help your application'
+                ]
+            },
+            {
+                type: 'paragraph',
+                content: 'Example: "BA Business Management, University of Leeds, 2024. Relevant modules: Marketing Strategy, Consumer Behaviour, Business Analytics. Final project: Researched customer retention strategies for small e-commerce brands and presented recommendations to a 5-person review panel."'
+            },
+            {
+                type: 'heading',
+                content: 'How to Add Projects When You Have No Job Experience'
+            },
+            {
+                type: 'paragraph',
+                content: 'Projects are one of the best ways to fill a CV with no experience. A project proves you can complete work, not just say you want a job. It can be a school assignment, personal project, website, research paper, design portfolio, group presentation, community project, or anything practical that relates to the job.'
+            },
+            {
+                type: 'subheading',
+                content: 'Project entry format'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Project name',
+                    'What you built, researched, organized, or delivered',
+                    'Tools or methods used',
+                    'Result, output, or lesson learned',
+                    'Link if available'
+                ]
+            },
+            {
+                type: 'paragraph',
+                content: 'Example: "Social Media Campaign Project - Created a 4-week Instagram and LinkedIn content plan for a mock local bakery brand. Researched competitor posts, wrote 20 captions, designed 12 Canva graphics, and presented campaign goals to a class group."'
+            },
+            {
+                type: 'paragraph',
+                content: 'Example: "Personal Budget Tracker - Built a spreadsheet to track income, spending categories, savings goals, and monthly totals. Used formulas, conditional formatting, and charts to make the file easy to use."'
+            },
+            {
+                type: 'heading',
+                content: 'How to Write Skills Without Sounding Generic'
+            },
+            {
+                type: 'paragraph',
+                content: 'A skills section helps, but only if it is specific. Do not fill it with empty words like "hardworking" and "team player" without context. Use skills that match the job posting.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'For retail: customer service, cash handling, stock organization, product knowledge, communication, problem-solving.',
+                    'For admin: Microsoft Office, Google Workspace, data entry, scheduling, email communication, document formatting.',
+                    'For hospitality: food safety, table service, POS systems, cleaning standards, teamwork, guest support.',
+                    'For tech entry-level roles: HTML, CSS, JavaScript, Python, GitHub, troubleshooting, documentation.',
+                    'For warehouse roles: inventory support, order picking, health and safety awareness, punctuality, physical stamina.'
+                ]
+            },
+            {
+                type: 'tip',
+                content: 'Match your skills to the job description, but only include skills you can honestly explain in an interview.'
+            },
+            {
+                type: 'heading',
+                content: 'Volunteer Work Counts More Than You Think'
+            },
+            {
+                type: 'paragraph',
+                content: 'Volunteer work can be powerful on a CV with no experience because it shows responsibility without needing a formal employer. Treat it like experience. Give it a title, organization, dates, and bullet points.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Helped set up and clean after weekly community events attended by 80-120 people.',
+                    'Welcomed visitors, answered basic questions, and directed guests to the right area.',
+                    'Sorted donated items into clothing, books, and household categories for weekend distribution.',
+                    'Supported social media posts for a student club, writing captions and tracking event sign-ups.',
+                    'Tutored 3 younger students in basic maths for one school term.'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'What Metrics Can You Use With No Experience?'
+            },
+            {
+                type: 'paragraph',
+                content: 'You do not need corporate numbers to use metrics. A good metric simply gives scale. It helps the employer understand the size, frequency, time, or result of what you did.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Number of people: "supported 25 students," "welcomed 100+ guests," "worked in a 6-person team."',
+                    'Time: "completed a 6-week project," "volunteered 4 hours each Saturday," "met weekly deadlines for one term."',
+                    'Volume: "created 12 graphics," "wrote 20 product descriptions," "organized 150 donated items."',
+                    'Scope: "presented to a 5-person panel," "helped run a school event for 200 attendees."',
+                    'Output: "built a 5-page website," "prepared a 10-slide presentation," "completed 3 online certificates."'
+                ]
+            },
+            {
+                type: 'paragraph',
+                content: 'These are better than vague claims. "Helped with an event" is weak. "Helped set up registration and seating for a school event attended by 200 people" is much clearer.'
+            },
+            {
+                type: 'heading',
+                content: 'Example CV Structure With No Experience'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Header: name, phone, email, city, LinkedIn or portfolio if useful.',
+                    'Personal statement: 3-4 lines focused on the job you want.',
+                    'Education: course, school, dates, relevant subjects, projects.',
+                    'Skills: 8-12 skills that match the job description.',
+                    'Projects: 1-3 practical examples with clear outputs.',
+                    'Volunteer work or activities: any proof of responsibility.',
+                    'Certifications: online courses, first aid, food safety, digital skills, language certificates.',
+                    'Additional information: languages, availability, driving license if relevant.'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'First Job CV Example: Retail Assistant'
+            },
+            {
+                type: 'paragraph',
+                content: 'If you are applying for a first retail job, your CV should show that you are reliable, friendly, organized, and comfortable helping people.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Personal statement: "Friendly and reliable school leaver seeking a retail assistant role. Confident speaking with customers, organized with stock and tasks, and available for evening and weekend shifts."',
+                    'Project example: "Planned and promoted a school fundraising stall, helping prepare stock lists, price items, and serve 100+ students during lunch break."',
+                    'Skill examples: customer service, cash handling awareness, communication, organization, teamwork, punctuality.'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'First Job CV Example: Office Assistant'
+            },
+            {
+                type: 'paragraph',
+                content: 'For an office assistant role, focus on organization, computer skills, accuracy, communication, and willingness to learn.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Personal statement: "Organized entry-level candidate looking for an office assistant role. Comfortable using Microsoft Word, Excel, Google Docs, and email. Strong attention to detail developed through coursework and group assignments."',
+                    'Project example: "Created a shared spreadsheet for a group research project, tracking 40 sources, deadlines, and task ownership across a 5-person team."',
+                    'Skill examples: data entry, scheduling, email writing, document formatting, file organization, Microsoft Office.'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'First Job CV Example: Customer Service'
+            },
+            {
+                type: 'paragraph',
+                content: 'Customer service employers want calm communication, patience, and problem-solving. You can show this through volunteer work, school activities, family responsibilities, or group projects.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Personal statement: "Patient and helpful entry-level candidate seeking a customer service role. Able to listen carefully, explain information clearly, and stay calm when solving problems."',
+                    'Volunteer example: "Welcomed visitors at a community event, answered basic questions, and directed guests to registration, seating, and refreshments."',
+                    'Skill examples: active listening, clear communication, conflict awareness, teamwork, basic computer skills.'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'How to Make Your CV ATS Friendly'
+            },
+            {
+                type: 'paragraph',
+                content: 'Even entry-level CVs go through applicant tracking systems. Keep the layout simple. Use normal headings. Avoid putting key information inside images or icons. Use the same words the job advert uses where they match your real skills.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Use headings like Education, Skills, Projects, Volunteer Work, and Certifications.',
+                    'Use bullet points, not large blocks of text.',
+                    'Write dates clearly.',
+                    'Use a common font and simple spacing.',
+                    'Save as PDF unless the employer asks for Word.',
+                    'Include keywords from the job post, but do not copy lines you cannot support.'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'Common Mistakes to Avoid'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Writing "no experience" in the CV headline.',
+                    'Apologizing for being new.',
+                    'Using a long objective statement about what you want, instead of what you can offer.',
+                    'Leaving the CV half empty when you could add projects, coursework, volunteering, or certifications.',
+                    'Using a design that looks nice but is hard to read.',
+                    'Sending the same CV to every job without changing the skills and summary.',
+                    'Adding skills you cannot explain in an interview.'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'Should You Use a Simple Resume Maker or Job Resume Maker?'
+            },
+            {
+                type: 'paragraph',
+                content: 'A **simple resume maker** or **job resume maker** can help if it keeps the structure clean and lets you customize the content. The tool should not do all the thinking for you. It should help you organize your details, choose an ATS-friendly layout, and build versions for different jobs.'
+            },
+            {
+                type: 'paragraph',
+                content: 'If the tool only gives you pretty templates, it is not enough. You still need strong examples, clear skills, and proof that you are ready to work.'
+            },
+            {
+                type: 'heading',
+                content: 'Do You Need Professional Help?'
+            },
+            {
+                type: 'paragraph',
+                content: 'Most first-job applicants do not need expensive writing help. You can build a strong first CV if you follow the structure in this guide. But if you are changing careers, returning after a long gap, or applying for a competitive graduate scheme, feedback can help.'
+            },
+            {
+                type: 'paragraph',
+                content: 'Professional resume writing services can help with positioning, but they should not invent experience. A good CV is honest, clear, and specific.'
+            },
+            {
+                type: 'heading',
+                content: 'Final Checklist Before You Apply'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Is your CV targeted to one type of job?',
+                    'Does your personal statement explain what you offer?',
+                    'Did you include education, projects, skills, volunteering, or certifications?',
+                    'Did you add numbers that show scale, time, volume, or output?',
+                    'Is the CV easy to read on a phone and laptop?',
+                    'Does it use keywords from the job advert naturally?',
+                    'Did you check spelling, phone number, email address, and links?',
+                    'Can you explain every skill and example in an interview?'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'Final Advice'
+            },
+            {
+                type: 'paragraph',
+                content: 'Learning **how to write a CV with no experience** is really learning how to show potential. You may not have a job history yet, but you still have evidence. Your education, projects, skills, responsibilities, and small wins can all help an employer see that you are ready for a chance.'
+            },
+            {
+                type: 'paragraph',
+                content: 'Start simple. Be honest. Use clear examples. Show that you can learn, show up, communicate, and finish tasks. That is exactly what many first-job employers are looking for.'
+            },
+            {
+                type: 'templatePreview',
+                templateId: 'student',
+                content: 'Build your first CV with a clean, ATS-friendly template that helps you show education, projects, skills, and potential.'
+            }
+        ]
+    },
+    {
+        slug: 'how-to-make-a-resume-for-your-first-job-2026',
+        title: 'How to Make a Resume for Your First Job: A Simple Step-by-Step Guide',
+        metaTitle: 'How to Make a Resume for Your First Job (Examples + Guide) | CV Architect',
+        metaDescription: 'Learn how to make a resume for your first job with no work history. Step-by-step guide with first-job resume examples for retail, customer service, food service, office, and internships.',
+        excerpt: 'Making a resume for your first job is easier when you know what employers actually want to see. This guide shows what to include, how to write it, and how to apply with confidence.',
+        category: 'Career Advice',
+        author: 'CV Architect Team',
+        publishDate: '2026-07-08',
+        readTime: '20 min read',
+        featured: false,
+        tags: [
+            'how to make a resume for your first job',
+            'first job resume',
+            'how to write a cv with no experience',
+            'how to do a cv for a job',
+            'simple resume maker',
+            'job resume maker',
+            'entry level resume',
+            'student resume',
+            'resume for first job',
+            'build your resume'
+        ],
+        coverImage: '/images/blog/cvarchitect-feature-first-job-resume.png',
+        content: [
+            {
+                type: 'paragraph',
+                content: 'The easiest way to make a resume for your first job is to stop trying to look experienced and start showing that you are reliable, willing to learn, and ready to work. First-job employers do not expect a long job history. They expect a clear resume that proves you can show up, follow instructions, communicate, and handle basic responsibilities.'
+            },
+            {
+                type: 'paragraph',
+                content: 'This guide walks you through every part of a first-job resume: what to include, how to write your first summary, how to use school projects and volunteer work, what skills to add, and how to tailor the resume for jobs like retail, food service, customer service, admin, warehouse, and internships.'
+            },
+            {
+                type: 'heading',
+                content: 'What Employers Look for in a First-Job Resume'
+            },
+            {
+                type: 'paragraph',
+                content: 'For a first job, employers usually care less about job titles and more about basic work habits. They want to know whether you are dependable, polite, teachable, and able to handle simple tasks without constant reminders.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Can you communicate clearly with customers, coworkers, or supervisors?',
+                    'Can you follow instructions and complete tasks on time?',
+                    'Can you stay organized during busy periods?',
+                    'Can you learn tools, systems, or routines quickly?',
+                    'Can you be trusted with schedules, customers, stock, money, or information?',
+                    'Do you understand the type of job you are applying for?'
+                ]
+            },
+            {
+                type: 'paragraph',
+                content: 'Your resume should answer those questions. It does not need to be fancy. It needs to be easy to read and specific enough to make you look like a real candidate.'
+            },
+            {
+                type: 'heading',
+                content: 'Best Resume Format for a First Job'
+            },
+            {
+                type: 'paragraph',
+                content: 'A first-job resume should usually be one page. Use a simple layout, clear headings, and short bullet points. Do not use a design that hides your information or makes the employer work hard to understand you.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Header with your name and contact information',
+                    'Short resume summary',
+                    'Education',
+                    'Skills',
+                    'Projects, coursework, or school activities',
+                    'Volunteer work, clubs, sports, or responsibilities',
+                    'Certifications or training',
+                    'Availability if the job depends on shifts'
+                ]
+            },
+            {
+                type: 'tip',
+                content: 'If this is truly your first job, put education and skills near the top. If you have volunteering, informal work, babysitting, tutoring, family business help, or internships, include them as experience.'
+            },
+            {
+                type: 'heading',
+                content: 'Step 1: Write a Clean Header'
+            },
+            {
+                type: 'paragraph',
+                content: 'Your header should make it easy to contact you. Include your full name, phone number, professional email, city or area, and a link only if it helps your application.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Good email: firstname.lastname@email.com',
+                    'Avoid: nicknames, jokes, random numbers, or old school emails you may lose access to.',
+                    'Use your city, not your full street address.',
+                    'Add LinkedIn, portfolio, GitHub, or a website only if it is ready for employers to see.'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'Step 2: Write a First-Job Resume Summary'
+            },
+            {
+                type: 'paragraph',
+                content: 'Your summary should be 2 to 4 lines. It should say what kind of role you want and what useful strengths you bring. Do not start with "I have no experience." Start with what you can offer.'
+            },
+            {
+                type: 'subheading',
+                content: 'First-job resume summary examples'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Retail: "Friendly and reliable student seeking a part-time retail assistant role. Strong communication skills, comfortable helping people, and available evenings and weekends."',
+                    'Food service: "Hardworking entry-level candidate looking for a restaurant or cafe role. Able to work in a fast-paced environment, follow instructions, and support a clean and organized workspace."',
+                    'Office: "Organized recent graduate seeking an entry-level office assistant role. Comfortable using Microsoft Word, Excel, Google Docs, and email, with strong attention to detail from coursework and group projects."',
+                    'Customer service: "Patient and helpful first-job applicant with strong listening skills and a calm approach to problem-solving. Looking for a customer-facing role where I can learn quickly and support a team."'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'Step 3: Add Education the Right Way'
+            },
+            {
+                type: 'paragraph',
+                content: 'For a first job, education is important because it may be your strongest proof of effort and discipline. Add your school, course, dates, expected graduation if relevant, and subjects that connect to the job.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'For retail or customer service: mention business, communication, English, maths, media, or any customer-related coursework.',
+                    'For office jobs: mention IT, business, administration, accounting, writing, or research-heavy coursework.',
+                    'For food service: mention hospitality, food safety, health, teamwork, or practical subjects.',
+                    'For internships: mention modules, research, projects, software, and presentations.'
+                ]
+            },
+            {
+                type: 'paragraph',
+                content: 'Example: "A-Level Business Studies, English Language, and Mathematics. Completed a group business plan project, including market research, cost estimates, and a 10-slide presentation."'
+            },
+            {
+                type: 'heading',
+                content: 'Step 4: Turn School Projects Into Resume Experience'
+            },
+            {
+                type: 'paragraph',
+                content: 'Projects are useful because they show work. They prove you can complete something, solve a problem, or present an idea. A project does not need to be paid to be valuable.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Business project: researched 5 local competitors and presented pricing ideas to a class group.',
+                    'Design project: created 12 Canva graphics for a mock social media campaign.',
+                    'Technology project: built a 5-page website using HTML and CSS.',
+                    'Community project: helped organize registration and seating for an event with 150 attendees.',
+                    'Research project: collected survey responses from 40 students and summarized findings in a report.'
+                ]
+            },
+            {
+                type: 'paragraph',
+                content: 'Write projects like mini experience entries. Include what you did, who it was for, tools used, and what came out of it.'
+            },
+            {
+                type: 'heading',
+                content: 'Step 5: Choose Skills That Match the Job'
+            },
+            {
+                type: 'paragraph',
+                content: 'Do not add every skill you can think of. Pick skills that match the job advert. If the advert says "friendly customer service," "cash handling," "stocking shelves," and "weekend availability," your resume should speak to those things if they are true.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Retail skills: customer service, product knowledge, stock organization, POS awareness, communication, teamwork.',
+                    'Food service skills: food safety awareness, cleaning standards, order taking, teamwork, working under pressure.',
+                    'Office skills: Microsoft Office, Google Workspace, data entry, email writing, scheduling, file organization.',
+                    'Warehouse skills: order picking, inventory support, health and safety awareness, accuracy, physical stamina.',
+                    'Internship skills: research, writing, Excel, presentations, project coordination, problem-solving.'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'Step 6: Add Volunteer Work, Activities, or Informal Experience'
+            },
+            {
+                type: 'paragraph',
+                content: 'If you have helped anywhere, include it. Volunteer work, clubs, sports teams, family business support, babysitting, tutoring, church activities, community events, and school leadership can all show employability.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Babysitting: cared for 2 children after school, helped with homework, prepared snacks, and followed family routines.',
+                    'Family business: helped pack orders, greet customers, update stock lists, or clean work areas.',
+                    'Sports team: attended weekly training, supported team communication, and helped younger players learn drills.',
+                    'Volunteer event: welcomed guests, answered questions, helped with setup, and supported cleanup.',
+                    'School club: helped plan meetings, create posters, manage sign-ups, or present updates.'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'Step 7: Use Simple Metrics That Prove Scale'
+            },
+            {
+                type: 'paragraph',
+                content: 'You do not need corporate numbers for a first-job resume. You just need details that make your examples real. Numbers help employers understand the size of what you did.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'People: "helped 30 students," "welcomed 100 guests," "worked in a 5-person group."',
+                    'Time: "volunteered 3 hours every Saturday," "completed a 6-week project," "met weekly deadlines."',
+                    'Output: "created 12 posters," "wrote 8 product descriptions," "built a 5-page website."',
+                    'Responsibility: "handled registration for 150 attendees," "organized 80 donated items," "tracked 40 research sources."',
+                    'Availability: "available 20 hours per week," "available evenings and weekends."'
+                ]
+            },
+            {
+                type: 'paragraph',
+                content: 'Example: "Helped set up and run a school fundraising stall for 200 students, organizing products, answering questions, and keeping the table stocked during lunch break."'
+            },
+            {
+                type: 'heading',
+                content: 'First Job Resume Example: Retail Assistant'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Summary: "Friendly student seeking a part-time retail assistant role with evening and weekend availability."',
+                    'Skill focus: communication, stock organization, customer service, teamwork, reliability.',
+                    'Experience example: "Helped run a school fundraising stall for 200 students, greeting visitors, organizing stock, and answering product questions."',
+                    'Education detail: "Completed Business Studies project researching pricing and customer behavior for local shops."'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'First Job Resume Example: Food Service'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Summary: "Reliable entry-level candidate looking for a cafe or restaurant role. Comfortable working in a busy team and following cleaning and service routines."',
+                    'Skill focus: teamwork, cleaning standards, order accuracy, communication, working under pressure.',
+                    'Experience example: "Supported community event refreshments table for 120 guests, restocking cups and snacks, keeping the area clean, and helping visitors find what they needed."',
+                    'Extra detail: "Available weekends and school holidays."'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'First Job Resume Example: Office Assistant'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Summary: "Organized recent graduate seeking an entry-level office assistant role with strong computer and communication skills."',
+                    'Skill focus: Microsoft Word, Excel, Google Docs, email writing, file organization, data entry.',
+                    'Project example: "Created a shared spreadsheet for a 5-person research project, tracking 40 sources, task owners, and deadlines."',
+                    'Education detail: "Completed coursework requiring reports, presentations, and independent research."'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'First Job Resume Example: Internship'
+            },
+            {
+                type: 'paragraph',
+                content: 'Internship resumes should show curiosity, relevant coursework, projects, and tools. Employers do not expect you to know everything. They want signs that you can learn quickly and contribute to basic tasks.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Summary: "Marketing student seeking an internship where I can support research, content planning, and campaign reporting."',
+                    'Project example: "Created a 4-week content plan for a mock product launch, including 16 social posts, audience research, and a campaign calendar."',
+                    'Skill focus: research, writing, Canva, Excel, Google Analytics basics, communication.',
+                    'Portfolio: include a link if you have samples.'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'How Long Should a First-Job Resume Be?'
+            },
+            {
+                type: 'paragraph',
+                content: 'One page is enough for almost every first-job resume. If your resume is two pages and you have no formal experience, it probably includes too much explanation. Keep it clear and useful.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Use short paragraphs or bullet points.',
+                    'Remove repeated skills.',
+                    'Keep the summary under 4 lines.',
+                    'Use 2-4 bullets for projects or activities.',
+                    'Only include hobbies if they support the job or show responsibility.'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'How to Make Your Resume ATS Friendly'
+            },
+            {
+                type: 'paragraph',
+                content: 'Many first-job applications still go through online systems. Use an ATS-friendly resume template so the system can read your name, contact details, education, skills, and experience.'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Use standard headings: Summary, Education, Skills, Projects, Volunteer Work, Certifications.',
+                    'Avoid putting contact details inside icons only.',
+                    'Avoid large tables, text boxes, and heavy graphics.',
+                    'Use words from the job advert naturally.',
+                    'Save as PDF unless the employer asks for another format.',
+                    'Check the file name: Firstname-Lastname-Resume.pdf is better than resume-final-final2.pdf.'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'Should You Use a Simple Resume Maker?'
+            },
+            {
+                type: 'paragraph',
+                content: 'A **simple resume maker** can help you move faster, especially if you are not sure where each section should go. A good **job resume maker** should give you a clean layout, help you organize first-job details, and let you edit the resume for each application.'
+            },
+            {
+                type: 'paragraph',
+                content: 'The tool should not make your resume sound fake. Keep your words honest. Use the builder to structure your information, not to pretend you have experience you do not have.'
+            },
+            {
+                type: 'heading',
+                content: 'Common First-Job Resume Mistakes'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Starting with "I have no experience."',
+                    'Using a messy email address.',
+                    'Leaving out projects, volunteering, activities, or informal work.',
+                    'Writing long paragraphs instead of clear bullet points.',
+                    'Adding too many unrelated hobbies.',
+                    'Using the same resume for every job.',
+                    'Listing skills you cannot explain.',
+                    'Forgetting availability for shift-based jobs.',
+                    'Submitting without checking spelling and contact details.'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'Direct Answer: How Do You Make a Resume for Your First Job?'
+            },
+            {
+                type: 'paragraph',
+                content: 'To make a resume for your first job, use a one-page layout with your contact details, a short summary, education, relevant skills, projects, volunteer work, activities, certifications, and availability. Focus on proof that you are reliable, teachable, organized, and ready to work. Use examples from school, volunteering, family responsibilities, clubs, and personal projects if you do not have paid experience.'
+            },
+            {
+                type: 'heading',
+                content: 'Final Checklist Before You Send It'
+            },
+            {
+                type: 'list',
+                items: [
+                    'Is the resume one page?',
+                    'Does the summary match the job?',
+                    'Did you include education and relevant skills?',
+                    'Did you add projects, volunteering, activities, or informal responsibilities?',
+                    'Did you use simple numbers to show scale or output?',
+                    'Did you include availability if it matters?',
+                    'Is the layout clean and ATS friendly?',
+                    'Did you proofread it carefully?'
+                ]
+            },
+            {
+                type: 'heading',
+                content: 'Final Advice'
+            },
+            {
+                type: 'paragraph',
+                content: 'Your first-job resume does not need to be perfect. It needs to be clear, honest, and targeted. Employers hiring for entry-level roles are not looking for a finished professional. They are looking for someone they can trust to learn, show up, and do the work.'
+            },
+            {
+                type: 'paragraph',
+                content: 'Start with what you have. Education, projects, volunteering, activities, skills, and reliability all count. Put them in a simple format, tailor the resume to the job, and send it with confidence.'
+            },
+            {
+                type: 'templatePreview',
+                templateId: 'student',
+                content: 'Make your first-job resume with a clean, beginner-friendly template built for education, skills, projects, and early experience.'
+            }
+        ]
+    },
 ];
+
+export const blogPosts: BlogPost[] = rawBlogPosts
+    .map((post, index) => ({ post, index }))
+    .sort((a, b) => {
+        const dateDiff = Date.parse(b.post.publishDate) - Date.parse(a.post.publishDate);
+        return dateDiff !== 0 ? dateDiff : b.index - a.index;
+    })
+    .map(({ post }) => post);
+
 export function getPostBySlug(slug: string): BlogPost | undefined {
     return blogPosts.find(post => post.slug === slug);
 }
