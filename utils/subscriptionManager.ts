@@ -41,6 +41,14 @@ export class SubscriptionManager {
      * Check if user can use a specific feature
      */
     canUseFeature(feature: FeatureAction): { allowed: boolean; reason?: string } {
+        // Legacy plans (week_pass, pro_monthly) are not in the PLANS config object
+        // but are still valid paid plans — grant full access before plan lookup.
+        if (this.isPro()) {
+            // Pro / legacy-paid users have unlimited access to all AI features
+            // (feature-gated items like pdf_export are still allowed on paid plans)
+            return { allowed: true };
+        }
+
         const plan = PLANS[this.subscription.planId];
         if (!plan) {
             return { allowed: false, reason: 'Invalid plan' };
@@ -139,10 +147,18 @@ export class SubscriptionManager {
      * Deduct credits for an action
      */
     deductCredit(action: FeatureAction): { success: boolean; remainingCredits: number; error?: string } {
+        // Legacy paid plans (week_pass, pro_monthly) are not in PLANS config —
+        // treat them as unlimited (no credit cost).
+        if (this.isPro()) {
+            this.logUsage(action, 0);
+            return { success: true, remainingCredits: this.subscription.credits };
+        }
+
         const plan = PLANS[this.subscription.planId];
         if (!plan) {
             return { success: false, remainingCredits: this.subscription.credits, error: 'Invalid plan' };
         }
+
 
         // Get credit cost for action
         let cost = 0;
