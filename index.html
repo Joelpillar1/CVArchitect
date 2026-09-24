@@ -2,6 +2,43 @@
 <html lang="en">
 
 <head>
+  <!-- Defensive guard against unhandled third-party browser extension / injected script errors -->
+  <script>
+    (function () {
+      function isExternalScriptError(reason, filename, stack) {
+        var text = (
+          String((reason && (reason.message || reason.stack || reason)) || '') + ' ' +
+          String(filename || '') + ' ' +
+          String(stack || '')
+        ).toLowerCase();
+
+        return (
+          text.indexOf('m_id') !== -1 ||
+          text.indexOf('200.js') !== -1 ||
+          text.indexOf('chrome-extension://') !== -1 ||
+          text.indexOf('moz-extension://') !== -1 ||
+          text.indexOf('safari-extension://') !== -1 ||
+          text.indexOf('extension://') !== -1
+        );
+      }
+
+      window.addEventListener('unhandledrejection', function (event) {
+        var reason = event.reason;
+        if (isExternalScriptError(reason, '', (reason && reason.stack) || '')) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+      }, true);
+
+      window.addEventListener('error', function (event) {
+        if (isExternalScriptError(event.error || event.message, event.filename, (event.error && event.error.stack) || '')) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          return true;
+        }
+      }, true);
+    })();
+  </script>
   <!-- Google Tag Manager -->
   <script>(function (w, d, s, l, i) {
       w[l] = w[l] || []; w[l].push({
@@ -14,18 +51,26 @@
   <!-- End Google Tag Manager -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CV Architect — AI Resume Builder | Beat ATS & Land Interviews Faster</title>
-  <meta name="description"
+  <title data-rh="true">CV Architect — AI Resume Builder | Beat ATS & Land Interviews Faster</title>
+  <meta name="description" data-rh="true"
     content="Stop getting rejected by ATS robots. CV Architect uses advanced AI to rewrite your resume, beat ATS scanners, and help you land interviews 3x faster. Build your ATS-optimized resume in minutes.">
-  <meta name="keywords"
+  <meta name="keywords" data-rh="true"
     content="ai resume builder, ats resume builder, ats optimization, ats-friendly resume, resume builder online, cv maker, resume rewrite ai, cover letter generator, job application tool, free resume template, professional resume builder, resume optimization, ai cv builder">
   <meta name="author" content="CV Architect">
-  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-  <link rel="canonical" href="https://cvarchitect.app/" />
+  <meta name="robots" data-rh="true" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <!-- Default canonical for SPA root — React Helmet overwrites per-route -->
+  <link rel="canonical" data-rh="true" href="https://cvarchitect.app/" />
   <meta name="google-site-verification" content="tM8NcOMoT43REWAXI4sUDCX6usdXgja0epq5QCK1Ygc" />
+  <!-- Ensure www is never used as canonical -->
+  <script>
+    if (window.location.hostname === 'www.cvarchitect.app') {
+      window.location.replace('https://cvarchitect.app' + window.location.pathname + window.location.search + window.location.hash);
+    }
+  </script>
   <!-- PWA & Favicon -->
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#F8F8F8" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="CV Architect" />
@@ -34,31 +79,75 @@
   <link rel="apple-touch-icon" href="/images/logo icon.png" />
 
   <!-- Open Graph / Facebook -->
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://cvarchitect.app/">
-  <meta property="og:site_name" content="CV Architect">
-  <meta property="og:title" content="CV Architect — AI Resume Builder That Actually Gets You Hired">
-  <meta property="og:description"
+  <meta property="og:type" data-rh="true" content="website">
+  <meta property="og:url" data-rh="true" content="https://cvarchitect.app/">
+  <meta property="og:site_name" data-rh="true" content="CV Architect">
+  <meta property="og:title" data-rh="true" content="CV Architect — AI Resume Builder That Actually Gets You Hired">
+  <meta property="og:description" data-rh="true"
     content="75% of resumes are rejected by robots before a human ever sees them. We fixed that. Build an ATS-proof resume in minutes with our AI technology.">
-  <meta property="og:image" content="https://cvarchitect.app/images/og-preview.png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:locale" content="en_US">
+  <meta property="og:image" data-rh="true" content="https://cvarchitect.app/images/og-preview.png">
+  <meta property="og:image:width" data-rh="true" content="1200">
+  <meta property="og:image:height" data-rh="true" content="630">
+  <meta property="og:locale" data-rh="true" content="en_US">
 
   <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:url" content="https://cvarchitect.app/">
-  <meta name="twitter:title" content="CV Architect — AI Resume Builder That Actually Gets You Hired">
-  <meta name="twitter:description"
+  <meta name="twitter:card" data-rh="true" content="summary_large_image">
+  <meta name="twitter:url" data-rh="true" content="https://cvarchitect.app/">
+  <meta name="twitter:title" data-rh="true" content="CV Architect — AI Resume Builder That Actually Gets You Hired">
+  <meta name="twitter:description" data-rh="true"
     content="75% of resumes are rejected by robots before a human ever sees them. We fixed that. Build an ATS-proof resume in minutes with our AI technology.">
-  <meta name="twitter:image" content="https://cvarchitect.app/images/og-preview.png">
+  <meta name="twitter:image" data-rh="true" content="https://cvarchitect.app/images/og-preview.png">
 
-  <!-- Preconnect before loading fonts for better performance -->
+  <!-- Font strategy: preconnect + non-blocking load to eliminate render-blocking -->
+  <!-- Step 1: DNS-prefetch + preconnect to font CDNs -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+
+  <!-- Step 2: Preload critical font CSS (Inter only — used by the UI shell) -->
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700;900&family=Open+Sans:wght@300;400;600;700;800&family=Lato:wght@300;400;700;900&family=Montserrat:wght@300;400;500;600;700;800;900&family=Merriweather:wght@300;400;700;900&family=Fira+Code&display=swap"
-    rel="stylesheet">
+    rel="preload"
+    as="style"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+
+  <!-- Step 3: Load Inter non-blocking (media=print trick — browser downloads without blocking render) -->
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    media="print"
+    onload="this.media='all'">
+
+  <!-- Fallback for no-JS: load Inter normally -->
+  <noscript>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  </noscript>
+
+  <!-- Step 4: Template fonts (Roboto, Open Sans, Lato, Montserrat, Merriweather, Fira Code)
+       are ONLY used inside the resume editor/templates — not on the public landing page.
+       Load them asynchronously after the page has painted to avoid LCP penalty. -->
+  <script>
+    // Defer template fonts until after first interaction or idle
+    function loadTemplateFonts() {
+      if (document._templateFontsLoaded) return;
+      document._templateFontsLoaded = true;
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Open+Sans:wght@300;400;600;700;800&family=Lato:wght@300;400;700;900&family=Montserrat:wght@300;400;500;600;700;800;900&family=Merriweather:wght@300;400;700;900&family=Fira+Code&display=swap';
+      document.head.appendChild(link);
+    }
+    // Load on first user interaction or after 3s idle — whichever comes first
+    var _tfTimer = setTimeout(loadTemplateFonts, 3000);
+    ['mousedown', 'touchstart', 'keydown', 'scroll'].forEach(function(e) {
+      window.addEventListener(e, function once() {
+        clearTimeout(_tfTimer);
+        loadTemplateFonts();
+        window.removeEventListener(e, once);
+      }, { once: true, passive: true });
+    });
+  </script>
 
   <!-- Structured Data: SoftwareApplication -->
   <script type="application/ld+json">
@@ -137,6 +226,155 @@
     }
   }
   </script>
+
+  <!-- Structured Data: FAQPage — enables LLM citation & Google AI Overviews -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is CV Architect?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "CV Architect (cvarchitect.app) is an AI-powered resume builder that rewrites your resume to beat ATS (Applicant Tracking System) filters, generates personalised cover letters, and provides a job match score — helping job seekers land interviews faster."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is CV Architect free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. CV Architect offers a free tier with 3 AI credits on sign-up — no credit card required. Paid plans start at $9 for 7-day access (Career Sprint, one-time payment) or $19/month (Career Marathon, cancel anytime)."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does the AI resume rewriter work?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You paste your current resume and a job description. CV Architect's AI analyses the job requirements, identifies missing keywords and skills, then rewrites your resume bullets, summary and skills section to match — significantly improving your ATS compatibility score."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is an ATS and why does it matter for my resume?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "An ATS (Applicant Tracking System) is software used by 99% of Fortune 500 companies to filter resumes before a human reads them. Studies show 75% of resumes are rejected by ATS before reaching a recruiter. CV Architect optimises your resume to pass these filters by matching the exact keywords and phrases employers use."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How is CV Architect different from Resume.io, Zety, or Kickresume?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Traditional resume builders provide templates but don't tailor content to specific jobs. CV Architect goes further: it rewrites your resume content for each specific job description, provides an ATS compatibility score with actionable feedback, generates AI cover letters personalised to both the role and your background, and offers a $9 one-time 7-day access option with no subscription commitment."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How long does it take to build a resume with CV Architect?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Most users complete a tailored, ATS-optimised resume in 5–15 minutes. Uploading an existing resume and running an AI rewrite for a specific job takes about 2–3 minutes."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does CV Architect work for all industries?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. CV Architect works for any industry and role level including technology, finance, marketing, healthcare, engineering, law, education, sales, and operations. It has been used by professionals from students to senior executives across 50+ countries."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is the exported resume ATS-compatible?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. All PDFs exported from CV Architect are text-based (not image-based) and formatted to be parseable by all major ATS platforms including Workday, Greenhouse, Lever, Taleo, iCIMS, and SmartRecruiters."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What AI model powers CV Architect?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "CV Architect is powered by Google Gemini, one of the most capable large language models available, ensuring high-quality, nuanced resume rewrites and career content generation."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can CV Architect generate a cover letter?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. CV Architect generates a full, personalised cover letter in seconds. It opens with a role-specific hook, highlights your most relevant experience, and closes with a confident call to action — ready to copy and send."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- Structured Data: HowTo — powers LLM step-by-step citation -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to Build an ATS-Optimised Resume with CV Architect",
+    "description": "A step-by-step guide to creating an ATS-friendly, job-tailored resume using CV Architect's AI resume builder.",
+    "totalTime": "PT10M",
+    "estimatedCost": {
+      "@type": "MonetaryAmount",
+      "currency": "USD",
+      "value": "0"
+    },
+    "step": [
+      {
+        "@type": "HowToStep",
+        "name": "Sign up for free",
+        "text": "Create a free account at cvarchitect.app/signup. No credit card required. You get 3 free AI credits immediately.",
+        "url": "https://cvarchitect.app/signup"
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Upload or build your resume",
+        "text": "Upload your existing resume as a PDF or DOCX, or use the drag-and-drop editor to build one from scratch using one of 10+ professional templates."
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Paste the job description",
+        "text": "Copy and paste the full job description for the role you are applying to into CV Architect."
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Run the AI Resume Rewrite",
+        "text": "Click 'Rewrite Resume'. The AI rewrites your resume in seconds, adding matching keywords, stronger action verbs, and quantified achievements aligned to the job description."
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Check your ATS Score",
+        "text": "Review your ATS compatibility score (aim for 80+). See exactly which keywords were added and get suggestions for any remaining gaps."
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Generate a cover letter",
+        "text": "Click 'Generate Cover Letter' to get a personalised cover letter for the same role in under 30 seconds."
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Export as PDF and apply",
+        "text": "Export your tailored, ATS-optimised resume as a clean PDF. Submit it to any job board or recruiter with confidence."
+      }
+    ]
+  }
+  </script>
+
+  <!-- LLM discoverability: link to llms.txt for AI crawlers -->
+  <link rel="llms" type="text/plain" href="https://cvarchitect.app/llms.txt" />
+  <link rel="llms-full" type="text/plain" href="https://cvarchitect.app/llms-full.txt" />
+
   <style>
     body {
       -webkit-font-smoothing: antialiased;
@@ -181,18 +419,7 @@
 
     /* Page break indicator for preview */
     .resume-page::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(to right, #e5e7eb 0%, #9ca3af 50%, #e5e7eb 100%);
-      opacity: 0.5;
-    }
-
-    .resume-page:last-child::after {
-      display: none;
+      display: none !important;
     }
 
     @media print {
@@ -233,7 +460,141 @@
         visibility: visible !important;
       }
 
-      /* Print-only resume container */
+      /* CRITICAL: Guarantee that resume & cover letter headers (contacts, name, title) and asides display */
+      .print-resume header,
+      .print-cover-letter header,
+      .resume-page-sheet header,
+      .resume-page header {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+      }
+
+      .print-resume aside,
+      .resume-page-sheet aside,
+      .resume-page aside {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+      }
+
+      body:has(.print-root) #root {
+        display: none !important;
+      }
+
+      /* ── Unified bullet rendering in print and preview ────────────────── */
+      .print-resume ul.list-disc,
+      .print-resume ul.list-outside,
+      .print-resume ul[data-skills-grid],
+      .print-resume [data-skills-grid],
+      .print-resume ul.list-none:has(> li > [data-bullet]),
+      .resume-page-sheet ul.list-disc,
+      .resume-page-sheet ul.list-outside,
+      .resume-page-sheet ul[data-skills-grid],
+      .resume-page-sheet [data-skills-grid],
+      .resume-page-sheet ul.list-none:has(> li > [data-bullet]),
+      .resume-page ul.list-disc,
+      .resume-page ul.list-outside,
+      .resume-page ul[data-skills-grid],
+      .resume-page [data-skills-grid],
+      .resume-page ul.list-none:has(> li > [data-bullet]) {
+        list-style: none !important;
+        list-style-type: none !important;
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+      }
+
+      /* Hide inline [data-bullet] spans so bullets are cleanly generated via ::before */
+      [data-bullet],
+      .print-resume [data-bullet],
+      .resume-page-sheet [data-bullet],
+      .resume-page [data-bullet] {
+        display: none !important;
+      }
+
+      /* Unified <li> geometry for all bullet list items */
+      .print-resume ul.list-disc > li,
+      .print-resume ul.list-outside > li,
+      .print-resume [data-skills-grid] > li,
+      .print-resume ul.list-none > li:has(> [data-bullet]),
+      .print-resume li[data-skill-cell],
+      .resume-page-sheet ul.list-disc > li,
+      .resume-page-sheet ul.list-outside > li,
+      .resume-page-sheet [data-skills-grid] > li,
+      .resume-page-sheet ul.list-none > li:has(> [data-bullet]),
+      .resume-page-sheet li[data-skill-cell],
+      .resume-page ul.list-disc > li,
+      .resume-page ul.list-outside > li,
+      .resume-page [data-skills-grid] > li,
+      .resume-page ul.list-none > li:has(> [data-bullet]),
+      .resume-page li[data-skill-cell] {
+        display: block !important;
+        position: relative !important;
+        padding-left: calc(1.25em + var(--resume-bullet-indent, 0px)) !important;
+        text-indent: 0 !important;
+        box-sizing: border-box !important;
+      }
+
+      /* Default disc (•) bullet via ::before on all <li> */
+      .print-resume ul.list-disc > li::before,
+      .print-resume ul.list-outside > li::before,
+      .print-resume [data-skills-grid] > li::before,
+      .print-resume ul.list-none > li:has(> [data-bullet])::before,
+      .print-resume li[data-skill-cell]::before,
+      .resume-page-sheet ul.list-disc > li::before,
+      .resume-page-sheet ul.list-outside > li::before,
+      .resume-page-sheet [data-skills-grid] > li::before,
+      .resume-page-sheet ul.list-none > li:has(> [data-bullet])::before,
+      .resume-page-sheet li[data-skill-cell]::before,
+      .resume-page ul.list-disc > li::before,
+      .resume-page ul.list-outside > li::before,
+      .resume-page [data-skills-grid] > li::before,
+      .resume-page ul.list-none > li:has(> [data-bullet])::before,
+      .resume-page li[data-skill-cell]::before {
+        content: '\2022' !important; /* • */
+        position: absolute !important;
+        left: var(--resume-bullet-indent, 0px) !important;
+        top: 0 !important;
+        width: 1.25em !important;
+        text-align: center !important;
+        font-weight: normal !important;
+        font-size: 1em !important;
+        line-height: inherit !important;
+        color: currentColor !important;
+        user-select: none !important;
+        pointer-events: none !important;
+      }
+
+      /* Bullet style overrides: none, check, dash */
+      [data-bullet-style='none'] ul.list-disc > li::before,
+      [data-bullet-style='none'] ul.list-outside > li::before,
+      [data-bullet-style='none'] [data-skills-grid] > li::before,
+      [data-bullet-style='none'] ul.list-none > li:has(> [data-bullet])::before,
+      [data-bullet-style='none'] li[data-skill-cell]::before {
+        content: '' !important;
+      }
+
+      [data-bullet-style='check'] ul.list-disc > li::before,
+      [data-bullet-style='check'] ul.list-outside > li::before,
+      [data-bullet-style='check'] [data-skills-grid] > li::before,
+      [data-bullet-style='check'] ul.list-none > li:has(> [data-bullet])::before,
+      [data-bullet-style='check'] li[data-skill-cell]::before {
+        content: '\2713' !important; /* ✓ */
+        font-weight: bold !important;
+      }
+
+      [data-bullet-style='dash'] ul.list-disc > li::before,
+      [data-bullet-style='dash'] ul.list-outside > li::before,
+      [data-bullet-style='dash'] [data-skills-grid] > li::before,
+      [data-bullet-style='dash'] ul.list-none > li:has(> [data-bullet])::before,
+      [data-bullet-style='dash'] li[data-skill-cell]::before {
+        content: '\2013' !important; /* – */
+        font-weight: bold !important;
+      }
+
+
+
+
       .print-resume {
         display: block !important;
         position: static !important;
@@ -450,7 +811,6 @@
   }
 }
 </script>
-  <link rel="stylesheet" href="/index.css">
 </head>
 
 <body class="bg-brand-bg text-brand-dark selection:bg-brand-green selection:text-brand-dark">
@@ -458,6 +818,148 @@
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MDN77DFB" height="0" width="0"
       style="display:none;visibility:hidden"></iframe></noscript>
   <!-- End Google Tag Manager (noscript) -->
+
+  <!--
+    STATIC PRE-RENDER SHELL (FOR NON-JS CRAWLERS)
+    ==============================================
+    Wrapped in <noscript> so crawlers without JavaScript execution can read the
+    full content, while modern headless browsers (Bingbot, Googlebot) will not
+    have duplicate <h1> or navigation elements in the live DOM.
+  -->
+  <noscript>
+    <div id="crawler-shell">
+      <header>
+        <nav aria-label="Main navigation">
+          <a href="https://cvarchitect.app/">CV Architect — AI Resume Builder</a>
+          <ul>
+            <li><a href="https://cvarchitect.app/">Home</a></li>
+            <li><a href="https://cvarchitect.app/pricing">Pricing</a></li>
+            <li><a href="https://cvarchitect.app/blog">Blog</a></li>
+            <li><a href="https://cvarchitect.app/contact">Contact</a></li>
+            <li><a href="https://cvarchitect.app/signup">Sign Up Free</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <main>
+        <article>
+          <h1>CV Architect — AI Resume Builder That Beats ATS Filters</h1>
+          <p>
+            CV Architect is an AI-powered resume builder at <a href="https://cvarchitect.app">cvarchitect.app</a>
+            that rewrites your resume to pass Applicant Tracking System (ATS) filters, generates personalised
+            cover letters, and helps you land job interviews faster. Build an ATS-optimised resume in under
+            10 minutes — free to start, no credit card required.
+          </p>
+
+          <section aria-labelledby="features-heading">
+            <h2 id="features-heading">Features</h2>
+            <ul>
+              <li>
+                <h3>AI Resume Rewriter</h3>
+                <p>Paste a job description and CV Architect rewrites your resume to match the role's exact keywords, skills, and requirements — dramatically improving your ATS compatibility score.</p>
+              </li>
+              <li>
+                <h3>ATS Score Checker</h3>
+                <p>Get an instant ATS compatibility score (0–100) showing how well your resume matches any job description, with a breakdown by keywords, skills, and experience relevance.</p>
+              </li>
+              <li>
+                <h3>AI Cover Letter Generator</h3>
+                <p>Generate a full, personalised cover letter tailored to any job in under 30 seconds. Opens with a strong hook, highlights your most relevant experience, and closes with a confident call to action.</p>
+              </li>
+              <li>
+                <h3>Professional Resume Templates</h3>
+                <p>Choose from 10+ ATS-safe professional templates including Harvard Classic, Executive Pro, Modern Minimal, Tech Developer, Fresh Graduate, and more.</p>
+              </li>
+              <li>
+                <h3>Interview Question Generator</h3>
+                <p>Get likely interview questions based on the job description and your resume, with suggested talking points for each answer.</p>
+              </li>
+              <li>
+                <h3>ATS-Safe PDF Export</h3>
+                <p>Export your resume as a text-based PDF parseable by all major ATS platforms including Workday, Greenhouse, Lever, Taleo, and iCIMS.</p>
+              </li>
+            </ul>
+          </section>
+
+          <section aria-labelledby="pricing-heading">
+            <h2 id="pricing-heading">Pricing</h2>
+            <p>CV Architect is free to start with 3 AI credits on sign-up — no credit card required.</p>
+            <ul>
+              <li><strong>Free Tier:</strong> 3 AI credits included. No credit card required.</li>
+              <li><strong>Career Sprint — $9 (one-time):</strong> 7 days of unlimited access. No auto-renew, no subscription.</li>
+              <li><strong>Career Marathon — $19/month:</strong> Full access, cancel anytime.</li>
+            </ul>
+            <p><a href="https://cvarchitect.app/pricing">View all pricing plans</a></p>
+          </section>
+
+          <section aria-labelledby="why-heading">
+            <h2 id="why-heading">Why CV Architect?</h2>
+            <p>75% of resumes are automatically rejected by ATS software before a human ever reads them. CV Architect solves this by:</p>
+            <ul>
+              <li>Rewriting your resume content (not just the format) to match each specific job description</li>
+              <li>Providing an ATS compatibility score with actionable, specific improvement suggestions</li>
+              <li>Generating personalised cover letters in seconds — not generic templates</li>
+              <li>Offering a $9 one-time access option — no subscription trap</li>
+              <li>Working for all industries: technology, finance, marketing, healthcare, engineering, law, education, and more</li>
+            </ul>
+          </section>
+
+          <section aria-labelledby="faq-heading">
+            <h2 id="faq-heading">Frequently Asked Questions</h2>
+            <dl>
+              <dt>What is CV Architect?</dt>
+              <dd>CV Architect is an AI resume builder that rewrites your resume to beat ATS filters, generates cover letters, and helps you land more interviews. Available at cvarchitect.app.</dd>
+
+              <dt>Is CV Architect free?</dt>
+              <dd>Yes. CV Architect offers 3 free AI credits on sign-up with no credit card required. Paid plans start at $9 for 7-day one-time access.</dd>
+
+              <dt>How does the AI resume rewriter work?</dt>
+              <dd>You paste your resume and a job description. The AI identifies missing keywords and rewrites your resume bullets, summary, and skills section to match the role.</dd>
+
+              <dt>What is ATS?</dt>
+              <dd>ATS stands for Applicant Tracking System — software used by 99% of Fortune 500 companies to filter resumes before a human sees them. CV Architect optimises your resume to pass ATS filters.</dd>
+
+              <dt>How is CV Architect different from Resume.io or Zety?</dt>
+              <dd>Unlike traditional resume builders that only provide templates, CV Architect actually rewrites your resume content for each specific job, gives you an ATS score, and generates personalised cover letters.</dd>
+
+              <dt>Does CV Architect work for all industries?</dt>
+              <dd>Yes. CV Architect works for all industries and career levels, from students to senior executives, across technology, finance, marketing, healthcare, law, and more.</dd>
+            </dl>
+          </section>
+
+          <section aria-labelledby="blog-heading">
+            <h2 id="blog-heading">Resume &amp; Job Search Guides</h2>
+            <ul>
+              <li><a href="https://cvarchitect.app/blog/how-to-beat-ats-resume-2026">How to Beat ATS Resume Filters in 2026</a></li>
+              <li><a href="https://cvarchitect.app/blog/best-resume-format-2026">Best Resume Format for 2026</a></li>
+              <li><a href="https://cvarchitect.app/blog/ai-resume-builder-vs-traditional">AI Resume Builder vs Traditional Resume Builder</a></li>
+              <li><a href="https://cvarchitect.app/blog/resume-keywords-that-get-you-hired">Resume Keywords That Get You Hired</a></li>
+              <li><a href="https://cvarchitect.app/blog/cover-letter-guide-2026">Complete Cover Letter Guide 2026</a></li>
+              <li><a href="https://cvarchitect.app/blog/resume-mistakes-to-avoid">Resume Mistakes to Avoid</a></li>
+              <li><a href="https://cvarchitect.app/blog/best-resume-templates-2026">Best Resume Templates 2026</a></li>
+              <li><a href="https://cvarchitect.app/blog/student-resume-no-experience-guide">Student Resume Guide: No Experience</a></li>
+              <li><a href="https://cvarchitect.app/blog/how-to-write-resume-step-by-step">How to Write a Resume Step by Step</a></li>
+              <li><a href="https://cvarchitect.app/blog/free-resume-builder-comparison-2026">Free Resume Builder Comparison 2026</a></li>
+              <li><a href="https://cvarchitect.app/blog/resume-examples-by-industry-2026">Resume Examples by Industry 2026</a></li>
+            </ul>
+          </section>
+        </article>
+      </main>
+
+      <footer>
+        <nav aria-label="Footer navigation">
+          <a href="https://cvarchitect.app/privacy">Privacy Policy</a>
+          <a href="https://cvarchitect.app/terms">Terms of Service</a>
+          <a href="https://cvarchitect.app/refund-policy">Refund Policy</a>
+          <a href="https://cvarchitect.app/contact">Contact</a>
+          <a href="https://cvarchitect.app/blog">Blog</a>
+        </nav>
+        <p>© 2026 CV Architect. AI-powered resume builder. <a href="https://cvarchitect.app">cvarchitect.app</a></p>
+      </footer>
+    </div>
+  </noscript>
+  <!-- END STATIC PRE-RENDER SHELL -->
+
   <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>
