@@ -95,7 +95,7 @@ export default function SignIn() {
         <div className="min-h-screen bg-white flex items-center justify-center px-6 py-12">
             <SEO
                 title="Sign In — CV Architect | AI Resume Builder"
-                description="Sign in to your CV Architect account to continue building and optimizing your ATS-friendly resume."
+                description="Sign in to your CV Architect account to continue building, editing, and tailoring your ATS-optimized resumes and cover letters."
                 canonicalPath="/login"
             />
             <div className="w-full max-w-md">

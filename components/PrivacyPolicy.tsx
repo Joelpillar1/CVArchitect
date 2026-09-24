@@ -15,7 +15,7 @@ export default function PrivacyPolicy({ onBack }: PrivacyPolicyProps) {
         <div className="min-h-screen bg-white">
             <SEO
                 title="Privacy Policy — CV Architect"
-                description="Learn how CV Architect collects, uses, and protects your personal data. We take your privacy seriously and use industry-standard encryption to secure your resume data."
+                description="Learn how CV Architect collects, uses, and protects your personal data with industry-standard encryption and strict privacy safeguards."
                 canonicalPath="/privacy"
             />
             <PublicHeader />

@@ -16,7 +16,7 @@ export default function TermsOfService({ onBack }: TermsOfServiceProps) {
         <div className="min-h-screen bg-white">
             <SEO
                 title="Terms of Service — CV Architect"
-                description="Read CV Architect's Terms of Service. Understand your rights and responsibilities when using our AI-powered resume builder platform."
+                description="Read the CV Architect Terms of Service. Understand your user rights, account obligations, subscription policies, and AI platform usage rules."
                 canonicalPath="/terms"
             />
             <PublicHeader />

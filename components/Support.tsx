@@ -368,7 +368,7 @@ export default function Support() {
         <div className="min-h-screen bg-white">
             <SEO
                 title="Support Center — CV Architect"
-                description="Find answers to common questions about CV Architect's AI resume builder, billing, account management, and more. Contact our support team for personalised help."
+                description="Find answers to common questions about CV Architect's AI resume builder, billing, and account management. Contact our support team for help."
                 canonicalPath="/support"
             />
             <PublicHeader />

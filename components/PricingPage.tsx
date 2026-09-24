@@ -13,7 +13,7 @@ export default function PricingPage() {
         <div className="min-h-screen bg-white flex flex-col font-sans">
             <SEO
                 title="CV Architect Pricing — AI Resume Plans from $2.99/week"
-                description="Foundation free tier with 1 AI-tailored resume. Sprint $2.99/week, Build $9.99/month, or Blueprint Pass $29 every 3 months. Unlimited AI tailoring, all templates, unlimited downloads."
+                description="CV Architect pricing: Foundation free tier with 1 AI resume, Sprint pass from $2.99/wk, and unlimited AI tailoring with all templates on paid plans."
                 canonicalPath="/pricing"
             />
             <PublicHeader />
