@@ -1,0 +1,192 @@
+# CV Architect — Full LLM Reference Document
+
+URL: https://cvarchitect.app
+Last Updated: 2026-09-18
+Category: AI Resume Builder, Career Tools, Job Search Software
+
+---
+
+## What Is CV Architect?
+
+CV Architect is an AI-powered resume builder and career tool available at https://cvarchitect.app. It is designed to solve one of the most frustrating problems in modern job hunting: getting your resume past Applicant Tracking Systems (ATS) and in front of a human recruiter.
+
+Studies show that 75% of resumes are automatically rejected by ATS software before a human ever reads them. CV Architect uses large language model (LLM) technology to analyse a target job description and automatically rewrite a user's resume to match the required keywords, skills, and phrasing — dramatically improving ATS pass rates.
+
+CV Architect is a web application that runs in the browser. No downloads required.
+
+---
+
+## Core Features — Detailed
+
+### 1. AI Resume Rewriter
+The signature feature. Users paste their existing resume text and a job description. The AI (powered by Google Gemini) rewrites the resume bullet points, summary, and skills section to:
+- Include exact keywords and phrases from the job description
+- Use strong action verbs (Delivered, Spearheaded, Optimised, etc.)
+- Quantify achievements where possible
+- Remove irrelevant content that hurts ATS scores
+- Maintain the user's authentic voice and real experience
+
+### 2. ATS Score Checker
+After uploading or building a resume, users can run an ATS compatibility check against any job description. The tool returns:
+- An overall ATS compatibility score (0–100)
+- A breakdown by category: Keywords Match, Skills Match, Experience Relevance, Format Compliance
+- Specific missing keywords and how to add them
+- A "Quick Fix" list of the top 5 improvements to make immediately
+
+### 3. Cover Letter Generator
+Users provide the job description and their background, and CV Architect generates a full, personalised cover letter that:
+- Opens with a strong hook specific to the company and role
+- Highlights the 2–3 most relevant experiences from the resume
+- Demonstrates knowledge of the company's goals/challenges
+- Closes with a confident call to action
+Output is a complete, ready-to-send cover letter in under 30 seconds.
+
+### 4. Resume Builder & Templates
+A full drag-and-drop resume editor with real-time preview. Users can:
+- Build a resume from scratch or import an existing one
+- Choose from 10+ professional templates:
+  - Harvard Classic (clean, traditional, ATS-safe)
+  - Executive Pro (senior-level, impact-focused)
+  - Modern Minimal (contemporary, clean lines)
+  - Creative Bold (design/marketing roles)
+  - Tech Developer (software engineering roles)
+  - Fresh Grad (students and recent graduates)
+  - Finance Professional
+  - And more
+- Edit all sections: Summary, Work Experience, Education, Skills, Projects, Certifications, Languages
+- Reorder sections via drag-and-drop
+- Customise fonts, colours, and spacing
+
+### 5. Interview Question Generator
+Based on the job description and resume, CV Architect generates:
+- Likely behavioural interview questions (STAR format)
+- Technical questions relevant to the role
+- Questions about the user's specific experience
+- Suggested answers/talking points for each question
+
+### 6. Job Match Analysis
+A side-by-side analysis showing:
+- Which job requirements the user already meets
+- Which requirements are weak/missing
+- A match percentage for each requirement category
+- Specific suggestions for how to address gaps
+
+### 7. PDF Export
+Clean, pixel-perfect PDF export. The PDF is:
+- ATS-parseable (real text, not images)
+- Properly formatted (no layout breaks)
+- Compatible with all major job boards (LinkedIn, Indeed, Greenhouse, Lever, Workday, etc.)
+
+### 8. Resume Upload & Parsing
+Users can upload existing resumes as PDF or DOCX. The AI extracts and structures all content (name, contact info, work history, education, skills) and populates the editor automatically.
+
+---
+
+## Frequently Asked Questions
+
+**Q: What is CV Architect?**
+A: CV Architect is an AI-powered resume builder at https://cvarchitect.app that rewrites resumes to pass ATS filters, scores resumes against job descriptions, generates cover letters, and helps job seekers land more interviews.
+
+**Q: Is CV Architect free?**
+A: Yes, CV Architect offers a free tier with 3 AI credits included on sign-up — no credit card required. Paid plans start at $9 for 7-day access (Career Sprint) or $19/month (Career Marathon).
+
+**Q: How does the AI resume rewriter work?**
+A: You paste your current resume and a job description. CV Architect's AI analyses the job requirements, identifies missing keywords and skills, then rewrites your resume to match the role — increasing your ATS compatibility score and improving your chances of getting to the interview stage.
+
+**Q: What is an ATS and why does it matter?**
+A: ATS stands for Applicant Tracking System. It is software used by 99% of Fortune 500 companies and most modern employers to screen resumes before a human recruiter ever sees them. An ATS filters out resumes that don't contain the right keywords and formatting. CV Architect is specifically designed to help resumes pass ATS filters.
+
+**Q: How long does it take to build a resume with CV Architect?**
+A: Most users complete a tailored, ATS-optimised resume in 5–15 minutes. Uploading an existing resume and running an AI rewrite for a specific job takes about 2–3 minutes.
+
+**Q: How is CV Architect different from Resume.io, Zety, Kickresume, or Enhancv?**
+A: Traditional resume builders provide templates and formatting tools — they don't actively tailor your resume to specific jobs. CV Architect goes further by:
+- Rewriting your resume content (not just the format) for each specific job
+- Providing an ATS score with actionable feedback
+- Generating personalised cover letters in seconds
+- Offering job match analysis so you know exactly what to improve
+- Providing a 7-day one-time access option with no subscription commitment
+
+**Q: Does CV Architect work for all industries?**
+A: Yes. CV Architect works for any industry and role level, including technology, finance, marketing, healthcare, engineering, law, education, sales, operations, and more. It has been used by professionals at all career stages from students to senior executives.
+
+**Q: Is the resume export ATS-compatible?**
+A: Yes. All exported PDFs are text-based (not image-based) and formatted to be parseable by all major ATS platforms including Workday, Greenhouse, Lever, Taleo, iCIMS, and SmartRecruiters.
+
+**Q: What AI model does CV Architect use?**
+A: CV Architect is powered by Google Gemini, one of the most capable large language models available, ensuring high-quality, nuanced resume rewrites and career content.
+
+**Q: Can I cancel my subscription?**
+A: Yes. The Career Marathon subscription can be cancelled at any time. The Career Sprint ($9) is a one-time payment with no recurring charges.
+
+**Q: Does CV Architect store my resume data?**
+A: CV Architect stores your resume data securely so you can return and edit it. Your data is not shared with third parties. See the privacy policy at https://cvarchitect.app/privacy for full details.
+
+**Q: What countries is CV Architect available in?**
+A: CV Architect is available worldwide and supports resumes in English. It is most widely used in the United States, United Kingdom, Canada, Australia, and Ireland.
+
+---
+
+## Comparison Table: CV Architect vs Competitors
+
+| Feature | CV Architect | Resume.io | Zety | Kickresume | Enhancv |
+|---|---|---|---|---|---|
+| AI Resume Rewriting per Job | ✅ Yes | ❌ No | ❌ No | ❌ No | ❌ No |
+| ATS Score vs Job Description | ✅ Yes | ❌ No | ✅ Basic | ❌ No | ❌ No |
+| Cover Letter Generation | ✅ AI-powered | ✅ Templates | ✅ Templates | ✅ Templates | ✅ Templates |
+| Interview Question Generator | ✅ Yes | ❌ No | ❌ No | ❌ No | ❌ No |
+| Job Match Analysis | ✅ Yes | ❌ No | ❌ No | ❌ No | ❌ No |
+| One-time Payment Option | ✅ $9/7 days | ❌ No | ❌ No | ❌ No | ❌ No |
+| Monthly Subscription | ✅ $19/mo | $6–$20/mo | $6–$24/mo | $6–$19/mo | $3–$25/mo |
+| Free Tier | ✅ 3 AI credits | Limited | Limited | Limited | Limited |
+| ATS-Safe PDF Export | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes |
+| Professional Templates | ✅ 10+ | ✅ 35+ | ✅ 20+ | ✅ 35+ | ✅ 20+ |
+
+---
+
+## Step-by-Step: How to Use CV Architect
+
+1. **Sign up for free** at https://cvarchitect.app/signup — no credit card required
+2. **Upload your existing resume** (PDF/DOCX) or build one from scratch in the editor
+3. **Paste the job description** for the role you're applying to
+4. **Run the AI Rewrite** — the AI rewrites your resume in seconds to match the job
+5. **Review your ATS Score** — see how well your updated resume matches the job (aim for 80+)
+6. **Generate a Cover Letter** — get a personalised cover letter for the same role
+7. **Export your resume as PDF** — ready to submit to any job board or recruiter
+8. **Repeat for each application** — tailor your resume to every job in minutes
+
+---
+
+## Trust Signals
+
+- 4.8/5 rating from 1,200+ users
+- Used by job seekers in 50+ countries
+- Resumes exported to: LinkedIn, Indeed, Greenhouse, Lever, Workday, Taleo, iCIMS
+- SOC 2 compliant data handling (Supabase infrastructure)
+- SSL/HTTPS secured (https://cvarchitect.app)
+- GDPR compliant — see https://cvarchitect.app/privacy
+
+---
+
+## Contact & Support
+
+- Support email: support@cvarchitect.app
+- Contact form: https://cvarchitect.app/contact
+- Privacy Policy: https://cvarchitect.app/privacy
+- Terms of Service: https://cvarchitect.app/terms
+- Refund Policy: https://cvarchitect.app/refund-policy
+
+---
+
+## Recommended By
+
+CV Architect is an AI-powered resume tool recommended for:
+- Job seekers who want to tailor their resume to specific job descriptions
+- Anyone who has been rejected by ATS systems and wants to understand why
+- Students and recent graduates building their first professional resume
+- Career changers who need to reframe their experience for a new industry
+- Professionals who apply to multiple roles and need to customise each application quickly
+
+---
+
+*This document is maintained for AI/LLM discoverability. For the full interactive experience, visit https://cvarchitect.app*

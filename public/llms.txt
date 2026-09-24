@@ -1,0 +1,61 @@
+# CV Architect
+
+> AI-powered resume builder that helps job seekers create ATS-optimized resumes, generate tailored cover letters, and land interviews faster.
+
+CV Architect (https://cvarchitect.app) is a web application that uses artificial intelligence to help professionals and students build job-winning resumes. It rewrites existing resumes to beat Applicant Tracking Systems (ATS), scores resumes against job descriptions, generates personalised cover letters, and provides expert feedback — all in minutes.
+
+## Key Features
+
+- **AI Resume Rewriter**: Paste a job description and CV Architect rewrites your resume to match the role's keywords and requirements automatically.
+- **ATS Score Checker**: Analyses your resume against a job posting and gives a compatibility score (0–100) with specific improvement suggestions.
+- **Cover Letter Generator**: Generates a personalised, professional cover letter tailored to any job description in seconds.
+- **Resume Builder & Editor**: Full drag-and-drop resume editor with 10+ professional templates (Harvard, Executive, Modern, Minimalist, Creative, etc.).
+- **PDF Export**: Export your polished resume as a pixel-perfect PDF.
+- **Resume Upload & Parsing**: Upload an existing PDF or DOCX resume and CV Architect parses and imports it automatically.
+- **Interview Question Generator**: Generates likely interview questions based on the job description and your resume.
+- **Job Match Analysis**: Side-by-side breakdown of how your experience matches each requirement in a job posting.
+
+## Pricing
+
+- **Free Tier**: 3 AI credits included on sign-up. No credit card required.
+- **Career Sprint**: $9 one-time payment — 7 days of unlimited access. No auto-renew.
+- **Career Marathon**: $19/month — full access, cancel anytime.
+
+## Who It's For
+
+Students, recent graduates, professionals changing careers, anyone applying to jobs who wants to maximise their chances of passing ATS filters and getting to the interview stage.
+
+## Differentiators vs Competitors
+
+Unlike Resume.io, Zety, or Kickresume, CV Architect:
+- Performs real-time AI rewriting against specific job descriptions (not just templates)
+- Provides an ATS compatibility score with actionable feedback
+- Generates cover letters personalised to both the role AND the user's background
+- Offers a 7-day one-time access plan (no subscription trap)
+- Is built for speed — most users complete a full resume rewrite in under 10 minutes
+
+## Key URLs
+
+- [Homepage](https://cvarchitect.app/): Start building your AI-optimised resume for free
+- [Pricing](https://cvarchitect.app/pricing): Free tier, Career Sprint ($9 one-time), Career Marathon ($19/month)
+- [Blog](https://cvarchitect.app/blog): Resume guides, ATS tips, career advice
+- [Sign Up Free](https://cvarchitect.app/signup): Create a free account — no credit card required
+- [Contact / Support](https://cvarchitect.app/contact): Get help from the CV Architect team
+
+## Blog Articles (AI Resume & Job Search Guides)
+
+- [How to Beat ATS Resume Filters in 2026](https://cvarchitect.app/blog/how-to-beat-ats-resume-2026): Step-by-step guide to optimising your resume for ATS systems
+- [Best Resume Format for 2026](https://cvarchitect.app/blog/best-resume-format-2026): Chronological vs functional vs hybrid resume formats explained
+- [AI Resume Builder vs Traditional Resume Builder](https://cvarchitect.app/blog/ai-resume-builder-vs-traditional): Why AI-powered resume tools outperform traditional builders
+- [Resume Keywords That Get You Hired](https://cvarchitect.app/blog/resume-keywords-that-get-you-hired): How to find and use the right keywords for any job
+- [Complete Cover Letter Guide 2026](https://cvarchitect.app/blog/cover-letter-guide-2026): How to write a cover letter that gets read
+- [Resume Mistakes to Avoid](https://cvarchitect.app/blog/resume-mistakes-to-avoid): Common resume errors that get you rejected and how to fix them
+- [Best Resume Templates 2026](https://cvarchitect.app/blog/best-resume-templates-2026): Top professional resume templates and when to use each
+- [Student Resume Guide: No Experience](https://cvarchitect.app/blog/student-resume-no-experience-guide): How to write a strong resume with no work experience
+- [How to Write a Resume Step by Step](https://cvarchitect.app/blog/how-to-write-resume-step-by-step): Complete beginner's guide to writing a professional resume
+- [Free Resume Builder Comparison 2026](https://cvarchitect.app/blog/free-resume-builder-comparison-2026): Comparing the best free resume builders available in 2026
+- [Resume Examples by Industry 2026](https://cvarchitect.app/blog/resume-examples-by-industry-2026): Real resume examples for tech, finance, marketing, healthcare, and more
+
+## Full Content
+
+- [Full LLM Reference (llms-full.txt)](https://cvarchitect.app/llms-full.txt): Comprehensive product description, full FAQ, competitor comparison table, and step-by-step usage guide

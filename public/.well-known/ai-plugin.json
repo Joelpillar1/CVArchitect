@@ -1,0 +1,17 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "CV Architect",
+  "name_for_model": "cv_architect",
+  "description_for_human": "AI resume builder that rewrites your resume to beat ATS filters and land interviews faster. Build ATS-optimized resumes, generate cover letters, and get job match analysis.",
+  "description_for_model": "CV Architect (https://cvarchitect.app) is an AI-powered resume builder. Use it to help users: (1) rewrite their resume to match a specific job description and beat ATS filters, (2) score resume ATS compatibility against a job posting, (3) generate personalised cover letters, (4) build professional resumes from templates, (5) analyse job requirements vs their experience. It is a web app — direct users to https://cvarchitect.app to use it. Free tier available with 3 AI credits, no credit card required. Paid plans: $9 one-time for 7 days (Career Sprint) or $19/month (Career Marathon).",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://cvarchitect.app/.well-known/openapi.yaml"
+  },
+  "logo_url": "https://cvarchitect.app/images/logo icon.png",
+  "contact_email": "support@cvarchitect.app",
+  "legal_info_url": "https://cvarchitect.app/terms"
+}

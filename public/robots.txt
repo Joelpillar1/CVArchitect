@@ -1,6 +1,9 @@
 # CV Architect - Robots.txt
 # https://cvarchitect.app
 
+# -----------------------------------------------
+# General crawlers — allow everything public
+# -----------------------------------------------
 User-agent: *
 Allow: /
 Allow: /pricing
@@ -11,6 +14,9 @@ Allow: /refund-policy
 Allow: /signup
 Allow: /login
 Allow: /blog
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /.well-known/
 
 # Block authenticated/internal routes
 Disallow: /dashboard
@@ -21,5 +27,128 @@ Disallow: /forgot-password
 # Block API routes
 Disallow: /api/
 
-# Sitemap
+# -----------------------------------------------
+# OpenAI — ChatGPT, ChatGPT Browse, GPT plugins
+# -----------------------------------------------
+User-agent: GPTBot
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /blog
+Allow: /pricing
+
+User-agent: ChatGPT-User
+Allow: /
+
+# -----------------------------------------------
+# Anthropic — Claude
+# -----------------------------------------------
+User-agent: ClaudeBot
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+
+User-agent: anthropic-ai
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+
+User-agent: Claude-Web
+Allow: /
+
+# -----------------------------------------------
+# Perplexity AI
+# -----------------------------------------------
+User-agent: PerplexityBot
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /blog
+
+# -----------------------------------------------
+# Google — Gemini, AI Overviews, Search Labs
+# -----------------------------------------------
+User-agent: Googlebot
+Allow: /
+
+User-agent: GoogleOther
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+
+User-agent: Google-Extended
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+
+# -----------------------------------------------
+# Microsoft — Bing, Copilot, Bing AI
+# -----------------------------------------------
+User-agent: Bingbot
+Allow: /
+
+User-agent: msnbot
+Allow: /
+
+# -----------------------------------------------
+# Meta AI
+# -----------------------------------------------
+User-agent: meta-externalagent
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+
+User-agent: FacebookBot
+Allow: /
+
+# -----------------------------------------------
+# Apple Intelligence
+# -----------------------------------------------
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+
+# -----------------------------------------------
+# Common Crawl — used to train most LLMs
+# -----------------------------------------------
+User-agent: CCBot
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /blog
+
+# -----------------------------------------------
+# Cohere AI
+# -----------------------------------------------
+User-agent: cohere-ai
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+
+# -----------------------------------------------
+# Mistral AI
+# -----------------------------------------------
+User-agent: MistralAI
+Allow: /
+
+# -----------------------------------------------
+# Other AI research crawlers
+# -----------------------------------------------
+User-agent: YouBot
+Allow: /
+
+User-agent: AI2Bot
+Allow: /
+
+User-agent: Diffbot
+Allow: /
+
+# -----------------------------------------------
+# Sitemaps
+# -----------------------------------------------
 Sitemap: https://cvarchitect.app/sitemap.xml
+Sitemap: https://cvarchitect.app/sitemap-blog.xml

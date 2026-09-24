@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
+        xmlns:article="http://www.google.com/schemas/sitemap-news/0.9">
+
+  <!-- Blog Listing Page -->
+  <url>
+    <loc>https://cvarchitect.app/blog</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- How to Beat ATS Resume Filters in 2026 -->
+  <url>
+    <loc>https://cvarchitect.app/blog/how-to-beat-ats-resume-2026</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Best Resume Format 2026 -->
+  <url>
+    <loc>https://cvarchitect.app/blog/best-resume-format-2026</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- AI Resume Builder vs Traditional -->
+  <url>
+    <loc>https://cvarchitect.app/blog/ai-resume-builder-vs-traditional</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Resume Keywords That Get You Hired -->
+  <url>
+    <loc>https://cvarchitect.app/blog/resume-keywords-that-get-you-hired</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Cover Letter Guide 2026 -->
+  <url>
+    <loc>https://cvarchitect.app/blog/cover-letter-guide-2026</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Resume Mistakes to Avoid -->
+  <url>
+    <loc>https://cvarchitect.app/blog/resume-mistakes-to-avoid</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Best Resume Templates 2026 -->
+  <url>
+    <loc>https://cvarchitect.app/blog/best-resume-templates-2026</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Student Resume No Experience Guide -->
+  <url>
+    <loc>https://cvarchitect.app/blog/student-resume-no-experience-guide</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- How to Write a Resume Step by Step -->
+  <url>
+    <loc>https://cvarchitect.app/blog/how-to-write-resume-step-by-step</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Free Resume Builder Comparison 2026 -->
+  <url>
+    <loc>https://cvarchitect.app/blog/free-resume-builder-comparison-2026</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Resume Examples by Industry 2026 -->
+  <url>
+    <loc>https://cvarchitect.app/blog/resume-examples-by-industry-2026</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+</urlset>
