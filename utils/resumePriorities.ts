@@ -49,9 +49,11 @@ export function assessResumeQuality(resume: ResumeData, jobData?: JobDescription
     const numberRegex = /\b(\d+(\.\d+)?(%|\+|k|m|x)?|\$\d+)\b/i;
 
     for (const exp of resume.experience) {
-      if (exp.description) {
-        if (numberRegex.test(exp.description)) hasNumbers = true;
-        if (strongVerbRegex.test(exp.description)) hasStrongVerbs = true;
+      const desc = (exp as { description?: string | string[] }).description;
+      const descText = Array.isArray(desc) ? desc.join(' ') : (desc || '');
+      if (descText) {
+        if (numberRegex.test(descText)) hasNumbers = true;
+        if (strongVerbRegex.test(descText)) hasStrongVerbs = true;
       }
     }
 
@@ -67,7 +69,7 @@ export function assessResumeQuality(resume: ResumeData, jobData?: JobDescription
 
   // 3. ATS Alignment Scoring
   if (jobData?.descriptionText) {
-    const jdKeywords = (jobData.extractedSkills || []).map((s) => s.toLowerCase());
+    const jdKeywords = (jobData.requiredSkills || []).map((s) => s.toLowerCase());
     const resumeText = JSON.stringify(resume).toLowerCase();
     if (jdKeywords.length > 0) {
       const matched = jdKeywords.filter((kw) => resumeText.includes(kw));
@@ -115,9 +117,11 @@ export function getResumePriorities(
 
   // Priority 2: Weak/Unquantified Experience Bullets
   if (analysis.stats.experienceCount > 0) {
-    const experiencesWithoutMetrics = (resume.experience || []).filter(
-      (exp) => !exp.description || !/\b(\d+(\.\d+)?(%|\+|k|m|x)?|\$\d+)\b/i.test(exp.description)
-    );
+    const experiencesWithoutMetrics = (resume.experience || []).filter((exp) => {
+      const desc = (exp as { description?: string | string[] }).description;
+      const descText = Array.isArray(desc) ? desc.join(' ') : (desc || '');
+      return !descText || !/\b(\d+(\.\d+)?(%|\+|k|m|x)?|\$\d+)\b/i.test(descText);
+    });
 
     if (experiencesWithoutMetrics.length > 0) {
       priorities.push({

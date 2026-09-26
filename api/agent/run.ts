@@ -133,10 +133,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Extract durable information from incoming user message (metrics, corrections, decisions, facts)
   const extracted = extractDurableInformation(message, undefined, workingResume);
   for (const f of extracted.facts) {
-    currentMemory = upsertMemoryFact(currentMemory, f);
+    currentMemory = upsertMemoryFact(currentMemory, { source: 'user', ...f });
   }
   for (const m of extracted.metrics) {
-    currentMemory = recordMemoryMetric(currentMemory, m);
+    currentMemory = recordMemoryMetric(currentMemory, { source: 'user', confidence: 'explicit', ...m });
   }
   for (const c of extracted.corrections) {
     currentMemory = recordMemoryCorrection(currentMemory, c);

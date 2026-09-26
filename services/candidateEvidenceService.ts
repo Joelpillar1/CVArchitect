@@ -272,9 +272,13 @@ export class CandidateEvidenceService {
       );
 
       // Record individual bullet achievements
-      const bullets: string[] = Array.isArray(exp.bullets)
-        ? exp.bullets.map((b) => (typeof b === 'string' ? b : b.text))
-        : parseDescriptionBullets(exp.description);
+      // Handles both legacy Experience (description: string|string[]) and
+      // contract Experience (bullets: ResumeBullet[]) via safe property checks.
+      const rawDesc = (exp as { description?: string | string[] }).description;
+      const rawBullets = (exp as { bullets?: Array<{ text: string } | string> }).bullets;
+      const bullets: string[] = Array.isArray(rawBullets)
+        ? rawBullets.map((b) => (typeof b === 'string' ? b : b.text))
+        : parseDescriptionBullets(rawDesc as string | string[] | undefined);
 
       bullets.forEach((bulletText, bIdx) => {
         if (bulletText && bulletText.trim()) {
