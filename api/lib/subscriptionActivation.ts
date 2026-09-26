@@ -81,9 +81,9 @@ export async function findUserIdByEmail(
 
   try {
     const { data: authUsers, error } = await supabaseAdmin.auth.admin.listUsers();
-    if (error || !authUsers?.users) return null;
+    if (error || !authUsers || !Array.isArray((authUsers as any).users)) return null;
 
-    const match = authUsers.users.find(
+    const match = ((authUsers as any).users as Array<{ id: string; email?: string }>).find(
       (user) => user.email?.toLowerCase() === email.toLowerCase()
     );
     return match?.id ?? null;

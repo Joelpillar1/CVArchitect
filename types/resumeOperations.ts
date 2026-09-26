@@ -167,14 +167,18 @@ export const operationRequiresEvidence = (op: OperationType): boolean => !EVIDEN
 
 export type AgentSSEEvent =
   | { type: 'run_started'; agentRunId: string }
+  | { type: 'agent_started'; agentRunId: string; timestamp?: number }
   | { type: 'heartbeat' }
   | { type: 'thought'; text: string }
+  | { type: 'chat_delta'; text: string }
   | { type: 'fact_recorded'; topic: string; value: string }
   | { type: 'decision_recorded'; decision: string; category?: string }
   | { type: 'memory_updated'; memory: unknown }
   | { type: 'operation'; op: ResumeOperation }
   | { type: 'awaiting_input'; question: string; category?: string; skillTag?: string }
   | { type: 'error'; message: string; code?: string }
+  | { type: 'agent_error'; message: string; code?: string }
+  | { type: 'agent_completed'; agentRunId: string; summary?: string }
   | {
       type: 'done';
       summary: string;
