@@ -50,7 +50,10 @@ function getSectionArray(data: ResumeData, section: ArraySection): Array<{ id?: 
  * 4. Numeric index (e.g. "3" -> 3rd item, index 2)
  */
 export function findItemIndex(
-  arr: Array<{ id?: string; [k: string]: unknown }>,
+  // Accept any array whose items at least have an optional id —
+  // the function also reads other keys (company, role, name, …) via loose access.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  arr: Array<any>,
   itemId: string | undefined,
   section?: string,
 ): number {

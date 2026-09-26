@@ -156,7 +156,7 @@ export function requiresResumeEvidence(
   }
 
   // 4. Task-based check
-  if (task && (task.targetSection || task.responseMode === 'EXECUTE' || task.responseMode === 'ANALYZE')) {
+  if (task && (task.targetSection || task.responseMode === 'ACT' || task.responseMode === 'ANALYZE')) {
     return true;
   }
 
@@ -629,8 +629,8 @@ export function isOperationStaleWithResume(
   // If version explicitly provided and doesn't match
   if (
     expectedVersion !== undefined &&
-    currentResume.revision !== undefined &&
-    expectedVersion !== currentResume.revision
+    (currentResume as any).revision !== undefined &&
+    expectedVersion !== (currentResume as any).revision
   ) {
     return true;
   }
