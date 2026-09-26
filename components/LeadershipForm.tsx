@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ResumeData, Experience } from '../types';
-import { Plus, Trash2, Calendar, MapPin, Building, GripVertical, ChevronUp, ChevronDown, Sparkles, Users } from 'lucide-react';
+import { Plus, Trash2, ChevronUp, ChevronDown, Sparkles } from 'lucide-react';
 import { enhanceDescription } from './utils/aiEnhancer';
 
 interface LeadershipFormProps {
@@ -10,7 +10,6 @@ interface LeadershipFormProps {
 }
 
 export default function LeadershipForm({ data, onChange, onAIAction }: LeadershipFormProps) {
-    const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const [enhancingId, setEnhancingId] = useState<string | null>(null);
 
     // Initialize if undefined
@@ -26,7 +25,7 @@ export default function LeadershipForm({ data, onChange, onAIAction }: Leadershi
             endDate: '',
             description: ''
         };
-        onChange({ ...data, leadership: [...leadership, newEntry] });
+        onChange({ ...data, leadership: [newEntry, ...leadership] });
     };
 
     const handleRemove = (id: string) => {
@@ -42,8 +41,15 @@ export default function LeadershipForm({ data, onChange, onAIAction }: Leadershi
         });
     };
 
+    const normalizeDesc = (desc: unknown): string => {
+        if (typeof desc === 'string') return desc;
+        if (Array.isArray(desc)) return desc.filter(Boolean).join('\n');
+        return '';
+    };
+
     const handleEnhanceDescription = async (item: Experience) => {
-        if (!item.description.trim()) {
+        const descText = normalizeDesc(item.description);
+        if (!descText.trim()) {
             alert('Please write a description first.');
             return;
         }
@@ -56,7 +62,7 @@ export default function LeadershipForm({ data, onChange, onAIAction }: Leadershi
         setEnhancingId(item.id);
         try {
             const enhanced = await enhanceDescription(
-                item.description,
+                descText,
                 item.role || 'Leader',
                 item.company || 'Organization'
             );
@@ -88,27 +94,6 @@ export default function LeadershipForm({ data, onChange, onAIAction }: Leadershi
         onChange({ ...data, leadership: newLeadership });
     };
 
-    const handleDragStart = (index: number) => {
-        setDraggedIndex(index);
-    };
-
-    const handleDragOver = (e: React.DragEvent, index: number) => {
-        e.preventDefault();
-        if (draggedIndex === null || draggedIndex === index) return;
-
-        const newLeadership = [...leadership];
-        const draggedItem = newLeadership[draggedIndex];
-        newLeadership.splice(draggedIndex, 1);
-        newLeadership.splice(index, 0, draggedItem);
-
-        onChange({ ...data, leadership: newLeadership });
-        setDraggedIndex(index);
-    };
-
-    const handleDragEnd = () => {
-        setDraggedIndex(null);
-    };
-
     const formatDateForInput = (dateStr: string): string => {
         if (!dateStr || dateStr.toLowerCase() === 'present') return '';
         if (/^\d{4}-\d{2}$/.test(dateStr)) return dateStr;
@@ -130,20 +115,10 @@ export default function LeadershipForm({ data, onChange, onAIAction }: Leadershi
                     return (
                         <div
                             key={item.id}
-                            draggable
-                            onDragStart={() => handleDragStart(index)}
-                            onDragOver={(e) => handleDragOver(e, index)}
-                            onDragEnd={handleDragEnd}
-                            className={`bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-4 group hover:border-brand-green/50 transition-all ${draggedIndex === index ? 'opacity-50' : ''
-                                }`}
+                            className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-4 group hover:border-brand-green/50 transition-all"
                         >
                             <div className="flex justify-between items-start">
-                                <div className="flex items-center gap-2">
-                                    <div className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-brand-green transition-colors">
-                                        <GripVertical size={20} />
-                                    </div>
-                                    <div className="text-sm font-medium text-gray-400">Activity {index + 1}</div>
-                                </div>
+                                <div className="text-sm font-medium text-gray-400">Activity {index + 1}</div>
                                 <div className="flex items-center gap-1">
                                     <button
                                         onClick={() => moveItem(index, 'up')}
@@ -171,55 +146,47 @@ export default function LeadershipForm({ data, onChange, onAIAction }: Leadershi
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div className="space-y-1">
-                                    <label className="text-xs font-medium text-gray-500 flex items-center gap-1">
-                                        <Building size={12} /> Organization
-                                    </label>
+                                    <label className="text-xs font-medium text-gray-500 block">Organization</label>
                                     <input
                                         type="text"
                                         value={item.company}
                                         onChange={(e) => handleChange(item.id, 'company', e.target.value)}
-                                        className="w-full p-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
+                                        className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
                                         placeholder="Organization Name"
                                     />
                                 </div>
 
                                 <div className="space-y-1">
-                                    <label className="text-xs font-medium text-gray-500">Role / Title</label>
+                                    <label className="text-xs font-medium text-gray-500 block">Role / Title</label>
                                     <input
                                         type="text"
                                         value={item.role}
                                         onChange={(e) => handleChange(item.id, 'role', e.target.value)}
-                                        className="w-full p-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
+                                        className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
                                         placeholder="Board Member, Volunteer, President..."
                                     />
                                 </div>
 
-                                <div className="space-y-1">
-                                    <label className="text-xs font-medium text-gray-500 flex items-center gap-1">
-                                        <MapPin size={12} /> Location
-                                    </label>
+                                <div className="space-y-1 md:col-span-2">
+                                    <label className="text-xs font-medium text-gray-500 block">Location</label>
                                     <input
                                         type="text"
                                         value={item.location || ''}
                                         onChange={(e) => handleChange(item.id, 'location', e.target.value)}
-                                        className="w-full p-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
+                                        className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
                                         placeholder="City, Country"
                                     />
                                 </div>
-                            </div>
 
-                            <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1">
-                                    <label className="text-xs font-medium text-gray-500 flex items-center gap-1">
-                                        <Calendar size={12} /> Start Date
-                                    </label>
+                                    <label className="text-xs font-medium text-gray-500 block">Start Date</label>
                                     <input
                                         type="month"
                                         value={formatDateForInput(item.startDate)}
                                         onChange={(e) => handleChange(item.id, 'startDate', e.target.value)}
-                                        className="w-full p-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
+                                        className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
                                     />
                                     <label className="flex items-center gap-1.5 cursor-pointer pt-1">
                                         <input
@@ -228,19 +195,18 @@ export default function LeadershipForm({ data, onChange, onAIAction }: Leadershi
                                             onChange={(e) => handleCurrentPositionToggle(item.id, e.target.checked)}
                                             className="w-3.5 h-3.5 text-brand-green border-gray-300 rounded focus:ring-brand-green accent-brand-green cursor-pointer"
                                         />
-                                        <span className="text-xs font-medium text-gray-600">Ongoing</span>
+                                        <span className="text-xs font-medium text-gray-600">I currently work here</span>
                                     </label>
                                 </div>
+
                                 <div className="space-y-1">
-                                    <label className="text-xs font-medium text-gray-500 flex items-center gap-1">
-                                        <Calendar size={12} /> End Date
-                                    </label>
+                                    <label className="text-xs font-medium text-gray-500 block">End Date</label>
                                     <input
                                         type="month"
                                         value={formatDateForInput(item.endDate)}
                                         onChange={(e) => handleChange(item.id, 'endDate', e.target.value)}
                                         disabled={isCurrentPosition}
-                                        className="w-full p-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all disabled:bg-gray-50 disabled:text-gray-500"
+                                        className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all disabled:bg-gray-50 disabled:text-gray-500"
                                         placeholder={isCurrentPosition ? 'Present' : ''}
                                     />
                                 </div>
@@ -249,7 +215,7 @@ export default function LeadershipForm({ data, onChange, onAIAction }: Leadershi
                             <div className="space-y-2">
                                 <label className="text-xs font-medium text-gray-500">Description</label>
                                 <textarea
-                                    value={item.description}
+                                    value={normalizeDesc(item.description)}
                                     onChange={(e) => handleChange(item.id, 'description', e.target.value)}
                                     rows={3}
                                     className="w-full p-3 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all resize-none leading-relaxed"
@@ -258,7 +224,7 @@ export default function LeadershipForm({ data, onChange, onAIAction }: Leadershi
                                 <div className="flex justify-end">
                                     <button
                                         onClick={() => handleEnhanceDescription(item)}
-                                        disabled={enhancingId === item.id || !item.description.trim()}
+                                        disabled={enhancingId === item.id || !normalizeDesc(item.description).trim()}
                                         className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-brand-dark bg-brand-green hover:bg-brand-greenHover rounded-md transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
                                         title="Enhance with AI (3 credits)"
                                     >

@@ -5,6 +5,7 @@ import { applyPendingPlanFromSearch } from './utils/pendingCheckout';
 
 // Page Components
 import LandingPage from './components/LandingPage';
+import HeroLandingPage from './components/HeroLandingPage';
 import SignIn from './components/SignIn';
 import SignUp from './components/SignUp';
 import ForgotPassword from './components/ForgotPassword';
@@ -19,9 +20,17 @@ import BlogPost from './components/BlogPost';
 import Support from './components/Support';
 import ResumeMatchChecker from './components/ResumeMatchChecker';
 import ActionVerbs from './components/ActionVerbs';
+import AgentLandingPage from './components/AgentLandingPage';
+import PrintResumePage from './pages/PrintResumePage';
 
 // New dashboard with nested routing
 import Dashboard from './pages/Dashboard';
+import ResumeAgentPage from './pages/ResumeAgentPage';
+import AdminJobsPage from './pages/AdminJobsPage';
+
+// TEMP DEV HARNESS — remove before shipping
+import AgentToolbarTestPage from './dev/AgentToolbarTestPage';
+import TemplatesComparePage from './dev/TemplatesComparePage';
 
 // Protected Route Component
 interface ProtectedRouteProps {
@@ -131,6 +140,9 @@ export default function AppRoutes() {
         <Routes>
             {/* Public Routes */}
             <Route path="/" element={<PublicRoute redirectIfAuthenticated={false}><LandingPage /></PublicRoute>} />
+            <Route path="/landingpage" element={<PublicRoute redirectIfAuthenticated={false}><HeroLandingPage /></PublicRoute>} />
+            <Route path="/agent-landing" element={<PublicRoute redirectIfAuthenticated={false}><AgentLandingPage /></PublicRoute>} />
+            <Route path="/agent" element={<PublicRoute redirectIfAuthenticated={false}><AgentLandingPage /></PublicRoute>} />
             <Route path="/login" element={<PublicRoute><SignIn /></PublicRoute>} />
             <Route path="/signup" element={<PublicRoute><SignUp /></PublicRoute>} />
             <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
@@ -150,8 +162,22 @@ export default function AppRoutes() {
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
 
+            {/* TEMP DEV HARNESS ROUTE — remove before shipping */}
+            <Route path="/dev-agent-test" element={<AgentToolbarTestPage />} />
+            <Route path="/dev-templates" element={<TemplatesComparePage />} />
+
+            {/* Protected Route - Resume Agent */}
+            <Route path="/resume-agent" element={<ProtectedRoute><ResumeAgentPage /></ProtectedRoute>} />
+
             {/* Protected Route - Dashboard with nested routes */}
             <Route path="/dashboard/*" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+
+            {/* Print/PDF capture route — used by Puppeteer, no auth needed */}
+            <Route path="/print-resume" element={<PrintResumePage />} />
+
+            {/* Admin Job Feed Management Panel */}
+            <Route path="/admin" element={<ProtectedRoute><AdminJobsPage /></ProtectedRoute>} />
+            <Route path="/admin/jobs" element={<ProtectedRoute><AdminJobsPage /></ProtectedRoute>} />
 
             {/* Catch all - redirect to home */}
             <Route path="*" element={<Navigate to="/" replace />} />

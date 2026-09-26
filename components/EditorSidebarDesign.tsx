@@ -42,10 +42,14 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
     const handleSaveTemplate = () => {
         setIsSaving(true);
 
-        const finalName = templateName.trim() || data.currentTag || 'Untitled Resume';
+        const finalName =
+            templateName.trim() ||
+            data.resumeTitle?.trim() ||
+            data.currentTag?.trim() ||
+            (data.fullName?.trim() ? `${data.fullName.trim()}'s Resume` : 'Untitled Resume');
 
         // Create updated data with the template name (or fallback)
-        const updatedData = { ...data, currentTag: finalName };
+        const updatedData = { ...data, currentTag: finalName, resumeTitle: finalName };
 
         // Update local state
         onChange(updatedData);
@@ -60,7 +64,12 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
 
     const handleSave = () => {
         setIsSaving(true);
-        const updatedData = { ...data, currentTag: data.currentTag || templateName.trim() || 'Untitled' };
+        const finalName =
+            data.resumeTitle?.trim() ||
+            data.currentTag?.trim() ||
+            templateName.trim() ||
+            (data.fullName?.trim() ? `${data.fullName.trim()}'s Resume` : 'Untitled Resume');
+        const updatedData = { ...data, currentTag: finalName, resumeTitle: finalName };
         onChange(updatedData);
         if (onSave) {
             onSave(updatedData);
@@ -74,7 +83,88 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
             {/* Align Section */}
             <div className="p-4 border-b border-brand-border space-y-4">
                 <div>
-                    <h3 className="text-xs font-bold text-gray-900 mb-3">Header Align</h3>
+                    <h3 className="text-xs font-bold text-gray-900 mb-3">Section Headers Align</h3>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => onChange({ ...data, bodyHeaderAlignment: 'left', sectionHeaderAlignment: 'left' })}
+                            className={`p-2 rounded hover:bg-brand-secondary ${(!data.bodyHeaderAlignment || data.bodyHeaderAlignment === 'left') ? 'bg-brand-secondary text-brand-dark' : 'text-gray-400'}`}
+                            title="Align Left"
+                        >
+                            <AlignLeft size={18} />
+                        </button>
+                        <button
+                            onClick={() => onChange({ ...data, bodyHeaderAlignment: 'center', sectionHeaderAlignment: 'center' })}
+                            className={`p-2 rounded hover:bg-brand-secondary ${data.bodyHeaderAlignment === 'center' ? 'bg-brand-secondary text-brand-dark' : 'text-gray-400'}`}
+                            title="Align Center"
+                        >
+                            <AlignCenter size={18} />
+                        </button>
+                        <button
+                            onClick={() => onChange({ ...data, bodyHeaderAlignment: 'right', sectionHeaderAlignment: 'right' })}
+                            className={`p-2 rounded hover:bg-brand-secondary ${data.bodyHeaderAlignment === 'right' ? 'bg-brand-secondary text-brand-dark' : 'text-gray-400'}`}
+                            title="Align Right"
+                        >
+                            <AlignRight size={18} />
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 className="text-xs font-bold text-gray-900 mb-3">Professional Title Align</h3>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => onChange({ ...data, jobTitleAlignment: 'left' })}
+                            className={`p-2 rounded hover:bg-brand-secondary ${(data.jobTitleAlignment || data.headerAlignment) === 'left' ? 'bg-brand-secondary text-brand-dark' : 'text-gray-400'}`}
+                            title="Align Left"
+                        >
+                            <AlignLeft size={18} />
+                        </button>
+                        <button
+                            onClick={() => onChange({ ...data, jobTitleAlignment: 'center' })}
+                            className={`p-2 rounded hover:bg-brand-secondary ${(data.jobTitleAlignment || data.headerAlignment || 'center') === 'center' ? 'bg-brand-secondary text-brand-dark' : 'text-gray-400'}`}
+                            title="Align Center"
+                        >
+                            <AlignCenter size={18} />
+                        </button>
+                        <button
+                            onClick={() => onChange({ ...data, jobTitleAlignment: 'right' })}
+                            className={`p-2 rounded hover:bg-brand-secondary ${(data.jobTitleAlignment || data.headerAlignment) === 'right' ? 'bg-brand-secondary text-brand-dark' : 'text-gray-400'}`}
+                            title="Align Right"
+                        >
+                            <AlignRight size={18} />
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 className="text-xs font-bold text-gray-900 mb-3">Contact Info Align</h3>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => onChange({ ...data, contactAlignment: 'left' })}
+                            className={`p-2 rounded hover:bg-brand-secondary ${(data.contactAlignment || data.headerAlignment) === 'left' ? 'bg-brand-secondary text-brand-dark' : 'text-gray-400'}`}
+                            title="Align Left"
+                        >
+                            <AlignLeft size={18} />
+                        </button>
+                        <button
+                            onClick={() => onChange({ ...data, contactAlignment: 'center' })}
+                            className={`p-2 rounded hover:bg-brand-secondary ${(data.contactAlignment || data.headerAlignment || 'center') === 'center' ? 'bg-brand-secondary text-brand-dark' : 'text-gray-400'}`}
+                            title="Align Center"
+                        >
+                            <AlignCenter size={18} />
+                        </button>
+                        <button
+                            onClick={() => onChange({ ...data, contactAlignment: 'right' })}
+                            className={`p-2 rounded hover:bg-brand-secondary ${(data.contactAlignment || data.headerAlignment) === 'right' ? 'bg-brand-secondary text-brand-dark' : 'text-gray-400'}`}
+                            title="Align Right"
+                        >
+                            <AlignRight size={18} />
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 className="text-xs font-bold text-gray-900 mb-3">Name / Header Align</h3>
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => onChange({ ...data, headerAlignment: 'left' })}
@@ -85,7 +175,7 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
                         </button>
                         <button
                             onClick={() => onChange({ ...data, headerAlignment: 'center' })}
-                            className={`p-2 rounded hover:bg-brand-secondary ${data.headerAlignment === 'center' ? 'bg-brand-secondary text-brand-dark' : 'text-gray-400'}`}
+                            className={`p-2 rounded hover:bg-brand-secondary ${(!data.headerAlignment || data.headerAlignment === 'center') ? 'bg-brand-secondary text-brand-dark' : 'text-gray-400'}`}
                             title="Align Center"
                         >
                             <AlignCenter size={18} />
@@ -93,33 +183,6 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
                         <button
                             onClick={() => onChange({ ...data, headerAlignment: 'right' })}
                             className={`p-2 rounded hover:bg-brand-secondary ${data.headerAlignment === 'right' ? 'bg-brand-secondary text-brand-dark' : 'text-gray-400'}`}
-                            title="Align Right"
-                        >
-                            <AlignRight size={18} />
-                        </button>
-                    </div>
-                </div>
-
-                <div>
-                    <h3 className="text-xs font-bold text-gray-900 mb-3">Body Align</h3>
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => onChange({ ...data, bodyHeaderAlignment: 'left' })}
-                            className={`p-2 rounded hover:bg-brand-secondary ${data.bodyHeaderAlignment === 'left' ? 'bg-brand-secondary text-brand-dark' : 'text-gray-400'}`}
-                            title="Align Left"
-                        >
-                            <AlignLeft size={18} />
-                        </button>
-                        <button
-                            onClick={() => onChange({ ...data, bodyHeaderAlignment: 'center' })}
-                            className={`p-2 rounded hover:bg-brand-secondary ${data.bodyHeaderAlignment === 'center' ? 'bg-brand-secondary text-brand-dark' : 'text-gray-400'}`}
-                            title="Align Center"
-                        >
-                            <AlignCenter size={18} />
-                        </button>
-                        <button
-                            onClick={() => onChange({ ...data, bodyHeaderAlignment: 'right' })}
-                            className={`p-2 rounded hover:bg-brand-secondary ${data.bodyHeaderAlignment === 'right' ? 'bg-brand-secondary text-brand-dark' : 'text-gray-400'}`}
                             title="Align Right"
                         >
                             <AlignRight size={18} />
@@ -191,6 +254,30 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
                         );
                     })()}
                 </div>
+                {/* Contact Icons Toggle */}
+                <div>
+                    <h3 className="text-xs font-bold text-gray-900 mb-3">Contact Icons</h3>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => onChange({ ...data, showContactIcons: true })}
+                            className={`flex-1 px-3 py-2 rounded text-xs font-medium border transition-colors ${(data.showContactIcons ?? true)
+                                ? 'bg-brand-secondary text-brand-dark border-brand-dark/20 font-bold'
+                                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                                }`}
+                        >
+                            Show Icons
+                        </button>
+                        <button
+                            onClick={() => onChange({ ...data, showContactIcons: false })}
+                            className={`flex-1 px-3 py-2 rounded text-xs font-medium border transition-colors ${data.showContactIcons === false
+                                ? 'bg-brand-secondary text-brand-dark border-brand-dark/20 font-bold'
+                                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                                }`}
+                        >
+                            Hide Icons
+                        </button>
+                    </div>
+                </div>
                 {/* Skills Layout */}
                 <div>
                     <h3 className="text-xs font-bold text-gray-900 mb-3">Skills Layout</h3>
@@ -212,6 +299,15 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
                                 }`}
                         >
                             3 Columns
+                        </button>
+                        <button
+                            onClick={() => onChange({ ...data, skillsColumnCount: 4 })}
+                            className={`px-3 py-2 rounded text-xs font-medium border transition-colors ${data.skillsColumnCount === 4
+                                ? 'bg-brand-secondary text-brand-dark border-brand-dark/20'
+                                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                                }`}
+                        >
+                            4 Columns
                         </button>
                     </div>
                 </div>
@@ -381,15 +477,18 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
                     <div className="space-y-2">
                         <label className="text-xs font-medium text-gray-700 flex justify-between">
                             <span>Space Between Sections</span>
-                            <span className="text-gray-400">{data.sectionGap || 0.2}in</span>
+                            <span className="text-gray-400">{data.sectionGap ?? 0}in</span>
                         </label>
                         <input
                             type="range"
-                            min="0.05"
-                            max="0.5"
+                            min="0"
+                            max="0.2"
                             step="0.01"
-                            value={data.sectionGap || 0.2}
-                            onChange={(e) => onChange({ ...data, sectionGap: parseFloat(e.target.value) })}
+                            value={Math.min(0.2, Math.max(0, data.sectionGap ?? 0.1))}
+                            onChange={(e) => {
+                                const val = parseFloat(e.target.value);
+                                onChange({ ...data, sectionGap: Math.min(0.2, Math.max(0, isNaN(val) ? 0.1 : val)) });
+                            }}
                             className="w-full accent-brand-green"
                         />
                     </div>
@@ -445,15 +544,15 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
                     <div className="space-y-2">
                         <label className="text-xs font-medium text-gray-700 flex justify-between">
                             <span>Top & Bottom Margins</span>
-                            <span className="text-gray-400">{data.margins?.vertical || 0.4}in</span>
+                            <span className="text-gray-400">{Math.round(((data.margins?.vertical !== undefined ? (data.margins.vertical > 2 ? data.margins.vertical / 96 : data.margins.vertical) : 25 / 96) * 96))}px</span>
                         </label>
                         <input
                             type="range"
-                            min="0.1"
-                            max="1.0"
-                            step="0.05"
-                            value={data.margins?.vertical || 0.4}
-                            onChange={(e) => handleNestedChange('margins', 'vertical', parseFloat(e.target.value))}
+                            min="8"
+                            max="60"
+                            step="1"
+                            value={Math.round(((data.margins?.vertical !== undefined ? (data.margins.vertical > 2 ? data.margins.vertical / 96 : data.margins.vertical) : 25 / 96) * 96))}
+                            onChange={(e) => handleNestedChange('margins', 'vertical', parseFloat(e.target.value) / 96)}
                             className="w-full accent-brand-green"
                         />
                     </div>
@@ -461,15 +560,15 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
                     <div className="space-y-2">
                         <label className="text-xs font-medium text-gray-700 flex justify-between">
                             <span>Left & Right Margins</span>
-                            <span className="text-gray-400">{data.margins?.horizontal || 0.4}in</span>
+                            <span className="text-gray-400">{Math.round(((data.margins?.horizontal !== undefined ? (data.margins.horizontal > 2 ? data.margins.horizontal / 96 : data.margins.horizontal) : 25 / 96) * 96))}px</span>
                         </label>
                         <input
                             type="range"
-                            min="0.1"
-                            max="1.0"
-                            step="0.05"
-                            value={data.margins?.horizontal || 0.4}
-                            onChange={(e) => handleNestedChange('margins', 'horizontal', parseFloat(e.target.value))}
+                            min="8"
+                            max="60"
+                            step="1"
+                            value={Math.round(((data.margins?.horizontal !== undefined ? (data.margins.horizontal > 2 ? data.margins.horizontal / 96 : data.margins.horizontal) : 25 / 96) * 96))}
+                            onChange={(e) => handleNestedChange('margins', 'horizontal', parseFloat(e.target.value) / 96)}
                             className="w-full accent-brand-green"
                         />
                     </div>

@@ -1,10 +1,13 @@
 import { supabase } from '../lib/supabase';
+import { CandidateFact } from '../utils/agentTaskState';
 
 export interface UserProfile {
     id: string;
     full_name: string;
     avatar_url?: string;
     website?: string;
+    candidate_facts?: CandidateFact[];
+    target_role?: string;
     created_at: string;
     updated_at: string;
 }
@@ -40,6 +43,24 @@ export const profileService = {
         } catch (error) {
             console.error('Error updating profile:', error);
             throw error;
+        }
+    },
+
+    async getCandidateFacts(userId: string): Promise<CandidateFact[]> {
+        try {
+            const profile = await this.getProfile(userId);
+            return Array.isArray(profile?.candidate_facts) ? profile.candidate_facts : [];
+        } catch (error) {
+            console.error('Error fetching candidate facts:', error);
+            return [];
+        }
+    },
+
+    async saveCandidateFacts(userId: string, facts: CandidateFact[]): Promise<void> {
+        try {
+            await this.updateProfile(userId, { candidate_facts: facts });
+        } catch (error) {
+            console.error('Error saving candidate facts:', error);
         }
     },
     async deleteUser(userId: string): Promise<void> {

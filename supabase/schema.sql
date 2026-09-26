@@ -20,6 +20,7 @@ DROP TABLE IF EXISTS public.billing_history CASCADE;
 DROP TABLE IF EXISTS public.resume_versions CASCADE;
 DROP TABLE IF EXISTS public.cover_letters CASCADE;
 DROP TABLE IF EXISTS public.usage_logs CASCADE;
+DROP TABLE IF EXISTS public.saved_resumes CASCADE;
 DROP TABLE IF EXISTS public.resumes CASCADE;
 DROP TABLE IF EXISTS public.subscriptions CASCADE;
 DROP TABLE IF EXISTS public.profiles CASCADE;
@@ -75,13 +76,51 @@ CREATE POLICY "Users can update their own subscription"
 CREATE INDEX subscriptions_user_id_idx ON public.subscriptions(user_id);
 
 -- ============================================
--- 3. RESUMES TABLE
+-- 3. SAVED RESUMES TABLE
+-- ============================================
+CREATE TABLE public.saved_resumes (
+  id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id uuid REFERENCES auth.users ON DELETE CASCADE NOT NULL,
+  title text NOT NULL,
+  content jsonb DEFAULT '{}'::jsonb,
+  job_data jsonb,
+  task_state jsonb,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+
+ALTER TABLE public.saved_resumes ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view their own saved resumes"
+  ON public.saved_resumes FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own saved resumes"
+  ON public.saved_resumes FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own saved resumes"
+  ON public.saved_resumes FOR UPDATE
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own saved resumes"
+  ON public.saved_resumes FOR DELETE
+  USING (auth.uid() = user_id);
+
+CREATE INDEX saved_resumes_user_id_idx ON public.saved_resumes(user_id);
+CREATE INDEX saved_resumes_created_at_idx ON public.saved_resumes(created_at DESC);
+CREATE INDEX saved_resumes_updated_at_idx ON public.saved_resumes(updated_at DESC);
+
+-- ============================================
+-- 3b. LEGACY RESUMES TABLE (for backwards compatibility)
 -- ============================================
 CREATE TABLE public.resumes (
   id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
   user_id uuid REFERENCES auth.users ON DELETE CASCADE NOT NULL,
   title text NOT NULL,
   content jsonb DEFAULT '{}'::jsonb,
+  job_data jsonb,
+  task_state jsonb,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );
@@ -286,6 +325,7 @@ CREATE TRIGGER on_auth_user_created
 GRANT USAGE ON SCHEMA public TO anon, authenticated;
 GRANT ALL ON public.profiles TO anon, authenticated;
 GRANT ALL ON public.subscriptions TO anon, authenticated;
+GRANT ALL ON public.saved_resumes TO anon, authenticated;
 GRANT ALL ON public.resumes TO anon, authenticated;
 GRANT ALL ON public.usage_logs TO anon, authenticated;
 GRANT ALL ON public.cover_letters TO anon, authenticated;
@@ -295,7 +335,7 @@ GRANT ALL ON public.billing_history TO anon, authenticated;
 -- ============================================
 -- DONE!
 -- ============================================
--- ✅ All 7 tables created
+-- ✅ All tables created (including saved_resumes)
 -- ✅ RLS policies enabled
 -- ✅ Indexes created
 -- ✅ Trigger set up for auto-creating user data
@@ -324,12 +364,13 @@ BEGIN
   END IF;
 
   -- Delete data in order of dependencies (leaves -> root)
-  DELETE FROM public.resume_versions WHERE resume_id IN (SELECT id FROM public.resumes WHERE user_id = v_user_id);
+  DELETE FROM public.resume_versions WHERE resume_id IN (SELECT id FROM public.saved_resumes WHERE user_id = v_user_id) OR resume_id IN (SELECT id FROM public.resumes WHERE user_id = v_user_id);
   DELETE FROM public.cover_letters WHERE user_id = v_user_id;
   DELETE FROM public.usage_logs WHERE user_id = v_user_id;
   DELETE FROM public.billing_history WHERE user_id = v_user_id;
   
   -- Delete main entities
+  DELETE FROM public.saved_resumes WHERE user_id = v_user_id;
   DELETE FROM public.resumes WHERE user_id = v_user_id;
   DELETE FROM public.subscriptions WHERE user_id = v_user_id;
   

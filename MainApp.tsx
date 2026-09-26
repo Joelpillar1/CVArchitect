@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Layout, FileText, Settings as SettingsIcon, Home, ChevronRight, ChevronLeft, Menu, X, LogOut, Bookmark } from 'lucide-react';
-import { ResumeData, INITIAL_DATA, TemplateType, SavedTemplate } from './types';
+import { ResumeData, INITIAL_DATA, createEmptyResume, TemplateType, SavedTemplate } from './types';
 import Editor from './components/Editor';
 import Overview from './components/Overview';
 import Templates from './components/Templates';
@@ -34,7 +34,8 @@ import { profileService, UserProfile } from './services/profileService';
 import MyCoverLetters from './components/MyCoverLetters';
 import { coverLetterService, SavedCoverLetter } from './services/coverLetterService';
 import CoverLetterModal from './components/CoverLetterModal';
-<meta name="google-site-verification" content="tM8NcOMoT43REWAXI4sUDCX6usdXgja0epq5QCK1Ygc" />
+import { normalizeResumeData } from './pages/ResumeAgentPage';
+
 export enum View {
   LANDING = 'LANDING',
   SIGN_IN = 'SIGN_IN',
@@ -579,19 +580,28 @@ export default function App() {
 
   // Save (update existing resume)
   const handleSave = async (dataToSave?: ResumeData) => {
-    const finalData = dataToSave || resumeData;
-    finalData.template = selectedTemplate;
+    const raw = dataToSave || resumeData;
+    const resolvedTitle =
+      raw.resumeTitle?.trim() ||
+      raw.currentTag?.trim() ||
+      (raw.fullName?.trim() ? `${raw.fullName.trim()}'s Resume` : 'Untitled Resume');
+    const finalData: ResumeData = {
+      ...raw,
+      template: selectedTemplate,
+      resumeTitle: resolvedTitle,
+      currentTag: resolvedTitle,
+    };
 
     if (!currentResumeId) {
       // If no current resume ID, treat as Save As
-      return handleSaveAs(dataToSave);
+      return handleSaveAs(finalData);
     }
 
     if (user && !currentResumeId.startsWith('saved_')) {
       try {
         await resumeService.updateResume(
           currentResumeId,
-          finalData.currentTag || 'Untitled',
+          resolvedTitle,
           finalData
         );
 
@@ -599,12 +609,12 @@ export default function App() {
         setSavedResumes(prev =>
           prev.map(t =>
             t.id === currentResumeId
-              ? { ...t, data: finalData, tag: finalData.currentTag || t.tag }
+              ? { ...t, data: finalData, tag: resolvedTitle }
               : t
           )
         );
         setHasUnsavedChanges(false);
-        showToast(`Resume "${finalData.currentTag || 'Untitled'}" updated successfully!`, 'success');
+        showToast(`Resume "${resolvedTitle}" updated successfully!`, 'success');
       } catch (error) {
         console.error('Error updating resume:', error);
         showToast('Failed to update resume.', 'error');
@@ -614,7 +624,7 @@ export default function App() {
       setSavedResumes(prev =>
         prev.map(t =>
           t.id === currentResumeId
-            ? { ...t, data: { ...finalData }, tag: finalData.currentTag || t.tag }
+            ? { ...t, data: { ...finalData }, tag: resolvedTitle }
             : t
         )
       );
@@ -625,20 +635,29 @@ export default function App() {
 
   // Save As (create new resume)
   const handleSaveAs = async (dataToSave?: ResumeData) => {
-    const finalData = dataToSave || resumeData;
-    finalData.template = selectedTemplate;
+    const raw = dataToSave || resumeData;
+    const resolvedTitle =
+      raw.resumeTitle?.trim() ||
+      raw.currentTag?.trim() ||
+      (raw.fullName?.trim() ? `${raw.fullName.trim()}'s Resume` : 'Untitled Resume');
+    const finalData: ResumeData = {
+      ...raw,
+      template: selectedTemplate,
+      resumeTitle: resolvedTitle,
+      currentTag: resolvedTitle,
+    };
 
     if (user) {
       try {
         const resumeId = await resumeService.createResume(
           user.id,
-          finalData.currentTag || 'Untitled',
+          resolvedTitle,
           finalData
         );
 
         const newSavedTemplate: SavedTemplate = {
           id: resumeId,
-          tag: finalData.currentTag || 'Untitled',
+          tag: resolvedTitle,
           baseTemplate: selectedTemplate,
           data: finalData,
           createdAt: new Date(),
@@ -647,7 +666,7 @@ export default function App() {
         setSavedResumes(prev => [newSavedTemplate, ...prev]);
         setCurrentResumeId(resumeId);
         setHasUnsavedChanges(false);
-        showToast(`Resume "${finalData.currentTag || 'Untitled'}" saved successfully!`, 'success');
+        showToast(`Resume "${resolvedTitle}" saved successfully!`, 'success');
       } catch (error) {
         console.error('Error saving resume:', error);
         showToast('Failed to save resume.', 'error');
@@ -657,7 +676,7 @@ export default function App() {
       const newId = `saved_${Date.now()}`;
       const newSavedTemplate: SavedTemplate = {
         id: newId,
-        tag: finalData.currentTag || 'Untitled',
+        tag: resolvedTitle,
         baseTemplate: selectedTemplate,
         data: { ...finalData },
         createdAt: new Date(),
@@ -705,6 +724,54 @@ export default function App() {
       }
     }
     // For local templates (id.startsWith('saved_')), no database operation needed
+  };
+
+  const handleDuplicateSavedTemplate = async (template: SavedTemplate) => {
+    try {
+      const originalData: ResumeData = template.data
+        ? JSON.parse(JSON.stringify(template.data))
+        : { ...INITIAL_DATA };
+      const copyTag = `${template.tag || 'Resume'} (Copy)`;
+
+      const duplicatedData: ResumeData = {
+        ...originalData,
+        resumeTitle: copyTag,
+        currentTag: copyTag,
+        agentMessages: [],
+        agentJobData: null,
+        agentAnalysis: null,
+        jobDescription: '',
+        hasJobMatchRun: false,
+      };
+
+      let newId = `saved_${Date.now()}`;
+
+      if (user && !template.id.startsWith('saved_')) {
+        try {
+          const insertedId = await resumeService.createResume(user.id, copyTag, duplicatedData);
+          if (insertedId) {
+            newId = insertedId;
+          }
+        } catch (err) {
+          console.error('Failed to duplicate resume in database:', err);
+        }
+      }
+
+      const newSavedTemplate: SavedTemplate = {
+        id: newId,
+        tag: copyTag,
+        baseTemplate: template.baseTemplate || selectedTemplate,
+        data: duplicatedData,
+        createdAt: new Date(),
+      };
+
+      setSavedResumes(prev => [newSavedTemplate, ...prev]);
+      setSavedTemplates(prev => [newSavedTemplate, ...prev]);
+      showToast(`"${copyTag}" created successfully!`, 'success');
+    } catch (err) {
+      console.error('Error duplicating resume in MainApp:', err);
+      showToast('Failed to duplicate resume.', 'error');
+    }
   };
 
   const renderContent = () => {
@@ -772,11 +839,11 @@ export default function App() {
                       startDate: "2021-01",
                       endDate: "Present",
                       description: [
-                        "Leading the design of the core product suite",
-                        "Improved user engagement by 40% through a complete redesign of the dashboard",
-                        "Mentoring junior designers and establishing design best practices",
-                        "Collaborating with product and engineering teams to deliver user-centric solutions",
-                        "Conducting user research and usability testing to validate design decisions"
+                        "Leading the design of the core product suite.",
+                        "Improved user engagement by 40% through a complete redesign of the dashboard.",
+                        "Mentoring junior designers and establishing design best practices.",
+                        "Collaborating with product and engineering teams to deliver user-centric solutions.",
+                        "Conducting user research and usability testing to validate design decisions."
                       ],
                       location: "San Francisco, CA"
                     },
@@ -787,10 +854,10 @@ export default function App() {
                       startDate: "2018-06",
                       endDate: "2021-01",
                       description: [
-                        "Collaborated with cross-functional teams to deliver high-quality web and mobile applications",
-                        "Conducted user research and usability testing to inform design decisions",
-                        "Created wireframes, prototypes, and high-fidelity designs",
-                        "Established and maintained design system documentation"
+                        "Collaborated with cross-functional teams to deliver high-quality web and mobile applications.",
+                        "Conducted user research and usability testing to inform design decisions.",
+                        "Created wireframes, prototypes, and high-fidelity designs.",
+                        "Established and maintained design system documentation."
                       ],
                       location: "New York, NY"
                     }
@@ -821,6 +888,7 @@ export default function App() {
             savedTemplates={savedTemplates}
             onLoadTemplate={handleLoadSavedTemplate}
             onDeleteTemplate={handleDeleteSavedTemplate}
+            onDuplicateTemplate={handleDuplicateSavedTemplate}
             userName={userProfile?.full_name || user?.email?.split('@')[0]}
             userSubscription={userSubscription}
           />
@@ -828,7 +896,14 @@ export default function App() {
       case View.TEMPLATES:
         return <Templates onSelect={handleTemplateSelect} data={resumeData} />;
       case View.MY_TEMPLATES:
-        return <MyTemplates templates={savedResumes} onLoadTemplate={handleLoadSavedTemplate} onDeleteTemplate={handleDeleteSavedTemplate} />;
+        return (
+          <MyTemplates
+            templates={savedResumes}
+            onLoadTemplate={handleLoadSavedTemplate}
+            onDeleteTemplate={handleDeleteSavedTemplate}
+            onDuplicateTemplate={handleDuplicateSavedTemplate}
+          />
+        );
       case View.MY_COVER_LETTERS:
         return (
           <MyCoverLetters
@@ -1137,8 +1212,6 @@ export default function App() {
           console.log('Modal Onboarding complete:', data);
           setShowOnboardingModal(false);
 
-          let newResumeData = { ...INITIAL_DATA };
-
           if (data.method === 'upload') {
             // Check access and deduct credits for resume upload
             const check = subscriptionManager.canUseFeature('resume_upload');
@@ -1171,21 +1244,12 @@ export default function App() {
             }
 
             // Use parsed data from the uploaded resume
-            newResumeData = {
-              ...newResumeData,
-              ...data.parsedData,
-              // Ensure we keep the job title if it was parsed, otherwise fallback or use what was entered (if any)
-              jobTitle: data.parsedData.jobTitle || data.role || "Professional Role",
+            const rawParsed = data.parsedData || {};
+            let newResumeData: ResumeData = normalizeResumeData({
+              ...rawParsed,
+              jobTitle: rawParsed.jobTitle || data.role || "",
               source: 'upload',
-            };
-
-            // If experience was parsed, ensure IDs are unique
-            if (newResumeData.experience) {
-              newResumeData.experience = newResumeData.experience.map((exp: any, index: number) => ({
-                ...exp,
-                id: `exp_${Date.now()}_${index}`
-              }));
-            }
+            });
 
             showToast("Resume uploaded and analyzed successfully!");
             setResumeData(newResumeData); // Set resume data here for upload path

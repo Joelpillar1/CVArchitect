@@ -1,11 +1,9 @@
 import { supabase } from '../lib/supabase';
 
 /**
- * Service to call Supabase Edge Functions for AI operations
- * This keeps API keys secure on the backend
+ * Service to call Supabase Edge Functions for AI operations.
+ * Uses the Supabase Client SDK directly to invoke the 'ai-generate' function.
  */
-
-const EDGE_FUNCTION_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
 
 interface AIRequest {
     action: string;
@@ -15,22 +13,11 @@ interface AIRequest {
     responseFormat?: 'text' | 'json';
 }
 
-interface AIResponse {
-    result: string;
-    error?: string;
-}
-
 /**
- * Call the Supabase Edge Function for AI operations
+ * Call the Supabase Edge Function for AI operations directly via Supabase SDK
  */
 export const callAIFunction = async (request: AIRequest): Promise<string> => {
     try {
-        // Get the current session token
-        const { data: { session } } = await supabase.auth.getSession();
-
-        const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-        // Edge Function expects: { prompt, model, temperature, responseFormat }
         const requestBody = {
             prompt: request.prompt,
             model: request.model || 'gpt-4o',
@@ -38,28 +25,34 @@ export const callAIFunction = async (request: AIRequest): Promise<string> => {
             responseFormat: request.responseFormat || 'text',
         };
 
-        const response = await fetch(`${EDGE_FUNCTION_URL}/ai-generate`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${session?.access_token || supabaseKey}`,
-                'apikey': supabaseKey,
-            },
-            body: JSON.stringify(requestBody),
+        const { data, error } = await supabase.functions.invoke('ai-generate', {
+            body: requestBody,
         });
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        if (error) {
+            console.error('Supabase function error:', error);
+            let msg = error.message || 'Failed to call Supabase AI function';
+            try {
+                const errContext = (error as any)?.context;
+                if (errContext && typeof errContext.json === 'function') {
+                    const json = await errContext.json();
+                    if (json?.error) msg = json.error;
+                }
+            } catch (_) {
+                /* ignore */
+            }
+            throw new Error(msg);
         }
 
-        const data: AIResponse = await response.json();
-
-        if (data.error) {
+        if (data?.error) {
             throw new Error(data.error);
         }
 
-        return data.result;
+        if (typeof data?.result === 'string') {
+            return data.result;
+        }
+
+        throw new Error('Invalid response format from Supabase Edge Function');
     } catch (error: any) {
         console.error('AI Function Call Error:', error);
         throw new Error(error.message || 'Failed to call AI function');

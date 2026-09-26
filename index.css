@@ -1,3 +1,6 @@
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,6 +8,16 @@
 /* Global responsive utilities */
 * {
     box-sizing: border-box;
+}
+
+/* Custom primary brand green highlight selection */
+::selection {
+    background-color: #70E098 !important;
+    color: #111827 !important;
+}
+::-moz-selection {
+    background-color: #70E098 !important;
+    color: #111827 !important;
 }
 
 html,
@@ -53,7 +66,24 @@ body {
         width: 100% !important;
     }
 
-    /* Target the print wrapper in Editor.tsx */
+    .print-root table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        border-spacing: 0 !important;
+    }
+
+    .print-root thead {
+        display: table-header-group !important;
+    }
+
+    .print-root tfoot {
+        display: table-footer-group !important;
+    }
+
+    .print-root tbody {
+        display: table-row-group !important;
+    }
+
     .print-resume {
         width: 100% !important;
         max-width: 210mm !important;
@@ -61,6 +91,13 @@ body {
         margin: 0 auto !important;
         overflow: visible !important;
         background-color: white !important;
+    }
+
+    .print-resume .resume-content {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        padding-left: 4mm !important;
+        padding-right: 4mm !important;
     }
 
     /* Target the print wrapper for cover letters - single page */
@@ -94,10 +131,20 @@ body {
         max-height: none !important;
     }
 
-    /* Ensure header is visible */
-    .print-cover-letter header {
+    /* Ensure resume & cover letter headers and asides are visible */
+    .print-resume header,
+    .print-cover-letter header,
+    .resume-page-sheet header {
         display: block !important;
         visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    .print-resume aside,
+    .resume-page-sheet aside {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
 
     /* Ensure all cover letter text elements are visible */
@@ -153,7 +200,6 @@ body {
         /* Avoid underlines so output doesn't suggest clickable links
            when most PDF printers strip link annotations anyway */
         text-decoration: none !important;
-        display: inline !important;
     }
 
     /* Ensure all text is selectable (not rasterized) */
@@ -192,6 +238,7 @@ body {
         /* Allow wrapping */
         overflow: visible !important;
     }
+
 
     /* Prevent images from blocking text selection */
     .print-resume img,
@@ -274,6 +321,23 @@ body {
     align-items: center;
     justify-content: space-between;
     gap: 16px;
+    flex-wrap: wrap;
+}
+
+.public-footer__badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.public-footer__badge img {
+    height: auto;
+    max-width: 100%;
+    transition: opacity 0.2s ease;
+}
+
+.public-footer__badge a:hover img {
+    opacity: 0.9;
 }
 
 .public-footer__brand {
@@ -396,4 +460,508 @@ body {
 .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
-}
+}
+
+/* Word-like uniform line spacing: every line inside a resume sheet uses the
+   document's line-height, so the Line Spacing control scales ALL text equally
+   (name, section headers, meta rows, bullets) instead of only body paragraphs.
+   Without this, templates hard-code their own values (e.g. 1.1 on the name,
+   leading-tight on section titles) and the control visibly ignores half the page.
+   ResumePreview sets --resume-line-height on .resume-preview-root from the data;
+   the rule pins every descendant to it so the offscreen measurement pass and the
+   visible sheets always agree, keeping pagination accurate. */
+.resume-preview-root {
+    --resume-line-height: 1.5;
+    --resume-bullet-indent: 0px;
+}
+.resume-preview-root *:not(h1):not(h2):not(h3):not(.section-header):not(svg):not(svg *) {
+    line-height: var(--resume-line-height, 1.5) !important;
+}
+.resume-preview-root h1,
+.resume-preview-root h2,
+.resume-preview-root h3,
+.resume-preview-root .section-header {
+    line-height: 1.25 !important;
+}
+
+
+/* =============================================================================
+   UNIFIED BULLET SYSTEM
+   All bullet lists — skills grids (data-bullet spans) AND experience/education
+   (list-disc <ul>) — are rendered with the same indentation model:
+
+     • The <ul> margin-left pushes the whole block 1.25rem from the page gutter
+     • The bullet itself sits at –1.25rem (left of the li text start)
+     • The text starts at 0 (flush right of the bullet column)
+
+   This keeps skills bullets and experience bullets perfectly aligned at all
+   times — on screen (preview) and in print/export.
+   ============================================================================= */
+
+/* ── 1. Shared <ul> base: strip native disc, set consistent indent ── */
+.resume-preview-root ul.list-disc,
+.resume-preview-root ul.list-outside,
+.resume-page-sheet ul.list-disc,
+.resume-page-sheet ul.list-outside,
+.resume-page ul.list-disc,
+.resume-page ul.list-outside,
+.print-resume ul.list-disc,
+.print-resume ul.list-outside,
+.resume-preview-root ul[data-skills-grid],
+.resume-preview-root [data-skills-grid],
+.resume-page-sheet ul[data-skills-grid],
+.resume-page-sheet [data-skills-grid],
+.resume-page ul[data-skills-grid],
+.resume-page [data-skills-grid],
+.print-resume ul[data-skills-grid],
+.print-resume [data-skills-grid],
+.resume-preview-root ul.list-none:has(> li > [data-bullet]),
+.resume-page-sheet ul.list-none:has(> li > [data-bullet]),
+.resume-page ul.list-none:has(> li > [data-bullet]),
+.print-resume ul.list-none:has(> li > [data-bullet]) {
+    list-style: none !important;
+    list-style-type: none !important;
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+}
+
+/* ── Hide inline [data-bullet] spans everywhere so bullets are purely generated via ::before ── */
+[data-bullet],
+.resume-preview-root [data-bullet],
+.resume-page-sheet [data-bullet],
+.resume-page [data-bullet],
+.print-resume [data-bullet] {
+    display: none !important;
+}
+
+/* ── 2. Unified <li> geometry for all bullet list items (standard and skills grid) ── */
+.resume-preview-root ul.list-disc > li,
+.resume-preview-root ul.list-outside > li,
+.resume-preview-root [data-skills-grid] > li,
+.resume-preview-root ul.list-none > li:has(> [data-bullet]),
+.resume-preview-root li[data-skill-cell],
+.resume-page-sheet ul.list-disc > li,
+.resume-page-sheet ul.list-outside > li,
+.resume-page-sheet [data-skills-grid] > li,
+.resume-page-sheet ul.list-none > li:has(> [data-bullet]),
+.resume-page-sheet li[data-skill-cell],
+.resume-page ul.list-disc > li,
+.resume-page ul.list-outside > li,
+.resume-page [data-skills-grid] > li,
+.resume-page ul.list-none > li:has(> [data-bullet]),
+.resume-page li[data-skill-cell],
+.print-resume ul.list-disc > li,
+.print-resume ul.list-outside > li,
+.print-resume [data-skills-grid] > li,
+.print-resume ul.list-none > li:has(> [data-bullet]),
+.print-resume li[data-skill-cell] {
+    display: block !important;
+    position: relative !important;
+    padding-left: calc(1.25em + var(--resume-bullet-indent, 0px)) !important;
+    text-indent: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* ── 3. Default disc (•) bullet via ::before on all <li> ── */
+.resume-preview-root ul.list-disc > li::before,
+.resume-preview-root ul.list-outside > li::before,
+.resume-preview-root [data-skills-grid] > li::before,
+.resume-preview-root ul.list-none > li:has(> [data-bullet])::before,
+.resume-preview-root li[data-skill-cell]::before,
+.resume-page-sheet ul.list-disc > li::before,
+.resume-page-sheet ul.list-outside > li::before,
+.resume-page-sheet [data-skills-grid] > li::before,
+.resume-page-sheet ul.list-none > li:has(> [data-bullet])::before,
+.resume-page-sheet li[data-skill-cell]::before,
+.resume-page ul.list-disc > li::before,
+.resume-page ul.list-outside > li::before,
+.resume-page [data-skills-grid] > li::before,
+.resume-page ul.list-none > li:has(> [data-bullet])::before,
+.resume-page li[data-skill-cell]::before,
+.print-resume ul.list-disc > li::before,
+.print-resume ul.list-outside > li::before,
+.print-resume [data-skills-grid] > li::before,
+.print-resume ul.list-none > li:has(> [data-bullet])::before,
+.print-resume li[data-skill-cell]::before {
+    content: '\2022' !important; /* U+2022 bullet • */
+    position: absolute !important;
+    left: var(--resume-bullet-indent, 0px) !important;
+    top: 0 !important;
+    width: 1.25em !important;
+    text-align: center !important;
+    font-weight: normal !important;
+    font-size: 1em !important;
+    line-height: inherit !important;
+    color: currentColor !important;
+    user-select: none !important;
+    pointer-events: none !important;
+}
+
+/* ── 4. Bullet Style Overrides (none, check, dash) ── */
+
+/* None */
+[data-bullet-style='none'] ul.list-disc > li::before,
+[data-bullet-style='none'] ul.list-outside > li::before,
+[data-bullet-style='none'] [data-skills-grid] > li::before,
+[data-bullet-style='none'] ul.list-none > li:has(> [data-bullet])::before,
+[data-bullet-style='none'] li[data-skill-cell]::before {
+    content: '' !important;
+}
+
+/* Check */
+[data-bullet-style='check'] ul.list-disc > li::before,
+[data-bullet-style='check'] ul.list-outside > li::before,
+[data-bullet-style='check'] [data-skills-grid] > li::before,
+[data-bullet-style='check'] ul.list-none > li:has(> [data-bullet])::before,
+[data-bullet-style='check'] li[data-skill-cell]::before {
+    content: '\2713' !important; /* ✓ */
+    font-weight: bold !important;
+}
+
+/* Dash */
+[data-bullet-style='dash'] ul.list-disc > li::before,
+[data-bullet-style='dash'] ul.list-outside > li::before,
+[data-bullet-style='dash'] [data-skills-grid] > li::before,
+[data-bullet-style='dash'] ul.list-none > li:has(> [data-bullet])::before,
+[data-bullet-style='dash'] li[data-skill-cell]::before {
+    content: '\2013' !important; /* – */
+    font-weight: bold !important;
+}
+
+
+
+
+
+
+
+
+
+@layer base {
+  .theme {
+        --font-heading: var(--font-sans);
+        --font-sans: 'Geist Variable', sans-serif;
+    }
+  :root {
+        --background: #ffffff;
+        --foreground: #18181b;
+        --card: #ffffff;
+        --card-foreground: #18181b;
+        --popover: #ffffff;
+        --popover-foreground: #18181b;
+        --primary: #18181b;
+        --primary-foreground: #fafafa;
+        --secondary: #f4f4f5;
+        --secondary-foreground: #18181b;
+        --muted: #f4f4f5;
+        --muted-foreground: #71717a;
+        --accent: #f4f4f5;
+        --accent-foreground: #18181b;
+        --destructive: #ef4444;
+        --border: #e4e4e7;
+        --input: #e4e4e7;
+        --ring: #a1a1aa;
+        --chart-1: #e4e4e7;
+        --chart-2: #71717a;
+        --chart-3: #52525b;
+        --chart-4: #3f3f46;
+        --chart-5: #27272a;
+        --radius: 0.625rem;
+        --sidebar: #fafafa;
+        --sidebar-foreground: #18181b;
+        --sidebar-primary: #18181b;
+        --sidebar-primary-foreground: #fafafa;
+        --sidebar-accent: #f4f4f5;
+        --sidebar-accent-foreground: #18181b;
+        --sidebar-border: #e4e4e7;
+        --sidebar-ring: #a1a1aa;
+    }
+  .dark {
+        --background: #18181b;
+        --foreground: #fafafa;
+        --card: #27272a;
+        --card-foreground: #fafafa;
+        --popover: #27272a;
+        --popover-foreground: #fafafa;
+        --primary: #fafafa;
+        --primary-foreground: #18181b;
+        --secondary: #27272a;
+        --secondary-foreground: #fafafa;
+        --muted: #27272a;
+        --muted-foreground: #a1a1aa;
+        --accent: #27272a;
+        --accent-foreground: #fafafa;
+        --destructive: #7f1d1d;
+        --border: rgba(255, 255, 255, 0.1);
+        --input: rgba(255, 255, 255, 0.15);
+        --ring: #71717a;
+        --chart-1: #e4e4e7;
+        --chart-2: #71717a;
+        --chart-3: #52525b;
+        --chart-4: #3f3f46;
+        --chart-5: #27272a;
+        --sidebar: #27272a;
+        --sidebar-foreground: #fafafa;
+        --sidebar-primary: #3b82f6;
+        --sidebar-primary-foreground: #ffffff;
+        --sidebar-accent: #27272a;
+        --sidebar-accent-foreground: #fafafa;
+        --sidebar-border: rgba(255, 255, 255, 0.1);
+        --sidebar-ring: #71717a;
+    }
+  * {
+    @apply border-border;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+  html {
+    @apply font-sans;
+    }
+}
+
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes shimmer-text {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.animate-pop-in {
+  animation: pop-in 220ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s linear infinite;
+}
+
+.animate-fade-up {
+  animation: fade-up 300ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.animate-fade-in {
+  animation: fade-in 300ms ease-out both;
+}
+
+@keyframes toolbar-slide-in-right {
+  0% {
+    opacity: 0;
+    transform: translate3d(36px, 0, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes toolbar-slide-in-left {
+  0% {
+    opacity: 0;
+    transform: translate3d(-36px, 0, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.animate-toolbar-slide-right {
+  animation: toolbar-slide-in-right 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+.animate-toolbar-slide-left {
+  animation: toolbar-slide-in-left 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+/* ===== Print/PDF capture page (/print-resume) ===== */
+/* Puppeteer navigates here. Strip all UI chrome so only the template is visible. */
+body.print-resume-mode,
+body.print-resume-mode #root {
+  background: #ffffff !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  max-width: none !important;
+}
+body.print-resume-mode #print-resume-root {
+  width: 100%;
+  background: #ffffff;
+}
+
+/* ===== Native Vector Print & Save-as-PDF Engine ===== */
+@media print {
+  @page {
+    margin: 0mm;
+    size: auto;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #18181b !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* When print portal (.print-root) is active, hide the app UI root (#root) so ONLY the clean vector portal prints */
+  body:has(.print-root) #root {
+    display: none !important;
+  }
+
+  /* Hide app shell UI elements, toolbars, sidebars, modals during print (never resume/cover letter content) */
+  nav:not(.resume-page-sheet nav):not(.print-resume nav),
+  footer:not(.resume-page-sheet footer):not(.print-resume footer),
+  .print\:hidden,
+  [class*="print:hidden"],
+  button,
+  .fixed:not(.resume-page-sheet):not(:has(.resume-page-sheet)),
+  .sticky:not(.resume-page-sheet *):not(.print-resume *),
+  [role="dialog"],
+  [data-floating-toolbar],
+  .floating-toolbar,
+  header.sticky,
+  header[class*="sticky"],
+  body > #root > div > header,
+  body > #root > div > div > aside {
+    display: none !important;
+  }
+
+  /* CRITICAL: Ensure resume & cover letter headers (contacts, name, title) and asides are ALWAYS displayed */
+  .print-resume header,
+  .print-cover-letter header,
+  .resume-page-sheet header,
+  .resume-page header,
+  [data-resume-paper] header,
+  .resume-preview-root header {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  .print-resume aside,
+  .resume-page-sheet aside,
+  .resume-page aside,
+  [data-resume-paper] aside,
+  .resume-preview-root aside {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* Ensure all contact items, icons, links, and text within resume headers are visible and exact */
+  .print-resume header *,
+  .print-cover-letter header *,
+  .resume-page-sheet header *,
+  .resume-page header *,
+  [data-resume-paper] header * {
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  .print-resume svg,
+  .print-cover-letter svg,
+  .resume-page-sheet svg,
+  .resume-page svg,
+  [data-resume-paper] svg {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Ensure all standard bullet markers (skills grid, lists, etc.) have uniform weight and thickness */
+  [data-bullet],
+  .print-resume [data-bullet],
+  .resume-page-sheet [data-bullet] {
+    font-weight: normal !important;
+  }
+
+  /* Isolate and display resume pages cleanly when printing outside the portal */
+  body:not(:has(.print-root)) #root,
+  .resume-preview-root,
+  .resume-paper-container {
+    display: block !important;
+    position: static !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    overflow: visible !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  .resume-page-sheet {
+    display: block !important;
+    position: relative !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 auto !important;
+    background: #ffffff !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    break-inside: avoid !important;
+    overflow: hidden !important;
+  }
+
+  .resume-page-sheet:last-of-type {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+}
+
+

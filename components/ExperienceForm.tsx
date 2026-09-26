@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ResumeData, Experience } from '../types';
-import { Plus, Trash2, Calendar, MapPin, Building, GripVertical, ChevronUp, ChevronDown, Sparkles, X } from 'lucide-react';
+import { Plus, Trash2, ChevronUp, ChevronDown, Sparkles, X } from 'lucide-react';
 import { enhanceDescription } from './utils/aiEnhancer';
 import { parseDescriptionBullets } from '../utils/templateUtils';
 
@@ -11,7 +11,6 @@ interface ExperienceFormProps {
 }
 
 export default function ExperienceForm({ data, onChange, onAIAction }: ExperienceFormProps) {
-    const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const [enhancingId, setEnhancingId] = useState<string | null>(null);
 
     // Helper function to ensure description is always an array
@@ -149,27 +148,6 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
         onChange({ ...data, experience: newExperience });
     };
 
-    const handleDragStart = (index: number) => {
-        setDraggedIndex(index);
-    };
-
-    const handleDragOver = (e: React.DragEvent, index: number) => {
-        e.preventDefault();
-        if (draggedIndex === null || draggedIndex === index) return;
-
-        const newExperience = [...data.experience];
-        const draggedItem = newExperience[draggedIndex];
-        newExperience.splice(draggedIndex, 1);
-        newExperience.splice(index, 0, draggedItem);
-
-        onChange({ ...data, experience: newExperience });
-        setDraggedIndex(index);
-    };
-
-    const handleDragEnd = () => {
-        setDraggedIndex(null);
-    };
-
     const formatDateForInput = (dateStr: string): string => {
         if (!dateStr || dateStr.toLowerCase() === 'present') return '';
 
@@ -216,20 +194,10 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
                     return (
                         <div
                             key={exp.id}
-                            draggable
-                            onDragStart={() => handleDragStart(index)}
-                            onDragOver={(e) => handleDragOver(e, index)}
-                            onDragEnd={handleDragEnd}
-                            className={`bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-4 group hover:border-brand-green/50 transition-all ${draggedIndex === index ? 'opacity-50' : ''
-                                }`}
+                            className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-4 group hover:border-brand-green/50 transition-all"
                         >
                             <div className="flex justify-between items-start">
-                                <div className="flex items-center gap-2">
-                                    <div className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-brand-green transition-colors">
-                                        <GripVertical size={20} />
-                                    </div>
-                                    <div className="text-sm font-medium text-gray-400">Position {index + 1}</div>
-                                </div>
+                                <div className="text-sm font-medium text-gray-400">Position {index + 1}</div>
                                 <div className="flex items-center gap-1">
                                     <button
                                         onClick={() => moveExperience(index, 'up')}
@@ -257,55 +225,47 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div className="space-y-1">
-                                    <label className="text-xs font-medium text-gray-500">Job Title</label>
+                                    <label className="text-xs font-medium text-gray-500 block">Job Title</label>
                                     <input
                                         type="text"
                                         value={exp.role}
                                         onChange={(e) => handleChange(exp.id, 'role', e.target.value)}
-                                        className="w-full p-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
+                                        className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
                                         placeholder="Senior Developer"
                                     />
                                 </div>
 
                                 <div className="space-y-1">
-                                    <label className="text-xs font-medium text-gray-500 flex items-center gap-1">
-                                        <Building size={12} /> Company
-                                    </label>
+                                    <label className="text-xs font-medium text-gray-500 block">Company</label>
                                     <input
                                         type="text"
                                         value={exp.company}
                                         onChange={(e) => handleChange(exp.id, 'company', e.target.value)}
-                                        className="w-full p-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
+                                        className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
                                         placeholder="Tech Corp Inc."
                                     />
                                 </div>
 
-                                <div className="space-y-1">
-                                    <label className="text-xs font-medium text-gray-500 flex items-center gap-1">
-                                        <MapPin size={12} /> Location
-                                    </label>
+                                <div className="space-y-1 md:col-span-2">
+                                    <label className="text-xs font-medium text-gray-500 block">Location</label>
                                     <input
                                         type="text"
                                         value={exp.location || ''}
                                         onChange={(e) => handleChange(exp.id, 'location', e.target.value)}
-                                        className="w-full p-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
+                                        className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
                                         placeholder="City, Country"
                                     />
                                 </div>
-                            </div>
 
-                            <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1">
-                                    <label className="text-xs font-medium text-gray-500 flex items-center gap-1">
-                                        <Calendar size={12} /> Start Date
-                                    </label>
+                                    <label className="text-xs font-medium text-gray-500 block">Start Date</label>
                                     <input
                                         type="month"
                                         value={formatDateForInput(exp.startDate)}
                                         onChange={(e) => handleChange(exp.id, 'startDate', e.target.value)}
-                                        className="w-full p-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
+                                        className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
                                     />
                                     <label className="flex items-center gap-1.5 cursor-pointer pt-1">
                                         <input
@@ -317,16 +277,15 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
                                         <span className="text-xs font-medium text-gray-600">I currently work here</span>
                                     </label>
                                 </div>
+
                                 <div className="space-y-1">
-                                    <label className="text-xs font-medium text-gray-500 flex items-center gap-1">
-                                        <Calendar size={12} /> End Date
-                                    </label>
+                                    <label className="text-xs font-medium text-gray-500 block">End Date</label>
                                     <input
                                         type="month"
                                         value={formatDateForInput(exp.endDate)}
                                         onChange={(e) => handleChange(exp.id, 'endDate', e.target.value)}
                                         disabled={isCurrentPosition}
-                                        className="w-full p-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all disabled:bg-gray-50 disabled:text-gray-500"
+                                        className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all disabled:bg-gray-50 disabled:text-gray-500"
                                         placeholder={isCurrentPosition ? 'Present' : ''}
                                     />
                                 </div>

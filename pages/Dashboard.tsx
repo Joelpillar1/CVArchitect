@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { Layout, FileText, Settings as SettingsIcon, Home, ChevronRight, ChevronLeft, LogOut, Bookmark, Menu, X, BookOpen } from 'lucide-react';
-import { ResumeData, INITIAL_DATA, TemplateType, SavedTemplate } from '../types';
+import { Layout, FileText, Settings as SettingsIcon, Home, ChevronRight, ChevronLeft, LogOut, Bookmark, Menu, X, BookOpen, Briefcase, ShieldCheck } from 'lucide-react';
+import { ResumeData, INITIAL_DATA, createEmptyResume, TemplateType, SavedTemplate } from '../types';
+import { Job } from '../types/job';
 import Editor from '../components/Editor';
 import Overview from '../components/Overview';
 import Templates from '../components/Templates';
@@ -12,6 +13,7 @@ import TemplateOnboardingModal from '../components/TemplateOnboardingModal';
 import PaywallModal from '../components/PaywallModal';
 import CoverLetterPage from './CoverLetterPage';
 import InterviewPrep from './interview';
+import JobsPage, { formatJobDescriptionForChat } from './JobsPage';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { UserSubscription, PlanId } from '../types/pricing';
@@ -195,53 +197,36 @@ export default function Dashboard() {
                 console.log('Processed templates:', templates.length, templates);
                 setSavedTemplates(templates);
 
-                // Only restore from database on initial load, not when navigating back to editor
-                // This prevents overwriting unsaved changes in localStorage
-                const savedResumeId = localStorage.getItem('cv_app_resume_id');
+                // Restore from database on initial load
+                const savedResumeId = loadFromStorage<string | null>('cv_app_resume_id', null);
+                let targetResume: SavedTemplate | undefined;
                 if (savedResumeId && !savedResumeId.startsWith('tmp_')) {
-                    const savedResume = templates.find(t => t.id === savedResumeId);
-                    if (savedResume) {
-                        // Check if we're currently on the editor route - if so, don't overwrite
-                        const isOnEditorRoute = location.pathname === '/dashboard/editor';
+                    targetResume = templates.find(t => t.id === savedResumeId);
+                }
+                if (!targetResume && templates.length > 0) {
+                    targetResume = templates[0];
+                }
 
-                        // Only restore from database if:
-                        // 1. This is the first load (hasLoadedResumesRef.current === false)
-                        // 2. AND we're NOT on the editor route (user isn't actively editing)
-                        // 3. OR the localStorage data matches the database (no unsaved changes)
-                        const localData = loadFromStorage<ResumeData>('cv_app_data', null);
-                        const dataMatches = localData && JSON.stringify(localData) === JSON.stringify(savedResume.data);
-                        const isInitialLoad = !hasLoadedResumesRef.current;
+                if (targetResume) {
+                    const localData = loadFromStorage<ResumeData>('cv_app_data', null);
+                    const isInitialLoad = !hasLoadedResumesRef.current;
 
-                        if ((isInitialLoad && !isOnEditorRoute) || dataMatches) {
-                            console.log('Restoring saved resume from database:', savedResumeId, savedResume);
-                            setCurrentResumeId(savedResumeId);
-                            // Preserve job description from extension URL if we landed with ?job=
-                            const jobFromUrl = jobDescriptionFromUrlRef.current;
-                            const dataToSet = jobFromUrl
-                                ? { ...savedResume.data, jobDescription: jobFromUrl }
-                                : savedResume.data;
-                            if (jobFromUrl) jobDescriptionFromUrlRef.current = null;
-                            setResumeData(dataToSet);
-                            setSelectedTemplate(savedResume.baseTemplate);
-                            // Update localStorage with the restored data
-                            localStorage.setItem('cv_app_data', JSON.stringify(dataToSet));
-                            localStorage.setItem('cv_app_template', savedResume.baseTemplate);
-                        } else {
-                            console.log('Skipping database restore - preserving localStorage data (user may have unsaved changes)');
-                            // Still update currentResumeId to keep it in sync, but preserve localStorage data
-                            setCurrentResumeId(savedResumeId);
-                        }
-                    } else {
-                        console.warn('Saved resume ID not found in loaded templates:', savedResumeId);
+                    if (isInitialLoad || !localData) {
+                        console.log('Restoring saved resume from database:', targetResume.id, targetResume);
+                        setCurrentResumeId(targetResume.id);
+                        const jobFromUrl = jobDescriptionFromUrlRef.current;
+                        const mergedData = {
+                            ...INITIAL_DATA,
+                            ...targetResume.data,
+                            ...(jobFromUrl ? { jobDescription: jobFromUrl } : {}),
+                        };
+                        if (jobFromUrl) jobDescriptionFromUrlRef.current = null;
+                        setResumeData(mergedData);
+                        setSelectedTemplate(targetResume.baseTemplate);
+                        saveToStorage('cv_app_data', mergedData);
+                        saveToStorage('cv_app_template', targetResume.baseTemplate);
+                        saveToStorage('cv_app_resume_id', targetResume.id);
                     }
-                } else if (templates.length > 0 && !hasLoadedResumesRef.current) {
-                    // Only auto-load on initial load, not on every navigation
-                    // If no saved resume ID but we have templates, optionally load the most recent one
-                    // (commented out - let user choose which to load)
-                    // const mostRecent = templates[0];
-                    // setCurrentResumeId(mostRecent.id);
-                    // setResumeData(mostRecent.data);
-                    // setSelectedTemplate(mostRecent.baseTemplate);
                 }
 
                 // Mark as loaded
@@ -252,7 +237,7 @@ export default function Dashboard() {
             }
         };
         loadResumes();
-    }, [user, showToast, location.pathname]);
+    }, [user, showToast]);
 
     // Load saved cover letters from Supabase when user changes
     useEffect(() => {
@@ -613,6 +598,55 @@ export default function Dashboard() {
         return () => window.removeEventListener('beforeunload', handleBeforeUnload);
     }, [hasUnsavedChanges]);
 
+    const handleDuplicateTemplate = async (template: SavedTemplate) => {
+        try {
+            const originalData: ResumeData = template.data
+                ? JSON.parse(JSON.stringify(template.data))
+                : { ...INITIAL_DATA };
+            const copyTag = `${template.tag || 'Resume'} (Copy)`;
+
+            // Independent fresh copy: clear chat history, analysis, and job description
+            // so it acts like a brand new resume ready to be tailored to a new role
+            const duplicatedData: ResumeData = {
+                ...originalData,
+                resumeTitle: copyTag,
+                currentTag: copyTag,
+                agentMessages: [],
+                agentJobData: null,
+                agentAnalysis: null,
+                jobDescription: '',
+                hasJobMatchRun: false,
+            };
+
+            let newId = `tmp_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+
+            if (user && !template.id.startsWith('tmp_')) {
+                try {
+                    const insertedId = await resumeService.saveResume(user.id, copyTag, duplicatedData);
+                    if (insertedId) {
+                        newId = insertedId;
+                    }
+                } catch (err) {
+                    console.error('Failed to save duplicate to Supabase, using local fallback:', err);
+                }
+            }
+
+            const newTemplate: SavedTemplate = {
+                id: newId,
+                tag: copyTag,
+                baseTemplate: template.baseTemplate || 'vanguard',
+                data: duplicatedData,
+                createdAt: new Date().toISOString(),
+            };
+
+            setSavedTemplates(prev => [newTemplate, ...prev]);
+            showToast(`"${copyTag}" created successfully.`, 'success');
+        } catch (err) {
+            console.error('Error duplicating resume:', err);
+            showToast('Failed to duplicate resume. Please try again.', 'error');
+        }
+    };
+
     return (
         <div className="flex h-screen bg-gray-50 overflow-hidden">
             {/* Mobile Menu Overlay */}
@@ -651,6 +685,7 @@ export default function Dashboard() {
 
                     <nav className="flex-1 px-2 py-4 space-y-2">
                         <NavItem icon={<Home size={20} />} label="Overview" to="/dashboard" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
+                        <NavItem icon={<Briefcase size={20} />} label="Jobs" to="/dashboard/jobs" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
                         <NavItem icon={<Layout size={20} />} label="Templates" to="/dashboard/templates" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
                         <NavItem icon={<Bookmark size={20} />} label="My Templates" to="/dashboard/my-templates" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
                         <NavItem icon={<FileText size={20} />} label="Cover Letters" to="/dashboard/cover-letters" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
@@ -700,6 +735,9 @@ export default function Dashboard() {
                                     setResumeData(template.data);
                                     setSelectedTemplate(template.baseTemplate);
                                     setCurrentResumeId(template.id);
+                                    saveToStorage('cv_app_data', template.data);
+                                    saveToStorage('cv_app_template', template.baseTemplate);
+                                    saveToStorage('cv_app_resume_id', template.id);
                                     setHasUnsavedChanges(false);
                                     navigate('/dashboard/editor');
                                 }}
@@ -723,6 +761,7 @@ export default function Dashboard() {
                                         showToast('Resume deleted locally.', 'success');
                                     }
                                 }}
+                                onDuplicateTemplate={handleDuplicateTemplate}
                                 userName={userProfile?.full_name || user?.email || 'User'}
                                 userSubscription={userSubscription}
                             />
@@ -754,6 +793,9 @@ export default function Dashboard() {
                                     setResumeData(template.data);
                                     setSelectedTemplate(template.baseTemplate);
                                     setCurrentResumeId(template.id);
+                                    saveToStorage('cv_app_data', template.data);
+                                    saveToStorage('cv_app_template', template.baseTemplate);
+                                    saveToStorage('cv_app_resume_id', template.id);
                                     setHasUnsavedChanges(false);
                                     navigate('/dashboard/editor');
                                 }}
@@ -776,6 +818,7 @@ export default function Dashboard() {
                                         showToast('Resume deleted locally.', 'success');
                                     }
                                 }}
+                                onDuplicateTemplate={handleDuplicateTemplate}
                             />
                         }
                     />
@@ -876,6 +919,55 @@ export default function Dashboard() {
                     <Route
                         path="interview-prep"
                         element={<InterviewPrep />}
+                    />
+
+                    {/* Jobs Section */}
+                    <Route
+                        path="jobs"
+                        element={
+                            <JobsPage
+                                resumeData={resumeData}
+                                savedTemplates={savedTemplates}
+                                currentResumeId={currentResumeId}
+                                currentTemplate={selectedTemplate}
+                                onSelectResumeForTailoring={(chosenResume, job: Job) => {
+                                    const jobPrompt = formatJobDescriptionForChat(job);
+
+                                    try {
+                                        const updatedResume: ResumeData = {
+                                            ...(chosenResume.data || resumeData || INITIAL_DATA),
+                                            jobDescription: jobPrompt,
+                                        };
+
+                                        setResumeData(updatedResume);
+                                        setSelectedTemplate(chosenResume.baseTemplate || selectedTemplate || 'vanguard');
+                                        setCurrentResumeId(chosenResume.id || null);
+
+                                        saveToStorage('cv_app_data', updatedResume);
+                                        saveToStorage('cv_app_template', chosenResume.baseTemplate || selectedTemplate || 'vanguard');
+                                        if (chosenResume.id) {
+                                            saveToStorage('cv_app_resume_id', chosenResume.id);
+                                        } else {
+                                            localStorage.removeItem('cv_app_resume_id');
+                                        }
+                                        saveToStorage('cv_pending_chat_prompt', jobPrompt);
+                                        saveToStorage('editor_openJobMatchTab', true);
+                                        saveToStorage('editor_activeMobileTab', 'job-match');
+                                        setHasUnsavedChanges(true);
+                                        showToast(`Loaded "${chosenResume.tag || 'Resume'}" with role requirements.`, 'success');
+                                    } catch (err) {
+                                        console.warn('Error saving tailored state:', err);
+                                    }
+
+                                    navigate('/dashboard/editor', {
+                                        state: {
+                                            pendingChatPrompt: jobPrompt,
+                                            openChat: true,
+                                        },
+                                    });
+                                }}
+                            />
+                        }
                     />
 
                     {/* Editor */}
@@ -994,9 +1086,23 @@ export default function Dashboard() {
                                 }}
                                 onSave={(data?: ResumeData) => {
                                     const raw = data || resumeData;
-                                    const toSave: ResumeData = { ...raw, template: selectedTemplate };
-                                    const tag = toSave.currentTag || 'Untitled Resume';
+                                    const resolvedTitle =
+                                        raw.resumeTitle?.trim() ||
+                                        raw.currentTag?.trim() ||
+                                        (raw.fullName?.trim() ? `${raw.fullName.trim()}'s Resume` : 'Untitled Resume');
+                                    const toSave: ResumeData = {
+                                        ...raw,
+                                        template: selectedTemplate,
+                                        resumeTitle: resolvedTitle,
+                                        currentTag: resolvedTitle,
+                                    };
+                                    const tag = resolvedTitle;
                                     const baseTemplate = selectedTemplate;
+
+                                    // Immediately update in-memory and local storage
+                                    setResumeData(toSave);
+                                    saveToStorage('cv_app_data', toSave);
+                                    saveToStorage('cv_app_template', selectedTemplate);
 
                                     if (user) {
                                         (async () => {
@@ -1007,22 +1113,39 @@ export default function Dashboard() {
 
                                                 if (existingId) {
                                                     // Update existing Supabase resume
-                                                    await resumeService.updateResume(existingId, tag, toSave);
-                                                    const updated: SavedTemplate = {
-                                                        id: existingId,
-                                                        tag,
-                                                        baseTemplate,
-                                                        data: toSave,
-                                                        createdAt: new Date(),
-                                                    };
-                                                    setSavedTemplates(prev => {
-                                                        const exists = prev.some(t => t.id === existingId);
-                                                        return exists
-                                                            ? prev.map(t => (t.id === existingId ? updated : t))
-                                                            : [updated, ...prev];
-                                                    });
-                                                    setCurrentResumeId(existingId);
-                                                    showToast(`Resume "${tag}" updated successfully!`, 'success');
+                                                    const didUpdate = await resumeService.updateResume(existingId, tag, toSave);
+                                                    if (didUpdate) {
+                                                        const updated: SavedTemplate = {
+                                                            id: existingId,
+                                                            tag,
+                                                            baseTemplate,
+                                                            data: toSave,
+                                                            createdAt: new Date(),
+                                                        };
+                                                        setSavedTemplates(prev => {
+                                                            const exists = prev.some(t => t.id === existingId);
+                                                            return exists
+                                                                ? prev.map(t => (t.id === existingId ? updated : t))
+                                                                : [updated, ...prev];
+                                                        });
+                                                        setCurrentResumeId(existingId);
+                                                        saveToStorage('cv_app_resume_id', existingId);
+                                                        showToast(`Resume "${tag}" updated successfully!`, 'success');
+                                                    } else {
+                                                        // Fallback: create fresh entry in saved_resumes if id was not found
+                                                        const newId = await resumeService.createResume(user.id, tag, toSave);
+                                                        const newTemplate: SavedTemplate = {
+                                                            id: newId,
+                                                            tag,
+                                                            baseTemplate,
+                                                            data: toSave,
+                                                            createdAt: new Date(),
+                                                        };
+                                                        setSavedTemplates(prev => [newTemplate, ...prev.filter(t => t.id !== existingId)]);
+                                                        setCurrentResumeId(newId);
+                                                        saveToStorage('cv_app_resume_id', newId);
+                                                        showToast(`Resume "${tag}" saved successfully!`, 'success');
+                                                    }
                                                 } else {
                                                     // Create new Supabase resume
                                                     const newId = await resumeService.createResume(user.id, tag, toSave);
@@ -1035,6 +1158,7 @@ export default function Dashboard() {
                                                     };
                                                     setSavedTemplates(prev => [newTemplate, ...prev]);
                                                     setCurrentResumeId(newId);
+                                                    saveToStorage('cv_app_resume_id', newId);
                                                     showToast(`Resume "${tag}" saved successfully!`, 'success');
                                                 }
                                                 setHasUnsavedChanges(false);
@@ -1067,9 +1191,22 @@ export default function Dashboard() {
                                 }}
                                 onSaveAsTemplate={(data?: ResumeData) => {
                                     const raw = data || resumeData;
-                                    const toSave: ResumeData = { ...raw, template: selectedTemplate };
-                                    const tag = toSave.currentTag || 'Untitled Resume';
+                                    const resolvedTitle =
+                                        raw.resumeTitle?.trim() ||
+                                        raw.currentTag?.trim() ||
+                                        (raw.fullName?.trim() ? `${raw.fullName.trim()}'s Resume` : 'Untitled Resume');
+                                    const toSave: ResumeData = {
+                                        ...raw,
+                                        template: selectedTemplate,
+                                        resumeTitle: resolvedTitle,
+                                        currentTag: resolvedTitle,
+                                    };
+                                    const tag = resolvedTitle;
                                     const baseTemplate = selectedTemplate;
+
+                                    setResumeData(toSave);
+                                    saveToStorage('cv_app_data', toSave);
+                                    saveToStorage('cv_app_template', selectedTemplate);
 
                                     if (user) {
                                         (async () => {
@@ -1091,6 +1228,7 @@ export default function Dashboard() {
                                                 };
                                                 setSavedTemplates(prev => [newTemplate, ...prev]);
                                                 setCurrentResumeId(newId);
+                                                saveToStorage('cv_app_resume_id', newId);
                                                 setHasUnsavedChanges(false);
                                                 showToast(`Template "${tag}" saved successfully!`, 'success');
                                             } catch (err) {
@@ -1115,6 +1253,7 @@ export default function Dashboard() {
                                 }}
                                 userSubscription={userSubscription}
                                 onShowPaywall={() => setShowPaywall(true)}
+                                currentResumeId={currentResumeId}
                             />
                         }
                     />
@@ -1170,7 +1309,7 @@ export default function Dashboard() {
                 onComplete={(data) => {
                     setShowOnboardingModal(false);
 
-                    let newResumeData: ResumeData = { ...INITIAL_DATA, template: selectedTemplate };
+                    let newResumeData: ResumeData;
 
                     if (data.method === 'upload') {
                         // Check access and deduct credits for resume upload
@@ -1202,10 +1341,12 @@ export default function Dashboard() {
                         }
 
                         // Use parsed data from uploaded resume
+                        const empty = createEmptyResume();
                         newResumeData = {
-                            ...newResumeData,
+                            ...empty,
+                            template: selectedTemplate,
                             ...(data.parsedData || {}),
-                            jobTitle: (data.parsedData?.jobTitle as string) || data.role || 'Professional Role',
+                            jobTitle: (data.parsedData?.jobTitle as string) || data.role || '',
                             source: 'upload',
                         };
 
@@ -1225,7 +1366,12 @@ export default function Dashboard() {
                         };
                     }
 
-                    const tag = newResumeData.currentTag || 'Untitled Resume';
+                    const tag =
+                        newResumeData.resumeTitle?.trim() ||
+                        newResumeData.currentTag?.trim() ||
+                        (newResumeData.fullName?.trim() ? `${newResumeData.fullName.trim()}'s Resume` : 'Untitled Resume');
+                    newResumeData.currentTag = tag;
+                    newResumeData.resumeTitle = tag;
                     const baseTemplate = selectedTemplate;
 
                     if (user) {

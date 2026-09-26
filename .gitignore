@@ -29,3 +29,18 @@ dist-ssr
 *.sw?
 .vercel
 .env*.local
+
+# Scratch and temporary scripts
+scratch/
+scratch*
+*.mjs
+*.html
+*.md
+!README.md
+caret-*
+dump-*
+seed-check*
+.freebuff/
+bentopdf-main/
+reactive-resume-main/
+Project/

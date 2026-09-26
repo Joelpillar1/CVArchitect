@@ -1,13 +1,16 @@
 // Supabase Edge Function: ai-generate
-// This function handles all AI operations securely on the backend
+// Handles secure AI text and JSON generation via OpenAI API.
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1'
 
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
+
+const jsonHeaders = { ...corsHeaders, 'Content-Type': 'application/json' }
 
 serve(async (req) => {
     // Handle CORS preflight requests
@@ -18,34 +21,75 @@ serve(async (req) => {
         })
     }
 
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')
+    const serviceRoleKey =
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? Deno.env.get('SERVICE_ROLE_KEY')
+
+    if (!supabaseUrl || !serviceRoleKey) {
+        return new Response(
+            JSON.stringify({ error: 'Server auth is not configured on Supabase.', result: '' }),
+            { headers: jsonHeaders, status: 500 }
+        )
+    }
+
+    const authHeader = req.headers.get('Authorization')
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? Deno.env.get('ANON_KEY')
+    const apiKeyHeader = req.headers.get('apikey')
+    
+    let isAuthorized = false
+
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.slice(7).trim()
+        
+        // 1. Check if token matches anon key or service role key
+        if ((anonKey && token === anonKey) || token === serviceRoleKey) {
+            isAuthorized = true
+        } else {
+            // 2. Otherwise verify if it is a valid user access token
+            try {
+                const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey)
+                const { data: authData } = await supabaseAdmin.auth.getUser(token)
+                if (authData?.user) {
+                    isAuthorized = true
+                }
+            } catch (_) {
+                /* ignore */
+            }
+        }
+    } else if (apiKeyHeader && anonKey && apiKeyHeader === anonKey) {
+        isAuthorized = true
+    }
+
+    if (!isAuthorized) {
+        return new Response(
+            JSON.stringify({ error: 'Invalid or expired session. Please sign in.', result: '' }),
+            { headers: jsonHeaders, status: 401 }
+        )
+    }
+
     try {
-        // Get OpenAI API key from environment (set in Supabase Dashboard)
         const openaiKey = Deno.env.get('OPENAI_API_KEY')
 
         if (!openaiKey) {
-            throw new Error('OpenAI API key not configured in Supabase')
+            throw new Error('OPENAI_API_KEY secret is not configured in Supabase Edge Function Secrets')
         }
 
-        // Parse request body
         const { prompt, model = 'gpt-4o', temperature = 0.7, responseFormat = 'text' } = await req.json()
 
         if (!prompt) {
             throw new Error('Prompt is required')
         }
 
-        // Prepare OpenAI request
         const openaiRequest: any = {
             model,
             messages: [{ role: 'user', content: prompt }],
             temperature,
         }
 
-        // Add response format if JSON is requested
         if (responseFormat === 'json') {
             openaiRequest.response_format = { type: 'json_object' }
         }
 
-        // Call OpenAI API
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -66,7 +110,7 @@ serve(async (req) => {
         return new Response(
             JSON.stringify({ result }),
             {
-                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                headers: jsonHeaders,
                 status: 200
             }
         )
@@ -80,8 +124,8 @@ serve(async (req) => {
                 result: ''
             }),
             {
-                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-                status: 200  // Return 200 to avoid CORS issues
+                headers: jsonHeaders,
+                status: 200
             }
         )
     }

@@ -152,6 +152,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const signOut = async () => {
+        try {
+            // Clear all user-specific and cached data from localStorage to prevent cross-account bleeding
+            if (typeof localStorage !== 'undefined') {
+                const keysToRemove: string[] = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (
+                        key &&
+                        (key.startsWith('cv_architect_') ||
+                         key.startsWith('cv_agent_') ||
+                         key.startsWith('cv_app_') ||
+                         key.startsWith('editor_') ||
+                         key.startsWith('sb-') === false) // preserve supabase auth session handling if needed, remove app data
+                    ) {
+                        if (
+                            key.startsWith('cv_architect_') ||
+                            key.startsWith('cv_agent_') ||
+                            key.startsWith('cv_app_') ||
+                            key.startsWith('editor_')
+                        ) {
+                            keysToRemove.push(key);
+                        }
+                    }
+                }
+                keysToRemove.forEach((k) => localStorage.removeItem(k));
+            }
+        } catch (e) {
+            console.warn('Failed to clear local storage on signOut:', e);
+        }
         await supabase.auth.signOut();
     };
 

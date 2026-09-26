@@ -5,6 +5,12 @@ import { useNavigate } from 'react-router-dom';
 
 export const FREE_TOOLS = [
     {
+        label: 'AI Resume Agent',
+        link: '/agent',
+        description: 'Autonomous AI agent to tailor resumes visually with zero hallucinations.',
+        icon: Sparkles
+    },
+    {
         label: 'Action Words for Resume',
         link: '/action-words',
         description: 'High-impact action verbs and examples for your resume.',

@@ -1,446 +1,641 @@
 import React from 'react';
-import { ResumeData } from '../../types';
-import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay, isTitleFirst } from '../../utils/templateUtils';
+import RichText from '../RichText';
+import { ResumeData, Experience, Education, Project, Certification, LanguageItem, AdditionalInfoItem, CourseworkItem } from '../../types';
+import { MapPin, Phone, Mail, Linkedin, Send } from 'lucide-react';
+import {
+  parseDescriptionBullets,
+  parseAchievementBullets,
+  formatMonthYear as formatMonthYearUtil,
+  getSectionGapIn,
+  getHeaderGapIn,
+  getHeaderItemGapIn,
+  getHeaderContactGapIn,
+  getItemGapIn,
+  getMarginHorizontalIn,
+  getMarginVerticalIn,
+  formatContactText, formatLocationDisplay,
+  formatLinkedInDisplay,
+  getLinkedInHref,
+  formatNameDisplay,
+  formatJobTitleDisplay,
+  formatSectionTitle,
+  isTitleFirst,
+  splitSkillsList,
+  CONTACT_SEPARATOR,
+  renderCourseworkBlockHelper,
+  renderExpertSkillsBlockHelper,
+} from '../../utils/templateUtils';
+import { resolveSection, getResolvedSectionOrder } from '../../utils/sectionRegistry';
+import type { CustomSectionData } from '../../types/resumeSections';
 import { getTranslation, Language } from '../../i18n/translations';
 
 const formatMonthYear = (dateString: string | null | undefined) => {
-    return formatMonthYearUtil(dateString, 'short');
+  return formatMonthYearUtil(dateString, 'short');
 };
 
 export default function ApexTemplate({ data }: { data: ResumeData }) {
-    const { fontSizes } = data;
-    const t = getTranslation(data.language as Language || 'en');
-    const accentColor = data.accentColor || '#000000'; // Slate dark
+  const { fontSizes } = data;
+  const t = getTranslation(data.language as Language || 'en');
+  const accentColor = data.accentColor || '#000000';
 
-    const getSectionHeaderAlignment = () => {
-        if (data.bodyHeaderAlignment === 'center') return 'text-center';
-        if (data.bodyHeaderAlignment === 'right') return 'text-right';
-        return 'text-left';
-    };
+  const getSectionHeaderAlignment = () => {
+    const align = data.bodyHeaderAlignment || data.sectionHeaderAlignment || 'left';
+    if (align === 'center') return 'text-center';
+    if (align === 'right') return 'text-right';
+    return 'text-left';
+  };
 
-    const renderSection = (id: string) => {
-        switch (id) {
-            case 'summary':
-                return data.summary && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
-                        <h2
-                            className={`font-bold uppercase tracking-wider mb-1.5 pb-0.5 border-b-2 leading-tight border-gray-300 ${getSectionHeaderAlignment()}`}
-                            style={{
-                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
-                                color: accentColor
-                            }}
-                        >
-                            {t.professionalSummary}
-                        </h2>
-                        <p
-                            className="text-gray-700  text-justify"
-                            style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
-                        >
-                            {data.summary}
-                        </p>
-                    </section>
-                );
+  const bodyStyle = {
+    fontSize: `${fontSizes?.body || 9}pt`,
+    lineHeight: data.lineHeight || 1.5,
+  };
 
-            case 'keyAchievements':
-            case 'achievements': {
-                const achievements = parseAchievementBullets(data.keyAchievements || '');
-                return achievements.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
-                        <h2
-                            className={`font-bold uppercase tracking-wider mb-1.5 pb-0.5 border-b-2 leading-tight border-gray-300 ${getSectionHeaderAlignment()}`}
-                            style={{
-                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
-                                color: accentColor
-                            }}
-                        >
-                            KEY ACHIEVEMENTS
-                        </h2>
-                        <div className="space-y-2">
-                            {achievements.map((line, i) =>
-                                line.trim() && (
-                                    <div
-                                        key={i}
-                                        className="flex gap-2 items-baseline"
-                                        style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
-                                    >
-                                        <span className="font-bold shrink-0 w-2 text-[9px] leading-none inline-block" style={{ color: accentColor }}>•</span>
-                                        <span className="text-gray-700 flex-1">{line.replace(/^[•-]\s*/, '')}</span>
-                                    </div>
-                                )
-                            )}
-                        </div>
-                    </section>
-                );
-            }
+  const sectionHeaderStyle = {
+    fontSize: `${fontSizes?.sectionTitle || 11}pt`,
+    color: accentColor,
+  };
 
-            case 'skills':
-                return data.skills && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
-                        <h2
-                            className={`font-bold uppercase tracking-wider mb-1.5 pb-0.5 border-b-2 leading-tight border-gray-300 ${getSectionHeaderAlignment()}`}
-                            style={{
-                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
-                                color: accentColor
-                            }}
-                        >
-                            {t.technicalSkills}
-                        </h2>
-                        <div className={`grid gap-x-4 gap-y-2 ${data.skillsColumnCount === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
-                            {data.skills.split(',').map((skill, i) => (
-                                <div
-                                    key={i}
-                                    className="flex items-baseline gap-2"
-                                    style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
-                                >
-                                    <span className="font-bold shrink-0 w-2 text-[9px] leading-none inline-block" style={{ color: accentColor }}>•</span>
-                                    <span className="text-gray-700 font-medium">{skill.trim()}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
-                );
+  const renderSectionHeader = (title: string) => (
+    <div className={`section-header-wrap break-inside-avoid w-full mb-1.5 ${getSectionHeaderAlignment()}`}>
+      <h2
+        className="section-header font-bold tracking-wider leading-normal"
+        style={sectionHeaderStyle}
+      >
+        {formatSectionTitle(title, data.sectionHeaderCase)}
+      </h2>
+      <div
+        className="section-divider"
+        style={{
+          width: '100%',
+          height: '2px',
+          backgroundColor: '#d1d5db',
+          marginTop: '2px',
+          marginBottom: '2px',
+        }}
+      />
+    </div>
+  );
 
-            case 'experience':
-                return data.experience.length > 0 && (
-                    <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
-                        <h2
-                            className={`font-bold uppercase tracking-wider mb-1.5 pb-0.5 border-b-2 leading-tight border-gray-300 break-inside-avoid ${getSectionHeaderAlignment()}`}
-                            style={{
-                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
-                                color: accentColor
-                            }}
-                        >
-                            {t.experienceTitle}
-                        </h2>
-                        <div>
-                            {data.experience.map((exp, index) => {
-                                const desc = descriptionToString(exp.description);
-                                return (
-                                    <div
-                                        key={exp.id}
-                                        className="break-inside-avoid"
-                                        style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${getSectionGapIn(data)}in` }}
-                                    >
-                                        <div className="mb-2">
-                                            <div className="flex justify-between items-baseline mb-1">
-                                                <h3
-                                                    className="font-bold"
-                                                    style={{
-                                                        fontSize: `${(fontSizes?.body || 9.5) * 1.15}pt`,
-                                                        color: accentColor
-                                                    }}
-                                                >
-                                                    {exp.role}
-                                                </h3>
-                                                <span
-                                                    className="text-gray-500 font-medium"
-                                                    style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.85}pt` }}
-                                                >
-                                                    {formatMonthYear(exp.startDate)} – {formatMonthYear(exp.endDate)}
-                                                </span>
-                                            </div>
-                                            <div
-                                                className="font-semibold text-gray-600"
-                                                style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}
-                                            >
-                                                {exp.company}
-                                                {exp.location && <span className="text-gray-400 font-normal"> | {exp.location}</span>}
-                                            </div>
-                                        </div>
-                                        <ul className="space-y-1.5">
-                                            {desc.split('\n').map((line, i) =>
-                                                line.trim() && (
-                                                    <li
-                                                        key={i}
-                                                        className="flex gap-2 items-baseline text-gray-700"
-                                                        style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
-                                                    >
-                                                        <span className="font-bold shrink-0 w-2 text-[9px] leading-none inline-block" style={{ color: accentColor }}>•</span>
-                                                        <span className="flex-1">{line.replace(/^[•-]\s*/, '')}</span>
-                                                    </li>
-                                                )
-                                            )}
-                                        </ul>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </section>
-                );
+  const renderTextBlock = (title: string, text: string, path: string = 'summary') => {
+    if (!text || !text.trim()) return null;
+    return (
+      <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
+        {renderSectionHeader(title)}
+        <p data-path={path} className="text-gray-700 text-justify whitespace-pre-line" style={bodyStyle}>
+          <RichText text={text ?? ''} />
+        </p>
+      </section>
+    );
+  };
 
-            case 'projects':
-                return data.projects && data.projects.length > 0 && (
-                    <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
-                        <h2
-                            className={`font-bold uppercase tracking-wider mb-1.5 pb-0.5 border-b-2 leading-tight border-gray-300 break-inside-avoid ${getSectionHeaderAlignment()}`}
-                            style={{
-                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
-                                color: accentColor
-                            }}
-                        >
-                            PROJECTS
-                        </h2>
-                        <div className="space-y-5">
-                            {data.projects.map((project) => (
-                                <div key={project.id} className="break-inside-avoid">
-                                    <div className="mb-2">
-                                        <div className="flex justify-between items-baseline mb-1">
-                                            <h3
-                                                className="font-bold"
-                                                style={{
-                                                    fontSize: `${(fontSizes?.body || 9.5) * 1.15}pt`,
-                                                    color: accentColor
-                                                }}
-                                            >
-                                                {project.name}
-                                                {project.link && (
-                                                    <a href={project.link.startsWith('http') ? project.link : `https://${project.link}`} target="_blank" rel="noopener noreferrer" className="ml-2 font-normal text-gray-500 text-sm hover:underline">
-                                                        Link
-                                                    </a>
-                                                )}
-                                            </h3>
-                                        </div>
-                                        {project.technologies && (
-                                            <div
-                                                className="font-semibold text-gray-600"
-                                                style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}
-                                            >
-                                                {project.technologies}
-                                            </div>
-                                        )}
-                                    </div>
-                                    <p
-                                        className="text-gray-700 whitespace-pre-line"
-                                        style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
-                                    >
-                                        {project.description}
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
-                );
+  const renderSkillsBlock = (title: string, skillsStr: string) => {
+    if (!skillsStr || !skillsStr.trim()) return null;
+    const skillsList = splitSkillsList(skillsStr);
+    if (skillsList.length === 0) return null;
+    return (
+      <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
+        {renderSectionHeader(title)}
+        <ul
+          data-skills-grid
+          className={`list-none pl-2.5 grid gap-x-8 gap-y-1 text-gray-700 ${data.skillsColumnCount === 2 ? 'grid-cols-2' : (data.skillsColumnCount === 4 ? 'grid-cols-4' : 'grid-cols-3')}`}
+          style={bodyStyle}
+        >
+          {skillsList.map((skill, i) => (
+            <li key={i} data-skill-cell className="flex items-baseline gap-1.5 min-w-0">
+              <span data-bullet aria-hidden="true" className="shrink-0 select-none pointer-events-none leading-none">•</span>
+              <span className="flex-1" style={{ lineHeight: 'inherit' }}><RichText text={skill} /></span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    );
+  };
 
-            case 'certifications':
-                return data.certifications && data.certifications.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
-                        <h2
-                            className={`font-bold uppercase tracking-wider mb-1.5 pb-0.5 border-b-2 leading-tight border-gray-300 ${getSectionHeaderAlignment()}`}
-                            style={{
-                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
-                                color: accentColor
-                            }}
-                        >
-                            {t.certifications}
-                        </h2>
-                        <div className="grid grid-cols-2 gap-4">
-                            {data.certifications.map((cert) => (
-                                <div key={cert.id}>
-                                    <div
-                                        className="font-bold text-gray-900"
-                                        style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.95}pt` }}
-                                    >
-                                        {cert.name}
-                                    </div>
-                                    {cert.issuer && (
-                                        <div
-                                            className="text-gray-600 mt-0.5"
-                                            style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.85}pt` }}
-                                        >
-                                            {cert.issuer}
-                                        </div>
-                                    )}
-                                    {cert.date && (
-                                        <div
-                                            className="text-gray-500 text-xs mt-0.5"
-                                            style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.8}pt` }}
-                                        >
-                                            {cert.date}
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    </section>
-                );
+  const renderBulletsBlock = (title: string, content: string[] | string, basePath: string = 'keyAchievements') => {
+    const rawAchievements = Array.isArray(content) ? content : parseAchievementBullets(content || '');
+    const achievements = rawAchievements.map((line) => (typeof line === 'string' ? line : ''));
+    if (achievements.length === 0) return null;
+    return (
+      <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
+        {renderSectionHeader(title)}
+        <ul className="list-disc list-outside ml-5 space-y-1 text-gray-700" style={bodyStyle}>
+          {achievements.map((line, i) => (
+            <li key={i} data-path={`${basePath}.${i}`}>
+              <RichText text={line ? line.replace(/^[•-]\s*/, '') : ''} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    );
+  };
 
-            case 'education':
-                return data.education.length > 0 && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
-                        <h2
-                            className={`font-bold uppercase tracking-wider mb-1.5 pb-0.5 border-b-2 leading-tight border-gray-300 ${getSectionHeaderAlignment()}`}
-                            style={{
-                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
-                                color: accentColor
-                            }}
-                        >
-                            {t.educationTitle}
-                        </h2>
-                        <div className="space-y-3">
-                            {data.education.map((edu) => (
-                                <div key={edu.id} className="flex justify-between items-start">
-                                    <div>
-                                        <div
-                                            className="font-bold text-gray-900"
-                                            style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
-                                        >
-                                            {edu.degree}
-                                        </div>
-                                        <div
-                                            className="text-gray-600 mt-0.5"
-                                            style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.9}pt` }}
-                                        >
-                                            {edu.school}
-                                        </div>
-                                    </div>
-                                    <div
-                                        className="font-semibold text-gray-500"
-                                        style={{ fontSize: `${(fontSizes?.body || 9.5) * 0.85}pt` }}
-                                    >
-                                        {edu.year}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
-                );
+  const renderExperienceBlock = (title: string, items: Experience[], basePath: string = 'experience') => {
+    if (!items || items.length === 0) return null;
+    const itemGap = `${getItemGapIn(data)}in`;
+    return (
+      <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
+        {renderSectionHeader(title)}
+        {items.map((exp, index) => {
+          const dateRange = [formatMonthYear(exp.startDate), formatMonthYear(exp.endDate)].filter(Boolean).join(' - ');
+          const bullets = parseDescriptionBullets(exp.description);
+          if (!exp.role && !exp.company && !dateRange && bullets.length === 0) return null;
 
-            case 'additionalInfo':
-                return data.additionalInfo && data.additionalInfo.length > 0 && data.additionalInfo.some(item => item.label.trim() && item.value.trim()) && (
-                    <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
-                        <h2
-                            className={`font-bold uppercase tracking-wider mb-1.5 pb-0.5 border-b-2 leading-tight border-gray-300 ${getSectionHeaderAlignment()}`}
-                            style={{
-                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
-                                color: accentColor
-                            }}
-                        >
-                            ADDITIONAL INFORMATION
-                        </h2>
-                        <div className="space-y-2">
-                            {data.additionalInfo.filter(item => item.label.trim() && item.value.trim()).map((item) => (
-                                <div key={item.id} className="text-gray-700">
-                                    <span className="font-bold">{item.label}:</span>
-                                    <span className="ml-2">{item.value}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
-                );
+          return (
+            <div
+              key={exp.id}
+              className="break-inside-avoid"
+              style={{ marginBottom: index === items.length - 1 ? 0 : itemGap }}
+            >
+              <div className="flex justify-between items-baseline mb-1">
+                <div className="font-bold text-gray-900" style={bodyStyle}>
+                  {exp.role && (
+                    <span data-path={`${basePath}.${index}.role`}>
+                      <RichText text={exp.role} />
+                    </span>
+                  )}
+                  {exp.company && (
+                    <span className="font-normal italic text-gray-700">
+                      {exp.role ? ' - ' : ''}
+                      <span data-path={`${basePath}.${index}.company`}>
+                        <RichText text={exp.company} />
+                      </span>
+                    </span>
+                  )}
+                  {exp.location && (
+                    <span className="font-normal italic text-gray-600">
+                      {', '}
+                      <span data-path={`${basePath}.${index}.location`}>
+                        <RichText text={exp.location} />
+                      </span>
+                    </span>
+                  )}
+                </div>
+                {dateRange && (
+                  <span className="text-gray-500 font-medium italic shrink-0 ml-4" style={bodyStyle}>
+                    <RichText text={dateRange} />
+                  </span>
+                )}
+              </div>
+              {bullets.length > 0 && (
+                <ul className="list-disc list-outside ml-5 space-y-1 text-gray-700" style={bodyStyle}>
+                  {bullets.map((bullet, i) => (
+                    <li key={i} data-path={`${basePath}.${index}.description.${i}`}>
+                      <RichText text={bullet ? bullet.replace(/^[•-]\s*/, '') : ''} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          );
+        })}
+      </section>
+    );
+  };
 
-            case 'references':
-                return data.referee && data.referee.trim() && (
-                    <section className="break-inside-avoid">
-                        <h2
-                            className={`font-bold uppercase tracking-wider mb-1.5 pb-0.5 border-b-2 leading-tight border-gray-300 ${getSectionHeaderAlignment()}`}
-                            style={{
-                                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
-                                color: accentColor
-                            }}
-                        >
-                            REFERENCES
-                        </h2>
-                        <p
-                            className="text-gray-700 italic whitespace-pre-line"
-                            style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
-                        >
-                            {data.referee}
-                        </p>
-                    </section>
-                );
+  const renderEducationBlock = (title: string, items: Education[], basePath: string = 'education') => {
+    if (!items || items.length === 0) return null;
+    const itemGap = `${Math.max(0.14, getSectionGapIn(data))}in`;
+    return (
+      <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
+        {renderSectionHeader(title)}
+        {items.map((edu, index) => {
+          if (!edu.school && !edu.degree && !edu.year) return null;
+          return (
+            <div
+              key={edu.id}
+              className="break-inside-avoid"
+              style={{
+                ...bodyStyle,
+                marginBottom: index === items.length - 1 ? 0 : itemGap,
+              }}
+            >
+              <div className="flex justify-between items-baseline">
+                <div>
+                  {edu.degree && (
+                    <h3 className="font-bold text-gray-900">
+                      <span data-path={`${basePath}.${index}.degree`}>
+                        <RichText text={edu.degree} />
+                      </span>
+                    </h3>
+                  )}
+                  {edu.school && (
+                    <p className="italic text-gray-600">
+                      <span data-path={`${basePath}.${index}.school`}>
+                        <RichText text={edu.school} />
+                      </span>
+                    </p>
+                  )}
+                  {edu.gpa && (
+                    <p className="text-gray-600">
+                      GPA: <RichText text={edu.gpa} />
+                    </p>
+                  )}
+                </div>
+                {edu.year && (
+                  <span data-path={`${basePath}.${index}.year`} className="text-gray-500 font-medium shrink-0 ml-4">
+                    <RichText text={edu.year} />
+                  </span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </section>
+    );
+  };
 
-            default:
-                return null;
-        }
-    };
+  const renderProjectsBlock = (title: string, items: Project[], basePath: string = 'projects') => {
+    if (!items || items.length === 0) return null;
+    const itemGap = `${getItemGapIn(data)}in`;
+    return (
+      <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
+        {renderSectionHeader(title)}
+        {items.map((project, index) => {
+          const bullets = parseDescriptionBullets(project.description);
+          if (!project.name && !project.technologies && bullets.length === 0) return null;
+
+          return (
+            <div
+              key={project.id}
+              className="break-inside-avoid"
+              style={{ marginBottom: index === items.length - 1 ? 0 : itemGap }}
+            >
+              <div className="flex justify-between items-baseline mb-1">
+                <div className="font-bold text-gray-900" style={bodyStyle}>
+                  <span data-path={`${basePath}.${index}.name`}>
+                    <RichText text={project.name} />
+                  </span>
+                  {project.link && (
+                    <a
+                      href={project.link.startsWith('http') ? project.link : `https://${project.link}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-2 font-normal italic text-gray-600 hover:underline"
+                    >
+                      Link
+                    </a>
+                  )}
+                </div>
+              </div>
+              {project.technologies && (
+                <div data-path={`${basePath}.${index}.technologies`} className="italic text-gray-600 mb-1" style={bodyStyle}>
+                  <RichText text={project.technologies} />
+                </div>
+              )}
+              {bullets.length > 0 && (
+                <ul className="list-disc list-outside ml-5 space-y-1 text-gray-700" style={bodyStyle}>
+                  {bullets.map((bullet, i) => (
+                    <li key={i} data-path={`${basePath}.${index}.description.${i}`}>
+                      <RichText text={bullet ? bullet.replace(/^[•-]\s*/, '') : ''} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          );
+        })}
+      </section>
+    );
+  };
+
+  const renderCertificationsBlock = (title: string, items: Certification[], basePath: string = 'certifications') => {
+    if (!items || items.length === 0) return null;
+    const validItems = items.filter((c) => c?.name?.trim() || c?.issuer?.trim() || c?.date?.trim());
+    if (validItems.length === 0) return null;
 
     return (
-        <div
-            className="resume-content text-gray-900 bg-white"
-            style={{
-                lineHeight: data.lineHeight || 1.7,
-                paddingLeft: `${getMarginHorizontalIn(data)}in`,
-                paddingRight: `${getMarginHorizontalIn(data)}in`,
-                paddingTop: `${getMarginVerticalIn(data)}in`,
-                paddingBottom: `${getMarginVerticalIn(data)}in`,
-            }}
-        >
-            {/* Header Section */}
-            <header className="break-inside-avoid" style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
-                <div className={`flex flex-col ${data.headerAlignment === 'center' ? 'items-center text-center' : data.headerAlignment === 'right' ? 'items-end text-right' : 'items-start text-left'}`}>
-                    <h1
-                        className="font-bold leading-tight"
-                        style={{
-                            fontSize: `${fontSizes?.header || 18}pt`,
-                            color: accentColor,
-                            marginBottom: `${getHeaderItemGapIn(data)}in`, lineHeight: 1.1
-                        }}
-                    >
-                        {formatNameDisplay(data.fullName, data.headerCase)}
-                    </h1>
-
-                    {isTitleFirst(data, false) && (
-                        <div
-                            className="font-semibold"
-                            style={{
-                                fontSize: `${fontSizes?.jobTitle || 11}pt`,
-                                color: accentColor,
-                            }}
-                        >
-                            {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
-                        </div>
-                    )}
-                    {/* Contact Bar */}
-                    <div className={`flex flex-wrap gap-x-6 gap-y-2 text-gray-600 ${data.headerAlignment === 'center' ? 'justify-center' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-start'}`} style={{ fontSize: `${fontSizes?.body || 9.5}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
-                        {data.address && (
-                            <div className="flex items-center gap-2">
-                                <span>{formatContactText(data.address)}</span>
-                            </div>
-                        )}
-                        {data.email && (
-                            <div className="flex items-center gap-2">
-                                <a href={`mailto:${formatContactText(data.email)}`} style={{ textDecoration: 'none', color: 'inherit' }}>{formatContactText(data.email)}</a>
-                            </div>
-                        )}
-                        {data.phone && (
-                            <div className="flex items-center gap-2">
-                                <span>{formatContactText(data.phone)}</span>
-                            </div>
-                        )}
-                        {data.linkedin && (
-                            <div className="flex items-center gap-2">
-                                <a
-                                    href={getLinkedInHref(data.linkedin)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    style={{ textDecoration: 'none', color: 'inherit' }}
-                                    className="text-sm"
-                                >
-                                    {formatLinkedInDisplay(data.linkedin)}
-                                </a>
-                            </div>
-                        )}
-                    </div>
-                    {!isTitleFirst(data, false) && (
-                        <div
-                            className="font-semibold"
-                            style={{
-                                fontSize: `${fontSizes?.jobTitle || 11}pt`,
-                                color: accentColor,
-                            }}
-                        >
-                            {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
-                        </div>
-                    )}
-                </div>
-            </header>
-
-            {/* Dynamic Sections */}
-            {getNormalizedSectionOrder(data.sectionOrder, ['summary', 'achievements', 'skills', 'experience', 'projects', 'certifications', 'education', 'additionalInfo', 'references']).map(id => (
-                <React.Fragment key={id}>
-                    {renderSection(id)}
-                </React.Fragment>
-            ))}
+      <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
+        {renderSectionHeader(title)}
+        <div className="space-y-2 text-gray-700" style={bodyStyle}>
+          {validItems.map((cert, index) => (
+            <div key={cert.id} className="flex justify-between items-baseline">
+              <div>
+                <span data-path={`${basePath}.${index}.name`} className="font-bold">
+                  <RichText text={cert.name ?? ''} />
+                </span>
+                {cert.issuer && (
+                  <span className="italic text-gray-600">
+                    {' - '}
+                    <span data-path={`${basePath}.${index}.issuer`}>
+                      <RichText text={cert.issuer} />
+                    </span>
+                  </span>
+                )}
+              </div>
+              {cert.date && (
+                <span data-path={`${basePath}.${index}.date`} className="text-gray-500 font-medium shrink-0 ml-4">
+                  <RichText text={cert.date} />
+                </span>
+              )}
+            </div>
+          ))}
         </div>
+      </section>
     );
+  };
+
+  const renderLanguagesBlock = (title: string, items: LanguageItem[], basePath: string = 'languages') => {
+    if (!items || items.length === 0) return null;
+    const validItems = items.filter((l) => l?.language?.trim());
+    if (validItems.length === 0) return null;
+
+    return (
+      <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
+        {renderSectionHeader(title)}
+        <div className="space-y-2 text-gray-700" style={bodyStyle}>
+          {validItems.map((lang, index) => (
+            <div key={lang.id}>
+              <span data-path={`${basePath}.${index}.language`} className="font-bold">
+                <RichText text={lang.language} />
+              </span>
+              {lang.proficiency && (
+                <span className="italic text-gray-600 ml-2">
+                  (<span data-path={`${basePath}.${index}.proficiency`}><RichText text={lang.proficiency} /></span>)
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  };
+
+  const renderKeyValueBlock = (title: string, items: AdditionalInfoItem[], basePath: string = 'additionalInfo') => {
+    const validItems = (items || []).filter((item) => item?.label?.trim() && item?.value?.trim());
+    if (validItems.length === 0) return null;
+
+    return (
+      <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
+        {renderSectionHeader(title)}
+        <div className="space-y-2 text-gray-700" style={bodyStyle}>
+          {validItems.map((item, index) => (
+            <div key={item.id}>
+              <span data-path={`${basePath}.${index}.label`} className="font-bold">
+                <RichText text={item.label} />:
+              </span>
+              <span data-path={`${basePath}.${index}.value`} className="ml-2">
+                <RichText text={item.value} />
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  };
+
+  const renderCustomBlock = (title: string, custom: CustomSectionData, id: string) => {
+    if (!custom) return null;
+    const basePath = `customSections.${id}`;
+    if (custom.contentType === 'text') {
+      return renderTextBlock(title, custom.content as string, `${basePath}.content`);
+    }
+    if (custom.contentType === 'bullets') {
+      return renderBulletsBlock(title, custom.content as string[] | string, `${basePath}.content`);
+    }
+    if (custom.contentType === 'key_value') {
+      return renderKeyValueBlock(title, custom.content as AdditionalInfoItem[], `${basePath}.content`);
+    }
+    return null;
+  };
+
+  const renderSection = (id: string) => {
+    const resolved = resolveSection(data, id);
+    if (!resolved || !resolved.visible || !resolved.hasContent) return null;
+
+    let sectionTitle = resolved.title;
+    if (resolved.type === 'summary') sectionTitle = t.professionalSummary || resolved.title;
+    if (resolved.type === 'skills') sectionTitle = t.technicalSkills || resolved.title;
+    if (resolved.type === 'experience') sectionTitle = t.experienceTitle || resolved.title;
+    if (resolved.type === 'education') sectionTitle = t.educationTitle || resolved.title;
+    if (resolved.type === 'certifications') sectionTitle = t.certifications || resolved.title;
+
+    switch (resolved.rendererKind) {
+      case 'text':
+        return renderTextBlock(sectionTitle, resolved.content as string, resolved.id);
+      case 'skills':
+        return renderSkillsBlock(sectionTitle, resolved.content as string);
+      case 'expert_skills':
+        return renderExpertSkillsBlockHelper({
+          data,
+          title: sectionTitle,
+          items: resolved.content as any,
+          basePath: resolved.id,
+          renderSectionHeader,
+          bodyStyle: { fontSize: `${fontSizes?.body || 9}pt`, lineHeight: data.lineHeight || 1.5 },
+        });
+      case 'bullets':
+        return renderBulletsBlock(sectionTitle, resolved.content as string[] | string, resolved.id);
+      case 'experience':
+        return renderExperienceBlock(sectionTitle, resolved.content as Experience[], resolved.id);
+      case 'education':
+        return renderEducationBlock(sectionTitle, resolved.content as Education[], resolved.id);
+      case 'projects':
+        return renderProjectsBlock(sectionTitle, resolved.content as Project[], resolved.id);
+      case 'certifications':
+        return renderCertificationsBlock(sectionTitle, resolved.content as Certification[], resolved.id);
+      case 'languages':
+        return renderLanguagesBlock(sectionTitle, resolved.content as LanguageItem[], resolved.id);
+      case 'key_value':
+        return renderKeyValueBlock(sectionTitle, resolved.content as AdditionalInfoItem[], resolved.id);
+      case 'coursework':
+        return renderCourseworkBlockHelper({
+          data,
+          title: sectionTitle,
+          items: resolved.content as CourseworkItem[] | string,
+          basePath: resolved.id,
+          renderSectionHeader,
+          renderTextBlock,
+          bodyStyle: { fontSize: `${fontSizes?.body || 9}pt`, lineHeight: data.lineHeight || 1.5 },
+        });
+      case 'custom':
+        return renderCustomBlock(sectionTitle, resolved.content as CustomSectionData, resolved.id);
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div
+      className="resume-content text-gray-900"
+      style={{
+        lineHeight: data.lineHeight || 1.5,
+        fontSize: `${fontSizes?.body || 9}pt`,
+        paddingLeft: `${getMarginHorizontalIn(data)}in`,
+        paddingRight: `${getMarginHorizontalIn(data)}in`,
+        paddingTop: `${getMarginVerticalIn(data)}in`,
+        paddingBottom: `${getMarginVerticalIn(data)}in`,
+      }}
+    >
+      {/* Header */}
+      <header
+        className="break-inside-avoid"
+        style={{ marginBottom: `${getHeaderGapIn(data)}in` }}
+      >
+        <h1
+          data-path="fullName"
+          className={`font-bold tracking-tight text-gray-900 ${
+            data.headerAlignment === 'left' ? 'text-left' :
+            data.headerAlignment === 'right' ? 'text-right' :
+            'text-center'
+          }`}
+          style={{
+            fontSize: `${fontSizes?.header || 22}pt`,
+            marginBottom: `${getHeaderItemGapIn(data)}in`,
+            lineHeight: 1.2,
+          }}
+        >
+          <RichText text={formatNameDisplay(data.fullName, data.headerCase)} />
+        </h1>
+
+        {/* Job Title (if Title First) */}
+        {isTitleFirst(data, false) && data.jobTitle && (
+          <p
+            data-path="jobTitle"
+            className={`tracking-wider font-semibold text-gray-700 ${
+              data.jobTitleAlignment === 'left' ? 'text-left' :
+              data.jobTitleAlignment === 'right' ? 'text-right' :
+              data.jobTitleAlignment === 'center' ? 'text-center' :
+              data.headerAlignment === 'left' ? 'text-left' :
+              data.headerAlignment === 'right' ? 'text-right' :
+              'text-center'
+            }`}
+            style={{
+              fontSize: `${fontSizes?.jobTitle || 11}pt`,
+              color: accentColor,
+              marginBottom: `${getHeaderContactGapIn(data)}in`,
+              lineHeight: 1.25,
+            }}
+          >
+            <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />
+          </p>
+        )}
+
+        {/* Contact Information */}
+        {(() => {
+          const showIcons = data.showContactIcons ?? true;
+          const contactItems: React.ReactNode[] = [];
+
+          if (data.location || data.address) {
+            contactItems.push(
+              <span key="loc" className="inline-flex items-center gap-1">
+                {showIcons && <MapPin size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
+                <span data-path="location">
+                  <RichText text={formatLocationDisplay(data.location || data.address || '')} />
+                </span>
+              </span>
+            );
+          }
+
+          if (data.phone) {
+            contactItems.push(
+              <span key="ph" className="inline-flex items-center gap-1">
+                {showIcons && <Phone size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
+                <span data-path="phone">
+                  <RichText text={formatContactText(data.phone)} />
+                </span>
+              </span>
+            );
+          }
+
+          if (data.email) {
+            contactItems.push(
+              <span key="em" className="inline-flex items-center gap-1">
+                {showIcons && <Mail size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
+                <a
+                  data-path="email"
+                  href={`mailto:${formatContactText(data.email)}`}
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  <RichText text={formatContactText(data.email)} />
+                </a>
+              </span>
+            );
+          }
+
+          if (data.linkedin) {
+            contactItems.push(
+              <span key="li" className="inline-flex items-center gap-1">
+                {showIcons && <Linkedin size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
+                <a
+                  data-path="linkedin"
+                  href={getLinkedInHref(data.linkedin)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  <RichText text={formatLinkedInDisplay(data.linkedin)} />
+                </a>
+              </span>
+            );
+          }
+
+          if (data.atHandle) {
+            contactItems.push(
+              <span key="at" className="inline-flex items-center gap-1">
+                {showIcons && <Send size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
+                <span data-path="atHandle">
+                  <RichText text={data.atHandle} />
+                </span>
+              </span>
+            );
+          }
+
+          if (contactItems.length === 0) return null;
+
+          return (
+            <div
+              className={`flex flex-wrap items-center ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-600 ${
+                data.contactAlignment === 'left' ? 'justify-start text-left' :
+                data.contactAlignment === 'right' ? 'justify-end text-right' :
+                data.contactAlignment === 'center' ? 'justify-center text-center' :
+                data.headerAlignment === 'left' ? 'justify-start text-left' :
+                data.headerAlignment === 'right' ? 'justify-end text-right' :
+                'justify-center text-center'
+              }`}
+              style={{
+                ...bodyStyle,
+                marginBottom: !isTitleFirst(data, false) && data.jobTitle ? `${getHeaderContactGapIn(data)}in` : undefined,
+              }}
+            >
+              {contactItems.map((item, idx) => (
+                <React.Fragment key={idx}>
+                  {item}
+                  {!showIcons && idx < contactItems.length - 1 && (
+                    <span className="mx-1 text-gray-400 select-none">{CONTACT_SEPARATOR}</span>
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+          );
+        })()}
+
+        {/* Job Title (if Contact First) */}
+        {!isTitleFirst(data, false) && data.jobTitle && (
+          <p
+            data-path="jobTitle"
+            className={`tracking-wider font-semibold text-gray-700 ${
+              data.jobTitleAlignment === 'left' ? 'text-left' :
+              data.jobTitleAlignment === 'right' ? 'text-right' :
+              data.jobTitleAlignment === 'center' ? 'text-center' :
+              data.headerAlignment === 'left' ? 'text-left' :
+              data.headerAlignment === 'right' ? 'text-right' :
+              'text-center'
+            }`}
+            style={{
+              fontSize: `${fontSizes?.jobTitle || 11}pt`,
+              color: accentColor,
+              lineHeight: 1.25,
+            }}
+          >
+            <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />
+          </p>
+        )}
+      </header>
+
+      {/* Dynamic Sections */}
+      {getResolvedSectionOrder(data).map((id) => (
+        <React.Fragment key={id}>{renderSection(id)}</React.Fragment>
+      ))}
+    </div>
+  );
 }

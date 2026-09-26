@@ -1,21 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { User, Briefcase, GraduationCap, Award, Target, Layout as LayoutIcon, ChevronDown, ChevronRight, ChevronUp, Plus, Check, Users, Hash, FileText, Info, GripVertical, BarChart3, Lock, Crown } from 'lucide-react';
+import React, { useState } from 'react';
+import { User, Briefcase, GraduationCap, Award, Target, Layout as LayoutIcon, ChevronDown, ChevronRight, ChevronUp, Plus, Check, Users, Hash, Sparkles, FileText, Info, GripVertical, BarChart3, Lock, Crown, Layers, BookOpen, PanelLeftClose } from 'lucide-react';
 import { ResumeData, TemplateType } from '../types';
 import { UserSubscription } from '../types/pricing';
 import { SubscriptionManager } from '../utils/subscriptionManager';
 import { canAccessTemplate, FREE_TEMPLATES } from '../utils/pricingConfig';
 import { TEMPLATE_CONFIG } from '../utils/templateConfig';
+import { ResumeSectionType } from '../types/resumeSections';
+import { SECTION_REGISTRY, createDefaultSectionOrder } from '../utils/sectionRegistry';
 import PersonalInfoForm from './PersonalInfoForm';
 import ExperienceForm from './ExperienceForm';
 import EducationForm from './EducationForm';
 import AchievementsForm from './AchievementsForm';
 import CertificationsForm from './CertificationsForm';
 import SkillsForm from './SkillsForm';
+import ExpertSkillsForm from './ExpertSkillsForm';
 import SummaryForm from './SummaryForm';
 import ReferencesForm from './ReferencesForm';
 import AdditionalInfoForm from './AdditionalInfoForm';
 import ProjectsForm from './ProjectsForm';
 import LeadershipForm from './LeadershipForm';
+import CustomSectionForm from './CustomSectionForm';
+import GenericSectionForm from './GenericSectionForm';
+import CourseworkForm from './CourseworkForm';
+import AddSectionModal from './resume-agent/AddSectionModal';
 import ResumePreview from './ResumePreview';
 import AnalyticsDashboard from './AnalyticsDashboard';
 import { EditorTab } from './Editor';
@@ -31,41 +38,241 @@ interface EditorSidebarLeftProps {
     onAIAction: (action: 'ai_rewrite' | 'cv_regeneration' | 'cover_letter' | 'bullet_optimization') => boolean;
     onShowPaywall?: (feature: 'templates' | 'job-match' | 'general' | 'credits' | 'export') => void;
     auditResult?: { score: number; keywords: string[]; issues: string[] } | null;
+    onToggleSidebar?: () => void;
 }
 
-export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onChange, currentTemplate, onTemplateChange, userSubscription, onAIAction, onShowPaywall, auditResult }: EditorSidebarLeftProps) {
+export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onChange, currentTemplate, onTemplateChange, userSubscription, onAIAction, onShowPaywall, auditResult, onToggleSidebar }: EditorSidebarLeftProps) {
     const [view, setView] = useState<'create' | 'templates' | 'analytics'>('create');
-    const [draggedSection, setDraggedSection] = useState<string | null>(null);
-    const [isMobile, setIsMobile] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState('All');
+    const [draggedSection, setDraggedSection] = useState<string | null>(null);
+    const [isAddSectionModalOpen, setIsAddSectionModalOpen] = useState(false);
     const lastUpdateRef = React.useRef<string>('');
 
-    // Detect mobile/touch device
-    useEffect(() => {
-        const checkMobile = () => {
-            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-            const isSmallScreen = window.innerWidth < 768;
-            setIsMobile(isTouchDevice && isSmallScreen);
-        };
+    const toggleSection = (sectionId: string) => {
+        setActiveTab(activeTab === sectionId ? ('' as EditorTab) : (sectionId as EditorTab));
+    };
 
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
+    const handleAddSection = (
+        sectionType: ResumeSectionType,
+        customConfig?: { title: string; contentType: 'text' | 'bullets' | 'key_value' }
+    ) => {
+        let updatedData: ResumeData = { ...data };
 
-    const sections = [
+        if (sectionType === 'custom' && customConfig) {
+            const customId = `custom_${Date.now()}`;
+            const newCustomSections = {
+                ...(updatedData.customSections || {}),
+                [customId]: {
+                    id: customId,
+                    title: customConfig.title,
+                    contentType: customConfig.contentType,
+                    content:
+                        customConfig.contentType === 'bullets'
+                            ? ['Key achievement or highlight in this custom section', 'Additional project milestone or accomplishment']
+                            : customConfig.contentType === 'key_value'
+                            ? [{ id: '1', label: 'Item', value: 'Details' }]
+                            : 'Add descriptive overview or notes for this section.',
+                },
+            };
+
+            const newSectionOrder = Array.isArray(updatedData.sectionOrder)
+                ? [...updatedData.sectionOrder, customId]
+                : [...createDefaultSectionOrder(), customId];
+
+            const newVisibility = {
+                ...(updatedData.sectionVisibility || {}),
+                [customId]: true,
+            };
+
+            updatedData = {
+                ...updatedData,
+                customSections: newCustomSections,
+                sectionOrder: newSectionOrder,
+                sectionVisibility: newVisibility,
+            };
+            onChange(updatedData);
+            setActiveTab(customId as EditorTab);
+        } else {
+            const def = SECTION_REGISTRY[sectionType];
+            const newVisibility = {
+                ...(updatedData.sectionVisibility || {}),
+                [sectionType]: true,
+            };
+
+            const currentOrder =
+                Array.isArray(updatedData.sectionOrder) && updatedData.sectionOrder.length > 0
+                    ? updatedData.sectionOrder
+                    : createDefaultSectionOrder();
+
+            const newSectionOrder = currentOrder.includes(sectionType)
+                ? currentOrder
+                : [...currentOrder, sectionType];
+
+            updatedData = {
+                ...updatedData,
+                sectionVisibility: newVisibility,
+                sectionOrder: newSectionOrder,
+            };
+
+            // Populate starter content if empty so it renders immediately
+            if (def) {
+                const field = def.dataField as keyof ResumeData;
+                const currentVal = updatedData[field];
+                const hasContent = Array.isArray(currentVal)
+                    ? currentVal.length > 0
+                    : typeof currentVal === 'string'
+                    ? currentVal.trim().length > 0
+                    : Boolean(currentVal);
+
+                if (!hasContent) {
+                    switch (def.rendererKind) {
+                        case 'experience':
+                            (updatedData as any)[field] = [
+                                {
+                                    id: Date.now().toString(),
+                                    role: `${def.defaultTitle} Lead / Member`,
+                                    company: 'Organization / Institution',
+                                    startDate: '2023',
+                                    endDate: 'Present',
+                                    description: '• Led key initiatives and collaborated with cross-functional partners\n• Achieved quantifiable results and streamlined operational workflow',
+                                },
+                            ];
+                            break;
+                        case 'projects':
+                            (updatedData as any)[field] = [
+                                {
+                                    id: Date.now().toString(),
+                                    name: `${def.defaultTitle} Highlight`,
+                                    technologies: 'React, TypeScript, Tailwind CSS',
+                                    link: '',
+                                    description: '• Designed and built high-impact features improving user engagement\n• Implemented automated workflows and delivered scalable architecture',
+                                },
+                            ];
+                            break;
+                        case 'certifications':
+                            (updatedData as any)[field] = [
+                                {
+                                    id: Date.now().toString(),
+                                    name: `${def.defaultTitle} Credential`,
+                                    issuer: 'Accrediting Organization',
+                                    date: '2024',
+                                },
+                            ];
+                            break;
+                        case 'languages':
+                            (updatedData as any)[field] = [
+                                { id: '1', language: 'English', proficiency: 'Native / Bilingual' },
+                                { id: '2', language: 'Spanish', proficiency: 'Professional Working' },
+                            ];
+                            break;
+                        case 'skills':
+                            (updatedData as any)[field] =
+                                'JavaScript, TypeScript, React, Node.js, Python, Git, Problem Solving, Team Leadership';
+                            break;
+                        case 'expert_skills':
+                            (updatedData as any)[field] = [
+                                { id: '1', category: 'Leadership', skills: 'Speaking, Fundraising, Product Development, Communication, Partnerships, International Marketing' },
+                                { id: '2', category: 'Front End', skills: 'HTML, CSS, Bootstrap, Webflow | Design: Photoshop, Illustrator, Sketch' },
+                                { id: '3', category: 'Fields of Interest', skills: 'Early-Stage Fundraising, Global Entrepreneurship, Web Design, Growth' },
+                            ];
+                            break;
+                        case 'bullets':
+                            (updatedData as any)[field] =
+                                '• Key milestone or contribution delivering measurable impact\n• Published research or presentation delivered to target audience';
+                            break;
+                        case 'key_value':
+                            (updatedData as any)[field] = [
+                                { id: '1', label: 'Availability', value: 'Immediate' },
+                                { id: '2', label: 'Work Authorization', value: 'Authorized to work' },
+                            ];
+                            break;
+                        case 'coursework':
+                            (updatedData as any)[field] = [
+                                {
+                                    id: Date.now().toString(),
+                                    courseName: 'Computer Science',
+                                    institution: 'BUK',
+                                    year: '2026',
+                                    skills: 'Excel, Work, Spreadsheet',
+                                    description: [
+                                        'Expert in translating complex blockchain protocols into intuitive user experiences. Deeply rooted in the Solana ecosystem with a focus on liquid staking, gamified finance (GameFi), and scalable design systems.',
+                                        'Expert in translating complex blockchain protocols into intuitive user experiences. Deeply rooted in the Solana ecosystem with a focus on liquid staking, gamified finance (GameFi), and scalable design systems.',
+                                    ],
+                                },
+                            ];
+                            break;
+                        case 'text':
+                            (updatedData as any)[field] =
+                                'Accomplished professional with a track record of delivering impactful results and driving innovation.';
+                            break;
+                    }
+                }
+            }
+
+            onChange(updatedData);
+            setActiveTab(sectionType as EditorTab);
+        }
+        setIsAddSectionModalOpen(false);
+    };
+
+    const standardSections = [
         { id: 'personal', label: 'Personal Information', icon: <User size={18} />, component: <PersonalInfoForm data={data} onChange={onChange} /> },
         { id: 'summary', label: 'Professional Summary', icon: <FileText size={18} />, component: <SummaryForm data={data} onChange={onChange} onAIAction={onAIAction} /> },
         { id: 'experience', label: 'Employment History', icon: <Briefcase size={18} />, component: <ExperienceForm data={data} onChange={onChange} onAIAction={onAIAction} /> },
         { id: 'education', label: 'Education', icon: <GraduationCap size={18} />, component: <EducationForm data={data} onChange={onChange} /> },
         { id: 'projects', label: 'Projects', icon: <Target size={18} />, component: <ProjectsForm data={data} onChange={onChange} /> },
         { id: 'skills', label: 'Skills', icon: <Hash size={18} />, component: <SkillsForm data={data} onChange={onChange} onAIAction={onAIAction} /> },
+        { id: 'expert_skills', label: 'Expert-Level Skills', icon: <Sparkles size={18} />, component: <ExpertSkillsForm data={data} onChange={onChange} onAIAction={onAIAction} /> },
         { id: 'certifications', label: 'Certifications', icon: <Award size={18} />, component: <CertificationsForm data={data} onChange={onChange} /> },
         { id: 'achievements', label: 'Achievements', icon: <Award size={18} />, component: <AchievementsForm data={data} onChange={onChange} onAIAction={onAIAction} /> },
         { id: 'additionalInfo', label: 'Additional Information', icon: <Info size={18} />, component: <AdditionalInfoForm data={data} onChange={onChange} /> },
         { id: 'leadership', label: 'Leadership', icon: <Users size={18} />, component: <LeadershipForm data={data} onChange={onChange} onAIAction={onAIAction} /> },
         { id: 'references', label: 'References', icon: <Users size={18} />, component: <ReferencesForm data={data} onChange={onChange} /> },
     ];
+
+    const customSectionsList = Object.entries(data.customSections || {}).map(([customId, customSec]) => ({
+        id: customId,
+        label: customSec.title || 'Custom Section',
+        icon: <Layers size={18} />,
+        component: <CustomSectionForm customId={customId} data={data} onChange={onChange} />,
+    }));
+
+    // Extended sections from SECTION_REGISTRY (coursework, volunteering, publications, languages, awards, research, etc.)
+    const extendedSectionsList: Array<{ id: string; label: string; icon: React.ReactNode; component: React.ReactNode }> = [];
+    Object.entries(SECTION_REGISTRY).forEach(([secKey, def]) => {
+        const secId = def.type;
+        // Avoid duplicating core standard sections
+        if (standardSections.some(s => s.id === secId || (secId === 'additional_information' && s.id === 'additionalInfo'))) {
+            return;
+        }
+        const isVisible = Boolean(data.sectionVisibility?.[secId] || (Array.isArray(data.sectionOrder) && data.sectionOrder.includes(secId)));
+        const val = (data as any)[def.dataField];
+        const hasData = Array.isArray(val)
+            ? val.length > 0
+            : typeof val === 'string'
+            ? val.trim().length > 0
+            : Boolean(val);
+
+        if (isVisible || hasData) {
+            const sectionIcon = secId === 'coursework' ? <BookOpen size={18} /> : <FileText size={18} />;
+            extendedSectionsList.push({
+                id: secId,
+                label: (data.sectionTitles && data.sectionTitles[secId]) || def.defaultTitle,
+                icon: sectionIcon,
+                component: (
+                    <GenericSectionForm
+                        sectionType={secId}
+                        definition={def}
+                        data={data}
+                        onChange={onChange}
+                        onAIAction={onAIAction}
+                    />
+                ),
+            });
+        }
+    });
+
+    const sections = [...standardSections, ...customSectionsList, ...extendedSectionsList];
 
     // Helper function to compute full section order consistently
     // This ensures all sections are included, even if not in saved order
@@ -118,30 +325,41 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
     });
 
     return (
-        <div className="flex flex-col h-full bg-brand-bg">
+        <div className="flex flex-col h-full bg-white">
             {/* Create / Templates / Analytics Toggle */}
-            <div className="p-4 border-b border-brand-border">
-                <div className="grid grid-cols-3 bg-brand-secondary p-1 rounded-lg gap-1">
+            <div className="p-3 sm:p-4 border-b border-brand-border flex items-center gap-1.5">
+                <div className="grid grid-cols-3 bg-brand-secondary p-1 rounded-lg gap-1 flex-1">
                     <button
                         onClick={() => setView('create')}
-                        className={`py-1.5 text-xs font-medium rounded-md transition-all ${view === 'create' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+                        className={`py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer ${view === 'create' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
                     >
                         Create
                     </button>
                     <button
                         onClick={() => setView('templates')}
-                        className={`py-1.5 text-xs font-medium rounded-md transition-all ${view === 'templates' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+                        className={`py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer ${view === 'templates' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
                     >
                         Templates
                     </button>
                     <button
                         onClick={() => setView('analytics')}
-                        className={`py-1.5 text-xs font-medium rounded-md transition-all flex items-center justify-center gap-1 ${view === 'analytics' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+                        className={`py-1.5 text-xs font-medium rounded-md transition-all flex items-center justify-center gap-1 cursor-pointer ${view === 'analytics' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
                     >
                         <BarChart3 size={14} />
                         Analytics
                     </button>
                 </div>
+
+                {onToggleSidebar && (
+                    <button
+                        type="button"
+                        onClick={onToggleSidebar}
+                        title="Hide Left Sidebar"
+                        className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition-colors cursor-pointer shrink-0 hidden md:flex items-center justify-center"
+                    >
+                        <PanelLeftClose size={16} />
+                    </button>
+                )}
             </div>
 
             {/* Content Area */}
@@ -155,7 +373,7 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                             return (
                                 <div key={section.id} className="border-b border-brand-border">
                                     <button
-                                        onClick={() => setActiveTab(section.id as EditorTab)}
+                                        onClick={() => toggleSection(section.id)}
                                         className={`w-full flex items-center justify-between p-4 hover:bg-brand-secondary transition-colors ${isActive ? 'bg-brand-secondary' : ''}`}
                                     >
                                         <div className="flex items-center gap-3">
@@ -163,7 +381,15 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                                         </div>
                                         {isActive ? <ChevronDown size={16} className="text-gray-400" /> : <Plus size={16} className="text-gray-400" />}
                                     </button>
-                                    {isActive && <div className="p-4 pt-0 animate-fadeIn">{section.component}</div>}
+                                    {isActive && (
+                                        <div
+                                            className="px-4 pt-4 pb-6 animate-fadeIn"
+                                            draggable={false}
+                                            onDragStart={(e) => e.stopPropagation()}
+                                        >
+                                            {section.component}
+                                        </div>
+                                    )}
                                 </div>
                             );
                         })}
@@ -174,9 +400,8 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                             // Compute current full order for display (always from latest data)
                             const fullOrder = computeFullSectionOrder(data.sectionOrder);
 
-                            // Move section up or down (for mobile arrow buttons)
+                            // Move section up or down (for arrow buttons)
                             const moveSection = (sectionId: string, direction: 'up' | 'down') => {
-                                // Always compute from current data state to ensure consistency
                                 const currentFullOrder = computeFullSectionOrder(data.sectionOrder);
 
                                 const currentIdx = currentFullOrder.indexOf(sectionId);
@@ -210,59 +435,55 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                                 return (
                                     <div
                                         key={section.id}
-                                        draggable={!isMobile}
-                                        onDragStart={() => !isMobile && setDraggedSection(section.id)}
                                         onDragOver={(e) => {
-                                            if (isMobile) return;
                                             e.preventDefault();
                                             if (!draggedSection || draggedSection === section.id) return;
 
-                                            // Always compute from current data state to ensure we have latest order
                                             const currentFullOrder = computeFullSectionOrder(data.sectionOrder);
-
                                             const draggedIdx = currentFullOrder.indexOf(draggedSection);
                                             const targetIdx = currentFullOrder.indexOf(section.id);
 
-                                            // Safety checks
-                                            if (draggedIdx === -1 || targetIdx === -1) {
-                                                console.warn('Invalid drag operation - section not found in order');
-                                                return;
-                                            }
+                                            if (draggedIdx === -1 || targetIdx === -1) return;
 
-                                            // Create new order by moving dragged item to target position
                                             const newOrder = [...currentFullOrder];
                                             newOrder.splice(draggedIdx, 1);
                                             newOrder.splice(targetIdx, 0, draggedSection);
 
-                                            // Prevent duplicate updates during rapid drag events
                                             const orderKey = newOrder.join(',');
                                             if (lastUpdateRef.current === orderKey) return;
                                             lastUpdateRef.current = orderKey;
 
-                                            // Update state immediately - triggers re-render and preview update
                                             onChange({ ...data, sectionOrder: newOrder });
                                         }}
-                                        onDragEnd={() => {
-                                            if (!isMobile) {
-                                                setDraggedSection(null);
-                                                lastUpdateRef.current = ''; // Reset on drag end
-                                            }
+                                        onDrop={(e) => {
+                                            e.preventDefault();
+                                            setDraggedSection(null);
+                                            lastUpdateRef.current = '';
                                         }}
-                                        className={`border-b border-brand-border transition-all ${isDragging ? 'opacity-50' : ''}`}
+                                        className={`border-b border-brand-border transition-all ${isDragging ? 'opacity-40 bg-gray-50 ring-1 ring-brand-green/30' : ''}`}
                                     >
                                         <div className={`w-full flex items-center justify-between p-4 hover:bg-brand-secondary transition-colors ${isActive ? 'bg-brand-secondary' : ''}`}>
                                             <div className="flex items-center gap-2 sm:gap-3 flex-1">
-                                                {/* Drag Handle - Desktop only */}
-                                                {!isMobile && (
-                                                    <div
-                                                        className="cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 p-1 -ml-2 touch-none"
-                                                        onMouseDown={(e) => e.stopPropagation()} // Prevent accordion toggle when grabbing handle
-                                                    >
-                                                        <GripVertical size={14} />
-                                                    </div>
-                                                )}
+                                                {/* Drag Handle - Only this handle is draggable */}
+                                                <div
+                                                    draggable={true}
+                                                    onDragStart={(e) => {
+                                                        e.stopPropagation();
+                                                        setDraggedSection(section.id);
+                                                        e.dataTransfer.effectAllowed = 'move';
+                                                        e.dataTransfer.setData('text/plain', section.id);
+                                                    }}
+                                                    onDragEnd={() => {
+                                                        setDraggedSection(null);
+                                                        lastUpdateRef.current = '';
+                                                    }}
+                                                    className="cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-600 p-1 -ml-1 rounded hover:bg-gray-200/50 transition-colors touch-none"
+                                                    title="Drag to reorder section"
+                                                >
+                                                    <GripVertical size={14} />
+                                                </div>
 
-                                                {/* Move Buttons (arrows) for reordering - available on all devices */}
+                                                {/* Move Buttons (arrows) for reordering */}
                                                 <div className="flex flex-col gap-0.5 -ml-1">
                                                     <button
                                                         onClick={(e) => {
@@ -295,21 +516,47 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                                                 </div>
 
                                                 <button
-                                                    onClick={() => setActiveTab(section.id as EditorTab)}
+                                                    onClick={() => toggleSection(section.id)}
                                                     className="flex-1 text-left flex items-center gap-3"
                                                 >
                                                     <span className={`text-xs font-bold uppercase tracking-wide ${isActive ? 'text-gray-900' : 'text-gray-500'}`}>{section.label}</span>
                                                 </button>
                                             </div>
-                                            <button onClick={() => setActiveTab(section.id as EditorTab)}>
-                                                {isActive ? <ChevronDown size={16} className="text-gray-400" /> : <Plus size={16} className="text-gray-400" />}
+                                            <button
+                                                onClick={() => toggleSection(section.id)}
+                                                className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors"
+                                                aria-label={isActive ? "Collapse section" : "Expand section"}
+                                            >
+                                                {isActive ? <ChevronDown size={16} /> : <Plus size={16} />}
                                             </button>
                                         </div>
-                                        {isActive && <div className="p-4 pt-0 animate-fadeIn">{section.component}</div>}
+                                        {isActive && (
+                                            <div
+                                                className="px-4 pt-4 pb-6 animate-fadeIn"
+                                                draggable={false}
+                                                onDragStart={(e) => e.stopPropagation()}
+                                            >
+                                                {section.component}
+                                            </div>
+                                        )}
                                     </div>
                                 );
                             })
                         })()}
+
+                        {/* Add Section Button - Always Last in Scrollable Section List */}
+                        <div className="p-4 pt-3 pb-8">
+                            <button
+                                type="button"
+                                onClick={() => setIsAddSectionModalOpen(true)}
+                                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 border-dashed border-neutral-200 hover:border-brand-green/80 bg-neutral-50/60 hover:bg-emerald-50/40 text-neutral-600 hover:text-emerald-800 text-xs font-bold transition-all duration-200 group cursor-pointer shadow-2xs hover:shadow-xs"
+                            >
+                                <div className="w-5 h-5 rounded-full bg-neutral-200/80 group-hover:bg-brand-green/20 group-hover:text-emerald-700 flex items-center justify-center transition-colors">
+                                    <Plus size={13} className="text-neutral-600 group-hover:text-emerald-800" />
+                                </div>
+                                <span>Add Section</span>
+                            </button>
+                        </div>
                     </div>
                 )}
 
@@ -402,6 +649,14 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                     <AnalyticsDashboard data={data} isSidebar={true} auditResult={auditResult} />
                 )}
             </div>
+
+            {/* Add Section / Custom Section Modal */}
+            <AddSectionModal
+                isOpen={isAddSectionModalOpen}
+                onClose={() => setIsAddSectionModalOpen(false)}
+                data={data}
+                onAddSection={handleAddSection}
+            />
         </div>
     );
 }

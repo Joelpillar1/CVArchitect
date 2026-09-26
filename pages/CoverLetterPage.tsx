@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Sparkles, Copy, Download, Briefcase, Building, FileText, Check, AlertCircle, LayoutTemplate, AlignCenter, Save } from 'lucide-react';
+import { ArrowLeft, Sparkles, Copy, Download, Briefcase, Building, FileText, Check, AlertCircle, LayoutTemplate, AlignCenter, Save, Loader2 } from 'lucide-react';
 import { ResumeData } from '../types';
 import { generateCoverLetter, GeneratedCoverLetter } from '../components/utils/aiEnhancer';
 import ModernCoverLetter from '../components/cover-letters/ModernCoverLetter';
@@ -12,6 +12,7 @@ import { coverLetterService, SavedCoverLetter } from '../services/coverLetterSer
 import { SubscriptionManager } from '../utils/subscriptionManager';
 import { UserSubscription } from '../types/pricing';
 import { saveToStorage, loadFromStorage, debouncedSaveToStorage } from '../utils/statePersistence';
+import { exportElementToPdf, exportCoverLetterToPdf, sanitizeFilename } from '../utils/pdfExport';
 import { createPortal } from 'react-dom';
 
 interface CoverLetterPageProps {
@@ -112,6 +113,8 @@ export default function CoverLetterPage({ resumeData, userSubscription, onDeduct
         debouncedSaveToStorage('cover_letter_structuredEdit', edit, 500);
     }, []);
 
+    const prefillJob = (location.state as any)?.prefillJob;
+
     useEffect(() => {
         if (initialLetter) {
             // If we have an initial letter, use it (overrides localStorage)
@@ -126,6 +129,15 @@ export default function CoverLetterPage({ resumeData, userSubscription, onDeduct
             if (initialLetter.content.structured && initialLetter.content.structured.skills && initialLetter.content.structured.skills.length > 0) {
                 setStructuredEdit(initialLetter.content.structured);
             }
+        } else if (prefillJob) {
+            // Prefill with selected job from Job Board
+            setStep('input');
+            setJobTitle(prefillJob.jobTitle || '');
+            setCompanyName(prefillJob.companyName || '');
+            setJobDescription(prefillJob.jobDescription || '');
+            setGeneratedLetter(null);
+            setError(null);
+            setIsEditing(false);
         } else {
             // Only reset if we don't have saved state (first visit)
             // Otherwise, keep the restored state from localStorage
@@ -143,7 +155,7 @@ export default function CoverLetterPage({ resumeData, userSubscription, onDeduct
             setError(null);
             setIsEditing(false);
         }
-    }, [initialLetter]); // Only depend on initialLetter, not resumeData
+    }, [initialLetter, prefillJob]);
 
     const handleGenerate = async () => {
         if (!jobTitle.trim() || !companyName.trim()) {
@@ -180,19 +192,29 @@ export default function CoverLetterPage({ resumeData, userSubscription, onDeduct
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const handlePrint = () => {
+    const [isExporting, setIsExporting] = useState(false);
+
+    const handleDownloadPDF = async () => {
         if (!generatedLetter) return;
-
-        // Update document title for the PDF filename
-        const originalTitle = document.title;
-        const fileName = `${resumeData.fullName.replace(/\s+/g, '_')}_Cover_Letter_${jobTitle?.replace(/\s+/g, '_') || 'Application'}`;
-        document.title = fileName;
-
-        // Trigger browser print dialog
-        setTimeout(() => {
-            window.print();
-            document.title = originalTitle;
-        }, 100);
+        setIsExporting(true);
+        try {
+            const letterEl = document.getElementById('cover-letter-rendered-document');
+            if (letterEl) {
+                const fileName = `${sanitizeFilename(resumeData.fullName, 'Applicant')}_Cover_Letter_${sanitizeFilename(jobTitle || 'Application', 'Role')}.pdf`;
+                await exportElementToPdf(letterEl, {
+                    filename: fileName,
+                    pageSize: 'a4'
+                });
+            } else {
+                await exportCoverLetterToPdf(generatedLetter.plainText, resumeData, jobTitle, companyName);
+            }
+            showToast('Cover letter downloaded successfully!', 'success');
+        } catch (err) {
+            console.error('Failed to export cover letter:', err);
+            showToast('Failed to download cover letter PDF.', 'error');
+        } finally {
+            setIsExporting(false);
+        }
     };
 
     const handleSaveEdit = () => {
@@ -491,7 +513,7 @@ export default function CoverLetterPage({ resumeData, userSubscription, onDeduct
                                     </div>
                                 </div>
                             ) : (
-                                <div className="scale-[0.75] sm:scale-[0.85] origin-top shadow-2xl transition-all duration-300 w-full max-w-[210mm]">
+                                <div id="cover-letter-rendered-document" className="scale-[0.75] sm:scale-[0.85] origin-top shadow-2xl transition-all duration-300 w-full max-w-[210mm] bg-white">
                                     {selectedTemplate === 'structured' ? (
                                         <StructuredCoverLetter
                                             data={resumeData}
@@ -583,11 +605,12 @@ export default function CoverLetterPage({ resumeData, userSubscription, onDeduct
                     </button>
 
                     <button
-                        onClick={handlePrint}
-                        className="flex items-center gap-2 px-6 py-2 text-sm font-bold text-white bg-brand-dark hover:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-all"
+                        onClick={handleDownloadPDF}
+                        disabled={isExporting}
+                        className="flex items-center gap-2 px-6 py-2 text-sm font-bold text-white bg-brand-dark hover:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
                     >
-                        <Download size={16} />
-                        Print / PDF
+                        {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+                        {isExporting ? 'Downloading...' : 'Download PDF'}
                     </button>
                 </div>
             )}

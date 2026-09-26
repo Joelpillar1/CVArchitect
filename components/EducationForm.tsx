@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ResumeData, Education } from '../types';
-import { GraduationCap, Plus, Trash2, Calendar, Building, ChevronUp, ChevronDown } from 'lucide-react';
+import { GraduationCap, Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 
 interface EducationFormProps {
     data: ResumeData;
@@ -78,55 +78,53 @@ export default function EducationForm({ data, onChange }: EducationFormProps) {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div className="space-y-1">
-                                    <label className="text-xs font-medium text-gray-500 flex items-center gap-1">
-                                        <Building size={12} /> School / University
+                                    <label className="text-xs font-medium text-gray-500 block">
+                                        School / University
                                     </label>
                                     <input
                                         type="text"
                                         value={edu.school}
                                         onChange={(e) => handleChange(edu.id, 'school', e.target.value)}
-                                        className="w-full p-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
+                                        className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
                                         placeholder="University Name"
                                     />
                                 </div>
 
                                 <div className="space-y-1">
-                                    <label className="text-xs font-medium text-gray-500">Degree & Major</label>
+                                    <label className="text-xs font-medium text-gray-500 block">Degree & Major</label>
                                     <input
                                         type="text"
                                         value={edu.degree}
                                         onChange={(e) => handleChange(edu.id, 'degree', e.target.value)}
-                                        className="w-full p-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
+                                        className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
                                         placeholder="BSc Computer Science"
                                     />
                                 </div>
 
                                 <div className="space-y-1">
-                                    <label className="text-xs font-medium text-gray-500 flex items-center gap-1">
-                                        <Calendar size={12} /> Graduation Year
+                                    <label className="text-xs font-medium text-gray-500 block">
+                                        Graduation Year
                                     </label>
                                     <input
                                         type="text"
                                         value={edu.year}
                                         onChange={(e) => handleChange(edu.id, 'year', e.target.value)}
-                                        className="w-full p-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
+                                        className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
                                         placeholder="2020"
                                     />
                                 </div>
-                            </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-1">
-                                    <label className="text-xs font-medium text-gray-500">
+                                    <label className="text-xs font-medium text-gray-500 block">
                                         GPA (optional)
                                     </label>
                                     <input
                                         type="text"
                                         value={edu.gpa || ''}
                                         onChange={(e) => handleChange(edu.id, 'gpa', e.target.value)}
-                                        className="w-full p-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
+                                        className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
                                         placeholder="e.g. 3.8/4.0, Dean's List"
                                     />
                                 </div>

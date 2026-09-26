@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { X, Sparkles, Copy, Download, Briefcase, Building, FileText, Check, AlertCircle, LayoutTemplate, AlignCenter, Save } from 'lucide-react';
+import { X, Sparkles, Copy, Download, Briefcase, Building, FileText, Check, AlertCircle, LayoutTemplate, AlignCenter, Save, Loader2 } from 'lucide-react';
 import { ResumeData } from '../types';
 import { generateCoverLetter, GeneratedCoverLetter } from './utils/aiEnhancer';
 import ModernCoverLetter from './cover-letters/ModernCoverLetter';
 import BoldCoverLetter from './cover-letters/BoldCoverLetter';
 import StructuredCoverLetter from './cover-letters/StructuredCoverLetter';
-import { createRoot } from 'react-dom/client';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { coverLetterService, SavedCoverLetter } from '../services/coverLetterService';
+import { exportElementToPdf, exportCoverLetterToPdf, sanitizeFilename } from '../utils/pdfExport';
 
 interface CoverLetterModalProps {
     isOpen: boolean;
@@ -106,46 +106,28 @@ export default function CoverLetterModal({ isOpen, onClose, resumeData, onDeduct
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const handlePrint = () => {
+    const [isExporting, setIsExporting] = useState(false);
+
+    const handleDownloadPDF = async () => {
         if (!generatedLetter) return;
-
-        const printWindow = window.open('', '_blank');
-        if (printWindow) {
-            printWindow.document.write('<html><head><title>Cover Letter</title>');
-            printWindow.document.write('<script src="https://cdn.tailwindcss.com"></script>');
-            // Set margins to 0.1in as requested
-            printWindow.document.write('<style>@page { margin: 0.1in; } body { margin: 0; padding: 0; }</style>');
-            printWindow.document.write('</head><body>');
-            printWindow.document.write('<div id="print-root"></div>');
-            printWindow.document.write('</body></html>');
-
-            const root = createRoot(printWindow.document.getElementById('print-root')!);
-
-            if (selectedTemplate === 'structured') {
-                root.render(
-                    <StructuredCoverLetter
-                        data={resumeData}
-                        content={generatedLetter}
-                        companyName={companyName}
-                        jobTitle={jobTitle}
-                    />
-                );
+        setIsExporting(true);
+        try {
+            const letterEl = document.getElementById('cover-letter-modal-preview');
+            if (letterEl) {
+                const fileName = `${sanitizeFilename(resumeData.fullName, 'Applicant')}_Cover_Letter_${sanitizeFilename(jobTitle || 'Application', 'Role')}.pdf`;
+                await exportElementToPdf(letterEl, {
+                    filename: fileName,
+                    pageSize: 'a4'
+                });
             } else {
-                const TemplateComponent = selectedTemplate === 'bold' ? BoldCoverLetter : ModernCoverLetter;
-                root.render(
-                    <TemplateComponent
-                        data={resumeData}
-                        content={generatedLetter.plainText}
-                        companyName={companyName}
-                        jobTitle={jobTitle}
-                    />
-                );
+                await exportCoverLetterToPdf(generatedLetter.plainText, resumeData, jobTitle, companyName);
             }
-
-            setTimeout(() => {
-                printWindow.print();
-                printWindow.close();
-            }, 1000);
+            showToast('Cover letter downloaded successfully!', 'success');
+        } catch (err) {
+            console.error('Failed to export cover letter PDF:', err);
+            showToast('Failed to download cover letter PDF.', 'error');
+        } finally {
+            setIsExporting(false);
         }
     };
 
@@ -399,7 +381,7 @@ export default function CoverLetterModal({ isOpen, onClose, resumeData, onDeduct
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="scale-[0.8] origin-top shadow-2xl transition-all duration-300">
+                                    <div id="cover-letter-modal-preview" className="scale-[0.8] origin-top shadow-2xl transition-all duration-300 bg-white">
                                         {/* Preview Render */}
                                         {selectedTemplate === 'structured' ? (
                                             <StructuredCoverLetter
@@ -508,11 +490,12 @@ export default function CoverLetterModal({ isOpen, onClose, resumeData, onDeduct
                             </button>
 
                             <button
-                                onClick={handlePrint}
-                                className="flex items-center gap-2 px-6 py-2 text-sm font-bold text-white bg-brand-dark hover:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-all"
+                                onClick={handleDownloadPDF}
+                                disabled={isExporting}
+                                className="flex items-center gap-2 px-6 py-2 text-sm font-bold text-white bg-brand-dark hover:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
                             >
-                                <Download size={16} />
-                                Print / PDF
+                                {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+                                {isExporting ? 'Downloading...' : 'Download PDF'}
                             </button>
                         </>
                     )}

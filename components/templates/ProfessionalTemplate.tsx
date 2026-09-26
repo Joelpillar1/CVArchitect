@@ -1,6 +1,32 @@
 import React from 'react';
-import { ResumeData } from '../../types';
-import { parseDescriptionBullets, descriptionToString, parseAchievementBullets, formatMonthYear as formatMonthYearUtil, getNormalizedSectionOrder, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, CONTACT_SEPARATOR, formatJobTitleDisplay, isTitleFirst } from '../../utils/templateUtils';
+import RichText from '../RichText';
+import { ResumeData, Experience, Education, Project, Certification, LanguageItem, AdditionalInfoItem, CourseworkItem } from '../../types';
+import { MapPin, Phone, Mail, Linkedin, Send } from 'lucide-react';
+import {
+  parseDescriptionBullets,
+  parseAchievementBullets,
+  formatMonthYear as formatMonthYearUtil,
+  getSectionGapIn,
+  getHeaderGapIn,
+  getHeaderItemGapIn,
+  getHeaderContactGapIn,
+  getItemGapIn,
+  getMarginHorizontalIn,
+  getMarginVerticalIn,
+  formatContactText, formatLocationDisplay,
+  formatLinkedInDisplay,
+  getLinkedInHref,
+  formatNameDisplay,
+  CONTACT_SEPARATOR,
+  formatJobTitleDisplay,
+  formatSectionTitle,
+  isTitleFirst,
+  splitSkillsList,
+  renderCourseworkBlockHelper,
+  renderExpertSkillsBlockHelper,
+} from '../../utils/templateUtils';
+import { resolveSection, getResolvedSectionOrder } from '../../utils/sectionRegistry';
+import type { CustomSectionData } from '../../types/resumeSections';
 import { getTranslation, Language } from '../../i18n/translations';
 
 const formatMonthYear = (dateString: string | null | undefined) => {
@@ -9,389 +35,593 @@ const formatMonthYear = (dateString: string | null | undefined) => {
 
 export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
   const { fontSizes } = data;
+  const accentColor = data.accentColor || '#000000';
+
+  const bodyStyle = {
+    fontSize: `${fontSizes?.body || 9}pt`,
+    lineHeight: data.lineHeight || 1.5,
+  };
+
   const getSectionHeaderAlignment = () => {
-    if (data.bodyHeaderAlignment === 'center') return 'text-center';
-    if (data.bodyHeaderAlignment === 'right') return 'text-right';
+    const align = data.bodyHeaderAlignment || data.sectionHeaderAlignment || 'left';
+    if (align === 'center') return 'text-center';
+    if (align === 'right') return 'text-right';
     return 'text-left';
   };
 
   const t = getTranslation(data.language as Language || 'en');
 
-  const renderSection = (id: string) => {
-    switch (id) {
-      case 'summary':
-        return data.summary && (
-          <section className="break-inside-avoid" style={{ marginBottom: '0.5rem' }}>
-            <h2
-              className={`text-base font-bold uppercase underline mb-2  text-black ${getSectionHeaderAlignment()}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000"}}
-            >
-              {t.professionalSummary || 'PROFESSIONAL SUMMARY'}
-            </h2>
-            <p
-              className="text-justify  text-black"
-              style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}
-            >
-              {data.summary}
-            </p>
-          </section>
-        );
+  const renderSectionHeader = (title: string) => (
+    <h2
+      className={`section-header text-base font-bold underline mb-2 text-black leading-tight ${getSectionHeaderAlignment()}`}
+      style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt`, color: data.accentColor || "#000000" }}
+    >
+      {formatSectionTitle(title, data.sectionHeaderCase)}
+    </h2>
+  );
 
-      case 'skills':
-        return data.skills && data.skills.trim() && (
-          <section className="break-inside-avoid" style={{ marginBottom: '0.5rem' }}>
-            <h2
-              className={`text-base font-bold uppercase underline mb-2  text-black ${getSectionHeaderAlignment()}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000"}}
+  const renderTextBlock = (title: string, text: string, path: string = 'summary') => {
+    if (!text || !text.trim()) return null;
+    return (
+      <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
+        {renderSectionHeader(title)}
+        <p data-path={path} className="text-justify text-black whitespace-pre-line" style={bodyStyle}>
+          <RichText text={text ?? ''} />
+        </p>
+      </section>
+    );
+  };
+
+  const renderSkillsBlock = (title: string, skillsStr: string) => {
+    if (!skillsStr || !skillsStr.trim()) return null;
+    const skillsList = splitSkillsList(skillsStr);
+    if (skillsList.length === 0) return null;
+    return (
+      <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
+        {renderSectionHeader(title)}
+        <ul
+          data-skills-grid
+          className={`list-none pl-2.5 grid gap-x-8 gap-y-1 text-black ${data.skillsColumnCount === 2 ? 'grid-cols-2' : (data.skillsColumnCount === 4 ? 'grid-cols-4' : 'grid-cols-3')}`}
+          style={bodyStyle}
+        >
+          {skillsList.map((skill, i) => (
+            <li key={i} data-skill-cell className="flex items-baseline gap-1.5 min-w-0">
+              <span data-bullet aria-hidden="true" className="shrink-0 select-none pointer-events-none leading-none">•</span>
+              <span className="flex-1" style={{ lineHeight: 'inherit' }}><RichText text={skill} /></span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    );
+  };
+
+  const renderBulletsBlock = (title: string, content: string[] | string, basePath: string = 'keyAchievements') => {
+    const rawAchievements = Array.isArray(content) ? content : parseAchievementBullets(content || '');
+    const achievements = rawAchievements.map((line) => (typeof line === 'string' ? line : ''));
+    if (achievements.length === 0) return null;
+    return (
+      <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
+        {renderSectionHeader(title)}
+        <ul className="text-black list-disc list-outside ml-5 space-y-1" style={bodyStyle}>
+          {achievements.map((line, i) => (
+            <li key={i} data-path={`${basePath}.${i}`}>
+              <RichText text={line ? line.replace(/^[•-]\s*/, '') : ''} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    );
+  };
+
+  const renderExperienceBlock = (title: string, items: Experience[], basePath: string = 'experience') => {
+    if (!items || items.length === 0) return null;
+    const itemGap = `${getItemGapIn(data)}in`;
+    return (
+      <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
+        {renderSectionHeader(title)}
+        {items.map((exp, index) => {
+          const dateRange = [formatMonthYear(exp.startDate), formatMonthYear(exp.endDate)].filter(Boolean).join(' - ');
+          const bullets = parseDescriptionBullets(exp.description);
+          if (!exp.role && !exp.company && !dateRange && bullets.length === 0) return null;
+
+          return (
+            <div
+              key={exp.id}
+              className="break-inside-avoid"
+              style={{ marginBottom: index === items.length - 1 ? 0 : itemGap }}
             >
-              SKILLS AND INTERESTS
-            </h2>
-            <div className="text-black" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
-              <div className="mb-1">
-                <span className="font-bold">Language: </span>
-                <span>{(typeof data.skills === 'string' ? data.skills.split(',') : []).slice(0, 3).map(s => s.trim()).join(', ')}</span>
+              <div className="flex justify-between items-baseline mb-1">
+                <h3 className="font-bold text-black text-left" style={bodyStyle}>
+                  {exp.company && (
+                    <span data-path={`${basePath}.${index}.company`}>
+                      <RichText text={exp.company} />
+                    </span>
+                  )}
+                </h3>
+                {exp.location && (
+                  <span className="text-black text-right" style={bodyStyle}>
+                    <span data-path={`${basePath}.${index}.location`}>
+                      <RichText text={exp.location} />
+                    </span>
+                  </span>
+                )}
               </div>
-              <div className="mb-1">
-                <span className="font-bold">Computer: </span>
-                <span>{(typeof data.skills === 'string' ? data.skills.split(',') : []).slice(3, 6).map(s => s.trim()).join(', ')}</span>
+              <div className="flex justify-between items-baseline mb-1">
+                <p className="italic text-black text-left" style={bodyStyle}>
+                  {exp.role && (
+                    <span data-path={`${basePath}.${index}.role`}>
+                      <RichText text={exp.role} />
+                    </span>
+                  )}
+                </p>
+                {dateRange && (
+                  <span className="text-black text-right" style={bodyStyle}>
+                    <RichText text={dateRange} />
+                  </span>
+                )}
               </div>
+              {bullets.length > 0 && (
+                <ul className="text-black list-disc list-outside ml-5 space-y-1" style={bodyStyle}>
+                  {bullets.map((bullet, i) => (
+                    <li key={i} data-path={`${basePath}.${index}.description.${i}`}>
+                      <RichText text={bullet ? bullet.replace(/^[•-]\s*/, '') : ''} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          );
+        })}
+      </section>
+    );
+  };
+
+  const renderEducationBlock = (title: string, items: Education[], basePath: string = 'education') => {
+    if (!items || items.length === 0) return null;
+    const itemGap = `${Math.max(0.14, getSectionGapIn(data))}in`;
+    return (
+      <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
+        {renderSectionHeader(title)}
+        {items.map((edu, index) => {
+          if (!edu.school && !edu.degree && !edu.year) return null;
+          return (
+            <div
+              key={edu.id}
+              className="break-inside-avoid"
+              style={{
+                ...bodyStyle,
+                marginBottom: index === items.length - 1 ? 0 : itemGap,
+              }}
+            >
+              <div className="flex justify-between items-baseline mb-0.5">
+                <div>
+                  {edu.school && (
+                    <h3 className="font-bold text-black text-left inline">
+                      <span data-path={`${basePath}.${index}.school`}>
+                        <RichText text={edu.school} />
+                      </span>
+                    </h3>
+                  )}
+                </div>
+                {edu.year && (
+                  <span data-path={`${basePath}.${index}.year`} className="text-black text-right">
+                    <RichText text={edu.year} />
+                  </span>
+                )}
+              </div>
+              <div className="flex justify-between items-baseline">
+                {edu.degree && (
+                  <p className="italic text-black text-left">
+                    <span data-path={`${basePath}.${index}.degree`}>
+                      <RichText text={edu.degree} />
+                    </span>
+                  </p>
+                )}
+                {edu.gpa && (
+                  <span className="text-black text-right">
+                    GPA: <RichText text={edu.gpa} />
+                  </span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </section>
+    );
+  };
+
+  const renderProjectsBlock = (title: string, items: Project[], basePath: string = 'projects') => {
+    if (!items || items.length === 0) return null;
+    const itemGap = `${getItemGapIn(data)}in`;
+    return (
+      <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
+        {renderSectionHeader(title)}
+        {items.map((project, index) => {
+          const bullets = parseDescriptionBullets(project.description);
+          if (!project.name && !project.technologies && bullets.length === 0) return null;
+
+          return (
+            <div
+              key={project.id}
+              className="break-inside-avoid"
+              style={{ marginBottom: index === items.length - 1 ? 0 : itemGap }}
+            >
+              <div className="flex justify-between items-baseline mb-1">
+                <div className="font-bold text-black" style={bodyStyle}>
+                  <span data-path={`${basePath}.${index}.name`}>
+                    <RichText text={project.name} />
+                  </span>
+                  {project.link && (
+                    <a
+                      href={project.link.startsWith('http') ? project.link : `https://${project.link}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-2 font-normal italic text-gray-700 hover:underline"
+                    >
+                      Link
+                    </a>
+                  )}
+                </div>
+              </div>
+              {project.technologies && (
+                <div data-path={`${basePath}.${index}.technologies`} className="italic text-gray-800 mb-1" style={bodyStyle}>
+                  <RichText text={project.technologies} />
+                </div>
+              )}
+              {bullets.length > 0 && (
+                <ul className="text-black list-disc list-outside ml-5 space-y-1" style={bodyStyle}>
+                  {bullets.map((bullet, i) => (
+                    <li key={i} data-path={`${basePath}.${index}.description.${i}`}>
+                      <RichText text={bullet ? bullet.replace(/^[•-]\s*/, '') : ''} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          );
+        })}
+      </section>
+    );
+  };
+
+  const renderCertificationsBlock = (title: string, items: Certification[], basePath: string = 'certifications') => {
+    if (!items || items.length === 0) return null;
+    const validItems = items.filter((c) => c?.name?.trim() || c?.issuer?.trim() || c?.date?.trim());
+    if (validItems.length === 0) return null;
+
+    return (
+      <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
+        {renderSectionHeader(title)}
+        <div className="space-y-2 text-black" style={bodyStyle}>
+          {validItems.map((cert, index) => (
+            <div key={cert.id} className="flex justify-between items-baseline">
               <div>
-                <span className="font-bold">Interests: </span>
-                <span>{(typeof data.skills === 'string' ? data.skills.split(',') : []).slice(6).map(s => s.trim()).join(', ') || 'Professional development, Industry trends'}</span>
+                <span data-path={`${basePath}.${index}.name`} className="font-bold">
+                  <RichText text={cert.name ?? ''} />
+                </span>
+                {cert.issuer && (
+                  <span className="italic text-gray-700">
+                    {' - '}
+                    <span data-path={`${basePath}.${index}.issuer`}>
+                      <RichText text={cert.issuer} />
+                    </span>
+                  </span>
+                )}
               </div>
+              {cert.date && (
+                <span data-path={`${basePath}.${index}.date`} className="text-black font-medium shrink-0 ml-4">
+                  <RichText text={cert.date} />
+                </span>
+              )}
             </div>
-          </section>
-        );
+          ))}
+        </div>
+      </section>
+    );
+  };
 
-      case 'keyAchievements':
-      case 'achievements': {
-        const achievements = parseAchievementBullets(data.keyAchievements || '');
-        return achievements.length > 0 && (
-          <section className="break-inside-avoid" style={{ marginBottom: '0.5rem' }}>
-            <h2
-              className={`text-base font-bold uppercase underline mb-2  text-black ${getSectionHeaderAlignment()}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000"}}
-            >
-              KEY ACHIEVEMENTS
-            </h2>
-            <div className="text-black pl-4" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
-              {achievements.map((line, i) => (
-                line.trim() ? (
-                  <div key={i} className="mb-1 relative pl-2">
-                    <span className="absolute left-[-0.5rem]">•</span>
-                    {line.replace(/^[•-]\s*/, '')}
-                  </div>
-                ) : null
-              ))}
+  const renderLanguagesBlock = (title: string, items: LanguageItem[], basePath: string = 'languages') => {
+    if (!items || items.length === 0) return null;
+    const validItems = items.filter((l) => l?.language?.trim());
+    if (validItems.length === 0) return null;
+
+    return (
+      <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
+        {renderSectionHeader(title)}
+        <div className="space-y-2 text-black" style={bodyStyle}>
+          {validItems.map((lang, index) => (
+            <div key={lang.id}>
+              <span data-path={`${basePath}.${index}.language`} className="font-bold">
+                <RichText text={lang.language} />
+              </span>
+              {lang.proficiency && (
+                <span className="italic text-gray-700 ml-2">
+                  (<span data-path={`${basePath}.${index}.proficiency`}><RichText text={lang.proficiency} /></span>)
+                </span>
+              )}
             </div>
-          </section>
-        );
-      }
+          ))}
+        </div>
+      </section>
+    );
+  };
 
+  const renderKeyValueBlock = (title: string, items: AdditionalInfoItem[], basePath: string = 'additionalInfo') => {
+    const validItems = (items || []).filter((item) => item?.label?.trim() && item?.value?.trim());
+    if (validItems.length === 0) return null;
+
+    return (
+      <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
+        {renderSectionHeader(title)}
+        <div className="space-y-2 text-black" style={bodyStyle}>
+          {validItems.map((item, index) => (
+            <div key={item.id}>
+              <span data-path={`${basePath}.${index}.label`} className="font-bold">
+                <RichText text={item.label} />:
+              </span>
+              <span data-path={`${basePath}.${index}.value`} className="ml-2">
+                <RichText text={item.value} />
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  };
+
+  const renderCustomBlock = (title: string, custom: CustomSectionData, id: string) => {
+    if (!custom) return null;
+    const basePath = `customSections.${id}`;
+    if (custom.contentType === 'text') {
+      return renderTextBlock(title, custom.content as string, `${basePath}.content`);
+    }
+    if (custom.contentType === 'bullets') {
+      return renderBulletsBlock(title, custom.content as string[] | string, `${basePath}.content`);
+    }
+    if (custom.contentType === 'key_value') {
+      return renderKeyValueBlock(title, custom.content as AdditionalInfoItem[], `${basePath}.content`);
+    }
+    return null;
+  };
+
+  const renderSection = (id: string) => {
+    const resolved = resolveSection(data, id);
+    if (!resolved || !resolved.visible || !resolved.hasContent) return null;
+
+    let sectionTitle = resolved.title;
+    if (resolved.type === 'summary') sectionTitle = t.professionalSummary || resolved.title;
+    if (resolved.type === 'skills') sectionTitle = t.technicalSkills || resolved.title;
+    if (resolved.type === 'experience') sectionTitle = t.experienceTitle || resolved.title;
+    if (resolved.type === 'education') sectionTitle = t.educationTitle || resolved.title;
+    if (resolved.type === 'certifications') sectionTitle = t.certifications || resolved.title;
+
+    switch (resolved.rendererKind) {
+      case 'text':
+        return renderTextBlock(sectionTitle, resolved.content as string, resolved.id);
+      case 'skills':
+        return renderSkillsBlock(sectionTitle, resolved.content as string);
+      case 'expert_skills':
+        return renderExpertSkillsBlockHelper({
+          data,
+          title: sectionTitle,
+          items: resolved.content as any,
+          basePath: resolved.id,
+          renderSectionHeader,
+          bodyStyle: { fontSize: `${fontSizes?.body || 9}pt`, lineHeight: data.lineHeight || 1.5 },
+        });
+      case 'bullets':
+        return renderBulletsBlock(sectionTitle, resolved.content as string[] | string, resolved.id);
       case 'experience':
-        return data.experience && data.experience.length > 0 && (
-          <div style={{ marginBottom: '0.5rem' }}>
-            <h2
-              className={`text-base font-bold uppercase underline mb-2 break-inside-avoid  text-black ${getSectionHeaderAlignment()}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000"}}
-            >
-              {t.experienceTitle || 'EXPERIENCE'}
-            </h2>
-            <div className="mb-4">
-              {data.experience.map((exp, index) => {
-                const desc = descriptionToString(exp.description);
-                const bullets = parseDescriptionBullets(exp.description);
-                return (
-                  <div
-                    key={exp.id}
-                    className="break-inside-avoid"
-                    style={{ marginBottom: index === data.experience.length - 1 ? 0 : `${getSectionGapIn(data)}in` }}
-                  >
-                    {/* Company Name (bold, left) and Location (regular, right) */}
-                    <div className="flex justify-between items-center mb-0">
-                      <h3 className="font-bold text-black text-left" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{exp.company}</h3>
-                      {exp.location && (
-                        <span className="text-black text-right" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{exp.location}</span>
-                      )}
-                    </div>
-                    {/* Job Title (italic, left) and Dates (regular, right) */}
-                    <div className="flex justify-between items-center mb-1">
-                      <p className="italic text-black text-left" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{exp.role}</p>
-                      <span className="text-black text-right" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
-                        {formatMonthYear(exp.startDate)} – {formatMonthYear(exp.endDate)}
-                      </span>
-                    </div>
-                    {/* Bullet points */}
-                    {bullets.length > 0 && (
-                      <div className="text-black pl-4" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
-                        {bullets.map((bullet, i) => (
-                          bullet.trim() ? (
-                            <div key={i} className="mb-0.5 relative pl-2">
-                              <span className="absolute left-[-0.5rem]">•</span>
-                              {bullet.replace(/^[•-]\s*/, '')}
-                            </div>
-                          ) : null
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        );
-
+        return renderExperienceBlock(sectionTitle, resolved.content as Experience[], resolved.id);
       case 'education':
-        return data.education.length > 0 && (
-          <section className="break-inside-avoid" style={{ marginBottom: '0.5rem' }}>
-            <h2
-              className={`text-base font-bold uppercase underline mb-2  text-black ${getSectionHeaderAlignment()}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000"}}
-            >
-              EDUCATION
-            </h2>
-            <div className="space-y-3">
-              {data.education.map((edu) => (
-                <div key={edu.id} className="break-inside-avoid">
-                  {/* University Name (bold, left) - location can be added to school name if needed */}
-                  <div className="flex justify-between items-center mb-0">
-                    <h3 className="font-bold text-black text-left" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{edu.school}</h3>
-                  </div>
-                  {/* Degree (italic, left) and Date (regular, right) */}
-                  <div className="flex justify-between items-center mb-1">
-                    <p className="italic text-black text-left" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
-                      {edu.degree}
-                    </p>
-                    {edu.year && (
-                      <span className="text-black text-right" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
-                        {typeof edu.year === 'string' && (edu.year.includes('Expected') || edu.year.includes('May') || edu.year.includes('20')) ? edu.year : `Expected ${edu.year || ''}`}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        );
-
-      case 'leadership':
-        return data.leadership && data.leadership.length > 0 && (
-          <section className="break-inside-avoid" style={{ marginBottom: '0.5rem' }}>
-            <h2
-              className={`text-base font-bold uppercase underline mb-2  text-black ${getSectionHeaderAlignment()}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000"}}
-            >
-              LEADERSHIP
-            </h2>
-            <div className="space-y-4">
-              {data.leadership.map((exp) => {
-                const bullets = parseDescriptionBullets(exp.description);
-                return (
-                  <div key={exp.id} className="break-inside-avoid">
-                    {/* Company Name (bold, left) and Location (regular, right) */}
-                    <div className="flex justify-between items-center mb-0">
-                      <h3 className="font-bold text-black text-left" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{exp.company}</h3>
-                      {exp.location && (
-                        <span className="text-black text-right" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{exp.location}</span>
-                      )}
-                    </div>
-                    {/* Job Title (italic, left) and Dates (regular, right) */}
-                    <div className="flex justify-between items-center mb-1">
-                      <p className="italic text-black text-left" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{exp.role}</p>
-                      <span className="text-black text-right" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
-                        {formatMonthYear(exp.startDate)} – {formatMonthYear(exp.endDate)}
-                      </span>
-                    </div>
-                    {/* Bullet points */}
-                    {bullets.length > 0 && (
-                      <div className="text-black pl-4" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
-                        {bullets.map((bullet, i) => (
-                          bullet.trim() ? (
-                            <div key={i} className="mb-0.5 relative pl-2">
-                              <span className="absolute left-[-0.5rem]">•</span>
-                              {bullet.replace(/^[•-]\s*/, '')}
-                            </div>
-                          ) : null
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        );
-
-      case 'certifications':
-        return data.certifications && data.certifications.length > 0 && (
-          <section className="break-inside-avoid" style={{ marginBottom: '0.5rem' }}>
-            <h2
-              className={`text-base font-bold uppercase underline mb-2  text-black ${getSectionHeaderAlignment()}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000"}}
-            >
-              CERTIFICATIONS
-            </h2>
-            <div className="space-y-1">
-              {data.certifications.map((cert) => (
-                <div key={cert.id} className="break-inside-avoid">
-                  <div className="flex justify-between items-center">
-                    <span className="font-bold text-black" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{cert.name}</span>
-                    {cert.date && (
-                      <span className="text-black text-right" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{cert.date}</span>
-                    )}
-                  </div>
-                  {cert.issuer && (
-                    <p className="italic text-black text-left" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>{cert.issuer}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        );
-
+        return renderEducationBlock(sectionTitle, resolved.content as Education[], resolved.id);
       case 'projects':
-        return data.projects && data.projects.length > 0 && (
-          <section className="break-inside-avoid" style={{ marginBottom: '0.5rem' }}>
-            <h2
-              className={`text-base font-bold uppercase underline mb-2  text-black ${getSectionHeaderAlignment()}`}
-              style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000"}}
-            >
-              PROJECTS
-            </h2>
-            <div className="space-y-2">
-              {data.projects.map((project) => (
-                <div key={project.id} className="break-inside-avoid">
-                  <div className="flex justify-between items-center mb-0">
-                    <p className="italic text-black text-left" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
-                      {project.name}
-                      {project.link && typeof project.link === 'string' && (
-                        <a 
-                          href={project.link.startsWith('http') ? project.link : `https://${project.link}`} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="ml-2 not-italic underline text-black"
-                        >
-                          {project.link}
-                        </a>
-                      )}
-                    </p>
-                  </div>
-                  {project.description && (
-                    <div className="text-black pl-4" style={{ fontSize: `${fontSizes?.body || 9.5}pt` }}>
-                      <div className="relative pl-2">
-                        <span className="absolute left-[-0.5rem]">•</span>
-                        {project.description}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        );
-
+        return renderProjectsBlock(sectionTitle, resolved.content as Project[], resolved.id);
+      case 'certifications':
+        return renderCertificationsBlock(sectionTitle, resolved.content as Certification[], resolved.id);
+      case 'languages':
+        return renderLanguagesBlock(sectionTitle, resolved.content as LanguageItem[], resolved.id);
+      case 'key_value':
+        return renderKeyValueBlock(sectionTitle, resolved.content as AdditionalInfoItem[], resolved.id);
+      case 'coursework':
+        return renderCourseworkBlockHelper({
+          data,
+          title: sectionTitle,
+          items: resolved.content as CourseworkItem[] | string,
+          basePath: resolved.id,
+          renderSectionHeader,
+          renderTextBlock,
+          bodyStyle: { fontSize: `${fontSizes?.body || 9}pt`, lineHeight: data.lineHeight || 1.5 },
+        });
+      case 'custom':
+        return renderCustomBlock(sectionTitle, resolved.content as CustomSectionData, resolved.id);
       default:
         return null;
     }
   };
 
-  const sectionOrder = data.sectionOrder || [
-    'summary',
-    'experience',
-    'leadership',
-    'education',
-    'skills',
-    'certifications',
-    'projects',
-    'achievements'
-  ];
-
-  const uniqueSectionOrder = getNormalizedSectionOrder(sectionOrder, [
-    'summary',
-    'experience',
-    'leadership',
-    'education',
-    'skills',
-    'certifications',
-    'projects',
-    'achievements'
-  ]);
-
   return (
     <div
-      className="w-full bg-white text-black"
+      className="resume-content text-gray-900"
       style={{
-        fontFamily: data.font ||"Arial, Helvetica, sans-serif",
-        fontSize: `${fontSizes?.body || 9.5}pt`,
-        
-        paddingTop: `${getMarginVerticalIn(data)}in`,
-        paddingBottom: `${getMarginVerticalIn(data)}in`,
+        lineHeight: data.lineHeight || 1.5,
+        fontSize: `${fontSizes?.body || 9}pt`,
         paddingLeft: `${getMarginHorizontalIn(data)}in`,
         paddingRight: `${getMarginHorizontalIn(data)}in`,
+        paddingTop: `${getMarginVerticalIn(data)}in`,
+        paddingBottom: `${getMarginVerticalIn(data)}in`,
       }}
     >
-      {/* Header - Name, Professional Title, Contact */}
-      <div className="text-center" style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
+      {/* Header */}
+      <header
+        className="break-inside-avoid"
+        style={{ marginBottom: `${getHeaderGapIn(data)}in` }}
+      >
         <h1
-          className="font-bold text-black"
-          style={{ marginBottom: `${getHeaderItemGapIn(data)}in`, 
-            fontSize: `${fontSizes?.header || 18}pt`,
-            lineHeight: 1.1,
+          data-path="fullName"
+          className={`font-bold tracking-tight text-black ${
+            data.headerAlignment === 'left' ? 'text-left' :
+            data.headerAlignment === 'right' ? 'text-right' :
+            'text-center'
+          }`}
+          style={{
+            fontSize: `${fontSizes?.header || 20}pt`,
+            marginBottom: `${getHeaderItemGapIn(data)}in`,
+            lineHeight: 1.2,
           }}
         >
-          {formatNameDisplay(data.fullName, data.headerCase) ||"YOUR NAME"}
+          <RichText text={formatNameDisplay(data.fullName, data.headerCase)} />
         </h1>
+
+        {/* Job Title (if Title First) */}
         {isTitleFirst(data, false) && data.jobTitle && (
           <p
-            className="font-semibold"
+            data-path="jobTitle"
+            className={`tracking-wider text-gray-700 ${
+              data.jobTitleAlignment === 'left' ? 'text-left' :
+              data.jobTitleAlignment === 'right' ? 'text-right' :
+              data.jobTitleAlignment === 'center' ? 'text-center' :
+              data.headerAlignment === 'left' ? 'text-left' :
+              data.headerAlignment === 'right' ? 'text-right' :
+              'text-center'
+            }`}
             style={{
               fontSize: `${fontSizes?.jobTitle || 11}pt`,
               color: data.accentColor || '#000000',
+              marginBottom: `${getHeaderContactGapIn(data)}in`,
+              lineHeight: 1.25,
             }}
           >
-            {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+            <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />
           </p>
         )}
-        {/* Contact Information (smaller, regular, centered, separated by •) */}
-        <div className="text-black" style={{ fontSize: `${fontSizes?.body || 9.5}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}>
-          {(() => {
-            const items: React.ReactNode[] = [];
-            if (data.location || data.address) items.push(<span key="location">{formatContactText(data.location || data.address)}</span>);
-            if (data.phone) items.push(<span key="phone">{formatContactText(data.phone)}</span>);
-            if (data.email) items.push(
-              <a key="email" href={`mailto:${formatContactText(data.email)}`} className="text-black no-underline">
-                {formatContactText(data.email)}
-              </a>
+
+        {/* Contact Information */}
+        {(() => {
+          const showIcons = data.showContactIcons ?? true;
+          const contactItems: React.ReactNode[] = [];
+
+          if (data.location || data.address) {
+            contactItems.push(
+              <span key="loc" className="inline-flex items-center gap-1">
+                {showIcons && <MapPin size={12} className="shrink-0" color={accentColor} />}
+                <span data-path="location">
+                  <RichText text={formatLocationDisplay(data.location || data.address || '')} />
+                </span>
+              </span>
             );
-            if (data.linkedin) items.push(
-              <a key="linkedin" href={getLinkedInHref(data.linkedin)} target="_blank" rel="noopener noreferrer" className="text-black no-underline">
-                {formatLinkedInDisplay(data.linkedin)}
-              </a>
+          }
+
+          if (data.phone) {
+            contactItems.push(
+              <span key="ph" className="inline-flex items-center gap-1">
+                {showIcons && <Phone size={12} className="shrink-0" color={accentColor} />}
+                <span data-path="phone">
+                  <RichText text={formatContactText(data.phone)} />
+                </span>
+              </span>
             );
-            return items.map((item, index) => (
-              <React.Fragment key={index}>
-                {index > 0 && <span className="mx-1">{CONTACT_SEPARATOR}</span>}
-                {item}
-              </React.Fragment>
-            ));
-          })()}
-        </div>
-        {/* Professional Title */}
+          }
+
+          if (data.email) {
+            contactItems.push(
+              <span key="em" className="inline-flex items-center gap-1">
+                {showIcons && <Mail size={12} className="shrink-0" color={accentColor} />}
+                <a
+                  data-path="email"
+                  href={`mailto:${formatContactText(data.email)}`}
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  <RichText text={formatContactText(data.email)} />
+                </a>
+              </span>
+            );
+          }
+
+          if (data.linkedin) {
+            contactItems.push(
+              <span key="li" className="inline-flex items-center gap-1">
+                {showIcons && <Linkedin size={12} className="shrink-0" color={accentColor} />}
+                <a
+                  data-path="linkedin"
+                  href={getLinkedInHref(data.linkedin)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  <RichText text={formatLinkedInDisplay(data.linkedin)} />
+                </a>
+              </span>
+            );
+          }
+
+          if (data.atHandle) {
+            contactItems.push(
+              <span key="at" className="inline-flex items-center gap-1">
+                {showIcons && <Send size={12} className="shrink-0" color={accentColor} />}
+                <span data-path="atHandle">
+                  <RichText text={data.atHandle} />
+                </span>
+              </span>
+            );
+          }
+
+          if (contactItems.length === 0) return null;
+
+          return (
+            <div
+              className={`flex flex-wrap items-center ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-600 ${
+                data.contactAlignment === 'left' ? 'justify-start text-left' :
+                data.contactAlignment === 'right' ? 'justify-end text-right' :
+                data.contactAlignment === 'center' ? 'justify-center text-center' :
+                data.headerAlignment === 'left' ? 'justify-start text-left' :
+                data.headerAlignment === 'right' ? 'justify-end text-right' :
+                'justify-center text-center'
+              }`}
+              style={{
+                ...bodyStyle,
+                marginBottom: !isTitleFirst(data, false) && data.jobTitle ? `${getHeaderContactGapIn(data)}in` : undefined,
+              }}
+            >
+              {contactItems.map((item, idx) => (
+                <React.Fragment key={idx}>
+                  {item}
+                  {!showIcons && idx < contactItems.length - 1 && (
+                    <span className="mx-1 text-gray-400 select-none">{CONTACT_SEPARATOR}</span>
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+          );
+        })()}
+
+        {/* Job Title (if Contact First) */}
         {!isTitleFirst(data, false) && data.jobTitle && (
           <p
-            className="font-semibold"
+            data-path="jobTitle"
+            className={`tracking-wider text-gray-700 ${
+              data.jobTitleAlignment === 'left' ? 'text-left' :
+              data.jobTitleAlignment === 'right' ? 'text-right' :
+              data.jobTitleAlignment === 'center' ? 'text-center' :
+              data.headerAlignment === 'left' ? 'text-left' :
+              data.headerAlignment === 'right' ? 'text-right' :
+              'text-center'
+            }`}
             style={{
               fontSize: `${fontSizes?.jobTitle || 11}pt`,
               color: data.accentColor || '#000000',
+              lineHeight: 1.25,
             }}
           >
-            {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
+            <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />
           </p>
         )}
-      </div>
+      </header>
 
-      {/* Dynamic Content */}
-      {uniqueSectionOrder.map(section => renderSection(section))}
+      {/* Dynamic Sections */}
+      {getResolvedSectionOrder(data).map((id) => (
+        <React.Fragment key={id}>{renderSection(id)}</React.Fragment>
+      ))}
     </div>
   );
 }

@@ -119,13 +119,6 @@ export const TEMPLATE_CONFIG: { id: TemplateType; name: string; subtitle: string
         bg: "bg-[#F8FAFC]"
     },
     {
-        id: 'elite',
-        name: "Elite Pro",
-        subtitle: "International",
-        icon: <Gem className="text-purple-600" size={20} />,
-        bg: "bg-[#FFFFFF]"
-    },
-    {
         id: 'apex',
         name: "Apex Exec",
         subtitle: "Senior Leader",
@@ -140,13 +133,6 @@ export const TEMPLATE_CONFIG: { id: TemplateType; name: string; subtitle: string
         bg: "bg-[#FFFFFF]"
     },
     {
-        id: 'executive',
-        name: "Executive",
-        subtitle: "C-Suite",
-        icon: <Building2 className="text-slate-800" size={20} />,
-        bg: "bg-[#FAFAFA]"
-    },
-    {
         id: 'classic',
         name: "Classic",
         subtitle: "Traditional",
@@ -155,7 +141,7 @@ export const TEMPLATE_CONFIG: { id: TemplateType; name: string; subtitle: string
     },
     {
         id: 'wonsulting',
-        name: "Ivy League",
+        name: "Expert Template",
         subtitle: "Academic",
         icon: <Landmark className="text-emerald-700" size={20} />,
         bg: "bg-[#FFFFFF]"
@@ -165,13 +151,6 @@ export const TEMPLATE_CONFIG: { id: TemplateType; name: string; subtitle: string
         name: "Styled",
         subtitle: "Sophisticated",
         icon: <PenTool className="text-blue-700" size={20} />,
-        bg: "bg-[#FFFFFF]"
-    },
-    {
-        id: 'smart',
-        name: "Smart",
-        subtitle: "Research",
-        icon: <BookOpen className="text-indigo-600" size={20} />,
         bg: "bg-[#FFFFFF]"
     },
     {
@@ -189,17 +168,17 @@ export const TEMPLATE_CONFIG: { id: TemplateType; name: string; subtitle: string
         bg: "bg-[#FFFFFF]"
     },
     {
-        id: 'twocolumn',
-        name: "Two Column Pro",
-        subtitle: "Sidebar",
-        icon: <LayoutTemplate className="text-slate-600" size={20} />,
-        bg: "bg-[#FFFFFF]"
-    },
-    {
         id: 'professional',
         name: "Pro Clean",
         subtitle: "Standard",
         icon: <Briefcase className="text-blue-500" size={20} />,
+        bg: "bg-[#FFFFFF]"
+    },
+    {
+        id: 'times',
+        name: "Times Classic",
+        subtitle: "ATS Serif",
+        icon: <BookOpen className="text-gray-800" size={20} />,
         bg: "bg-[#FFFFFF]"
     },
     {
@@ -211,7 +190,7 @@ export const TEMPLATE_CONFIG: { id: TemplateType; name: string; subtitle: string
     },
     {
         id: 'rezi',
-        name: "CVArchitect Pro",
+        name: "Arch Template",
         subtitle: "ATS Serif",
         icon: <BookOpen className="text-teal-600" size={20} />,
         bg: "bg-[#FFFFFF]"

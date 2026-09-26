@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ResumeData, TemplateType } from '../types';
-import { Layout, Type, Palette, AlignJustify, Move, Save, AlignLeft, AlignCenter, AlignRight, X, Check } from 'lucide-react';
+import { Layout, Type, Palette, AlignJustify, Move, Save, AlignLeft, AlignCenter, AlignRight, X, Check, MapPin } from 'lucide-react';
 import { FREE_TEMPLATES } from '../utils/pricingConfig';
 
 interface DesignCustomizationProps {
@@ -82,19 +82,16 @@ export default function DesignCustomization({
         { id: 'simplepro', name: 'SimplePro' },
         { id: 'dev', name: 'DevPro' },
         { id: 'modern', name: 'Modern' },
-        { id: 'executive', name: 'Executive' },
         { id: 'classic', name: 'Classic' },
-        { id: 'elite', name: 'Elite Professional' },
         { id: 'apex', name: 'Apex Executive' },
-        { id: 'wonsulting', name: 'Ivy League' },
+        { id: 'wonsulting', name: 'Expert Template' },
         { id: 'styled', name: 'Styled Professional' },
-        { id: 'smart', name: 'Smart Professional' },
         { id: 'elegant', name: 'Elegant Professional' },
         { id: 'minimalist', name: 'Minimalist Serif' },
         { id: 'professional', name: 'Professional Clean' },
-        { id: 'twocolumn', name: 'Two Column Professional' },
+        { id: 'times', name: 'Times Classic' },
         { id: 'sage', name: 'Sage' },
-        { id: 'rezi', name: 'CVArchitect Pro' }
+        { id: 'rezi', name: 'Arch Template' }
     ];
 
     // Sort templates: free templates first, then pro templates
@@ -265,6 +262,43 @@ export default function DesignCustomization({
                 </div>
             </div>
 
+            {/* Contact Icons Toggle */}
+            <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-brand-dark flex items-center gap-2">
+                    <MapPin size={20} className="text-brand-green" />
+                    Contact Icons
+                </h3>
+                <p className="text-sm text-gray-500">
+                    Display or hide icons next to location, phone, email, and social links in the contact header
+                </p>
+                <div className="flex gap-3">
+                    <button
+                        onClick={() => handleChange('showContactIcons', true)}
+                        className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${(data.showContactIcons ?? true)
+                            ? 'border-brand-green bg-brand-green/5 shadow-sm'
+                            : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                    >
+                        <Check size={24} className={(data.showContactIcons ?? true) ? 'text-brand-green' : 'text-gray-400'} />
+                        <span className={`text-sm font-medium ${(data.showContactIcons ?? true) ? 'text-brand-green' : 'text-gray-600'}`}>
+                            Show Icons
+                        </span>
+                    </button>
+                    <button
+                        onClick={() => handleChange('showContactIcons', false)}
+                        className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${data.showContactIcons === false
+                            ? 'border-brand-green bg-brand-green/5 shadow-sm'
+                            : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                    >
+                        <X size={24} className={data.showContactIcons === false ? 'text-brand-green' : 'text-gray-400'} />
+                        <span className={`text-sm font-medium ${data.showContactIcons === false ? 'text-brand-green' : 'text-gray-600'}`}>
+                            Hide Icons
+                        </span>
+                    </button>
+                </div>
+            </div>
+
             {/* Content Alignment */}
             <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-brand-dark flex items-center gap-2">
@@ -325,15 +359,18 @@ export default function DesignCustomization({
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-700 flex justify-between">
                             <span>Section Gap</span>
-                            <span className="text-gray-400 text-xs">{data.sectionGap}in</span>
+                            <span className="text-gray-400 text-xs">{data.sectionGap ?? 0}in</span>
                         </label>
                         <input
                             type="range"
-                            min="0.05"
-                            max="0.5"
+                            min="0"
+                            max="0.2"
                             step="0.01"
-                            value={data.sectionGap || 0.14}
-                            onChange={(e) => handleChange('sectionGap', parseFloat(e.target.value))}
+                            value={Math.min(0.2, Math.max(0, data.sectionGap ?? 0.1))}
+                            onChange={(e) => {
+                                const val = parseFloat(e.target.value);
+                                handleChange('sectionGap', Math.min(0.2, Math.max(0, isNaN(val) ? 0.1 : val)));
+                            }}
                             className="w-full accent-brand-green"
                         />
                     </div>
@@ -373,15 +410,15 @@ export default function DesignCustomization({
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-700 flex justify-between">
                             <span>Top & Bottom Margins</span>
-                            <span className="text-gray-400 text-xs">{data.margins?.vertical}in</span>
+                            <span className="text-gray-400 text-xs">{Math.round(((data.margins?.vertical !== undefined ? (data.margins.vertical > 2 ? data.margins.vertical / 96 : data.margins.vertical) : 25 / 96) * 96))}px</span>
                         </label>
                         <input
                             type="range"
-                            min="0.2"
-                            max="1"
-                            step="0.05"
-                            value={data.margins?.vertical || 0.45}
-                            onChange={(e) => handleNestedChange('margins', 'vertical', parseFloat(e.target.value))}
+                            min="8"
+                            max="60"
+                            step="1"
+                            value={Math.round(((data.margins?.vertical !== undefined ? (data.margins.vertical > 2 ? data.margins.vertical / 96 : data.margins.vertical) : 25 / 96) * 96))}
+                            onChange={(e) => handleNestedChange('margins', 'vertical', parseFloat(e.target.value) / 96)}
                             className="w-full accent-brand-green"
                         />
                     </div>
@@ -389,15 +426,15 @@ export default function DesignCustomization({
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-700 flex justify-between">
                             <span>Left & Right Margins</span>
-                            <span className="text-gray-400 text-xs">{data.margins?.horizontal}in</span>
+                            <span className="text-gray-400 text-xs">{Math.round(((data.margins?.horizontal !== undefined ? (data.margins.horizontal > 2 ? data.margins.horizontal / 96 : data.margins.horizontal) : 25 / 96) * 96))}px</span>
                         </label>
                         <input
                             type="range"
-                            min="0.2"
-                            max="1"
-                            step="0.05"
-                            value={data.margins?.horizontal || 0.39}
-                            onChange={(e) => handleNestedChange('margins', 'horizontal', parseFloat(e.target.value))}
+                            min="8"
+                            max="60"
+                            step="1"
+                            value={Math.round(((data.margins?.horizontal !== undefined ? (data.margins.horizontal > 2 ? data.margins.horizontal / 96 : data.margins.horizontal) : 25 / 96) * 96))}
+                            onChange={(e) => handleNestedChange('margins', 'horizontal', parseFloat(e.target.value) / 96)}
                             className="w-full accent-brand-green"
                         />
                     </div>

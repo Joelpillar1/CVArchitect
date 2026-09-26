@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ResumeData, AdditionalInfoItem } from '../types';
-import { Plus, Trash2, GripVertical, ChevronUp, ChevronDown } from 'lucide-react';
+import { Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 
 interface AdditionalInfoFormProps {
     data: ResumeData;
@@ -8,8 +8,6 @@ interface AdditionalInfoFormProps {
 }
 
 export default function AdditionalInfoForm({ data, onChange }: AdditionalInfoFormProps) {
-    const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-
     const handleAdd = () => {
         const newItem: AdditionalInfoItem = {
             id: Date.now().toString(),
@@ -42,48 +40,15 @@ export default function AdditionalInfoForm({ data, onChange }: AdditionalInfoFor
         onChange({ ...data, additionalInfo: newItems });
     };
 
-    const handleDragStart = (index: number) => {
-        setDraggedIndex(index);
-    };
-
-    const handleDragOver = (e: React.DragEvent, index: number) => {
-        e.preventDefault();
-        if (draggedIndex === null || draggedIndex === index) return;
-
-        const newItems = [...(data.additionalInfo || [])];
-        const draggedItem = newItems[draggedIndex];
-        newItems.splice(draggedIndex, 1);
-        newItems.splice(index, 0, draggedItem);
-
-        onChange({ ...data, additionalInfo: newItems });
-        setDraggedIndex(index);
-    };
-
-    const handleDragEnd = () => {
-        setDraggedIndex(null);
-    };
-
     return (
         <div className="space-y-6 animate-fadeIn">
             <div className="space-y-4">
                 {(data.additionalInfo || []).map((item, index) => (
                     <div
                         key={item.id}
-                        draggable
-                        onDragStart={() => handleDragStart(index)}
-                        onDragOver={(e) => handleDragOver(e, index)}
-                        onDragEnd={handleDragEnd}
-                        className={`bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3 group hover:border-brand-green/50 transition-all ${draggedIndex === index ? 'opacity-50' : ''
-                            }`}
+                        className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3 group hover:border-brand-green/50 transition-all"
                     >
                         <div className="flex justify-between items-start gap-3">
-                            <div
-                                className="mt-2 cursor-move text-gray-400 hover:text-brand-dark transition-colors"
-                                title="Drag to reorder"
-                            >
-                                <GripVertical size={16} />
-                            </div>
-
                             <div className="flex-1 space-y-3">
                                 <div>
                                     <label className="text-xs font-medium text-gray-700 mb-1 block">Label</label>

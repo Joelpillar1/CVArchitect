@@ -1,6 +1,8 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getMarginHorizontalIn, getMarginVerticalIn, getPagePaddingStyle, sectionMarginBottom, BULLET_LIST_CLASS, formatContactText, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay} from '../../utils/templateUtils';
+import { MapPin, Phone, Mail, Linkedin, Send } from 'lucide-react';
+import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getItemGapIn, getMarginHorizontalIn, getMarginVerticalIn, formatContactText, formatLocationDisplay, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay, formatSectionTitle, splitSkillsList, CONTACT_SEPARATOR, renderExpertSkillsBlockHelper } from '../../utils/templateUtils';
+import RichText from '../RichText';
 
 interface FreshGradArtsTemplateProps {
   data: ResumeData;
@@ -13,124 +15,177 @@ const formatMonthYear = (dateString: string | null | undefined) => {
 const FreshGradArtsTemplate: React.FC<FreshGradArtsTemplateProps> = ({ data }) => {
   const { fontSizes } = data;
   const getSectionHeaderAlignment = () => {
-    if (data.bodyHeaderAlignment === 'center') return 'text-center';
-    if (data.bodyHeaderAlignment === 'right') return 'text-right';
+    const align = data.bodyHeaderAlignment || data.sectionHeaderAlignment || 'left';
+    if (align === 'center') return 'text-center';
+    if (align === 'right') return 'text-right';
     return 'text-left';
   };
   const bodySize = fontSizes?.body || 9.5;
-  const smallSize = bodySize * 0.85;
+  const bodyStyle = {
+    fontSize: `${bodySize}pt`,
+    lineHeight: data.lineHeight || 1.5,
+  };
 
-  const sectionGap = data.sectionGap || 0.18;
+  const sectionGap = `${getSectionGapIn(data)}in`;
 
   const renderSectionHeader = (title: string) => (
-    <h2
-      className={`uppercase font-bold tracking-[0.14em] text-xs border-b leading-tight border-black pb-0.5 mb-2 ${getSectionHeaderAlignment()}`}
-      style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt` , color: data.accentColor ||"#000000", borderColor: data.accentColor ||"#000000"}}
-    >
-      {title}
-    </h2>
+    <div className={`section-header-wrap break-inside-avoid w-full mb-2 ${getSectionHeaderAlignment()}`}>
+      <h2
+        className={`section-header font-bold tracking-[0.14em] text-xs leading-normal ${getSectionHeaderAlignment()}`}
+        style={{ fontSize: `${fontSizes?.sectionTitle || 11}pt`, color: data.accentColor || "#000000", marginBottom: '3px' }}
+      >
+        {formatSectionTitle(title, data.sectionHeaderCase)}
+      </h2>
+      <div
+        className="section-divider"
+        style={{
+          width: '100%',
+          height: '1px',
+          backgroundColor: data.accentColor || "#000000",
+          marginTop: '3px',
+          marginBottom: '4px',
+        }}
+      />
+    </div>
   );
 
   return (
     <div
       className="resume-content text-gray-900"
       style={{
-        lineHeight: data.lineHeight || 1.7,
+        lineHeight: data.lineHeight || 1.5,
+        fontSize: `${bodySize}pt`,
         paddingLeft: `${getMarginHorizontalIn(data)}in`,
         paddingRight: `${getMarginHorizontalIn(data)}in`,
         paddingTop: `${getMarginVerticalIn(data)}in`,
         paddingBottom: `${getMarginVerticalIn(data)}in`,
-        fontFamily: data.font ||"Times New Roman, serif",
+        fontFamily: data.font || "Times New Roman, serif",
       }}
     >
-      {/* Header (right aligned block) */}
-      <header className="mb-4" style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
-        <div className="flex justify-between items-start">
-          <div />
-          <div className="text-right">
-            <h1
-              className="font-bold"
-              style={{ marginBottom: `${getHeaderItemGapIn(data)}in`, lineHeight: 1.1,  fontSize: `${fontSizes?.header || 18}pt` }}
-            >
-              {formatNameDisplay(data.fullName, data.headerCase) || 'Your Name'}
-            </h1>
-            <div
-              className="text-gray-900"
-              style={{ fontSize: `${smallSize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}
-            >
-              {[
-                formatContactText(data.location || data.address) || undefined,
-                formatContactText(data.email) || undefined,
-                formatContactText(data.phone) || undefined,
-                formatLinkedInDisplay(data.linkedin) || undefined,
-              ]
-                .filter(Boolean)
-                .join(' | ')}
-            </div>
-            {data.jobTitle && (
-              <p
-                style={{
-                  fontSize: `${fontSizes?.jobTitle || 11}pt`,
-                  color: data.accentColor || '#000000',
-                  }}
-              >
-                {formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)}
-              </p>
-            )}
+      {/* Header */}
+      <header className="mb-4 break-inside-avoid" style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
+        <div>
+          <h1
+            className={`font-bold ${data.headerAlignment === 'left' ? 'text-left' : data.headerAlignment === 'center' ? 'text-center' : 'text-right'}`}
+            style={{ marginBottom: `${getHeaderItemGapIn(data)}in`, lineHeight: 1.15, fontSize: `${fontSizes?.header || 18}pt` }}
+          >
+            <RichText text={formatNameDisplay(data.fullName, data.headerCase) || 'Your Name'} />
+          </h1>
+          <div
+            className={`text-gray-900 flex flex-wrap ${
+              data.contactAlignment === 'left' ? 'justify-start text-left' :
+              data.contactAlignment === 'center' ? 'justify-center text-center' :
+              data.contactAlignment === 'right' ? 'justify-end text-right' :
+              data.headerAlignment === 'left' ? 'justify-start text-left' :
+              data.headerAlignment === 'center' ? 'justify-center text-center' :
+              'justify-end text-right'
+            } ${data.showContactIcons ?? true ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'}`}
+            style={{ ...bodyStyle, marginBottom: `${getHeaderContactGapIn(data)}in` }}
+          >
+            {(() => {
+              const showIcons = data.showContactIcons ?? true;
+              const items: React.ReactNode[] = [];
+              const loc = data.location || data.address;
+              if (loc) items.push(
+                <span key="loc" className="inline-flex items-center gap-1">
+                  {showIcons && <MapPin size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
+                  <span data-path="location"><RichText text={formatLocationDisplay(loc)} /></span>
+                </span>
+              );
+              if (data.email) items.push(
+                <span key="email" className="inline-flex items-center gap-1">
+                  {showIcons && <Mail size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
+                  <a data-path="email" href={`mailto:${formatContactText(data.email)}`} className="text-inherit no-underline">
+                    <RichText text={formatContactText(data.email)} />
+                  </a>
+                </span>
+              );
+              if (data.phone) items.push(
+                <span key="phone" className="inline-flex items-center gap-1">
+                  {showIcons && <Phone size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
+                  <span data-path="phone"><RichText text={formatContactText(data.phone)} /></span>
+                </span>
+              );
+              if (data.linkedin) items.push(
+                <span key="li" className="inline-flex items-center gap-1">
+                  {showIcons && <Linkedin size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
+                  <a data-path="linkedin" href={getLinkedInHref(data.linkedin)} target="_blank" rel="noopener noreferrer" className="text-inherit no-underline">
+                    <RichText text={formatLinkedInDisplay(data.linkedin)} />
+                  </a>
+                </span>
+              );
+              if (data.atHandle) items.push(
+                <span key="at" className="inline-flex items-center gap-1">
+                  {showIcons && <Send size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
+                  <span data-path="atHandle"><RichText text={data.atHandle} /></span>
+                </span>
+              );
+              return items.map((item, index) => (
+                <React.Fragment key={index}>
+                  {!showIcons && index > 0 && <span className="mx-1 select-none text-gray-400">{CONTACT_SEPARATOR}</span>}
+                  {item}
+                </React.Fragment>
+              ));
+            })()}
           </div>
+          {data.jobTitle && (
+            <p
+              data-path="jobTitle"
+              className={
+                data.jobTitleAlignment === 'left' ? 'text-left' :
+                data.jobTitleAlignment === 'center' ? 'text-center' :
+                data.jobTitleAlignment === 'right' ? 'text-right' :
+                data.headerAlignment === 'left' ? 'text-left' :
+                data.headerAlignment === 'center' ? 'text-center' :
+                'text-right'
+              }
+              style={{
+                fontSize: `${fontSizes?.jobTitle || 11}pt`,
+                color: data.accentColor || '#000000',
+                lineHeight: 1.25,
+              }}
+            >
+              <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />
+            </p>
+          )}
         </div>
       </header>
 
       {/* EDUCATION */}
       {data.education && data.education.length > 0 && (
         <section
-          className="mb-3 break-inside-avoid"
-          style={{ marginBottom: `${sectionGap}in` }}
+          className="break-inside-avoid"
+          style={{ marginBottom: sectionGap }}
         >
           {renderSectionHeader('Education')}
 
-          <div className="space-y-3">
+          <div className="flex flex-col" style={{ gap: `${Math.max(0.14, getSectionGapIn(data))}in` }}>
             {data.education.map((edu) => (
-              <div key={edu.id} className="break-inside-avoid">
+              <div key={edu.id} className="break-inside-avoid" style={bodyStyle}>
                 <div className="flex justify-between items-baseline">
-                  <div
-                    className="font-semibold text-gray-900"
-                    style={{ fontSize: `${bodySize}pt` }}
-                  >
-                    {edu.school}
+                  <div className="font-semibold text-gray-900">
+                    <RichText text={edu.school ?? ''} />
                   </div>
-                  <div
-                    className="text-gray-900"
-                    style={{ fontSize: `${smallSize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}
-                  >
-                    {edu.year}
+                  <div className="text-gray-900">
+                    <RichText text={edu.year ?? ''} />
                   </div>
                 </div>
                 {edu.degree && (
-                  <div
-                    className="italic text-gray-900"
-                    style={{ fontSize: `${bodySize}pt` }}
-                  >
-                    {edu.degree}
+                  <div className="italic text-gray-900">
+                    <RichText text={edu.degree ?? ''} />
                   </div>
                 )}
                 {edu.gpa && edu.gpa.trim() && (
-                  <div
-                    className="text-gray-900"
-                    style={{ fontSize: `${bodySize}pt` }}
-                  >
-                    {edu.gpa}
+                  <div className="text-gray-900">
+                    <RichText text={edu.gpa} />
                   </div>
                 )}
                 {edu.relevantCourses && edu.relevantCourses.trim() && (
-                  <div
-                    className="mt-1 text-gray-900"
-                    style={{ fontSize: `${bodySize}pt` }}
-                  >
+                  <div className="mt-0.5 text-gray-900">
                     <span className="font-semibold italic">
                       Relevant Courses:
                     </span>{' '}
-                    {edu.relevantCourses}
+                    <RichText text={edu.relevantCourses} />
                   </div>
                 )}
               </div>
@@ -142,53 +197,41 @@ const FreshGradArtsTemplate: React.FC<FreshGradArtsTemplateProps> = ({ data }) =
       {/* EXPERIENCE */}
       {data.experience && data.experience.length > 0 && (
         <section
-          className="mb-3 break-inside-avoid"
-          style={{ marginBottom: `${sectionGap}in` }}
+          className="break-inside-avoid"
+          style={{ marginBottom: sectionGap }}
         >
           {renderSectionHeader('Experience')}
 
-          <div className="space-y-3">
+          <div className="flex flex-col" style={{ gap: `${getItemGapIn(data)}in` }}>
             {data.experience.map((exp) => (
-              <div key={exp.id} className="break-inside-avoid">
+              <div key={exp.id} className="break-inside-avoid" style={bodyStyle}>
                 <div className="flex justify-between items-baseline">
-                  <div
-                    className="text-gray-900"
-                    style={{ fontSize: `${bodySize}pt` }}
-                  >
+                  <div className="text-gray-900">
                     <span className="font-semibold">
-                      {exp.company}
+                      <RichText text={exp.company ?? ''} />
                     </span>
-                    {exp.location && `, ${exp.location}`}
+                    {exp.location && <RichText text={`, ${exp.location}`} />}
                   </div>
-                  <div
-                    className="text-gray-900"
-                    style={{ fontSize: `${smallSize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}
-                  >
-                    {formatMonthYear(exp.startDate)} –{' '}
-                    {formatMonthYear(exp.endDate)}
+                  <div className="text-gray-900">
+                    <RichText text={formatMonthYear(exp.startDate)} /> –{' '}
+                    <RichText text={formatMonthYear(exp.endDate)} />
                   </div>
                 </div>
                 {exp.role && (
-                  <div
-                    className="italic text-gray-900"
-                    style={{ fontSize: `${bodySize}pt` }}
-                  >
-                    {exp.role}
+                  <div className="italic text-gray-900">
+                    <RichText text={exp.role ?? ''} />
                   </div>
                 )}
                 {exp.description && (
                   <ul
                     className="list-disc list-outside ml-5 space-y-1 text-gray-900"
-                    style={{ fontSize: `${bodySize}pt` }}
+                    style={bodyStyle}
                   >
-                    {parseDescriptionBullets(exp.description).map(
-                      (line, i) =>
-                        line.trim() && (
-                          <li key={i}>
-                            {line.replace(/^[•-]\s*/, '')}
-                          </li>
-                        ),
-                    )}
+                    {parseDescriptionBullets(exp.description).map((line, i) => (
+                      <li key={i}>
+                        <RichText text={line.replace(/^[•-]\s*/, '')} />
+                      </li>
+                    ))}
                   </ul>
                 )}
               </div>
@@ -200,52 +243,40 @@ const FreshGradArtsTemplate: React.FC<FreshGradArtsTemplateProps> = ({ data }) =
       {/* CAMPUS AND COMMUNITY LEADERSHIP */}
       {data.leadership && data.leadership.length > 0 && (
         <section
-          className="mb-3 break-inside-avoid"
-          style={{ marginBottom: `${sectionGap}in` }}
+          className="break-inside-avoid"
+          style={{ marginBottom: sectionGap }}
         >
           {renderSectionHeader('Campus and Community Leadership')}
 
-          <div className="space-y-3">
+          <div className="flex flex-col" style={{ gap: `${getItemGapIn(data)}in` }}>
             {data.leadership.map((lead) => (
-              <div key={lead.id} className="break-inside-avoid">
+              <div key={lead.id} className="break-inside-avoid" style={bodyStyle}>
                 <div className="flex justify-between items-baseline">
-                  <div
-                    className="text-gray-900"
-                    style={{ fontSize: `${bodySize}pt` }}
-                  >
+                  <div className="text-gray-900">
                     <span className="font-semibold">
-                      {lead.company}
+                      <RichText text={lead.company ?? ''} />
                     </span>
                   </div>
-                  <div
-                    className="text-gray-900"
-                    style={{ fontSize: `${smallSize}pt`, marginBottom: `${getHeaderContactGapIn(data)}in` }}
-                  >
-                    {formatMonthYear(lead.startDate)} –{' '}
-                    {formatMonthYear(lead.endDate)}
+                  <div className="text-gray-900">
+                    <RichText text={formatMonthYear(lead.startDate)} /> –{' '}
+                    <RichText text={formatMonthYear(lead.endDate)} />
                   </div>
                 </div>
                 {lead.role && (
-                  <div
-                    className="italic text-gray-900"
-                    style={{ fontSize: `${bodySize}pt` }}
-                  >
-                    {lead.role}
+                  <div className="italic text-gray-900">
+                    <RichText text={lead.role ?? ''} />
                   </div>
                 )}
                 {lead.description && (
                   <ul
                     className="list-disc list-outside ml-5 space-y-1 text-gray-900"
-                    style={{ fontSize: `${bodySize}pt` }}
+                    style={bodyStyle}
                   >
-                    {parseDescriptionBullets(lead.description).map(
-                      (line, i) =>
-                        line.trim() && (
-                          <li key={i}>
-                            {line.replace(/^[•-]\s*/, '')}
-                          </li>
-                        ),
-                    )}
+                    {parseDescriptionBullets(lead.description).map((line, i) => (
+                      <li key={i}>
+                        <RichText text={line.replace(/^[•-]\s*/, '')} />
+                      </li>
+                    ))}
                   </ul>
                 )}
               </div>
@@ -254,37 +285,78 @@ const FreshGradArtsTemplate: React.FC<FreshGradArtsTemplateProps> = ({ data }) =
         </section>
       )}
 
+      {/* EXPERT-LEVEL SKILLS */}
+      {data.expertSkills && (
+        renderExpertSkillsBlockHelper({
+          data,
+          title: (data.sectionTitles && data.sectionTitles['expert_skills']) || 'Expert-Level Skills',
+          items: data.expertSkills,
+          basePath: 'expertSkills',
+          renderSectionHeader,
+          bodyStyle,
+        })
+      )}
+
       {/* SKILLS */}
-      {(data.additionalInfo && data.additionalInfo.length > 0) || data.skills?.trim() ? (
-        <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
+      {((data.additionalInfo && data.additionalInfo.length > 0) || data.skills?.trim()) ? (
+        <section className="break-inside-avoid" style={{ marginBottom: sectionGap }}>
           {renderSectionHeader('Skills')}
 
-          <div
-            className="space-y-1 text-gray-900"
-            style={{ fontSize: `${bodySize}pt` }}
-          >
-            {data.additionalInfo && data.additionalInfo.length > 0
-              ? data.additionalInfo
+          {data.skills && (() => {
+            const skillsList = splitSkillsList(data.skills);
+            if (skillsList.length === 0) return null;
+            const columnCount = data.skillsColumnCount === 2 ? 2 : (data.skillsColumnCount === 4 ? 4 : 3);
+            return (
+              <ul
+                data-skills-grid
+                className={`list-none pl-2.5 grid gap-x-8 gap-y-1 text-gray-900 mb-2 ${columnCount === 2 ? 'grid-cols-2' : (columnCount === 4 ? 'grid-cols-4' : 'grid-cols-3')}`}
+                style={bodyStyle}
+              >
+                {skillsList.map((skill, i) => (
+                  <li key={`skill-${i}`} data-skill-cell className="flex items-baseline gap-1.5 min-w-0">
+                    <span data-bullet aria-hidden="true" className="shrink-0 select-none pointer-events-none leading-none">•</span>
+                    <span className="flex-1" style={{ lineHeight: 'inherit' }}><RichText text={skill} /></span>
+                  </li>
+                ))}
+              </ul>
+            );
+          })()}
+          {data.additionalInfo && data.additionalInfo.length > 0 && (
+            <ul
+              className="list-disc list-outside ml-5 space-y-1 text-gray-900"
+              style={bodyStyle}
+            >
+              {data.additionalInfo
                 .filter((item) => item.label.trim() || item.value.trim())
                 .map((item) => (
-                  <div key={item.id}>
+                  <li key={item.id}>
                     {item.label && (
                       <span className="font-semibold">
-                        {item.label}
+                        <RichText text={item.label} />
                       </span>
                     )}
                     {item.value && (
                       <>
                         {item.label && <span> </span>}
-                        <span>{item.value}</span>
+                        <span><RichText text={item.value} /></span>
                       </>
                     )}
-                  </div>
-                ))
-              : data.skills && <div>{data.skills}</div>}
-          </div>
+                  </li>
+                ))}
+            </ul>
+          )}
         </section>
       ) : null}
+
+      {/* REFERENCES */}
+      {data.referee && data.referee.trim() && (
+        <section className="break-inside-avoid" style={{ marginBottom: sectionGap }}>
+          {renderSectionHeader('References')}
+          <p className="italic text-gray-800 whitespace-pre-line" style={bodyStyle}>
+            <RichText text={data.referee ?? ''} />
+          </p>
+        </section>
+      )}
     </div>
   );
 };

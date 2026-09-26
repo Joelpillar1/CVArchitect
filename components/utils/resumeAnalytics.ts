@@ -206,7 +206,7 @@ function calculateRelevance(data: ResumeData) {
         missingKeywords: [] as string[]
     };
 
-    if (!data.jobDescription || data.jobDescription.trim().length < 50 || !data.hasJobMatchRun) {
+    if (!data.jobDescription || data.jobDescription.trim().length < 25) {
         return { jobMatchScore: 0, keywords: resultKeywords };
     }
 
@@ -269,23 +269,20 @@ function calculateRelevance(data: ResumeData) {
     const experienceBoost = data.experience.length >= 4 ? 15 : 0;
     matchScore += experienceBoost;
 
-    // More generous boost curve for better UX (easier to reach 90%+)
-    // Using power of 0.6 instead of 0.7 for more aggressive boost
-    matchScore = Math.min(98, Math.round(Math.pow(matchScore / 100, 0.6) * 100));
-
-    // When a job description is present, users are explicitly using Job Match.
-    // For UX reasons, the score should never look "failing", but it also
-    // shouldn't look obviously hard-coded. Keep it dynamic but ensure >= 90.
-    if (matchScore < 90) {
-        // Map low raw scores into a 90–94 band based on how strong they were.
-        const clampedBase = Math.max(0, Math.min(89, matchScore));
-        const normalized = clampedBase / 89; // 0–1
-        const extra = Math.round(normalized * 4); // 0–4
-        matchScore = 90 + extra; // 90–94
+    if (data.hasJobMatchRun) {
+        // More generous boost curve for tailored resumes (90-98%)
+        matchScore = Math.min(98, Math.round(Math.pow(matchScore / 100, 0.6) * 100));
+        if (matchScore < 90) {
+            const clampedBase = Math.max(0, Math.min(89, matchScore));
+            const normalized = clampedBase / 89;
+            const extra = Math.round(normalized * 4);
+            matchScore = 90 + extra;
+        }
+        matchScore = Math.min(98, matchScore);
+    } else {
+        // Untailored baseline match score (clean 45-85% range)
+        matchScore = Math.min(85, Math.max(45, Math.round(matchScore * 0.9)));
     }
-
-    // Final safety cap
-    matchScore = Math.min(98, matchScore);
 
     resultKeywords.missingKeywords = missing;
 

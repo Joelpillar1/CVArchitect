@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { ResumeData, TemplateType } from '../types';
 import { UserSubscription } from '../types/pricing';
 import { SubscriptionManager } from '../utils/subscriptionManager';
 import { canAccessTemplate } from '../utils/pricingConfig';
-import { ChevronLeft, Maximize2, Minimize2, Download, User, Briefcase, GraduationCap, Award, Layout as LayoutIcon, Target, CheckCircle, Monitor, Edit3, Palette, ShoppingCart } from 'lucide-react';
-import FormSection from './FormSection';
+import { ChevronLeft, ChevronDown, Maximize2, Minimize2, Download, User, Briefcase, GraduationCap, Award, Layout as LayoutIcon, Target, CheckCircle, Monitor, Edit3, Palette, ShoppingCart, Save, Check, Loader2, PanelLeftOpen, ZoomIn, ZoomOut, Pencil, Printer, FileText, Code } from 'lucide-react';
 import ResumePreview from './ResumePreview';
+import ResumeWorkspace from './resume-agent/ResumeWorkspace';
 import EditorSidebarRight from './EditorSidebarRight';
 import EditorSidebarLeft from './EditorSidebarLeft';
+import DesignCustomizationModal from './resume-agent/DesignCustomizationModal';
 import VanguardTemplate from './templates/VanguardTemplate';
 import ElevateResume from './templates/ElevateResume';
 import PrimeProfile from './templates/PrimeProfile';
@@ -16,7 +17,6 @@ import ImpactTemplate from './templates/ImpactTemplate';
 import FreeTemplate from './templates/FreeTemplate';
 import SimpleProTemplate from './templates/SimpleProTemplate';
 import DevTemplate from './templates/DevTemplate';
-import EliteTemplate from './templates/EliteTemplate';
 import ApexTemplate from './templates/ApexTemplate';
 import ModernTemplate from './templates/ModernTemplate';
 import ExecutiveTemplate from './templates/ExecutiveTemplate';
@@ -24,16 +24,17 @@ import ClassicTemplate from './templates/ClassicTemplate';
 import MinimalistTemplate from './templates/MinimalistTemplate';
 import WonsultingTemplate from './templates/WonsultingTemplate';
 import StyledTemplate from './templates/StyledTemplate';
-import SmartTemplate from './templates/SmartTemplate';
 import ElegantTemplate from './templates/ElegantTemplate';
 import ProfessionalTemplate from './templates/ProfessionalTemplate';
+import TimesTemplate from './templates/TimesTemplate';
 import TwoColumnTemplate from './templates/TwoColumnTemplate';
 import SageTemplate from './templates/SageTemplate';
 import ReziTemplate from './templates/ReziTemplate';
 import FreshGradTemplate from './templates/FreshGradTemplate';
 import FreshGrad8Template from './templates/FreshGrad8Template';
 import StudentTemplate from './templates/StudentTemplate';
-import CreditDisplay from './CreditDisplay';
+import PrintPortal from './PrintPortal';
+
 
 interface EditorProps {
   data: ResumeData;
@@ -52,29 +53,161 @@ interface EditorProps {
   onShowPaywall?: (feature: 'templates' | 'job-match' | 'general' | 'credits' | 'export') => void;
 }
 
-export type EditorTab = 'personal' | 'summary' | 'education' | 'experience' | 'achievements' | 'skills' | 'certifications' | 'additionalInfo' | 'references' | 'design' | 'job-match';
+export type EditorTab = 'personal' | 'summary' | 'education' | 'experience' | 'achievements' | 'skills' | 'certifications' | 'additionalInfo' | 'references' | 'projects' | 'leadership' | 'design' | 'job-match' | (string & {}) | '' | null;
 
 import { analyzeResume } from './utils/resumeAnalytics';
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FileText as FileTextIcon } from 'lucide-react';
 import { saveToStorage, loadFromStorage } from '../utils/statePersistence';
+import { exportResumeToPdf, exportCoverLetterToPdf, printResumeToPdf, exportResumeToPlainText } from '../utils/pdfExport';
+import { exportResumeToDocx } from '../utils/docxExport';
 
 export default function Editor({ data, onChange, template, onTemplateChange, onBack, onSave, onSaveAsTemplate, currentResumeId, showWelcomeModal, onCloseWelcomeModal, auditResult, userSubscription, onAIAction, onShowPaywall }: EditorProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [activeMobileTabState, setActiveMobileTabState] = useState<'editor' | 'preview' | 'design'>(() => {
-    return loadFromStorage<'editor' | 'preview' | 'design'>('editor_activeMobileTab', 'editor');
+  const [isDesignModalOpen, setIsDesignModalOpen] = useState(false);
+  const location = useLocation();
+  const [activeMobileTabState, setActiveMobileTabState] = useState<'editor' | 'preview' | 'job-match'>(() => {
+    return loadFromStorage<'editor' | 'preview' | 'job-match'>('editor_activeMobileTab', 'editor');
   });
   const [activeTabState, setActiveTabState] = useState<EditorTab>(() => {
     return loadFromStorage<EditorTab>('editor_activeTab', 'personal');
   });
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isDownloadMenuOpen, setIsDownloadMenuOpen] = useState(false);
+  const downloadMenuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const [coverLetterContent, setCoverLetterContent] = useState<string>('');
   const [isPrintingCoverLetter, setIsPrintingCoverLetter] = useState(false);
   const [zoomState, setZoomStateInternal] = useState(() => {
     return loadFromStorage<number>('editor_zoom', 1);
   });
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [titleInputValue, setTitleInputValue] = useState(
+    data.resumeTitle || data.currentTag || (data.fullName ? `${data.fullName}'s Resume` : 'Untitled Resume')
+  );
+
+  // Close download menu on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (downloadMenuRef.current && !downloadMenuRef.current.contains(event.target as Node)) {
+        setIsDownloadMenuOpen(false);
+      }
+    }
+    if (isDownloadMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isDownloadMenuOpen]);
+
+  // Auto-switch to job-match mobile tab if navigated with chat intent
+  React.useEffect(() => {
+    const locState = location.state as any;
+    const shouldOpenJobMatch = locState?.openChat || locState?.pendingChatPrompt || loadFromStorage<boolean>('editor_openJobMatchTab', false);
+    if (shouldOpenJobMatch) {
+      setActiveMobileTabState('job-match');
+      saveToStorage('editor_activeMobileTab', 'job-match');
+      try {
+        localStorage.removeItem('editor_openJobMatchTab');
+      } catch (_) {}
+    }
+  }, [location.state]);
+
+  React.useEffect(() => {
+    if (!isEditingTitle) {
+      setTitleInputValue(
+        data.resumeTitle || data.currentTag || (data.fullName ? `${data.fullName}'s Resume` : 'Untitled Resume')
+      );
+    }
+  }, [data.resumeTitle, data.currentTag, data.fullName, isEditingTitle]);
+
+  const handleSaveClick = React.useCallback(async () => {
+    if (saveStatus === 'saving') return;
+    setSaveStatus('saving');
+    try {
+      if (onSave) {
+        const resolvedTitle =
+          titleInputValue.trim() ||
+          data.resumeTitle?.trim() ||
+          data.currentTag?.trim() ||
+          (data.fullName?.trim() ? `${data.fullName.trim()}'s Resume` : 'Untitled Resume');
+        const enrichedData: ResumeData = {
+          ...data,
+          resumeTitle: resolvedTitle,
+          currentTag: resolvedTitle,
+        };
+        await onSave(enrichedData);
+      }
+      setSaveStatus('saved');
+      setTimeout(() => {
+        setSaveStatus('idle');
+      }, 2000);
+    } catch (error) {
+      console.error('Failed to save resume:', error);
+      setSaveStatus('idle');
+    }
+  }, [onSave, data, titleInputValue, saveStatus]);
+
+  const [undoStack, setUndoStack] = useState<ResumeData[]>([]);
+  const [redoStack, setRedoStack] = useState<ResumeData[]>([]);
+  const resumeDataRef = React.useRef<ResumeData>(data);
+  resumeDataRef.current = data;
+
+  const handleChangeData = React.useCallback((newData: ResumeData) => {
+    const prev = resumeDataRef.current;
+    if (JSON.stringify(prev) !== JSON.stringify(newData)) {
+      setUndoStack((prevStack) => [...prevStack.slice(-30), prev]);
+      setRedoStack([]);
+    }
+    onChange(newData);
+  }, [onChange]);
+
+  const handleUndo = React.useCallback(() => {
+    if (undoStack.length === 0) return;
+    const previous = undoStack[undoStack.length - 1];
+    const newUndo = undoStack.slice(0, -1);
+    setRedoStack((prev) => [resumeDataRef.current, ...prev]);
+    setUndoStack(newUndo);
+    onChange(previous);
+  }, [undoStack, onChange]);
+
+  const handleRedo = React.useCallback(() => {
+    if (redoStack.length === 0) return;
+    const next = redoStack[0];
+    const newRedo = redoStack.slice(1);
+    setUndoStack((prev) => [...prev, resumeDataRef.current]);
+    setRedoStack(newRedo);
+    onChange(next);
+  }, [redoStack, onChange]);
+
+  // Global Keyboard Shortcuts (Undo: Ctrl+Z / Cmd+Z, Redo: Ctrl+Y / Ctrl+Shift+Z / Cmd+Shift+Z)
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const isInput = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+      if (isInput) return;
+
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const isCmdOrCtrl = isMac ? e.metaKey : e.ctrlKey;
+
+      if (isCmdOrCtrl && e.key.toLowerCase() === 'z') {
+        if (e.shiftKey) {
+          e.preventDefault();
+          handleRedo();
+        } else {
+          e.preventDefault();
+          handleUndo();
+        }
+      } else if (isCmdOrCtrl && e.key.toLowerCase() === 'y') {
+        e.preventDefault();
+        handleRedo();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleUndo, handleRedo]);
 
   // Wrapper functions that persist immediately
   const setActiveTab = React.useCallback((tab: EditorTab) => {
@@ -90,7 +223,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
     });
   }, []);
 
-  const setActiveMobileTab = React.useCallback((tab: 'editor' | 'preview' | 'design') => {
+  const setActiveMobileTab = React.useCallback((tab: 'editor' | 'preview' | 'job-match') => {
     setActiveMobileTabState(tab);
     saveToStorage('editor_activeMobileTab', tab);
   }, []);
@@ -102,6 +235,22 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
 
   const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.1, 1.5));
   const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.1, 0.3));
+  const handleResetZoom = () => setZoom(1);
+
+  const [isLeftSidebarOpenState, setIsLeftSidebarOpenState] = useState(() => {
+    return loadFromStorage<boolean>('editor_isLeftSidebarOpen', true);
+  });
+
+  const setIsLeftSidebarOpen = React.useCallback((open: boolean | ((prev: boolean) => boolean)) => {
+    setIsLeftSidebarOpenState(prev => {
+      const next = typeof open === 'function' ? open(prev) : open;
+      saveToStorage('editor_isLeftSidebarOpen', next);
+      return next;
+    });
+  }, []);
+
+  const isLeftSidebarOpen = isLeftSidebarOpenState;
+
 
   // A4 Dimensions in px (approx)
   const A4_WIDTH_PX = 794; // 210mm
@@ -124,70 +273,85 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
     };
   }, [data.fullName]);
 
-  const handleDownload = () => {
+  // Shortcuts: Ctrl+S to save, Ctrl+B / Ctrl+\ to toggle left sidebar
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        handleSaveClick();
+      } else if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'b' || e.key === '\\')) {
+        e.preventDefault();
+        setIsLeftSidebarOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleSaveClick, setIsLeftSidebarOpen]);
+
+  const handleDownload = async () => {
     if (!canAccessTemplate(userSubscription.planId, template)) {
       onShowPaywall?.('export');
       return;
     }
 
     setIsDownloading(true);
-    // Ensure we are printing resume, not cover letter
-    setIsPrintingCoverLetter(false);
-
-    // Update document title for the PDF filename
-    const originalTitle = document.title;
-    document.title = `${data.fullName.replace(/\s+/g, '_')}_Resume`;
-
-    // Ensure all links have proper href attributes before printing
-    setTimeout(() => {
-      // Find all links in the print container and ensure they have proper URLs
-      const printContainer = document.querySelector('.print-resume');
-      if (printContainer) {
-        const links = printContainer.querySelectorAll('a[href]');
-        links.forEach((link: Element) => {
-          const anchor = link as HTMLAnchorElement;
-          const href = anchor.getAttribute('href');
-          if (href && !href.startsWith('http') && !href.startsWith('mailto:') && !href.startsWith('#')) {
-            // Ensure relative URLs become absolute
-            if (href.includes('@')) {
-              anchor.href = `mailto:${href}`;
-            } else if (href.includes('.')) {
-              anchor.href = `https://${href}`;
-            }
-          }
-          // Ensure links are visible and clickable
-          anchor.style.textDecoration = 'underline';
-          anchor.style.color = 'inherit';
-        });
-      }
-
-      // Add a small delay to ensure DOM is ready
-      requestAnimationFrame(() => {
-        // Trigger browser print dialog
-        window.print();
-        document.title = originalTitle;
-        setIsDownloading(false);
-      });
-    }, 200);
+    try {
+      await exportResumeToPdf(data, template);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert(`PDF export failed: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
-  const handleCoverLetterDownload = (content: string) => {
+  const handleDocxDownload = async () => {
     if (!canAccessTemplate(userSubscription.planId, template)) {
       onShowPaywall?.('export');
       return;
     }
 
-    setCoverLetterContent(content);
-    setIsPrintingCoverLetter(true);
+    setIsDownloading(true);
+    try {
+      await exportResumeToDocx(data);
+    } catch (error) {
+      console.error('Error generating Word document:', error);
+      alert(`Word export failed: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
-    const originalTitle = document.title;
-    document.title = `${data.fullName.replace(/\s+/g, '_')}_Cover_Letter`;
+  const handlePrintDownload = () => {
+    if (!canAccessTemplate(userSubscription.planId, template)) {
+      onShowPaywall?.('export');
+      return;
+    }
+    printResumeToPdf();
+  };
 
-    setTimeout(() => {
-      window.print();
-      document.title = originalTitle;
-      setIsPrintingCoverLetter(false);
-    }, 100);
+  const handleTextDownload = (format: 'text' | 'markdown') => {
+    if (!canAccessTemplate(userSubscription.planId, template)) {
+      onShowPaywall?.('export');
+      return;
+    }
+    exportResumeToPlainText(data, format);
+  };
+
+  const handleCoverLetterDownload = async (content: string) => {
+    if (!canAccessTemplate(userSubscription.planId, template)) {
+      onShowPaywall?.('export');
+      return;
+    }
+
+    setIsDownloading(true);
+    try {
+      await exportCoverLetterToPdf(content, data, data.jobTitle);
+    } catch (error) {
+      console.error('Error exporting cover letter PDF:', error);
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const renderPrintTemplate = () => {
@@ -207,7 +371,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
       case 'free': return <FreeTemplate data={data} />;
       case 'simplepro': return <SimpleProTemplate data={data} />;
       case 'dev': return <DevTemplate data={data} />;
-      case 'elite': return <EliteTemplate data={data} />;
+      case 'elite':
       case 'apex': return <ApexTemplate data={data} />;
       case 'modern': return <ModernTemplate data={data} />;
       case 'executive': return <ExecutiveTemplate data={data} />;
@@ -215,9 +379,10 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
       case 'minimalist': return <MinimalistTemplate data={data} />;
       case 'wonsulting': return <WonsultingTemplate data={data} />;
       case 'styled': return <StyledTemplate data={data} />;
-      case 'smart': return <SmartTemplate data={data} />;
+      case 'smart':
       case 'elegant': return <ElegantTemplate data={data} />;
       case 'professional': return <ProfessionalTemplate data={data} />;
+      case 'times': return <TimesTemplate data={data} />;
       case 'twocolumn': return <TwoColumnTemplate data={data} />;
       case 'sage': return <SageTemplate data={data} />;
       case 'rezi': return <ReziTemplate data={data} />;
@@ -238,70 +403,287 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
 
   return (
     <div className="flex flex-col h-screen h-[100dvh] w-full bg-brand-bg">
-      {/* Global Header */}
-      <div className="h-16 border-b border-brand-border flex items-center justify-between px-2 sm:px-4 bg-brand-bg shrink-0 z-20">
-        <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
-          <button onClick={onBack} className="p-2 hover:bg-brand-secondary rounded-full transition-colors shrink-0">
-            <ChevronLeft size={20} className="text-gray-600" />
+      {/* Global Header / Main Top Bar */}
+      <div className="h-14 border-b border-brand-border flex items-center justify-between px-3 sm:px-4 bg-white shrink-0 z-40 shadow-2xs gap-2 relative">
+        {/* Left: Back Arrow */}
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={onBack}
+            className="p-1.5 hover:bg-neutral-100 rounded-lg transition-colors text-neutral-600 hover:text-neutral-900 cursor-pointer shrink-0"
+            title="Go back"
+          >
+            <ChevronLeft size={20} />
           </button>
-          <div className="hidden md:flex items-center gap-3 text-sm">
-            <span className="text-gray-500">Home</span>
-            <span className="text-gray-300">/</span>
-            <span className="text-gray-500">Template</span>
-            <span className="text-gray-300">/</span>
-            <span className="font-semibold text-brand-dark">My Resume</span>
-          </div>
         </div>
 
-        <div className="flex items-center gap-1 sm:gap-3 shrink-0">
-          {/* Real-time Scores */}
-          <div className="hidden md:flex items-center gap-3 mr-4 border-r border-gray-200 pr-4 h-8">
-            <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ring-1 ring-inset transition-all ${getScoreColor(analytics.atsScore)}`}>
-              <Target size={14} className="opacity-80" />
-              <span>ATS Score: {analytics.atsScore}</span>
-            </div>
-            {analytics.jobMatchScore > 0 && data.jobDescription && data.jobDescription.trim().length > 20 && (
-              <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ring-1 ring-inset transition-all ${getScoreColor(analytics.jobMatchScore)}`}>
-                <Briefcase size={14} className="opacity-80" />
-                <span>Job Match: {analytics.jobMatchScore}%</span>
-              </div>
-            )}
+        {/* Middle: Resume Naming Section */}
+        <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center max-w-[160px] sm:max-w-[260px] md:max-w-xs lg:max-w-sm pointer-events-auto">
+          {isEditingTitle ? (
+            <input
+              type="text"
+              value={titleInputValue}
+              onChange={(e) => {
+                setTitleInputValue(e.target.value);
+                handleChangeData({
+                  ...data,
+                  resumeTitle: e.target.value,
+                  currentTag: e.target.value,
+                });
+              }}
+              onBlur={() => {
+                setIsEditingTitle(false);
+                const trimmed = titleInputValue.trim();
+                const finalTitle = trimmed || (data.fullName ? `${data.fullName}'s Resume` : 'Untitled Resume');
+                setTitleInputValue(finalTitle);
+                handleChangeData({
+                  ...data,
+                  resumeTitle: finalTitle,
+                  currentTag: finalTitle,
+                });
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  setIsEditingTitle(false);
+                  const trimmed = titleInputValue.trim();
+                  const finalTitle = trimmed || (data.fullName ? `${data.fullName}'s Resume` : 'Untitled Resume');
+                  setTitleInputValue(finalTitle);
+                  handleChangeData({
+                    ...data,
+                    resumeTitle: finalTitle,
+                    currentTag: finalTitle,
+                  });
+                } else if (e.key === 'Escape') {
+                  setIsEditingTitle(false);
+                }
+              }}
+              autoFocus
+              placeholder="Name your resume..."
+              className="px-2.5 py-1 text-xs sm:text-sm font-bold text-center text-brand-dark bg-white border border-brand-green rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green/30 w-full shadow-2xs"
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                setTitleInputValue(data.resumeTitle || data.currentTag || (data.fullName ? `${data.fullName}'s Resume` : 'Untitled Resume'));
+                setIsEditingTitle(true);
+              }}
+              className="group flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-lg text-xs sm:text-sm font-bold text-brand-dark hover:bg-neutral-100 transition-all text-center truncate cursor-pointer max-w-full border border-transparent hover:border-neutral-200"
+              title="Click to rename resume"
+            >
+              <span className="truncate">
+                {data.resumeTitle || data.currentTag || (data.fullName ? `${data.fullName}'s Resume` : 'Untitled Resume')}
+              </span>
+              <Pencil size={12} className="text-neutral-400 group-hover:text-brand-dark shrink-0 transition-opacity opacity-60 group-hover:opacity-100" />
+            </button>
+          )}
+        </div>
+
+        {/* Right: Actions (Zoom, Full Preview, Save, Cover Letter, Download) */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {/* Zoom Controls */}
+          <div className="hidden sm:flex items-center bg-neutral-100 rounded-lg p-0.5 text-xs text-brand-dark border border-neutral-200">
+            <button
+              type="button"
+              onClick={handleZoomOut}
+              className="p-1 hover:bg-white rounded transition-colors text-neutral-700 cursor-pointer"
+              title="Zoom Out"
+            >
+              <ZoomOut className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={handleResetZoom}
+              className="px-1.5 py-0.5 font-mono font-bold text-[11px] hover:bg-white rounded transition-colors text-neutral-700 cursor-pointer"
+              title="Reset Zoom (100%)"
+            >
+              {Math.round(zoom * 100)}%
+            </button>
+            <button
+              type="button"
+              onClick={handleZoomIn}
+              className="p-1 hover:bg-white rounded transition-colors text-neutral-700 cursor-pointer"
+              title="Zoom In"
+            >
+              <ZoomIn className="w-3.5 h-3.5" />
+            </button>
           </div>
 
-          <div className="hidden sm:block">
-            <CreditDisplay
-              userSubscription={userSubscription}
-              onUpgradeClick={() => onShowPaywall?.('general')}
-            />
-          </div>
+          {/* Full Preview Toggle */}
+          <button
+            type="button"
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            className={`p-1.5 rounded-lg text-xs font-bold transition-colors border cursor-pointer ${
+              isFullscreen
+                ? 'bg-neutral-900 text-white border-neutral-900'
+                : 'bg-white text-neutral-700 hover:bg-neutral-100 border-neutral-200'
+            }`}
+            title={isFullscreen ? 'Exit Full Preview' : 'Full Preview'}
+          >
+            {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
+          </button>
+
+          <div className="h-4 w-px bg-neutral-200 mx-0.5" />
+
+          {/* Save Button */}
+          <button
+            type="button"
+            onClick={handleSaveClick}
+            disabled={saveStatus === 'saving'}
+            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-95 border ${
+              saveStatus === 'saved'
+                ? 'bg-brand-green hover:bg-brand-greenHover text-brand-dark border-brand-green/60 shadow-xs'
+                : 'bg-white text-brand-dark hover:bg-brand-secondary border-brand-border hover:border-gray-300'
+            }`}
+            title="Save Resume (Ctrl+S)"
+          >
+            {saveStatus === 'saving' ? (
+              <Loader2 size={14} className="animate-spin text-brand-dark" />
+            ) : saveStatus === 'saved' ? (
+              <Check size={14} className="text-brand-dark stroke-[2.5]" />
+            ) : (
+              <Save size={14} className="text-brand-dark" />
+            )}
+            <span className="hidden sm:inline">{saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : 'Save'}</span>
+          </button>
+
           <button
             onClick={() => navigate('/dashboard/cover-letter')}
-            className="hidden sm:flex items-center gap-2 px-3 py-2 border border-brand-border rounded-lg text-sm font-medium text-brand-dark hover:bg-brand-secondary transition-colors"
+            className="hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 border border-brand-border rounded-lg text-xs font-semibold text-brand-dark hover:bg-brand-secondary transition-colors cursor-pointer"
+            title="Create Cover Letter"
           >
-            <FileTextIcon size={16} />
-            <span className="hidden md:inline">Cover Letter</span>
+            <FileTextIcon size={14} />
+            <span>Cover Letter</span>
           </button>
           {/* Mobile Cover Letter Icon */}
-          <button onClick={() => navigate('/dashboard/cover-letter')} className="sm:hidden p-2 text-gray-500 hover:text-brand-dark">
-            <FileTextIcon size={20} />
+          <button onClick={() => navigate('/dashboard/cover-letter')} className="xl:hidden p-1.5 text-brand-dark/70 hover:text-brand-dark" title="Create Cover Letter">
+            <FileTextIcon size={18} />
           </button>
 
           {canAccessTemplate(userSubscription.planId, template) ? (
-            <button
-              onClick={handleDownload}
-              disabled={isDownloading}
-              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-2 border border-brand-border rounded-lg text-sm font-medium text-brand-dark hover:bg-brand-secondary transition-colors"
-            >
-              <Download size={16} />
-              <span className="hidden sm:inline">Download</span>
-            </button>
+            <div className="relative inline-flex items-center" ref={downloadMenuRef}>
+              <button
+                onClick={handleDownload}
+                disabled={isDownloading}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-green hover:bg-brand-greenHover text-brand-dark rounded-l-lg text-xs font-bold transition-all shadow-xs hover:shadow-sm cursor-pointer active:scale-95 border border-brand-green/60 disabled:opacity-75 disabled:cursor-not-allowed"
+                title="Direct PDF Download"
+              >
+                {isDownloading ? (
+                  <>
+                    <Loader2 size={14} className="animate-spin" />
+                    <span className="hidden sm:inline">Downloading...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download size={14} />
+                    <span className="hidden sm:inline">Download</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={() => setIsDownloadMenuOpen((prev) => !prev)}
+                disabled={isDownloading}
+                className="px-2 py-1.5 rounded-r-lg border-l border-brand-dark/15 text-brand-dark bg-brand-green hover:bg-brand-greenHover transition-colors cursor-pointer"
+                title="Download Options"
+              >
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isDownloadMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* Dropdown Menu */}
+              {isDownloadMenuOpen && (
+                <div className="absolute right-0 top-full mt-1.5 w-60 bg-white rounded-xl shadow-xl border border-gray-200 p-1.5 z-50 animate-pop-in">
+                  <div className="px-2.5 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                    Export Options
+                  </div>
+
+                  {/* 1. Direct PDF Download */}
+                  <button
+                    onClick={() => {
+                      setIsDownloadMenuOpen(false);
+                      handleDownload();
+                    }}
+                    className="w-full flex items-start gap-2.5 px-2.5 py-2 text-left rounded-lg hover:bg-gray-100 transition-colors cursor-pointer group"
+                  >
+                    <Download className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0 group-hover:scale-110 group-hover:text-gray-700 transition-all" />
+                    <div>
+                      <div className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
+                        Download PDF
+                        <span className="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-1.5 py-0.2 rounded">Fast</span>
+                      </div>
+                      <div className="text-[11px] text-gray-500 font-normal">Direct high-res client download</div>
+                    </div>
+                  </button>
+
+                  {/* 2. Native Vector Print / Save as PDF */}
+                  <button
+                    onClick={() => {
+                      setIsDownloadMenuOpen(false);
+                      handlePrintDownload();
+                    }}
+                    className="w-full flex items-start gap-2.5 px-2.5 py-2 text-left rounded-lg hover:bg-gray-100 transition-colors cursor-pointer group"
+                  >
+                    <Printer className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0 group-hover:scale-110 group-hover:text-gray-700 transition-all" />
+                    <div>
+                      <div className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
+                        Print / Vector PDF
+                        <span className="text-[10px] bg-indigo-100 text-indigo-800 font-semibold px-1.5 py-0.2 rounded">Vector</span>
+                      </div>
+                      <div className="text-[11px] text-gray-500 font-normal">Selectable text & ATS optimized</div>
+                    </div>
+                  </button>
+
+                  {/* 3. Export Word (.docx) */}
+                  <button
+                    onClick={() => {
+                      setIsDownloadMenuOpen(false);
+                      handleDocxDownload();
+                    }}
+                    className="w-full flex items-start gap-2.5 px-2.5 py-2 text-left rounded-lg hover:bg-gray-100 transition-colors cursor-pointer group"
+                  >
+                    <FileText className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0 group-hover:scale-110 group-hover:text-gray-700 transition-all" />
+                    <div>
+                      <div className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
+                        Download Word (.docx)
+                        <span className="text-[10px] bg-blue-100 text-blue-800 font-semibold px-1.5 py-0.2 rounded">Word</span>
+                      </div>
+                      <div className="text-[11px] text-gray-500 font-normal">Editable ATS Word document</div>
+                    </div>
+                  </button>
+
+                  {/* 4. Export Text / Markdown */}
+                  <div className="h-px bg-gray-100 my-1" />
+                  <button
+                    onClick={() => {
+                      setIsDownloadMenuOpen(false);
+                      handleTextDownload('text');
+                    }}
+                    className="w-full flex items-center gap-2.5 px-2.5 py-1.5 text-left rounded-lg hover:bg-gray-100 text-gray-700 transition-colors cursor-pointer group"
+                  >
+                    <FileText className="w-3.5 h-3.5 text-gray-500 group-hover:text-gray-700 transition-colors" />
+                    <span className="text-xs font-medium">Export Plain Text (.txt)</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setIsDownloadMenuOpen(false);
+                      handleTextDownload('markdown');
+                    }}
+                    className="w-full flex items-center gap-2.5 px-2.5 py-1.5 text-left rounded-lg hover:bg-gray-100 text-gray-700 transition-colors cursor-pointer group"
+                  >
+                    <Code className="w-3.5 h-3.5 text-gray-500 group-hover:text-gray-700 transition-colors" />
+                    <span className="text-xs font-medium">Export Markdown (.md)</span>
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <button
               onClick={() => onShowPaywall?.('export')}
-              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-2 bg-brand-dark text-white rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors shadow-sm ring-2 ring-brand-green/50 animate-pulse"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-green hover:bg-brand-greenHover text-brand-dark rounded-lg text-xs font-bold transition-all shadow-xs ring-2 ring-brand-green/40 hover:shadow-sm cursor-pointer active:scale-95 border border-brand-green/60"
             >
-              <ShoppingCart size={16} className="text-brand-green" />
-              <span className="hidden sm:inline">Buy this Resume</span>
+              <ShoppingCart size={14} className="text-brand-dark" />
+              <span className="hidden sm:inline">Buy Resume</span>
             </button>
           )}
         </div>
@@ -312,68 +694,74 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
 
         {/* Left Panel: Accordion Editor */}
         <div className={`
-          border-r border-brand-border bg-brand-bg flex-col transition-all duration-300
-          ${isFullscreen ? 'w-0 opacity-0 overflow-hidden' : 'w-full md:w-96'}
-          ${activeMobileTab === 'editor' ? 'flex' : 'hidden md:flex'}
+          border-r border-brand-border bg-white flex-col transition-all duration-300 shrink-0
+          ${isFullscreen || !isLeftSidebarOpen ? 'w-0 opacity-0 overflow-hidden border-none' : 'w-full md:w-96'}
+          ${activeMobileTab === 'editor' ? 'flex' : (isLeftSidebarOpen && !isFullscreen ? 'hidden md:flex' : 'hidden')}
         `}>
           <EditorSidebarLeft
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             data={data}
-            onChange={onChange}
+            onChange={handleChangeData}
             currentTemplate={template}
             onTemplateChange={onTemplateChange}
             userSubscription={userSubscription}
             onAIAction={onAIAction}
             onShowPaywall={onShowPaywall}
             auditResult={auditResult}
+            onToggleSidebar={() => setIsLeftSidebarOpen(false)}
           />
         </div>
 
-        {/* Middle Panel: Canvas/Preview */}
+        {/* Middle Panel: Canvas/Preview with Word-like Live In-Place Editing & Floating Figma Toolbar */}
         <div className={`
-          flex-1 bg-brand-bg overflow-auto relative flex flex-col items-center py-8
+          flex-1 bg-brand-bg flex-col h-full overflow-hidden relative
           ${activeMobileTab === 'preview' ? 'flex' : 'hidden md:flex'}
         `}>
-          {/* Zoom Controls Overlay */}
-          <div className="fixed bottom-20 left-1/2 -translate-x-1/2 md:absolute md:top-4 md:right-4 md:left-auto md:translate-x-0 md:bottom-auto z-20 flex items-center gap-2 bg-white/90 backdrop-blur border border-gray-200 p-1.5 rounded-lg shadow-lg">
-            <button onClick={handleZoomOut} className="p-1.5 hover:bg-gray-100 rounded text-gray-600"><Minimize2 size={16} /></button>
-            <span className="text-xs font-mono w-10 text-center">{Math.round(zoom * 100)}%</span>
-            <button onClick={handleZoomIn} className="p-1.5 hover:bg-gray-100 rounded text-gray-600"><Maximize2 size={16} /></button>
-          </div>
-
-          {/* Resume Container with layout-enforcing wrapper */}
-          <div
-            style={{
-              width: `${A4_WIDTH_PX * zoom}px`,
-              height: `${A4_HEIGHT_PX * zoom}px`,
-              transition: 'width 0.2s, height 0.2s'
-            }}
-            className="relative shrink-0 transition-all duration-200"
-          >
-            <div
-              style={{
-                transform: `scale(${zoom})`,
-                transformOrigin: 'top left',
-                width: '210mm',
-                height: '297mm'
-              }}
-              className="absolute top-0 left-0"
+          {!isLeftSidebarOpen && !isFullscreen && (
+            <button
+              type="button"
+              onClick={() => setIsLeftSidebarOpen(true)}
+              className="hidden md:flex items-center gap-1.5 absolute top-3 left-3 z-20 px-2.5 py-1.5 bg-white/95 backdrop-blur-xs hover:bg-white text-neutral-700 hover:text-neutral-900 border border-neutral-200/90 shadow-xs hover:shadow-md rounded-xl text-xs font-semibold transition-all cursor-pointer animate-fadeIn group"
+              title="Show Left Sidebar (Ctrl+B)"
             >
-              <ResumePreview data={data} template={template} />
-            </div>
-          </div>
+              <PanelLeftOpen size={15} className="text-neutral-600 group-hover:text-neutral-900" />
+              <span>Show Sidebar</span>
+            </button>
+          )}
+
+          <ResumeWorkspace
+            data={data}
+            onChangeData={handleChangeData}
+            template={template}
+            onChangeTemplate={onTemplateChange}
+            zoom={zoom}
+            onZoomIn={handleZoomIn}
+            onZoomOut={handleZoomOut}
+            onResetZoom={handleResetZoom}
+            isFullscreen={isFullscreen}
+            onToggleFullscreen={setIsFullscreen}
+            saveStatus={saveStatus}
+            onSave={onSave ? () => onSave(data) : undefined}
+            onOpenDesignModal={() => setIsDesignModalOpen(true)}
+            canUndo={undoStack.length > 0}
+            canRedo={redoStack.length > 0}
+            onUndo={handleUndo}
+            onRedo={handleRedo}
+            hideToolbar={false}
+            showSectionControls={false}
+          />
         </div>
 
-        {/* Right Panel: Design Tools */}
+        {/* Right Panel: Job Match & ATS Tools */}
         <div className={`
           transition-all duration-300
-          ${isFullscreen ? 'w-0 opacity-0 overflow-hidden' : 'w-full lg:w-80'}
-          ${activeMobileTab === 'design' ? 'flex' : 'hidden lg:flex'}
+          ${isFullscreen ? 'w-0 opacity-0 overflow-hidden' : 'w-full lg:w-96 shrink-0'}
+          ${activeMobileTab === 'job-match' ? 'flex' : 'hidden lg:flex'}
         `}>
           <EditorSidebarRight
             data={data}
-            onChange={onChange}
+            onChange={handleChangeData}
             onSave={onSave}
             onSaveAsTemplate={onSaveAsTemplate}
             currentResumeId={currentResumeId}
@@ -402,55 +790,30 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
           <span className="text-[10px] font-medium">Preview</span>
         </button>
         <button
-          onClick={() => setActiveMobileTab('design')}
-          className={`flex flex-col items-center gap-1 p-2 ${activeMobileTab === 'design' ? 'text-brand-green' : 'text-gray-400'}`}
+          onClick={() => setActiveMobileTab('job-match')}
+          className={`flex flex-col items-center gap-1 p-2 ${activeMobileTab === 'job-match' ? 'text-brand-green' : 'text-gray-400'}`}
         >
-          <Palette size={20} />
-          <span className="text-[10px] font-medium">Design</span>
+          <Target size={20} />
+          <span className="text-[10px] font-medium">Job Match</span>
         </button>
       </div>
 
-      {/* Hidden Print Container */}
-      {/* Hidden Print Container - Rendered via Portal to escape app layout constraints */}
-      {createPortal(
-        <div className="print-root hidden print:block absolute top-0 left-0 w-full h-auto bg-white z-[9999] print:w-full print:max-w-[210mm]">
-          <table className="w-full">
-            <thead>
-              <tr>
-                <td>
-                  {/* Top Margin Spacer (repeats on every page) */}
-                  <div style={{ height: '10mm' }}></div>
-                </td>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <div
-                    className="print-resume"
-                    style={{
-                      fontFamily: data.font || 'Inter, sans-serif',
-                      fontSize: `${data.fontSizes?.body || 9.5}pt`,
-                      lineHeight: data.lineHeight || 1.7,
-                    }}
-                  >
-                    {renderPrintTemplate()}
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-            <tfoot>
-              <tr>
-                <td>
-                  {/* Bottom Margin Spacer (repeats on every page) */}
-                  <div style={{ height: '10mm' }}></div>
-                </td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>,
-        document.body
-      )}
+      {/* Design Customization Slide-Over Modal */}
+      <DesignCustomizationModal
+        isOpen={isDesignModalOpen}
+        onClose={() => setIsDesignModalOpen(false)}
+        data={data}
+        onChangeData={onChange}
+      />
+
+
+      {/* Hidden Print Container - Rendered via PrintPortal to escape app layout constraints */}
+      <PrintPortal
+        data={data}
+        template={template}
+        isPrintingCoverLetter={isPrintingCoverLetter}
+        coverLetterContent={coverLetterContent}
+      />
       {/* Welcome / AI Audit Modal */}
       {showWelcomeModal && onCloseWelcomeModal && createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fadeIn">

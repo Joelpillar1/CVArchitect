@@ -1,3 +1,5 @@
+import type { AgentMessage, JobDescriptionData, JobMatchAnalysis } from './types/resumeAgent';
+
 export interface Experience {
   id: string;
   company: string;
@@ -46,6 +48,21 @@ export interface LanguageItem {
   proficiency: string;
 }
 
+export interface CourseworkItem {
+  id: string;
+  courseName: string;
+  institution?: string;
+  year?: string;
+  skills?: string;
+  description?: string | string[];
+}
+
+export interface ExpertSkillItem {
+  id: string;
+  category: string;
+  skills: string;
+}
+
 export interface ResumeData {
   fullName: string;
   jobTitle: string;
@@ -77,29 +94,70 @@ export interface ResumeData {
     body: number;
   };
   headerCase?: 'uppercase' | 'lowercase' | 'capitalize';
-  sectionHeaderCase?: 'uppercase' | 'lowercase' | 'capitalize';
+  sectionHeaderCase?: 'uppercase' | 'capitalize' | 'titlecase';
   jobTitleCase?: 'uppercase' | 'sentence';
   lineHeight?: number;
   sectionGap?: number;
   headerGap?: number; // Gap between header and body sections
+  bulletStyle?: 'disc' | 'check' | 'dash'; // Bullet/checklist marker style for lists
+  bulletIndent?: number; // Indentation offset for bullets in pixels (e.g. 0, 8, 16, 24)
   headerItemGap?: number; // Gap between name and contact
   headerContactGap?: number; // Gap between contact and job title
   margins?: {
     horizontal: number;
     vertical: number;
   };
-  headerAlignment?: 'left' | 'center' | 'right'; // Alignment for name, title, and contact info
+  headerAlignment?: 'left' | 'center' | 'right'; // Alignment for full header / name
+  jobTitleAlignment?: 'left' | 'center' | 'right'; // Alignment for professional / job title
+  contactAlignment?: 'left' | 'center' | 'right'; // Alignment for contact line / email / phone
   headerOrder?: 'title-first' | 'contact-first'; // Order of job title vs contact line under the name
   bodyHeaderAlignment?: 'left' | 'center' | 'right'; // Alignment for section titles (Experience, Education, etc.)
+  sectionHeaderAlignment?: 'left' | 'center' | 'right'; // Alias for section titles
   contentAlignment?: 'left' | 'center' | 'right'; // Alignment for body content (summary, experience, etc.)
-  skillsColumnCount?: number; // Number of columns for skills section (2 or 3)
+  skillsColumnCount?: number; // Number of columns for skills section (2, 3, or 4)
+  showContactIcons?: boolean; // Toggle contact icons in header
   sectionOrder?: string[]; // Order of sections
   currentTag?: string; // For tagging saved templates
+  resumeTitle?: string; // Human-friendly display title for the resume
   template?: TemplateType; // Selected template
   version_number?: number; // Current version number
   version_name?: string | null; // Optional version name/tag
+  pageSize?: 'letter' | 'a4'; // Paper format size
+  viewAsPages?: boolean; // Page break view mode
   source?: 'upload' | 'scratch'; // How this resume was created (for analytics behavior)
   hasJobMatchRun?: boolean; // Whether AI job match rewrite has been run
+  agentMessages?: AgentMessage[];
+  agentJobData?: JobDescriptionData | null;
+  agentAnalysis?: JobMatchAnalysis | null;
+  agentMemory?: import('./utils/resumeAgentMemory').ResumeAgentMemory;
+  // Extended section fields (Phase 1 additive foundation)
+  technicalSkills?: string;
+  expertSkills?: ExpertSkillItem[] | string;
+  coreCompetencies?: string;
+  toolsAndTechnologies?: string;
+  licenses?: Certification[];
+  awards?: string[] | string;
+  volunteering?: Experience[];
+  memberships?: Certification[];
+  publications?: string[] | string;
+  conferencesSpeaking?: string[] | string;
+  research?: Experience[];
+  teaching?: Experience[];
+  coursework?: CourseworkItem[] | string;
+  thesis?: string;
+  academicAchievements?: string[] | string;
+  portfolio?: Project[];
+  caseStudies?: Project[];
+  selectedWork?: Project[];
+  patents?: Certification[];
+  grants?: Certification[];
+  securityClearance?: string;
+  military?: Experience[];
+  clinicalExperience?: Experience[];
+  interests?: string;
+  customSections?: Record<string, import('./types/resumeSections').CustomSectionData>;
+  sectionVisibility?: Record<string, boolean>;
+  sectionTitles?: Record<string, string>;
 }
 
 export interface SavedTemplate {
@@ -130,6 +188,7 @@ export type TemplateType =
   | 'elegant'
   | 'minimalist'
   | 'professional'
+  | 'times'
   | 'twocolumn'
   | 'freshgrad1'
   | 'freshgrad2'
@@ -221,24 +280,28 @@ export const INITIAL_DATA: ResumeData = {
     header: 18,       // Header / Name
     jobTitle: 11,     // Job title
     sectionTitle: 11, // Section title
-    body: 9.5,        // Body text, bullets, company & job title
+    body: 8,          // Body text, bullets, company & job title
   },
-  lineHeight: 1.7,
-  sectionGap: 0.16,
+  lineHeight: 1.5,
+  sectionGap: 0.1,
   headerGap: 0.08,
-  headerItemGap: 0.01,
-  headerContactGap: 0.02,
+  bulletStyle: 'disc',
+  bulletIndent: 0,
+  headerItemGap: 0.04,
+  headerContactGap: 0.04,
   margins: {
-    horizontal: 0.5,
-    vertical: 0.5,
+    horizontal: 25 / 96,
+    vertical: 25 / 96,
   },
   currentTag: '',
   language: 'en',
   accentColor: '#000000',
-  headerAlignment: 'left',
+  headerAlignment: 'center',
+  contactAlignment: 'center',
   bodyHeaderAlignment: 'left',
   contentAlignment: 'left',
   skillsColumnCount: 3,
+  showContactIcons: true,
   sectionOrder: [
     'summary',         // Professional Summary
     'keyAchievements', // Key Achievements
@@ -254,3 +317,71 @@ export const INITIAL_DATA: ResumeData = {
   source: 'scratch',
   hasJobMatchRun: false,
 };
+
+/**
+ * Creates a clean, truthful, empty ResumeData object with zero placeholder/demo text.
+ */
+export const createEmptyResume = (): ResumeData => ({
+  fullName: '',
+  jobTitle: '',
+  email: '',
+  phone: '',
+  atHandle: '',
+  linkedin: '',
+  location: '',
+  address: '',
+  summary: '',
+  experience: [],
+  education: [],
+  skills: '',
+  certifications: [],
+  projects: [],
+  leadership: [],
+  additionalInfo: [],
+  keyAchievements: [],
+  jobDescription: '',
+  referee: '',
+  font: 'Merriweather, serif',
+  fontSizes: {
+    header: 18,
+    jobTitle: 11,
+    sectionTitle: 11,
+    body: 8,
+  },
+  lineHeight: 1.5,
+  sectionGap: 0.1,
+  headerGap: 0.08,
+  bulletStyle: 'disc',
+  bulletIndent: 0,
+  headerItemGap: 0.04,
+  headerContactGap: 0.04,
+  margins: {
+    horizontal: 25 / 96,
+    vertical: 25 / 96,
+  },
+  currentTag: '',
+  language: 'en',
+  accentColor: '#000000',
+  headerAlignment: 'center',
+  contactAlignment: 'center',
+  bodyHeaderAlignment: 'left',
+  contentAlignment: 'left',
+  skillsColumnCount: 3,
+  showContactIcons: true,
+  sectionOrder: [
+    'summary',
+    'keyAchievements',
+    'skills',
+    'experience',
+    'education',
+    'certifications',
+    'projects',
+    'additionalInfo',
+    'references'
+  ],
+  source: 'scratch',
+  hasJobMatchRun: false,
+});
+
+export const EMPTY_RESUME_DATA: ResumeData = createEmptyResume();
+export const DEMO_RESUME_DATA: ResumeData = INITIAL_DATA;
