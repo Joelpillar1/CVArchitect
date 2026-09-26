@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { GeneratedCoverLetter } from '../../utils/aiEnhancer';
+import { GeneratedCoverLetter } from '../utils/aiEnhancer';
 import { Check } from 'lucide-react';
 
 interface StructuredCoverLetterProps {

@@ -4,6 +4,7 @@ export interface Experience {
   id: string;
   company: string;
   role: string;
+  organization?: string; // Alias for company, used by leadership/volunteering/military items
   location?: string;
   roleSummary?: string;
   startDate: string;
@@ -31,6 +32,7 @@ export interface Certification {
 export interface Project {
   id: string;
   name: string;
+  role?: string; // Contributor/lead role on the project
   description: string;
   link?: string;
   technologies?: string;

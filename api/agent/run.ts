@@ -12,6 +12,7 @@ import { detectUserIntent } from '../../utils/intentDetector';
 import { getResponseMode, getResponseModeDirectives } from '../../utils/responseMode';
 import { resolveAgentTask, detectParsingQualityIssues } from '../../utils/taskRequirements';
 import { getResumePriorities } from '../../utils/resumePriorities';
+import { handleTaskTurn } from '../../utils/agentTaskState';
 
 /**
  * POST /api/agent/run — the CVArchitect Agent's streaming endpoint (Vercel Node).
@@ -255,7 +256,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   let evidenceBlock = '';
   if (requiresResumeEvidence(intent, message, task)) {
     const requiredSections = determineRequiredResumeSections(intent, message, task, workingResume);
-    const evidenceSnapshot = extractResumeEvidence(workingResume, requiredSections, workingResume.revision);
+    const evidenceSnapshot = extractResumeEvidence(workingResume, requiredSections, (workingResume as any).revision);
     evidenceBlock = formatResumeEvidenceBlock(evidenceSnapshot);
   }
 

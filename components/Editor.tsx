@@ -51,6 +51,11 @@ interface EditorProps {
   userSubscription: UserSubscription;
   onAIAction: (action: 'ai_rewrite' | 'cv_regeneration' | 'cover_letter' | 'bullet_optimization') => boolean;
   onShowPaywall?: (feature: 'templates' | 'job-match' | 'general' | 'credits' | 'export') => void;
+  /** Render inside a fixed-size container (the /agent hero preview) instead of
+   *  owning the viewport. The root fills its parent, the global side effects the
+   *  real route relies on (document title, page-wide keyboard shortcuts, editor
+   *  preference persistence) are skipped, and nothing is written to storage. */
+  embedded?: boolean;
 }
 
 export type EditorTab = 'personal' | 'summary' | 'education' | 'experience' | 'achievements' | 'skills' | 'certifications' | 'additionalInfo' | 'references' | 'projects' | 'leadership' | 'design' | 'job-match' | (string & {}) | '' | null;
@@ -63,15 +68,15 @@ import { saveToStorage, loadFromStorage } from '../utils/statePersistence';
 import { exportResumeToPdf, exportCoverLetterToPdf, printResumeToPdf, exportResumeToPlainText } from '../utils/pdfExport';
 import { exportResumeToDocx } from '../utils/docxExport';
 
-export default function Editor({ data, onChange, template, onTemplateChange, onBack, onSave, onSaveAsTemplate, currentResumeId, showWelcomeModal, onCloseWelcomeModal, auditResult, userSubscription, onAIAction, onShowPaywall }: EditorProps) {
+export default function Editor({ data, onChange, template, onTemplateChange, onBack, onSave, onSaveAsTemplate, currentResumeId, showWelcomeModal, onCloseWelcomeModal, auditResult, userSubscription, onAIAction, onShowPaywall, embedded = false }: EditorProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isDesignModalOpen, setIsDesignModalOpen] = useState(false);
   const location = useLocation();
   const [activeMobileTabState, setActiveMobileTabState] = useState<'editor' | 'preview' | 'job-match'>(() => {
-    return loadFromStorage<'editor' | 'preview' | 'job-match'>('editor_activeMobileTab', 'editor');
+    return embedded ? 'editor' : loadFromStorage<'editor' | 'preview' | 'job-match'>('editor_activeMobileTab', 'editor');
   });
   const [activeTabState, setActiveTabState] = useState<EditorTab>(() => {
-    return loadFromStorage<EditorTab>('editor_activeTab', 'personal');
+    return embedded ? 'personal' : loadFromStorage<EditorTab>('editor_activeTab', 'personal');
   });
   const [isDownloading, setIsDownloading] = useState(false);
   const [isDownloadMenuOpen, setIsDownloadMenuOpen] = useState(false);
@@ -80,7 +85,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
   const [coverLetterContent, setCoverLetterContent] = useState<string>('');
   const [isPrintingCoverLetter, setIsPrintingCoverLetter] = useState(false);
   const [zoomState, setZoomStateInternal] = useState(() => {
-    return loadFromStorage<number>('editor_zoom', 1);
+    return embedded ? 1 : loadFromStorage<number>('editor_zoom', 1);
   });
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -183,6 +188,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
 
   // Global Keyboard Shortcuts (Undo: Ctrl+Z / Cmd+Z, Redo: Ctrl+Y / Ctrl+Shift+Z / Cmd+Shift+Z)
   React.useEffect(() => {
+    if (embedded) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       const isInput = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
@@ -207,26 +213,28 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleUndo, handleRedo]);
+  }, [handleUndo, handleRedo, embedded]);
 
   // Wrapper functions that persist immediately
+  // Preference writers are no-ops when embedded: the landing-page preview must
+  // never overwrite the visitor's real editor preferences in localStorage.
   const setActiveTab = React.useCallback((tab: EditorTab) => {
     setActiveTabState(tab);
-    saveToStorage('editor_activeTab', tab);
-  }, []);
+    if (!embedded) saveToStorage('editor_activeTab', tab);
+  }, [embedded]);
 
   const setZoom = React.useCallback((zoom: number | ((prev: number) => number)) => {
     setZoomStateInternal(prev => {
       const newZoom = typeof zoom === 'function' ? zoom(prev) : zoom;
-      saveToStorage('editor_zoom', newZoom);
+      if (!embedded) saveToStorage('editor_zoom', newZoom);
       return newZoom;
     });
-  }, []);
+  }, [embedded]);
 
   const setActiveMobileTab = React.useCallback((tab: 'editor' | 'preview' | 'job-match') => {
     setActiveMobileTabState(tab);
-    saveToStorage('editor_activeMobileTab', tab);
-  }, []);
+    if (!embedded) saveToStorage('editor_activeMobileTab', tab);
+  }, [embedded]);
 
   // Use the state variables
   const activeTab = activeTabState;
@@ -238,16 +246,16 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
   const handleResetZoom = () => setZoom(1);
 
   const [isLeftSidebarOpenState, setIsLeftSidebarOpenState] = useState(() => {
-    return loadFromStorage<boolean>('editor_isLeftSidebarOpen', true);
+    return embedded ? true : loadFromStorage<boolean>('editor_isLeftSidebarOpen', true);
   });
 
   const setIsLeftSidebarOpen = React.useCallback((open: boolean | ((prev: boolean) => boolean)) => {
     setIsLeftSidebarOpenState(prev => {
       const next = typeof open === 'function' ? open(prev) : open;
-      saveToStorage('editor_isLeftSidebarOpen', next);
+      if (!embedded) saveToStorage('editor_isLeftSidebarOpen', next);
       return next;
     });
-  }, []);
+  }, [embedded]);
 
   const isLeftSidebarOpen = isLeftSidebarOpenState;
 
@@ -267,14 +275,16 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
   };
 
   React.useEffect(() => {
+    if (embedded) return;
     document.title = `${data.fullName} - Resume`;
     return () => {
       document.title = 'CV Architect';
     };
-  }, [data.fullName]);
+  }, [data.fullName, embedded]);
 
   // Shortcuts: Ctrl+S to save, Ctrl+B / Ctrl+\ to toggle left sidebar
   React.useEffect(() => {
+    if (embedded) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
         e.preventDefault();
@@ -286,7 +296,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleSaveClick, setIsLeftSidebarOpen]);
+  }, [handleSaveClick, setIsLeftSidebarOpen, embedded]);
 
   const handleDownload = async () => {
     if (!canAccessTemplate(userSubscription.planId, template)) {
@@ -402,7 +412,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
   };
 
   return (
-    <div className="flex flex-col h-screen h-[100dvh] w-full bg-brand-bg">
+    <div className={embedded ? 'flex flex-col h-full w-full bg-brand-bg overflow-hidden' : 'flex flex-col h-screen h-[100dvh] w-full bg-brand-bg'}>
       {/* Global Header / Main Top Bar */}
       <div className="h-14 border-b border-brand-border flex items-center justify-between px-3 sm:px-4 bg-white shrink-0 z-40 shadow-2xs gap-2 relative">
         {/* Left: Back Arrow */}

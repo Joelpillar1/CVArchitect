@@ -27,7 +27,8 @@ import { BorderBeam } from 'border-beam';
 import { useAuth } from '../contexts/AuthContext';
 import SEO from './SEO';
 import PublicFooter from './PublicFooter';
-import ResumeAgentPage, { normalizeResumeData } from '../pages/ResumeAgentPage';
+import { normalizeResumeData } from '../pages/ResumeAgentPage';
+import EditorHeroPreview from './EditorHeroPreview';
 import { parseResume } from '../utils/resumeParser';
 import { ResumeData, INITIAL_DATA, createEmptyResume } from '../types';
 import { PLANS, PAID_PLAN_FEATURES, FOUNDATION_FEATURES, formatPlanPrice } from '../utils/pricingConfig';
@@ -760,31 +761,23 @@ export default function AgentLandingPage() {
               {/* Top accent hairline */}
               <div className="h-px w-full bg-gradient-to-r from-transparent via-brand-green/80 to-transparent" />
 
-              {user ? (
-                <div className="h-[560px] sm:h-[620px] overflow-hidden bg-white">
-                  {/* The REAL /resume-agent workspace, rendered inline — every
-                      function (toolbar, chat, redline review, inline rewrite,
-                      save/export) behaves exactly as it does on the route. */}
-                  <ResumeAgentPage embedded />
-                </div>
-              ) : (
-                <div className="relative">
-                  <img
-                    src="/images/agent-app-preview.png"
-                    alt="CV Architect Resume Agent — tailored resume preview with AI chat sidebar"
-                    className="w-full h-auto block"
-                  />
+              {/* The /dashboard/editor workspace itself — a clone of the route,
+                  shown to everyone (signed in or out) so any visitor can see the
+                  product. Writes inside it route to signup. */}
+              <div className="relative bg-white">
+                <EditorHeroPreview />
+                {!user && (
                   <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/45 via-transparent to-transparent flex items-end justify-center pb-6 pointer-events-none">
                     <button
-                      onClick={() => navigate('/signup?redirect=/resume-agent')}
+                      onClick={() => navigate('/signup?redirect=/dashboard/editor')}
                       className="pointer-events-auto inline-flex items-center gap-2 pl-5 pr-4 py-2.5 rounded-full bg-white hover:bg-brand-secondary text-brand-dark text-sm font-bold border border-brand-border shadow-[0_12px_32px_-10px_rgba(51,60,77,0.35)] transition-all"
                     >
                       Sign in to try it live
                       <ArrowRight className="w-4 h-4 text-brand-green" />
                     </button>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             {/* Bottom full-width horizontal line */}
@@ -1057,11 +1050,14 @@ export default function AgentLandingPage() {
               <div className="absolute left-0 top-0 bottom-0 w-24 sm:w-40 bg-gradient-to-r from-brand-bg via-brand-bg/80 to-transparent z-10 pointer-events-none" />
               <div className="absolute right-0 top-0 bottom-0 w-24 sm:w-40 bg-gradient-to-l from-brand-bg via-brand-bg/80 to-transparent z-10 pointer-events-none" />
 
-              <div className="flex animate-marquee w-max hover:[animation-play-state:paused]">
+              {/* Slower than the default 50s so the larger previews drift at the same
+                  reading pace — set inline because the shared `animate-marquee`
+                  utility hard-codes the duration in the Tailwind shorthand. */}
+              <div className="flex animate-marquee w-max" style={{ animationDuration: '80s' }}>
                 {[0, 1].map((dup) => (
                   <div key={dup} className="flex shrink-0">
                     {templateImages.map((src, i) => (
-                      <div key={`${dup}-${i}`} className="w-[260px] sm:w-[320px] shrink-0 mx-3">
+                      <div key={`${dup}-${i}`} className="w-[300px] sm:w-[400px] lg:w-[480px] shrink-0 mx-3">
                         <img
                           src={src}
                           alt={`CVArchitect resume template ${i + 1}`}

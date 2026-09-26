@@ -1,15 +1,19 @@
 export type WorkplaceType = 'Remote' | 'Hybrid' | 'On-site';
-export type JobType = 'Full-time' | 'Part-time' | 'Contract' | 'Internship';
-export type ExperienceLevel = 'Entry Level' | 'Mid Level' | 'Senior' | 'Lead / Staff' | 'Executive';
+export type JobType = 'Full-time' | 'FullTime' | 'Part-time' | 'Contract' | 'Internship';
+export type ExperienceLevel = 'Entry Level' | 'Junior Level' | 'Mid Level' | 'Senior' | 'Senior Level' | 'Lead / Staff' | 'Executive';
 export type Department =
   | 'Engineering'
+  | 'Design'
   | 'Design & UX'
   | 'Product'
   | 'AI & Data'
   | 'Marketing'
+  | 'Sales'
   | 'Sales & Growth'
-  | 'Operations'
   | 'Finance'
+  | 'Operations'
+  | 'Legal'
+  | 'HR'
   /** Catch-all for real postings whose department matches no known bucket. Preferred over
    *  forcing unrelated roles (legal, facilities, teaching) into a misleading category. */
   | 'Other';
@@ -44,6 +48,7 @@ export interface Job {
   benefits: string[];
   skills: string[];
   postedDate: string; // e.g., '1 day ago', '3 days ago'
+  isActive?: boolean; // Whether the job listing is currently active (admin field)
   featured?: boolean;
   urgent?: boolean;
   applicantsCount?: number;
@@ -53,7 +58,7 @@ export interface Job {
 
   // ---- Provenance for jobs pulled live from a company's own career page ----
   /** Which applicant-tracking system the posting was read from. */
-  sourceProvider?: 'greenhouse' | 'lever' | 'ashby' | 'html';
+  sourceProvider?: 'greenhouse' | 'lever' | 'ashby' | 'html' | 'manual';
   /** The employer's own careers page / posting URL. */
   sourceUrl?: string;
   /** ISO timestamp the posting was first published by the employer. */

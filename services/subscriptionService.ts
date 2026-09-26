@@ -5,6 +5,17 @@ import { UserSubscription } from '../types/pricing';
  * Subscription Service - Manages user subscriptions
  */
 
+export interface BillingHistoryItem {
+  id: string;
+  amount: number;
+  currency: string;
+  status: 'paid' | 'pending' | 'failed' | 'refunded';
+  date: string; // ISO date string
+  description: string;
+  invoiceUrl?: string;
+  receiptUrl?: string;
+}
+
 export const subscriptionService = {
     async getSubscription(userId: string): Promise<UserSubscription | null> {
         try {

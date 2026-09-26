@@ -204,6 +204,7 @@ function getResumeChatStorageKey(resumeId?: string | null, resumeData?: ResumeDa
 export default function EditorSidebarRight({
     data,
     onChange,
+    onSave,
     onAIAction,
     currentResumeId
 }: EditorSidebarRightProps) {
@@ -1135,18 +1136,8 @@ RULES:
 
         try {
             const result = await tailorResumeToJob(
-                {
-                    fullName: data.fullName,
-                    jobTitle: data.jobTitle,
-                    summary: data.summary,
-                    experience: data.experience,
-                    skills: data.skills,
-                    keyAchievements: data.keyAchievements || '',
-                    projects: data.projects,
-                    leadership: data.leadership,
-                    additionalInfo: data.additionalInfo,
-                },
-                data.jobDescription
+                data,
+                data.jobDescription || ''
             );
 
             const tailoredData = { ...data, hasJobMatchRun: true };
