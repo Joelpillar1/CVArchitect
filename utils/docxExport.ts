@@ -746,7 +746,7 @@ export function buildResumeDocxDocument(data: ResumeData): Document {
       const expertItems = parseExpertSkillItems(data.expertSkills);
       for (const item of expertItems) {
         if (!item.category && !item.skills) continue;
-        const runs: TextRun[] = [];
+        const runs: (TextRun | ExternalHyperlink)[] = [];
         if (item.category) {
           runs.push(
             new TextRun({

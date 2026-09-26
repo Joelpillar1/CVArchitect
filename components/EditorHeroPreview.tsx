@@ -44,7 +44,10 @@ export default function EditorHeroPreview() {
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
-    const measure = () => setScale(host.clientWidth / PREVIEW_VIEWPORT_WIDTH);
+    // Never upscale past 1:1 — a blurry blown-up editor reads worse than a
+    // smaller, crisp one on ultra-wide displays.
+    const measure = () =>
+      setScale(Math.min(1, host.clientWidth / PREVIEW_VIEWPORT_WIDTH));
     measure();
     if (typeof ResizeObserver === 'undefined') return;
     const observer = new ResizeObserver(measure);

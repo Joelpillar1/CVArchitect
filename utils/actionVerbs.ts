@@ -417,7 +417,6 @@ export function getAllResumeBullets(data: ResumeData | null | undefined): Bullet
   // 3. Bullet-list sections (keyAchievements, awards, publications, etc.)
   const bulletSections: (keyof ResumeData)[] = [
     'keyAchievements',
-    'achievements',
     'awards',
     'publications',
     'conferencesSpeaking',
@@ -528,11 +527,11 @@ export function detectActionVerbDomain(contextText: string): ActionVerbDomain {
  * Returns a list of diverse, high-impact action verbs that have NOT been used on the resume.
  */
 export function getRecommendedActionVerbs(options: {
-  usedVerbs: Set<string> | string[];
+  usedVerbs?: Set<string> | string[];
   domain?: ActionVerbDomain;
   count?: number;
 }): string[] {
-  const { usedVerbs, domain = 'general', count = 10 } = options;
+  const { usedVerbs = [], domain = 'general', count = 10 } = options;
   const usedSet = usedVerbs instanceof Set ? usedVerbs : new Set(usedVerbs.map(v => v.toLowerCase()));
 
   // Prioritize category matching the domain

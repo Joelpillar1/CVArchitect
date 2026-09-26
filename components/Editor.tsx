@@ -415,16 +415,20 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
     <div className={embedded ? 'flex flex-col h-full w-full bg-brand-bg overflow-hidden' : 'flex flex-col h-screen h-[100dvh] w-full bg-brand-bg'}>
       {/* Global Header / Main Top Bar */}
       <div className="h-14 border-b border-brand-border flex items-center justify-between px-3 sm:px-4 bg-white shrink-0 z-40 shadow-2xs gap-2 relative">
-        {/* Left: Back Arrow */}
+        {/* Left: Back Arrow. Embedded previews drop it — there is no previous
+            page to return to from the landing hero. The empty flex spacer stays
+            so justify-between still pins the actions to the right edge. */}
         <div className="flex items-center gap-2 shrink-0">
-          <button
-            type="button"
-            onClick={onBack}
-            className="p-1.5 hover:bg-neutral-100 rounded-lg transition-colors text-neutral-600 hover:text-neutral-900 cursor-pointer shrink-0"
-            title="Go back"
-          >
-            <ChevronLeft size={20} />
-          </button>
+          {!embedded && (
+            <button
+              type="button"
+              onClick={onBack}
+              className="p-1.5 hover:bg-neutral-100 rounded-lg transition-colors text-neutral-600 hover:text-neutral-900 cursor-pointer shrink-0"
+              title="Go back"
+            >
+              <ChevronLeft size={20} />
+            </button>
+          )}
         </div>
 
         {/* Middle: Resume Naming Section */}
@@ -702,11 +706,15 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
       {/* Main Workspace */}
       <div className="flex flex-1 overflow-hidden">
 
-        {/* Left Panel: Accordion Editor */}
+        {/* Left Panel: Accordion Editor. Embedded previews pin every pane to its
+            desktop layout (this is a 1728px-wide canvas scaled to fit the frame),
+            so a phone shows the same three-pane editor a laptop does. */}
         <div className={`
           border-r border-brand-border bg-white flex-col transition-all duration-300 shrink-0
-          ${isFullscreen || !isLeftSidebarOpen ? 'w-0 opacity-0 overflow-hidden border-none' : 'w-full md:w-96'}
-          ${activeMobileTab === 'editor' ? 'flex' : (isLeftSidebarOpen && !isFullscreen ? 'hidden md:flex' : 'hidden')}
+          ${isFullscreen || !isLeftSidebarOpen ? 'w-0 opacity-0 overflow-hidden border-none' : embedded ? 'w-96' : 'w-full md:w-96'}
+          ${embedded
+            ? (isLeftSidebarOpen && !isFullscreen ? 'flex' : 'hidden')
+            : activeMobileTab === 'editor' ? 'flex' : (isLeftSidebarOpen && !isFullscreen ? 'hidden md:flex' : 'hidden')}
         `}>
           <EditorSidebarLeft
             activeTab={activeTab}
@@ -726,7 +734,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
         {/* Middle Panel: Canvas/Preview with Word-like Live In-Place Editing & Floating Figma Toolbar */}
         <div className={`
           flex-1 bg-brand-bg flex-col h-full overflow-hidden relative
-          ${activeMobileTab === 'preview' ? 'flex' : 'hidden md:flex'}
+          ${embedded || activeMobileTab === 'preview' ? 'flex' : 'hidden md:flex'}
         `}>
           {!isLeftSidebarOpen && !isFullscreen && (
             <button
@@ -766,8 +774,8 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
         {/* Right Panel: Job Match & ATS Tools */}
         <div className={`
           transition-all duration-300
-          ${isFullscreen ? 'w-0 opacity-0 overflow-hidden' : 'w-full lg:w-96 shrink-0'}
-          ${activeMobileTab === 'job-match' ? 'flex' : 'hidden lg:flex'}
+          ${isFullscreen ? 'w-0 opacity-0 overflow-hidden' : embedded ? 'w-96 shrink-0' : 'w-full lg:w-96 shrink-0'}
+          ${embedded || activeMobileTab === 'job-match' ? 'flex' : 'hidden lg:flex'}
         `}>
           <EditorSidebarRight
             data={data}
@@ -783,8 +791,9 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
 
       </div>
 
-      {/* Mobile Bottom Navigation */}
-      <div className="md:hidden h-16 bg-white border-t border-brand-border flex items-center justify-around shrink-0 z-30 sticky bottom-0 pb-safe">
+      {/* Mobile Bottom Navigation (the embedded preview always renders the
+          desktop layout, so it never shows the mobile tab bar) */}
+      <div className={`${embedded ? 'hidden' : 'md:hidden flex'} h-16 bg-white border-t border-brand-border items-center justify-around shrink-0 z-30 sticky bottom-0 pb-safe`}>
         <button
           onClick={() => setActiveMobileTab('editor')}
           className={`flex flex-col items-center gap-1 p-2 ${activeMobileTab === 'editor' ? 'text-brand-green' : 'text-gray-400'}`}
