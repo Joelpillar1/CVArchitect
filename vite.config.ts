@@ -144,6 +144,29 @@ export default defineConfig(({ mode }) => {
         '@': path.resolve(__dirname, '.'),
       }
     },
+    build: {
+      chunkSizeWarningLimit: 1600,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('pdfjs-dist') || id.includes('jspdf') || id.includes('html2canvas') || id.includes('docx') || id.includes('mammoth') || id.includes('tesseract.js')) {
+                return 'vendor-document-parsers';
+              }
+              if (id.includes('framer-motion') || id.includes('lucide-react') || id.includes('border-beam') || id.includes('canvas-confetti')) {
+                return 'vendor-ui';
+              }
+              if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom') || id.includes('react-helmet-async')) {
+                return 'vendor-react';
+              }
+              if (id.includes('@supabase') || id.includes('openai') || id.includes('@openai')) {
+                return 'vendor-client-api';
+              }
+            }
+          },
+        },
+      },
+    },
     test: {
       globals: true,
       exclude: ['**/node_modules/**', '**/dist/**', '**/reactive-resume-main/**', '**/bentopdf-main/**'],
