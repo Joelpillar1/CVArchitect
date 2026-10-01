@@ -28,7 +28,9 @@ export default function PublicHeader({ variant = 'default' }: PublicHeaderProps)
 
     const handleNavigation = (path: string) => {
         if (path.startsWith('/#')) {
-            navigate('/');
+            const currentIsCvArchitect = window.location.pathname === '/cvarchitect';
+            const targetBase = currentIsCvArchitect ? '/cvarchitect' : '/';
+            navigate(targetBase);
             setTimeout(() => {
                 const id = path.substring(2);
                 document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -46,6 +48,7 @@ export default function PublicHeader({ variant = 'default' }: PublicHeaderProps)
 
     const navLinks = [
         { label: 'Features', path: '/#features' },
+        { label: 'Jobs', path: '/#jobs' },
         { label: 'The Difference', path: '/#the-difference' },
         { label: 'Pricing', path: '/pricing' },
         { label: 'Blog', path: '/blog' },

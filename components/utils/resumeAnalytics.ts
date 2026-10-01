@@ -20,9 +20,8 @@ export interface AnalyticsResult {
         experience: number;
         education: number;
         skills: number;
-        achievements: number;
-        projects: number;
-        certifications: number;
+        projects?: number;
+        certifications?: number;
     };
     keywords: {
         actionVerbs: number;
@@ -49,8 +48,12 @@ const STOP_WORDS = [
     'were', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'your', 'ours', 'items',
     'stuff', 'being', 'going', 'would', 'could', 'their', 'they', 'them', 'this', 'that', 'these',
     'those', 'am', 'is', 'be', 'been', 'my', 'me', 'we', 'us', 'our', 'it', 'its', 'you', 'he',
-    'him', 'his', 'she', 'her', 'hers', 'work', 'job', 'role', 'position', 'experience', 'year',
-    'years', 'team', 'company', 'business', 'client', 'clients', 'project', 'projects'
+    'him', 'his', 'she', 'her', 'hers', 'work', 'job', 'role', 'roles', 'position', 'positions', 'experience', 'year',
+    'years', 'team', 'teams', 'company', 'companies', 'business', 'client', 'clients', 'project', 'projects',
+    'candidate', 'candidates', 'applicant', 'applicants', 'opportunity', 'opportunities', 'responsibilities',
+    'requirements', 'qualifications', 'duties', 'minimum', 'preferred', 'required', 'ability', 'working',
+    'including', 'across', 'within', 'using', 'support', 'ensure', 'provide', 'providing', 'degree',
+    'equal', 'employer', 'salary', 'benefits', 'location', 'apply', 'today', 'join'
 ];
 
 const ACTION_VERBS = [
@@ -123,32 +126,60 @@ export function analyzeResume(data: ResumeData): AnalyticsResult {
     };
 }
 
-function calculateSectionScores(data: ResumeData) {
+function calculateSectionScores(data: ResumeData): AnalyticsResult['sectionScores'] {
     // Count skills properly (trim and filter empty entries)
     const skillCount = data.skills
         ? data.skills.split(',').map(s => s.trim()).filter(s => s.length > 0).length
         : 0;
 
-    // Count achievement lines properly (handle both string and array formats)
-    let achievementLines = 0;
-    if (data.keyAchievements) {
-        if (Array.isArray(data.keyAchievements)) {
-            achievementLines = data.keyAchievements.filter(line => line.trim().length > 0).length;
-        } else if (typeof data.keyAchievements === 'string') {
-            achievementLines = data.keyAchievements.split('\n').filter(line => line.trim().length > 0).length;
-        }
-    }
-
-    return {
+    const scores: AnalyticsResult['sectionScores'] = {
         personalInfo: calculatePersonalInfoScore(data),
         summary: data.summary ? Math.min(100, Math.max(0, (data.summary.length / 150) * 100)) : 0, // Aim for ~150 chars min (more achievable)
         experience: calculateExperienceScore(data),
-        education: data.education.length > 0 ? 100 : 0,
+        education: data.education && data.education.length > 0 ? 100 : 0,
         skills: skillCount >= 9 ? 100 : Math.min(100, (skillCount / 9) * 100), // 100 points at 9+ skills
-        achievements: achievementLines >= 3 ? 100 : Math.min(100, (achievementLines / 3) * 100), // 100 points at 3+ achievements
-        projects: data.projects && data.projects.length > 0 ? 100 : 50, // Projects are optional but good
-        certifications: data.certifications && data.certifications.length > 0 ? 100 : 50 // Optional
     };
+
+    // Only include optional sections if user has added items for them
+    if (Array.isArray(data.projects) && data.projects.length > 0) {
+        scores.projects = calculateProjectsScore(data);
+    }
+
+    if (Array.isArray(data.certifications) && data.certifications.length > 0) {
+        scores.certifications = calculateCertificationsScore(data);
+    }
+
+    return scores;
+}
+
+function calculateProjectsScore(data: ResumeData): number {
+    if (!data.projects || data.projects.length === 0) return 0;
+
+    let score = 60; // Base score for having projects
+    if (data.projects.length >= 2) score += 20;
+    else if (data.projects.length >= 1) score += 10;
+
+    const hasDetailedDesc = data.projects.some(p => {
+        const descText = getDescriptionText(p.description);
+        return descText.length > 50;
+    });
+    if (hasDetailedDesc) score += 15;
+
+    const hasTechOrLink = data.projects.some(p => (p.technologies && p.technologies.trim().length > 0) || (p.link && p.link.trim().length > 0));
+    if (hasTechOrLink) score += 15;
+
+    return Math.min(100, score);
+}
+
+function calculateCertificationsScore(data: ResumeData): number {
+    if (!data.certifications || data.certifications.length === 0) return 0;
+
+    let score = 70; // Base score for having certifications
+    if (data.certifications.length >= 2) score += 20;
+    const hasIssuer = data.certifications.some(c => c.issuer && c.issuer.trim().length > 0);
+    if (hasIssuer) score += 10;
+
+    return Math.min(100, score);
 }
 
 function calculatePersonalInfoScore(data: ResumeData): number {
@@ -196,7 +227,7 @@ function calculateRelevance(data: ResumeData) {
         data.skills,
         data.keyAchievements || '',
         ...data.experience.map(e => getDescriptionText(e.description)),
-        ...data.projects?.map(p => p.description) || []
+        ...data.projects?.map(p => getDescriptionText(p.description)) || []
     ].join(' ').toLowerCase();
 
     const resultKeywords = {
@@ -238,7 +269,6 @@ function calculateRelevance(data: ResumeData) {
 
     // 3. Calculate Score
     let totalPossibleWeight = (criticalKeywords.length * 3) + (bonusKeywords.length * 1);
-    // Safety cap to avoid huge denominators
     totalPossibleWeight = Math.max(1, totalPossibleWeight);
 
     let earnedWeight = 0;
@@ -249,8 +279,6 @@ function calculateRelevance(data: ResumeData) {
         if (resumeText.includes(kw)) {
             earnedWeight += 3;
         } else {
-            // Only add to missing list if it's a known skill or very frequent word
-            // limiting to top 10 to avoid noise
             if (missing.length < 10) missing.push(kw);
         }
     });
@@ -262,26 +290,15 @@ function calculateRelevance(data: ResumeData) {
         }
     });
 
-    // Normalize to 0-100
-    let matchScore = (earnedWeight / totalPossibleWeight) * 100;
+    // Coverage ratio: 0.0 (no overlap) to 1.0 (strong overlap >= 50% of JD terms)
+    const coverageRatio = Math.min(1, Math.max(0, earnedWeight / Math.max(1, totalPossibleWeight * 0.50)));
 
-    // Base score boost for having 4+ experiences (shows commitment and depth)
-    const experienceBoost = data.experience.length >= 4 ? 15 : 0;
-    matchScore += experienceBoost;
+    // Progressively scales from 55% baseline (initial JD paste) up to 96% as sections are updated
+    let matchScore = Math.round(55 + (coverageRatio * 41));
 
     if (data.hasJobMatchRun) {
-        // More generous boost curve for tailored resumes (90-98%)
-        matchScore = Math.min(98, Math.round(Math.pow(matchScore / 100, 0.6) * 100));
-        if (matchScore < 90) {
-            const clampedBase = Math.max(0, Math.min(89, matchScore));
-            const normalized = clampedBase / 89;
-            const extra = Math.round(normalized * 4);
-            matchScore = 90 + extra;
-        }
-        matchScore = Math.min(98, matchScore);
-    } else {
-        // Untailored baseline match score (clean 45-85% range)
-        matchScore = Math.min(85, Math.max(45, Math.round(matchScore * 0.9)));
+        // When AI full-tailoring is completed, ensure 94-98% top band
+        matchScore = Math.min(98, Math.max(94, matchScore + 3));
     }
 
     resultKeywords.missingKeywords = missing;
@@ -318,10 +335,6 @@ function analyzeReadability(data: ResumeData) {
     // Avoid div by zero
     totalBullets = Math.max(1, totalBullets);
 
-    // 2. Verb Variety (Coming from keywords.actionVerbs)
-    // We already count total action verbs in analyzeKeywords. 
-    // Here we can just store the raw counts.
-
     const allText = [
         data.summary,
         ...descriptions,
@@ -332,7 +345,7 @@ function analyzeReadability(data: ResumeData) {
     const weakWordsCount = countMatches(allText, WEAK_WORDS);
 
     return {
-        avgWordCount: 0, // Less important now
+        avgWordCount: 0,
         bulletPoints: totalBullets,
         metricDensity: numberedBullets / totalBullets, // 0.0 to 1.0
         quantifiableAchievements: countQuantifiable,
@@ -350,9 +363,9 @@ function calculateATSScore(
     jobMatchScore: number,
     data: ResumeData
 ): number {
-    const hasJobDesc = !!(data.jobDescription && data.jobDescription.trim().length > 50 && data.hasJobMatchRun);
+    const hasJobDesc = !!(data.jobDescription && data.jobDescription.trim().length > 25);
 
-    // Core section completion (personal info, summary, experience, education, skills, achievements)
+    // Core section completion — Achievements deliberately excluded (optional section).
     const hasPersonalInfo =
         !!data.fullName &&
         !!data.email &&
@@ -362,87 +375,82 @@ function calculateATSScore(
     const hasSummary = !!data.summary && data.summary.trim().length > 0;
     const hasExperience = Array.isArray(data.experience) && data.experience.length > 0;
     const hasEducation = Array.isArray(data.education) && data.education.length > 0;
-    const hasSkills = !!data.skills && data.skills.split(',').map(s => s.trim()).filter(Boolean).length > 0;
-    const hasAchievements =
-        !!data.keyAchievements &&
-        (
-            (Array.isArray(data.keyAchievements) && data.keyAchievements.filter(line => line.trim().length > 0).length > 0) ||
-            (typeof data.keyAchievements === 'string' && data.keyAchievements.split('\n').filter(line => line.trim().length > 0).length > 0)
-        );
+    const hasSkills = !!data.skills && data.skills.split(',').map(s => s.trim()).filter(Boolean).length >= 3;
     const hasCoreSectionsComplete =
-        hasPersonalInfo && hasSummary && hasExperience && hasEducation && hasSkills && hasAchievements;
+        hasPersonalInfo && hasSummary && hasExperience && hasEducation && hasSkills;
 
-    // --- PILLAR SCORES (0-100) ---
+    // --- STRUCTURE SCORE ---
+    // Core required sections carry full weight (5×). Optional sections (projects, certifications)
+    // carry 1× bonus weight only when present, so absent optional sections never penalise the score.
+    const REQUIRED_WEIGHT = 5;  // personalInfo, summary, experience, education, skills
+    const OPTIONAL_WEIGHT = 1;  // projects, certifications (bonus when added)
 
-    // 1. Structure Score (Checklist)
-    const structureScore = calculateCompleteness(sectionScores);
+    let totalWeight = 0;
+    let weightedSum = 0;
 
-    // 2. Impact Score (Quality of writing) - More generous scoring
+    const coreKeys: (keyof typeof sectionScores)[] = ['personalInfo', 'summary', 'experience', 'education', 'skills'];
+    for (const key of coreKeys) {
+        if (typeof sectionScores[key] === 'number') {
+            weightedSum += sectionScores[key]! * REQUIRED_WEIGHT;
+            totalWeight += REQUIRED_WEIGHT;
+        }
+    }
+
+    if (typeof sectionScores.projects === 'number') {
+        weightedSum += sectionScores.projects * OPTIONAL_WEIGHT;
+        totalWeight += OPTIONAL_WEIGHT;
+    }
+
+    if (typeof sectionScores.certifications === 'number') {
+        weightedSum += sectionScores.certifications * OPTIONAL_WEIGHT;
+        totalWeight += OPTIONAL_WEIGHT;
+    }
+
+    const structureScore = totalWeight > 0 ? Math.round(weightedSum / totalWeight) : 0;
+
+    // --- IMPACT SCORE (Quality of writing) ---
     let impactScore = 0;
 
-    // Action Verbs (Target: 10+ for good score, was 15+)
+    // Action Verbs (Target: 10+ for full score)
     impactScore += Math.min(35, (keywords.actionVerbs / 10) * 35);
 
-    // Metric Density (Target: 25% of bullets have numbers, was 30%)
-    // More achievable target
+    // Metric Density (Target: 25% of bullets have numbers)
     impactScore += Math.min(40, (readability.metricDensity / 0.25) * 40);
 
-    // Weak Words (Penalty) - Reduced penalty
+    // Weak Words (Penalty)
     impactScore -= (readability.weakWords * 1.5);
 
-    // Hard Skills Mentioned (Target: 4+, was 5+)
+    // Hard Skills Mentioned (Target: 4+)
     impactScore += Math.min(25, (keywords.technicalSkills / 4) * 25);
 
     impactScore = Math.max(0, Math.min(100, impactScore));
-
 
     // --- WEIGHTED TOTAL ---
     let totalScore = 0;
 
     if (hasJobDesc) {
-        // With JD: Relevance is King, but structure still matters
-        // Relevance: 55% | Impact: 25% | Structure: 20%
-        totalScore = (jobMatchScore * 0.55) + (impactScore * 0.25) + (structureScore * 0.20);
-
-        // Whenever a job description is provided (i.e., user is using Job Match),
-        // ATS score should never show as "failing", but keep it dynamic.
-        if (totalScore < 90) {
-            // Map low raw ATS scores into a 90–94 band based on strength.
-            const clampedBase = Math.max(0, Math.min(89, totalScore));
-            const normalized = clampedBase / 89; // 0–1
-            const extra = Math.round(normalized * 4); // 0–4
-            totalScore = 90 + extra; // 90–94
-        }
+        // With JD: Balanced weighting of relevance (50%), impact (25%), and structure (25%)
+        // Score rises progressively as sections are updated with JD keywords and metrics
+        totalScore = (jobMatchScore * 0.50) + (impactScore * 0.25) + (structureScore * 0.25);
     } else {
-        // Without JD: Structure is most important for complete resumes
-        // Structure: 50% | Impact: 50%
-        // This ensures users with complete sections get ~80% score
-        totalScore = (structureScore * 0.50) + (impactScore * 0.50);
+        // Without JD: Structure 55% | Impact 45%
+        totalScore = (structureScore * 0.55) + (impactScore * 0.45);
 
-        // If the user has filled all core sections (personal info, summary, experience,
-        // education, skills, achievements), ATS score should feel clearly "passing"
-        // for scratch-built resumes.
-        if (hasCoreSectionsComplete && totalScore < 80 && data.source !== 'upload') {
-            totalScore = 80;
-        }
-
-        // For uploaded resumes (no Job Description yet), ATS score should never appear
-        // "too high" out of the box. Clamp to a maximum of 70 so users see room to improve.
-        if (data.source === 'upload' && !hasJobDesc && totalScore > 70) {
-            totalScore = 70;
+        if (hasCoreSectionsComplete) {
+            const structureBonus = Math.round((structureScore / 100) * 5); // 0–5 bonus points
+            totalScore = Math.max(90 + structureBonus, totalScore);
         }
     }
 
     // Final rounding and cap
     let atsScore = Math.round(Math.min(98, totalScore));
 
-    // When a job description is present, ensure ATS Score and Job Match are never identical.
-    // Nudge ATS by 1 point while keeping it within 90–98.
+    // When a JD is present, ensure ATS Score and Job Match are never identical.
     if (hasJobDesc && atsScore === jobMatchScore) {
         if (atsScore < 98) {
             atsScore = Math.min(98, atsScore + 1);
         } else {
-            atsScore = 97; // if both were 98, drop ATS slightly
+            atsScore = 97;
         }
     }
 
@@ -467,8 +475,31 @@ function countQuantifiableMetrics(text: string): number {
 }
 
 function calculateCompleteness(sectionScores: AnalyticsResult['sectionScores']): number {
-    const scores = Object.values(sectionScores);
-    return Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length);
+    const REQUIRED_WEIGHT = 5;
+    const OPTIONAL_WEIGHT = 1;
+
+    let totalWeight = 0;
+    let weightedSum = 0;
+
+    const coreKeys: (keyof typeof sectionScores)[] = ['personalInfo', 'summary', 'experience', 'education', 'skills'];
+    for (const key of coreKeys) {
+        if (typeof sectionScores[key] === 'number') {
+            weightedSum += sectionScores[key]! * REQUIRED_WEIGHT;
+            totalWeight += REQUIRED_WEIGHT;
+        }
+    }
+
+    if (typeof sectionScores.projects === 'number') {
+        weightedSum += sectionScores.projects * OPTIONAL_WEIGHT;
+        totalWeight += OPTIONAL_WEIGHT;
+    }
+
+    if (typeof sectionScores.certifications === 'number') {
+        weightedSum += sectionScores.certifications * OPTIONAL_WEIGHT;
+        totalWeight += OPTIONAL_WEIGHT;
+    }
+
+    return totalWeight > 0 ? Math.round(weightedSum / totalWeight) : 0;
 }
 
 function generateRecommendations(

@@ -44,6 +44,7 @@ interface EditorSidebarRightProps {
     currentTemplate?: TemplateType;
     userSubscription: UserSubscription;
     onAIAction: (action: 'ai_rewrite' | 'cv_regeneration' | 'cover_letter' | 'bullet_optimization') => boolean;
+    embedded?: boolean;
 }
 
 interface ChatMessage {
@@ -206,8 +207,11 @@ export default function EditorSidebarRight({
     onChange,
     onSave,
     onAIAction,
-    currentResumeId
+    currentResumeId,
+    userSubscription,
+    embedded = false
 }: EditorSidebarRightProps) {
+    const isEmbeddedPreview = Boolean(embedded || userSubscription?.userId === 'preview');
     const location = useLocation();
     const [activeTab, setActiveTab] = useState<'chat' | 'context' | 'history'>('chat');
     const [inputText, setInputText] = useState('');
@@ -420,12 +424,14 @@ export default function EditorSidebarRight({
 
         // Auto-save a safety checkpoint before tailoring
         const effectiveId = currentResumeId || (data as any)?.id || 'current_draft';
-        versionService.createVersion(
-            effectiveId,
-            data,
-            `Auto-snapshot Before Tailoring (${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})`,
-            'Automatic restore point before AI job tailoring'
-        ).catch(e => console.warn('Auto-snapshot error:', e));
+        if (!isEmbeddedPreview) {
+            versionService.createVersion(
+                effectiveId,
+                data,
+                `Auto-snapshot Before Tailoring (${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})`,
+                'Automatic restore point before AI job tailoring'
+            ).catch(e => console.warn('Auto-snapshot error:', e));
+        }
 
         // Update resume data job description
         const updatedData = { ...data, jobDescription: cleanJobText, hasJobMatchRun: false };
@@ -443,6 +449,52 @@ export default function EditorSidebarRight({
                 text: 'Analyzing Job Description against your resume and architecting your step-by-step tailoring strategy...'
             }
         ]);
+
+        if (isEmbeddedPreview) {
+            setTimeout(() => {
+                const firstLine = cleanJobText.split('\n')[0].replace(/^#+\s*|^job\s*title:\s*/i, '').trim();
+                const inferredTitle = firstLine.length > 3 && firstLine.length < 50 ? firstLine : 'Senior Product Manager';
+                const mockJob: JobDescriptionData = {
+                    title: inferredTitle,
+                    company: 'Target Employer',
+                    keywords: ['Product Strategy', 'Go-to-Market', 'Agile / Scrum', 'Roadmap Planning', 'User Research', 'Data Analysis', 'Enterprise SaaS', 'A/B Testing'],
+                    requiredSkills: ['Product Strategy', 'Cross-functional Leadership', 'Agile Methodologies', 'Data-driven Decision Making', 'SQL', 'A/B Testing'],
+                    rawText: cleanJobText
+                };
+
+                const analysisMsg: ChatMessage = {
+                    id: `msg-${Date.now()}`,
+                    sender: 'agent',
+                    timestamp: Date.now(),
+                    type: 'job_analysis',
+                    analysis: {
+                        jobTitle: inferredTitle,
+                        company: 'Target Employer',
+                        matchScore: 76,
+                        atsScore: 88,
+                        categoryScores: {
+                            experienceMatch: 80,
+                            skillsMatch: 75,
+                            keywordCoverage: 76,
+                            roleAlignment: 82,
+                            atsStructure: 95
+                        },
+                        strategy: {
+                            titleAndSummaryKeywords: ['Product Strategy', 'Enterprise SaaS', 'Go-to-Market'],
+                            experienceKeywords: ['Cross-functional Leadership', 'Agile / Scrum', 'Revenue Growth', 'User Churn'],
+                            coreCompetencies: ['Roadmap Planning', 'Data Analysis (SQL)', 'A/B Testing']
+                        },
+                        strengths: ['Strong 8+ years foundational experience', 'Quantified revenue and metric outcomes in past roles'],
+                        gaps: ['Job title alignment in executive summary', 'Keyword integration in secondary experience bullets'],
+                        jobData: mockJob
+                    }
+                };
+
+                setMessages(prev => prev.filter(m => m.id !== analyzingMsgId).concat(analysisMsg));
+                setIsProcessing(false);
+            }, 600);
+            return;
+        }
 
         try {
             // 1. Deep parse Job Description using AI
@@ -554,20 +606,53 @@ export default function EditorSidebarRight({
 
     // Step 1: Align Professional Title & Summary
     const handleAlignTitleAndSummary = async (job?: JobDescriptionData) => {
-        if (onAIAction && !onAIAction('ai_rewrite')) return;
-        const targetJobTitle = job?.title || 'Target Role';
+        if (!isEmbeddedPreview && onAIAction && !onAIAction('ai_rewrite')) return;
+        const targetJobTitle = job?.title || data.jobTitle || 'Senior Product Manager';
         const targetCompany = job?.company || 'Target Company';
         const targetKeywords = job?.keywords?.slice(0, 6).join(', ') || '';
 
         setIsProcessing(true);
+
+        if (isEmbeddedPreview) {
+            setTimeout(() => {
+                const proposedSummary = `Results-driven Senior Product Leader with 8+ years of experience leading cross-functional engineering and design teams to deliver scalable enterprise software solutions. Proven track record of increasing user engagement, driving multi-million dollar revenue growth, and launching successful B2B SaaS products from conception through go-to-market. Adept at agile methodologies, user-centered design, and data-driven product strategy.`;
+                setMessages(prev => [
+                    ...prev,
+                    {
+                        id: `proposal-${Date.now()}`,
+                        sender: 'agent',
+                        timestamp: Date.now(),
+                        type: 'proposal',
+                        proposal: {
+                            section: 'title_and_summary',
+                            title: 'Step 1: Strategic Title & Summary Alignment',
+                            proposedTitle: targetJobTitle,
+                            proposedSummary,
+                            proposed: `**Target Professional Title:**\n${targetJobTitle}\n\n**Executive Summary:**\n${proposedSummary}`,
+                            jobData: job
+                        },
+                        text: `Here is your **Step 1 Strategy**: Aligned your professional title and executive summary for **${targetJobTitle}**:`
+                    }
+                ]);
+                setIsProcessing(false);
+            }, 350);
+            return;
+        }
+
         try {
             const prompt = `You are an elite Executive Resume Strategist.
-Your goal is to strategically align the candidate's Professional Job Title and Executive Summary for the target role: "${targetJobTitle} at ${targetCompany}".
+Your goal is to strategically align the candidate's Professional Job Title and Executive Summary for the target role: "${targetJobTitle}".
 Target Keywords to naturally integrate into the summary: ${targetKeywords}
 
 Candidate Current Title: "${data.jobTitle || 'Professional'}"
 Candidate Current Summary: "${data.summary || 'Experienced professional with a strong track record of success.'}"
 Candidate Experience Context: ${data.experience.map(e => `${e.role} at ${e.company}`).join('; ')}
+
+CRITICAL RULES:
+1. STRICT BAN ON CLICHÉ OPENERS: NEVER start the summary with "Dynamic", "Results-driven", "Results-oriented", "Seasoned", "Passionate", "Dedicated", "Motivated", "Hardworking", "Self-starter", "Proven track record", "Adept at", or "Accomplished".
+2. DYNAMIC & AUTHORITATIVE OPENING: Open naturally with the candidate's professional title and core functional specialization (e.g., "${targetJobTitle} specializing in...", "${targetJobTitle} with extensive experience in...").
+3. NEVER MENTION THE TARGET COMPANY AS A PAST EMPLOYER: Do NOT claim the candidate worked at "${targetCompany}" or mention "${targetCompany}" as a prior employer/client. The candidate is applying to this company!
+4. NEVER FABRICATE NICHE SECTORS: Do NOT invent past experience in specific niche domains (e.g., "FinCrime", "defense avionics") unless supported by the candidate's real experience. Focus on transferable functional skills.
 
 Return strictly valid JSON with this exact shape:
 {
@@ -615,7 +700,7 @@ Return strictly valid JSON with this exact shape:
 
     // Step: Tailor Key Achievements & Career Highlights
     const handleTailorAchievements = async (job?: JobDescriptionData) => {
-        if (onAIAction && !onAIAction('bullet_optimization')) return;
+        if (!isEmbeddedPreview && onAIAction && !onAIAction('bullet_optimization')) return;
         setIsProcessing(true);
         const targetJobTitle = job?.title || data.jobTitle || 'Target Role';
         const targetCompany = job?.company || 'Target Company';
@@ -625,6 +710,34 @@ Return strictly valid JSON with this exact shape:
             : (data.keyAchievements || 'Spearheaded strategic deliverables, scaled operations, and generated business impact.');
         const usedVerbs = getUsedStartingVerbs(data);
         const forbiddenVerbsList = Array.from(usedVerbs).slice(0, 15).join(', ');
+
+        if (isEmbeddedPreview) {
+            setTimeout(() => {
+                const cleanBullets = `• Spearheaded the end-to-end launch of 3 major B2B SaaS products, driving widespread enterprise adoption and generating $8.4M in new annual recurring revenue within the first 12 months of release.
+• Directed user-centric product discovery across 200+ targeted user interviews, executing strategic UX roadmap pivots that reduced trial-to-paid friction by 28%.
+• Awarded President's Club Award 2022 & 2023 for consistently exceeding global ARR targets by over 140% during challenging market conditions.`;
+
+                setMessages(prev => [
+                    ...prev,
+                    {
+                        id: `proposal-${Date.now()}`,
+                        sender: 'agent',
+                        timestamp: Date.now(),
+                        type: 'proposal',
+                        proposal: {
+                            section: 'keyAchievements',
+                            title: 'Key Achievements & Career Highlights',
+                            proposed: cleanBullets,
+                            proposedSummary: cleanBullets,
+                            jobData: job
+                        },
+                        text: `Here is your **Key Achievements Strategy**: Elevated your career highlights to match **${targetJobTitle}** with Google XYZ impact bullets:`
+                    }
+                ]);
+                setIsProcessing(false);
+            }, 350);
+            return;
+        }
 
         try {
             const prompt = `You are an elite Executive Resume Strategist & Recruiter.
@@ -685,7 +798,7 @@ CRITICAL RULES:
 
     // Step: Tailor Experience Bullets Role-by-Role (one by one)
     const handleTailorExperience = async (job?: JobDescriptionData, expIndex = 0) => {
-        if (onAIAction && !onAIAction('bullet_optimization')) return;
+        if (!isEmbeddedPreview && onAIAction && !onAIAction('bullet_optimization')) return;
         if (!data.experience || data.experience.length === 0) {
             setMessages(prev => [
                 ...prev,
@@ -724,6 +837,38 @@ CRITICAL RULES:
         const currentExp = data.experience[expIndex];
         const usedVerbs = getUsedStartingVerbs(data);
         const forbiddenVerbsList = Array.from(usedVerbs).slice(0, 15).join(', ');
+
+        if (isEmbeddedPreview) {
+            setTimeout(() => {
+                const cleanBullets = `• Spearheaded the development and launch of an AI-powered analytics dashboard, increasing user retention by 35% within the first two quarters.
+• Led a cross-functional team of 14 engineers, designers, and marketers in an Agile environment to deliver product updates on a bi-weekly cadence.
+• Grew annual recurring revenue (ARR) for the primary SaaS product line by $4.2M through strategic pricing optimization and feature expansion.
+• Conducted over 100+ user interviews to identify pain points, resulting in a roadmap pivot that reduced customer churn by 18%.`;
+                const previewText = `**${currentExp.role || 'Role'} at ${currentExp.company || 'Company'}**:\n${cleanBullets}`;
+
+                setMessages(prev => [
+                    ...prev,
+                    {
+                        id: `proposal-${Date.now()}`,
+                        sender: 'agent',
+                        timestamp: Date.now(),
+                        type: 'proposal',
+                        proposal: {
+                            section: 'experience',
+                            experienceIndex: expIndex,
+                            title: `Experience ${expIndex + 1} of ${totalExp} — ${currentExp.role || 'Role'} at ${currentExp.company || 'Company'}`,
+                            proposed: previewText,
+                            proposedTitle: currentExp.role,
+                            proposedSummary: cleanBullets,
+                            jobData: job
+                        },
+                        text: `Here is your **Experience Strategy (Role ${expIndex + 1} of ${totalExp})** for **${currentExp.role || 'Role'} at ${currentExp.company || 'Company'}**:\n\nRewrote accomplishments into Google XYZ impact bullets embedding target keywords:`
+                    }
+                ]);
+                setIsProcessing(false);
+            }, 350);
+            return;
+        }
 
         try {
             const prompt = `You are an elite Executive Resume Strategist & Recruiter.
@@ -1049,10 +1194,35 @@ CRITICAL RULES:
 
     // Step: Harmonize Skills & Domain Competencies
     const handleHarmonizeSkills = async (job?: JobDescriptionData) => {
-        if (onAIAction && !onAIAction('ai_rewrite')) return;
+        if (!isEmbeddedPreview && onAIAction && !onAIAction('ai_rewrite')) return;
         setIsProcessing(true);
         const targetJobTitle = job?.title || data.jobTitle || 'Target Role';
         const targetSkills = job?.requiredSkills?.slice(0, 10).join(', ') || '';
+
+        if (isEmbeddedPreview) {
+            setTimeout(() => {
+                const cleanSkills = `Product Strategy, Go-to-Market Strategy, Agile / Scrum Methodology, Roadmap Planning, Data Analysis (SQL), User Research, A/B Testing, Cross-functional Leadership, UI/UX Design Principles, Enterprise SaaS`;
+                setMessages(prev => [
+                    ...prev,
+                    {
+                        id: `proposal-${Date.now()}`,
+                        sender: 'agent',
+                        timestamp: Date.now(),
+                        type: 'proposal',
+                        proposal: {
+                            section: 'skills',
+                            title: 'Harmonized Core Skills & ATS Competencies',
+                            proposedSkills: cleanSkills,
+                            proposed: cleanSkills,
+                            jobData: job
+                        },
+                        text: `Here is your **Skills Strategy**: Harmonized your skills list to match the target job priorities for **${targetJobTitle}**:`
+                    }
+                ]);
+                setIsProcessing(false);
+            }, 350);
+            return;
+        }
 
         try {
             const prompt = `You are an elite ATS and Resume Strategist.
@@ -1103,7 +1273,7 @@ RULES:
 
     // Run 1-Click full AI tailoring
     const handleTailorResume = async () => {
-        if (onAIAction && !onAIAction('ai_rewrite')) {
+        if (!isEmbeddedPreview && onAIAction && !onAIAction('ai_rewrite')) {
             return;
         }
 
@@ -1133,6 +1303,42 @@ RULES:
                 text: 'Executing full resume tailoring across all active sections...'
             }
         ]);
+
+        if (isEmbeddedPreview) {
+            setTimeout(() => {
+                const tailoredData = { ...data, hasJobMatchRun: true };
+                tailoredData.jobTitle = 'Senior Product Manager';
+                tailoredData.summary = `Results-driven Senior Product Manager with 8+ years of experience leading cross-functional teams to deliver scalable enterprise software solutions. Proven track record of increasing user engagement, driving multi-million dollar revenue growth, and launching successful B2B SaaS products from conception through go-to-market. Adept at agile methodologies, user-centered design, and data-driven product strategy.`;
+                tailoredData.skills = `Product Strategy, Agile / Scrum Methodology, Roadmap Planning, Go-to-Market Strategy, Data Analysis (SQL), A/B Testing, User Research, UI/UX Design Principles, Cross-functional Leadership`;
+                tailoredData.keyAchievements = [
+                    `President's Club Award Winner 2022 & 2023 for consistently exceeding global ARR targets by over 140% during challenging economic downturns, outperforming 50+ sales and product peers across the entire North American division.`,
+                    `Directed the end-to-end launch of 3 major B2B SaaS products, driving widespread enterprise adoption and generating $8.4M in new annual recurring revenue within the first 12 months of release.`,
+                    `Successfully reduced core customer churn by 18% month-over-month by initiating strategic UX roadmap pivots, overhauling the onboarding experience, and personally conducting over 200 targeted user interviews.`
+                ];
+                if (tailoredData.experience[0]) {
+                    tailoredData.experience[0].description = `• Spearheaded the development and launch of an AI-powered analytics dashboard, increasing user retention by 35% within the first two quarters.
+• Led a cross-functional team of 14 engineers, designers, and marketers in an Agile environment to deliver product updates on a bi-weekly cadence.
+• Grew annual recurring revenue (ARR) for the primary SaaS product line by $4.2M through strategic pricing optimization and feature expansion.
+• Conducted over 100+ user interviews to identify pain points, resulting in a roadmap pivot that reduced customer churn by 18%.`;
+                }
+                onChange(tailoredData);
+
+                setMessages(prev => prev.filter(m => m.id !== loadingMsgId).concat({
+                    id: `success-${Date.now()}`,
+                    sender: 'agent',
+                    timestamp: Date.now(),
+                    type: 'tailored_success',
+                    text: 'Successfully tailored your entire resume! Aligned your professional summary, tailored work experience bullets with embedded keywords and Google XYZ impact metrics, and harmonized core competencies for ATS pass rates.',
+                    suggestions: [
+                        'Step 1: Align Title & Summary',
+                        'Step 2: Tailor Experience Bullets',
+                        'Test ATS scan score'
+                    ]
+                }));
+                setIsProcessing(false);
+            }, 600);
+            return;
+        }
 
         try {
             const result = await tailorResumeToJob(
@@ -1201,13 +1407,45 @@ RULES:
 
     // Optimize summary standalone
     const handlePolishSummary = async () => {
-        if (onAIAction && !onAIAction('ai_rewrite')) return;
+        if (!isEmbeddedPreview && onAIAction && !onAIAction('ai_rewrite')) return;
 
         setIsProcessing(true);
+
+        if (isEmbeddedPreview) {
+            setTimeout(() => {
+                const cleanText = `Senior Product Leader specializing in enterprise software architecture and user-centered platform delivery, with 8+ years leading cross-functional engineering and design teams. Demonstrated success driving scalable revenue growth, architecting high-impact product roadmaps, and executing data-driven go-to-market strategies.`;
+                setMessages(prev => [
+                    ...prev,
+                    {
+                        id: `proposal-${Date.now()}`,
+                        sender: 'agent',
+                        timestamp: Date.now(),
+                        type: 'proposal',
+                        proposal: {
+                            section: 'summary',
+                            title: 'Executive Professional Summary',
+                            original: data.summary,
+                            proposed: cleanText
+                        },
+                        text: 'Here is a polished executive summary crafted for your profile:'
+                    }
+                ]);
+                setIsProcessing(false);
+            }, 350);
+            return;
+        }
+
         try {
-            const prompt = `You are an executive resume writer. Enhance the following resume summary to be punchy, metric-oriented, and high-impact.
+            const prompt = `You are an elite executive resume strategist. Enhance the following resume summary to be punchy, authoritative, and high-impact.
+
 Current Summary: "${data.summary || 'Experienced professional with a strong track record of success.'}"
 Target Role: "${data.jobTitle || 'Professional'}"
+
+CRITICAL RULES:
+- STRICT BAN ON CLICHÉ OPENERS: NEVER start with "Dynamic", "Results-driven", "Results-oriented", "Seasoned", "Passionate", "Dedicated", "Motivated", "Hardworking", "Self-starter", "Proven track record", "Adept at", or "Accomplished".
+- OPEN DYNAMICALLY & PROFESSIONALLY: Open naturally with the candidate's professional title and functional specialization (e.g., "${data.jobTitle || 'Professional'} specializing in...", "${data.jobTitle || 'Professional'} with deep background in...").
+- Keep it 2-3 concise, high-impact sentences. Ground in truthful accomplishments without inventing fake numbers or claiming ungrounded past employers.
+
 Return ONLY the polished 2-3 sentence summary paragraph without quotes.`;
 
             const polished = await callAIText(prompt);
@@ -1247,7 +1485,7 @@ Return ONLY the polished 2-3 sentence summary paragraph without quotes.`;
 
     // Strengthen bullet points standalone
     const handleStrengthenBullets = async () => {
-        if (onAIAction && !onAIAction('bullet_optimization')) return;
+        if (!isEmbeddedPreview && onAIAction && !onAIAction('bullet_optimization')) return;
 
         if (data.experience.length === 0) {
             setMessages(prev => [
@@ -1266,6 +1504,32 @@ Return ONLY the polished 2-3 sentence summary paragraph without quotes.`;
         setIsProcessing(true);
         const latestExp = data.experience[0];
         const usedVerbs = getUsedStartingVerbs(data);
+
+        if (isEmbeddedPreview) {
+            setTimeout(() => {
+                const cleanBullets = `• Spearheaded the development and launch of an AI-powered analytics dashboard, increasing user retention by 35% within the first two quarters.
+• Led a cross-functional team of 14 engineers, designers, and marketers in an Agile environment to deliver product updates on a bi-weekly cadence.
+• Grew annual recurring revenue (ARR) for the primary SaaS product line by $4.2M through strategic pricing optimization and feature expansion.`;
+                setMessages(prev => [
+                    ...prev,
+                    {
+                        id: `proposal-${Date.now()}`,
+                        sender: 'agent',
+                        timestamp: Date.now(),
+                        type: 'proposal',
+                        proposal: {
+                            section: 'experience',
+                            title: `Impact Bullets for ${latestExp.role}`,
+                            original: latestExp.description,
+                            proposed: cleanBullets
+                        },
+                        text: `I've rewritten your bullet points for **${latestExp.role}** with strong action verbs and quantified impact:`
+                    }
+                ]);
+                setIsProcessing(false);
+            }, 350);
+            return;
+        }
 
         try {
             const prompt = `You are a Fortune 500 recruiter. Rewrite the following bullet points for the position "${latestExp.role}" at "${latestExp.company}".
@@ -1883,6 +2147,166 @@ Return 3-4 bullet points starting with '• '. Output ONLY the bullet points.`;
             return;
         }
 
+        // Preview Mode Simulated Conversational Response (Zero API Credits)
+        if (isEmbeddedPreview) {
+            setIsProcessing(true);
+            setTimeout(() => {
+                const lower = clean.toLowerCase();
+
+                // 1. Greetings / Introduction / How does it work
+                if (/^(hi|hello|hey|greetings|hola|good\s*(morning|afternoon|evening)|who are you|what can you do|help|how does this work)/i.test(lower)) {
+                    setMessages(prev => [
+                        ...prev,
+                        {
+                            id: `agent-${Date.now()}`,
+                            sender: 'agent',
+                            timestamp: Date.now(),
+                            type: 'text',
+                            text: `Welcome to the **CVArchitect Live AI Preview**! I am your Executive Resume Architect.\n\nHere is what you can test right now in this interactive preview:\n1. **Paste any Job Description** into the chat below to trigger real-time ATS match scoring and keyword gap analysis.\n2. Ask me to **strengthen bullets**, **harmonize skills**, or **align your summary**.\n3. Click **1-Click AI Tailor** above or step through each role to see instant Google XYZ transformations!`
+                        }
+                    ]);
+                    setIsProcessing(false);
+                    return;
+                }
+
+                // 2. Section guidance ("how to add section", "add certification", "add project", etc.)
+                if (lower.includes('add section') || lower.includes('how do i add') || lower.includes('add certification') || lower.includes('add custom section') || lower.includes('add publication') || lower.includes('add volunteer')) {
+                    setMessages(prev => [
+                        ...prev,
+                        {
+                            id: `agent-${Date.now()}`,
+                            sender: 'agent',
+                            timestamp: Date.now(),
+                            type: 'text',
+                            text: `To add a new section in CVArchitect:\n\n1. In the **Left Editor Sidebar** (or via the **+ Add Section** button at the bottom of the live resume canvas), click **+ Add Section**.\n2. Select your desired section (*Key Achievements, Projects, Leadership, Certifications, Publications, Languages, Coursework, Awards, Volunteer*) or choose *Custom Section*.\n3. Once added, you can edit the text directly or ask me to draft tailored Google XYZ impact bullets for you!`
+                        }
+                    ]);
+                    setIsProcessing(false);
+                    return;
+                }
+
+                // 3. Bullets / Experience enhancement requests
+                if (lower.includes('bullet') || lower.includes('experience') || lower.includes('metric') || lower.includes('achievement') || lower.includes('quantif') || lower.includes('role')) {
+                    const proposedBullet = '• Spearheaded cross-functional go-to-market architecture across 14 engineers and designers, accelerating enterprise product release velocity by 35% while maintaining 99.9% uptime.';
+                    setMessages(prev => [
+                        ...prev,
+                        {
+                            id: `proposal-${Date.now()}`,
+                            sender: 'agent',
+                            timestamp: Date.now(),
+                            type: 'proposal',
+                            text: `I have architected a high-impact **Google XYZ standard bullet** for your **Senior Product Manager** role at **TechFlow Solutions**:`,
+                            proposal: {
+                                section: 'experience',
+                                experienceIndex: 0,
+                                title: 'Tailored Bullet for Senior Product Manager at TechFlow Solutions',
+                                proposed: proposedBullet,
+                                applied: false
+                            }
+                        }
+                    ]);
+                    setIsProcessing(false);
+                    return;
+                }
+
+                // 4. Summary / Headline / Title requests
+                if (lower.includes('summary') || lower.includes('title') || lower.includes('headline') || lower.includes('about') || lower.includes('profile')) {
+                    const proposedTitle = 'Principal Product Manager | AI & Enterprise Platforms';
+                    const proposedSummary = 'Strategic Product Leader with 8+ years architecting enterprise SaaS platforms and AI-driven workflow engines. Proven track record scaling ARR from $4.2M to $8.4M, leading 14-engineer agile squads, and delivering human-centered digital experiences across global Fortune 500 accounts.';
+                    setMessages(prev => [
+                        ...prev,
+                        {
+                            id: `proposal-${Date.now()}`,
+                            sender: 'agent',
+                            timestamp: Date.now(),
+                            type: 'proposal',
+                            text: `I have prepared an executive-level **Title & Summary alignment** tailored for top-tier enterprise product leadership roles:`,
+                            proposal: {
+                                section: 'title_and_summary',
+                                title: 'Align Title & Professional Summary',
+                                proposed: `${proposedTitle}\n\n${proposedSummary}`,
+                                proposedTitle,
+                                proposedSummary,
+                                applied: false
+                            }
+                        }
+                    ]);
+                    setIsProcessing(false);
+                    return;
+                }
+
+                // 5. Skills requests
+                if (lower.includes('skill') || lower.includes('keyword') || lower.includes('technolog') || lower.includes('stack') || lower.includes('harmoniz')) {
+                    const proposedSkills = 'Product Strategy, AI/ML Product Discovery, Enterprise SaaS, Agile & Scrum, Roadmap Planning, Go-to-Market (GTM), Data Analysis (SQL), A/B Testing, Cross-Functional Leadership, User Experience (UX)';
+                    setMessages(prev => [
+                        ...prev,
+                        {
+                            id: `proposal-${Date.now()}`,
+                            sender: 'agent',
+                            timestamp: Date.now(),
+                            type: 'proposal',
+                            text: `I have harmonized your **Core Skills** to match enterprise recruiter ATS keyword filters:`,
+                            proposal: {
+                                section: 'skills',
+                                title: 'Harmonize Core Skills',
+                                proposed: proposedSkills,
+                                proposedSkills,
+                                applied: false
+                            }
+                        }
+                    ]);
+                    setIsProcessing(false);
+                    return;
+                }
+
+                // 6. Pricing / Export / Save
+                if (lower.includes('price') || lower.includes('cost') || lower.includes('buy') || lower.includes('save') || lower.includes('export') || lower.includes('download') || lower.includes('pdf') || lower.includes('word') || lower.includes('docx')) {
+                    setMessages(prev => [
+                        ...prev,
+                        {
+                            id: `agent-${Date.now()}`,
+                            sender: 'agent',
+                            timestamp: Date.now(),
+                            type: 'text',
+                            text: `In this live interactive preview, you have full access to explore the AI Resume Architect with zero credit usage! When you're ready to create your own personalized resume, export to PDF/DOCX, or unlock unlimited tailoring, click **Save** or **Download** in the top bar.`
+                        }
+                    ]);
+                    setIsProcessing(false);
+                    return;
+                }
+
+                // 7. Off-topic queries (weather, recipes, general non-resume trivia)
+                if (lower.includes('weather') || lower.includes('recipe') || lower.includes('poem') || lower.includes('joke') || lower.includes('song') || lower.includes('capital of') || lower.includes('president')) {
+                    setMessages(prev => [
+                        ...prev,
+                        {
+                            id: `agent-${Date.now()}`,
+                            sender: 'agent',
+                            timestamp: Date.now(),
+                            type: 'text',
+                            text: `I specialize exclusively in resume architecture, ATS optimization, and career strategy—how can I assist with your resume or target job search today?`
+                        }
+                    ]);
+                    setIsProcessing(false);
+                    return;
+                }
+
+                // 8. Default contextual response
+                setMessages(prev => [
+                    ...prev,
+                    {
+                        id: `agent-${Date.now()}`,
+                        sender: 'agent',
+                        timestamp: Date.now(),
+                        type: 'text',
+                        text: `I have analyzed "${clean}" against Sarah Jenkins's executive profile. In this preview mode, you can paste any target job description below or try asking me to **strengthen bullets**, **update summary**, or **harmonize skills**!`
+                    }
+                ]);
+                setIsProcessing(false);
+            }, 400);
+            return;
+        }
+
         // Context-aware Conversational & Action Handling
         setIsProcessing(true);
         try {
@@ -1942,11 +2366,12 @@ INSTRUCTIONS & RULES:
    - If they requested specific accomplishments or content for that new section in their message, provide a drafted Google XYZ impact snippet directly in your replyText so they can easily copy/paste it into their newly added section.
    - Set "action": { "type": "none" } and "isDirectApply": false so no existing sections are overwritten.
 
-4. BULLET POINT FORMULA (CRITICAL):
+4. BULLET POINT FORMULA & SUMMARY CRAFTING (CRITICAL):
    - Every bullet MUST follow Google XYZ format: [Decisive Power Action Verb] + [Technical Challenge & Scope] + [Execution / Method / Tools] + [Measurable Business / Operational Outcome].
    - Strict 2-Full-Lines Standard: 24 to 34 words (150 to 220 characters).
    - NO % SPAM: Do NOT invent fake percentages or put % on every bullet. At most 1 percentage across an entire role, and 0 percentages preferred unless verified in candidate facts. Focus on technical architecture, system throughput, deliverables, scope, and tool integrations.
    - UNIQUE VERBS: Open with a strong, fresh action verb (e.g. Engineered, Orchestrated, Spearheaded, Architected, Automated).
+   - PROFESSIONAL SUMMARY RULES: When generating or updating a summary, NEVER start with cliché buzzwords ("Dynamic", "Results-driven", "Results-oriented", "Passionate", "Dedicated", "Seasoned", "Motivated", "Hardworking", "Self-starter", "Proven track record", "Adept at", "Accomplished"). Open authoritatively with the candidate's professional title and functional specialization. NEVER claim past work at the target hiring company or fabricate ungrounded niche sectors.
 
 5. RESPONSE FORMAT:
 Return strictly valid JSON with this shape:
@@ -2253,23 +2678,30 @@ Note: Set "isDirectApply": true if the user explicitly asked to "add", "apply", 
                                                 </p>
                                             </div>
 
-                                            {/* How it works Steps */}
+                                            {/* Core Features */}
                                             <div className="space-y-2 pt-0.5">
-                                                <div className="text-[11px] font-bold text-neutral-800 uppercase tracking-wider">
-                                                    How it works
+                                                <div className="text-[11px] font-bold text-neutral-800 uppercase tracking-wider flex items-center gap-1.5">
+                                                    <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                                                    Core Features
                                                 </div>
                                                 <div className="space-y-2 text-xs text-neutral-600">
                                                     <div className="flex items-start gap-2">
-                                                        <span className="w-5 h-5 rounded-full bg-neutral-100 text-neutral-700 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">1</span>
-                                                        <span><strong>Paste Job Listing:</strong> Paste job requirements or responsibilities below.</span>
+                                                        <span className="w-5 h-5 rounded-full bg-emerald-50 text-emerald-700 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
+                                                            <Target className="w-3 h-3" />
+                                                        </span>
+                                                        <span><strong>ATS Keyword Gap Analysis:</strong> Real-time scan comparing your profile to target job postings.</span>
                                                     </div>
                                                     <div className="flex items-start gap-2">
-                                                        <span className="w-5 h-5 rounded-full bg-neutral-100 text-neutral-700 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">2</span>
-                                                        <span><strong>Get Match Score:</strong> Instantly view your ATS score and missing keywords.</span>
+                                                        <span className="w-5 h-5 rounded-full bg-blue-50 text-blue-700 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
+                                                            <Zap className="w-3 h-3" />
+                                                        </span>
+                                                        <span><strong>Google XYZ Impact Bullets:</strong> Proven formula transforming tasks into quantifiable achievements.</span>
                                                     </div>
                                                     <div className="flex items-start gap-2">
-                                                        <span className="w-5 h-5 rounded-full bg-neutral-100 text-neutral-700 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">3</span>
-                                                        <span><strong>1-Click AI Tailor:</strong> Automatically rewrite bullets and summary for this role.</span>
+                                                        <span className="w-5 h-5 rounded-full bg-purple-50 text-purple-700 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
+                                                            <Sparkles className="w-3 h-3" />
+                                                        </span>
+                                                        <span><strong>1-Click AI Tailor & Sync:</strong> Instant section-by-section alignment with live preview.</span>
                                                     </div>
                                                 </div>
                                             </div>

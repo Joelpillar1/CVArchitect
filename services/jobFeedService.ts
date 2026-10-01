@@ -112,8 +112,8 @@ export function mapRowToJob(row: JobRow): Job {
     requirements: asArray(row.requirements),
     benefits: asArray(row.benefits),
     skills: asArray(row.skills),
-    // Stored as a real timestamp; rendered as relative text at read time.
-    postedDate: formatPostedDate(row.posted_at),
+    // Dynamically computed at render time in JobCard; stored here only as a pre-render fallback.
+    postedDate: formatPostedDate(row.posted_at ?? row.first_seen_at),
     applyUrl: row.apply_url || undefined,
     sourceProvider: (row.provider as Job['sourceProvider']) || undefined,
     sourceUrl: row.source_url || undefined,
@@ -222,9 +222,9 @@ export async function fetchJobFeed(query: JobFeedQuery = {}): Promise<JobFeedRes
   const baseJobs = adminJobs.length > 0 ? adminJobs : MOCK_JOBS;
 
   let filtered = baseJobs.map((j, index) => {
-    // If postedAt is missing, generate a deterministic publication timestamp distributed across recent days
-    const dayOffset = (index % 12) * 0.5; // Staggered over the past 0-6 days
-    const postedAt = j.postedAt || new Date(now.getTime() - dayOffset * 86400000 - ((index * 37) % 3600) * 1000).toISOString();
+    // If postedAt is missing, generate a realistic publication timestamp distributed across past days (1 to 14 days ago)
+    const dayOffset = ((index % 14) + 1) * 0.8;
+    const postedAt = j.postedAt || new Date(now.getTime() - dayOffset * 86400000).toISOString();
     return {
       ...j,
       postedAt,

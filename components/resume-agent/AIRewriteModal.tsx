@@ -39,6 +39,7 @@ CRITICAL RULES:
 - Keep all facts, metrics, and factual claims truthful to the original context. Do NOT fabricate fake companies or degrees.
 - NO % SPAM: Do NOT invent fake percentages or force '%' metrics if none existed in the original text. Highlight impact through technical scope, tools used, architecture, and business outcomes.
 - STRICT ZERO-DUPLICATE STARTING VERBS: If rewriting bullet points, every single bullet point MUST start with a completely DIFFERENT, unique action verb. One verb must NEVER appear twice.
+- STRICT SUMMARY RULES: If rewriting a summary, NEVER start with cliché buzzwords ("Dynamic", "Results-driven", "Results-oriented", "Seasoned", "Passionate", "Dedicated", "Motivated", "Hardworking", "Self-starter", "Proven track record", "Adept at", "Accomplished"). Open authoritatively and dynamically with the candidate's professional title and functional specialization. Never insert target company names as prior employers or fabricate ungrounded niche sectors.
 
 Original Text:
 "${originalText}"

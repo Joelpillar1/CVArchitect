@@ -4,6 +4,56 @@ import { Link } from 'react-router-dom';
 export default function PublicFooter() {
     const currentYear = new Date().getFullYear();
 
+    const askAiLinks = [
+        {
+            name: 'ChatGPT',
+            url: 'https://chatgpt.com/?q=What+is+CVArchitect%3F',
+            icon: (
+                <svg className="w-4 h-4 text-[#10A37F]" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.985 5.985 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073zM13.26 22.43a4.476 4.476 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.795.795 0 0 0 .392-.681v-6.737l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494zM3.6 18.304a4.47 4.47 0 0 1-.535-3.014l.142.085 4.783 2.759a.771.771 0 0 0 .78 0l5.843-3.369v2.332a.08.08 0 0 1-.033.062L9.74 19.95a4.5 4.5 0 0 1-6.14-1.646zM2.34 7.896a4.485 4.485 0 0 1 2.366-1.973V11.6a.766.766 0 0 0 .388.676l5.815 3.355-2.02 1.168a.076.076 0 0 1-.071 0l-4.83-2.786A4.504 4.504 0 0 1 2.34 7.872zm16.597 3.855l-5.833-3.387L15.119 7.2a.076.076 0 0 1 .071 0l4.83 2.791a4.494 4.494 0 0 1-.676 8.105v-5.678a.79.79 0 0 0-.407-.667zm2.01-3.023l-.141-.085-4.774-2.782a.776.776 0 0 0-.785 0L9.409 9.23V6.897a.066.066 0 0 1 .028-.061l4.83-2.787a4.5 4.5 0 0 1 6.68 4.66zM8.307 13.565l2.443-1.412 2.443 1.412v2.825l-2.443 1.412-2.443-1.412zm3.693-4.57a4.464 4.464 0 0 1 2.857 1.026l-.142.081-4.779 2.758a.795.795 0 0 0-.392.681v6.737l-2.02-1.168a.071.071 0 0 1-.038-.052v-5.583a4.504 4.504 0 0 1 4.494-4.494z"/>
+                </svg>
+            )
+        },
+        {
+            name: 'Claude',
+            url: 'https://claude.ai/new?q=What+is+CVArchitect%3F',
+            icon: (
+                <svg className="w-4 h-4 text-[#D97757]" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M13.827 2.058c.414 0 .762.3.828.708l.94 5.766a.834.834 0 0 0 .69.692l5.766.94c.408.066.708.414.708.828 0 .414-.3.762-.708.828l-5.766.94a.834.834 0 0 0-.69.692l-.94 5.766c-.066.408-.414.708-.828.708-.414 0-.762-.3-.828-.708l-.94-5.766a.834.834 0 0 0-.692-.692l-5.766-.94c-.408-.066-.708-.414-.708-.828 0-.414.3-.762.708-.828l5.766-.94a.834.834 0 0 0 .692-.692l.94-5.766c.066-.408.414-.708.828-.708z"/>
+                </svg>
+            )
+        },
+        {
+            name: 'Perplexity',
+            url: 'https://www.perplexity.ai/search?q=What+is+CVArchitect%3F',
+            icon: (
+                <svg className="w-4 h-4 text-[#20808D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                    <path d="M7 5l10 14M17 5L7 19" />
+                </svg>
+            )
+        },
+        {
+            name: 'Grok',
+            url: 'https://grok.com/?q=What+is+CVArchitect%3F',
+            icon: (
+                <svg className="w-4 h-4 text-neutral-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18.36 5.64A9 9 0 1 1 5.64 18.36" />
+                    <path d="M6 6l12 12" />
+                </svg>
+            )
+        },
+    ];
+
+    const agentDocs = [
+        { label: 'llms.txt', href: '/llms.txt' },
+        { label: 'llms-full.txt', href: '/llms-full.txt' },
+        { label: 'ai.txt', href: '/ai.txt' },
+        { label: 'ai-plugin.json', href: '/.well-known/ai-plugin.json' },
+        { label: 'sitemap.xml', href: '/sitemap.xml' },
+        { label: 'robots.txt', href: '/robots.txt' },
+    ];
+
     const footerColumns = [
         {
             title: 'AI Resume',
@@ -57,6 +107,59 @@ export default function PublicFooter() {
 
     return (
         <footer className="public-footer" role="contentinfo">
+            {/* Ask AI & Agent Index Banner */}
+            <div className="border-b border-brand-border bg-white">
+                <div className="max-w-[1200px] mx-auto px-6 py-6 sm:py-7 space-y-4">
+                    {/* Top Row: Ask AI */}
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3.5 sm:gap-6">
+                        <span className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-brand-dark/75 shrink-0">
+                            ASK AI ABOUT CVARCHITECT
+                        </span>
+                        <div className="flex flex-wrap items-center gap-2.5">
+                            {askAiLinks.map((ai) => (
+                                <a
+                                    key={ai.name}
+                                    href={ai.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 rounded-full border border-brand-border bg-brand-bg/60 px-4 py-1.5 text-xs font-semibold text-brand-dark shadow-2xs hover:bg-brand-secondary hover:border-brand-border hover:shadow-xs transition-all duration-150 cursor-pointer"
+                                >
+                                    {ai.icon}
+                                    <span>{ai.name}</span>
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Hairline Divider */}
+                    <div className="h-px w-full bg-brand-border" />
+
+                    {/* Bottom Row: For Agents */}
+                    <div className="flex flex-col sm:flex-row sm:items-baseline gap-2.5 sm:gap-4 font-mono text-xs">
+                        <span className="font-bold uppercase tracking-[0.16em] text-brand-dark/75 shrink-0">
+                            FOR AGENTS
+                        </span>
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-brand-dark/65">
+                            {agentDocs.map((doc, idx) => (
+                                <React.Fragment key={doc.label}>
+                                    <a
+                                        href={doc.href}
+                                        target={doc.href.startsWith('http') || doc.href.endsWith('.txt') || doc.href.endsWith('.json') ? '_blank' : undefined}
+                                        rel="noopener noreferrer"
+                                        className="text-brand-dark/65 hover:text-brand-dark hover:underline transition-colors"
+                                    >
+                                        {doc.label}
+                                    </a>
+                                    {idx < agentDocs.length - 1 && (
+                                        <span className="text-brand-dark/25 select-none">·</span>
+                                    )}
+                                </React.Fragment>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* Main footer content */}
             <div className="public-footer__inner">
                 {/* Column grid */}

@@ -201,7 +201,7 @@ export default function AdminJobModal({
       sourceUrl: companyWebsiteUrl.trim() || applyUrl.trim() || undefined,
       isActive,
       postedAt: jobToEdit?.postedAt || new Date().toISOString(),
-      postedDate: jobToEdit?.postedDate || 'Just now',
+      postedDate: jobToEdit?.postedDate || 'Today',
       sourceProvider: jobToEdit?.sourceProvider || 'manual',
     };
 

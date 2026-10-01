@@ -190,8 +190,8 @@ export const TEMPLATE_CONFIG: { id: TemplateType; name: string; subtitle: string
     },
     {
         id: 'rezi',
-        name: "Arch Template",
-        subtitle: "ATS Serif",
+        name: "Harvard",
+        subtitle: "Ivy & Academic",
         icon: <BookOpen className="text-teal-600" size={20} />,
         bg: "bg-[#FFFFFF]"
     },

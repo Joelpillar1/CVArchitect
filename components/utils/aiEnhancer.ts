@@ -142,7 +142,7 @@ export const generateSummary = async (
     targetRole: string
 ): Promise<string> => {
     try {
-        const prompt = `Write a compelling professional summary for a resume based on the following details.
+        const prompt = `Write a compelling executive professional summary for a resume based on the following details.
         
         Target Role: ${targetRole}
         
@@ -152,10 +152,13 @@ export const generateSummary = async (
         - Experience: ${JSON.stringify(resumeData.experience)}
         - Skills: ${resumeData.skills}
         
-        Instructions:
-        - Keep it between 3-5 sentences.
-        - Highlight key achievements and skills relevant to "${targetRole}".
-        - Use a professional, confident tone.
+        CRITICAL RULES:
+        - STRICT BAN ON CLICHÉ OPENERS: NEVER start with "Dynamic", "Results-driven", "Results-oriented", "Seasoned", "Passionate", "Dedicated", "Motivated", "Hardworking", "Self-starter", "Proven track record", "Adept at", or "Accomplished".
+        - OPEN DYNAMICALLY & PROFESSIONALLY: Lead naturally with the candidate's professional title and functional specialization (e.g., "${targetRole} specializing in...", "${targetRole} with extensive background in...", "${targetRole} focused on...").
+        - NEVER mention target company names as prior employers or fabricate ungrounded niche sectors.
+        - Keep it between 3-4 concise, impactful sentences.
+        - Highlight key achievements and transferable skills relevant to "${targetRole}".
+        - Use an authentic, executive, confident tone.
         - Return ONLY the summary text.`;
 
         const result = await callAIText(prompt, 'gpt-4o');
@@ -249,14 +252,18 @@ ${resumeData.leadership && resumeData.leadership.length > 0 ? `Leadership: ${JSO
 ${resumeData.additionalInfo && resumeData.additionalInfo.length > 0 ? `Custom Sections: ${JSON.stringify(resumeData.additionalInfo.filter(a => a && (a.label || a.value)).map(a => ({ label: a.label, value: a.value })))}` : ''}
 ${resumeData.keyAchievements ? `Key Achievements: ${JSON.stringify(resumeData.keyAchievements)}` : ''}
 
-# YOUR MISSION: Make this resume PERFECTLY aligned with the job while sounding HUMAN and AUTHENTIC
+# YOUR MISSION: Make this resume PERFECTLY aligned with the job while sounding HUMAN, AUTHENTIC, and STRICTLY GROUNDED
 
-## 1. PROFESSIONAL SUMMARY (3-5 sentences):
-- Mirror the job title and top 3 CRITICAL skills from the JD
-- Show you understand what THIS ROLE needs
-- Be confident but not arrogant
-- NO buzzwords without substance
-- Make it conversational yet professional
+## 1. PROFESSIONAL SUMMARY (2-4 sentences):
+- **DYNAMIC & PROFESSIONAL OPENING (STRICT BAN ON CLICHÉS)**:
+  * NEVER start the summary with cliché buzzwords like "Dynamic", "Results-driven", "Results-oriented", "Passionate", "Dedicated", "Motivated", "Seasoned", "Hardworking", "Self-starter", "Proven track record", "Adept at", or "Accomplished".
+  * Open authoritatively and dynamically with the candidate's professional title and functional specialization (e.g. "[Job Title] specializing in [Core Area]...", "[Job Title] with [X+] years architecting end-to-end [Discipline]...", "[Job Title] focused on [Core Discipline / Problem Domain]...").
+- **NEVER MENTION TARGET COMPANY AS PRIOR EMPLOYER/CLIENT**:
+  * NEVER include the target hiring company name (from the JD) as an employer, client, or company the candidate worked at/for in the summary or bullets. The candidate is applying to this company!
+- **NEVER FABRICATE EXPERIENCE IN TARGET NICHE SECTORS**:
+  * Do NOT claim past work or track records in specific niche industries from the JD (e.g. "FinCrime sector", "defense aviation", "biotech") unless clearly present in the candidate's existing work history. Focus on transferable functional expertise (e.g. UI/UX design, design systems, user research, scalable mobile/web platforms).
+- Mirror the target job title and top critical transferable skills from the JD.
+- Keep it natural, authentic, polished, and human.
 
 ## 2. EXPERIENCE BULLETS (CRITICAL - READ CAREFULLY):
 
@@ -481,17 +488,17 @@ export const enhanceSummary = async (
     role: string
 ): Promise<string> => {
     try {
-        const prompt = `You are an expert resume writer. Enhance this professional summary for a "${role}" position.
+        const prompt = `You are an expert executive resume strategist. Enhance this professional summary for a "${role}" position.
         
         Current Summary:
         "${summary}"
         
-        Instructions:
-        - Make it compelling and impactful
-        - Keep it 3-5 sentences
-        - Use strong, confident language
-        - Highlight key value propositions
-        - Return ONLY the enhanced summary, no explanations`;
+        CRITICAL RULES:
+        - STRICT BAN ON CLICHÉ OPENERS: NEVER start with "Dynamic", "Results-driven", "Results-oriented", "Seasoned", "Passionate", "Dedicated", "Motivated", "Hardworking", "Self-starter", "Proven track record", "Adept at", or "Accomplished".
+        - OPEN DYNAMICALLY & PROFESSIONALLY: Lead naturally with the candidate's professional title and functional specialization (e.g., "${role} specializing in...", "${role} with extensive experience in...", "${role} focused on...").
+        - Keep it 2-4 concise, high-impact sentences grounded in candidate facts.
+        - Highlight genuine value propositions and core technical competencies.
+        - Return ONLY the enhanced summary, no explanations.`;
 
         const result = await callAIText(prompt, 'gpt-4o');
         return result.trim() || summary;

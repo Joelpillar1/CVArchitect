@@ -1,6 +1,6 @@
 // Pricing and Subscription Type Definitions
 
-export type PlanId = 'free' | 'sprint' | 'build' | 'blueprint';
+export type PlanId = 'free' | 'sprint' | 'build' | 'blueprint' | 'lifetime';
 
 /** @deprecated Legacy plan IDs — kept for existing subscribers */
 export type LegacyPlanId = 'week_pass' | 'pro_monthly';

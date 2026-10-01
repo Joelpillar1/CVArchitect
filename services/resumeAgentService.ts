@@ -163,11 +163,29 @@ When tailoring a resume for a target job, execute this 6-step process:
 6. PRESERVE TRUTH: Only use information supported by the candidate’s existing resume or information explicitly provided by the user. If an important requirement is missing, identify it rather than fabricating it.
 
 Think like a recruiter, hiring manager, and professional resume strategist—not a keyword matcher.
-Your goal is to produce the strongest truthful version of the candidate’s resume for the specific job: "${job.title} at ${job.company}".
+Your goal is to produce the strongest truthful version of the candidate’s resume for the target role title: "${job.title}".
 
-CRITICAL TRUST & TRUTHFULNESS RULE:
-You MUST NEVER invent or manufacture fake jobs, companies, degrees, certifications, tools, metrics, or achievements.
-Every rewrite must be grounded in the user's REAL experience. Rewrite bullet points and summary using stronger action verbs, better ATS keywords from the job description, and clearer structure WITHOUT changing factual truth.
+CRITICAL TRUST, INTEGRITY & ANTI-HALLUCINATION RULES:
+1. NEVER MENTION THE TARGET HIRING COMPANY AS A PAST EMPLOYER:
+   - You MUST NEVER mention or insert the target hiring company name ("${job.company}") or any company from the job description as a past employer, client, or company the candidate worked at/for in the summary, experience bullets, or achievements.
+   - The candidate is applying to this employer. Claiming they previously worked at or built platforms at "${job.company}" or other firms from the JD is a severe hallucination.
+2. NEVER FABRICATE EXPERIENCE IN TARGET NICHE SECTORS:
+   - You MUST NEVER claim or invent past track records or experience in specific industry sectors mentioned in the JD (e.g. "FinCrime sector", "defense avionics", "biotech") unless that sector is explicitly present in the candidate's existing work history.
+   - Focus on transferable functional skills, technical craft, tools, and methodologies (e.g. Product Design, UI/UX, Design Systems, Mobile & Web platforms, User Research) aligned to the target role.
+3. ABSOLUTE TRUTHFULNESS:
+   - You MUST NEVER invent or manufacture fake jobs, companies, degrees, certifications, tools, metrics, or achievements.
+   - Every rewrite must be grounded in the user's REAL experience. Rewrite bullet points and summary using stronger action verbs, better ATS keywords from the job description, and clearer structure WITHOUT changing factual truth.
+
+CRITICAL SUMMARY CRAFTING & DYNAMIC OPENER STANDARDS:
+1. STRICT BAN ON LAZY AI CLICHÉ OPENERS:
+   - NEVER start the summary with: "Dynamic", "Results-driven", "Results-oriented", "Seasoned", "Passionate", "Dedicated", "Motivated", "Hardworking", "Self-starter", "Proven track record of", "Adept at", or "Accomplished".
+2. DYNAMIC & AUTHORITATIVE EXECUTIVE OPENING PATTERNS:
+   - Open naturally and dynamically with the candidate's professional job title and core technical/functional specialization.
+   - Examples of great professional openers:
+     * "[Job Title] specializing in [Core Competency / Architecture], with extensive experience delivering [Platform / Product Area]..."
+     * "[Job Title] with a strong track record of leading end-to-end [Discipline / System Lifecycle] across cross-functional engineering and product teams..."
+     * "[Job Title] focused on [High-Value Problem / User Experience / Technical Execution], combining deep expertise in [Core Tool Stack] with..."
+3. Concise, compelling, 2-4 sentences highlighting candidate's genuine strengths, key transferable tools, and value proposition aligned with "${job.title}".
 
 CRITICAL EXECUTIVE CRAFTSMANSHIP & IMPACT STANDARD:
 1. BAN WEAK & PASSIVE PHRASING: Never use "responsible for", "assisted with", "helped to", "worked on", "participated in", "utilized", "dynamic professional", or "team player".
@@ -434,8 +452,8 @@ function fallbackTailoredChanges(resume: ResumeData, job: JobDescriptionData): R
       id: createId(),
       section: 'summary',
       original: resume.summary,
-      proposed: `Accomplished ${job.title} with proven expertise in ${job.requiredSkills.slice(0, 3).join(', ')}. Demonstrated success driving high-impact product solutions, optimizing user workflows, and collaborating seamlessly with cross-functional engineering teams.`,
-      reason: `Directly aligns your summary with the target ${job.title} role and key technical requirements.`,
+      proposed: `${job.title} specializing in ${job.requiredSkills.slice(0, 3).join(', ')}. Demonstrated success driving high-impact product solutions, optimizing workflows, and collaborating seamlessly with cross-functional engineering teams.`,
+      reason: `Directly aligns your summary with the target ${job.title} role and key technical competencies.`,
       evidence: [resume.summary],
       status: 'pending',
       timestamp: Date.now(),
@@ -454,7 +472,7 @@ function fallbackTailoredChanges(resume: ResumeData, job: JobDescriptionData): R
         bulletIndex: 0,
         original: descArr[0],
         proposed: `${descArr[0].replace(/\.$/, '')}, driving measurable efficiency gains and adhering to ${job.keywords[0] || 'design system'} best practices.`,
-        reason: `Elevates impact language to highlight key domain terminology requested by ${job.company || 'the target employer'}.`,
+        reason: `Elevates impact language to highlight key domain terminology for the target role.`,
         evidence: [`Role: ${exp.role} at ${exp.company}`],
         status: 'pending',
         timestamp: Date.now(),

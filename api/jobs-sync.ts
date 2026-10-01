@@ -9,6 +9,7 @@ import {
   type JobSourceCompany,
 } from './lib/jobs';
 import { JOB_SOURCE_COMPANIES } from '../data/jobCompanies';
+import { fetchWiseJobs, WISE_COMPANY } from './lib/jobs/providers/wise';
 
 /**
  * POST /api/jobs-sync — ingest jobs from company career pages into Supabase.
@@ -132,6 +133,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (!result.ok && result.error) failures.push({ company: result.company, error: result.error });
       },
     });
+
+    // ---- Wise (Attrax / sitemap-based provider) ----
+    // wise.jobs uses the Attrax ATS which renders everything client-side — there is no public
+    // JSON board API. We read their vacanciessitemap.xml instead and derive job data from the
+    // SEO-friendly URL slugs. This runs outside the standard provider adapter loop.
+    const shouldSyncWise =
+      !body.only?.length || body.only.some((n) => n.toLowerCase() === 'wise');
+    if (shouldSyncWise) {
+      try {
+        const wiseJobs = await fetchWiseJobs(fetch, WISE_COMPANY);
+        results.push({
+          company: WISE_COMPANY.name,
+          source: {
+            company: WISE_COMPANY.name,
+            domain: WISE_COMPANY.domain,
+            provider: 'html',
+            slug: 'wise',
+            careersUrl: WISE_COMPANY.careersUrl || 'https://wise.jobs/jobs',
+            detection: 'declared',
+          },
+          jobs: wiseJobs,
+          ok: wiseJobs.length > 0,
+          error: wiseJobs.length === 0 ? 'Wise sitemap returned no jobs' : undefined,
+        });
+        console.log(`[jobs-sync] Wise: ${wiseJobs.length} jobs from sitemap`);
+      } catch (err) {
+        const errMsg = (err as Error).message || 'Unknown Wise fetch error';
+        failures.push({ company: 'Wise', error: errMsg });
+        results.push({ company: 'Wise', source: null, jobs: [], ok: false, error: errMsg });
+        console.warn('[jobs-sync] Wise sitemap fetch failed:', errMsg);
+      }
+    }
 
     const upserted = await persistResults(supabaseAdmin, results, body.skipDeactivate === true);
     const summary = summarizeSync(results);

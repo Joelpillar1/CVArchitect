@@ -58,7 +58,7 @@ export default function EditorHeroPreview() {
   // Every write action in the preview funnels to the signup flow — the demo
   // document belongs to nobody, so there is nothing to save or export.
   const handleExitToSignup = () => {
-    navigate(user ? '/dashboard/editor' : '/signup?redirect=/dashboard/editor');
+    navigate(user ? '/dashboard' : '/signup?redirect=/dashboard');
   };
 
   return (

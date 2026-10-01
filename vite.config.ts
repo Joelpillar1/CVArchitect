@@ -35,6 +35,17 @@ function devApiRoutes(): Plugin {
         return raw;
       };
 
+      // Handle Windows case-insensitive root folder match (e.g. /cvarchitect or /CVArchitect)
+      // which Vite's static file server would otherwise resolve to the root directory and serve index.tsx as raw code
+      server.middlewares.use((req: IncomingMessage, _res: ServerResponse, next) => {
+        const rawUrl = req.url || '';
+        const pathname = rawUrl.split('?')[0].replace(/\/+$/, '');
+        if (pathname.toLowerCase() === '/cvarchitect' && (req.headers.accept?.includes('text/html') || !rawUrl.includes('.'))) {
+          req.url = '/index.html' + (rawUrl.includes('?') ? rawUrl.slice(rawUrl.indexOf('?')) : '');
+        }
+        next();
+      });
+
       server.middlewares.use(async (req: IncomingMessage, res: ServerResponse, next) => {
         const url = req.url || '';
         if (!url.startsWith('/api/')) return next();

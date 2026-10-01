@@ -167,17 +167,17 @@ export function formatSalary(salary?: Job['salary'] | null): string {
 }
 
 /**
- * Dynamically humanize a posting's publication date, e.g. "Just now", "2 hours ago", "3 days ago".
+ * Dynamically humanize a posting's publication date, e.g. "Today", "1 day ago", "3 days ago", "1 week ago".
  *
- * Computed at render time against the current clock so that as days pass,
- * the displayed relative time updates naturally and never remains static.
+ * Formats timestamps at realistic day/week granularity so job dates remain accurate and trustworthy
+ * without misleading artificial minute-by-minute labels ("Just now", "2m ago").
  */
 export function formatPostedDate(postedAt?: string | null, now: Date = new Date()): string {
   if (!postedAt) return 'Recently posted';
 
-  // Handle legacy relative strings if accidentally passed
+  // Handle legacy relative strings if passed
   const lower = postedAt.trim().toLowerCase();
-  if (lower === 'today' || lower === 'just now') {
+  if (lower === 'today' || lower === 'just now' || lower.includes('m ago') || lower.includes('min ago') || lower.includes('minute')) {
     return 'Today';
   }
 
@@ -188,22 +188,12 @@ export function formatPostedDate(postedAt?: string | null, now: Date = new Date(
 
   const diffMs = now.getTime() - posted.getTime();
 
-  // If clock skew or posted in the last 2 minutes
-  if (diffMs <= 120_000) {
-    return 'Just now';
+  // If clock skew or posted within the past 24 hours
+  if (diffMs < 86_400_000) {
+    return 'Today';
   }
 
-  const minutes = Math.floor(diffMs / 60_000);
-  if (minutes < 60) {
-    return `${minutes}m ago`;
-  }
-
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) {
-    return hours === 1 ? '1 hour ago' : `${hours} hours ago`;
-  }
-
-  const days = Math.floor(hours / 24);
+  const days = Math.floor(diffMs / 86_400_000);
   if (days === 1) {
     return '1 day ago';
   }

@@ -128,7 +128,7 @@ export function resolveAgentTask(
       requiredInputs.push('resume', 'job_description');
       goal = 'Tailor existing resume evidence to the target job description';
       promptGuidance =
-        'Compare candidate resume facts against JD requirements. Do NOT invent missing skills or facts. Apply verified alignment operations and confirm in 1 sentence.';
+        'Compare candidate resume facts against JD requirements. Do NOT invent missing skills, past employers, or niche sector claims. Do NOT mention the target hiring company as a past employer. Never start summaries with cliché openers like "Dynamic" or "Results-driven". Apply verified alignment operations and confirm in 1 sentence.';
       break;
     }
 
@@ -171,7 +171,7 @@ export function resolveAgentTask(
       }
       goal = `Rewrite and strengthen the ${targetSection || 'specified'} section`;
       promptGuidance =
-        'Preserve candidate facts while strengthening action verbs, clarity, and structure. Apply operation and confirm in 1 sentence.';
+        'Preserve candidate facts while strengthening action verbs, clarity, and structure. If rewriting summary, never start with "Dynamic" or "Results-driven", and never insert target company names as prior workplaces. Apply operation and confirm in 1 sentence.';
       break;
     }
 

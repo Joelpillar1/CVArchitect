@@ -78,8 +78,8 @@ export function loadLocalAdminJobs(): Job[] {
     .filter(j => !deletedSet.has(j.id))
     .map((j, index) => {
       const update = overrides.updatedJobs[j.id];
-      const dayOffset = (index % 12) * 0.5;
-      const postedAt = j.postedAt || new Date(now.getTime() - dayOffset * 86400000 - ((index * 37) % 3600) * 1000).toISOString();
+      const dayOffset = ((index % 14) + 1) * 0.8;
+      const postedAt = j.postedAt || new Date(now.getTime() - dayOffset * 86400000).toISOString();
 
       let sourceProvider: Job['sourceProvider'] = j.sourceProvider;
       if (!sourceProvider) {
@@ -192,12 +192,13 @@ export async function fetchAdminJobs(filter: AdminJobFilter = {}): Promise<Admin
         requirements: Array.isArray(row.requirements) ? row.requirements : [],
         benefits: Array.isArray(row.benefits) ? row.benefits : [],
         skills: Array.isArray(row.skills) ? row.skills : [],
-        postedDate: formatPostedDate(row.posted_at),
+        postedDate: formatPostedDate(row.posted_at ?? row.first_seen_at),
         applyUrl: row.apply_url || undefined,
         companyWebsiteUrl: row.source_url || undefined,
         sourceProvider: row.provider || undefined,
         sourceUrl: row.source_url || undefined,
-        postedAt: row.posted_at,
+        postedAt: row.posted_at ?? row.first_seen_at,
+        firstSeenAt: row.first_seen_at,
         isActive: row.is_active ?? true,
       }));
 

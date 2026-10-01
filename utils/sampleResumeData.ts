@@ -9,7 +9,7 @@ export const SAMPLE_RESUME_DATA: ResumeData = {
     linkedin: "linkedin.com/in/sjenkins",
     location: "San Francisco, CA",
     address: "",
-    summary: "Results-driven Senior Product Manager with 8+ years of experience leading cross-functional teams to deliver scalable enterprise software solutions. Proven track record of increasing user engagement, driving multi-million dollar revenue growth, and launching successful B2B SaaS products from conception through go-to-market. Adept at agile methodologies, user-centered design, and data-driven product strategy.",
+    summary: "Senior Product Manager specializing in enterprise SaaS platforms and scalable product architecture, with 8+ years leading cross-functional teams from conception through go-to-market. Demonstrated success increasing user engagement, driving multi-million dollar revenue growth, and orchestrating high-velocity agile delivery.",
     experience: [
         {
             id: '1',
@@ -191,7 +191,7 @@ export const STUDENT_RESUME_DATA: ResumeData = {
     linkedin: "linkedin.com/in/davidchentech",
     location: "Boston, MA",
     address: "",
-    summary: "Motivated Computer Science student with a strong foundation in full-stack web development and scalable algorithms. Proven ability to architect complex technical projects, lead campus-wide engineering initiatives, and collaborate within cross-functional teams to deliver production-ready code. Seeking to leverage academic excellence and hands-on coding experience to contribute meaningfully to dynamic engineering environments.",
+    summary: "Computer Science student specializing in full-stack web development and scalable algorithms. Demonstrated ability to architect technical projects, lead engineering initiatives, and collaborate within cross-functional teams to deliver production-ready code.",
     experience: [
         {
             id: '1',

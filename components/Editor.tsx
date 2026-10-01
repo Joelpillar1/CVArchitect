@@ -696,8 +696,8 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
               onClick={() => onShowPaywall?.('export')}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-green hover:bg-brand-greenHover text-brand-dark rounded-lg text-xs font-bold transition-all shadow-xs ring-2 ring-brand-green/40 hover:shadow-sm cursor-pointer active:scale-95 border border-brand-green/60"
             >
-              <ShoppingCart size={14} className="text-brand-dark" />
-              <span className="hidden sm:inline">Buy Resume</span>
+              {embedded ? <Download size={14} className="text-brand-dark" /> : <ShoppingCart size={14} className="text-brand-dark" />}
+              <span className="hidden sm:inline">{embedded ? 'Download' : 'Buy Resume'}</span>
             </button>
           )}
         </div>
@@ -786,6 +786,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
             currentTemplate={template}
             userSubscription={userSubscription}
             onAIAction={onAIAction}
+            embedded={embedded}
           />
         </div>
 

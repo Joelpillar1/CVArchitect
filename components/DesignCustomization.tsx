@@ -91,7 +91,7 @@ export default function DesignCustomization({
         { id: 'professional', name: 'Professional Clean' },
         { id: 'times', name: 'Times Classic' },
         { id: 'sage', name: 'Sage' },
-        { id: 'rezi', name: 'Arch Template' }
+        { id: 'rezi', name: 'Harvard' }
     ];
 
     // Sort templates: free templates first, then pro templates

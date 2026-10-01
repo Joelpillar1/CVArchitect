@@ -9,6 +9,7 @@ import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
 import PricingPlans from './PricingPlans';
 import Templates from './Templates';
+import LandingJobsSection from './LandingJobsSection';
 import { INITIAL_DATA } from '../types';
 
 // Animation Variants
@@ -66,7 +67,6 @@ const SectionAnalysisOverlay = () => {
     { name: "Experience", score: 100 },
     { name: "Education", score: 100 },
     { name: "Skills", score: 100 },
-    { name: "Achievements", score: 100 },
     { name: "Projects", score: 50 },
     { name: "Certifications", score: 100 }
   ];
@@ -145,7 +145,7 @@ export default function LandingPage() {
       <SEO
         title="CV Architect — AI Resume Builder | Beat ATS & Land Interviews 3x Faster"
         description="Build an ATS-optimized resume in minutes with CV Architect. AI resume rewriter, keyword match scoring, professional templates, and tailored cover letters."
-        canonicalPath="/"
+        canonicalPath="/cvarchitect"
         jsonLd={[
           {
             "@context": "https://schema.org",
@@ -164,7 +164,7 @@ export default function LandingPage() {
                 "name": "How much does CV Architect cost?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "CV Architect offers a free Foundation tier with 1 AI-tailored resume. Paid plans start at $2.99/week (Sprint), $9.99/month (Build), or $29 every 3 months (Blueprint Pass)."
+                  "text": "CV Architect offers a free Foundation tier with 1 AI-tailored resume. Paid plans start at $6/week (Sprint), $20/month (Build), or $99 one-time (Lifetime Access)."
                 }
               },
               {
@@ -801,6 +801,9 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* Direct Career-Page Job Feed */}
+      <LandingJobsSection />
 
       {/* Section 8: Testimonials */}
       <section className="py-16 px-6 bg-white overflow-hidden">

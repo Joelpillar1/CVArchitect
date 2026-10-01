@@ -17,7 +17,7 @@ export interface TemplateOption {
 
 export const TEMPLATE_OPTIONS: TemplateOption[] = [
   { id: 'vanguard', name: 'Vanguard Minimal', category: 'ATS Standard', badge: 'Popular', layoutType: 'clean' },
-  { id: 'rezi', name: 'Arch Template', category: 'ATS Optimized', badge: 'Top Match', layoutType: 'clean' },
+  { id: 'rezi', name: 'Harvard', category: 'ATS Optimized', badge: 'Top Match', layoutType: 'clean' },
   { id: 'modern', name: 'Modern Tech', category: 'Tech & Product', layoutType: 'two-column' },
   { id: 'prime', name: 'Prime Profile', category: 'Executive', layoutType: 'header-accent' },
   { id: 'impact', name: 'Impact Bold', category: 'Senior Roles', layoutType: 'compact' },

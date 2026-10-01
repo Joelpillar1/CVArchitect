@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 import { Check, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { PlanId } from '../types/pricing';
+import { PlanId, UserSubscription } from '../types/pricing';
 import {
     PLANS,
-    PAID_PLAN_FEATURES,
-    FOUNDATION_FEATURES,
-    PAID_PLAN_IDS,
     formatPlanPrice,
     isPaidPlan,
 } from '../utils/pricingConfig';
@@ -16,27 +13,82 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { useNavigate } from 'react-router-dom';
 import { subscriptionService } from '../services/subscriptionService';
-import { UserSubscription } from '../types/pricing';
 
-const fadeInUp = {
-    hidden: { opacity: 0, y: 24 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-};
-
-const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
-};
-
-interface PricingPlansProps {
-    onFreeClick?: () => void;
-    compact?: boolean;
+type ComparisonCellType = 'check' | 'dash' | 'text';
+interface ComparisonCell {
+    type: ComparisonCellType;
+    text?: string;
 }
+
+function PricingCell({ cell, emphasize }: { cell: ComparisonCell; emphasize?: boolean }) {
+    if (cell.type === 'check') {
+        return (
+            <span className="flex justify-center">
+                <Check size={18} className="text-brand-dark" strokeWidth={2.5} />
+            </span>
+        );
+    }
+    if (cell.type === 'dash') {
+        return <span className="text-center text-sm text-brand-dark/30">—</span>;
+    }
+    return (
+        <span className={`text-center text-xs sm:text-sm ${emphasize ? 'font-bold text-brand-dark' : 'font-semibold text-brand-dark'}`}>
+            {cell.text}
+        </span>
+    );
+}
+
+const comparisonSections: { title: string; rows: { label: string; cells: [ComparisonCell, ComparisonCell, ComparisonCell, ComparisonCell] }[] }[] = [
+    {
+        title: 'AI Resume Agent & Matching',
+        rows: [
+            { label: 'AI Tailored Resumes', cells: [{ type: 'text', text: '1 Resume' }, { type: 'text', text: 'Unlimited' }, { type: 'text', text: 'Unlimited' }, { type: 'text', text: 'Unlimited' }] },
+            { label: 'Job Description Match & Score', cells: [{ type: 'text', text: 'Basic' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'AI Bullet Optimizer & Metrics', cells: [{ type: 'text', text: '1 Rewrite' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'AI Summary & Skill Extraction', cells: [{ type: 'text', text: '1 Resume' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'Grounded Evidence Verification', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
+        ],
+    },
+    {
+        title: 'Editor & Customization',
+        rows: [
+            { label: 'Interactive Drag & Drop Editor', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'Custom & Reorderable Sections', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'ATS Resume Templates', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'Custom Fonts, Colors & Spacing', cells: [{ type: 'text', text: 'Basic' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'Multi-Page Page Break Control', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
+        ],
+    },
+    {
+        title: 'Career & Application Suite',
+        rows: [
+            { label: 'Saved Resume Versions', cells: [{ type: 'text', text: '1 Version' }, { type: 'text', text: 'Unlimited' }, { type: 'text', text: 'Unlimited' }, { type: 'text', text: 'Unlimited' }] },
+            { label: 'Cover Letter Builder', cells: [{ type: 'dash' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'Interview Prep & Q&A', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'Job Search Feed & 1-Click Tailor', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
+        ],
+    },
+    {
+        title: 'Exports & Downloads',
+        rows: [
+            { label: 'Pixel-Perfect PDF Export', cells: [{ type: 'text', text: '1 Download' }, { type: 'text', text: 'Unlimited' }, { type: 'text', text: 'Unlimited' }, { type: 'text', text: 'Unlimited' }] },
+            { label: 'Editable Word (.DOCX) Export', cells: [{ type: 'dash' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'Plain Text (.TXT) Export', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
+        ],
+    },
+];
+
+const DISPLAY_PLANS: PlanId[] = ['free', 'sprint', 'build', 'lifetime'];
 
 function normalizePlanIdForPicker(planId: string): string {
     if (planId === 'week_pass') return 'sprint';
     if (planId === 'pro_monthly') return 'build';
     return planId;
+}
+
+interface PricingPlansProps {
+    onFreeClick?: () => void;
+    compact?: boolean;
 }
 
 export default function PricingPlans({ onFreeClick, compact = false }: PricingPlansProps) {
@@ -65,15 +117,16 @@ export default function PricingPlans({ onFreeClick, compact = false }: PricingPl
     const currentPlanId = subscription ? normalizePlanIdForPicker(subscription.planId) : 'free';
     const isPaidSubscriber = subscription ? isPaidPlan(subscription.planId) : false;
 
-    const handleFree = () => {
-        if (onFreeClick) {
-            onFreeClick();
+    const handlePlanAction = async (planId: PlanId) => {
+        if (planId === 'free') {
+            if (onFreeClick) {
+                onFreeClick();
+                return;
+            }
+            navigate(user ? '/dashboard' : '/signup');
             return;
         }
-        navigate(user ? '/dashboard' : '/signup');
-    };
 
-    const handlePaidPlan = async (planId: PlanId) => {
         if (authLoading) return;
 
         if (!user) {
@@ -117,159 +170,119 @@ export default function PricingPlans({ onFreeClick, compact = false }: PricingPl
         }
     };
 
-    const timelineLabels = ['1 WEEK', '1 MONTH', '3 MONTHS'];
-
     return (
-        <div className={compact ? '' : 'relative'}>
+        <div className="w-full">
             {!compact && (
-                <div className="text-center mb-10 max-w-3xl mx-auto">
-                    <h2 className="text-3xl md:text-4xl font-extrabold text-brand-dark mb-4" style={{ fontFamily: 'Graphik, sans-serif' }}>
-                        Plans & Pricing
+                <div className="text-center mb-12 max-w-3xl mx-auto">
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-brand-dark mb-4">
+                        Pay when you're ready to apply
                     </h2>
-                    <p className="text-gray-600 text-lg leading-relaxed">
-                        Pick the plan that matches how long you&apos;re job hunting. Every plan starts after you&apos;ve seen your first AI-tailored resume — free, no card required.
+                    <p className="text-brand-dark/60 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
+                        Start free with one AI-tailored resume. Upgrade for unlimited tailoring, every template, and unlimited exports — cancel anytime.
                     </p>
                 </div>
             )}
 
-            {/* Timeline */}
-            <div className="hidden md:grid grid-cols-3 gap-6 max-w-5xl mx-auto mb-6 px-2">
-                {timelineLabels.map((label) => (
-                    <div key={label} className="text-center text-xs font-bold tracking-[0.2em] text-gray-400 uppercase">
-                        {label}
-                    </div>
-                ))}
-            </div>
+            {/* Comparison Table */}
+            <div className="max-w-5xl mx-auto overflow-x-auto">
+                <div className="min-w-[640px]">
+                    {/* Header — Plan name, big price, full-width CTA per column */}
+                    <div className="grid grid-cols-[1.2fr_repeat(4,1fr)] gap-x-3 sm:gap-x-6 mb-8 items-end">
+                        <div aria-hidden="true" />
+                        {DISPLAY_PLANS.map((planId) => {
+                            const plan = PLANS[planId];
+                            const { amount, period } = formatPlanPrice(plan);
+                            const isCurrent = isPaidSubscriber ? currentPlanId === planId : planId === 'free';
+                            const isLoading = loadingPlanId === planId;
 
-            <motion.div
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={staggerContainer}
-                className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto items-stretch"
-            >
-                {PAID_PLAN_IDS.map((planId) => {
-                    const plan = PLANS[planId];
-                    const { amount, period } = formatPlanPrice(plan);
-                    const isHighlighted = plan.highlight && !isPaidSubscriber;
-                    const isCurrent = isPaidSubscriber && currentPlanId === planId;
-
-                    return (
-                        <motion.div
-                            key={planId}
-                            variants={fadeInUp}
-                            className={`relative rounded-2xl p-6 md:p-7 flex flex-col border transition-all bg-white ${
-                                isCurrent
-                                    ? 'border-brand-border opacity-75'
-                                    : isHighlighted
-                                      ? 'border-brand-green shadow-float ring-2 ring-brand-green/25'
-                                      : 'border-brand-border shadow-soft hover:border-brand-green/40 hover:shadow-float'
-                            }`}
-                        >
-                            {isHighlighted && (
-                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-green text-brand-dark text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full whitespace-nowrap">
-                                    Start here
+                            return (
+                                <div key={planId} className="text-center">
+                                    <h3 className="text-base sm:text-lg font-semibold tracking-tight text-brand-dark">{plan.name}</h3>
+                                    <div className="mt-1 flex items-baseline justify-center">
+                                        <span className="text-2xl sm:text-4xl font-extrabold tracking-[-0.03em] text-brand-dark">
+                                            {amount}
+                                        </span>
+                                        {period && (
+                                            <span className="text-xs sm:text-sm font-semibold text-brand-dark/70 ml-1">
+                                                {period}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <button
+                                        onClick={() => handlePlanAction(planId)}
+                                        disabled={isLoading || (isPaidSubscriber && isCurrent)}
+                                        className={`mt-4 w-full py-2.5 px-2 rounded-xl font-bold text-xs sm:text-sm shadow-sm transition-all flex items-center justify-center gap-1.5 ${
+                                            isPaidSubscriber && isCurrent
+                                                ? 'bg-gray-100 text-gray-400 cursor-default'
+                                                : 'bg-brand-green hover:bg-brand-greenHover text-brand-dark'
+                                        } disabled:opacity-75`}
+                                    >
+                                        {isLoading ? (
+                                            <Loader2 size={14} className="animate-spin" />
+                                        ) : isPaidSubscriber && isCurrent ? (
+                                            'Current plan'
+                                        ) : (
+                                            'Get started'
+                                        )}
+                                    </button>
                                 </div>
-                            )}
-
-                            <p className={`text-[10px] font-bold uppercase tracking-widest mb-3 ${isHighlighted ? 'text-brand-dark' : 'text-gray-400'}`}>
-                                {plan.tagline}
-                            </p>
-                            <h3 className="text-2xl font-bold mb-1 text-brand-dark">
-                                {plan.name}
-                            </h3>
-
-                            <div className="mt-3 mb-1 flex items-baseline gap-1">
-                                <span className="text-4xl font-extrabold text-brand-dark">
-                                    {amount}
-                                </span>
-                                <span className="text-sm font-medium text-gray-500">
-                                    {period}
-                                </span>
-                            </div>
-                            <p className="text-xs mb-5 text-gray-500">
-                                {plan.renewalNote}
-                            </p>
-
-                            <ul className="space-y-2.5 mb-6 flex-1">
-                                {PAID_PLAN_FEATURES.map((feature) => (
-                                    <li key={feature} className="flex items-start gap-2 text-sm text-gray-600">
-                                        <Check size={15} className="mt-0.5 shrink-0 text-brand-green" />
-                                        <span>{feature}</span>
-                                    </li>
-                                ))}
-                                {planId === 'build' && (
-                                    <li className="flex items-start gap-2 text-sm font-medium text-brand-dark">
-                                        <Check size={15} className="mt-0.5 shrink-0 text-brand-green" />
-                                        <span>Cheaper than 4 weeks of Sprint</span>
-                                    </li>
-                                )}
-                            </ul>
-
-                            <button
-                                onClick={() => handlePaidPlan(planId)}
-                                disabled={!!loadingPlanId || isCurrent}
-                                className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 disabled:cursor-not-allowed ${
-                                    isCurrent
-                                        ? 'bg-gray-100 text-gray-500'
-                                        : isHighlighted
-                                          ? 'bg-brand-green hover:bg-brand-greenHover text-brand-dark shadow-lg disabled:opacity-70'
-                                          : 'bg-brand-dark hover:opacity-90 text-white disabled:opacity-70'
-                                }`}
-                            >
-                                {loadingPlanId === planId ? (
-                                    <>
-                                        <Loader2 size={16} className="animate-spin" />
-                                        {isPaidSubscriber && subscription?.dodoSubscriptionId
-                                            ? 'Updating...'
-                                            : 'Redirecting...'}
-                                    </>
-                                ) : isCurrent ? (
-                                    'Current plan'
-                                ) : (
-                                    plan.ctaLabel
-                                )}
-                            </button>
-                        </motion.div>
-                    );
-                })}
-            </motion.div>
-
-            {/* Foundation (free) */}
-            <motion.div
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeInUp}
-                className="max-w-5xl mx-auto mt-8 rounded-2xl border border-brand-border bg-brand-secondary p-6 md:p-8"
-            >
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-                    <div>
-                        <h3 className="text-xl font-bold text-brand-dark mb-1">{PLANS.free.name}</h3>
-                        <p className="text-gray-500 text-sm mb-4">{PLANS.free.description}</p>
-                        <ul className="space-y-2">
-                            {FOUNDATION_FEATURES.map((feature) => (
-                                <li key={feature} className="flex items-center gap-2 text-sm text-gray-600">
-                                    <Check size={15} className="text-brand-green shrink-0" />
-                                    <span>{feature}</span>
-                                </li>
-                            ))}
-                        </ul>
+                            );
+                        })}
                     </div>
-                    <button
-                        onClick={handleFree}
-                        className="shrink-0 bg-brand-green hover:bg-brand-greenHover text-brand-dark font-bold text-sm px-6 py-3 rounded-xl transition-colors"
-                    >
-                        {PLANS.free.ctaLabel} →
-                    </button>
-                </div>
-            </motion.div>
 
-            {/* Comparison hints */}
-            <div className="max-w-5xl mx-auto mt-6 flex flex-col sm:flex-row flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-gray-500">
-                <span>Applying this week only? → <span className="text-brand-dark font-medium">Sprint</span></span>
-                <span>Searching 3+ weeks? <span className="text-brand-dark font-medium">Build costs less than Sprint</span></span>
-                <span>Focused 3-month push? → <span className="text-brand-dark font-medium">Blueprint Pass</span></span>
+                    {/* Feature Groups */}
+                    {comparisonSections.map((section) => (
+                        <div key={section.title} className="mb-10 last:mb-0">
+                            <h4 className="text-base sm:text-lg font-semibold text-brand-dark mb-4">{section.title}</h4>
+                            <div>
+                                {section.rows.map((row, i) => (
+                                    <div
+                                        key={row.label}
+                                        className={`grid grid-cols-[1.2fr_repeat(4,1fr)] gap-x-3 sm:gap-x-6 items-center px-4 sm:px-5 py-3.5 rounded-lg ${
+                                            i % 2 === 0 ? 'bg-brand-secondary' : ''
+                                        }`}
+                                    >
+                                        <span className="text-xs sm:text-sm text-brand-dark/85">{row.label}</span>
+                                        {row.cells.map((cell, cIdx) => (
+                                            <PricingCell key={cIdx} cell={cell} emphasize={cell.type === 'text'} />
+                                        ))}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+
+                    {/* Bottom CTA buttons below all comparison features */}
+                    <div className="grid grid-cols-[1.2fr_repeat(4,1fr)] gap-x-3 sm:gap-x-6 items-center pt-8 border-t border-brand-border mt-8">
+                        <div aria-hidden="true" />
+                        {DISPLAY_PLANS.map((planId) => {
+                            const isCurrent = isPaidSubscriber ? currentPlanId === planId : planId === 'free';
+                            const isLoading = loadingPlanId === planId;
+
+                            return (
+                                <div key={planId} className="text-center">
+                                    <button
+                                        onClick={() => handlePlanAction(planId)}
+                                        disabled={isLoading || (isPaidSubscriber && isCurrent)}
+                                        className={`w-full py-2.5 px-2 rounded-xl font-bold text-xs sm:text-sm shadow-sm transition-all flex items-center justify-center gap-1.5 ${
+                                            isPaidSubscriber && isCurrent
+                                                ? 'bg-gray-100 text-gray-400 cursor-default'
+                                                : 'bg-brand-green hover:bg-brand-greenHover text-brand-dark'
+                                        } disabled:opacity-75`}
+                                    >
+                                        {isLoading ? (
+                                            <Loader2 size={14} className="animate-spin" />
+                                        ) : isPaidSubscriber && isCurrent ? (
+                                            'Current plan'
+                                        ) : (
+                                            'Get started'
+                                        )}
+                                    </button>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
             </div>
         </div>
     );

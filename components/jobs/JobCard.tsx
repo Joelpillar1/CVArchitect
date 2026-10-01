@@ -5,11 +5,12 @@ import {
   Bookmark, 
   BookmarkCheck, 
   ExternalLink,
-  Building2
+  BadgeCheck
 } from 'lucide-react';
 import { Job } from '../../types/job';
 import { ResumeData } from '../../types';
 import { calculateJobMatchScore, formatSalary, formatPostedDate } from '../../utils/jobMatching';
+import { getCompanyLogoUrl, getCompanyDomain } from '../../utils/companyLogo';
 
 interface JobCardProps {
   job: Job;
@@ -40,25 +41,25 @@ export default function JobCard({
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              {job.companyLogo ? (
-                <img
-                  src={job.companyLogo}
-                  alt=""
-                  width={20}
-                  height={20}
-                  loading="lazy"
-                  className="w-5 h-5 rounded-md shrink-0 object-contain border border-neutral-150 p-0.5 bg-white"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).style.display = 'none';
-                  }}
-                />
-              ) : (
-                <div className="w-5 h-5 rounded-md bg-neutral-100 flex items-center justify-center text-neutral-500 shrink-0">
-                  <Building2 size={11} />
-                </div>
-              )}
-              <span className="font-semibold text-neutral-900 text-sm truncate">
+              <img
+                src={getCompanyLogoUrl(job.company, job.companyLogo, job.companyWebsiteUrl || job.sourceUrl)}
+                alt={`${job.company} logo`}
+                width={22}
+                height={22}
+                loading="lazy"
+                className="w-5.5 h-5.5 rounded-md shrink-0 object-contain border border-neutral-150 p-0.5 bg-white shadow-xs"
+                onError={(e) => {
+                  const img = e.currentTarget as HTMLImageElement;
+                  const domain = getCompanyDomain(job.company, job.companyWebsiteUrl || job.sourceUrl);
+                  if (!img.dataset.fallback) {
+                    img.dataset.fallback = 'true';
+                    img.src = `https://unavatar.io/${domain}?fallback=https://logo.clearbit.com/${domain}`;
+                  }
+                }}
+              />
+              <span className="font-semibold text-neutral-900 text-sm truncate flex items-center gap-1">
                 {job.company}
+                <BadgeCheck size={14} className="text-[#3B82F6] fill-[#3B82F6] shrink-0" stroke="white" strokeWidth={2} />
               </span>
               {(job.companyWebsiteUrl || job.sourceUrl) && (
                 <a
@@ -139,7 +140,7 @@ export default function JobCard({
         <div className="flex items-center gap-2 min-w-0">
           <span className="flex items-center gap-1 text-neutral-400 truncate">
             <Clock size={12} className="shrink-0" />
-            <span className="truncate">{formatPostedDate(job.postedAt) || job.postedDate}</span>
+            <span className="truncate">{formatPostedDate(job.postedAt ?? job.firstSeenAt)}</span>
           </span>
         </div>
 

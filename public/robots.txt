@@ -1,4 +1,4 @@
-# CV Architect - Robots.txt
+# CVArchitect — Robots.txt
 # https://cvarchitect.app
 
 # -----------------------------------------------
@@ -6,7 +6,11 @@
 # -----------------------------------------------
 User-agent: *
 Allow: /
+Allow: /agent
+Allow: /#jobs
 Allow: /pricing
+Allow: /resume-checker
+Allow: /action-words
 Allow: /contact
 Allow: /privacy
 Allow: /terms
@@ -14,8 +18,10 @@ Allow: /refund-policy
 Allow: /signup
 Allow: /login
 Allow: /blog
+Allow: /blog/*
 Allow: /llms.txt
 Allow: /llms-full.txt
+Allow: /ai.txt
 Allow: /.well-known/
 
 # Block authenticated/internal routes
@@ -24,37 +30,45 @@ Disallow: /dashboard/*
 Disallow: /reset-password
 Disallow: /forgot-password
 
-# Block API routes
+# Block backend API routes
 Disallow: /api/
 
 # -----------------------------------------------
-# OpenAI — ChatGPT, ChatGPT Browse, GPT plugins
+# OpenAI — ChatGPT, GPTBot, ChatGPT-User
 # -----------------------------------------------
 User-agent: GPTBot
 Allow: /
 Allow: /llms.txt
 Allow: /llms-full.txt
+Allow: /ai.txt
 Allow: /blog
-Allow: /pricing
 
 User-agent: ChatGPT-User
 Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /ai.txt
 
 # -----------------------------------------------
-# Anthropic — Claude
+# Anthropic — ClaudeBot, Claude-Web, anthropic-ai
 # -----------------------------------------------
 User-agent: ClaudeBot
 Allow: /
 Allow: /llms.txt
 Allow: /llms-full.txt
+Allow: /ai.txt
 
 User-agent: anthropic-ai
 Allow: /
 Allow: /llms.txt
 Allow: /llms-full.txt
+Allow: /ai.txt
 
 User-agent: Claude-Web
 Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /ai.txt
 
 # -----------------------------------------------
 # Perplexity AI
@@ -63,7 +77,26 @@ User-agent: PerplexityBot
 Allow: /
 Allow: /llms.txt
 Allow: /llms-full.txt
+Allow: /ai.txt
 Allow: /blog
+
+# -----------------------------------------------
+# DeepSeek AI
+# -----------------------------------------------
+User-agent: DeepSeekBot
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /ai.txt
+
+# -----------------------------------------------
+# xAI / Grok
+# -----------------------------------------------
+User-agent: GrokBot
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /ai.txt
 
 # -----------------------------------------------
 # Google — Gemini, AI Overviews, Search Labs
@@ -75,14 +108,16 @@ User-agent: GoogleOther
 Allow: /
 Allow: /llms.txt
 Allow: /llms-full.txt
+Allow: /ai.txt
 
 User-agent: Google-Extended
 Allow: /
 Allow: /llms.txt
 Allow: /llms-full.txt
+Allow: /ai.txt
 
 # -----------------------------------------------
-# Microsoft — Bing, Copilot, Bing AI
+# Microsoft — Bing, Copilot
 # -----------------------------------------------
 User-agent: Bingbot
 Allow: /
@@ -97,6 +132,7 @@ User-agent: meta-externalagent
 Allow: /
 Allow: /llms.txt
 Allow: /llms-full.txt
+Allow: /ai.txt
 
 User-agent: FacebookBot
 Allow: /
@@ -111,44 +147,35 @@ User-agent: Applebot-Extended
 Allow: /
 Allow: /llms.txt
 Allow: /llms-full.txt
+Allow: /ai.txt
 
 # -----------------------------------------------
-# Common Crawl — used to train most LLMs
+# Common Crawl (Used across Frontier LLM training)
 # -----------------------------------------------
 User-agent: CCBot
 Allow: /
 Allow: /llms.txt
 Allow: /llms-full.txt
+Allow: /ai.txt
 Allow: /blog
 
 # -----------------------------------------------
-# Cohere AI
+# Cohere & Mistral
 # -----------------------------------------------
 User-agent: cohere-ai
 Allow: /
 Allow: /llms.txt
 Allow: /llms-full.txt
+Allow: /ai.txt
 
-# -----------------------------------------------
-# Mistral AI
-# -----------------------------------------------
 User-agent: MistralAI
 Allow: /
-
-# -----------------------------------------------
-# Other AI research crawlers
-# -----------------------------------------------
-User-agent: YouBot
-Allow: /
-
-User-agent: AI2Bot
-Allow: /
-
-User-agent: Diffbot
-Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /ai.txt
 
 # -----------------------------------------------
 # Sitemaps
 # -----------------------------------------------
 Sitemap: https://cvarchitect.app/sitemap.xml
-Sitemap: https://cvarchitect.app/sitemap-blog.xml
+Sitemap-Blog: https://cvarchitect.app/sitemap-blog.xml

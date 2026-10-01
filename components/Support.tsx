@@ -66,7 +66,7 @@ const FAQS: FAQ[] = [
         question: 'What is included in the free plan?',
         answer: (
             <p>
-                The Foundation free plan includes 1 AI-tailored resume on our base template with full PDF download. To continue with unlimited AI tailoring, all templates, and unlimited downloads, upgrade to Sprint, Build, or Blueprint Pass.
+                The Foundation free plan includes 1 AI-tailored resume on our base template with full PDF download. To continue with unlimited AI tailoring, all templates, and unlimited downloads, upgrade to Sprint, Build, or Lifetime Access.
             </p>
         ),
     },
@@ -157,7 +157,7 @@ const FAQS: FAQ[] = [
         question: 'What are AI credits and how do I get more?',
         answer: (
             <p>
-                Credits are only used on the Foundation free tier. Paid plans (Sprint, Build, Blueprint Pass) include unlimited AI tailoring and do not consume credits.
+                Credits are only used on the Foundation free tier. Paid plans (Sprint, Build, Lifetime Access) include unlimited AI tailoring and do not consume credits.
             </p>
         ),
     },

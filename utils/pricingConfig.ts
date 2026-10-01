@@ -5,9 +5,10 @@ import { Plan, CreditPack, PlanId } from '../types/pricing';
 // ========================================================
 
 export const PAID_PLAN_FEATURES = [
-    'Unlimited AI tailoring',
-    'All templates unlocked',
-    'Unlimited downloads',
+    'Unlimited AI tailoring & ATS scoring',
+    'All 20+ ATS templates & custom styling',
+    'Cover Letters & Interview Prep',
+    'Unlimited PDF & Word (DOCX) downloads',
 ];
 
 export const FOUNDATION_FEATURES = [
@@ -16,7 +17,7 @@ export const FOUNDATION_FEATURES = [
     'Full download included',
 ];
 
-export const PAID_PLAN_IDS: PlanId[] = ['sprint', 'build', 'blueprint'];
+export const PAID_PLAN_IDS: PlanId[] = ['sprint', 'build', 'lifetime'];
 
 /** @deprecated Legacy paid plan IDs still stored for some users */
 export const LEGACY_PAID_PLAN_IDS = ['week_pass', 'pro_monthly'];
@@ -34,7 +35,7 @@ export const PLANS: Record<string, Plan> = {
         price: { monthly: 0 },
         billingLabel: 'Free',
         renewalNote: 'No credit card required.',
-        ctaLabel: 'Try it free',
+        ctaLabel: 'Get started',
         features: {
             resumeUploads: 1,
             resumeAnalyses: 1,
@@ -72,10 +73,10 @@ export const PLANS: Record<string, Plan> = {
         name: 'Sprint',
         tagline: 'For a quick push',
         description: 'Unlimited AI tailoring for 7 days.',
-        price: { weekly: 2.99 },
-        billingLabel: '$2.99 / week',
-        renewalNote: 'Renews weekly at $2.99. Cancel anytime.',
-        ctaLabel: 'Start this week',
+        price: { weekly: 6 },
+        billingLabel: '$6 / week',
+        renewalNote: 'Renews weekly at $6. Cancel anytime.',
+        ctaLabel: 'Get started',
         features: {
             resumeUploads: 'unlimited',
             resumeAnalyses: 'unlimited',
@@ -112,10 +113,10 @@ export const PLANS: Record<string, Plan> = {
         name: 'Build',
         tagline: 'For an active search',
         description: 'Unlimited AI tailoring, every month.',
-        price: { monthly: 9.99 },
-        billingLabel: '$9.99 / month',
-        renewalNote: 'Renews monthly at $9.99. Cancel anytime.',
-        ctaLabel: 'Start monthly',
+        price: { monthly: 20 },
+        billingLabel: '$20 / month',
+        renewalNote: 'Renews monthly at $20. Cancel anytime.',
+        ctaLabel: 'Get started',
         features: {
             resumeUploads: 'unlimited',
             resumeAnalyses: 'unlimited',
@@ -158,7 +159,7 @@ export const PLANS: Record<string, Plan> = {
         price: { quarterly: 29 },
         billingLabel: '$29 / 3 months',
         renewalNote: 'Renews every 3 months at $29. Cancel anytime.',
-        ctaLabel: 'Start 3-month plan',
+        ctaLabel: 'Get started',
         features: {
             resumeUploads: 'unlimited',
             resumeAnalyses: 'unlimited',
@@ -179,6 +180,48 @@ export const PLANS: Record<string, Plan> = {
         creditRules: {
             usesCredits: false,
             startingCredits: 999999,
+            creditsReset: true,
+            creditCosts: {
+                fullRewrite: 0,
+                cvRegeneration: 0,
+                resumeUpload: 0,
+                coverLetter: 0,
+                bulletOptimization: 0,
+                keywordEnhancement: 0,
+            },
+        },
+    },
+    lifetime: {
+        id: 'lifetime',
+        name: 'Lifetime',
+        tagline: 'Pay once, keep it forever',
+        description: 'Unlimited AI tailoring, forever. One payment.',
+        price: { lifetime: 99 },
+        billingLabel: '$99 one-time',
+        renewalNote: 'One-time payment. No renewals, ever.',
+        ctaLabel: 'Get started',
+        features: {
+            resumeUploads: 'unlimited',
+            resumeAnalyses: 'unlimited',
+            aiRewrites: 'unlimited',
+            jobMatches: 'unlimited',
+            coverLetterGeneration: 'unlimited',
+            bulletOptimizations: 'unlimited',
+            cvRegenerations: 'unlimited',
+            pdfExport: true,
+            watermarkFree: true,
+            allTemplates: true,
+            templateAccess: 'all',
+            maxResumePages: 10,
+            priorityProcessing: true,
+            multipleVersions: true,
+            liveEditing: true,
+        },
+        creditRules: {
+            usesCredits: false,
+            startingCredits: 999999,
+            monthlyCredits: 999999,
+            lifetimeCredits: 999999,
             creditsReset: true,
             creditCosts: {
                 fullRewrite: 0,
@@ -296,11 +339,18 @@ export const canAccessTemplate = (planId: string, templateId: string): boolean =
 };
 
 export const formatPlanPrice = (plan: Plan): { amount: string; period: string } => {
-    if (plan.price.weekly != null) return { amount: '$2.99', period: '/ week' };
+    if (plan.price.weekly != null) {
+        return { amount: `$${plan.price.weekly.toFixed(2).replace(/\.00$/, '')}`, period: '/ week' };
+    }
     if (plan.price.monthly != null && plan.price.monthly > 0) {
         return { amount: `$${plan.price.monthly.toFixed(2).replace(/\.00$/, '')}`, period: '/ month' };
     }
-    if (plan.price.quarterly != null) return { amount: '$29', period: '/ 3 months' };
+    if (plan.price.quarterly != null) {
+        return { amount: `$${plan.price.quarterly.toFixed(2).replace(/\.00$/, '')}`, period: '/ 3 months' };
+    }
+    if (plan.price.lifetime != null) {
+        return { amount: `$${plan.price.lifetime.toFixed(2).replace(/\.00$/, '')}`, period: 'one-time' };
+    }
     return { amount: '$0', period: '' };
 };
 
@@ -311,6 +361,7 @@ const PLAN_TIER_ORDER: Record<string, number> = {
     build: 2,
     pro_monthly: 2,
     blueprint: 3,
+    lifetime: 4,
 };
 
 export type PlanChangeDirection = 'upgrade' | 'downgrade' | 'same';

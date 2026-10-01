@@ -1,9 +1,10 @@
 import React from 'react';
 import RichText from '../RichText';
-import { ResumeData, Experience, Education, Project, Certification, LanguageItem, AdditionalInfoItem, CourseworkItem } from '../../types';
+import { ResumeData, Experience, Education, Project, Certification, LanguageItem, AdditionalInfoItem, CourseworkItem, ExpertSkillItem } from '../../types';
 import {
   parseDescriptionBullets,
   parseAchievementBullets,
+  parseExpertSkillItems,
   formatMonthYear as formatMonthYearUtil,
   getSectionGapIn,
   getHeaderGapIn,
@@ -16,13 +17,9 @@ import {
   formatLinkedInDisplay,
   getLinkedInHref,
   formatNameDisplay,
-  formatJobTitleDisplay,
   formatSectionTitle,
-  isTitleFirst,
-  splitSkillsList,
   CONTACT_SEPARATOR,
   renderCourseworkBlockHelper,
-  renderExpertSkillsBlockHelper,
 } from '../../utils/templateUtils';
 import { resolveSection, getResolvedSectionOrder } from '../../utils/sectionRegistry';
 import type { CustomSectionData } from '../../types/resumeSections';
@@ -99,31 +96,37 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
     );
   };
 
-  const renderSkillsBlock = (title: string, skillsStr: string) => {
-    if (!skillsStr || !skillsStr.trim()) return null;
-    const skillsList = splitSkillsList(skillsStr);
-    if (skillsList.length === 0) return null;
-    const columnCount = data.skillsColumnCount === 2 ? 2 : data.skillsColumnCount === 4 ? 4 : 3;
-    const getGridClass = (cols: number) => {
-      if (cols === 2) return 'grid-cols-2';
-      if (cols === 4) return 'grid-cols-4';
-      return 'grid-cols-3';
-    };
+  const renderExpertSkillsBlock = (title: string, items: ExpertSkillItem[] | string, basePath: string = 'expertSkills') => {
+    const parsed = parseExpertSkillItems(items);
+    if (parsed.length === 0) return null;
+
     return (
       <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
         {renderSectionHeader(title)}
-        <ul
-          data-skills-grid
-          className={`list-none pl-2.5 grid gap-x-8 gap-y-1 ${getGridClass(columnCount)}`}
-          style={{ fontSize: `${bodyPt}pt`, color: REZI_SLATE, fontWeight: W_BODY, lineHeight: bodyLineHeight }}
-        >
-          {skillsList.map((skill, i) => (
-            <li key={i} data-skill-cell className="flex items-baseline gap-1.5 min-w-0">
-              <span data-bullet aria-hidden="true" className="shrink-0 select-none pointer-events-none leading-none">•</span>
-              <span className="flex-1" style={{ lineHeight: 'inherit' }}><RichText text={skill} /></span>
-            </li>
-          ))}
-        </ul>
+        <div className="flex flex-col gap-1 text-justify" style={{ fontSize: `${bodyPt}pt`, color: REZI_SLATE, fontWeight: W_BODY, lineHeight: bodyLineHeight }}>
+          {parsed.map((item, index) => {
+            const hasCategory = Boolean(item.category?.trim());
+            return (
+              <div key={item.id || index} className="leading-relaxed">
+                {hasCategory ? (
+                  <>
+                    <span data-path={`${basePath}.${index}.category`} style={{ fontWeight: W_BOLD, color: REZI_INK }}>
+                      <RichText text={item.category.trim()} />
+                      {item.category.trim().endsWith(':') ? ' ' : ': '}
+                    </span>
+                    <span data-path={`${basePath}.${index}.skills`}>
+                      <RichText text={item.skills ?? ''} />
+                    </span>
+                  </>
+                ) : (
+                  <span data-path={`${basePath}.${index}.skills`}>
+                    <RichText text={item.skills ?? ''} />
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </section>
     );
   };
@@ -154,32 +157,46 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
         <div className="flex flex-col" style={{ gap: `${getItemGapIn(data)}in` }}>
           {items.map((exp, index) => {
             const bullets = parseDescriptionBullets(exp.description);
-            const dateRange = [formatMonthYear(exp.startDate), formatMonthYear(exp.endDate)].filter(Boolean).join(' - ');
-            if (!exp.role && !exp.company && !dateRange && bullets.length === 0) return null;
+            const dateRange = [formatMonthYear(exp.startDate), formatMonthYear(exp.endDate)].filter(Boolean).join(' – ');
+            const orgName = exp.company || exp.organization;
+            if (!exp.role && !orgName && !dateRange && bullets.length === 0) return null;
 
             return (
               <div key={exp.id} className="break-inside-avoid">
-                {exp.role && (
-                  <div data-path={`${basePath}.${index}.role`} style={{ fontSize: `${bodyPt}pt`, color: REZI_INK, fontWeight: W_BOLD, lineHeight: 1.3 }}>
-                    <RichText text={exp.role ?? ''} />
-                  </div>
-                )}
-                <div className="flex justify-between gap-2" style={{ fontSize: `${metaPt}pt`, color: REZI_SLATE, lineHeight: 1.3 }}>
-                  <span style={{ fontWeight: W_SEMIBOLD }}>
+                {/* Line 1: Organization (Left, Bold) & Location (Right, Regular) */}
+                <div className="flex justify-between items-baseline gap-2" style={{ fontSize: `${bodyPt}pt`, lineHeight: 1.3 }}>
+                  <span style={{ fontWeight: W_BOLD, color: REZI_INK }}>
                     <span data-path={`${basePath}.${index}.company`}>
-                      <RichText text={exp.company ?? ''} />
+                      <RichText text={orgName ?? ''} />
                     </span>
                   </span>
-                  <span className="text-right shrink-0 ml-4" style={{ fontWeight: W_BODY }}>
-                    {dateRange && <RichText text={dateRange} />}
-                    {dateRange && exp.location && <span>{',  '}</span>}
-                    {exp.location && (
-                      <span data-path={`${basePath}.${index}.location`}>
-                        <RichText text={exp.location} />
-                      </span>
-                    )}
-                  </span>
+                  {exp.location && (
+                    <span
+                      data-path={`${basePath}.${index}.location`}
+                      className="text-right shrink-0 ml-4"
+                      style={{ fontSize: `${metaPt}pt`, color: REZI_SLATE, fontWeight: W_BODY }}
+                    >
+                      <RichText text={exp.location} />
+                    </span>
+                  )}
                 </div>
+
+                {/* Line 2: Position Title (Left, Italic) & Date Range (Right, Regular) */}
+                <div className="flex justify-between items-baseline gap-2" style={{ fontSize: `${metaPt}pt`, lineHeight: 1.3, color: REZI_SLATE }}>
+                  {exp.role ? (
+                    <span style={{ fontStyle: 'italic', fontWeight: W_BODY }}>
+                      <span data-path={`${basePath}.${index}.role`}>
+                        <RichText text={exp.role} />
+                      </span>
+                    </span>
+                  ) : <span />}
+                  {dateRange && (
+                    <span className="text-right shrink-0 ml-4" style={{ fontWeight: W_BODY, color: REZI_SLATE }}>
+                      <RichText text={dateRange} />
+                    </span>
+                  )}
+                </div>
+
                 {bullets.length > 0 && (
                   <ul className="list-disc list-outside ml-5 mt-1" style={{ fontSize: `${metaPt}pt`, color: REZI_SLATE, fontWeight: W_BODY, lineHeight: bodyLineHeight }}>
                     {bullets.map((line, i) => (
@@ -207,30 +224,51 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
             if (!edu.school && !edu.degree && !edu.year) return null;
             return (
               <div key={edu.id} className="break-inside-avoid">
-                {edu.degree && (
-                  <div data-path={`${basePath}.${index}.degree`} style={{ fontSize: `${bodyPt}pt`, color: REZI_INK, fontWeight: W_BOLD, lineHeight: 1.3 }}>
-                    <RichText text={edu.degree ?? ''} />
-                  </div>
-                )}
-                <div className="flex justify-between items-baseline" style={{ fontSize: `${metaPt}pt`, color: REZI_SLATE, fontWeight: W_BODY, lineHeight: 1.3 }}>
-                  <div>
-                    {edu.school && (
-                      <span data-path={`${basePath}.${index}.school`}>
-                        <RichText text={edu.school} />
-                      </span>
-                    )}
+                {/* Line 1: School (Left, Bold) & Location (Right, Regular) */}
+                <div className="flex justify-between items-baseline gap-2" style={{ fontSize: `${bodyPt}pt`, lineHeight: 1.3 }}>
+                  <span style={{ fontWeight: W_BOLD, color: REZI_INK }}>
+                    <span data-path={`${basePath}.${index}.school`}>
+                      <RichText text={edu.school ?? ''} />
+                    </span>
+                  </span>
+                  {(edu as any).location && (
+                    <span
+                      data-path={`${basePath}.${index}.location`}
+                      className="text-right shrink-0 ml-4"
+                      style={{ fontSize: `${metaPt}pt`, color: REZI_SLATE, fontWeight: W_BODY }}
+                    >
+                      <RichText text={(edu as any).location} />
+                    </span>
+                  )}
+                </div>
+
+                {/* Line 2: Degree / GPA (Left, Italic) & Year (Right, Regular) */}
+                <div className="flex justify-between items-baseline gap-2" style={{ fontSize: `${metaPt}pt`, lineHeight: 1.3, color: REZI_SLATE }}>
+                  <span style={{ fontStyle: 'italic', fontWeight: W_BODY }}>
+                    <span data-path={`${basePath}.${index}.degree`}>
+                      <RichText text={edu.degree ?? ''} />
+                    </span>
                     {edu.gpa && (
-                      <span className="ml-2">
-                        • GPA: <RichText text={edu.gpa} />
+                      <span className="ml-2 not-italic">
+                        • GPA: <span data-path={`${basePath}.${index}.gpa`}><RichText text={edu.gpa} /></span>
                       </span>
                     )}
-                  </div>
+                  </span>
                   {edu.year && (
-                    <span data-path={`${basePath}.${index}.year`} className="text-right whitespace-nowrap">
+                    <span data-path={`${basePath}.${index}.year`} className="text-right shrink-0 ml-4 whitespace-nowrap" style={{ fontWeight: W_BODY, color: REZI_SLATE }}>
                       <RichText text={edu.year} />
                     </span>
                   )}
                 </div>
+
+                {edu.relevantCourses && (
+                  <div className="mt-0.5 text-justify" style={{ fontSize: `${metaPt}pt`, color: REZI_SLATE, fontWeight: W_BODY, lineHeight: bodyLineHeight }}>
+                    <span style={{ fontWeight: W_SEMIBOLD }}>Relevant Coursework: </span>
+                    <span data-path={`${basePath}.${index}.relevantCourses`}>
+                      <RichText text={edu.relevantCourses} />
+                    </span>
+                  </div>
+                )}
               </div>
             );
           })}
@@ -247,14 +285,15 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
         <div className="flex flex-col" style={{ gap: `${getItemGapIn(data)}in` }}>
           {items.map((project, index) => {
             const bullets = parseDescriptionBullets(project.description);
-            if (!project.name && !project.technologies && bullets.length === 0) return null;
+            if (!project.name && !project.technologies && !project.role && bullets.length === 0) return null;
 
             return (
               <div key={project.id} className="break-inside-avoid">
-                {project.name && (
-                  <div style={{ fontSize: `${bodyPt}pt`, color: REZI_INK, fontWeight: W_BOLD, lineHeight: 1.3 }}>
+                {/* Line 1: Project Name (Left, Bold) + Link */}
+                <div className="flex justify-between items-baseline gap-2" style={{ fontSize: `${bodyPt}pt`, lineHeight: 1.3 }}>
+                  <span style={{ fontWeight: W_BOLD, color: REZI_INK }}>
                     <span data-path={`${basePath}.${index}.name`}>
-                      <RichText text={project.name} />
+                      <RichText text={project.name ?? ''} />
                     </span>
                     {project.link && (
                       <a
@@ -267,13 +306,28 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
                         Link
                       </a>
                     )}
+                  </span>
+                </div>
+
+                {/* Line 2: Role / Tech (Left, Italic) */}
+                {(project.role || project.technologies) && (
+                  <div className="flex justify-between items-baseline gap-2" style={{ fontSize: `${metaPt}pt`, lineHeight: 1.3, color: REZI_SLATE }}>
+                    <span style={{ fontStyle: 'italic', fontWeight: W_BODY }}>
+                      {project.role && (
+                        <span data-path={`${basePath}.${index}.role`}>
+                          <RichText text={project.role} />
+                        </span>
+                      )}
+                      {project.role && project.technologies && <span>{' – '}</span>}
+                      {project.technologies && (
+                        <span data-path={`${basePath}.${index}.technologies`}>
+                          <RichText text={project.technologies} />
+                        </span>
+                      )}
+                    </span>
                   </div>
                 )}
-                {project.technologies && (
-                  <div data-path={`${basePath}.${index}.technologies`} style={{ fontSize: `${metaPt}pt`, color: REZI_SLATE, fontWeight: W_MEDIUM, lineHeight: 1.3 }}>
-                    <RichText text={project.technologies} />
-                  </div>
-                )}
+
                 {bullets.length > 0 && (
                   <ul className="list-disc list-outside ml-5 mt-1" style={{ fontSize: `${metaPt}pt`, color: REZI_SLATE, fontWeight: W_BODY, lineHeight: bodyLineHeight }}>
                     {bullets.map((line, i) => (
@@ -397,7 +451,8 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
 
     let sectionTitle = resolved.title;
     if (resolved.type === 'summary') sectionTitle = t.professionalSummary || resolved.title;
-    if (resolved.type === 'skills') sectionTitle = t.technicalSkills || resolved.title;
+    if (resolved.type === 'skills') sectionTitle = data.sectionTitles?.skills || resolved.title || 'Skills';
+    if (resolved.type === 'expert_skills') sectionTitle = data.sectionTitles?.expert_skills || resolved.title || 'Expert-Level Skills';
     if (resolved.type === 'experience') sectionTitle = t.experienceTitle || resolved.title;
     if (resolved.type === 'education') sectionTitle = t.educationTitle || resolved.title;
     if (resolved.type === 'certifications') sectionTitle = t.certifications || resolved.title;
@@ -406,16 +461,8 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
       case 'text':
         return renderTextBlock(sectionTitle, resolved.content as string, resolved.id);
       case 'skills':
-        return renderSkillsBlock(sectionTitle, resolved.content as string);
       case 'expert_skills':
-        return renderExpertSkillsBlockHelper({
-          data,
-          title: sectionTitle,
-          items: resolved.content as any,
-          basePath: resolved.id,
-          renderSectionHeader,
-          bodyStyle: { fontSize: `${bodyPt}pt`, lineHeight: bodyLineHeight },
-        });
+        return renderExpertSkillsBlock(sectionTitle, resolved.content as any, resolved.id);
       case 'bullets':
         return renderBulletsBlock(sectionTitle, resolved.content as string[] | string, resolved.id);
       case 'experience':
@@ -447,38 +494,8 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
     }
   };
 
-  const headerAlignClass =
-    data.headerAlignment === 'left' ? 'items-start text-left' :
-    data.headerAlignment === 'right' ? 'items-end text-right' :
-    'items-center text-center';
-
-  const titleFirst = isTitleFirst(data, false);
-
-  const jobTitleBlock = data.jobTitle ? (
-    <p
-      data-path="jobTitle"
-      className={`tracking-wide ${
-        data.jobTitleAlignment === 'left' ? 'text-left' :
-        data.jobTitleAlignment === 'right' ? 'text-right' :
-        data.jobTitleAlignment === 'center' ? 'text-center' :
-        data.headerAlignment === 'left' ? 'text-left' :
-        data.headerAlignment === 'right' ? 'text-right' :
-        'text-center'
-      }`}
-      style={{
-        fontSize: `${fontSizes?.jobTitle || 11}pt`,
-        color: headingColor,
-        fontWeight: W_SEMIBOLD,
-        lineHeight: 1.25,
-        marginBottom: titleFirst ? `${getHeaderContactGapIn(data)}in` : undefined,
-      }}
-    >
-      <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />
-    </p>
-  ) : null;
-
   const contactBlock = (() => {
-    const showIcons = data.showContactIcons ?? true;
+    const showIcons = data.showContactIcons ?? false;
     const contactItems: React.ReactNode[] = [];
 
     if (data.location || data.address) {
@@ -554,20 +571,32 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
           fontWeight: W_BODY,
           lineHeight: 1.4,
           color: REZI_SLATE,
-          marginBottom: !titleFirst && data.jobTitle ? `${getHeaderContactGapIn(data)}in` : undefined,
         }}
       >
         {contactItems.map((item, idx) => (
           <React.Fragment key={idx}>
             {item}
             {!showIcons && idx < contactItems.length - 1 && (
-              <span className="mx-1 text-gray-400 select-none">{CONTACT_SEPARATOR}</span>
+              <span className="mx-1 text-gray-500 select-none">•</span>
             )}
           </React.Fragment>
         ))}
       </div>
     );
   })();
+
+  const getHarvardSectionOrder = (resumeData: ResumeData): string[] => {
+    const rawOrder = getResolvedSectionOrder(resumeData);
+    const eduIdx = rawOrder.indexOf('education');
+    const expIdx = rawOrder.indexOf('experience');
+    if (eduIdx !== -1 && expIdx !== -1 && eduIdx > expIdx) {
+      const reordered = [...rawOrder];
+      reordered.splice(eduIdx, 1);
+      reordered.splice(expIdx, 0, 'education');
+      return reordered;
+    }
+    return rawOrder;
+  };
 
   return (
     <div
@@ -591,16 +620,27 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
             data.headerAlignment === 'right' ? 'text-right' :
             'text-center'
           }
-          style={{ fontSize: `${fontSizes?.header || 18}pt`, color: REZI_INK, fontFamily: 'Merriweather, serif', fontWeight: W_BOLD, lineHeight: 1.2, marginBottom: `${getHeaderItemGapIn(data)}in` }}
+          style={{ fontSize: `${fontSizes?.header || 18}pt`, color: REZI_INK, fontFamily: 'Merriweather, serif', fontWeight: W_BOLD, lineHeight: 1.2, marginBottom: '4px' }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase)} />
         </h1>
 
-        {titleFirst ? (<>{jobTitleBlock}{contactBlock}</>) : (<>{contactBlock}{jobTitleBlock}</>)}
+        <div
+          className="header-divider"
+          style={{
+            width: '100%',
+            height: '1px',
+            backgroundColor: REZI_INK,
+            marginTop: '2px',
+            marginBottom: `${Math.max(0.06, getHeaderContactGapIn(data))}in`,
+          }}
+        />
+
+        {contactBlock}
       </header>
 
       {/* Dynamic Sections */}
-      {getResolvedSectionOrder(data).map(id => (
+      {getHarvardSectionOrder(data).map(id => (
         <React.Fragment key={id}>
           {renderSection(id)}
         </React.Fragment>

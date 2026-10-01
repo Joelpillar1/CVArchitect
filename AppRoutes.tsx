@@ -70,6 +70,11 @@ function PublicRoute({ children, redirectIfAuthenticated = true }: PublicRoutePr
     const { user, loading } = useAuth();
     const location = useLocation();
 
+    // Do not block public content (landing page, public tools, etc.) on auth loading
+    if (!redirectIfAuthenticated) {
+        return <>{children}</>;
+    }
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -138,11 +143,13 @@ function ResetPasswordWrapper() {
 export default function AppRoutes() {
     return (
         <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<PublicRoute redirectIfAuthenticated={false}><LandingPage /></PublicRoute>} />
-            <Route path="/landingpage" element={<PublicRoute redirectIfAuthenticated={false}><HeroLandingPage /></PublicRoute>} />
-            <Route path="/agent-landing" element={<PublicRoute redirectIfAuthenticated={false}><AgentLandingPage /></PublicRoute>} />
-            <Route path="/agent" element={<PublicRoute redirectIfAuthenticated={false}><AgentLandingPage /></PublicRoute>} />
+            {/* Public Landing & Content Routes */}
+            <Route path="/" element={<AgentLandingPage />} />
+            <Route path="/cvarchitect" element={<LandingPage />} />
+            <Route path="/classic" element={<LandingPage />} />
+            <Route path="/landingpage" element={<HeroLandingPage />} />
+            <Route path="/agent-landing" element={<AgentLandingPage />} />
+            <Route path="/agent" element={<AgentLandingPage />} />
             <Route path="/login" element={<PublicRoute><SignIn /></PublicRoute>} />
             <Route path="/signup" element={<PublicRoute><SignUp /></PublicRoute>} />
             <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
@@ -157,6 +164,7 @@ export default function AppRoutes() {
             <Route path="/support" element={<Support />} />
             <Route path="/resume-checker" element={<ResumeMatchChecker />} />
             <Route path="/action-words" element={<ActionVerbs />} />
+            <Route path="/jobs" element={<Navigate to="/#jobs" replace />} />
 
             {/* Blog */}
             <Route path="/blog" element={<BlogPage />} />
