@@ -50,9 +50,9 @@ function devApiRoutes(): Plugin {
         const url = req.url || '';
         if (!url.startsWith('/api/')) return next();
 
-        // Resolve the route to a function file. Shared helpers under api/lib are never routes.
+        // Resolve the route to a function file. Shared helpers with _ or under api/lib are never routes.
         const routePath = url.split('?')[0].replace(/\/+$/, '');
-        if (routePath.startsWith('/api/lib/')) return next();
+        if (routePath.includes('/_') || routePath.startsWith('/api/lib/')) return next();
 
         const candidates = [
           path.join(__dirname, `${routePath}.ts`),

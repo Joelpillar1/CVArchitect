@@ -1,15 +1,15 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { timingSafeEqual } from 'node:crypto';
-import { getEnv, getSupabaseAdminConfig, isSupabaseAdminConfigured } from './lib/serverEnv';
+import { getEnv, getSupabaseAdminConfig, isSupabaseAdminConfigured } from './_lib/serverEnv';
 import {
   fetchCompaniesJobs,
   summarizeSync,
   type CompanySyncResult,
   type JobSourceCompany,
-} from './lib/jobs';
+} from './_lib/jobs';
 import { JOB_SOURCE_COMPANIES } from '../data/jobCompanies';
-import { fetchWiseJobs, WISE_COMPANY } from './lib/jobs/providers/wise';
+import { fetchWiseJobs, WISE_COMPANY } from './_lib/jobs/providers/wise';
 
 /**
  * POST /api/jobs-sync — ingest jobs from company career pages into Supabase.

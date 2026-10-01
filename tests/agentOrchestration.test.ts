@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { RunContext } from '@openai/agents';
-import { getAgent, AgentRunContext } from '../api/agent/agentDefinition';
+import { getAgent, AgentRunContext } from '../api/agent/_agentDefinition';
 import { INITIAL_DATA, type ResumeData } from '../types';
 import type { AgentSSEEvent } from '../types/resumeOperations';
 import { resolveAgentTask, detectParsingQualityIssues } from '../utils/taskRequirements';

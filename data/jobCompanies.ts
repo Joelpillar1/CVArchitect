@@ -1,4 +1,4 @@
-import type { JobSourceCompany } from '../api/lib/jobs/types';
+import type { JobSourceCompany } from '../api/_lib/jobs/types';
 
 /**
  * Seed list of companies whose **own** careers pages we read directly.

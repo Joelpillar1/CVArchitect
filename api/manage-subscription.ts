@@ -12,15 +12,15 @@ import {
   normalizePlanId,
   schedulePlanChange,
   AppPlanId,
-} from './lib/subscriptionActivation';
+} from './_lib/subscriptionActivation';
 import {
   cancelDodoSubscriptionAtPeriodEnd,
   changeDodoSubscriptionPlan,
   createDodoCustomerPortalSession,
   fetchDodoSubscription,
-} from './lib/dodoSubscriptionApi';
-import { getDodoConfig, getProductIdForPlan, isDodoCheckoutConfigured } from './lib/dodoConfig';
-import { resolveReturnOrigin } from './lib/resolveReturnOrigin';
+} from './_lib/dodoSubscriptionApi';
+import { getDodoConfig, getProductIdForPlan, isDodoCheckoutConfigured } from './_lib/dodoConfig';
+import { resolveReturnOrigin } from './_lib/resolveReturnOrigin';
 
 const PLAN_TIER_ORDER: Record<string, number> = {
   free: 0,

@@ -1,14 +1,14 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
-import { normalizePlanId } from './lib/subscriptionActivation';
+import { normalizePlanId } from './_lib/subscriptionActivation';
 import {
   getDodoApiBaseUrl,
   getDodoConfig,
   getProductIdForPlan,
   isDodoCheckoutConfigured,
-} from './lib/dodoConfig';
-import { resolveReturnOrigin } from './lib/resolveReturnOrigin';
-import { formatDodoCheckoutError } from './lib/dodoCheckoutErrors';
+} from './_lib/dodoConfig';
+import { resolveReturnOrigin } from './_lib/resolveReturnOrigin';
+import { formatDodoCheckoutError } from './_lib/dodoCheckoutErrors';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');

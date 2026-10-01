@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { Webhook } from 'standardwebhooks';
-import { getDodoConfig } from './lib/dodoConfig';
+import { getDodoConfig } from './_lib/dodoConfig';
 import {
   activateSubscription,
   extractMetadata,
@@ -11,7 +11,7 @@ import {
   mapProductToPlan,
   markCancelAtPeriodEnd,
   AppPlanId,
-} from './lib/subscriptionActivation';
+} from './_lib/subscriptionActivation';
 
 async function getRawBody(req: VercelRequest): Promise<string> {
   if (typeof req.body === 'string') return req.body;

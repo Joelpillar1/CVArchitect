@@ -3,7 +3,7 @@ import { RunContext } from '@openai/agents';
 import { INITIAL_DATA, type ResumeData } from '../../types';
 import type { JobDescriptionData } from '../../types/resumeAgent';
 import type { AgentSSEEvent } from '../../types/resumeOperations';
-import { getAgent, type AgentRunContext } from './agentDefinition';
+import { getAgent, type AgentRunContext } from './_agentDefinition';
 
 /**
  * Agent tool tests — instruction.md §36.

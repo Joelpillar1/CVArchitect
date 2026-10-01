@@ -4,7 +4,7 @@
  * OR:       npx tsx scripts/fetch-wise-jobs.ts
  */
 
-import { parseWiseSitemap, parseWiseSlug } from '../api/lib/jobs/providers/wise';
+import { parseWiseSitemap, parseWiseSlug } from '../api/_lib/jobs/providers/wise';
 
 const SITEMAP_URL = 'https://wise.jobs/vacanciessitemap.xml';
 
