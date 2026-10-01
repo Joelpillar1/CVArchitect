@@ -145,21 +145,30 @@ export default defineConfig(({ mode }) => {
       }
     },
     build: {
-      chunkSizeWarningLimit: 1600,
+      chunkSizeWarningLimit: 7000,
       rollupOptions: {
         output: {
           manualChunks(id) {
             if (id.includes('node_modules')) {
-              if (id.includes('pdfjs-dist') || id.includes('jspdf') || id.includes('html2canvas') || id.includes('docx') || id.includes('mammoth') || id.includes('tesseract.js')) {
-                return 'vendor-document-parsers';
+              if (id.includes('pdfjs-dist')) {
+                return 'vendor-pdf';
               }
-              if (id.includes('framer-motion') || id.includes('lucide-react') || id.includes('border-beam') || id.includes('canvas-confetti')) {
+              if (id.includes('tesseract.js')) {
+                return 'vendor-ocr';
+              }
+              if (id.includes('jspdf') || id.includes('html2canvas')) {
+                return 'vendor-pdf-export';
+              }
+              if (id.includes('docx') || id.includes('mammoth')) {
+                return 'vendor-docx';
+              }
+              if (id.includes('framer-motion') || id.includes('motion') || id.includes('lucide-react') || id.includes('border-beam') || id.includes('canvas-confetti')) {
                 return 'vendor-ui';
               }
               if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom') || id.includes('react-helmet-async')) {
                 return 'vendor-react';
               }
-              if (id.includes('@supabase') || id.includes('openai') || id.includes('@openai')) {
+              if (id.includes('@supabase') || id.includes('openai') || id.includes('@openai') || id.includes('@google/genai')) {
                 return 'vendor-client-api';
               }
             }
