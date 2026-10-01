@@ -82,13 +82,13 @@ export default function LandingJobsSection({ onTailorJob }: LandingJobsSectionPr
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="inline-flex items-center gap-2.5 py-1 pl-1 pr-4 sm:pr-5 rounded-full bg-white border border-brand-green/50 shadow-sm mb-6"
+            className="inline-flex items-center gap-2 sm:gap-2.5 py-1 pl-1 pr-3.5 sm:pr-5 rounded-full bg-white border border-brand-green/50 shadow-sm mb-6 max-w-full"
           >
-            <span className="px-3 py-1 rounded-full bg-brand-green text-brand-dark font-bold text-[11px] sm:text-xs uppercase tracking-wider flex items-center gap-1.5">
+            <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-brand-green text-brand-dark font-bold text-[10px] sm:text-xs uppercase tracking-wider flex items-center gap-1.5 whitespace-nowrap shrink-0">
               <span className="w-1.5 h-1.5 rounded-full bg-brand-dark animate-pulse" />
               Live Feed
             </span>
-            <span className="text-sm font-semibold text-brand-dark">8,500+ Verified Tech Postings</span>
+            <span className="text-xs sm:text-sm font-semibold text-brand-dark whitespace-nowrap truncate">8,500+ Verified Tech Postings</span>
           </motion.div>
 
           <motion.h2

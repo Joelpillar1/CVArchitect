@@ -194,11 +194,11 @@ const comparisonSections: { title: string; rows: { label: string; cells: [Compar
 
 function SectionBadge({ chip, children }: { chip: string; children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-2.5 py-1 pl-1 pr-4 sm:pr-5 rounded-full bg-white border border-brand-green/50 shadow-sm">
-      <span className="px-3 py-1 rounded-full bg-brand-green text-brand-dark font-bold text-[11px] sm:text-xs uppercase tracking-wider">
+    <span className="inline-flex items-center gap-2 sm:gap-2.5 py-1 pl-1 pr-3.5 sm:pr-4 rounded-full bg-white border border-brand-green/50 shadow-sm max-w-full">
+      <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-brand-green text-brand-dark font-bold text-[10px] sm:text-xs uppercase tracking-wider whitespace-nowrap shrink-0">
         {chip}
       </span>
-      <span className="text-sm font-semibold text-brand-dark">{children}</span>
+      <span className="text-xs sm:text-sm font-semibold text-brand-dark whitespace-nowrap truncate">{children}</span>
     </span>
   );
 }
@@ -999,10 +999,10 @@ export default function AgentLandingPage() {
             >
               {/* Announcement badge */}
               <motion.div variants={fadeInUp} className="mb-8">
-                <span className="inline-flex items-center gap-2 pl-3 pr-3.5 py-2 rounded-full bg-brand-secondary border border-brand-border">
-                  <span className="w-1.5 h-1.5 rounded-full bg-brand-green" />
-                  <span className="text-xs sm:text-[13px] font-medium text-brand-dark/80">Introducing Resume Agent 1.0</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-brand-dark/40" />
+                <span className="inline-flex items-center gap-2 pl-3 pr-3.5 py-2 rounded-full bg-brand-secondary border border-brand-border whitespace-nowrap max-w-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand-green shrink-0" />
+                  <span className="text-xs sm:text-[13px] font-medium text-brand-dark/80 whitespace-nowrap truncate">Introducing Resume Agent 1.0</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-brand-dark/40 shrink-0" />
                 </span>
               </motion.div>
 
