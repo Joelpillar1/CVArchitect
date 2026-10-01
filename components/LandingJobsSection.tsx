@@ -22,7 +22,7 @@ interface LandingJobsSectionProps {
 function VerticalBoundLines() {
   return (
     <div
-      className="absolute inset-y-0 left-[calc(100vw/6)] right-[calc(100vw/6)] pointer-events-none"
+      className="absolute inset-y-0 left-3 right-3 sm:left-6 sm:right-6 md:left-[calc(100vw/6)] md:right-[calc(100vw/6)] pointer-events-none"
       aria-hidden="true"
     >
       <div className="absolute inset-y-0 left-0 w-px bg-brand-border" />
@@ -74,7 +74,7 @@ export default function LandingJobsSection({ onTailorJob }: LandingJobsSectionPr
   return (
     <section id="jobs" className="relative py-24 md:py-36 bg-brand-bg text-brand-dark overflow-hidden border-t border-brand-border">
       <VerticalBoundLines />
-      <div className="relative z-10 w-full max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 w-full max-w-[calc(100%-1.5rem)] sm:max-w-[calc(100%-3rem)] md:max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-14">
           <motion.div

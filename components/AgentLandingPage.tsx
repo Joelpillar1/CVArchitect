@@ -210,7 +210,7 @@ function SectionBadge({ chip, children }: { chip: string; children: React.ReactN
 function VerticalBoundLines() {
   return (
     <div
-      className="absolute inset-y-0 left-[calc(100vw/6)] right-[calc(100vw/6)] pointer-events-none"
+      className="absolute inset-y-0 left-3 right-3 sm:left-6 sm:right-6 md:left-[calc(100vw/6)] md:right-[calc(100vw/6)] pointer-events-none"
       aria-hidden="true"
     >
       <div className="absolute inset-y-0 left-0 w-px bg-brand-border" />
@@ -247,7 +247,7 @@ function ReadinessChecklistModule() {
   ];
 
   return (
-    <div className="w-full max-w-sm bg-white rounded-2xl border border-brand-border p-5 shadow-sm space-y-3">
+    <div className="w-full max-w-sm bg-white rounded-2xl border border-brand-border p-4 sm:p-5 shadow-sm space-y-3">
       <div className="flex items-center justify-between border-b border-brand-border/60 pb-3">
         <span className="font-mono text-xs font-semibold text-brand-dark/70 uppercase tracking-wider block">
           Readiness Checklist
@@ -293,7 +293,7 @@ function ReadinessChecklistModule() {
 
 function TailoringLoopModule() {
   return (
-    <div className="bg-brand-bg border-t border-brand-border p-6">
+    <div className="bg-brand-bg border-t border-brand-border p-4 sm:p-6">
       <div className="flex items-center gap-3">
         <motion.div 
           whileHover={{ scale: 1.02 }}
@@ -347,9 +347,9 @@ function ZeroHallucinationControlsModule() {
   ];
 
   return (
-    <div className="bg-brand-bg border-t sm:border-t-0 sm:border-l border-brand-border p-8 sm:p-10 flex flex-col justify-between gap-6">
+    <div className="bg-brand-bg border-t sm:border-t-0 sm:border-l border-brand-border p-5 sm:p-8 lg:p-10 flex flex-col justify-between gap-6">
       {/* Threshold bar */}
-      <div className="bg-white rounded-xl border border-brand-border p-5 shadow-2xs">
+      <div className="bg-white rounded-xl border border-brand-border p-4 sm:p-5 shadow-2xs">
         <div className="flex items-center justify-between mb-4">
           <span className="font-mono text-xs uppercase tracking-[0.2em] text-brand-dark/70">Grounding threshold</span>
           <span className="text-3xl font-bold tracking-[-0.03em] text-brand-dark">
@@ -360,7 +360,7 @@ function ZeroHallucinationControlsModule() {
       </div>
       
       {/* Blocked indicator */}
-      <div className="bg-white rounded-xl border border-brand-border p-5 shadow-2xs">
+      <div className="bg-white rounded-xl border border-brand-border p-4 sm:p-5 shadow-2xs">
         <div className="flex items-center gap-3 mb-3">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
@@ -405,7 +405,7 @@ function ATSScorecardModule() {
   const inView = useInView(ref, { once: true, margin: '-40px' });
 
   return (
-    <div ref={ref} className="w-full max-w-sm bg-white rounded-3xl border border-brand-border p-6 shadow-sm space-y-4">
+    <div ref={ref} className="w-full max-w-sm bg-white rounded-3xl border border-brand-border p-4 sm:p-6 shadow-sm space-y-4">
       {/* Center Score & Status */}
       <div className="flex flex-col items-center justify-center text-center">
         <span className="font-sans font-black text-6xl text-brand-dark tracking-tight leading-none">
@@ -488,7 +488,7 @@ function ATSScorecardModule() {
       </div>
 
       {/* 3 Spectrum Equalizer Towers */}
-      <div className="grid grid-cols-3 gap-3 pt-1">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-1">
         {[
           { 
             label: 'Relevance', 
@@ -508,7 +508,7 @@ function ATSScorecardModule() {
         ].map((col, cIdx) => (
           <div 
             key={cIdx} 
-            className="bg-neutral-50/90 rounded-2xl border border-neutral-100 p-3 flex flex-col items-center gap-2.5"
+            className="bg-neutral-50/90 rounded-2xl border border-neutral-100 p-2 sm:p-3 flex flex-col items-center gap-2"
           >
             <div className="flex flex-col-reverse gap-1.5 h-20 w-full px-1">
               {Array.from({ length: 8 }).map((_, bIdx) => {
@@ -531,7 +531,7 @@ function ATSScorecardModule() {
                 );
               })}
             </div>
-            <span className="text-xs font-bold text-neutral-700 truncate w-full text-center">
+            <span className="text-[11px] sm:text-xs font-bold text-neutral-700 truncate w-full text-center">
               {col.label}
             </span>
           </div>
@@ -990,7 +990,7 @@ export default function AgentLandingPage() {
         <section className="relative pt-12 md:pt-16 overflow-hidden bg-brand-bg">
           <VerticalBoundLines />
 
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+          <div className="w-full max-w-[calc(100%-1.5rem)] sm:max-w-[calc(100%-3rem)] md:max-w-5xl mx-auto px-2 sm:px-6 lg:px-8 relative z-10 text-center">
             <motion.div
               initial="hidden"
               animate="visible"
@@ -1009,7 +1009,7 @@ export default function AgentLandingPage() {
               {/* Main Headline  -  oversized display type, green underline on "any job" */}
               <motion.h1
                 variants={fadeInUp}
-                className="text-[clamp(1.85rem,4.4vw,4rem)] font-bold tracking-[-0.03em] leading-[0.95] text-brand-dark mb-7 max-w-4xl"
+                className="text-[clamp(1.85rem,4.4vw,4rem)] font-bold tracking-[-0.03em] leading-[1.05] sm:leading-[0.95] text-brand-dark mb-7 max-w-4xl"
               >
                 Tailor your resume
                 <br />
@@ -1118,21 +1118,15 @@ export default function AgentLandingPage() {
             </motion.div>
           </div>
 
-          {/* Product preview  -  framed live workspace spanning the hero grid lines.
-              Width is 2/3 of the viewport, so the frame's left/right edges land
-              exactly on the page's 1/6 and 5/6 vertical grid lines. */}
+          {/* Product preview  -  framed live workspace spanning the hero grid lines. */}
           <div className="relative mt-16 md:mt-24 z-10">
-            {/* Top full-width horizontal line  -  same as the bottom one, resting on the
-                frame's top edge. No squares: no vertical bounding lines pass through
-                the hero, so there is no cross path here. */}
+            {/* Top full-width horizontal line */}
             <div className="h-px w-full bg-brand-border" />
-            <div className="relative rounded-none overflow-hidden bg-white border border-brand-border/80 w-[calc(100vw*(2/3))] mx-auto">
+            <div className="relative rounded-none overflow-hidden bg-white border border-brand-border/80 w-[calc(100%-1.5rem)] sm:w-[calc(100%-3rem)] md:w-[calc(100vw*(2/3))] mx-auto">
               {/* Top accent hairline */}
               <div className="h-px w-full bg-gradient-to-r from-transparent via-brand-green/80 to-transparent" />
 
-              {/* The /dashboard/editor workspace itself  -  a clone of the route,
-                  shown to everyone (signed in or out) so any visitor can see the
-                  product. Writes inside it route to signup. */}
+              {/* The /dashboard/editor workspace itself */}
               <div className="relative bg-white">
                 <EditorHeroPreview />
               </div>
@@ -1156,7 +1150,7 @@ export default function AgentLandingPage() {
             whileInView="visible"
             viewport={{ once: true, margin: '-60px' }}
             variants={fadeInUp}
-            className="relative z-10 w-full max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8 mb-10 lg:mb-12"
+            className="relative z-10 w-full max-w-[calc(100%-1.5rem)] sm:max-w-[calc(100%-3rem)] md:max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8 mb-10 lg:mb-12"
           >
             <SectionBadge chip="Grounded examples">Real metrics, zero invention</SectionBadge>
             <h2 className="text-[clamp(2rem,4vw,3.2rem)] font-bold tracking-[-0.03em] leading-[1.02] text-brand-dark mt-4 text-balance">
@@ -1168,7 +1162,7 @@ export default function AgentLandingPage() {
           </motion.div>
 
           {/* 3×3 grid  -  transparent cells separated by 1px hairline borders */}
-          <div className="relative z-10 w-[calc(100%-100vw/3)] mx-auto">
+          <div className="relative z-10 w-[calc(100%-1.5rem)] sm:w-[calc(100%-3rem)] md:w-[calc(100%-100vw/3)] mx-auto">
             <motion.div
               initial="hidden"
               whileInView="visible"
@@ -1200,7 +1194,7 @@ export default function AgentLandingPage() {
 
         {/* THE PROBLEM  -  dark section with 2×2 grid */}
         <section className="relative py-24 md:py-36 bg-brand-dark text-white overflow-hidden border-t border-brand-dark/20">
-          <div className="relative z-10 w-full max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative z-10 w-full max-w-[calc(100%-1.5rem)] sm:max-w-[calc(100%-3rem)] md:max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
             {/* Header  -  left heading, right subtitle */}
             <motion.div
               initial="hidden"
@@ -1244,7 +1238,7 @@ export default function AgentLandingPage() {
                 >
 
                   {/* Text block  -  number, label, headline */}
-                  <div className="relative z-10 px-8 sm:px-10 pb-10 sm:pb-12 pt-72 sm:pt-80 lg:pt-10 lg:pl-72 lg:pr-6">
+                  <div className="relative z-10 px-6 sm:px-10 pb-8 sm:pb-12 pt-72 sm:pt-80 lg:pt-10 lg:pl-72 lg:pr-6">
                     <span className="block font-mono text-xs uppercase tracking-[0.2em] text-white/40">{p.label}</span>
                     <h3 className="mt-6 text-[clamp(1.5rem,2.2vw,2rem)] font-bold tracking-[-0.03em] leading-[1.05] text-white whitespace-pre-line">
                       {p.headline}
@@ -1254,7 +1248,7 @@ export default function AgentLandingPage() {
                   {/* Floating diagnostic panel */}
                   <motion.div
                     whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
-                    className="absolute -top-4 sm:-top-6 -left-4 sm:-left-6 w-60 sm:w-72 rounded-none bg-brand-dark border border-white/15 p-4 sm:p-5 shadow-xl"
+                    className="absolute -top-3 sm:-top-6 left-3 sm:-left-6 right-3 sm:right-auto sm:w-72 rounded-none bg-brand-dark border border-white/15 p-4 sm:p-5 shadow-xl"
                   >
                     {p.panel === 'skills' && (
                       <>
@@ -1364,7 +1358,7 @@ export default function AgentLandingPage() {
         {/* CORE FEATURES  -  bento grid of the four systems */}
         <section id="features" className="relative py-24 md:py-36 bg-brand-bg border-t border-brand-border">
           <VerticalBoundLines />
-          <div className="relative z-10 w-full max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative z-10 w-full max-w-[calc(100%-1.5rem)] sm:max-w-[calc(100%-3rem)] md:max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
             {/* Header */}
             <motion.div
               initial="hidden"
@@ -1517,7 +1511,7 @@ export default function AgentLandingPage() {
             rendered from the same data the agent starts with. */}
         <section id="template" className="relative py-24 md:py-36 bg-brand-bg border-t border-brand-border">
           <VerticalBoundLines />
-          <div className="relative z-10 w-full max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative z-10 w-full max-w-[calc(100%-1.5rem)] sm:max-w-[calc(100%-3rem)] md:max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial="hidden"
               whileInView="visible"
@@ -1567,7 +1561,7 @@ export default function AgentLandingPage() {
         {/* THE DIFFERENCE  -  Visual Comparison (Old Resume vs ATS-Optimized) */}
         <section id="the-difference" className="relative py-24 md:py-36 bg-white border-t border-brand-border">
           <VerticalBoundLines />
-          <div className="relative z-10 w-full max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative z-10 w-full max-w-[calc(100%-1.5rem)] sm:max-w-[calc(100%-3rem)] md:max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial="hidden"
               whileInView="visible"
@@ -1704,9 +1698,7 @@ export default function AgentLandingPage() {
           </div>
         </section>
 
-        {/* MARQUEE STRIP  -  full-bleed horizontal scrolling; the vertical bounding
-            lines deliberately do NOT run through it (exempted as the horizontal
-            scrolling element). They resume in the dark sections below. */}
+        {/* MARQUEE STRIP  -  full-bleed horizontal scrolling */}
         <div className="bg-brand-dark py-7 overflow-hidden border-y border-brand-dark/20 select-none">
           <div className="flex whitespace-nowrap animate-marquee w-max">
             {[0, 1].map((dup) => (
@@ -1729,7 +1721,7 @@ export default function AgentLandingPage() {
 
         {/* REAL RESULTS  -  dark section with animated counters */}
         <section className="relative py-24 md:py-40 bg-brand-dark text-white overflow-hidden">
-          <div className="relative z-10 w-full max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative z-10 w-full max-w-[calc(100%-1.5rem)] sm:max-w-[calc(100%-3rem)] md:max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial="hidden"
               whileInView="visible"
@@ -1798,7 +1790,7 @@ export default function AgentLandingPage() {
         {/* PERSONAS  -  Serro-style 01/02/03/04 tabs + use cases */}
         <section id="usecases" className="relative py-24 md:py-36 bg-brand-bg border-t border-brand-border">
           <VerticalBoundLines />
-          <div className="relative z-10 w-full max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative z-10 w-full max-w-[calc(100%-1.5rem)] sm:max-w-[calc(100%-3rem)] md:max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial="hidden"
               whileInView="visible"
@@ -1902,7 +1894,7 @@ export default function AgentLandingPage() {
         {/* PRICING  -  flat plans */}
         <section id="pricing" className="relative py-24 md:py-36 bg-brand-bg border-t border-brand-border">
           <VerticalBoundLines />
-          <div className="relative z-10 w-full max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative z-10 w-full max-w-[calc(100%-1.5rem)] sm:max-w-[calc(100%-3rem)] md:max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
             {/* Header */}
             <motion.div
               initial="hidden"
@@ -2010,7 +2002,7 @@ export default function AgentLandingPage() {
         {/* FAQ  -  accordion with smooth AnimatePresence expand/collapse */}
         <section id="faq" className="relative py-24 md:py-36 bg-brand-bg border-t border-brand-border">
           <VerticalBoundLines />
-          <div className="relative z-10 w-full max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative z-10 w-full max-w-[calc(100%-1.5rem)] sm:max-w-[calc(100%-3rem)] md:max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial="hidden"
               whileInView="visible"
@@ -2084,7 +2076,7 @@ export default function AgentLandingPage() {
         {/* FINAL CTA  -  dark, two-column layout with smooth entrance */}
         <section className="relative py-24 md:py-40 bg-brand-dark text-white overflow-hidden border-t border-brand-dark/20">
           <div className="absolute inset-0 bg-[radial-gradient(#70E098_1px,transparent_1px)] [background-size:28px_28px] opacity-[0.07] pointer-events-none" />
-          <div className="relative z-10 w-full max-w-[min(72rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative z-10 w-full max-w-[calc(100%-1.5rem)] sm:max-w-[calc(100%-3rem)] md:max-w-[min(72rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial="hidden"
               whileInView="visible"
