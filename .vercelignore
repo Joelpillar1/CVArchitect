@@ -1,0 +1,8 @@
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+scratch/
+scratch*
+bentopdf-main/
+reactive-resume-main/
+Project/

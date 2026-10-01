@@ -61,12 +61,6 @@
   <!-- Default canonical for SPA root — React Helmet overwrites per-route -->
   <link rel="canonical" data-rh="true" href="https://cvarchitect.app/" />
   <meta name="google-site-verification" content="tM8NcOMoT43REWAXI4sUDCX6usdXgja0epq5QCK1Ygc" />
-  <!-- Ensure www is never used as canonical -->
-  <script>
-    if (window.location.hostname === 'www.cvarchitect.app') {
-      window.location.replace('https://cvarchitect.app' + window.location.pathname + window.location.search + window.location.hash);
-    }
-  </script>
   <!-- PWA & Favicon -->
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#F8F8F8" />

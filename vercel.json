@@ -10,17 +10,6 @@
       "has": [
         {
           "type": "host",
-          "value": "www.cvarchitect.app"
-        }
-      ],
-      "destination": "https://cvarchitect.app/$1",
-      "permanent": true
-    },
-    {
-      "source": "/(.*)",
-      "has": [
-        {
-          "type": "host",
           "value": "support.cvarchitect.app"
         }
       ],
