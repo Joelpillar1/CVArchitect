@@ -1135,17 +1135,6 @@ export default function AgentLandingPage() {
                   product. Writes inside it route to signup. */}
               <div className="relative bg-white">
                 <EditorHeroPreview />
-                {!user && (
-                  <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/45 via-transparent to-transparent flex items-end justify-center pb-6 pointer-events-none">
-                    <button
-                      onClick={() => navigate('/signup?redirect=/dashboard/editor')}
-                      className="pointer-events-auto inline-flex items-center gap-2 pl-5 pr-4 py-2.5 rounded-full bg-white hover:bg-brand-secondary text-brand-dark text-sm font-bold border border-brand-border shadow-[0_12px_32px_-10px_rgba(51,60,77,0.35)] transition-all"
-                    >
-                      Sign in to try it live
-                      <ArrowRight className="w-4 h-4 text-brand-green" />
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
 
