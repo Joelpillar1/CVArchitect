@@ -94,7 +94,7 @@ export default function SignIn() {
     return (
         <div className="min-h-screen bg-white flex items-center justify-center px-6 py-12">
             <SEO
-                title="Sign In — CV Architect | AI Resume Builder"
+                title="Sign In  -  CV Architect | AI Resume Builder"
                 description="Sign in to your CV Architect account to continue building, editing, and tailoring your ATS-optimized resumes and cover letters."
                 canonicalPath="/login"
             />
@@ -125,7 +125,7 @@ export default function SignIn() {
                         <Zap size={18} className="text-brand-green shrink-0 fill-brand-green" />
                         <div className="text-sm text-brand-dark">
                             <span className="font-semibold">{selectedPlan.name}</span>
-                            <span className="text-gray-600"> — {selectedPlan.billingLabel}</span>
+                            <span className="text-gray-600">  -  {selectedPlan.billingLabel}</span>
                             <p className="text-xs text-gray-500 mt-0.5">You&apos;ll go to secure checkout after sign in.</p>
                         </div>
                     </div>

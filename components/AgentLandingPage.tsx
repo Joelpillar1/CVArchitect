@@ -92,7 +92,7 @@ const scaleIn: Variants = {
   }
 };
 
-/* Animated stat counter — fires once when scrolled into view. */
+/* Animated stat counter  -  fires once when scrolled into view. */
 function Counter({ value, decimals = 0, suffix = '' }: { value: number; decimals?: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
@@ -121,11 +121,11 @@ function Counter({ value, decimals = 0, suffix = '' }: { value: number; decimals
   );
 }
 
-/* Section label — the mono uppercase eyebrow used across Serro-style sections. */
-/* Pill-shaped section badge — a colored chip with a short section name, followed
+/* Section label  -  the mono uppercase eyebrow used across Serro-style sections. */
+/* Pill-shaped section badge  -  a colored chip with a short section name, followed
    by a descriptive phrase, matching the app theme (green chip, white pill, navy
    text). Replaces the old mono SectionLabel eyebrow. */
-/* Pricing comparison table — value renderers for a single cell. */
+/* Pricing comparison table  -  value renderers for a single cell. */
 type ComparisonCellType = 'check' | 'dash' | 'text';
 interface ComparisonCell {
   type: ComparisonCellType;
@@ -141,7 +141,7 @@ function PricingCell({ cell, emphasize }: { cell: ComparisonCell; emphasize?: bo
     );
   }
   if (cell.type === 'dash') {
-    return <span className="text-center text-sm text-brand-dark/30">—</span>;
+    return <span className="text-center text-sm text-brand-dark/30">-</span>;
   }
   return (
     <span className={`text-center text-sm ${emphasize ? 'font-bold text-brand-dark' : 'font-semibold text-brand-dark'}`}>
@@ -150,7 +150,7 @@ function PricingCell({ cell, emphasize }: { cell: ComparisonCell; emphasize?: bo
   );
 }
 
-/* Comparison table content — grouped rows matching all Dashboard & Editor features:
+/* Comparison table content  -  grouped rows matching all Dashboard & Editor features:
    name + price header, zebra-striped rows, ✓ where a plan unlocks a feature. */
 const comparisonSections: { title: string; rows: { label: string; cells: [ComparisonCell, ComparisonCell, ComparisonCell] }[] }[] = [
   {
@@ -219,7 +219,7 @@ function VerticalBoundLines() {
   );
 }
 
-/* Animated progress bar — fills from0% to its target width when scrolled into
+/* Animated progress bar  -  fills from0% to its target width when scrolled into
    view. Uses framer-motion's useInView + CSS transitions for a smooth ease-out fill. */
 function AnimatedProgressBar({ pct, tone = 'bg-brand-green' }: { pct: number; tone?: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -563,7 +563,7 @@ export default function AgentLandingPage() {
   // Persona tabs (Serro-style 01/02/03/04)
   const [activePersona, setActivePersona] = useState(0);
 
-  // FAQ accordion — first question open by default
+  // FAQ accordion  -  first question open by default
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   // The embedded /resume-agent iframe bootstraps the moment it mounts and would
@@ -637,7 +637,7 @@ export default function AgentLandingPage() {
     document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Plan CTA — the free plan routes to signup/dashboard; paid plans persist the
+  // Plan CTA  -  the free plan routes to signup/dashboard; paid plans persist the
   // pending checkout plan and route to signup, which resumes the Dodo checkout.
   const handlePlanClick = (planId: string) => {
     if (planId === 'free') {
@@ -671,7 +671,7 @@ export default function AgentLandingPage() {
       const elapsedMs = Math.round(performance.now() - startedAt);
       console.log(`[resume-parse] TOTAL "${file.name}" → ${elapsedMs}ms (${(elapsedMs / 1000).toFixed(1)}s)`);
       const mergedData: ResumeData = normalizeResumeData(parsedPartial);
-      // Attach the resume and stay on the page — the user still needs to type instructions
+      // Attach the resume and stay on the page  -  the user still needs to type instructions
       setStagedResume({ data: mergedData, fileName: file.name });
       setIsParsingResume(false);
     } catch (err: any) {
@@ -697,10 +697,10 @@ export default function AgentLandingPage() {
       num: '01',
       name: 'Recent Grad',
       title: 'Turn potential into proof',
-      desc: 'Coursework, internships, and projects become interview-ready bullets. The agent frames limited experience honestly and powerfully — no fluff, no filler.',
+      desc: 'Coursework, internships, and projects become interview-ready bullets. The agent frames limited experience honestly and powerfully: no fluff, no filler.',
       evidence: 'Grounded in: 6 projects · 2 internships · 1 thesis',
       workflow: [
-        { tag: 'Frame', text: 'Coursework and internships become interview-ready bullets — no fluff, no filler.' },
+        { tag: 'Frame', text: 'Coursework and internships become interview-ready bullets with no fluff and no filler.' },
         { tag: 'Ground', text: 'Every claim traces to a project, a grade, or a task you actually completed.' },
         { tag: 'Output', text: 'A first-job resume that survives entry-level ATS screening.' },
       ],
@@ -712,7 +712,7 @@ export default function AgentLandingPage() {
       desc: 'Transferable skills get re-framed against a new field without fabricating titles. The agent bridges the gap with grounded evidence from adjacent roles.',
       evidence: 'Grounded in: 4 adjacent roles · 9 transferable skills',
       workflow: [
-        { tag: 'Frame', text: 'Transferable skills are re-framed against the new field — without fabricating titles.' },
+        { tag: 'Frame', text: 'Transferable skills are re-framed against the new field without fabricating titles.' },
         { tag: 'Ground', text: 'The bridge is built on grounded evidence from your adjacent roles.' },
         { tag: 'Output', text: 'A resume that reads native to the new industry, not like a transplant.' },
       ],
@@ -725,7 +725,7 @@ export default function AgentLandingPage() {
       evidence: 'Grounded in: 12 years · 41 quantified bullets',
       workflow: [
         { tag: 'Frame', text: 'Years of bullets are stripped into an achievement-led story.' },
-        { tag: 'Ground', text: 'Metric-first writing grounded in your actual numbers — never padded.' },
+        { tag: 'Ground', text: 'Metric-first writing grounded in your actual numbers, never padded.' },
         { tag: 'Output', text: 'Sharp copy that survives senior-level screening.' },
       ],
     },
@@ -746,7 +746,7 @@ export default function AgentLandingPage() {
   const faqs = [
     {
       q: 'Is everything the agent writes really grounded?',
-      a: 'Yes. Every suggested edit must trace back to a real role, skill, or number in your history. Anything that cannot be grounded is blocked — nothing is invented, padded, or hallucinated.',
+      a: 'Yes. Every suggested edit must trace back to a real role, skill, or number in your history. Anything that cannot be grounded is blocked: nothing is invented, padded, or hallucinated.',
     },
     {
       q: 'Do I need a paid plan to use the Resume Agent?',
@@ -754,7 +754,7 @@ export default function AgentLandingPage() {
     },
     {
       q: 'Which resume templates can the agent work with?',
-      a: 'The agent works from the resume you upload and can output it in any template in the workspace — including the ATS-tuned templates in the marquee above.',
+      a: 'The agent works from the resume you upload and can output it in any template in the workspace, including the ATS-tuned templates in the marquee above.',
     },
     {
       q: 'What file formats can I upload?',
@@ -774,7 +774,7 @@ export default function AgentLandingPage() {
     {
       num: '01',
       title: 'Connect your resume',
-      desc: 'Upload a PDF or DOCX. Your full career history — roles, bullet points, skills, education — is read and structured in seconds.',
+      desc: 'Upload a PDF or DOCX. Your full career history (roles, bullet points, skills, education) is read and structured in seconds.',
     },
     {
       num: '02',
@@ -784,7 +784,7 @@ export default function AgentLandingPage() {
     {
       num: '03',
       title: 'Every bullet gets grounded',
-      desc: 'Suggested edits are verified against your real history. The agent only rephrases what you have truly done — zero hallucinated roles or skills.',
+      desc: 'Suggested edits are verified against your real history. The agent only rephrases what you have truly done, with zero hallucinated roles or skills.',
     },
     {
       num: '04',
@@ -820,7 +820,7 @@ export default function AgentLandingPage() {
     },
   ];
 
-  // Problem section — serro-style composition. Four large cards in a 2×2
+  // Problem section  -  serro-style composition. Four large cards in a 2×2
   // grid; each carries a number, an uppercase label, a headline, and a
   // floating diagnostic panel that overlaps the card edge asymmetrically
   // (the panel reads as a piece of a resume-analysis UI for that problem).
@@ -901,7 +901,7 @@ export default function AgentLandingPage() {
 
   const marqueeWords = ['Tailor', 'Ground', 'Score', 'Export', 'Apply', 'Interview'];
 
-  // Resume template screenshots from /public/images/Agent Resume — the same
+  // Resume template screenshots from /public/images/Agent Resume  -  the same
   // templates offered in the Resume Agent workspace.
   const templateImages = [
     '/images/Agent Resume/Template.png',
@@ -919,12 +919,12 @@ export default function AgentLandingPage() {
   return (
     <div className="relative min-h-screen bg-brand-bg text-brand-dark flex flex-col font-sans selection:bg-brand-green selection:text-brand-dark overflow-x-clip">
       <SEO
-        title="CVArchitect AI Resume Agent — Turn Job Postings into Precision AI Resumes"
+        title="CVArchitect AI Resume Agent: Turn Job Postings into Precision AI Resumes"
         description="Autonomous AI Agent middleware for job seekers. Analyze job descriptions, bridge skill gaps with grounded evidence, and optimize ATS scores automatically."
         canonicalPath="/"
       />
 
-      {/* NAV — logo, centered links, dark Launch Agent CTA */}
+      {/* NAV  -  logo, centered links, dark Launch Agent CTA */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-brand-bg/90 backdrop-blur-md border-b border-brand-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
@@ -986,7 +986,7 @@ export default function AgentLandingPage() {
       </header>
 
       <main className="relative z-10 flex-1 pt-16">
-        {/* HERO — badge, oversized headline, input card, product preview over colorful backdrop */}
+        {/* HERO  -  badge, oversized headline, input card, product preview over colorful backdrop */}
         <section className="relative pt-12 md:pt-16 overflow-hidden bg-brand-bg">
           <VerticalBoundLines />
 
@@ -1006,7 +1006,7 @@ export default function AgentLandingPage() {
                 </span>
               </motion.div>
 
-              {/* Main Headline — oversized display type, green underline on "any job" */}
+              {/* Main Headline  -  oversized display type, green underline on "any job" */}
               <motion.h1
                 variants={fadeInUp}
                 className="text-[clamp(1.85rem,4.4vw,4rem)] font-bold tracking-[-0.03em] leading-[0.95] text-brand-dark mb-7 max-w-4xl"
@@ -1118,11 +1118,11 @@ export default function AgentLandingPage() {
             </motion.div>
           </div>
 
-          {/* Product preview — framed live workspace spanning the hero grid lines.
+          {/* Product preview  -  framed live workspace spanning the hero grid lines.
               Width is 2/3 of the viewport, so the frame's left/right edges land
               exactly on the page's 1/6 and 5/6 vertical grid lines. */}
           <div className="relative mt-16 md:mt-24 z-10">
-            {/* Top full-width horizontal line — same as the bottom one, resting on the
+            {/* Top full-width horizontal line  -  same as the bottom one, resting on the
                 frame's top edge. No squares: no vertical bounding lines pass through
                 the hero, so there is no cross path here. */}
             <div className="h-px w-full bg-brand-border" />
@@ -1130,7 +1130,7 @@ export default function AgentLandingPage() {
               {/* Top accent hairline */}
               <div className="h-px w-full bg-gradient-to-r from-transparent via-brand-green/80 to-transparent" />
 
-              {/* The /dashboard/editor workspace itself — a clone of the route,
+              {/* The /dashboard/editor workspace itself  -  a clone of the route,
                   shown to everyone (signed in or out) so any visitor can see the
                   product. Writes inside it route to signup. */}
               <div className="relative bg-white">
@@ -1143,14 +1143,14 @@ export default function AgentLandingPage() {
           </div>
         </section>
 
-        {/* Content column — wraps every section after the hero. */}
+        {/* Content column  -  wraps every section after the hero. */}
         <div className="relative">
 
-        {/* GROUNDED EXAMPLES — 3×3 grid of metric-driven examples. */}
+        {/* GROUNDED EXAMPLES  -  3×3 grid of metric-driven examples. */}
         <section className="relative pt-16 md:pt-24 overflow-hidden">
           <VerticalBoundLines />
 
-          {/* Heading — top-left, padded to the content column */}
+          {/* Heading  -  top-left, padded to the content column */}
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -1163,11 +1163,11 @@ export default function AgentLandingPage() {
               Every rewrite lands on real numbers
             </h2>
             <p className="text-base text-brand-dark/60 mt-4 max-w-2xl">
-              The agent rephrases only what you have truly done — here's what grounded, metric-first bullets look like.
+              The agent rephrases only what you have truly done. Here is what grounded, metric-first bullets look like.
             </p>
           </motion.div>
 
-          {/* 3×3 grid — transparent cells separated by 1px hairline borders */}
+          {/* 3×3 grid  -  transparent cells separated by 1px hairline borders */}
           <div className="relative z-10 w-[calc(100%-100vw/3)] mx-auto">
             <motion.div
               initial="hidden"
@@ -1198,10 +1198,10 @@ export default function AgentLandingPage() {
           <div className="h-px w-full bg-brand-border" />
         </section>
 
-        {/* THE PROBLEM — dark section with 2×2 grid */}
+        {/* THE PROBLEM  -  dark section with 2×2 grid */}
         <section className="relative py-24 md:py-36 bg-brand-dark text-white overflow-hidden border-t border-brand-dark/20">
           <div className="relative z-10 w-full max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Header — left heading, right subtitle */}
+            {/* Header  -  left heading, right subtitle */}
             <motion.div
               initial="hidden"
               whileInView="visible"
@@ -1229,7 +1229,7 @@ export default function AgentLandingPage() {
             {/* Hairline divider */}
             <div className="h-px w-full bg-white/10 mb-12 lg:mb-14" />
 
-            {/* 2×2 grid — four large problem cards */}
+            {/* 2×2 grid  -  four large problem cards */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-10 gap-y-16 lg:gap-y-20">
               {problems.map((p, pIdx) => (
                 <motion.div
@@ -1243,7 +1243,7 @@ export default function AgentLandingPage() {
                   className="relative rounded-none bg-white/5 border border-white/10 overflow-visible transition-shadow hover:shadow-lg"
                 >
 
-                  {/* Text block — number, label, headline */}
+                  {/* Text block  -  number, label, headline */}
                   <div className="relative z-10 px-8 sm:px-10 pb-10 sm:pb-12 pt-72 sm:pt-80 lg:pt-10 lg:pl-72 lg:pr-6">
                     <span className="block font-mono text-xs uppercase tracking-[0.2em] text-white/40">{p.label}</span>
                     <h3 className="mt-6 text-[clamp(1.5rem,2.2vw,2rem)] font-bold tracking-[-0.03em] leading-[1.05] text-white whitespace-pre-line">
@@ -1361,7 +1361,7 @@ export default function AgentLandingPage() {
           </div>
         </section>
 
-        {/* CORE FEATURES — bento grid of the four systems */}
+        {/* CORE FEATURES  -  bento grid of the four systems */}
         <section id="features" className="relative py-24 md:py-36 bg-brand-bg border-t border-brand-border">
           <VerticalBoundLines />
           <div className="relative z-10 w-full max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
@@ -1383,12 +1383,12 @@ export default function AgentLandingPage() {
             </motion.div>
 
             {/* Bento grid
-                Row 1: Grounded Evidence Engine — full width (copy left, module right)
+                Row 1: Grounded Evidence Engine  -  full width (copy left, module right)
                 Row 2: JD Tailoring Loop (1 col) + Zero-Hallucination Controls (2 cols)
-                Row 3: ATS Match Analytics — full width (copy left, module right) */}
+                Row 3: ATS Match Analytics  -  full width (copy left, module right) */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-              {/* ─── Row 1: Grounded Evidence Engine — full width ─── */}
+              {/* ─── Row 1: Grounded Evidence Engine  -  full width ─── */}
               <motion.div
                 custom={0}
                 initial="hidden"
@@ -1401,7 +1401,7 @@ export default function AgentLandingPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2">
                   {/* Left: copy */}
                   <div className="p-8 sm:p-10 lg:p-12 flex flex-col justify-center">
-                    <span className="block font-mono text-xs uppercase tracking-[0.2em] text-brand-dark/45 font-semibold mb-4">01 — Engine</span>
+                    <span className="block font-mono text-xs uppercase tracking-[0.2em] text-brand-dark/45 font-semibold mb-4">01 / Engine</span>
                     <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-dark mb-4">
                       Grounded <em className="not-italic text-brand-green">Evidence</em> Engine
                     </h3>
@@ -1409,7 +1409,7 @@ export default function AgentLandingPage() {
                       Every rewritten bullet traces back to a real role in your history. Nothing is invented, nothing is padded. The agent builds a verified evidence trace before touching a single word.
                     </p>
                   </div>
-                  {/* Right: diagnostic module — Readiness Checklist */}
+                  {/* Right: diagnostic module  -  Readiness Checklist */}
                   <div className="bg-brand-bg border-t md:border-t-0 md:border-l border-brand-border p-6 sm:p-8 flex items-center justify-center">
                     <ReadinessChecklistModule />
                   </div>
@@ -1428,7 +1428,7 @@ export default function AgentLandingPage() {
               >
                 <div className="p-8 sm:p-10 flex-1 flex flex-col justify-between">
                   <div>
-                    <span className="block font-mono text-xs uppercase tracking-[0.2em] text-brand-dark/45 font-semibold mb-4">02 — Loop</span>
+                    <span className="block font-mono text-xs uppercase tracking-[0.2em] text-brand-dark/45 font-semibold mb-4">02 / Loop</span>
                     <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-brand-dark mb-3">JD Tailoring Loop</h3>
                     <p className="text-sm text-brand-dark/60 leading-relaxed">
                       Each posting gets its own pass: keywords, seniority signals, and achievement framing mapped onto your real experience.
@@ -1452,7 +1452,7 @@ export default function AgentLandingPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 flex-1">
                   {/* Left: copy */}
                   <div className="p-8 sm:p-10 flex flex-col justify-center">
-                    <span className="block font-mono text-xs uppercase tracking-[0.2em] text-brand-dark/45 font-semibold mb-4">03 — Controls</span>
+                    <span className="block font-mono text-xs uppercase tracking-[0.2em] text-brand-dark/45 font-semibold mb-4">03 / Controls</span>
                     <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-brand-dark mb-3">
                       Zero-Hallucination <em className="not-italic text-brand-green">Controls</em>
                     </h3>
@@ -1465,7 +1465,7 @@ export default function AgentLandingPage() {
                 </div>
               </motion.div>
 
-              {/* ─── Row 3: ATS Match Analytics — full width ─── */}
+              {/* ─── Row 3: ATS Match Analytics  -  full width ─── */}
               <motion.div
                 custom={3}
                 initial="hidden"
@@ -1478,7 +1478,7 @@ export default function AgentLandingPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2">
                   {/* Left: copy */}
                   <div className="p-8 sm:p-10 lg:p-12 flex flex-col justify-center">
-                    <span className="block font-mono text-xs uppercase tracking-[0.2em] text-brand-dark/45 font-semibold mb-4">04 — Analytics</span>
+                    <span className="block font-mono text-xs uppercase tracking-[0.2em] text-brand-dark/45 font-semibold mb-4">04 / Analytics</span>
                     <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-dark mb-4">
                       ATS Match <em className="not-italic text-brand-green">Analytics</em>
                     </h3>
@@ -1512,7 +1512,7 @@ export default function AgentLandingPage() {
           </div>
         </section>
 
-        {/* RESUME TEMPLATE — the exact resume template used in the
+        {/* RESUME TEMPLATE  -  the exact resume template used in the
             /resume-agent workspace (Vanguard, the agent's default template),
             rendered from the same data the agent starts with. */}
         <section id="template" className="relative py-24 md:py-36 bg-brand-bg border-t border-brand-border">
@@ -1530,11 +1530,11 @@ export default function AgentLandingPage() {
                 One clean resume. Tailored for every job.
               </h2>
               <p className="text-base text-brand-dark/60 mt-5">
-                The resume templates you'll find in the Resume Agent workspace — each one ATS-tuned and ready to tailor.
+                The resume templates you'll find in the Resume Agent workspace, each one ATS-tuned and ready to tailor.
               </p>
             </motion.div>
 
-            {/* Template marquee — resume templates scrolling infinitely */}
+            {/* Template marquee  -  resume templates scrolling infinitely */}
             <div className="relative w-full overflow-hidden">
               {/* Edge fades */}
               <div className="absolute left-0 top-0 bottom-0 w-24 sm:w-40 bg-gradient-to-r from-brand-bg via-brand-bg/80 to-transparent z-10 pointer-events-none" />
@@ -1564,7 +1564,7 @@ export default function AgentLandingPage() {
           </div>
         </section>
 
-        {/* THE DIFFERENCE — Visual Comparison (Old Resume vs ATS-Optimized) */}
+        {/* THE DIFFERENCE  -  Visual Comparison (Old Resume vs ATS-Optimized) */}
         <section id="the-difference" className="relative py-24 md:py-36 bg-white border-t border-brand-border">
           <VerticalBoundLines />
           <div className="relative z-10 w-full max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
@@ -1704,7 +1704,7 @@ export default function AgentLandingPage() {
           </div>
         </section>
 
-        {/* MARQUEE STRIP — full-bleed horizontal scrolling; the vertical bounding
+        {/* MARQUEE STRIP  -  full-bleed horizontal scrolling; the vertical bounding
             lines deliberately do NOT run through it (exempted as the horizontal
             scrolling element). They resume in the dark sections below. */}
         <div className="bg-brand-dark py-7 overflow-hidden border-y border-brand-dark/20 select-none">
@@ -1727,7 +1727,7 @@ export default function AgentLandingPage() {
         {/* DIRECT CAREER-PAGE JOB FEED SECTION */}
         <LandingJobsSection onTailorJob={handleTailorFromJobsSection} />
 
-        {/* REAL RESULTS — dark section with animated counters */}
+        {/* REAL RESULTS  -  dark section with animated counters */}
         <section className="relative py-24 md:py-40 bg-brand-dark text-white overflow-hidden">
           <div className="relative z-10 w-full max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
@@ -1795,7 +1795,7 @@ export default function AgentLandingPage() {
           </div>
         </section>
 
-        {/* PERSONAS — Serro-style 01/02/03/04 tabs + use cases */}
+        {/* PERSONAS  -  Serro-style 01/02/03/04 tabs + use cases */}
         <section id="usecases" className="relative py-24 md:py-36 bg-brand-bg border-t border-brand-border">
           <VerticalBoundLines />
           <div className="relative z-10 w-full max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
@@ -1814,12 +1814,12 @@ export default function AgentLandingPage() {
               </div>
               <div className="lg:col-span-7 flex items-end">
                 <p className="text-base text-brand-dark/60 max-w-xl">
-                  Whatever stage you're at, the agent knows how to frame your real history against the role — honestly, and powerfully.
+                  Whatever stage you're at, the agent knows how to frame your real history against the role, honestly and powerfully.
                 </p>
               </div>
             </motion.div>
 
-            {/* Tabs — 2×2 on mobile, 4 across on desktop; hairline dividers via gap-px */}
+            {/* Tabs  -  2×2 on mobile, 4 across on desktop; hairline dividers via gap-px */}
             <div className="border-t border-brand-border" />
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-brand-border">
               {personas.map((p, i) => (
@@ -1845,7 +1845,7 @@ export default function AgentLandingPage() {
               ))}
             </div>
 
-            {/* Active persona content — cross-fades smoothly with AnimatePresence */}
+            {/* Active persona content  -  cross-fades smoothly with AnimatePresence */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={activePersona}
@@ -1855,7 +1855,7 @@ export default function AgentLandingPage() {
                 transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                 className="mt-12 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start"
               >
-                {/* Left — persona profile */}
+                {/* Left  -  persona profile */}
                 <div className="lg:col-span-5">
                   <span className="font-mono text-sm font-semibold text-brand-green">{personas[activePersona].num}/</span>
                   <p className="font-mono text-xs uppercase tracking-[0.2em] text-brand-dark/50 mt-4">{personas[activePersona].name}</p>
@@ -1870,7 +1870,7 @@ export default function AgentLandingPage() {
                   </p>
                 </div>
 
-                {/* Right — workflow panel */}
+                {/* Right  -  workflow panel */}
                 <div className="lg:col-span-7">
                   <div className="border border-brand-border bg-white rounded-xl overflow-hidden shadow-xs">
                     <div className="flex items-center justify-between px-5 sm:px-7 py-3.5 border-b border-brand-border bg-neutral-50/50">
@@ -1899,7 +1899,7 @@ export default function AgentLandingPage() {
           </div>
         </section>
 
-        {/* PRICING — flat plans */}
+        {/* PRICING  -  flat plans */}
         <section id="pricing" className="relative py-24 md:py-36 bg-brand-bg border-t border-brand-border">
           <VerticalBoundLines />
           <div className="relative z-10 w-full max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
@@ -1919,7 +1919,7 @@ export default function AgentLandingPage() {
               </div>
               <div className="lg:col-span-7 lg:pb-1">
                 <p className="text-base text-brand-dark/60 leading-relaxed max-w-xl">
-                  Start free with one AI-tailored resume. Upgrade for unlimited tailoring, every template, and unlimited exports — cancel anytime.
+                  Start free with one AI-tailored resume. Upgrade for unlimited tailoring, every template, and unlimited exports. Cancel anytime.
                 </p>
               </div>
             </motion.div>
@@ -2007,7 +2007,7 @@ export default function AgentLandingPage() {
           </div>
         </section>
 
-        {/* FAQ — accordion with smooth AnimatePresence expand/collapse */}
+        {/* FAQ  -  accordion with smooth AnimatePresence expand/collapse */}
         <section id="faq" className="relative py-24 md:py-36 bg-brand-bg border-t border-brand-border">
           <VerticalBoundLines />
           <div className="relative z-10 w-full max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
@@ -2081,7 +2081,7 @@ export default function AgentLandingPage() {
           </div>
         </section>
 
-        {/* FINAL CTA — dark, two-column layout with smooth entrance */}
+        {/* FINAL CTA  -  dark, two-column layout with smooth entrance */}
         <section className="relative py-24 md:py-40 bg-brand-dark text-white overflow-hidden border-t border-brand-dark/20">
           <div className="absolute inset-0 bg-[radial-gradient(#70E098_1px,transparent_1px)] [background-size:28px_28px] opacity-[0.07] pointer-events-none" />
           <div className="relative z-10 w-full max-w-[min(72rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
@@ -2092,7 +2092,7 @@ export default function AgentLandingPage() {
               variants={fadeInUp}
               className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start"
             >
-              {/* Left — headline + subtitle */}
+              {/* Left  -  headline + subtitle */}
               <div className="text-left">
                 <h2 className="text-[clamp(1.6rem,3.5vw,2.8rem)] font-bold tracking-[-0.03em] leading-[1.02] text-white text-balance">
                   Tailor your resume
@@ -2104,7 +2104,7 @@ export default function AgentLandingPage() {
                 </p>
               </div>
 
-              {/* Right — prompt card */}
+              {/* Right  -  prompt card */}
               <BorderBeam size="md" theme="dark" borderRadius={16} strength={0.75} className="rounded-2xl focus-within:ring-4 focus-within:ring-brand-green/10">
               <div className="bg-white/[0.06] border border-white/10 rounded-2xl p-5 sm:p-6 shadow-2xl">
                 <textarea

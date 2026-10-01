@@ -143,7 +143,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-brand-bg font-sans text-brand-dark selection:bg-brand-green/30 overflow-x-hidden">
       <SEO
-        title="CV Architect — AI Resume Builder | Beat ATS & Land Interviews 3x Faster"
+        title="CV Architect | AI Resume Builder | Beat ATS & Land Interviews 3x Faster"
         description="Build an ATS-optimized resume in minutes with CV Architect. AI resume rewriter, keyword match scoring, professional templates, and tailored cover letters."
         canonicalPath="/cvarchitect"
         jsonLd={[
@@ -180,7 +180,7 @@ export default function LandingPage() {
                 "name": "Does CV Architect offer a free version?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Yes! CV Architect offers a Foundation free tier — 1 AI-tailored resume on a base template with a full download. No credit card required."
+                  "text": "Yes! CV Architect offers a Foundation free tier: 1 AI-tailored resume on a base template with a full download. No credit card required."
                 }
               }
             ]
@@ -761,7 +761,7 @@ export default function LandingPage() {
               className="space-y-8"
             >
               <motion.h2 variants={fadeInUp} className="text-4xl md:text-5xl font-extrabold text-brand-dark leading-tight" style={{ fontFamily: 'Graphik, sans-serif' }}>
-                A Month From Now, You Could Be <span className="text-brand-green">Starting A New Job</span> — Or Still Wondering Why <span className="text-brand-green">You Never Hear Back.</span>
+                A Month From Now, You Could Be <span className="text-brand-green">Starting A New Job</span>, or still wondering Why <span className="text-brand-green">You Never Hear Back.</span>
               </motion.h2>
 
               <motion.div variants={fadeInUp} className="relative inline-block">

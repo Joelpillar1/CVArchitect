@@ -151,7 +151,7 @@ export default function SignUp() {
     return (
         <div className="min-h-screen bg-white flex items-center justify-center px-6 py-12">
             <SEO
-                title="Create Account — CV Architect | AI Resume Builder"
+                title="Create Account  -  CV Architect | AI Resume Builder"
                 description="Create your CV Architect account and start building an ATS-optimized resume in minutes. Includes complimentary AI credits and professional templates."
                 canonicalPath="/signup"
             />
@@ -182,7 +182,7 @@ export default function SignUp() {
                         <Zap size={18} className="text-brand-green shrink-0 fill-brand-green" />
                         <div className="text-sm text-brand-dark">
                             <span className="font-semibold">{selectedPlan.name}</span>
-                            <span className="text-gray-600"> — {selectedPlan.billingLabel}</span>
+                            <span className="text-gray-600">  -  {selectedPlan.billingLabel}</span>
                             <p className="text-xs text-gray-500 mt-0.5">You&apos;ll go to secure checkout right after signup.</p>
                         </div>
                     </div>

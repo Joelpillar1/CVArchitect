@@ -9,7 +9,7 @@ import SEO from './SEO';
 const faqs = [
     {
         q: 'Is everything the agent writes really grounded in my experience?',
-        a: 'Yes. Every suggested edit must trace back to a real role, skill, or achievement in your history. Anything that cannot be grounded is blocked — nothing is invented, padded, or hallucinated.',
+        a: 'Yes. Every suggested edit must trace back to a real role, skill, or achievement in your history. Anything that cannot be grounded is blocked: nothing is invented, padded, or hallucinated.',
     },
     {
         q: 'Do I need a paid plan to get started?',
@@ -40,7 +40,7 @@ export default function PricingPage() {
     return (
         <div className="min-h-screen bg-brand-bg text-brand-dark flex flex-col font-sans selection:bg-brand-green selection:text-brand-dark">
             <SEO
-                title="CV Architect Pricing — AI Resume Plans from $6/week"
+                title="CV Architect Pricing | AI Resume Plans from $6/week"
                 description="CV Architect pricing: Foundation free tier with 1 AI resume, Sprint pass from $6/wk, Build at $20/mo, and Lifetime access for $99."
                 canonicalPath="/pricing"
             />
@@ -60,7 +60,7 @@ export default function PricingPage() {
                         Pay when you're ready to apply
                     </h1>
                     <p className="text-base sm:text-lg text-brand-dark/60 leading-relaxed max-w-2xl mx-auto">
-                        Start free with one AI-tailored resume. Upgrade for unlimited tailoring, every template, and unlimited exports — cancel anytime.
+                        Start free with one AI-tailored resume. Upgrade for unlimited tailoring, every template, and unlimited exports. Cancel anytime.
                     </p>
                 </div>
 

@@ -29,7 +29,7 @@ function PricingCell({ cell, emphasize }: { cell: ComparisonCell; emphasize?: bo
         );
     }
     if (cell.type === 'dash') {
-        return <span className="text-center text-sm text-brand-dark/30">—</span>;
+        return <span className="text-center text-sm text-brand-dark/30">-</span>;
     }
     return (
         <span className={`text-center text-xs sm:text-sm ${emphasize ? 'font-bold text-brand-dark' : 'font-semibold text-brand-dark'}`}>
@@ -178,7 +178,7 @@ export default function PricingPlans({ onFreeClick, compact = false }: PricingPl
                         Pay when you're ready to apply
                     </h2>
                     <p className="text-brand-dark/60 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
-                        Start free with one AI-tailored resume. Upgrade for unlimited tailoring, every template, and unlimited exports — cancel anytime.
+                        Start free with one AI-tailored resume. Upgrade for unlimited tailoring, every template, and unlimited exports. Cancel anytime.
                     </p>
                 </div>
             )}
@@ -186,7 +186,7 @@ export default function PricingPlans({ onFreeClick, compact = false }: PricingPl
             {/* Comparison Table */}
             <div className="max-w-5xl mx-auto overflow-x-auto">
                 <div className="min-w-[640px]">
-                    {/* Header — Plan name, big price, full-width CTA per column */}
+                    {/* Header  -  Plan name, big price, full-width CTA per column */}
                     <div className="grid grid-cols-[1.2fr_repeat(4,1fr)] gap-x-3 sm:gap-x-6 mb-8 items-end">
                         <div aria-hidden="true" />
                         {DISPLAY_PLANS.map((planId) => {

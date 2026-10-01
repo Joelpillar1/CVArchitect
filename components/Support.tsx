@@ -56,7 +56,7 @@ const FAQS: FAQ[] = [
                 <Link to="/signup" className="text-brand-green font-semibold hover:underline">
                     cvarchitect.app/signup
                 </Link>
-                . Once registered, you'll receive a few free AI credits to explore all features — no credit card required. Choose a template, fill in your information, and let our AI optimise your resume for any job.
+                . Once registered, you'll receive a few free AI credits to explore all features  -  no credit card required. Choose a template, fill in your information, and let our AI optimise your resume for any job.
             </p>
         ),
     },
@@ -76,7 +76,7 @@ const FAQS: FAQ[] = [
         question: 'Do I need to install anything?',
         answer: (
             <p>
-                No installation required. CV Architect is a fully web-based platform — simply open your browser and start building. We also offer a Chrome Extension that lets you import job descriptions directly from LinkedIn and other job boards with one click.
+                No installation required. CV Architect is a fully web-based platform  -  simply open your browser and start building. We also offer a Chrome Extension that lets you import job descriptions directly from LinkedIn and other job boards with one click.
             </p>
         ),
     },
@@ -87,7 +87,7 @@ const FAQS: FAQ[] = [
         question: 'How many resume templates are available?',
         answer: (
             <p>
-                CV Architect offers a growing library of professionally designed templates across several styles — modern, classic, minimal, and creative. All templates are ATS-friendly and fully customisable with your preferred fonts, colours, and layouts.
+                CV Architect offers a growing library of professionally designed templates across several styles  -  modern, classic, minimal, and creative. All templates are ATS-friendly and fully customisable with your preferred fonts, colours, and layouts.
             </p>
         ),
     },
@@ -97,7 +97,7 @@ const FAQS: FAQ[] = [
         question: 'Can I have multiple resumes for different jobs?',
         answer: (
             <p>
-                Yes! You can create and save as many resumes as you need. We recommend tailoring a separate version for each role you apply to — our AI Job Match feature makes this fast and easy by adapting your content to a specific job description.
+                Yes! You can create and save as many resumes as you need. We recommend tailoring a separate version for each role you apply to  -  our AI Job Match feature makes this fast and easy by adapting your content to a specific job description.
             </p>
         ),
     },
@@ -108,7 +108,7 @@ const FAQS: FAQ[] = [
         answer: (
             <>
                 <p className="mb-2">
-                    ATS (Applicant Tracking System) is software used by recruiters to automatically screen resumes before a human ever sees them. Resumes not optimised for ATS are often rejected instantly — even highly qualified candidates.
+                    ATS (Applicant Tracking System) is software used by recruiters to automatically screen resumes before a human ever sees them. Resumes not optimised for ATS are often rejected instantly  -  even highly qualified candidates.
                 </p>
                 <p>
                     CV Architect analyses your resume against the job description and gives you an ATS score with actionable suggestions for keyword improvements, formatting fixes, and section enhancements.
@@ -133,7 +133,7 @@ const FAQS: FAQ[] = [
         question: 'How does the AI rewriting feature work?',
         answer: (
             <p>
-                Our AI (powered by Google Generative AI) reads your current resume content and the target job description, then rewrites your bullet points to be achievement-focused, keyword-rich, and ATS-optimised — all while keeping your voice. You approve every change before it's applied.
+                Our AI (powered by Google Generative AI) reads your current resume content and the target job description, then rewrites your bullet points to be achievement-focused, keyword-rich, and ATS-optimised  -  all while keeping your voice. You approve every change before it's applied.
             </p>
         ),
     },
@@ -178,7 +178,7 @@ const FAQS: FAQ[] = [
         question: 'Can I cancel my subscription at any time?',
         answer: (
             <p>
-                Yes. You can cancel your subscription at any time from your account settings — no questions asked. You'll continue to have access to your plan features until the end of your current billing period.
+                Yes. You can cancel your subscription at any time from your account settings  -  no questions asked. You'll continue to have access to your plan features until the end of your current billing period.
             </p>
         ),
     },
@@ -259,7 +259,7 @@ const FAQS: FAQ[] = [
     {
         id: 'exp-2',
         category: 'export',
-        question: 'My PDF looks different from the preview — how do I fix this?',
+        question: 'My PDF looks different from the preview  -  how do I fix this?',
         answer: (
             <>
                 <p className="mb-2">
@@ -367,7 +367,7 @@ export default function Support() {
     return (
         <div className="min-h-screen bg-white">
             <SEO
-                title="Support Center — CV Architect"
+                title="Support Center  -  CV Architect"
                 description="Find answers to common questions about CV Architect's AI resume builder, billing, and account management. Contact our support team for help."
                 canonicalPath="/support"
             />
