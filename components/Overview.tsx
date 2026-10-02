@@ -264,7 +264,7 @@ export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, 
             </div>
             <button
               onClick={() => navigate('/dashboard/jobs')}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-neutral-900 hover:bg-black text-white font-medium text-xs transition-colors self-start sm:self-auto shadow-xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-dark hover:bg-brand-dark/90 text-white font-semibold text-xs transition-all self-start sm:self-auto shadow-sm hover:shadow-md cursor-pointer"
             >
               <span>View All Jobs</span>
               <ArrowRight size={14} />
