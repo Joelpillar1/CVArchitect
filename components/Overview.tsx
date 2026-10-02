@@ -1,14 +1,20 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, FileText, Crown, ArrowRight, Trash2, Copy, AlertTriangle, Eye, Edit, Sparkles, MapPin, Briefcase } from 'lucide-react';
-import { SavedTemplate } from '../types';
+import { SavedTemplate, ResumeData, TemplateType } from '../types';
 import { UserSubscription } from '../types/pricing';
 import { getPlanDisplayName } from '../utils/pricingConfig';
 import ResumePreview from './ResumePreview';
 import { Job } from '../types/job';
-import { calculateJobMatchScore, formatSalary } from '../utils/jobMatching';
+import { getSavedJobIds, toggleSaveJob } from '../utils/jobMatching';
 import { fetchJobFeed } from '../services/jobFeedService';
 import { getTemplateMetadata } from '../utils/templateConfig';
+import JobCard from './jobs/JobCard';
+import JobDetailsModal from './jobs/JobDetailsModal';
+import SelectResumeModal from './jobs/SelectResumeModal';
+import { useToast } from '../contexts/ToastContext';
+import { formatJobDescriptionForChat } from '../pages/JobsPage';
+import { saveToStorage } from '../utils/statePersistence';
 
 interface OverviewProps {
   onCreateNew: () => void;
@@ -22,9 +28,13 @@ interface OverviewProps {
 
 export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, onDeleteTemplate, onDuplicateTemplate, userName, userSubscription }: OverviewProps) {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [confirmDeleteId, setConfirmDeleteId] = React.useState<string | null>(null);
   const [featuredJobs, setFeaturedJobs] = React.useState<Job[]>([]);
   const [loadingJobs, setLoadingJobs] = React.useState(true);
+  const [savedJobIds, setSavedJobIds] = React.useState<string[]>(() => getSavedJobIds());
+  const [selectedJob, setSelectedJob] = React.useState<Job | null>(null);
+  const [resumeSelectJob, setResumeSelectJob] = React.useState<Job | null>(null);
   const recentTemplates = savedTemplates.slice(0, 5);
   const templateToDelete = savedTemplates.find(t => t.id === confirmDeleteId);
 
@@ -44,6 +54,59 @@ export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, 
       isMounted = false;
     };
   }, []);
+
+  const handleToggleSave = (jobId: string) => {
+    const isNowSaved = toggleSaveJob(jobId);
+    setSavedJobIds(getSavedJobIds());
+    const targetJob = featuredJobs.find((j) => j.id === jobId);
+    const title = targetJob?.title || 'Job';
+    if (isNowSaved) {
+      showToast(`Saved "${title}" to your bookmarks.`, 'success');
+    } else {
+      showToast(`Removed "${title}" from bookmarks.`, 'info');
+    }
+  };
+
+  const handleSelectResumeForJob = (
+    chosenResume: {
+      id: string | null;
+      tag: string;
+      baseTemplate: TemplateType;
+      data: ResumeData;
+    },
+    targetJob: Job
+  ) => {
+    setResumeSelectJob(null);
+    const jobPrompt = formatJobDescriptionForChat(targetJob);
+    saveToStorage('cv_app_data', chosenResume.data);
+    saveToStorage('cv_app_template', chosenResume.baseTemplate);
+    if (chosenResume.id) {
+      saveToStorage('cv_app_resume_id', chosenResume.id);
+    }
+    saveToStorage('cv_pending_chat_prompt', jobPrompt);
+    saveToStorage('editor_openJobMatchTab', true);
+    saveToStorage('editor_activeMobileTab', 'job-match');
+    showToast(`Loaded "${chosenResume.tag}" for "${targetJob.title}".`, 'success');
+    navigate('/dashboard/editor', {
+      state: {
+        pendingChatPrompt: jobPrompt,
+        openChat: true,
+      },
+    });
+  };
+
+  const handleGenerateCoverLetter = (job: Job) => {
+    setSelectedJob(null);
+    navigate('/dashboard/cover-letter', {
+      state: {
+        prefillJob: {
+          jobTitle: job.title,
+          companyName: job.company,
+          jobDescription: `${job.title} at ${job.company}\n\nRole Overview:\n${job.description || ''}\n\nKey Requirements:\n${(job.requirements || []).join('\n')}`,
+        },
+      },
+    });
+  };
 
   const handleDelete = () => {
     if (confirmDeleteId) {
@@ -189,108 +252,98 @@ export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, 
         </div>
 
         {/* Recommended Jobs Section */}
-        <div className="mt-14 pt-10 border-t border-gray-200">
+        <div className="mt-14 pt-10 border-t border-neutral-200">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
-              <h3 className="text-xl font-bold text-gray-900">
+              <h3 className="text-xl font-bold text-neutral-900 tracking-tight">
                 Recommended Jobs
               </h3>
-              <p className="text-gray-500 text-sm mt-0.5">
-                Positions matching your profile and resume.
+              <p className="text-neutral-500 text-sm mt-0.5 font-light">
+                Live verified positions matching your profile and background.
               </p>
             </div>
             <button
               onClick={() => navigate('/dashboard/jobs')}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gray-900 hover:bg-black text-white font-medium text-xs transition-colors self-start sm:self-auto"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-neutral-900 hover:bg-black text-white font-medium text-xs transition-colors self-start sm:self-auto shadow-xs cursor-pointer"
             >
               <span>View All Jobs</span>
               <ArrowRight size={14} />
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {loadingJobs ? (
               [1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="bg-white rounded-xl p-5 border border-gray-200 animate-pulse flex flex-col justify-between h-48"
+                  className="bg-white rounded-2xl p-5 sm:p-6 border border-neutral-200/80 animate-pulse flex flex-col justify-between h-[230px]"
                 >
                   <div className="space-y-3">
-                    <div className="h-4 bg-gray-100 rounded w-1/3" />
-                    <div className="h-5 bg-gray-100 rounded w-3/4" />
-                    <div className="h-4 bg-gray-100 rounded w-1/2" />
+                    <div className="flex items-center gap-2">
+                      <div className="w-5.5 h-5.5 rounded-md bg-neutral-150" />
+                      <div className="h-4 bg-neutral-100 rounded w-1/3" />
+                    </div>
+                    <div className="h-5 bg-neutral-100 rounded w-3/4" />
+                    <div className="flex gap-2">
+                      <div className="h-5 bg-neutral-100 rounded w-16" />
+                      <div className="h-5 bg-neutral-100 rounded w-16" />
+                    </div>
                   </div>
-                  <div className="h-8 bg-gray-100 rounded" />
+                  <div className="h-9 bg-neutral-100 rounded-xl" />
                 </div>
               ))
             ) : featuredJobs.length > 0 ? (
               featuredJobs.map((job) => {
                 const activeResume = savedTemplates[0]?.data;
-                const { score } = calculateJobMatchScore(job, activeResume);
+                const isSaved = savedJobIds.includes(job.id);
 
                 return (
-                  <div
+                  <JobCard
                     key={job.id}
-                    onClick={() => navigate('/dashboard/jobs')}
-                    className="bg-white rounded-xl p-5 border border-gray-200 hover:border-gray-400 transition-all duration-200 flex flex-col justify-between cursor-pointer hover:shadow-sm"
-                  >
-                    <div>
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <div>
-                          <span className="font-semibold text-gray-900 text-sm">
-                            {job.company}
-                          </span>
-                          <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-                            <MapPin size={11} className="text-gray-400" />
-                            {job.location}
-                          </p>
-                        </div>
-
-                        <div className="px-2 py-0.5 rounded border border-gray-200 bg-gray-50 text-gray-700 text-xs font-medium">
-                          {score}% Match
-                        </div>
-                      </div>
-
-                      <h4 className="font-semibold text-gray-900 text-sm line-clamp-1 mb-2.5">
-                        {job.title}
-                      </h4>
-
-                      <div className="flex items-center gap-1.5 mb-3">
-                        {job.workplaceType && (
-                          <span className="text-[11px] px-2 py-0.5 rounded bg-gray-50 text-gray-700 border border-gray-200 font-medium">
-                            {job.workplaceType}
-                          </span>
-                        )}
-                        {job.jobType && (
-                          <span className="text-[11px] px-2 py-0.5 rounded bg-gray-50 text-gray-700 border border-gray-200 font-medium">
-                            {job.jobType}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="text-xs font-semibold text-gray-900 bg-gray-50 p-2 rounded border border-gray-100 mb-3">
-                        {formatSalary(job.salary)}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-3 border-t border-gray-100 text-xs">
-                      <span className="text-gray-500 font-medium">Click to view role</span>
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-brand-dark hover:bg-brand-dark/90 text-white font-medium rounded text-xs transition-colors">
-                        Tailor Resume
-                        <ArrowRight size={12} />
-                      </span>
-                    </div>
-                  </div>
+                    job={job}
+                    resumeData={activeResume}
+                    isSaved={isSaved}
+                    onToggleSave={handleToggleSave}
+                    onSelectJob={(j) => setSelectedJob(j)}
+                    onTailorResume={(j) => setResumeSelectJob(j)}
+                  />
                 );
               })
             ) : (
-              <div className="col-span-3 text-center py-8 text-sm text-gray-500 bg-white rounded-xl border border-gray-200">
-                Explore thousands of active roles in the jobs section.
+              <div className="col-span-full text-center py-12 text-sm text-neutral-500 bg-white rounded-2xl border border-neutral-200/80">
+                Explore active verified roles in the jobs section.
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* Job Details Modal */}
+      <JobDetailsModal
+        job={selectedJob}
+        isOpen={Boolean(selectedJob)}
+        onClose={() => setSelectedJob(null)}
+        resumeData={savedTemplates[0]?.data}
+        isSaved={selectedJob ? savedJobIds.includes(selectedJob.id) : false}
+        onToggleSave={handleToggleSave}
+        onTailorResume={(job) => {
+          setSelectedJob(null);
+          setResumeSelectJob(job);
+        }}
+        onGenerateCoverLetter={handleGenerateCoverLetter}
+      />
+
+      {/* Select Resume Modal for Tailoring */}
+      <SelectResumeModal
+        isOpen={Boolean(resumeSelectJob)}
+        onClose={() => setResumeSelectJob(null)}
+        job={resumeSelectJob}
+        savedTemplates={savedTemplates}
+        currentResumeData={savedTemplates[0]?.data}
+        currentResumeId={savedTemplates[0]?.id}
+        currentTemplate={savedTemplates[0]?.baseTemplate || 'vanguard'}
+        onSelectResume={handleSelectResumeForJob}
+      />
 
       {/* Confirmation Modal */}
       {confirmDeleteId && templateToDelete && (
