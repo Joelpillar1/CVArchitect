@@ -1798,8 +1798,8 @@ export default function ResumeWorkspace({
 
   return (
     <div className="flex flex-col bg-brand-bg border-r border-brand-border h-full relative overflow-hidden">
-      {/* Quick Zoom Indicator & Controls Pill on canvas */}
-      <div className="absolute top-3 right-3 z-20 flex items-center gap-1 bg-white/95 backdrop-blur-md px-2 py-1 rounded-xl border border-neutral-200/90 shadow-xs text-xs font-semibold text-neutral-700">
+      {/* Quick Zoom Indicator & Controls Pill on canvas (mobile only) */}
+      <div className="md:hidden absolute top-3 right-3 z-20 flex items-center gap-1 bg-white/95 backdrop-blur-md px-2 py-1 rounded-xl border border-neutral-200/90 shadow-xs text-xs font-semibold text-neutral-700">
         <button
           type="button"
           onClick={propOnZoomOut || (() => setInternalZoom(z => Math.max(0.4, Math.round((z - 0.1) * 10) / 10)))}
