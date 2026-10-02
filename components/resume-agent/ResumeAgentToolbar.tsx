@@ -39,7 +39,6 @@ interface ResumeAgentToolbarProps {
   canRedo?: boolean;
   onUndo?: () => void;
   onRedo?: () => void;
-  /** Backwards compatibility */
   zoom?: number;
   onZoomIn?: () => void;
   onZoomOut?: () => void;
@@ -98,7 +97,7 @@ function Tooltip({
     <div className={`relative group/tooltip flex items-center justify-center ${className}`}>
       {children}
       {!disabled && (
-        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 group-hover/tooltip:opacity-100 transition-all duration-150 ease-out transform scale-95 group-hover/tooltip:scale-100 flex flex-col items-center">
+        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 group-hover/tooltip:opacity-100 transition-all duration-150 ease-out transform scale-95 group-hover/tooltip:scale-100 hidden sm:flex flex-col items-center">
           <div className="bg-[#18181b] text-white text-[11px] font-medium px-2.5 py-1 rounded-xl shadow-xl border border-white/10 whitespace-nowrap leading-tight">
             {text}
           </div>
@@ -117,13 +116,16 @@ export default function ResumeAgentToolbar({
   canRedo = false,
   onUndo,
   onRedo,
-  embedded = false,
   className,
 }: ResumeAgentToolbarProps) {
-  // Toolset page state: 0 = Typography & Color, 1 = Alignment & Spacing, 2 = Layout & Design Options
+  // Toolset page state:
+  // 0 = Typography & Color
+  // 1 = Spacing & Alignment
+  // 2 = Bullets & Margins
+  // 3 = Document Settings & Layout
   const [toolPage, setToolPage] = useState<number>(0);
   const [slideDirection, setSlideDirection] = useState<'forward' | 'backward'>('forward');
-  const TOTAL_PAGES = 3;
+  const TOTAL_PAGES = 4;
 
   // Popover state management
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -239,40 +241,49 @@ export default function ResumeAgentToolbar({
   return (
     <div
       ref={containerRef}
-      className={`absolute bottom-6 left-1/2 -translate-x-1/2 select-none z-30 flex items-center bg-brand-dark/95 backdrop-blur-xl px-2.5 py-1.5 rounded-full shadow-[0_16px_40px_rgba(51,60,77,0.35)] border border-white/15 text-xs font-semibold text-white transition-all duration-300 max-w-[calc(100vw-2rem)] ${className || ''}`}
+      className={`absolute bottom-3 sm:bottom-6 left-1/2 -translate-x-1/2 select-none z-30 flex items-center bg-brand-dark/95 backdrop-blur-xl px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-full shadow-[0_16px_40px_rgba(51,60,77,0.35)] border border-white/15 text-xs font-semibold text-white transition-all duration-300 max-w-[calc(100vw-1rem)] sm:max-w-max gap-1 sm:gap-1.5 ${className || ''}`}
     >
-      {/* Persistent Add Section Button */}
+      {/* 1. Persistent Add Section Button */}
       {onOpenAddSection && (
-        <>
+        <div className="flex items-center shrink-0">
           <Tooltip text="Add section">
             <button
               type="button"
               onClick={onOpenAddSection}
-              className="p-1.5 rounded-full bg-brand-green hover:bg-brand-greenHover text-brand-dark transition-all cursor-pointer shadow-xs active:scale-95 group font-bold flex items-center justify-center shrink-0"
+              className="p-1 sm:p-1.5 rounded-full bg-brand-green hover:bg-brand-greenHover text-brand-dark transition-all cursor-pointer shadow-xs active:scale-95 font-bold flex items-center justify-center shrink-0"
             >
               <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
             </button>
           </Tooltip>
-
-          {/* Vertical Line Divider */}
-          <div className="h-4 w-px bg-white/20 mx-1 shrink-0" />
-        </>
+          <div className="h-4 w-px bg-white/20 ml-1 mr-0.5 shrink-0" />
+        </div>
       )}
 
-      {/* Dynamic Paginated Tool Area */}
-      <div className="flex items-center gap-1.5 transition-all duration-200">
-        
+      {/* 2. Fixed Left Navigation Arrow (<) */}
+      <Tooltip text={`Previous: Page ${((toolPage - 1 + TOTAL_PAGES) % TOTAL_PAGES) + 1}/${TOTAL_PAGES}`}>
+        <button
+          type="button"
+          onClick={prevToolPage}
+          className="p-1 sm:p-1.5 rounded-full bg-white/10 hover:bg-white/20 active:bg-white/30 text-white border border-white/15 transition-all cursor-pointer shadow-xs shrink-0 flex items-center justify-center group"
+          title="Previous tools"
+        >
+          <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+        </button>
+      </Tooltip>
+
+      {/* 3. Center Active Toolset (Pages 0, 1, 2, 3) */}
+      <div className="flex items-center justify-center min-w-0 flex-1 px-0.5">
         {/* ================= PAGE 0: Typography & Color ================= */}
         {toolPage === 0 && (
-          <div key={`tool-page-0-${slideDirection}`} className={`flex items-center gap-1.5 ${slideAnimClass}`}>
+          <div key={`tool-page-0-${slideDirection}`} className={`flex items-center gap-1 sm:gap-1.5 ${slideAnimClass}`}>
             {/* Undo & Redo */}
-            <div className="flex items-center gap-0.5 bg-white/10 rounded-full p-0.5 border border-white/10">
+            <div className="flex items-center gap-0.5 bg-white/10 rounded-full p-0.5 border border-white/10 shrink-0">
               <Tooltip text="Undo (Ctrl+Z)">
                 <button
                   type="button"
                   onClick={onUndo}
                   disabled={!canUndo}
-                  className={`p-1.5 rounded-full transition-colors ${
+                  className={`p-1 sm:p-1.5 rounded-full transition-colors ${
                     canUndo
                       ? 'hover:bg-white/20 text-white cursor-pointer'
                       : 'text-white/30 cursor-not-allowed opacity-40'
@@ -287,7 +298,7 @@ export default function ResumeAgentToolbar({
                   type="button"
                   onClick={onRedo}
                   disabled={!canRedo}
-                  className={`p-1.5 rounded-full transition-colors ${
+                  className={`p-1 sm:p-1.5 rounded-full transition-colors ${
                     canRedo
                       ? 'hover:bg-white/20 text-white cursor-pointer'
                       : 'text-white/30 cursor-not-allowed opacity-40'
@@ -298,68 +309,26 @@ export default function ResumeAgentToolbar({
               </Tooltip>
             </div>
 
-            {/* Paper Size Selector */}
-            <div className="relative">
-              <Tooltip text="Paper size" disabled={openDropdown === 'paper'}>
-                <button
-                  type="button"
-                  onClick={() => toggleDropdown('paper')}
-                  className={`px-2 py-1.5 rounded-full border text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer ${
-                    openDropdown === 'paper'
-                      ? 'bg-brand-green text-brand-dark border-brand-green'
-                      : 'bg-white/10 hover:bg-white/20 text-white border-white/10'
-                  }`}
-                >
-                  <FileText className="w-3.5 h-3.5" />
-                  <span className="uppercase text-[10px]">{currentPageSize === 'a4' ? 'A4' : 'LTR'}</span>
-                </button>
-              </Tooltip>
-
-              {openDropdown === 'paper' && (
-                <div className="absolute bottom-full mb-3 left-0 w-36 bg-brand-dark rounded-2xl shadow-2xl border border-white/15 z-[100] p-1.5 space-y-0.5 animate-fadeIn text-white">
-                  <div className="px-2 py-1 text-[10px] font-extrabold uppercase text-white/50 border-b border-white/10 mb-1">
-                    Paper Size
-                  </div>
-                  {PAGE_SIZE_OPTIONS.map(opt => (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      onClick={() => {
-                        onChangeData({ ...data, pageSize: opt.id as any });
-                        setOpenDropdown(null);
-                      }}
-                      className={`w-full px-2.5 py-1.5 text-left rounded-lg text-[11px] font-bold flex items-center justify-between transition-colors cursor-pointer ${
-                        currentPageSize === opt.id ? 'bg-brand-green text-brand-dark font-extrabold' : 'hover:bg-white/10 text-white/90'
-                      }`}
-                    >
-                      <span>{opt.name}</span>
-                      {currentPageSize === opt.id && <Check className="w-3 h-3 text-brand-dark stroke-[2.5]" />}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
             {/* Font Family Dropdown */}
-            <div className="relative">
+            <div className="relative shrink-0">
               <Tooltip text="Font family" disabled={openDropdown === 'font'}>
                 <button
                   type="button"
                   onClick={() => toggleDropdown('font')}
-                  className={`px-2.5 py-1.5 rounded-full border text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  className={`px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full border text-[11px] font-bold flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer ${
                     openDropdown === 'font'
                       ? 'bg-brand-green text-brand-dark border-brand-green'
                       : 'bg-white/10 hover:bg-white/20 text-white border-white/10'
                   }`}
                 >
-                  <Type className="w-3.5 h-3.5" />
-                  <span className="truncate max-w-[75px]">{currentFontObj.label}</span>
-                  <ChevronDown className={`w-3 h-3 transition-transform ${openDropdown === 'font' ? 'rotate-180' : 'text-white/60'}`} />
+                  <Type className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate max-w-[42px] xs:max-w-[65px] sm:max-w-[85px]">{currentFontObj.label}</span>
+                  <ChevronDown className={`w-3 h-3 shrink-0 transition-transform ${openDropdown === 'font' ? 'rotate-180' : 'text-white/60'}`} />
                 </button>
               </Tooltip>
 
               {openDropdown === 'font' && (
-                <div className="absolute bottom-full mb-3 left-0 w-52 bg-brand-dark rounded-2xl shadow-2xl border border-white/15 z-[100] p-1.5 space-y-0.5 animate-fadeIn max-h-64 overflow-y-auto custom-scrollbar text-white">
+                <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 w-52 bg-brand-dark rounded-2xl shadow-2xl border border-white/15 z-[100] p-1.5 space-y-0.5 animate-fadeIn max-h-64 overflow-y-auto custom-scrollbar text-white">
                   <div className="px-2 py-1 text-[10px] font-extrabold uppercase text-white/50 border-b border-white/10 mb-1">
                     Font Family
                   </div>
@@ -384,19 +353,19 @@ export default function ResumeAgentToolbar({
             </div>
 
             {/* Font Size Stepper */}
-            <div className="flex items-center gap-0.5 bg-white/10 rounded-full p-0.5 border border-white/10">
+            <div className="flex items-center gap-0.5 bg-white/10 rounded-full p-0.5 border border-white/10 shrink-0">
               <Tooltip text="Decrease size">
                 <button
                   type="button"
                   onClick={() => handleFontSizeChange(-0.5)}
-                  className="p-1 hover:bg-white/20 rounded-full text-white/90 transition-colors cursor-pointer"
+                  className="p-0.5 sm:p-1 hover:bg-white/20 rounded-full text-white/90 transition-colors cursor-pointer"
                 >
                   <Minus className="w-3 h-3" />
                 </button>
               </Tooltip>
 
               <Tooltip text="Font size">
-                <span className="px-1.5 font-bold text-xs min-w-[22px] text-center font-mono text-white">
+                <span className="px-1 sm:px-1.5 font-bold text-[11px] sm:text-xs min-w-[16px] sm:min-w-[20px] text-center font-mono text-white">
                   {currentFontSize}
                 </span>
               </Tooltip>
@@ -405,7 +374,7 @@ export default function ResumeAgentToolbar({
                 <button
                   type="button"
                   onClick={() => handleFontSizeChange(0.5)}
-                  className="p-1 hover:bg-white/20 rounded-full text-white/90 transition-colors cursor-pointer"
+                  className="p-0.5 sm:p-1 hover:bg-white/20 rounded-full text-white/90 transition-colors cursor-pointer"
                 >
                   <Plus className="w-3 h-3" />
                 </button>
@@ -413,19 +382,19 @@ export default function ResumeAgentToolbar({
             </div>
 
             {/* Accent Color Picker (A_) */}
-            <div className="relative">
+            <div className="relative shrink-0">
               <Tooltip text="Pick a color" disabled={openDropdown === 'color'}>
                 <button
                   type="button"
                   onClick={() => toggleDropdown('color')}
-                  className={`p-1.5 rounded-full border flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
+                  className={`p-1 sm:p-1.5 rounded-full border flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
                     openDropdown === 'color'
                       ? 'bg-brand-green text-brand-dark border-brand-green'
                       : 'bg-white/10 hover:bg-white/20 text-white border-white/10'
                   }`}
                 >
-                  <span className="font-extrabold text-xs leading-none">A</span>
-                  <div className="w-3 h-1 rounded-full" style={{ backgroundColor: currentAccentColor }} />
+                  <span className="font-extrabold text-[11px] sm:text-xs leading-none">A</span>
+                  <div className="w-2.5 sm:w-3 h-0.5 sm:h-1 rounded-full" style={{ backgroundColor: currentAccentColor }} />
                 </button>
               </Tooltip>
 
@@ -479,41 +448,19 @@ export default function ResumeAgentToolbar({
                 </div>
               )}
             </div>
-
-            {/* Shift Arrow to Page 1 */}
-            <Tooltip text="More tools">
-              <button
-                type="button"
-                onClick={nextToolPage}
-                className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/15 transition-all cursor-pointer shadow-xs ml-0.5 group"
-              >
-                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-              </button>
-            </Tooltip>
           </div>
         )}
 
-        {/* ================= PAGE 1: Spacing, Alignment & Bullets ================= */}
+        {/* ================= PAGE 1: Spacing & Alignment ================= */}
         {toolPage === 1 && (
-          <div key={`tool-page-1-${slideDirection}`} className={`flex items-center gap-1.5 ${slideAnimClass}`}>
-            {/* Back Arrow to Page 0 */}
-            <Tooltip text="Previous tools">
-              <button
-                type="button"
-                onClick={prevToolPage}
-                className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/15 transition-all cursor-pointer shadow-xs mr-0.5 group"
-              >
-                <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-              </button>
-            </Tooltip>
-
+          <div key={`tool-page-1-${slideDirection}`} className={`flex items-center gap-1 sm:gap-1.5 ${slideAnimClass}`}>
             {/* Alignment Controls Popover */}
-            <div className="relative">
+            <div className="relative shrink-0">
               <Tooltip text="Alignment options" disabled={openDropdown === 'align'}>
                 <button
                   type="button"
                   onClick={() => toggleDropdown('align')}
-                  className={`px-2.5 py-1.5 rounded-full border text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  className={`px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full border text-[11px] font-bold flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer ${
                     openDropdown === 'align'
                       ? 'bg-brand-green text-brand-dark border-brand-green'
                       : 'bg-white/10 hover:bg-white/20 text-white border-white/10'
@@ -531,7 +478,7 @@ export default function ResumeAgentToolbar({
                     Alignment Options
                   </div>
 
-                  {/* 1. Contact Info (Works for Name, Contacts, and Professional Title together) */}
+                  {/* 1. Contact Info */}
                   <div className="space-y-1">
                     <div className="flex items-center justify-between text-[11px] font-bold text-white/90">
                       <span>Contact Info</span>
@@ -587,9 +534,9 @@ export default function ResumeAgentToolbar({
             </div>
 
             {/* Line Height Control */}
-            <div className="flex items-center gap-0.5 bg-white/10 rounded-full p-0.5 border border-white/10">
+            <div className="flex items-center gap-0.5 bg-white/10 rounded-full p-0.5 border border-white/10 shrink-0">
               <Tooltip text="Line spacing">
-                <div className="pl-1.5 pr-0.5 text-white/60">
+                <div className="pl-1 sm:pl-1.5 pr-0.5 text-white/60">
                   <ArrowUpDown className="w-3.5 h-3.5" />
                 </div>
               </Tooltip>
@@ -598,14 +545,14 @@ export default function ResumeAgentToolbar({
                 <button
                   type="button"
                   onClick={() => handleLineHeightChange(-0.05)}
-                  className="p-1 hover:bg-white/20 rounded-full text-white/90 transition-colors cursor-pointer"
+                  className="p-0.5 sm:p-1 hover:bg-white/20 rounded-full text-white/90 transition-colors cursor-pointer"
                 >
                   <Minus className="w-3 h-3" />
                 </button>
               </Tooltip>
 
               <Tooltip text="Line spacing">
-                <span className="px-1 font-bold text-xs min-w-[26px] text-center font-mono text-white">
+                <span className="px-0.5 sm:px-1 font-bold text-[11px] sm:text-xs min-w-[22px] sm:min-w-[26px] text-center font-mono text-white">
                   {currentLineHeight.toFixed(2)}
                 </span>
               </Tooltip>
@@ -614,7 +561,7 @@ export default function ResumeAgentToolbar({
                 <button
                   type="button"
                   onClick={() => handleLineHeightChange(0.05)}
-                  className="p-1 hover:bg-white/20 rounded-full text-white/90 transition-colors cursor-pointer"
+                  className="p-0.5 sm:p-1 hover:bg-white/20 rounded-full text-white/90 transition-colors cursor-pointer"
                 >
                   <Plus className="w-3 h-3" />
                 </button>
@@ -622,9 +569,9 @@ export default function ResumeAgentToolbar({
             </div>
 
             {/* Section Gap Control */}
-            <div className="flex items-center gap-0.5 bg-white/10 rounded-full p-0.5 border border-white/10">
+            <div className="flex items-center gap-0.5 bg-white/10 rounded-full p-0.5 border border-white/10 shrink-0">
               <Tooltip text="Section gap">
-                <div className="pl-1.5 pr-0.5 text-white/60">
+                <div className="pl-1 sm:pl-1.5 pr-0.5 text-white/60">
                   <MoveVertical className="w-3.5 h-3.5" />
                 </div>
               </Tooltip>
@@ -633,14 +580,14 @@ export default function ResumeAgentToolbar({
                 <button
                   type="button"
                   onClick={() => handleSectionGapChange(-0.02)}
-                  className="p-1 hover:bg-white/20 rounded-full text-white/90 transition-colors cursor-pointer"
+                  className="p-0.5 sm:p-1 hover:bg-white/20 rounded-full text-white/90 transition-colors cursor-pointer"
                 >
                   <Minus className="w-3 h-3" />
                 </button>
               </Tooltip>
 
               <Tooltip text="Section gap">
-                <span className="px-1 font-bold text-xs min-w-[26px] text-center font-mono text-white">
+                <span className="px-0.5 sm:px-1 font-bold text-[11px] sm:text-xs min-w-[22px] sm:min-w-[26px] text-center font-mono text-white">
                   {currentSectionGap.toFixed(2)}
                 </span>
               </Tooltip>
@@ -649,20 +596,25 @@ export default function ResumeAgentToolbar({
                 <button
                   type="button"
                   onClick={() => handleSectionGapChange(0.02)}
-                  className="p-1 hover:bg-white/20 rounded-full text-white/90 transition-colors cursor-pointer"
+                  className="p-0.5 sm:p-1 hover:bg-white/20 rounded-full text-white/90 transition-colors cursor-pointer"
                 >
                   <Plus className="w-3 h-3" />
                 </button>
               </Tooltip>
             </div>
+          </div>
+        )}
 
+        {/* ================= PAGE 2: Bullets & Margins ================= */}
+        {toolPage === 2 && (
+          <div key={`tool-page-2-${slideDirection}`} className={`flex items-center gap-1 sm:gap-1.5 ${slideAnimClass}`}>
             {/* List Bullet Style */}
-            <div className="relative">
+            <div className="relative shrink-0">
               <Tooltip text="Bullet style" disabled={openDropdown === 'bullet'}>
                 <button
                   type="button"
                   onClick={() => toggleDropdown('bullet')}
-                  className={`p-1.5 rounded-full border flex items-center gap-0.5 transition-all cursor-pointer ${
+                  className={`p-1 sm:p-1.5 rounded-full border flex items-center gap-0.5 transition-all cursor-pointer ${
                     openDropdown === 'bullet'
                       ? 'bg-brand-green text-brand-dark border-brand-green'
                       : 'bg-white/10 hover:bg-white/20 text-white border-white/10'
@@ -709,13 +661,13 @@ export default function ResumeAgentToolbar({
             </div>
 
             {/* Bullets Indent & Outdent */}
-            <div className="flex items-center gap-0.5 bg-white/10 rounded-full p-0.5 border border-white/10">
+            <div className="flex items-center gap-0.5 bg-white/10 rounded-full p-0.5 border border-white/10 shrink-0">
               <Tooltip text="Outdent bullets">
                 <button
                   type="button"
                   onClick={() => onChangeData({ ...data, bulletIndent: Math.max(0, currentBulletIndent - 8) })}
                   disabled={currentBulletIndent <= 0}
-                  className={`p-1.5 rounded-full transition-colors ${
+                  className={`p-1 sm:p-1.5 rounded-full transition-colors ${
                     currentBulletIndent > 0 ? 'hover:bg-white/20 text-white cursor-pointer' : 'text-white/30 opacity-40 cursor-not-allowed'
                   }`}
                 >
@@ -727,46 +679,101 @@ export default function ResumeAgentToolbar({
                 <button
                   type="button"
                   onClick={() => onChangeData({ ...data, bulletIndent: Math.min(48, currentBulletIndent + 8) })}
-                  className="p-1.5 rounded-full hover:bg-white/20 text-white cursor-pointer transition-colors"
+                  className="p-1 sm:p-1.5 rounded-full hover:bg-white/20 text-white cursor-pointer transition-colors"
                 >
                   <Indent className="w-3.5 h-3.5" />
                 </button>
               </Tooltip>
             </div>
 
-            {/* Shift Arrow to Page 2 */}
-            <Tooltip text="More tools">
-              <button
-                type="button"
-                onClick={nextToolPage}
-                className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/15 transition-all cursor-pointer shadow-xs ml-0.5 group"
-              >
-                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-              </button>
-            </Tooltip>
+            {/* Page Margins Stepper */}
+            <div className="flex items-center gap-0.5 bg-white/10 rounded-full p-0.5 border border-white/10 shrink-0">
+              <Tooltip text="Page margins">
+                <div className="pl-1 sm:pl-1.5 pr-0.5 text-white/60">
+                  <Maximize className="w-3.5 h-3.5" />
+                </div>
+              </Tooltip>
+
+              <Tooltip text="Decrease margins">
+                <button
+                  type="button"
+                  onClick={() => handleMarginChange(-2)}
+                  className="p-0.5 sm:p-1 hover:bg-white/20 rounded-full text-white/90 transition-colors cursor-pointer"
+                >
+                  <Minus className="w-3 h-3" />
+                </button>
+              </Tooltip>
+
+              <Tooltip text="Margins">
+                <span className="px-0.5 sm:px-1 font-bold text-[11px] sm:text-xs min-w-[22px] sm:min-w-[26px] text-center font-mono text-white">
+                  {currentMarginPx}px
+                </span>
+              </Tooltip>
+
+              <Tooltip text="Increase margins">
+                <button
+                  type="button"
+                  onClick={() => handleMarginChange(2)}
+                  className="p-0.5 sm:p-1 hover:bg-white/20 rounded-full text-white/90 transition-colors cursor-pointer"
+                >
+                  <Plus className="w-3 h-3" />
+                </button>
+              </Tooltip>
+            </div>
           </div>
         )}
 
-        {/* ================= PAGE 2: Layout & Design Features ================= */}
-        {toolPage === 2 && (
-          <div key={`tool-page-2-${slideDirection}`} className={`flex items-center gap-1.5 ${slideAnimClass}`}>
-            {/* Back Arrow to Page 1 */}
-            <Tooltip text="Previous tools">
-              <button
-                type="button"
-                onClick={prevToolPage}
-                className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/15 transition-all cursor-pointer shadow-xs mr-0.5 group"
-              >
-                <ChevronLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-              </button>
-            </Tooltip>
+        {/* ================= PAGE 3: Document Settings & Layout ================= */}
+        {toolPage === 3 && (
+          <div key={`tool-page-3-${slideDirection}`} className={`flex items-center gap-1 sm:gap-1.5 ${slideAnimClass}`}>
+            {/* Paper Size Selector */}
+            <div className="relative shrink-0">
+              <Tooltip text="Paper size" disabled={openDropdown === 'paper'}>
+                <button
+                  type="button"
+                  onClick={() => toggleDropdown('paper')}
+                  className={`px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-full border text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                    openDropdown === 'paper'
+                      ? 'bg-brand-green text-brand-dark border-brand-green'
+                      : 'bg-white/10 hover:bg-white/20 text-white border-white/10'
+                  }`}
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span className="uppercase text-[10px]">{currentPageSize === 'a4' ? 'A4' : 'LTR'}</span>
+                </button>
+              </Tooltip>
 
-            {/* Section Casing Toggle (Pure Icon - 2 Options: UPPERCASE vs Title Case) */}
+              {openDropdown === 'paper' && (
+                <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 w-36 bg-brand-dark rounded-2xl shadow-2xl border border-white/15 z-[100] p-1.5 space-y-0.5 animate-fadeIn text-white">
+                  <div className="px-2 py-1 text-[10px] font-extrabold uppercase text-white/50 border-b border-white/10 mb-1">
+                    Paper Size
+                  </div>
+                  {PAGE_SIZE_OPTIONS.map(opt => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => {
+                        onChangeData({ ...data, pageSize: opt.id as any });
+                        setOpenDropdown(null);
+                      }}
+                      className={`w-full px-2.5 py-1.5 text-left rounded-lg text-[11px] font-bold flex items-center justify-between transition-colors cursor-pointer ${
+                        currentPageSize === opt.id ? 'bg-brand-green text-brand-dark font-extrabold' : 'hover:bg-white/10 text-white/90'
+                      }`}
+                    >
+                      <span>{opt.name}</span>
+                      {currentPageSize === opt.id && <Check className="w-3 h-3 text-brand-dark stroke-[2.5]" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Section Casing Toggle */}
             <Tooltip text={`Section case: ${currentSectionHeaderCase === 'uppercase' ? 'UPPERCASE' : 'Title Case'}`}>
               <button
                 type="button"
                 onClick={cycleSectionCase}
-                className={`p-1.5 rounded-full border transition-all cursor-pointer ${
+                className={`p-1 sm:p-1.5 rounded-full border transition-all cursor-pointer shrink-0 ${
                   currentSectionHeaderCase === 'uppercase'
                     ? 'bg-brand-green text-brand-dark border-brand-green'
                     : 'bg-white/10 hover:bg-white/20 text-white border-white/10'
@@ -776,12 +783,12 @@ export default function ResumeAgentToolbar({
               </button>
             </Tooltip>
 
-            {/* Job Title Casing Toggle (Pure Icon) */}
+            {/* Job Title Casing Toggle */}
             <Tooltip text={`Job title case: ${currentJobTitleCase === 'uppercase' ? 'UPPERCASE' : 'Title Case'}`}>
               <button
                 type="button"
                 onClick={cycleJobTitleCase}
-                className={`p-1.5 rounded-full border transition-all cursor-pointer ${
+                className={`p-1 sm:p-1.5 rounded-full border transition-all cursor-pointer shrink-0 ${
                   currentJobTitleCase === 'uppercase'
                     ? 'bg-brand-green text-brand-dark border-brand-green'
                     : 'bg-white/10 hover:bg-white/20 text-white border-white/10'
@@ -791,12 +798,12 @@ export default function ResumeAgentToolbar({
               </button>
             </Tooltip>
 
-            {/* Header Layout Order (Title First vs Contact First) */}
+            {/* Header Layout Order */}
             <Tooltip text={`Header order: ${currentHeaderOrder === 'title-first' ? 'Title first' : 'Contact first'}`}>
               <button
                 type="button"
                 onClick={toggleHeaderOrder}
-                className={`p-1.5 rounded-full border transition-all cursor-pointer ${
+                className={`p-1 sm:p-1.5 rounded-full border transition-all cursor-pointer shrink-0 ${
                   currentHeaderOrder === 'title-first'
                     ? 'bg-brand-green text-brand-dark border-brand-green'
                     : 'bg-white/10 hover:bg-white/20 text-white border-white/10'
@@ -806,59 +813,24 @@ export default function ResumeAgentToolbar({
               </button>
             </Tooltip>
 
-            {/* Skills Grid Columns Toggle (2, 3, 4 Cols) */}
+            {/* Skills Grid Columns Toggle */}
             <Tooltip text={`Skills columns: ${currentSkillsColumnCount} cols`}>
               <button
                 type="button"
                 onClick={cycleSkillsColumns}
-                className="p-1.5 rounded-full border border-white/10 bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer flex items-center gap-0.5"
+                className="p-1 sm:p-1.5 rounded-full border border-white/10 bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer flex items-center gap-0.5 shrink-0"
               >
                 <LayoutGrid className="w-3.5 h-3.5" />
                 <span className="text-[10px] font-mono font-bold text-white/75">{currentSkillsColumnCount}</span>
               </button>
             </Tooltip>
 
-            {/* Page Margins Stepper */}
-            <div className="flex items-center gap-0.5 bg-white/10 rounded-full p-0.5 border border-white/10">
-              <Tooltip text="Page margins">
-                <div className="pl-1.5 pr-0.5 text-white/60">
-                  <Maximize className="w-3.5 h-3.5" />
-                </div>
-              </Tooltip>
-
-              <Tooltip text="Decrease margins">
-                <button
-                  type="button"
-                  onClick={() => handleMarginChange(-2)}
-                  className="p-1 hover:bg-white/20 rounded-full text-white/90 transition-colors cursor-pointer"
-                >
-                  <Minus className="w-3 h-3" />
-                </button>
-              </Tooltip>
-
-              <Tooltip text="Margins">
-                <span className="px-1 font-bold text-xs min-w-[26px] text-center font-mono text-white">
-                  {currentMarginPx}px
-                </span>
-              </Tooltip>
-
-              <Tooltip text="Increase margins">
-                <button
-                  type="button"
-                  onClick={() => handleMarginChange(2)}
-                  className="p-1 hover:bg-white/20 rounded-full text-white/90 transition-colors cursor-pointer"
-                >
-                  <Plus className="w-3 h-3" />
-                </button>
-              </Tooltip>
-            </div>
-
-            {/* Contact Icons Toggle (Pure Icon) */}
+            {/* Contact Icons Toggle */}
             <Tooltip text={showContactIcons ? 'Hide contact icons' : 'Show contact icons'}>
               <button
                 type="button"
                 onClick={() => onChangeData({ ...data, showContactIcons: !showContactIcons })}
-                className={`p-1.5 rounded-full border transition-all cursor-pointer ${
+                className={`p-1 sm:p-1.5 rounded-full border transition-all cursor-pointer shrink-0 ${
                   showContactIcons
                     ? 'bg-brand-green text-brand-dark border-brand-green'
                     : 'bg-white/10 hover:bg-white/20 text-white/60 border-white/10'
@@ -867,19 +839,43 @@ export default function ResumeAgentToolbar({
                 <MapPin className="w-3.5 h-3.5" />
               </button>
             </Tooltip>
-
-            {/* Shift Arrow loop back to Page 0 */}
-            <Tooltip text="More tools">
-              <button
-                type="button"
-                onClick={nextToolPage}
-                className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/15 transition-all cursor-pointer shadow-xs ml-0.5 group"
-              >
-                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-              </button>
-            </Tooltip>
           </div>
         )}
+      </div>
+
+      {/* 4. Fixed Right Navigation Arrow (>) + Page Dots Indicator */}
+      <div className="flex items-center gap-1 shrink-0">
+        <Tooltip text={`Next: Page ${((toolPage + 1) % TOTAL_PAGES) + 1}/${TOTAL_PAGES}`}>
+          <button
+            type="button"
+            onClick={nextToolPage}
+            className="p-1 sm:p-1.5 rounded-full bg-white/10 hover:bg-white/20 active:bg-white/30 text-white border border-white/15 transition-all cursor-pointer shadow-xs shrink-0 flex items-center justify-center group"
+            title="Next tools"
+          >
+            <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+          </button>
+        </Tooltip>
+
+        {/* Subtle Page Indicator Dots */}
+        <div className="hidden xs:flex items-center gap-0.5 px-1 py-1 bg-white/5 rounded-full border border-white/10 shrink-0">
+          {Array.from({ length: TOTAL_PAGES }).map((_, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => {
+                setOpenDropdown(null);
+                setSlideDirection(idx > toolPage ? 'forward' : 'backward');
+                setToolPage(idx);
+              }}
+              className={`transition-all rounded-full cursor-pointer ${
+                toolPage === idx
+                  ? 'w-2.5 h-1 bg-brand-green'
+                  : 'w-1 h-1 bg-white/30 hover:bg-white/60'
+              }`}
+              title={`Jump to Tool Page ${idx + 1}`}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

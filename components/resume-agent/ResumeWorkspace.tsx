@@ -391,6 +391,73 @@ export default function ResumeWorkspace({
   // affected sections in the canvas instead of the plain document.
   const [reviewMode, setReviewMode] = useState(true);
 
+  // ── Responsive auto-scale on mobile / narrow viewports ───────────────────────
+  const [containerWidth, setContainerWidth] = useState<number>(() => {
+    if (typeof window !== 'undefined') return window.innerWidth;
+    return 1200;
+  });
+
+  const pageSize = (data.pageSize || 'letter').toLowerCase();
+  const defaultPaperWidth = pageSize === 'a4' ? 794 : 816;
+  const defaultPaperHeight = pageSize === 'a4' ? 1123 : 1056;
+
+  const [paperDimensions, setPaperDimensions] = useState<{ width: number; height: number }>({
+    width: defaultPaperWidth,
+    height: defaultPaperHeight,
+  });
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const handleResize = () => {
+      if (scrollContainerRef.current) {
+        setContainerWidth(scrollContainerRef.current.clientWidth);
+      }
+    };
+
+    handleResize();
+    const ro = new ResizeObserver(handleResize);
+    ro.observe(container);
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    const paper = paperRef.current;
+    if (!paper) return;
+
+    const updateDims = () => {
+      if (paper) {
+        const w = paper.offsetWidth || defaultPaperWidth;
+        const h = paper.offsetHeight || defaultPaperHeight;
+        if (w > 0 && h > 0) {
+          setPaperDimensions(prev => (prev.width === w && prev.height === h ? prev : { width: w, height: h }));
+        }
+      }
+    };
+
+    updateDims();
+    const ro = new ResizeObserver(updateDims);
+    ro.observe(paper);
+    return () => ro.disconnect();
+  }, [data, template, data.pageSize, defaultPaperWidth, defaultPaperHeight]);
+
+  // Determine responsive auto-fit scale
+  const horizontalPadding = containerWidth < 640 ? 24 : containerWidth < 1024 ? 40 : 64;
+  const availableWidth = Math.max(260, containerWidth - horizontalPadding);
+  const isNarrowScreen = containerWidth < paperDimensions.width + horizontalPadding;
+  const autoFitRatio = Math.min(1.0, availableWidth / paperDimensions.width);
+
+  // When on mobile/narrow screen, scale by autoFitRatio * zoom; on desktop (where availableWidth >= paperDimensions.width), scale by zoom directly
+  const effectiveScale = isNarrowScreen
+    ? autoFitRatio * (zoom <= 1.0 ? 1.0 : zoom)
+    : zoom;
+
   // ── In-place editing: contentEditable page with DOM → ResumeData write-back ──
   // (no modal — place the cursor on any text and edit straight away)
 
@@ -1690,7 +1757,7 @@ export default function ResumeWorkspace({
             // formatter edit the EXACT occurrence of a repeated span.
             const ctxEl = contextElementFor(range, context);
             setSelectionOffset(ctxEl ? selectionStartOffsetIn(ctxEl, range) : -1);
-            const currentZoom = zoom || 1;
+            const currentZoom = effectiveScale;
             lastSelectionPaperOffsetRef.current = {
               top: (rect.top - paperRect.top) / currentZoom,
               left: (rect.left - paperRect.left) / currentZoom,
@@ -1731,6 +1798,34 @@ export default function ResumeWorkspace({
 
   return (
     <div className="flex flex-col bg-brand-bg border-r border-brand-border h-full relative overflow-hidden">
+      {/* Quick Zoom Indicator & Controls Pill on canvas */}
+      <div className="absolute top-3 right-3 z-20 flex items-center gap-1 bg-white/95 backdrop-blur-md px-2 py-1 rounded-xl border border-neutral-200/90 shadow-xs text-xs font-semibold text-neutral-700">
+        <button
+          type="button"
+          onClick={propOnZoomOut || (() => setInternalZoom(z => Math.max(0.4, Math.round((z - 0.1) * 10) / 10)))}
+          className="p-1 hover:bg-neutral-100 rounded-lg transition-colors cursor-pointer text-neutral-600 hover:text-neutral-900"
+          title="Zoom Out"
+        >
+          <ZoomOut className="w-3.5 h-3.5" />
+        </button>
+        <button
+          type="button"
+          onClick={propOnResetZoom || (() => setInternalZoom(1))}
+          className="px-1.5 py-0.5 hover:bg-neutral-100 rounded text-[11px] font-mono font-bold text-neutral-700 hover:text-brand-green transition-colors cursor-pointer"
+          title={isNarrowScreen && zoom <= 1.0 ? "Reset to Fit" : "Reset Zoom (100%)"}
+        >
+          {isNarrowScreen && zoom <= 1.0 ? "Fit" : `${Math.round(effectiveScale * 100)}%`}
+        </button>
+        <button
+          type="button"
+          onClick={propOnZoomIn || (() => setInternalZoom(z => Math.min(2.0, Math.round((z + 0.1) * 10) / 10)))}
+          className="p-1 hover:bg-neutral-100 rounded-lg transition-colors cursor-pointer text-neutral-600 hover:text-neutral-900"
+          title="Zoom In"
+        >
+          <ZoomIn className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
       {/* Floating Figma-style Toolbar Dock */}
       {!hideToolbar && (
         <ResumeAgentToolbar
@@ -1747,10 +1842,28 @@ export default function ResumeWorkspace({
       )}
 
       {/* Main Canvas: Always render the live visual resume preview */}
-      <div ref={scrollContainerRef} className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8 pb-28 flex justify-center items-start custom-scrollbar bg-brand-bg">
+      <div
+        ref={scrollContainerRef}
+        className={`flex-1 ${
+          effectiveScale * paperDimensions.width > containerWidth ? 'overflow-x-auto' : 'overflow-x-hidden'
+        } overflow-y-auto p-3 sm:p-4 md:p-8 pb-32 flex flex-col items-center custom-scrollbar bg-brand-bg`}
+      >
+        <div
+          className="relative transition-[width,height] duration-200 ease-out mx-auto shrink-0"
+          style={{
+            width: `${paperDimensions.width * effectiveScale}px`,
+            height: `${paperDimensions.height * effectiveScale}px`,
+            minWidth: `${paperDimensions.width * effectiveScale}px`,
+            minHeight: `${paperDimensions.height * effectiveScale}px`,
+          }}
+        >
           <div
-            className="transition-transform duration-200 origin-top relative rounded-sm bg-transparent group/canvas"
-            style={{ transform: `scale(${zoom})` }}
+            className="transition-transform duration-200 origin-top-left relative rounded-sm bg-transparent group/canvas shadow-sm sm:shadow-md"
+            style={{
+              width: `${paperDimensions.width}px`,
+              transform: `scale(${effectiveScale})`,
+              transformOrigin: 'top left',
+            }}
           >
             {/* Rendered document preview. Not directly editable — typing into a
                 contentEditable surface was silently discarded on the next render.
@@ -1796,39 +1909,40 @@ export default function ResumeWorkspace({
                 />
               ))}
             </div>
-
-            {/* Interactive Canvas Triggers (Add Section & Reorder) */}
-            {showSectionControls && (onAddSection || onReorderSections) && (
-              <div className="flex items-center justify-center gap-3 pt-8 pb-16 w-full flex-wrap">
-                {onAddSection && (
-                  <button
-                    type="button"
-                    onClick={() => setIsAddSectionModalOpen(true)}
-                    className="group relative inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white hover:bg-slate-50 border border-slate-300/90 hover:border-brand-green text-brand-dark font-bold text-xs shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer"
-                  >
-                    <div className="w-5 h-5 rounded-full bg-brand-green/20 group-hover:bg-brand-green text-brand-dark flex items-center justify-center transition-colors">
-                      <Plus className="w-3.5 h-3.5 text-emerald-800" />
-                    </div>
-                    <span>Add Section</span>
-                  </button>
-                )}
-
-                {onReorderSections && (
-                  <button
-                    type="button"
-                    onClick={() => setIsReorderModalOpen(true)}
-                    className="group relative inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-white hover:bg-slate-50 border border-slate-300/90 hover:border-slate-400 text-brand-dark font-bold text-xs shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer"
-                  >
-                    <div className="w-5 h-5 rounded-full bg-slate-100 group-hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors">
-                      <ArrowUpDown className="w-3.5 h-3.5 text-slate-700" />
-                    </div>
-                    <span>Reorder</span>
-                  </button>
-                )}
-              </div>
-            )}
           </div>
         </div>
+
+        {/* Interactive Canvas Triggers (Add Section & Reorder) */}
+        {showSectionControls && (onAddSection || onReorderSections) && (
+          <div className="flex items-center justify-center gap-3 pt-8 pb-16 w-full flex-wrap">
+            {onAddSection && (
+              <button
+                type="button"
+                onClick={() => setIsAddSectionModalOpen(true)}
+                className="group relative inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white hover:bg-slate-50 border border-slate-300/90 hover:border-brand-green text-brand-dark font-bold text-xs shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer"
+              >
+                <div className="w-5 h-5 rounded-full bg-brand-green/20 group-hover:bg-brand-green text-brand-dark flex items-center justify-center transition-colors">
+                  <Plus className="w-3.5 h-3.5 text-emerald-800" />
+                </div>
+                <span>Add Section</span>
+              </button>
+            )}
+
+            {onReorderSections && (
+              <button
+                type="button"
+                onClick={() => setIsReorderModalOpen(true)}
+                className="group relative inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-white hover:bg-slate-50 border border-slate-300/90 hover:border-slate-400 text-brand-dark font-bold text-xs shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer"
+              >
+                <div className="w-5 h-5 rounded-full bg-slate-100 group-hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors">
+                  <ArrowUpDown className="w-3.5 h-3.5 text-slate-700" />
+                </div>
+                <span>Reorder</span>
+              </button>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* Floating Selection Action Toolbar */}
       {selectionPosition && (
@@ -1863,18 +1977,18 @@ export default function ResumeWorkspace({
 
             <div className="flex items-center gap-4">
               <div className="flex items-center bg-slate-800 rounded-lg p-1 text-xs text-white border border-slate-700">
-                <button onClick={handleZoomOut} className="p-1 hover:bg-slate-700 rounded">
+                <button onClick={handleZoomOut} className="p-1 hover:bg-slate-700 rounded cursor-pointer">
                   <ZoomOut className="w-4 h-4" />
                 </button>
-                <span className="px-2 font-mono font-bold text-xs">{Math.round(zoom * 100)}%</span>
-                <button onClick={handleZoomIn} className="p-1 hover:bg-slate-700 rounded">
+                <span className="px-2 font-mono font-bold text-xs">{Math.round(effectiveScale * 100)}%</span>
+                <button onClick={handleZoomIn} className="p-1 hover:bg-slate-700 rounded cursor-pointer">
                   <ZoomIn className="w-4 h-4" />
                 </button>
               </div>
 
               <button
                 onClick={() => setIsFullscreen(false)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors shadow-sm"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors shadow-sm cursor-pointer"
               >
                 <X className="w-4 h-4" />
                 <span>Close Fullscreen</span>
@@ -1882,12 +1996,26 @@ export default function ResumeWorkspace({
             </div>
           </div>
 
-          <div className="flex-1 overflow-auto p-8 flex justify-center items-start custom-scrollbar">
+          <div className="flex-1 overflow-auto p-4 sm:p-8 flex justify-center items-start custom-scrollbar">
             <div
-              className="transition-transform duration-200 origin-top rounded-sm bg-transparent"
-              style={{ transform: `scale(${zoom})` }}
+              className="relative transition-[width,height] duration-200 ease-out mx-auto shrink-0"
+              style={{
+                width: `${paperDimensions.width * effectiveScale}px`,
+                height: `${paperDimensions.height * effectiveScale}px`,
+                minWidth: `${paperDimensions.width * effectiveScale}px`,
+                minHeight: `${paperDimensions.height * effectiveScale}px`,
+              }}
             >
-              <ResumePreview data={data} template={template} editable={false} />
+              <div
+                className="transition-transform duration-200 origin-top-left rounded-sm bg-transparent shadow-2xl"
+                style={{
+                  width: `${paperDimensions.width}px`,
+                  transform: `scale(${effectiveScale})`,
+                  transformOrigin: 'top left',
+                }}
+              >
+                <ResumePreview data={data} template={template} editable={false} />
+              </div>
             </div>
           </div>
         </div>

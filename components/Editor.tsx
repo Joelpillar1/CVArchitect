@@ -418,7 +418,8 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
         {/* Left: Back Arrow. Embedded previews drop it — there is no previous
             page to return to from the landing hero. The empty flex spacer stays
             so justify-between still pins the actions to the right edge. */}
-        <div className="flex items-center gap-2 shrink-0">
+        {/* Left & Middle: Back Arrow + Resume Naming Section */}
+        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 mr-2">
           {!embedded && (
             <button
               type="button"
@@ -429,35 +430,21 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
               <ChevronLeft size={20} />
             </button>
           )}
-        </div>
 
-        {/* Middle: Resume Naming Section */}
-        <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center max-w-[160px] sm:max-w-[260px] md:max-w-xs lg:max-w-sm pointer-events-auto">
-          {isEditingTitle ? (
-            <input
-              type="text"
-              value={titleInputValue}
-              onChange={(e) => {
-                setTitleInputValue(e.target.value);
-                handleChangeData({
-                  ...data,
-                  resumeTitle: e.target.value,
-                  currentTag: e.target.value,
-                });
-              }}
-              onBlur={() => {
-                setIsEditingTitle(false);
-                const trimmed = titleInputValue.trim();
-                const finalTitle = trimmed || (data.fullName ? `${data.fullName}'s Resume` : 'Untitled Resume');
-                setTitleInputValue(finalTitle);
-                handleChangeData({
-                  ...data,
-                  resumeTitle: finalTitle,
-                  currentTag: finalTitle,
-                });
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
+          <div className="flex items-center min-w-0 max-w-[150px] xs:max-w-[190px] sm:max-w-[260px] md:max-w-xs lg:max-w-sm">
+            {isEditingTitle ? (
+              <input
+                type="text"
+                value={titleInputValue}
+                onChange={(e) => {
+                  setTitleInputValue(e.target.value);
+                  handleChangeData({
+                    ...data,
+                    resumeTitle: e.target.value,
+                    currentTag: e.target.value,
+                  });
+                }}
+                onBlur={() => {
                   setIsEditingTitle(false);
                   const trimmed = titleInputValue.trim();
                   const finalTitle = trimmed || (data.fullName ? `${data.fullName}'s Resume` : 'Untitled Resume');
@@ -467,36 +454,49 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
                     resumeTitle: finalTitle,
                     currentTag: finalTitle,
                   });
-                } else if (e.key === 'Escape') {
-                  setIsEditingTitle(false);
-                }
-              }}
-              autoFocus
-              placeholder="Name your resume..."
-              className="px-2.5 py-1 text-xs sm:text-sm font-bold text-center text-brand-dark bg-white border border-brand-green rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green/30 w-full shadow-2xs"
-            />
-          ) : (
-            <button
-              type="button"
-              onClick={() => {
-                setTitleInputValue(data.resumeTitle || data.currentTag || (data.fullName ? `${data.fullName}'s Resume` : 'Untitled Resume'));
-                setIsEditingTitle(true);
-              }}
-              className="group flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-lg text-xs sm:text-sm font-bold text-brand-dark hover:bg-neutral-100 transition-all text-center truncate cursor-pointer max-w-full border border-transparent hover:border-neutral-200"
-              title="Click to rename resume"
-            >
-              <span className="truncate">
-                {data.resumeTitle || data.currentTag || (data.fullName ? `${data.fullName}'s Resume` : 'Untitled Resume')}
-              </span>
-              <Pencil size={12} className="text-neutral-400 group-hover:text-brand-dark shrink-0 transition-opacity opacity-60 group-hover:opacity-100" />
-            </button>
-          )}
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    setIsEditingTitle(false);
+                    const trimmed = titleInputValue.trim();
+                    const finalTitle = trimmed || (data.fullName ? `${data.fullName}'s Resume` : 'Untitled Resume');
+                    setTitleInputValue(finalTitle);
+                    handleChangeData({
+                      ...data,
+                      resumeTitle: finalTitle,
+                      currentTag: finalTitle,
+                    });
+                  } else if (e.key === 'Escape') {
+                    setIsEditingTitle(false);
+                  }
+                }}
+                autoFocus
+                placeholder="Name your resume..."
+                className="px-2.5 py-1 text-xs sm:text-sm font-bold text-left text-brand-dark bg-white border border-brand-green rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-green/30 w-full shadow-2xs"
+              />
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setTitleInputValue(data.resumeTitle || data.currentTag || (data.fullName ? `${data.fullName}'s Resume` : 'Untitled Resume'));
+                  setIsEditingTitle(true);
+                }}
+                className="group flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs sm:text-sm font-bold text-brand-dark hover:bg-neutral-100 transition-all text-left truncate cursor-pointer max-w-full border border-transparent hover:border-neutral-200"
+                title="Click to rename resume"
+              >
+                <span className="truncate">
+                  {data.resumeTitle || data.currentTag || (data.fullName ? `${data.fullName}'s Resume` : 'Untitled Resume')}
+                </span>
+                <Pencil size={12} className="text-neutral-400 group-hover:text-brand-dark shrink-0 transition-opacity opacity-60 group-hover:opacity-100" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Right: Actions (Zoom, Full Preview, Save, Cover Letter, Download) */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {/* Zoom Controls */}
-          <div className="hidden sm:flex items-center bg-neutral-100 rounded-lg p-0.5 text-xs text-brand-dark border border-neutral-200">
+          <div className="hidden md:flex items-center bg-neutral-100 rounded-lg p-0.5 text-xs text-brand-dark border border-neutral-200">
             <button
               type="button"
               onClick={handleZoomOut}
@@ -527,7 +527,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
           <button
             type="button"
             onClick={() => setIsFullscreen(!isFullscreen)}
-            className={`p-1.5 rounded-lg text-xs font-bold transition-colors border cursor-pointer ${
+            className={`hidden sm:flex p-1.5 rounded-lg text-xs font-bold transition-colors border cursor-pointer ${
               isFullscreen
                 ? 'bg-neutral-900 text-white border-neutral-900'
                 : 'bg-white text-neutral-700 hover:bg-neutral-100 border-neutral-200'
@@ -537,14 +537,14 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
             {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
           </button>
 
-          <div className="h-4 w-px bg-neutral-200 mx-0.5" />
+          <div className="hidden sm:block h-4 w-px bg-neutral-200 mx-0.5" />
 
           {/* Save Button */}
           <button
             type="button"
             onClick={handleSaveClick}
             disabled={saveStatus === 'saving'}
-            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-95 border ${
+            className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-95 border ${
               saveStatus === 'saved'
                 ? 'bg-brand-green hover:bg-brand-greenHover text-brand-dark border-brand-green/60 shadow-xs'
                 : 'bg-white text-brand-dark hover:bg-brand-secondary border-brand-border hover:border-gray-300'
@@ -563,15 +563,11 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
 
           <button
             onClick={() => navigate('/dashboard/cover-letter')}
-            className="hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 border border-brand-border rounded-lg text-xs font-semibold text-brand-dark hover:bg-brand-secondary transition-colors cursor-pointer"
+            className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 border border-brand-border rounded-lg text-xs font-semibold text-brand-dark hover:bg-brand-secondary transition-colors cursor-pointer"
             title="Create Cover Letter"
           >
             <FileTextIcon size={14} />
             <span>Cover Letter</span>
-          </button>
-          {/* Mobile Cover Letter Icon */}
-          <button onClick={() => navigate('/dashboard/cover-letter')} className="xl:hidden p-1.5 text-brand-dark/70 hover:text-brand-dark" title="Create Cover Letter">
-            <FileTextIcon size={18} />
           </button>
 
           {canAccessTemplate(userSubscription.planId, template) ? (

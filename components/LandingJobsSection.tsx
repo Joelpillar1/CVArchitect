@@ -9,11 +9,12 @@ import {
   ExternalLink,
   BadgeCheck,
 } from 'lucide-react';
-import { fetchJobFeed } from '../services/jobFeedService';
+import { fetchJobFeed, fetchJobFeedStats, type JobFeedStats } from '../services/jobFeedService';
 import { Job } from '../types/job';
 import { MOCK_JOBS } from '../data/mockJobs';
 import { formatSalary } from '../utils/jobMatching';
 import { getCompanyLogoUrl, getCompanyDomain } from '../utils/companyLogo';
+import JobRolesMarquee from './JobRolesMarquee';
 
 interface LandingJobsSectionProps {
   onTailorJob?: (job: Job) => void;
@@ -34,6 +35,7 @@ function VerticalBoundLines() {
 export default function LandingJobsSection({ onTailorJob }: LandingJobsSectionProps) {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [stats, setStats] = useState<JobFeedStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -53,6 +55,11 @@ export default function LandingJobsSection({ onTailorJob }: LandingJobsSectionPr
       }
     }
     loadJobs();
+    fetchJobFeedStats().then((res) => {
+      if (isMounted && res) {
+        setStats(res);
+      }
+    });
     return () => {
       isMounted = false;
     };
@@ -88,7 +95,9 @@ export default function LandingJobsSection({ onTailorJob }: LandingJobsSectionPr
               <span className="w-1.5 h-1.5 rounded-full bg-brand-dark animate-pulse" />
               Live Feed
             </span>
-            <span className="text-xs sm:text-sm font-semibold text-brand-dark whitespace-nowrap truncate">8,500+ Verified Tech Postings</span>
+            <span className="text-xs sm:text-sm font-semibold text-brand-dark whitespace-nowrap truncate">
+              {stats && stats.total > 0 ? `${stats.total.toLocaleString()} Verified Tech Postings` : 'Verified Tech Postings'}
+            </span>
           </motion.div>
 
           <motion.h2
@@ -114,6 +123,17 @@ export default function LandingJobsSection({ onTailorJob }: LandingJobsSectionPr
             We index real, unexpired openings directly from top company career portals. Pick any role to tailor your resume instantly with zero hallucinations.
           </motion.p>
         </div>
+
+        {/* Multi-row Animated Job Roles Marquee */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          className="mb-14 overflow-hidden"
+        >
+          <JobRolesMarquee />
+        </motion.div>
 
         {/* Jobs Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -252,7 +272,9 @@ export default function LandingJobsSection({ onTailorJob }: LandingJobsSectionPr
         >
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 w-full lg:w-auto">
             <div className="text-left">
-              <div className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-dark">8,500+</div>
+              <div className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-dark">
+                {stats && stats.total > 0 ? stats.total.toLocaleString() : '—'}
+              </div>
               <div className="text-xs text-brand-dark/60 mt-1 font-medium">Verified Active Jobs</div>
             </div>
             <div className="text-left">
@@ -276,7 +298,7 @@ export default function LandingJobsSection({ onTailorJob }: LandingJobsSectionPr
               onClick={() => navigate('/dashboard/jobs')}
               className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-brand-dark hover:bg-brand-dark/90 text-white font-bold text-sm sm:text-base shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Explore All 8,500+ Jobs</span>
+              <span>{stats && stats.total > 0 ? `Explore All ${stats.total.toLocaleString()} Jobs` : 'Explore All Jobs'}</span>
               <ArrowRight className="w-4 h-4 text-brand-green" />
             </motion.button>
           </div>

@@ -7,7 +7,7 @@ export const FREE_TOOLS = [
     {
         label: 'Live Tech Jobs Feed',
         link: '/#jobs',
-        description: 'Explore 8,500+ verified tech roles with instant 1-click AI resume matching.',
+        description: 'Explore verified tech roles with instant 1-click AI resume matching.',
         icon: Briefcase
     },
     {

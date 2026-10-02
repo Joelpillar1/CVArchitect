@@ -927,11 +927,11 @@ export default function AgentLandingPage() {
       {/* NAV  -  logo, centered links, dark Launch Agent CTA */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-brand-bg/90 backdrop-blur-md border-b border-brand-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-            <div className="w-9 h-9 rounded-xl bg-brand-dark flex items-center justify-center p-1 shadow-sm">
+          <div className="flex items-center gap-2 sm:gap-3 cursor-pointer" onClick={() => navigate('/')}>
+            <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-brand-dark flex items-center justify-center p-1 shadow-sm shrink-0">
               <img src="/images/logo icon.png" alt="CVArchitect Logo" className="w-full h-full object-contain" />
             </div>
-            <span className="text-xl font-extrabold tracking-tight text-brand-dark">CVArchitect</span>
+            <span className="text-base sm:text-xl font-extrabold tracking-tight text-brand-dark">CVArchitect</span>
           </div>
 
           <nav className="hidden md:flex items-center gap-7">
@@ -967,15 +967,14 @@ export default function AgentLandingPage() {
                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                   </svg>
-                  <span className="hidden sm:inline">Join with Google</span>
-                  <span className="sm:hidden">Google</span>
+                  <span>Join with Google</span>
                 </motion.button>
 
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => navigate('/signup')}
-                  className="rounded-2xl bg-brand-green px-4 py-2 text-sm font-bold text-brand-dark shadow-xs transition-colors hover:bg-brand-greenHover cursor-pointer whitespace-nowrap"
+                  className="hidden sm:inline-flex rounded-2xl bg-brand-green px-4 py-2 text-sm font-bold text-brand-dark shadow-xs transition-colors hover:bg-brand-greenHover cursor-pointer whitespace-nowrap"
                 >
                   Try it free →
                 </motion.button>
@@ -1749,7 +1748,7 @@ export default function AgentLandingPage() {
               {[
                 { value: 2.4, decimals: 1, suffix: '×', label: 'more interviews' },
                 { value: 10, decimals: 0, suffix: ' min', label: 'per tailored resume' },
-                { value: 88, decimals: 0, suffix: '%', label: 'avg. ATS match' },
+                { value: 98, decimals: 0, suffix: '%', label: 'avg. ATS match' },
               ].map((stat, i) => (
                 <motion.div
                   key={stat.label}
