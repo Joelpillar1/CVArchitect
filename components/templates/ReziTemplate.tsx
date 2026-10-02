@@ -585,19 +585,6 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
     );
   })();
 
-  const getHarvardSectionOrder = (resumeData: ResumeData): string[] => {
-    const rawOrder = getResolvedSectionOrder(resumeData);
-    const eduIdx = rawOrder.indexOf('education');
-    const expIdx = rawOrder.indexOf('experience');
-    if (eduIdx !== -1 && expIdx !== -1 && eduIdx > expIdx) {
-      const reordered = [...rawOrder];
-      reordered.splice(eduIdx, 1);
-      reordered.splice(expIdx, 0, 'education');
-      return reordered;
-    }
-    return rawOrder;
-  };
-
   return (
     <div
       className="resume-content"
@@ -640,7 +627,7 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
       </header>
 
       {/* Dynamic Sections */}
-      {getHarvardSectionOrder(data).map(id => (
+      {getResolvedSectionOrder(data).map(id => (
         <React.Fragment key={id}>
           {renderSection(id)}
         </React.Fragment>
