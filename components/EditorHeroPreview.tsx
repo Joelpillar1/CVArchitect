@@ -17,7 +17,7 @@ export default function EditorHeroPreview() {
     >
       <div className="relative w-full overflow-hidden">
         <img
-          src="/images/create-resume-preview.png"
+          src="/images/cvarchitect hero.webp"
           alt="Create Resume Editor Preview"
           loading="eager"
           className="w-full h-auto object-cover object-top transition-transform duration-300 group-hover:scale-[1.003]"
