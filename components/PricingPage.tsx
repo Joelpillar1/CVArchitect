@@ -13,7 +13,7 @@ const faqs = [
     },
     {
         q: 'Do I need a paid plan to get started?',
-        a: 'No. The Foundation plan is completely free and includes one full AI-tailored resume with a PDF download. Paid plans unlock unlimited tailoring, all 20+ templates, and unlimited PDF & DOCX downloads.',
+        a: 'No. The Foundation plan is completely free and includes one full AI-tailored resume with a PDF download. Paid plans unlock unlimited tailoring (subject to fair use), all 20+ templates, and unlimited PDF & DOCX downloads.',
     },
     {
         q: 'Can I cancel my subscription anytime?',
@@ -21,11 +21,11 @@ const faqs = [
     },
     {
         q: 'What is the Lifetime plan?',
-        a: 'The Lifetime plan is a one-time payment of $99 that gives you permanent, unrestricted access to all features, all 20+ templates, unlimited AI tailoring, and unlimited downloads forever with no renewals.',
+        a: 'The Lifetime plan is a one-time payment of $99 that gives you permanent access to all features, all 20+ templates, AI tailoring (subject to fair use), and unlimited downloads forever with no renewals.',
     },
     {
         q: 'Can I create multiple tailored resumes for different jobs?',
-        a: 'Yes. With paid plans, you can create and manage unlimited tailored versions of your resume tailored to different job postings, each with its own real-time ATS match score.',
+        a: 'Yes. With paid plans, you can create and manage multiple tailored versions of your resume for different job postings, each with its own real-time ATS match score.',
     },
     {
         q: 'What formats can I export my resume in?',
@@ -60,7 +60,7 @@ export default function PricingPage() {
                         Pay when you're ready to apply
                     </h1>
                     <p className="text-base sm:text-lg text-brand-dark/60 leading-relaxed max-w-2xl mx-auto">
-                        Start free with one AI-tailored resume. Upgrade for unlimited tailoring, every template, and unlimited exports. Cancel anytime.
+                        Start free with one AI-tailored resume. Upgrade for unlimited tailoring*, every template, and unlimited exports. Cancel anytime.
                     </p>
                 </div>
 

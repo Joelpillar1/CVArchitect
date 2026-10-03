@@ -28,6 +28,7 @@ import { useAuth } from '../contexts/AuthContext';
 import SEO from './SEO';
 import PublicFooter from './PublicFooter';
 import { normalizeResumeData } from '../pages/ResumeAgentPage';
+import NotchHeroPreview from './NotchHeroPreview';
 import EditorHeroPreview from './EditorHeroPreview';
 import { parseResume } from '../utils/resumeParser';
 import { ResumeData, INITIAL_DATA, createEmptyResume } from '../types';
@@ -156,7 +157,7 @@ const comparisonSections: { title: string; rows: { label: string; cells: [Compar
   {
     title: 'AI Resume Agent & Matching',
     rows: [
-      { label: 'AI Tailored Resumes', cells: [{ type: 'text', text: '1 Resume' }, { type: 'text', text: 'Unlimited' }, { type: 'text', text: 'Unlimited' }] },
+      { label: 'AI Tailored Resumes', cells: [{ type: 'text', text: '1 Resume' }, { type: 'text', text: 'Unlimited*' }, { type: 'text', text: 'Unlimited*' }] },
       { label: 'Job Description Match & Score', cells: [{ type: 'text', text: 'Basic' }, { type: 'check' }, { type: 'check' }] },
       { label: 'AI Bullet Optimizer & Metrics', cells: [{ type: 'text', text: '1 Rewrite' }, { type: 'check' }, { type: 'check' }] },
       { label: 'AI Summary & Skill Extraction', cells: [{ type: 'text', text: '1 Resume' }, { type: 'check' }, { type: 'check' }] },
@@ -935,11 +936,11 @@ export default function AgentLandingPage() {
           </div>
 
           <nav className="hidden md:flex items-center gap-7">
-            <button onClick={scrollToFeatures} className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors">Core Features</button>
-            <a href="#jobs" className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors">Jobs Feed</a>
-            <button onClick={() => navigate('/blog')} className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors">Resources</button>
+            <button onClick={scrollToFeatures} className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors cursor-pointer">Core Features</button>
+            <button onClick={() => navigate('/jobs')} className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors cursor-pointer">Job board</button>
+            <button onClick={() => navigate('/blog')} className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors cursor-pointer">Resources</button>
             <a href="#usecases" className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors">Use case</a>
-            <button onClick={() => navigate('/pricing')} className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors">Pricing</button>
+            <button onClick={() => navigate('/pricing')} className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors cursor-pointer">Pricing</button>
           </nav>
 
           <div className="flex items-center gap-2.5">
@@ -1117,22 +1118,9 @@ export default function AgentLandingPage() {
             </motion.div>
           </div>
 
-          {/* Product preview  -  framed live workspace spanning the hero grid lines. */}
-          <div className="relative mt-16 md:mt-24 z-10">
-            {/* Top full-width horizontal line */}
-            <div className="h-px w-full bg-brand-border" />
-            <div className="relative rounded-none overflow-hidden bg-white border border-brand-border/80 w-[calc(100%-1.5rem)] sm:w-[calc(100%-3rem)] md:w-[calc(100vw*(2/3))] mx-auto">
-              {/* Top accent hairline */}
-              <div className="h-px w-full bg-gradient-to-r from-transparent via-brand-green/80 to-transparent" />
-
-              {/* The /dashboard/editor workspace itself */}
-              <div className="relative bg-white">
-                <EditorHeroPreview />
-              </div>
-            </div>
-
-            {/* Bottom full-width horizontal line */}
-            <div className="h-px w-full bg-brand-border" />
+          {/* Notch Hero Product Preview - positioned immediately under the chat input */}
+          <div className="relative z-10">
+            <NotchHeroPreview />
           </div>
         </section>
 
@@ -1910,7 +1898,7 @@ export default function AgentLandingPage() {
               </div>
               <div className="lg:col-span-7 lg:pb-1">
                 <p className="text-base text-brand-dark/60 leading-relaxed max-w-xl">
-                  Start free with one AI-tailored resume. Upgrade for unlimited tailoring, every template, and unlimited exports. Cancel anytime.
+                  Start free with one AI-tailored resume. Upgrade for unlimited tailoring*, every template, and unlimited exports. Cancel anytime.
                 </p>
               </div>
             </motion.div>
@@ -1993,6 +1981,10 @@ export default function AgentLandingPage() {
                     </div>
                   ))}
                 </div>
+
+                <p className="mt-8 text-center text-xs text-brand-dark/50">
+                  * Unlimited AI tailoring is subject to standard fair use guidelines to ensure service reliability for all users. Free plan includes full preview and 1 AI tailoring credit without requiring payment.
+                </p>
               </div>
             </motion.div>
           </div>

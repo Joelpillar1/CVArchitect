@@ -156,7 +156,7 @@ export default function LandingPage() {
                 "name": "Can CV Architect prevent my resume from being rejected by ATS?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Yes! CV Architect uses AI to optimize your resume format, keywords, and structure specifically for Applicant Tracking Systems. Our resumes have a 98% ATS pass rate."
+                  "text": "Yes! CV Architect uses AI to optimize your resume format, keywords, and structure specifically for Applicant Tracking Systems to maximize readability and ATS compatibility."
                 }
               },
               {
@@ -172,7 +172,7 @@ export default function LandingPage() {
                 "name": "Can I create unlimited resume versions for different jobs?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Yes! With a paid plan, you can create unlimited versions of your resume, each tailored to different job descriptions using our AI-powered Job Match feature."
+                  "text": "Yes! With a paid plan, you can create tailored versions of your resume for different job descriptions using our AI-powered Job Match feature (subject to fair use)."
                 }
               },
               {
@@ -213,7 +213,7 @@ export default function LandingPage() {
             className="mt-6 max-w-2xl text-lg font-medium leading-relaxed text-gray-600 md:text-xl"
           >
             Upload your resume, paste a job description, and get a tailored,
-            ATS-optimized version in seconds.
+            ATS-optimized version in minutes.
           </motion.p>
 
           <motion.div

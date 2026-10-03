@@ -42,7 +42,7 @@ const comparisonSections: { title: string; rows: { label: string; cells: [Compar
     {
         title: 'AI Resume Agent & Matching',
         rows: [
-            { label: 'AI Tailored Resumes', cells: [{ type: 'text', text: '1 Resume' }, { type: 'text', text: 'Unlimited' }, { type: 'text', text: 'Unlimited' }, { type: 'text', text: 'Unlimited' }] },
+            { label: 'AI Tailored Resumes', cells: [{ type: 'text', text: '1 Resume' }, { type: 'text', text: 'Unlimited*' }, { type: 'text', text: 'Unlimited*' }, { type: 'text', text: 'Unlimited*' }] },
             { label: 'Job Description Match & Score', cells: [{ type: 'text', text: 'Basic' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
             { label: 'AI Bullet Optimizer & Metrics', cells: [{ type: 'text', text: '1 Rewrite' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
             { label: 'AI Summary & Skill Extraction', cells: [{ type: 'text', text: '1 Resume' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
@@ -282,6 +282,10 @@ export default function PricingPlans({ onFreeClick, compact = false }: PricingPl
                             );
                         })}
                     </div>
+
+                    <p className="mt-8 text-center text-xs text-brand-dark/50">
+                        * Unlimited AI tailoring is subject to standard fair use guidelines to ensure service reliability for all users. Free plan includes full editor preview and 1 AI tailoring credit without requiring a credit card.
+                    </p>
                 </div>
             </div>
         </div>
