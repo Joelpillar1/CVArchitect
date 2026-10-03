@@ -402,12 +402,15 @@ export default function ApexTemplate({ data }: { data: ResumeData }) {
     const resolved = resolveSection(data, id);
     if (!resolved || !resolved.visible || !resolved.hasContent) return null;
 
-    let sectionTitle = resolved.title;
-    if (resolved.type === 'summary') sectionTitle = t.professionalSummary || resolved.title;
-    if (resolved.type === 'skills') sectionTitle = t.technicalSkills || resolved.title;
-    if (resolved.type === 'experience') sectionTitle = t.experienceTitle || resolved.title;
-    if (resolved.type === 'education') sectionTitle = t.educationTitle || resolved.title;
-    if (resolved.type === 'certifications') sectionTitle = t.certifications || resolved.title;
+    let sectionTitle = (data.sectionTitles as any)?.[resolved.type] || (data.sectionTitles as any)?.[resolved.id] || resolved.title;
+    if (resolved.type === 'summary' && !data.sectionTitles?.summary) sectionTitle = t.professionalSummary || resolved.title;
+    if (resolved.type === 'skills' && !data.sectionTitles?.skills) sectionTitle = t.technicalSkills || resolved.title;
+    if (resolved.type === 'experience' && !data.sectionTitles?.experience) sectionTitle = t.experienceTitle || resolved.title;
+    if (resolved.type === 'education' && !data.sectionTitles?.education) sectionTitle = t.educationTitle || resolved.title;
+    if (resolved.type === 'certifications' && !data.sectionTitles?.certifications) sectionTitle = t.certifications || resolved.title;
+    if (resolved.type === 'achievements' && (data.sectionTitles?.achievements || (data.sectionTitles as any)?.keyAchievements)) {
+      sectionTitle = data.sectionTitles.achievements || (data.sectionTitles as any).keyAchievements || resolved.title;
+    }
 
     switch (resolved.rendererKind) {
       case 'text':

@@ -5,96 +5,88 @@ import { ResumeData, TemplateType } from '../types';
 import { UserSubscription } from '../types/pricing';
 import { useToast } from '../contexts/ToastContext';
 
-export const JPN_RESUME_DATA: ResumeData = {
-    fullName: "Joel Pillar",
-    jobTitle: "Senior Product Designer",
-    email: "joelpillar51@gmail.com",
-    phone: "",
+export const JPN_SARAH_JENKINS_DATA: ResumeData = {
+    fullName: "Sarah Jenkins",
+    jobTitle: "SENIOR PRODUCT DESIGNER",
+    email: "sarahjenkins@gmail.com",
+    phone: "+1 (555) 000-0000",
     address: "",
     location: "",
-    linkedin: "linkedin.com/in/joelpillar",
+    linkedin: "in/sarahjenkins",
     atHandle: "",
     referee: "",
     language: "en",
-    font: "Helvetica, Arial, sans-serif",
-    template: "styled",
+    font: "Merriweather, serif",
+    template: "apex",
     source: "upload",
-    currentTag: "JP N SPD",
-    resumeTitle: "JP N SPD",
+    currentTag: "JPN Resume",
+    resumeTitle: "JPN Resume",
     accentColor: "#000000",
     headerAlignment: "center",
-    contentAlignment: "left",
+    contactAlignment: "center",
+    jobTitleAlignment: "center",
     bodyHeaderAlignment: "left",
+    isTitleFirst: false,
+    showContactIcons: true,
     skillsColumnCount: 3,
-    headerGap: 0.15,
+    headerGap: 0.12,
     sectionGap: 0.14,
-    headerItemGap: 0.08,
-    lineHeight: 1.4,
+    headerItemGap: 0.06,
+    headerContactGap: 0.06,
+    lineHeight: 1.45,
     margins: {
-        vertical: 0.1,
-        horizontal: 0.1
+        vertical: 0.5,
+        horizontal: 0.55
     },
     fontSizes: {
-        body: 8.5,
-        header: 20,
+        body: 7,
+        header: 22,
         jobTitle: 10,
-        sectionTitle: 13
+        sectionTitle: 11
     },
-    summary: "Dynamic Senior Product Designer with over 5 years of expertise in creating innovative and impactful brand solutions for digital and print mediums. Skilled in transforming complex ideas into engaging designs with a contemporary edge, I am committed to advancing B2B marketing efforts within the medical technology industry. Known for my strategic conceptual thinking and meticulous execution, I am passionate about driving brand growth and delivering exceptional visual experiences.",
-    keyAchievements: "• Led the design and execution of a brand campaign that successfully launched to over 10,000 healthcare professionals, meeting all defined objectives.\n• Developed a comprehensive product launch toolkit, including brandmarks and landing pages, that streamlined marketing processes and enhanced brand consistency.\n• Executed a series of high-impact digital ad campaigns, improving client engagement and conversion rates significantly.\n• Spearheaded design solutions that supported a 15% reduction in project timelines by optimizing team workflows and processes.",
-    skills: "Adobe InDesign, Adobe Illustrator, Adobe Photoshop, Figma, Adobe After Effects, Email Campaign Builders, Motion Design, HTML and CSS",
+    summary: "Senior Product Designer with extensive experience in crafting user-centered digital solutions in fintech and emerging technologies. Expert in enhancing user experience and prototyping, particularly in the finance and corporate spending sectors, by transforming complex challenges into intuitive designs. Proven ability to collaborate with cross-functional teams and drive product strategy, ensuring alignment with both user needs and business objectives.",
+    keyAchievements: [
+        "Revolutionized the product design strategy at AmigoXchange, leveraging cutting-edge prototyping and user experience methodologies to innovate fintech solutions, driving a 30% surge in user engagement and enhancing corporate spending insights.",
+        "Orchestrated seamless cross-functional collaboration among diverse teams, aligning design objectives with corporate spending goals, which resulted in a 25% boost in project execution efficiency and supported sustained growth.",
+        "Designed customer satisfaction by implementing a user-centered design philosophy, integrating comprehensive user research and usability testing, thus refining product decisions and ensuring an unparalleled user experience.",
+        "Developed robust and advanced design systems that enhanced product consistency and quality across platforms, significantly improving design uniformity and setting a new standard for excellence in the finance sector."
+    ],
+    skills: "Product Design, User Experience, User Interface, Prototyping, Mock-ups, Customer Experience, Fintech Solutions, Implementation, Design Leadership",
     experience: [
         {
             id: "exp_1",
-            role: "Lead Product Designer",
-            company: "Superteam",
-            startDate: "Apr 2024",
-            endDate: "2026-01",
+            role: "Senior Product Designer",
+            company: "AmigoXchange",
+            startDate: "Mar 2025",
+            endDate: "Present",
             location: "",
-            description: "• Directed a team of 5 designers at Superteam, fostering innovation through user-centered methodologies and improving design quality across the Solana ecosystem.\n• Conducted comprehensive user research and usability testing, advancing product usability and transforming user experience through strategic insights.\n• Spearheaded multiple innovative product concepts, aligning them with business objectives and cultivating a culture of continuous learning.\n• Redesigned core workflows at Nanopay, significantly reducing user errors and support tickets, enhancing overall user satisfaction and efficiency."
+            description: [
+                "Conceptualized the end-to-end design process at AmigoXchange, leveraging prototype-driven methodologies to enhance corporate spending solutions, resulting in a 30% surge in user engagement and satisfaction.",
+                "Engineered a robust design system to elevate product consistency and quality across platforms, utilizing innovative user experience principles to support the finance sector's nuanced requirements.",
+                "Architected a user-centered design approach by conducting comprehensive research and usability testing, enabling a seamless user experience and driving customer-obsessed innovation within the fintech landscape.",
+                "Accelerated cross-functional collaboration with strategic alignment on design objectives, increasing project efficiency by 25% and fostering growth in the development of intuitive financial products at Float."
+            ]
         },
         {
             id: "exp_2",
-            role: "Senior UI/UX Designer",
-            company: "Nanopay",
-            startDate: "Jul 2024",
-            endDate: "Apr 2025",
-            location: "",
-            description: "• Crafted an extensive design system with 60+ components at Nanopay, reducing design inconsistencies and expediting project handoffs to cross-functional teams.\n• Collaborated with teams to deliver responsive applications to over 5,000 daily active users, ensuring timely and within-scope feature delivery.\n• Managed the design of a blockchain-powered real estate product at MyPropOutAI, meeting strategic goals and all roadmap milestones.\n• Developed Web3 concepts that drove adoption and engagement, blending usability for new and advanced users."
-        },
-        {
-            id: "exp_3",
             role: "Lead Product Designer",
-            company: "MyPropOutAI",
-            startDate: "Dec 2023",
-            endDate: "May 2024",
+            company: "NanoPay",
+            startDate: "May 2024",
+            endDate: "Jan 2025",
             location: "",
-            description: "• Led a team of 4 designers at MyPropOutAI, elevating design outputs and maintaining strategic alignment with business objectives.\n• Designed intuitive web and mobile interfaces at GameStar Exchange using Figma, significantly improving user satisfaction and reducing bounce rates.\n• Created detailed personas and journey maps for 10+ product features, enhancing task completion rates and user engagement.\n• Facilitated smooth design-to-development handoffs, ensuring design consistency and reducing delivery time."
-        },
-        {
-            id: "exp_4",
-            role: "UI/UX Designer",
-            company: "GameStar Exchange",
-            startDate: "Sept 2022",
-            endDate: "Jan 2024",
-            location: "",
-            description: "• Designed intuitive web and mobile interfaces using Figma, resulting in a significant improvement in user satisfaction and reduced bounce rates.\n• Created detailed personas, journey maps, and prototypes for over 10 product features, enhancing task completion rates and user engagement.\n• Partnered with developers to ensure smooth design-to-development handoffs, maintaining design consistency and reducing delivery time."
+            description: [
+                "Spearheaded five major product updates at NanoPay, enhancing user experience and increasing user retention by 15%, through a customer-obsessed approach focused on finance and corporate spending innovation.",
+                "Prototyped data-driven design decisions by collaborating closely with cross-functional teams, resulting in enhanced user satisfaction and aligning product designs with corporate finance objectives.",
+                "Wireframed cross-functional collaboration with product managers and engineers, delivering user-centric solutions that harmonized with NanoPay's business goals and product vision."
+            ]
         }
     ],
     education: [
         {
             id: "edu_1",
-            school: "Ahmadu Bello University",
-            degree: "B.Sc Computer Science",
-            year: "2026",
-            gpa: "",
-            relevantCourses: ""
-        },
-        {
-            id: "edu_2",
-            school: "Bayero University",
-            degree: "B.Sc Mathematics",
-            year: "2023",
+            school: "Rhode Island School of Design",
+            degree: "B.F.A. Industrial Design",
+            year: "2019",
             gpa: "",
             relevantCourses: ""
         }
@@ -102,31 +94,14 @@ export const JPN_RESUME_DATA: ResumeData = {
     certifications: [
         {
             id: "cert_1",
-            name: "Google UX Design",
-            issuer: "Google",
-            date: "2024"
-        },
-        {
-            id: "cert_2",
-            name: "Graphic Design Certificate",
-            issuer: "DesignersDAO",
+            name: "NN/g UX Master Certified",
+            issuer: "Nielsen Norman Group",
             date: "2023"
         }
     ],
     projects: [],
     leadership: [],
-    additionalInfo: [
-        {
-            id: "add_1",
-            label: "Languages",
-            value: "English (Native), Spanish (Fluent)"
-        },
-        {
-            id: "add_2",
-            label: "Interests",
-            value: "Open Source Contributing, Tech Blogging, Hiking"
-        }
-    ],
+    additionalInfo: [],
     sectionOrder: [
         "summary",
         "keyAchievements",
@@ -138,21 +113,61 @@ export const JPN_RESUME_DATA: ResumeData = {
         "additionalInfo",
         "references"
     ],
+    sectionTitles: {
+        summary: "PROFESSIONAL SUMMARY",
+        keyAchievements: "CAREER HIGHLIGHTS",
+        achievements: "CAREER HIGHLIGHTS",
+        skills: "TECHNICAL SKILLS",
+        experience: "EXPERIENCE"
+    },
     hasJobMatchRun: true,
-    jobDescription: "At Spark, we deliver brand solutions that build consistent, impactful brand perceptions across all consumer touchpoints. We’re on the hunt for a confident and outgoing Senior Designer with 5+ years of experience to join our team, supporting B2B marketing initiatives primarily in the medical technology sector."
+    jobDescription: "Senior Product Designer at Spark - Fintech & Design Systems",
+    agentMessages: [
+        {
+            id: "msg_tailor_exp",
+            sender: "agent",
+            timestamp: Date.now() - 60000,
+            type: "text",
+            text: "...quality and fostering a culture of growth and innovation, directly contributing to the successful launch of multiple high impact projects.\n\nAll 3 work experiences have been tailored with Google XYZ impact bullets and target keywords.",
+            actionPrompt: {
+                label: "Proceed to Core Skills",
+                stepDescription: "Would you like to proceed to **Harmonize Core Skills** to align your domain competencies for ATS algorithms?",
+                onClickType: "harmonize_skills"
+            }
+        },
+        {
+            id: "msg_skills_strat",
+            sender: "agent",
+            timestamp: Date.now() - 30000,
+            type: "proposal",
+            text: "Here is your **Skills Strategy**: Harmonized your skills list to match the target job priorities for **Senior Product Designer**:",
+            proposal: {
+                section: "skills",
+                title: "Harmonized Core Skills & ATS Competencies",
+                proposed: "Figma, Product Design, User Experience, User Interface, Prototyping, Mock-ups, Customer Experience, Fintech Solutions, Implementation, Design Leadership",
+                proposedSkills: "Figma, Product Design, User Experience, User Interface, Prototyping, Mock-ups, Customer Experience, Fintech Solutions, Implementation, Design Leadership",
+                applied: true
+            }
+        },
+        {
+            id: "msg_done",
+            sender: "agent",
+            timestamp: Date.now() - 10000,
+            type: "text",
+            text: "All Step-by-Step Tailoring Actions Complete!\n\nYour resume is now fully aligned with the target role and optimized for ATS algorithms and executive recruiters."
+        }
+    ] as any
 };
 
 export default function ScreenshotEditorPage() {
     const navigate = useNavigate();
     const { showToast } = useToast();
 
-    // Load JPN Resume data directly
-    const [resumeData, setResumeDataState] = useState<ResumeData>(JPN_RESUME_DATA);
+    // Load Sarah Jenkins JPN Resume data directly
+    const [resumeData, setResumeDataState] = useState<ResumeData>(JPN_SARAH_JENKINS_DATA);
 
-    // Selected template defaults to the resume's template ("styled")
-    const [selectedTemplate, setSelectedTemplateState] = useState<TemplateType>(
-        (JPN_RESUME_DATA.template as TemplateType) || 'styled'
-    );
+    // Selected template: apex
+    const [selectedTemplate, setSelectedTemplateState] = useState<TemplateType>('apex');
 
     // Full pro subscription so all templates, features, and export buttons are unlocked
     const proSubscription: UserSubscription = {
