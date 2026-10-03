@@ -32,7 +32,7 @@ export default function NotchHeroPreview() {
   };
 
   return (
-    <div className="relative w-full max-w-[calc(100%-1.5rem)] sm:max-w-[calc(100%-3rem)] lg:max-w-7xl mx-auto mt-10 md:mt-14 mb-16">
+    <div className="relative w-full max-w-[calc(100%-1rem)] sm:max-w-[calc(100%-2rem)] xl:max-w-[1460px] 2xl:max-w-[1580px] mx-auto mt-10 md:mt-14 mb-16">
       {/* Top Floating Notch Container */}
       <div className="relative z-20 flex justify-center -mb-5 sm:-mb-6">
         <div className="bg-white px-2 py-1.5 sm:px-3 sm:py-2 rounded-full border border-gray-200/90 flex items-center gap-1 sm:gap-1.5 overflow-x-auto max-w-[95vw] scrollbar-none">
@@ -66,7 +66,7 @@ export default function NotchHeroPreview() {
       </div>
 
       {/* Scenic Meadow Frame Container (Flat, No Heavy Shadow) */}
-      <div className="relative rounded-2xl overflow-hidden border border-gray-200/60 p-3 sm:p-6 md:p-8 lg:p-10 min-h-[500px] sm:min-h-[600px] flex items-center justify-center">
+      <div className="relative rounded-2xl overflow-hidden border border-gray-200/60 p-4 sm:p-6 md:p-8 lg:p-10 min-h-[500px] sm:min-h-[600px] flex items-center justify-center">
         {/* Scenic Background (Nature meadow with flowers & blue sky) */}
         <div
           className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 scale-100"
@@ -80,8 +80,8 @@ export default function NotchHeroPreview() {
           <div className="absolute inset-0 bg-gradient-to-b from-sky-400/20 via-transparent to-emerald-600/20" />
         </div>
 
-        {/* Central Window / Card (Flat, No Heavy Shadow) */}
-        <div className="relative z-10 w-full max-w-5xl mx-auto">
+        {/* Central Window / Card (Equal uniform margins on all sides) */}
+        <div className="relative z-10 w-full mx-auto">
           <motion.div
             key={activeTab}
             initial={{ opacity: 0, y: 12, scale: 0.99 }}

@@ -1,19 +1,23 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Editor from './Editor';
 import { ResumeData, TemplateType } from '../types';
 import { UserSubscription } from '../types/pricing';
+import { useToast } from '../contexts/ToastContext';
 import { JPN_SARAH_JENKINS_DATA } from '../pages/ScreenshotEditorPage';
 
 const DESKTOP_BASE_WIDTH = 1728;
 const DESKTOP_BASE_HEIGHT = 920;
 
-export default function EditorHeroPreview() {
+export default function ScreenshotHeroPreview() {
+  const navigate = useNavigate();
+  const { showToast } = useToast();
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState<number>(0.8);
 
-  // Load Sarah Jenkins JPN Resume data directly
-  const [resumeData] = useState<ResumeData>(JPN_SARAH_JENKINS_DATA);
-  const [selectedTemplate] = useState<TemplateType>('apex');
+  // Load Sarah Jenkins JPN Resume data directly (matching /screenshot)
+  const [resumeData, setResumeDataState] = useState<ResumeData>(JPN_SARAH_JENKINS_DATA);
+  const [selectedTemplate, setSelectedTemplateState] = useState<TemplateType>('apex');
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -32,8 +36,8 @@ export default function EditorHeroPreview() {
   }, []);
 
   const proSubscription: UserSubscription = {
-    id: 'hero_preview_sub',
-    userId: 'hero_preview_user',
+    id: 'screenshot_sub',
+    userId: 'screenshot_user',
     planId: 'lifetime',
     status: 'active',
     credits: 999999,
@@ -41,6 +45,18 @@ export default function EditorHeroPreview() {
     unlimitedTailoring: true,
     currentPeriodEnd: new Date(Date.now() + 1000 * 60 * 60 * 24 * 3650).toISOString(),
   };
+
+  const setResumeData = useCallback((data: ResumeData | ((prev: ResumeData) => ResumeData)) => {
+    setResumeDataState((prev) => {
+      return typeof data === 'function' ? data(prev) : data;
+    });
+  }, []);
+
+  const setSelectedTemplate = useCallback((template: TemplateType | ((prev: TemplateType) => TemplateType)) => {
+    setSelectedTemplateState((prev) => {
+      return typeof template === 'function' ? template(prev) : template;
+    });
+  }, []);
 
   return (
     <div

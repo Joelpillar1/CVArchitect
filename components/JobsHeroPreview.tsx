@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Home,
@@ -80,54 +80,75 @@ const JOBS_DATA: JobCardData[] = [
   },
   {
     id: '4',
-    company: 'Corti',
+    company: 'Speechmatics',
     logo: (
-      <div className="w-5.5 h-5.5 rounded-md bg-[#1E3A4C] text-white flex items-center justify-center text-[10px] font-bold shrink-0">
-        🫀
-      </div>
-    ),
-    location: 'Copenhagen, Denmark',
-    title: 'Senior Backend Engineer',
-    tags: ['Full-time', 'Engineering'],
-    salary: 'Salary not disclosed',
-    level: 'Senior',
-    posted: 'Today',
-  },
-  {
-    id: '5',
-    company: 'Oyster',
-    logo: (
-      <div className="w-5.5 h-5.5 rounded-md bg-black text-white flex items-center justify-center text-[10px] font-black shrink-0">
+      <div className="w-5.5 h-5.5 rounded-md bg-[#F0FDF4] border border-emerald-200 text-[#16A34A] flex items-center justify-center text-xs font-black shrink-0">
         O
       </div>
     ),
-    location: 'Remote - EMEA, Americas',
-    title: 'Senior International HRBP',
-    tags: ['Remote', 'Full-time', 'Operations'],
-    salary: 'EUR44k - EUR275k/yr',
+    location: 'London, England, United Kingdom',
+    title: 'Senior Machine Learning Engineer',
+    tags: ['AI & Data'],
+    salary: 'Salary not disclosed',
     level: 'Senior',
-    posted: 'Today',
+    posted: '1 day ago',
+  },
+  {
+    id: '5',
+    company: 'Cohere',
+    logo: (
+      <div className="w-5.5 h-5.5 rounded-md bg-[#102A27] text-[#D4A373] flex items-center justify-center text-[10px] font-bold shrink-0">
+        🌿
+      </div>
+    ),
+    location: 'Germany',
+    title: 'Solutions Architect, Defence, DACH',
+    tags: ['Remote', 'Full-time', 'Sales & Growth'],
+    salary: 'Salary not disclosed',
+    level: 'Senior',
+    posted: '1 day ago',
   },
   {
     id: '6',
-    company: 'Hootsuite',
+    company: 'Cohere',
     logo: (
-      <div className="w-5.5 h-5.5 rounded-md bg-[#D62828] text-white flex items-center justify-center text-xs font-bold shrink-0">
-        🦉
+      <div className="w-5.5 h-5.5 rounded-md bg-[#102A27] text-[#D4A373] flex items-center justify-center text-[10px] font-bold shrink-0">
+        🌿
       </div>
     ),
-    location: 'Vancouver, Canada',
-    title: 'Manager, Contract Operations',
-    tags: ['Finance', 'Full-time'],
+    location: 'Germany',
+    title: 'Solutions Architect - DACH',
+    tags: ['Remote', 'Full-time', 'Sales & Growth'],
     salary: 'Salary not disclosed',
-    level: 'Lead / Staff',
-    posted: 'Today',
+    level: 'Senior',
+    posted: '1 day ago',
   },
 ];
+
+const DESKTOP_BASE_WIDTH = 1728;
+const DESKTOP_BASE_HEIGHT = 920;
 
 export default function JobsHeroPreview() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState<number>(0.8);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const handleResize = () => {
+      if (!containerRef.current) return;
+      const currentWidth = containerRef.current.clientWidth;
+      if (currentWidth > 0) {
+        setScale(currentWidth / DESKTOP_BASE_WIDTH);
+      }
+    };
+
+    handleResize();
+    const observer = new ResizeObserver(handleResize);
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const handleOpenJobs = () => {
     navigate(user ? '/dashboard/jobs' : '/signup?redirect=/dashboard/jobs');
@@ -135,11 +156,13 @@ export default function JobsHeroPreview() {
 
   return (
     <div
+      ref={containerRef}
       onClick={handleOpenJobs}
+      style={{ minHeight: `${DESKTOP_BASE_HEIGHT * scale}px`, height: `${DESKTOP_BASE_HEIGHT * scale}px` }}
       className="w-full bg-[#fbfcfd] flex flex-col md:flex-row select-none text-[#242e3f] font-sans text-left transition-all group overflow-hidden cursor-pointer"
     >
       {/* Left Sidebar */}
-      <aside className="hidden lg:flex w-60 bg-white border-r border-gray-200/80 p-3.5 flex-col justify-between shrink-0 min-h-[560px]">
+      <aside className="hidden lg:flex w-60 bg-white border-r border-gray-200/80 p-3.5 flex-col justify-between shrink-0 h-full">
         <div className="space-y-3.5">
           {/* Header with Logo */}
           <div className="flex items-center justify-between pb-2.5 border-b border-gray-100">
@@ -260,56 +283,107 @@ export default function JobsHeroPreview() {
       </aside>
 
       {/* Main Jobs Workspace */}
-      <main className="flex-1 p-4 sm:p-6 space-y-3.5 overflow-hidden bg-[#fbfcfd]">
-        {/* Top Search & Filter Bar */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Search Input Box */}
-          <div className="relative flex-1 min-w-[240px]">
-            <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <div className="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-gray-200/90 rounded-xl text-gray-400 shadow-2xs flex items-center">
-              Search by job title, skill (e.g. React, Python), or company...
+      <main className="flex-1 p-4 sm:p-5 lg:p-6 space-y-3 sm:space-y-3.5 overflow-hidden bg-[#fbfcfd] h-full flex flex-col justify-between">
+        {/* Top 4 Stat Metric Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
+          {/* 1. Open Roles */}
+          <div className="bg-white rounded-2xl border border-gray-200/90 p-3.5 sm:p-4 shadow-2xs">
+            <span className="text-[10px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-1">
+              OPEN ROLES
+            </span>
+            <div className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
+              10,264
             </div>
           </div>
 
-          {/* Controls */}
-          <div className="flex items-center gap-1.5 text-xs font-medium text-gray-700">
-            <div className="px-3 py-1.5 bg-white border border-gray-200/90 rounded-xl flex items-center gap-1 shadow-2xs">
-              <span>All Companies</span>
-              <ChevronDown size={13} className="text-gray-400" />
-            </div>
-            <div className="px-3 py-1.5 bg-white border border-gray-200/90 rounded-xl flex items-center gap-1 shadow-2xs">
-              <Bookmark size={13} className="text-gray-400" />
-              <span>Saved (0)</span>
-            </div>
-            <div className="px-3 py-1.5 bg-white border border-gray-200/90 rounded-xl flex items-center gap-1 shadow-2xs">
-              <SlidersHorizontal size={13} className="text-gray-400" />
-              <span>Filters</span>
-            </div>
-            <div className="px-3 py-1.5 bg-white border border-gray-200/90 rounded-xl items-center gap-1 shadow-2xs hidden sm:flex">
-              <span>Most Recent</span>
-              <ChevronDown size={13} className="text-gray-400" />
+          {/* 2. Remote Positions */}
+          <div className="bg-white rounded-2xl border border-gray-200/90 p-3.5 sm:p-4 shadow-2xs">
+            <span className="text-[10px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-1">
+              REMOTE POSITIONS
+            </span>
+            <div className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
+              3,505
             </div>
           </div>
-        </div>
 
-        {/* Quick Filters Row */}
-        <div className="flex items-center gap-2 text-xs pt-0.5">
-          <span className="text-gray-400 text-xs font-medium">Quick filters:</span>
-          <div className="flex flex-wrap items-center gap-1.5">
-            {['Remote', '$150k+ Salary', 'Engineering', 'AI & Data', 'Senior'].map((filter, i) => (
-              <span
-                key={i}
-                className="px-2.5 py-0.5 bg-white border border-gray-200/90 text-gray-700 rounded-lg text-[11px] font-medium shadow-2xs hover:border-gray-400"
-              >
-                {filter}
+          {/* 3. Median Pay */}
+          <div className="bg-white rounded-2xl border border-gray-200/90 p-3.5 sm:p-4 shadow-2xs flex flex-col justify-between">
+            <div>
+              <span className="text-[10px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-1">
+                MEDIAN PAY
               </span>
-            ))}
+              <div className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
+                $181k
+              </div>
+            </div>
+            <span className="text-[10px] text-gray-400 font-normal mt-0.5">
+              11 of 60 disclose pay
+            </span>
+          </div>
+
+          {/* 4. Saved Roles */}
+          <div className="bg-white rounded-2xl border border-gray-200/90 p-3.5 sm:p-4 shadow-2xs">
+            <span className="text-[10px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-1">
+              SAVED ROLES
+            </span>
+            <div className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
+              0
+            </div>
           </div>
         </div>
 
-        {/* Results Count */}
-        <div className="text-xs text-gray-500 font-medium">
-          Showing <span className="font-bold text-gray-900">60</span> of 8184 jobs
+        {/* Top Search & Filter White Card Box */}
+        <div className="bg-white rounded-2xl border border-gray-200/90 p-4 sm:p-5 shadow-2xs space-y-3.5">
+          {/* Top Search & Filter Bar */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            {/* Search Input Box */}
+            <div className="relative flex-1 min-w-[260px]">
+              <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <div className="w-full pl-10 pr-3.5 py-2.5 text-[13px] bg-white border border-gray-200/90 rounded-xl text-gray-400 shadow-2xs flex items-center truncate">
+                Search by job title, skill (e.g. React, Python), or company...
+              </div>
+            </div>
+
+            {/* Controls */}
+            <div className="flex items-center gap-2 text-xs font-medium text-gray-700">
+              <div className="px-3.5 py-2 bg-white border border-gray-200/90 rounded-xl flex items-center gap-1.5 shadow-2xs">
+                <span>All Companies</span>
+                <ChevronDown size={14} className="text-gray-400" />
+              </div>
+              <div className="px-3.5 py-2 bg-white border border-gray-200/90 rounded-xl flex items-center gap-1.5 shadow-2xs">
+                <Bookmark size={14} className="text-gray-400" />
+                <span>Saved (0)</span>
+              </div>
+              <div className="px-3.5 py-2 bg-white border border-gray-200/90 rounded-xl flex items-center gap-1.5 shadow-2xs">
+                <SlidersHorizontal size={14} className="text-gray-400" />
+                <span>Filters</span>
+              </div>
+              <div className="px-3.5 py-2 bg-white border border-gray-200/90 rounded-xl items-center gap-1.5 shadow-2xs hidden sm:flex">
+                <span>Most Recent</span>
+                <ChevronDown size={14} className="text-gray-400" />
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Filters Row */}
+          <div className="flex items-center gap-2.5 text-xs pt-0.5">
+            <span className="text-gray-400 text-xs font-medium">Quick filters:</span>
+            <div className="flex flex-wrap items-center gap-2">
+              {['Remote', '$150k+ Salary', 'Engineering', 'AI & Data', 'Senior'].map((filter, i) => (
+                <span
+                  key={i}
+                  className="px-3 py-1 bg-white border border-gray-200/90 text-gray-700 rounded-lg text-xs font-medium shadow-2xs hover:border-gray-400"
+                >
+                  {filter}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Results Count */}
+          <div className="text-xs text-gray-500 font-medium pt-0.5">
+            Showing <span className="font-bold text-gray-900">60</span> of 10264 jobs
+          </div>
         </div>
 
         {/* 3x2 Job Cards Grid — matching exact Dashboard JobCard layout */}

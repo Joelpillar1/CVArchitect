@@ -56,6 +56,8 @@ interface EditorProps {
    *  real route relies on (document title, page-wide keyboard shortcuts, editor
    *  preference persistence) are skipped, and nothing is written to storage. */
   embedded?: boolean;
+  leftSidebarWidthClass?: string;
+  rightSidebarWidthClass?: string;
 }
 
 export type EditorTab = 'personal' | 'summary' | 'education' | 'experience' | 'achievements' | 'skills' | 'certifications' | 'additionalInfo' | 'references' | 'projects' | 'leadership' | 'design' | 'job-match' | (string & {}) | '' | null;
@@ -68,7 +70,7 @@ import { saveToStorage, loadFromStorage } from '../utils/statePersistence';
 import { exportResumeToPdf, exportCoverLetterToPdf, printResumeToPdf, exportResumeToPlainText } from '../utils/pdfExport';
 import { exportResumeToDocx } from '../utils/docxExport';
 
-export default function Editor({ data, onChange, template, onTemplateChange, onBack, onSave, onSaveAsTemplate, currentResumeId, showWelcomeModal, onCloseWelcomeModal, auditResult, userSubscription, onAIAction, onShowPaywall, embedded = false }: EditorProps) {
+export default function Editor({ data, onChange, template, onTemplateChange, onBack, onSave, onSaveAsTemplate, currentResumeId, showWelcomeModal, onCloseWelcomeModal, auditResult, userSubscription, onAIAction, onShowPaywall, embedded = false, leftSidebarWidthClass, rightSidebarWidthClass }: EditorProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isDesignModalOpen, setIsDesignModalOpen] = useState(false);
   const location = useLocation();
@@ -707,7 +709,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
             so a phone shows the same three-pane editor a laptop does. */}
         <div className={`
           border-r border-brand-border bg-white flex-col transition-all duration-300 shrink-0
-          ${isFullscreen || !isLeftSidebarOpen ? 'w-0 opacity-0 overflow-hidden border-none' : embedded ? 'w-96' : 'w-full md:w-96'}
+          ${isFullscreen || !isLeftSidebarOpen ? 'w-0 opacity-0 overflow-hidden border-none' : leftSidebarWidthClass ? leftSidebarWidthClass : embedded ? 'w-80' : 'w-full md:w-80 lg:w-96'}
           ${embedded
             ? (isLeftSidebarOpen && !isFullscreen ? 'flex' : 'hidden')
             : activeMobileTab === 'editor' ? 'flex' : (isLeftSidebarOpen && !isFullscreen ? 'hidden md:flex' : 'hidden')}
@@ -770,7 +772,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
         {/* Right Panel: Job Match & ATS Tools */}
         <div className={`
           transition-all duration-300
-          ${isFullscreen ? 'w-0 opacity-0 overflow-hidden' : embedded ? 'w-96 shrink-0' : 'w-full lg:w-96 shrink-0'}
+          ${isFullscreen ? 'w-0 opacity-0 overflow-hidden' : rightSidebarWidthClass ? `${rightSidebarWidthClass} shrink-0` : embedded ? 'w-96 shrink-0' : 'w-full lg:w-96 shrink-0'}
           ${embedded || activeMobileTab === 'job-match' ? 'flex' : 'hidden lg:flex'}
         `}>
           <EditorSidebarRight
