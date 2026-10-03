@@ -21,6 +21,7 @@ import Support from './components/Support';
 import ResumeMatchChecker from './components/ResumeMatchChecker';
 import ActionVerbs from './components/ActionVerbs';
 import AgentLandingPage from './components/AgentLandingPage';
+import PublicJobsPage from './components/PublicJobsPage';
 import PrintResumePage from './pages/PrintResumePage';
 
 // New dashboard with nested routing
@@ -164,7 +165,7 @@ export default function AppRoutes() {
             <Route path="/support" element={<Support />} />
             <Route path="/resume-checker" element={<ResumeMatchChecker />} />
             <Route path="/action-words" element={<ActionVerbs />} />
-            <Route path="/jobs" element={<Navigate to="/#jobs" replace />} />
+            <Route path="/jobs" element={<PublicJobsPage />} />
 
             {/* Blog */}
             <Route path="/blog" element={<BlogPage />} />

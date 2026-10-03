@@ -133,8 +133,11 @@ function normalizeAshbyJob(
     requirements,
     benefits,
     skills: extractSkills(title, description),
-    applyUrl: job.applyUrl || job.jobUrl || `https://jobs.ashbyhq.com/${slug}`,
-    sourceUrl: job.jobUrl || job.applyUrl || `https://jobs.ashbyhq.com/${slug}`,
+    // Both links must identify the exact posting. When the payload omits a URL we rebuild
+    // it from the board token + job id rather than falling back to the board root, which
+    // would drop the user on a listing page instead of the role they clicked.
+    applyUrl: job.applyUrl || job.jobUrl || `https://jobs.ashbyhq.com/${slug}/${externalId}`,
+    sourceUrl: job.jobUrl || `https://jobs.ashbyhq.com/${slug}/${externalId}`,
     postedAt: publishedAt,
     raw: job,
   };

@@ -44,7 +44,8 @@ const CAREERS_URL = 'https://wise.jobs/jobs';
  */
 interface WiseSitemapEntry {
   url: string;
-  lastmod: string;
+  /** Null when the sitemap entry omits `<lastmod>` — never invented. */
+  lastmod: string | null;
   /** Extracted numeric job ID from the `-jid-{n}` suffix. */
   jid: string;
 }
@@ -71,7 +72,9 @@ export function parseWiseSitemap(xml: string): WiseSitemapEntry[] {
     if (!locMatch) continue;
 
     const url = locMatch[1].trim();
-    const lastmod = lastmodMatch ? lastmodMatch[1].trim() : new Date().toISOString();
+    // No lastmod → no date. Falling back to "now" made every sync re-stamp the posting
+    // to the current day, pinning old jobs at "Today" forever.
+    const lastmod = lastmodMatch ? lastmodMatch[1].trim() : null;
 
     // Extract jid suffix: -jid-{number} at end of path
     const jidMatch = /-jid-(\d+)$/.exec(url);

@@ -23,7 +23,8 @@ import {
     History,
     Clock,
     RotateCcw,
-    Bookmark
+    Bookmark,
+    ChevronRight
 } from 'lucide-react';
 import { BorderBeam } from 'border-beam';
 import { useStreamingPlaceholder } from '../utils/useStreamingPlaceholder';
@@ -89,6 +90,7 @@ interface ChatMessage {
         additionalInfoIndex?: number;
         jobData?: JobDescriptionData;
         applied?: boolean;
+        skipped?: boolean;
     };
     actionPrompt?: {
         label: string;
@@ -216,6 +218,7 @@ export default function EditorSidebarRight({
     const [activeTab, setActiveTab] = useState<'chat' | 'context' | 'history'>('chat');
     const [inputText, setInputText] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
+    const [processingStatus, setProcessingStatus] = useState('Architecting role alignment...');
     const [addedKeywords, setAddedKeywords] = useState<Set<string>>(new Set());
     const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
@@ -437,6 +440,7 @@ export default function EditorSidebarRight({
         const updatedData = { ...data, jobDescription: cleanJobText, hasJobMatchRun: false };
         onChange(updatedData);
 
+        setProcessingStatus('Extracting target competencies & recruiter signals...');
         setIsProcessing(true);
         const analyzingMsgId = `analyzing-${Date.now()}`;
         setMessages(prev => [
@@ -611,6 +615,7 @@ export default function EditorSidebarRight({
         const targetCompany = job?.company || 'Target Company';
         const targetKeywords = job?.keywords?.slice(0, 6).join(', ') || '';
 
+        setProcessingStatus('Synthesizing executive positioning & narrative...');
         setIsProcessing(true);
 
         if (isEmbeddedPreview) {
@@ -701,6 +706,7 @@ Return strictly valid JSON with this exact shape:
     // Step: Tailor Key Achievements & Career Highlights
     const handleTailorAchievements = async (job?: JobDescriptionData) => {
         if (!isEmbeddedPreview && onAIAction && !onAIAction('bullet_optimization')) return;
+        setProcessingStatus('Aligning flagship achievements with target role outcomes...');
         setIsProcessing(true);
         const targetJobTitle = job?.title || data.jobTitle || 'Target Role';
         const targetCompany = job?.company || 'Target Company';
@@ -830,11 +836,12 @@ CRITICAL RULES:
             return;
         }
 
+        const currentExp = data.experience[expIndex];
+        setProcessingStatus(`Engineering Google XYZ impact bullets for ${currentExp?.role || 'role'}...`);
         setIsProcessing(true);
         const targetJobTitle = job?.title || data.jobTitle || 'Target Role';
         const targetCompany = job?.company || 'Target Employer';
         const keywords = job?.keywords?.slice(0, 10).join(', ') || '';
-        const currentExp = data.experience[expIndex];
         const usedVerbs = getUsedStartingVerbs(data);
         const forbiddenVerbsList = Array.from(usedVerbs).slice(0, 15).join(', ');
 
@@ -953,11 +960,12 @@ CRITICAL RULES:
             return;
         }
 
+        const currentProj = data.projects[projIndex];
+        setProcessingStatus(`Tailoring tech stack & architecture outcomes for ${currentProj?.name || 'project'}...`);
         setIsProcessing(true);
         const targetJobTitle = job?.title || data.jobTitle || 'Target Role';
         const targetCompany = job?.company || 'Target Employer';
         const keywords = job?.keywords?.slice(0, 10).join(', ') || '';
-        const currentProj = data.projects[projIndex];
         const usedVerbs = getUsedStartingVerbs(data);
         const forbiddenVerbsList = Array.from(usedVerbs).slice(0, 15).join(', ');
 
@@ -1041,11 +1049,12 @@ CRITICAL RULES:
             return;
         }
 
+        const currentLead = data.leadership[leadIndex];
+        setProcessingStatus(`Elevating governance, mentoring & leadership for ${currentLead?.role || 'role'}...`);
         setIsProcessing(true);
         const targetJobTitle = job?.title || data.jobTitle || 'Target Role';
         const targetCompany = job?.company || 'Target Employer';
         const keywords = job?.keywords?.slice(0, 10).join(', ') || '';
-        const currentLead = data.leadership[leadIndex];
         const usedVerbs = getUsedStartingVerbs(data);
         const forbiddenVerbsList = Array.from(usedVerbs).slice(0, 15).join(', ');
 
@@ -1130,11 +1139,12 @@ CRITICAL RULES:
             return;
         }
 
+        const currentItem = populatedInfo[infoIndex];
+        setProcessingStatus(`Aligning ${currentItem?.label || 'section'} details with target role context...`);
         setIsProcessing(true);
         const targetJobTitle = job?.title || data.jobTitle || 'Target Role';
         const targetCompany = job?.company || 'Target Employer';
         const keywords = job?.keywords?.slice(0, 10).join(', ') || '';
-        const currentItem = populatedInfo[infoIndex];
         const usedVerbs = getUsedStartingVerbs(data);
         const forbiddenVerbsList = Array.from(usedVerbs).slice(0, 15).join(', ');
 
@@ -1195,6 +1205,7 @@ CRITICAL RULES:
     // Step: Harmonize Skills & Domain Competencies
     const handleHarmonizeSkills = async (job?: JobDescriptionData) => {
         if (!isEmbeddedPreview && onAIAction && !onAIAction('ai_rewrite')) return;
+        setProcessingStatus('Mapping core competencies against ATS keyword taxonomy...');
         setIsProcessing(true);
         const targetJobTitle = job?.title || data.jobTitle || 'Target Role';
         const targetSkills = job?.requiredSkills?.slice(0, 10).join(', ') || '';
@@ -1291,6 +1302,7 @@ RULES:
             return;
         }
 
+        setProcessingStatus('Executing full resume architecture & ATS optimization...');
         setIsProcessing(true);
         const loadingMsgId = `loading-${Date.now()}`;
         setMessages(prev => [
@@ -1409,6 +1421,7 @@ RULES:
     const handlePolishSummary = async () => {
         if (!isEmbeddedPreview && onAIAction && !onAIAction('ai_rewrite')) return;
 
+        setProcessingStatus('Synthesizing executive summary narrative...');
         setIsProcessing(true);
 
         if (isEmbeddedPreview) {
@@ -1501,8 +1514,9 @@ Return ONLY the polished 2-3 sentence summary paragraph without quotes.`;
             return;
         }
 
-        setIsProcessing(true);
         const latestExp = data.experience[0];
+        setProcessingStatus(`Engineering Google XYZ impact bullets for ${latestExp?.role || 'role'}...`);
+        setIsProcessing(true);
         const usedVerbs = getUsedStartingVerbs(data);
 
         if (isEmbeddedPreview) {
@@ -2112,6 +2126,135 @@ Return 3-4 bullet points starting with '• '. Output ONLY the bullet points.`;
         );
     };
 
+    // Skip current proposal without modifying the resume, and proceed to next step
+    const handleSkipProposal = (msgId: string, proposal: NonNullable<ChatMessage['proposal']>) => {
+        const job = proposal.jobData;
+
+        // Mark current proposal as skipped
+        setMessages(prev =>
+            prev.map(m =>
+                m.id === msgId && m.proposal
+                    ? { ...m, proposal: { ...m.proposal, skipped: true } }
+                    : m
+            )
+        );
+
+        if (proposal.section === 'title_and_summary') {
+            const nextStep = getNextStepPrompt('title_and_summary', undefined, job);
+            setMessages(prev => [
+                ...prev.map(m => m.id === msgId && m.proposal ? { ...m, proposal: { ...m.proposal, skipped: true } } : m),
+                {
+                    id: `next-step-${Date.now()}`,
+                    sender: 'agent',
+                    timestamp: Date.now(),
+                    type: 'text',
+                    text: `Kept your original Title & Summary.\n\n${nextStep.text}`,
+                    actionPrompt: nextStep.actionPrompt
+                }
+            ]);
+        } else if (proposal.section === 'keyAchievements') {
+            const nextStep = getNextStepPrompt('keyAchievements', undefined, job);
+            setMessages(prev => [
+                ...prev.map(m => m.id === msgId && m.proposal ? { ...m, proposal: { ...m.proposal, skipped: true } } : m),
+                {
+                    id: `next-step-${Date.now()}`,
+                    sender: 'agent',
+                    timestamp: Date.now(),
+                    type: 'text',
+                    text: `Kept your original Key Achievements.\n\n${nextStep.text}`,
+                    actionPrompt: nextStep.actionPrompt
+                }
+            ]);
+        } else if (proposal.section === 'experience') {
+            const expIdx = proposal.experienceIndex ?? 0;
+            const nextStep = getNextStepPrompt('experience', expIdx, job);
+            setMessages(prev => [
+                ...prev.map(m => m.id === msgId && m.proposal ? { ...m, proposal: { ...m.proposal, skipped: true } } : m),
+                {
+                    id: `next-step-${Date.now()}`,
+                    sender: 'agent',
+                    timestamp: Date.now(),
+                    type: 'text',
+                    text: `Kept your original Experience bullets for this role.\n\n${nextStep.text}`,
+                    actionPrompt: nextStep.actionPrompt
+                }
+            ]);
+        } else if (proposal.section === 'projects') {
+            const projIdx = proposal.projectIndex ?? 0;
+            const nextStep = getNextStepPrompt('projects', projIdx, job);
+            setMessages(prev => [
+                ...prev.map(m => m.id === msgId && m.proposal ? { ...m, proposal: { ...m.proposal, skipped: true } } : m),
+                {
+                    id: `next-step-${Date.now()}`,
+                    sender: 'agent',
+                    timestamp: Date.now(),
+                    type: 'text',
+                    text: `Kept your original Projects content.\n\n${nextStep.text}`,
+                    actionPrompt: nextStep.actionPrompt
+                }
+            ]);
+        } else if (proposal.section === 'leadership') {
+            const leadIdx = proposal.leadershipIndex ?? 0;
+            const nextStep = getNextStepPrompt('leadership', leadIdx, job);
+            setMessages(prev => [
+                ...prev.map(m => m.id === msgId && m.proposal ? { ...m, proposal: { ...m.proposal, skipped: true } } : m),
+                {
+                    id: `next-step-${Date.now()}`,
+                    sender: 'agent',
+                    timestamp: Date.now(),
+                    type: 'text',
+                    text: `Kept your original Leadership content.\n\n${nextStep.text}`,
+                    actionPrompt: nextStep.actionPrompt
+                }
+            ]);
+        } else if (proposal.section === 'additionalInfo') {
+            const infoIdx = proposal.additionalInfoIndex ?? 0;
+            const nextStep = getNextStepPrompt('additionalInfo', infoIdx, job);
+            setMessages(prev => [
+                ...prev.map(m => m.id === msgId && m.proposal ? { ...m, proposal: { ...m.proposal, skipped: true } } : m),
+                {
+                    id: `next-step-${Date.now()}`,
+                    sender: 'agent',
+                    timestamp: Date.now(),
+                    type: 'text',
+                    text: `Kept your original Section content.\n\n${nextStep.text}`,
+                    actionPrompt: nextStep.actionPrompt
+                }
+            ]);
+        } else if (proposal.section === 'skills') {
+            setMessages(prev => [
+                ...prev.map(m => m.id === msgId && m.proposal ? { ...m, proposal: { ...m.proposal, skipped: true } } : m),
+                {
+                    id: `complete-step-${Date.now()}`,
+                    sender: 'agent',
+                    timestamp: Date.now(),
+                    type: 'text',
+                    text: `Kept your original Core Skills.\n\n**All Step-by-Step Tailoring Actions Complete!**`
+                }
+            ]);
+        }
+    };
+
+    // Regenerate proposal with a fresh take
+    const handleRegenerateProposal = (proposal: NonNullable<ChatMessage['proposal']>) => {
+        const job = proposal.jobData;
+        if (proposal.section === 'title_and_summary' || proposal.section === 'title' || proposal.section === 'summary') {
+            handleAlignTitleAndSummary(job);
+        } else if (proposal.section === 'keyAchievements') {
+            handleTailorAchievements(job);
+        } else if (proposal.section === 'experience') {
+            handleTailorExperience(job, proposal.experienceIndex ?? 0);
+        } else if (proposal.section === 'projects') {
+            handleTailorProjects(job, proposal.projectIndex ?? 0);
+        } else if (proposal.section === 'leadership') {
+            handleTailorLeadership(job, proposal.leadershipIndex ?? 0);
+        } else if (proposal.section === 'additionalInfo') {
+            handleTailorAdditionalInfo(job, proposal.additionalInfoIndex ?? 0);
+        } else if (proposal.section === 'skills') {
+            handleHarmonizeSkills(job);
+        }
+    };
+
     // Handle user sending text
     const handleSend = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
@@ -2149,6 +2292,7 @@ Return 3-4 bullet points starting with '• '. Output ONLY the bullet points.`;
 
         // Preview Mode Simulated Conversational Response (Zero API Credits)
         if (isEmbeddedPreview) {
+            setProcessingStatus('Reviewing resume architecture & formulating response...');
             setIsProcessing(true);
             setTimeout(() => {
                 const lower = clean.toLowerCase();
@@ -2308,6 +2452,7 @@ Return 3-4 bullet points starting with '• '. Output ONLY the bullet points.`;
         }
 
         // Context-aware Conversational & Action Handling
+        setProcessingStatus('Reviewing resume architecture & formulating response...');
         setIsProcessing(true);
         try {
             const recentHistory = messages
@@ -2721,110 +2866,68 @@ Note: Set "isDirectApply": true if the user explicitly asked to "add", "apply", 
                                 const a = msg.analysis;
                                 const strat = a.strategy;
                                 return (
-                                    <div key={msg.id} className="bg-white rounded-2xl border border-neutral-200/80 p-4 shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-3.5 animate-fadeIn">
+                                    <div key={msg.id} className="bg-white rounded-2xl border border-neutral-200/80 p-4 shadow-xs space-y-4 animate-fadeIn">
                                         {/* Header */}
-                                        <div className="flex items-center justify-between border-b border-neutral-100 pb-2.5">
-                                            <div>
-                                                <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Match & Recruiter Analysis</span>
-                                                <h4 className="font-bold text-xs text-neutral-900">{a.jobTitle || 'Target Role'}</h4>
-                                                {a.company && <p className="text-[11px] text-neutral-500">{a.company}</p>}
-                                            </div>
-                                            <div className="text-right">
-                                                <div className="text-2xl font-black text-emerald-600 leading-none">{a.matchScore}%</div>
-                                                <span className="text-[10px] font-semibold text-neutral-400">Match Score</span>
+                                        <div className="flex items-start justify-between gap-3 pb-3 border-b border-neutral-100">
+                                            <div className="space-y-0.5 min-w-0">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Target Role</span>
+                                                    {a.company && (
+                                                        <span className="text-[11px] font-medium text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded-md truncate max-w-[160px]">
+                                                            {a.company}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <h4 className="font-semibold text-sm text-neutral-900 tracking-tight truncate">
+                                                    {a.jobTitle || 'Target Role'}
+                                                </h4>
                                             </div>
                                         </div>
 
-                                        {/* Category Breakdown Badges */}
-                                        {a.categoryScores && (
-                                            <div className="grid grid-cols-3 gap-1.5 pt-0.5">
-                                                <div className="bg-neutral-50 border border-neutral-200/60 rounded-lg p-1.5 text-center">
-                                                    <span className="block text-[9px] font-bold text-neutral-400 uppercase">Role Match</span>
-                                                    <span className="text-xs font-black text-neutral-800">{a.categoryScores.roleAlignment || 85}%</span>
-                                                </div>
-                                                <div className="bg-neutral-50 border border-neutral-200/60 rounded-lg p-1.5 text-center">
-                                                    <span className="block text-[9px] font-bold text-neutral-400 uppercase">Experience</span>
-                                                    <span className="text-xs font-black text-neutral-800">{a.categoryScores.experienceMatch || 80}%</span>
-                                                </div>
-                                                <div className="bg-neutral-50 border border-neutral-200/60 rounded-lg p-1.5 text-center">
-                                                    <span className="block text-[9px] font-bold text-neutral-400 uppercase">Keyword Depth</span>
-                                                    <span className="text-xs font-black text-neutral-800">{a.categoryScores.keywordCoverage || 75}%</span>
-                                                </div>
-                                            </div>
-                                        )}
+                                        {/* Strategic Keywords Area */}
+                                        {strat && (() => {
+                                            const rawKeywords = [
+                                                ...(strat.titleAndSummaryKeywords || []),
+                                                ...(strat.experienceKeywords || []),
+                                                ...(strat.coreCompetencies || [])
+                                            ];
+                                            const seen = new Set<string>();
+                                            const allKeywords: string[] = [];
+                                            for (const kw of rawKeywords) {
+                                                const trimmed = typeof kw === 'string' ? kw.trim() : '';
+                                                if (trimmed) {
+                                                    const lower = trimmed.toLowerCase();
+                                                    if (!seen.has(lower)) {
+                                                        seen.add(lower);
+                                                        allKeywords.push(trimmed);
+                                                    }
+                                                }
+                                            }
 
-                                        {/* Strategic Keyword Positioning Map */}
-                                        {strat && (
-                                            <div className="space-y-3 bg-neutral-50/70 p-3.5 rounded-xl border border-neutral-200/70">
-                                                <div className="flex items-center gap-1.5 text-xs font-bold text-neutral-900 border-b border-neutral-200/50 pb-2">
-                                                    <Target className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                                                    <span>Strategic Keyword Positioning</span>
-                                                </div>
+                                            if (allKeywords.length === 0) return null;
 
-                                                {/* Title & Summary Keywords */}
-                                                {strat.titleAndSummaryKeywords && strat.titleAndSummaryKeywords.length > 0 && (
-                                                    <div className="space-y-1.5">
-                                                        <div>
-                                                            <span className="text-[11px] font-bold text-neutral-800 block">
-                                                                Title & Summary Keywords
-                                                            </span>
-                                                            <span className="text-[10px] text-neutral-500 block">
-                                                                Position headline & executive narrative
-                                                            </span>
-                                                        </div>
-                                                        <div className="flex flex-wrap gap-1.5 pt-0.5">
-                                                            {strat.titleAndSummaryKeywords.map((kw, idx) => (
-                                                                <span key={idx} className="px-2.5 py-1 bg-white border border-neutral-200/90 text-neutral-700 text-[11px] font-medium rounded-lg shadow-2xs">
-                                                                    {kw}
-                                                                </span>
-                                                            ))}
-                                                        </div>
+                                            return (
+                                                <div className="space-y-2.5">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
+                                                            Target Keywords
+                                                        </span>
+                                                        <span className="text-[10px] text-neutral-400">Extracted from Job Description</span>
                                                     </div>
-                                                )}
 
-                                                {/* Experience Bullets Keywords */}
-                                                {strat.experienceKeywords && strat.experienceKeywords.length > 0 && (
-                                                    <div className="space-y-1.5 pt-1.5 border-t border-neutral-200/50">
-                                                        <div>
-                                                            <span className="text-[11px] font-bold text-neutral-800 block">
-                                                                Experience & Impact Bullets
+                                                    <div className="flex flex-wrap gap-1.5">
+                                                        {allKeywords.map((kw, idx) => (
+                                                            <span
+                                                                key={`${kw}-${idx}`}
+                                                                className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-medium bg-neutral-100/80 text-neutral-800 border border-neutral-200/60 hover:bg-neutral-100 transition-colors"
+                                                            >
+                                                                {kw}
                                                             </span>
-                                                            <span className="text-[10px] text-neutral-500 block">
-                                                                Weave into verified accomplishments
-                                                            </span>
-                                                        </div>
-                                                        <div className="flex flex-wrap gap-1.5 pt-0.5">
-                                                            {strat.experienceKeywords.map((kw, idx) => (
-                                                                <span key={idx} className="px-2.5 py-1 bg-emerald-50/90 border border-emerald-200/80 text-emerald-800 text-[11px] font-medium rounded-lg shadow-2xs">
-                                                                    {kw}
-                                                                </span>
-                                                            ))}
-                                                        </div>
+                                                        ))}
                                                     </div>
-                                                )}
-
-                                                {/* Core Competencies */}
-                                                {strat.coreCompetencies && strat.coreCompetencies.length > 0 && (
-                                                    <div className="space-y-1.5 pt-1.5 border-t border-neutral-200/50">
-                                                        <div>
-                                                            <span className="text-[11px] font-bold text-neutral-800 block">
-                                                                Core Competencies
-                                                            </span>
-                                                            <span className="text-[10px] text-neutral-500 block">
-                                                                Target technical & domain skills
-                                                            </span>
-                                                        </div>
-                                                        <div className="flex flex-wrap gap-1.5 pt-0.5">
-                                                            {strat.coreCompetencies.map((kw, idx) => (
-                                                                <span key={idx} className="px-2.5 py-1 bg-white border border-neutral-200/90 text-neutral-700 text-[11px] font-medium rounded-lg shadow-2xs">
-                                                                    {kw}
-                                                                </span>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
+                                                </div>
+                                            );
+                                        })()}
 
                                         {/* Step-by-Step Action Plan based on Sections in Resume */}
                                         {(() => {
@@ -2908,41 +3011,50 @@ Note: Set "isDirectApply": true if the user explicitly asked to "add", "apply", 
                                             });
 
                                             return (
-                                                <div className="space-y-2 pt-1">
-                                                    <span className="text-[11px] font-bold text-neutral-800 block uppercase tracking-wider">
-                                                        Step-by-Step Tailoring Actions:
-                                                    </span>
+                                                <div className="space-y-2.5 pt-2 border-t border-neutral-100">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
+                                                            Optimize for this role:
+                                                        </span>
+                                                        <span className="text-[10px] text-neutral-400">{steps.length} sections</span>
+                                                    </div>
 
-                                                    <div className="space-y-2">
+                                                    <div className="divide-y divide-neutral-100 rounded-xl border border-neutral-200/80 bg-neutral-50/40 overflow-hidden">
                                                         {steps.map((st) => (
                                                             <button
                                                                 key={st.num}
                                                                 type="button"
                                                                 onClick={st.onClick}
                                                                 disabled={isProcessing}
-                                                                className="w-full p-2.5 bg-white hover:bg-neutral-50 border border-neutral-200/90 hover:border-neutral-300 rounded-xl text-left transition-all flex items-center justify-between group cursor-pointer shadow-2xs"
+                                                                className="w-full px-3.5 py-2.5 text-left transition-colors flex items-center justify-between group hover:bg-white cursor-pointer bg-transparent"
                                                             >
-                                                                <div className="space-y-0.5">
-                                                                    <div className="text-[11px] font-bold text-neutral-900 flex items-center gap-1.5">
-                                                                        <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold flex items-center justify-center shrink-0">{st.num}</span>
-                                                                        <span>{st.title}</span>
+                                                                <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                                                                    <span className="text-[11px] font-semibold text-neutral-400 group-hover:text-emerald-600 transition-colors w-4 text-center">
+                                                                        {st.num}
+                                                                    </span>
+                                                                    <div className="min-w-0">
+                                                                        <p className="text-xs font-medium text-neutral-800 group-hover:text-neutral-900 transition-colors truncate">
+                                                                            {st.title}
+                                                                        </p>
+                                                                        <p className="text-[11px] text-neutral-400 truncate">{st.desc}</p>
                                                                     </div>
-                                                                    <p className="text-[10px] text-neutral-500 pl-5.5">{st.desc}</p>
                                                                 </div>
-                                                                <span className="text-[11px] font-bold text-emerald-700 opacity-80 group-hover:opacity-100 shrink-0 ml-1">Execute →</span>
+                                                                <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-[11px] font-medium text-emerald-600 shrink-0">
+                                                                    <span>Optimize</span>
+                                                                    <ChevronRight className="w-3 h-3" />
+                                                                </div>
                                                             </button>
                                                         ))}
                                                     </div>
 
-                                                    {/* Start Step-by-Step Tailoring from Step 1 */}
+                                                    {/* Start Optimizing from Step 1 */}
                                                     <button
                                                         type="button"
                                                         onClick={() => handleAlignTitleAndSummary(a.jobData)}
                                                         disabled={isProcessing}
-                                                        className="w-full py-2.5 bg-brand-green hover:bg-brand-greenHover text-brand-dark font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-xs hover:shadow-sm cursor-pointer active:scale-[0.99] border border-brand-green/60 mt-1"
+                                                        className="w-full py-2.5 bg-brand-green hover:bg-brand-greenHover active:scale-[0.99] text-brand-dark font-bold text-xs rounded-xl flex items-center justify-center transition-all shadow-xs hover:shadow-sm border border-brand-green/60 cursor-pointer mt-2 disabled:opacity-50"
                                                     >
-                                                        <Sparkles className="w-3.5 h-3.5 text-brand-dark" />
-                                                        <span>Start Step-by-Step Tailoring</span>
+                                                        <span>Start Optimizing...</span>
                                                     </button>
                                                 </div>
                                             );
@@ -2964,26 +3076,57 @@ Note: Set "isDirectApply": true if the user explicitly asked to "add", "apply", 
 
                                         <div className="flex items-center justify-between border-b border-neutral-100 pb-2">
                                             <span className="text-xs font-bold text-neutral-900">{prop.title}</span>
-                                            {prop.applied && (
-                                                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center gap-1">
-                                                    <Check className="w-3 h-3" /> Applied
+                                            {prop.applied ? (
+                                                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-neutral-700 bg-neutral-100 px-2 py-0.5 rounded-md border border-neutral-200/70">
+                                                    <Check className="w-3 h-3 text-neutral-500" />
+                                                    <span>Applied</span>
                                                 </span>
-                                            )}
+                                            ) : prop.skipped ? (
+                                                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-neutral-500 bg-neutral-100 px-2 py-0.5 rounded-md border border-neutral-200/70">
+                                                    <span>Skipped</span>
+                                                </span>
+                                            ) : null}
                                         </div>
 
                                         <div className="bg-neutral-50 p-3 rounded-xl border border-neutral-200/60 text-xs text-neutral-800 leading-relaxed">
                                             <FormattedMarkdown content={prop.proposed} />
                                         </div>
 
-                                        {!prop.applied && (
-                                            <button
-                                                type="button"
-                                                onClick={() => handleApplyProposal(msg.id, prop)}
-                                                className="w-full py-2 bg-brand-green hover:bg-brand-greenHover text-brand-dark font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-brand-green/60 shadow-xs"
-                                            >
-                                                <CheckCircle2 className="w-3.5 h-3.5" />
-                                                <span>Apply to Resume</span>
-                                            </button>
+                                        {!prop.applied && !prop.skipped && (
+                                            <div className="space-y-2 pt-0.5">
+                                                {/* Primary CTA */}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleApplyProposal(msg.id, prop)}
+                                                    disabled={isProcessing}
+                                                    className="w-full py-2.5 bg-brand-green hover:bg-brand-greenHover active:scale-[0.99] text-brand-dark font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer border border-brand-green/60 shadow-xs disabled:opacity-50"
+                                                >
+                                                    <CheckCircle2 className="w-3.5 h-3.5" />
+                                                    <span>Apply to Resume</span>
+                                                </button>
+
+                                                {/* Secondary Actions: Regenerate & Skip */}
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRegenerateProposal(prop)}
+                                                        disabled={isProcessing}
+                                                        className="w-full py-2 px-2.5 bg-white hover:bg-neutral-50 active:scale-[0.99] text-neutral-700 hover:text-neutral-900 border border-neutral-200/80 hover:border-neutral-300 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 shadow-2xs"
+                                                    >
+                                                        <RefreshCw className="w-3 h-3 text-neutral-500" />
+                                                        <span>Regenerate</span>
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleSkipProposal(msg.id, prop)}
+                                                        disabled={isProcessing}
+                                                        className="w-full py-2 px-2.5 bg-white hover:bg-neutral-50 active:scale-[0.99] text-neutral-600 hover:text-neutral-800 border border-neutral-200/80 hover:border-neutral-300 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 shadow-2xs"
+                                                    >
+                                                        <span>Skip Step</span>
+                                                        <ArrowRight className="w-3 h-3 text-neutral-400" />
+                                                    </button>
+                                                </div>
+                                            </div>
                                         )}
                                     </div>
                                 );
@@ -3032,9 +3175,9 @@ Note: Set "isDirectApply": true if the user explicitly asked to "add", "apply", 
                         })}
 
                         {isProcessing && (
-                            <div className="flex items-center gap-2 text-xs font-medium text-neutral-500 p-2 bg-white/70 rounded-xl border border-neutral-200/60 animate-pulse">
-                                <Loader2 className="w-3.5 h-3.5 animate-spin text-neutral-700" />
-                                <span>AI Assistant is analyzing & optimizing...</span>
+                            <div className="flex items-center gap-2 text-xs font-medium text-neutral-600 p-2.5 bg-neutral-50/90 rounded-xl border border-neutral-200/70 animate-pulse">
+                                <Loader2 className="w-3.5 h-3.5 animate-spin text-neutral-800 shrink-0" />
+                                <span className="truncate">{processingStatus || 'Architecting role alignment...'}</span>
                             </div>
                         )}
                     </div>
@@ -3123,10 +3266,9 @@ Note: Set "isDirectApply": true if the user explicitly asked to "add", "apply", 
                                 type="button"
                                 onClick={() => handleAlignTitleAndSummary()}
                                 disabled={isProcessing}
-                                className="w-full py-2.5 bg-brand-green hover:bg-brand-greenHover text-brand-dark font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-xs hover:shadow-sm cursor-pointer border border-brand-green/60"
+                                className="w-full py-3 bg-brand-green hover:bg-brand-greenHover active:scale-[0.98] text-brand-dark font-bold text-xs rounded-xl flex items-center justify-center transition-all shadow-xs hover:shadow-sm border border-brand-green/60 cursor-pointer mt-2 disabled:opacity-50"
                             >
-                                <Sparkles className="w-3.5 h-3.5 text-brand-dark" />
-                                <span>Start Step-by-Step Tailoring</span>
+                                <span>Start Optimizing...</span>
                             </button>
                         </>
                     ) : (

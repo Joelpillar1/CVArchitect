@@ -33,6 +33,8 @@ dist-ssr
 # Scratch and temporary scripts
 scratch/
 scratch*
+# Intermediate artifacts from the job-source recon/fetch scripts (recon-results.json etc.)
+.tmp/
 *.mjs
 *.html
 *.md

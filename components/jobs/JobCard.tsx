@@ -11,6 +11,7 @@ import { Job } from '../../types/job';
 import { ResumeData } from '../../types';
 import { calculateJobMatchScore, formatSalary, formatPostedDate } from '../../utils/jobMatching';
 import { getCompanyLogoUrl, getCompanyDomain } from '../../utils/companyLogo';
+import { getJobPostingUrl } from '../../utils/jobPostingUrl';
 
 interface JobCardProps {
   job: Job;
@@ -30,6 +31,8 @@ export default function JobCard({
   onTailorResume
 }: JobCardProps) {
   const { score } = calculateJobMatchScore(job, resumeData);
+  // Exact posting page (see utils/jobPostingUrl) — not a generic careers landing page.
+  const postingUrl = getJobPostingUrl(job);
 
   return (
     <div 
@@ -61,14 +64,14 @@ export default function JobCard({
                 {job.company}
                 <BadgeCheck size={14} className="text-[#3B82F6] fill-[#3B82F6] shrink-0" stroke="white" strokeWidth={2} />
               </span>
-              {(job.companyWebsiteUrl || job.sourceUrl) && (
+              {postingUrl && (
                 <a
-                  href={job.companyWebsiteUrl || job.sourceUrl}
+                  href={postingUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
                   className="inline-flex items-center gap-0.5 text-[11px] font-medium text-neutral-500 hover:text-neutral-900 transition-colors"
-                  title={`Visit ${job.company} careers page`}
+                  title={`View this role on ${job.company}'s careers page`}
                 >
                   <ExternalLink size={10} className="shrink-0" />
                 </a>

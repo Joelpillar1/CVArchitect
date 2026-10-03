@@ -1139,7 +1139,7 @@ export default function App() {
             />
             <SidebarItem
               icon={<Bookmark size={20} />}
-              label="My Templates"
+              label="My Resumes"
               active={currentView === View.MY_TEMPLATES}
               collapsed={isSidebarCollapsed}
               onClick={() => { setCurrentView(View.MY_TEMPLATES); setIsMobileMenuOpen(false); }}

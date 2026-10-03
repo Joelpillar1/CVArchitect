@@ -435,7 +435,7 @@ export default function AdminJobsPage() {
                       <td className="py-3.5 px-4 whitespace-nowrap text-neutral-500">
                         <span className="flex items-center gap-1 text-[11px]">
                           <Clock size={11} className="text-neutral-400" />
-                          <span>{formatPostedDate(job.postedAt) || job.postedDate}</span>
+                          <span>{formatPostedDate(job.postedAt ?? job.firstSeenAt) || job.postedDate}</span>
                         </span>
                       </td>
 

@@ -34,15 +34,17 @@ async function main() {
     byLocation[location].push(e);
   }
 
-  // Print jobs sorted by lastmod (newest first)
-  const sorted = [...entries].sort((a, b) => b.lastmod.localeCompare(a.lastmod));
+  // Print jobs sorted by lastmod (newest first); entries without lastmod sink to the end.
+  const sorted = [...entries].sort((a, b) => (b.lastmod || '').localeCompare(a.lastmod || ''));
 
   let n = 1;
   for (const entry of sorted) {
     const { title, location } = parseWiseSlug(entry.url);
-    const date = new Date(entry.lastmod).toLocaleDateString('en-GB', {
-      day: 'numeric', month: 'short', year: 'numeric',
-    });
+    const date = entry.lastmod
+      ? new Date(entry.lastmod).toLocaleDateString('en-GB', {
+          day: 'numeric', month: 'short', year: 'numeric',
+        })
+      : 'no date';
     console.log(`${String(n).padStart(3)}. [${date}] ${title}`);
     console.log(`      📍 ${location} | 🔗 ${entry.url}`);
     n++;

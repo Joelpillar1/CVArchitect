@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { Layout, FileText, Settings as SettingsIcon, Home, ChevronRight, ChevronLeft, LogOut, Bookmark, Menu, X, BookOpen, Briefcase, ShieldCheck } from 'lucide-react';
+import { Layout, FileText, Settings as SettingsIcon, Home, ChevronRight, ChevronLeft, LogOut, Bookmark, Menu, X, BookOpen, Briefcase, ShieldCheck, Zap, Sparkles, ArrowUp, Plus } from 'lucide-react';
 import { ResumeData, INITIAL_DATA, createEmptyResume, TemplateType, SavedTemplate } from '../types';
 import { Job } from '../types/job';
 import Editor from '../components/Editor';
@@ -22,7 +22,7 @@ import { subscriptionService } from '../services/subscriptionService';
 import { profileService, UserProfile } from '../services/profileService';
 import { coverLetterService, SavedCoverLetter } from '../services/coverLetterService';
 import { SubscriptionManager } from '../utils/subscriptionManager';
-import { isPaidPlan } from '../utils/pricingConfig';
+import { PLANS, isPaidPlan } from '../utils/pricingConfig';
 import {
     clearPendingCheckoutPlan,
     getPendingCheckoutPlan,
@@ -660,51 +660,194 @@ export default function Dashboard() {
             {/* Sidebar (hidden on editor route) */}
             {!isEditorRoute && (
                 <aside className={`
-                ${isSidebarCollapsed ? 'w-16' : 'w-64'} 
-                bg-brand-dark text-white transition-all duration-300 flex flex-col
+                ${isSidebarCollapsed ? 'w-20' : 'w-64'} 
+                bg-white text-gray-900 border-r border-gray-200/80 shadow-sm transition-all duration-300 flex flex-col
                 fixed md:relative z-50 h-full
                 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
             `}>
-                    <div className="p-4 flex items-center justify-between">
-                        {!isSidebarCollapsed && <h1 className="text-xl font-bold">CVArchitect</h1>}
-                        <div className="flex items-center gap-2">
+                    <div className={`p-4 flex items-center ${isSidebarCollapsed ? 'justify-center flex-col gap-3' : 'justify-between'} border-b border-gray-100`}>
+                        <button
+                            onClick={() => navigate('/dashboard')}
+                            className="flex items-center gap-2.5 hover:opacity-85 transition-opacity text-left min-w-0"
+                            title="CVArchitect Dashboard"
+                        >
+                            <img
+                                src="/images/logo icon.png"
+                                alt="CVArchitect Logo"
+                                className="w-8 h-8 rounded-lg object-contain shrink-0"
+                            />
+                            {!isSidebarCollapsed && (
+                                <span className="font-bold text-lg text-gray-900 tracking-tight whitespace-nowrap">
+                                    CVArchitect
+                                </span>
+                            )}
+                        </button>
+                        <div className="flex items-center gap-1">
                             <button
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className="md:hidden p-2 hover:bg-white/10 rounded-lg transition-colors"
+                                className="md:hidden p-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                                title="Close menu"
                             >
-                                <X size={20} />
+                                <X size={18} />
                             </button>
                             <button
                                 onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                                className="hidden md:flex p-2 hover:bg-white/10 rounded-lg transition-colors"
+                                className="hidden md:flex p-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                                title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
                             >
-                                {isSidebarCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+                                {isSidebarCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
                             </button>
                         </div>
                     </div>
 
-                    <nav className="flex-1 px-2 py-4 space-y-2">
-                        <NavItem icon={<Home size={20} />} label="Overview" to="/dashboard" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
-                        <NavItem icon={<Briefcase size={20} />} label="Jobs" to="/dashboard/jobs" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
-                        <NavItem icon={<Layout size={20} />} label="Templates" to="/dashboard/templates" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
-                        <NavItem icon={<Bookmark size={20} />} label="My Templates" to="/dashboard/my-templates" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
-                        <NavItem icon={<FileText size={20} />} label="Cover Letters" to="/dashboard/cover-letters" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
-                        <NavItem icon={<BookOpen size={20} />} label="Interview Prep" to="/dashboard/interview-prep" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
-                        <NavItem icon={<SettingsIcon size={20} />} label="Settings" to="/dashboard/settings" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
-                    </nav>
-
-                    <div className="p-4 border-t border-white/10">
+                    {/* Create New Resume Button */}
+                    <div className={`pt-3 px-3 pb-1 ${isSidebarCollapsed ? 'flex justify-center px-2' : ''}`}>
                         <button
                             onClick={() => {
-                                signOut();
-                                navigate('/');
+                                setCurrentResumeId(null);
+                                setIsMobileMenuOpen(false);
+                                navigate('/dashboard/templates');
                             }}
-                            className="w-full flex items-center gap-3 px-4 py-2 hover:bg-white/10 rounded-lg transition-colors"
+                            className={`w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-brand-green hover:bg-brand-greenHover text-brand-dark font-bold text-xs tracking-wide uppercase rounded-xl shadow-xs transition-all active:scale-[0.98] ${isSidebarCollapsed ? 'p-2.5 w-auto' : ''}`}
+                            title="Create New Resume"
                         >
-                            <LogOut size={20} />
-                            {!isSidebarCollapsed && <span>Sign Out</span>}
+                            <Plus size={16} className="stroke-[2.5] shrink-0" />
+                            {!isSidebarCollapsed && <span>Create New Resume</span>}
                         </button>
                     </div>
+
+                    <nav className="flex-1 px-3 py-2 space-y-1.5 overflow-y-auto">
+                        <NavItem icon={<Home size={19} />} label="Overview" to="/dashboard" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
+                        <NavItem icon={<Briefcase size={19} />} label="Jobs" to="/dashboard/jobs" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
+                        <NavItem icon={<Layout size={19} />} label="Templates" to="/dashboard/templates" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
+                        <NavItem icon={<Bookmark size={19} />} label="My Resumes" to="/dashboard/my-templates" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
+                        <NavItem icon={<FileText size={19} />} label="Cover Letters" to="/dashboard/cover-letters" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
+                        <NavItem icon={<BookOpen size={19} />} label="Interview Prep" to="/dashboard/interview-prep" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
+                        <NavItem icon={<SettingsIcon size={19} />} label="Settings" to="/dashboard/settings" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
+                    </nav>
+
+                    {/* Usage & Plan Card */}
+                    {(() => {
+                        const isPaid = isPaidPlan(userSubscription.planId);
+                        const creditBalance = subscriptionManager.getCreditBalance();
+                        const resumesCount = savedTemplates.length;
+
+                        const displayName = userProfile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
+                        const displayEmail = user?.email || '';
+                        const initials = (displayName.charAt(0) || 'U').toUpperCase();
+
+                        if (isSidebarCollapsed) {
+                            return (
+                                <div className="p-2 flex flex-col items-center gap-2.5 border-t border-gray-100">
+                                    <button
+                                        onClick={() => (!isPaid ? setShowPaywall(true) : navigate('/dashboard/settings'))}
+                                        className="p-2.5 rounded-xl bg-gray-100 text-brand-dark hover:bg-brand-green shadow-xs transition-all"
+                                        title={isPaid ? 'Pro Plan Active' : 'Upgrade Plan'}
+                                    >
+                                        <Sparkles size={17} className="text-brand-dark" />
+                                    </button>
+                                    <button
+                                        onClick={() => navigate('/dashboard/settings')}
+                                        className="w-8 h-8 rounded-full bg-brand-green/25 text-brand-dark border border-brand-green/40 flex items-center justify-center font-bold text-xs hover:ring-2 hover:ring-brand-green/50 transition-all"
+                                        title={displayName}
+                                    >
+                                        {initials}
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            signOut();
+                                            navigate('/');
+                                        }}
+                                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                                        title="Sign Out"
+                                    >
+                                        <LogOut size={16} />
+                                    </button>
+                                </div>
+                            );
+                        }
+
+                        return (
+                            <div className="p-3 border-t border-gray-100">
+                                <div className="rounded-2xl bg-gray-50/80 p-3.5 border border-gray-200/90 shadow-2xs select-none space-y-3">
+                                    {/* Resumes Row */}
+                                    <div className="flex items-center justify-between py-0.5">
+                                        <span className="text-[11px] font-semibold tracking-wider text-gray-500 uppercase">
+                                            RESUMES
+                                        </span>
+                                        <span className="text-xs font-semibold text-gray-700">
+                                            {resumesCount} / {isPaid ? '∞' : '1'}
+                                        </span>
+                                    </div>
+
+                                    {/* Divider */}
+                                    <div className="h-[1px] w-full bg-gray-200/80" />
+
+                                    {/* Applications Row */}
+                                    <div className="flex items-center justify-between py-0.5">
+                                        <span className="text-[11px] font-bold tracking-wider text-brand-dark uppercase">
+                                            APPLICATIONS
+                                        </span>
+                                        <span className="text-xs font-bold text-brand-dark">
+                                            {isPaid ? '∞' : `${creditBalance} / 10`}
+                                        </span>
+                                    </div>
+
+                                    {/* Upgrade Button */}
+                                    <button
+                                        onClick={() => (!isPaid ? setShowPaywall(true) : navigate('/dashboard/settings'))}
+                                        className="w-full py-2 px-3 bg-brand-green hover:bg-brand-greenHover text-brand-dark text-xs font-extrabold tracking-wider uppercase rounded-xl flex items-center justify-center shadow-xs transition-all active:scale-[0.98]"
+                                    >
+                                        <span>{isPaid ? 'MANAGE PLAN' : 'UPGRADE'}</span>
+                                    </button>
+
+                                    {/* Profile Section Divider */}
+                                    <div className="h-[1px] w-full bg-gray-200/80 pt-0.5" />
+
+                                    {/* Profile Row */}
+                                    <div className="flex items-center justify-between gap-2 pt-0.5">
+                                        <div
+                                            onClick={() => navigate('/dashboard/settings')}
+                                            className="flex items-center gap-2.5 min-w-0 cursor-pointer flex-1 group"
+                                            title="View Profile Settings"
+                                        >
+                                            {userProfile?.avatar_url ? (
+                                                <img
+                                                    src={userProfile.avatar_url}
+                                                    alt={displayName}
+                                                    className="w-8 h-8 rounded-full object-cover shrink-0 border border-gray-200"
+                                                />
+                                            ) : (
+                                                <div className="w-8 h-8 rounded-full bg-brand-green/25 text-brand-dark border border-brand-green/40 flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-brand-green/40 transition-colors">
+                                                    {initials}
+                                                </div>
+                                            )}
+                                            <div className="min-w-0 flex-1">
+                                                <div className="text-xs font-bold text-brand-dark truncate leading-tight group-hover:text-emerald-700 transition-colors">
+                                                    {displayName}
+                                                </div>
+                                                <div className="text-[11px] text-gray-500 truncate leading-tight mt-0.5">
+                                                    {displayEmail}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Quick Sign Out */}
+                                        <button
+                                            onClick={() => {
+                                                signOut();
+                                                navigate('/');
+                                            }}
+                                            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0"
+                                            title="Sign Out"
+                                        >
+                                            <LogOut size={15} />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })()}
                 </aside>
             )}
 
@@ -714,9 +857,10 @@ export default function Dashboard() {
                 {!isEditorRoute && (
                     <button
                         onClick={() => setIsMobileMenuOpen(true)}
-                        className="md:hidden fixed top-4 left-4 z-30 p-2 bg-brand-dark text-white rounded-lg shadow-lg hover:bg-brand-dark/90 transition-colors"
+                        className="md:hidden fixed top-4 left-4 z-30 p-2.5 bg-white text-gray-700 border border-gray-200 rounded-xl shadow-md hover:bg-gray-50 transition-colors"
+                        title="Open navigation menu"
                     >
-                        <Menu size={24} />
+                        <Menu size={20} />
                     </button>
                 )}
                 <Routes>
@@ -1434,7 +1578,10 @@ interface NavItemProps {
 
 function NavItem({ icon, label, to, collapsed, onClick }: NavItemProps) {
     const navigate = useNavigate();
-    const isActive = window.location.pathname === to;
+    const location = useLocation();
+    const isActive = to === '/dashboard'
+        ? location.pathname === '/dashboard' || location.pathname === '/dashboard/'
+        : location.pathname.startsWith(to);
 
     const handleClick = () => {
         navigate(to);
@@ -1444,12 +1591,17 @@ function NavItem({ icon, label, to, collapsed, onClick }: NavItemProps) {
     return (
         <button
             onClick={handleClick}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive ? 'bg-brand-green text-brand-dark' : 'hover:bg-white/10'
-                }`}
+            className={`w-full group flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 text-sm ${
+                isActive
+                    ? 'bg-gray-100 text-gray-900 font-bold shadow-2xs'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 font-medium'
+            } ${collapsed ? 'justify-center px-2' : ''}`}
             title={collapsed ? label : undefined}
         >
-            {icon}
-            {!collapsed && <span className="font-medium">{label}</span>}
+            <span className={`shrink-0 transition-colors ${isActive ? 'text-gray-900' : 'text-gray-500 group-hover:text-gray-900'}`}>
+                {icon}
+            </span>
+            {!collapsed && <span className="truncate">{label}</span>}
         </button>
     );
 }

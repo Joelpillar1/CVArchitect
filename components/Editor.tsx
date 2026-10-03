@@ -85,7 +85,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
   const [coverLetterContent, setCoverLetterContent] = useState<string>('');
   const [isPrintingCoverLetter, setIsPrintingCoverLetter] = useState(false);
   const [zoomState, setZoomStateInternal] = useState(() => {
-    return embedded ? 1 : loadFromStorage<number>('editor_zoom', 1);
+    return embedded ? 1.2 : loadFromStorage<number>('editor_zoom', 1.2);
   });
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -243,7 +243,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
 
   const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.1, 1.5));
   const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.1, 0.3));
-  const handleResetZoom = () => setZoom(1);
+  const handleResetZoom = () => setZoom(1.2);
 
   const [isLeftSidebarOpenState, setIsLeftSidebarOpenState] = useState(() => {
     return embedded ? true : loadFromStorage<boolean>('editor_isLeftSidebarOpen', true);
@@ -323,7 +323,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
 
     setIsDownloading(true);
     try {
-      await exportResumeToDocx(data);
+      await exportResumeToDocx(data, undefined, template);
     } catch (error) {
       console.error('Error generating Word document:', error);
       alert(`Word export failed: ${error instanceof Error ? error.message : String(error)}`);
@@ -509,7 +509,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
               type="button"
               onClick={handleResetZoom}
               className="px-1.5 py-0.5 font-mono font-bold text-[11px] hover:bg-white rounded transition-colors text-neutral-700 cursor-pointer"
-              title="Reset Zoom (100%)"
+              title="Reset Zoom (120%)"
             >
               {Math.round(zoom * 100)}%
             </button>

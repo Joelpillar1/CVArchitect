@@ -15,6 +15,7 @@ import {
 import { Job } from '../../types/job';
 import { ResumeData } from '../../types';
 import { formatSalary, formatPostedDate } from '../../utils/jobMatching';
+import { getJobPostingUrl } from '../../utils/jobPostingUrl';
 
 interface JobDetailsModalProps {
   job: Job | null;
@@ -53,16 +54,19 @@ export default function JobDetailsModal({
 
   if (!isOpen || !job) return null;
 
+  // Exact posting page — the same target the card uses, so the two never disagree.
+  const postingUrl = getJobPostingUrl(job);
+
   const handleCopyLink = () => {
-    const shareUrl = job.applyUrl || job.sourceUrl || window.location.href;
+    const shareUrl = postingUrl || window.location.href;
     navigator.clipboard.writeText(shareUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
   const handleApply = () => {
-    if (job.applyUrl || job.sourceUrl) {
-      window.open(job.applyUrl || job.sourceUrl, '_blank', 'noopener,noreferrer');
+    if (postingUrl) {
+      window.open(postingUrl, '_blank', 'noopener,noreferrer');
     }
     setApplied(true);
   };
@@ -101,15 +105,15 @@ export default function JobDetailsModal({
               )}
               <span className="font-semibold text-neutral-900 text-sm">{job.company}</span>
               
-              {(job.companyWebsiteUrl || job.sourceUrl) && (
+              {postingUrl && (
                 <a
-                  href={job.companyWebsiteUrl || job.sourceUrl}
+                  href={postingUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
-                  title={`Visit ${job.company} careers page`}
+                  title={`View this role on ${job.company}'s careers page`}
                 >
-                  <span>Company page</span>
+                  <span>View on company careers page</span>
                   <ExternalLink size={11} className="shrink-0 text-neutral-400" />
                 </a>
               )}
@@ -137,7 +141,7 @@ export default function JobDetailsModal({
 
               <span className="flex items-center gap-1">
                 <Clock size={13} className="text-neutral-400 shrink-0" />
-                <span>{formatPostedDate(job.postedAt) || job.postedDate}</span>
+                <span>{formatPostedDate(job.postedAt ?? job.firstSeenAt) || job.postedDate}</span>
               </span>
             </div>
           </div>

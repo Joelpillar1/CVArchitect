@@ -78,6 +78,36 @@ export interface JobFeedResult {
 
 export const DEFAULT_PAGE_SIZE = 60;
 
+/**
+ * Locally bundled feed, used only when Supabase is unreachable or the `jobs` table has not
+ * been created yet.
+ *
+ * The career-page data is imported **dynamically** on purpose: it is generated from ~60
+ * employers and is several megabytes, so a static import would pull every posting into the
+ * main bundle for users whose request will be served by Supabase anyway. Loading it lazily
+ * keeps that cost on the fallback path only.
+ */
+let bundledJobsCache: Job[] | null = null;
+async function loadBundledJobs(): Promise<Job[]> {
+  if (bundledJobsCache) return bundledJobsCache;
+
+  let careerJobs: Job[] = [];
+  try {
+    const mod = await import('../data/careerJobs');
+    careerJobs = mod.CAREER_JOBS;
+  } catch (err) {
+    console.warn('Bundled career-page jobs unavailable:', err);
+  }
+
+  // Admin-curated postings still take precedence over the shipped fixtures, preserving the
+  // previous fallback behaviour while the fetched career jobs are always included.
+  const adminJobs = loadLocalAdminJobs().filter((j) => j.isActive !== false);
+  const fixtures = adminJobs.length > 0 ? adminJobs : MOCK_JOBS;
+
+  bundledJobsCache = [...careerJobs, ...fixtures];
+  return bundledJobsCache;
+}
+
 /** PostgREST returns `jsonb` columns as arrays already; guard against nulls. */
 function asArray(value: unknown): string[] {
   return Array.isArray(value) ? (value.filter((v) => typeof v === 'string') as string[]) : [];
@@ -216,15 +246,16 @@ export async function fetchJobFeed(query: JobFeedQuery = {}): Promise<JobFeedRes
     console.warn('Supabase query failed, falling back to scraped company jobs data:', err);
   }
 
-  // Fallback to admin-managed jobs and live career jobs with dynamic live timestamps
+  // Fallback to the bundled feed (fetched career jobs + admin-managed / fixture jobs).
   const now = new Date();
-  const adminJobs = loadLocalAdminJobs().filter(j => j.isActive !== false);
-  const baseJobs = adminJobs.length > 0 ? adminJobs : MOCK_JOBS;
+  const baseJobs = await loadBundledJobs();
 
-  let filtered = baseJobs.map((j, index) => {
-    // If postedAt is missing, generate a realistic publication timestamp distributed across past days (1 to 14 days ago)
-    const dayOffset = ((index % 14) + 1) * 0.8;
-    const postedAt = j.postedAt || new Date(now.getTime() - dayOffset * 86400000).toISOString();
+  // No fabricated timestamps: a job without postedAt falls back to its real first-seen
+  // date, and to null when neither exists — formatPostedDate then says "Recently posted"
+  // rather than inventing a relative date that resets on every load and never ages past
+  // "Today".
+  let filtered = baseJobs.map((j) => {
+    const postedAt = j.postedAt || j.firstSeenAt || null;
     return {
       ...j,
       postedAt,
@@ -324,13 +355,14 @@ export async function fetchJobFeedStats(): Promise<JobFeedStats> {
     console.warn('Failed to load stats from Supabase, using local fallback:', err);
   }
 
-  // Local fallback stats from scraped live data
-  const companiesSet = new Set(MOCK_JOBS.map((j) => j.company));
-  const remoteCount = MOCK_JOBS.filter((j) => j.workplaceType === 'Remote').length;
-  const salaryCount = MOCK_JOBS.filter((j) => j.salary && j.salary.max > 0).length;
+  // Local fallback stats from the bundled feed.
+  const jobs = await loadBundledJobs();
+  const companiesSet = new Set(jobs.map((j) => j.company));
+  const remoteCount = jobs.filter((j) => j.workplaceType === 'Remote').length;
+  const salaryCount = jobs.filter((j) => j.salary && j.salary.max > 0).length;
 
   return {
-    total: MOCK_JOBS.length,
+    total: jobs.length,
     remote: remoteCount,
     disclosedSalary: salaryCount,
     companies: companiesSet.size,
@@ -355,6 +387,7 @@ export async function fetchJobCompanies(): Promise<string[]> {
     // fallback
   }
 
-  const unique = new Set(MOCK_JOBS.map((row) => row.company));
+  const jobs = await loadBundledJobs();
+  const unique = new Set(jobs.map((row) => row.company));
   return [...unique].filter(Boolean).sort();
 }

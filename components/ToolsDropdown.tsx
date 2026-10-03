@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 export const FREE_TOOLS = [
     {
         label: 'Live Tech Jobs Feed',
-        link: '/#jobs',
+        link: '/jobs',
         description: 'Explore verified tech roles with instant 1-click AI resume matching.',
         icon: Briefcase
     },

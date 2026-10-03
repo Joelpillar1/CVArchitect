@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   TrendingUp,
   DollarSign,
@@ -106,6 +106,7 @@ export default function JobsPage({
   onSelectResumeForTailoring,
 }: JobsPageProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { showToast } = useToast();
 
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -127,6 +128,29 @@ export default function JobsPage({
 
   /** Guards against a slow earlier request overwriting a newer result. */
   const requestIdRef = useRef(0);
+
+  // Auto-open job details modal if job context is passed via route state or session storage
+  useEffect(() => {
+    const stateJob = (location.state as any)?.selectedJob as Job | undefined;
+    if (stateJob && stateJob.id) {
+      setSelectedJob(stateJob);
+      try {
+        sessionStorage.removeItem('cv_pending_selected_job');
+      } catch (_) {}
+      return;
+    }
+
+    try {
+      const stored = sessionStorage.getItem('cv_pending_selected_job');
+      if (stored) {
+        const parsed = JSON.parse(stored) as Job;
+        if (parsed && parsed.id) {
+          setSelectedJob(parsed);
+          sessionStorage.removeItem('cv_pending_selected_job');
+        }
+      }
+    } catch (_) {}
+  }, [location.state]);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(filters.search), SEARCH_DEBOUNCE_MS);

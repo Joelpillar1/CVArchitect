@@ -414,8 +414,9 @@ function formatRecentPostedDate(rawDateStr, index) {
       if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
     }
   }
-  const recentDays = (index % 4) + 1;
-  return `${recentDays}d ago`;
+  // No real publication date — say so. Fabricating "Nd ago" here baked fake ages into
+  // data/mockJobs.ts that the UI then showed as "Today" regardless of fetch time.
+  return 'Recently posted';
 }
 
 async function fetchGreenhouse(company) {
@@ -438,7 +439,8 @@ async function fetchGreenhouse(company) {
       };
 
       const directUrl = getDirectCompanyCareerUrl(company, job);
-      const postedAt = job.first_published || job.updated_at || new Date(Date.now() - ((index % 10) * 0.7 * 86400000)).toISOString();
+      // null when the board publishes no date — never an invented timestamp.
+      const postedAt = job.first_published || job.updated_at || null;
       const postedDate = formatRecentPostedDate(postedAt, index);
 
       return {
@@ -500,7 +502,8 @@ async function fetchAshby(company) {
       }
 
       const directUrl = getDirectCompanyCareerUrl(company, job);
-      const postedAt = job.publishedAt || job.createdAt || new Date(Date.now() - ((index % 10) * 0.7 * 86400000)).toISOString();
+      // null when the board publishes no date — never an invented timestamp.
+      const postedAt = job.publishedAt || job.createdAt || null;
       const postedDate = formatRecentPostedDate(postedAt, index);
 
       return {

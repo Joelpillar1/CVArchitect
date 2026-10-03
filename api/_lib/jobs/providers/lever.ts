@@ -134,8 +134,10 @@ function normalizeLeverJob(
     requirements: dedupe(requirements).slice(0, 12),
     benefits: dedupe(benefits).slice(0, 10),
     skills: extractSkills(title, description),
-    applyUrl: posting.applyUrl || posting.hostedUrl || `https://jobs.lever.co/${slug}`,
-    sourceUrl: posting.hostedUrl || posting.applyUrl || `https://jobs.lever.co/${slug}`,
+    // Prefer the canonical hosted posting page; rebuild it from the token + id when the
+    // payload omits it, instead of landing users on the board root.
+    applyUrl: posting.applyUrl || posting.hostedUrl || `https://jobs.lever.co/${slug}/${externalId}`,
+    sourceUrl: posting.hostedUrl || `https://jobs.lever.co/${slug}/${externalId}`,
     postedAt: toIsoString(posting.createdAt ?? null),
     raw: posting,
   };

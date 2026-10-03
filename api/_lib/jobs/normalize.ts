@@ -455,6 +455,9 @@ export function toIsoString(value: unknown): string | null {
  * Humanize a publication date for the card footer (`"3 days ago"`).
  *
  * Mirrors the wording the mock data used so the existing card UI needed no changes.
+ * Kept in lockstep with `utils/jobMatching.ts#formatPostedDate` (the client-side twin):
+ * calendar-day "Today", and future-beyond-skew timestamps report as unknown rather than
+ * pinning "Today" forever.
  */
 export function formatPostedDate(iso: string | null, now: Date = new Date()): string {
   if (!iso) return 'Recently posted';
@@ -462,9 +465,18 @@ export function formatPostedDate(iso: string | null, now: Date = new Date()): st
   if (Number.isNaN(posted.getTime())) return 'Recently posted';
 
   const diffMs = now.getTime() - posted.getTime();
-  if (diffMs < 86_400_000) return 'Today';
 
-  const days = Math.floor(diffMs / 86_400_000);
+  // More than a day in the future is bad source data (clock skew, a provider writing
+  // "now"); "Today" would stick forever, so report the unknown label instead.
+  if (diffMs < -86_400_000) return 'Recently posted';
+
+  // Calendar-day "Today", not a rolling 24h window — see utils/jobMatching.ts, which
+  // renders the same strings on the client. Round (not floor) absorbs DST's 23/25h days.
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const startOfPostedDay = new Date(posted.getFullYear(), posted.getMonth(), posted.getDate()).getTime();
+  const days = Math.round((startOfToday - startOfPostedDay) / 86_400_000);
+
+  if (days <= 0) return 'Today';
   if (days === 1) return '1 day ago';
   if (days < 7) return `${days} days ago`;
 

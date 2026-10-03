@@ -188,12 +188,23 @@ export function formatPostedDate(postedAt?: string | null, now: Date = new Date(
 
   const diffMs = now.getTime() - posted.getTime();
 
-  // If clock skew or posted within the past 24 hours
-  if (diffMs < 86_400_000) {
-    return 'Today';
+  // Bad source data: a timestamp more than a day in the future (clock skew, date-only
+  // strings parsed as UTC midnight, a provider writing "now"). Reporting it as "Today"
+  // would pin it there indefinitely, so fall back to the honest unknown label.
+  if (diffMs < -86_400_000) {
+    return 'Recently posted';
   }
 
-  const days = Math.floor(diffMs / 86_400_000);
+  // "Today" is a calendar-day comparison, not a rolling 24-hour window: a posting from
+  // 10 PM yesterday must not read as "Today" the next morning. Sub-day future skew
+  // (tolerated above) clamps to day 0 via the <= 0 guard instead of a negative count.
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const startOfPostedDay = new Date(posted.getFullYear(), posted.getMonth(), posted.getDate()).getTime();
+  const days = Math.round((startOfToday - startOfPostedDay) / 86_400_000);
+
+  if (days <= 0) {
+    return 'Today';
+  }
   if (days === 1) {
     return '1 day ago';
   }

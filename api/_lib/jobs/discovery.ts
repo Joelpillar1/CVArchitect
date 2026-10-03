@@ -144,7 +144,12 @@ export async function probeProviderToken(
     if (!response.ok) return { ok: false };
 
     const payload = await response.json().catch(() => null);
-    if (!payload || !Array.isArray((payload as { jobs?: unknown[] }).jobs)) return { ok: false };
+    const jobs = (payload as { jobs?: unknown[] } | null)?.jobs;
+    if (!Array.isArray(jobs)) return { ok: false };
+    // A board that exists but lists nothing is almost always the wrong token (e.g. a stale
+    // Greenhouse board whose postings moved elsewhere). Rejecting it here lets discovery keep
+    // probing candidate tokens instead of pinning an empty board into the seed list.
+    if (jobs.length === 0) return { ok: false };
     return { ok: true };
   } catch {
     return { ok: false };

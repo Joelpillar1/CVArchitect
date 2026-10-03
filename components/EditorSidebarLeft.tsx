@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { User, Briefcase, GraduationCap, Award, Target, Layout as LayoutIcon, ChevronDown, ChevronRight, ChevronUp, Plus, Check, Users, Hash, Sparkles, FileText, Info, GripVertical, BarChart3, Lock, Crown, Layers, BookOpen, PanelLeftClose } from 'lucide-react';
+import { User, Briefcase, GraduationCap, Award, Target, Layout as LayoutIcon, ChevronDown, ChevronRight, ChevronUp, Plus, Check, Users, Hash, Sparkles, FileText, Info, GripVertical, BarChart3, Lock, Crown, Layers, BookOpen, PanelLeftClose, ArrowRight, Eye } from 'lucide-react';
 import { ResumeData, TemplateType } from '../types';
 import { UserSubscription } from '../types/pricing';
 import { SubscriptionManager } from '../utils/subscriptionManager';
 import { canAccessTemplate, FREE_TEMPLATES } from '../utils/pricingConfig';
 import { TEMPLATE_CONFIG } from '../utils/templateConfig';
+import { getTemplatePreviewData } from '../utils/sampleResumeData';
 import { ResumeSectionType } from '../types/resumeSections';
 import { SECTION_REGISTRY, createDefaultSectionOrder } from '../utils/sectionRegistry';
 import PersonalInfoForm from './PersonalInfoForm';
@@ -561,15 +562,15 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                 )}
 
                 {view === 'templates' && (
-                    <div className="flex flex-col h-full bg-brand-bg relative">
+                    <div className="flex flex-col h-full bg-[#f8fafc] relative">
                         {/* Categories List (Sticky) */}
-                        <div className="px-4 py-3 border-b border-brand-border bg-white sticky top-0 z-20">
+                        <div className="px-4 py-3 border-b border-brand-border bg-white sticky top-0 z-20 shadow-2xs">
                             <div className="flex overflow-x-auto gap-2 no-scrollbar pb-1 -mb-1 items-center">
                                 {categories.map(cat => (
                                     <button
                                         key={cat}
                                         onClick={() => setSelectedCategory(cat)}
-                                        className={`px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all whitespace-nowrap ${selectedCategory === cat
+                                        className={`px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all whitespace-nowrap cursor-pointer ${selectedCategory === cat
                                             ? 'bg-brand-dark text-white shadow-sm'
                                             : 'bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200'
                                             }`}
@@ -580,67 +581,93 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                             </div>
                         </div>
 
-                        {/* Templates Grid */}
-                        <div className="p-4 grid grid-cols-2 gap-3 pb-8">
-                            {filteredTemplates.map((t) => (
-                                <button
-                                    key={t.id}
-                                    onClick={() => {
-                                        onTemplateChange(t.id);
-                                    }}
-                                    className={`group flex flex-col items-center bg-white rounded-xl shadow-sm border transition-all duration-300 overflow-hidden text-left ${currentTemplate === t.id
-                                        ? 'border-brand-green ring-1 ring-brand-green/20'
-                                        : 'border-gray-200 hover:border-brand-green/50 hover:shadow-md'
+                        {/* Templates Grid with identical card structure to Dashboard Templates */}
+                        <div className="p-3.5 grid grid-cols-1 sm:grid-cols-2 gap-3.5 pb-12">
+                            {filteredTemplates.map((template) => {
+                                const isFree = FREE_TEMPLATES.includes(template.id);
+                                const isSelected = currentTemplate === template.id;
+
+                                return (
+                                    <div
+                                        key={template.id}
+                                        className={`group bg-[#EEF1F4] rounded-[24px] border p-3 sm:p-3.5 hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col ${
+                                            isSelected
+                                                ? 'border-brand-green ring-2 ring-brand-green/30 shadow-md bg-[#edf5f0]'
+                                                : 'border-gray-200/80 hover:border-gray-300'
                                         }`}
-                                >
-                                    {/* Template Preview Area */}
-                                    <div className="relative w-full h-40 bg-gray-50 overflow-hidden border-b border-gray-100">
-                                        <div className="absolute inset-x-0 top-0 flex justify-center py-2">
-                                            <div className="origin-top transform scale-[0.14] pointer-events-none select-none">
-                                                <ResumePreview data={data} template={t.id} />
+                                        onClick={() => {
+                                            onTemplateChange(template.id);
+                                        }}
+                                    >
+                                        {/* Top Card Header */}
+                                        <div className="flex items-center justify-between gap-2 mb-2.5">
+                                            {/* Category / Name Pill */}
+                                            <div
+                                                className={`text-xs font-semibold px-3 py-1 rounded-full shadow-2xs tracking-tight truncate max-w-[140px] sm:max-w-[160px] ${
+                                                    isSelected
+                                                        ? 'bg-brand-green text-brand-dark font-bold'
+                                                        : 'bg-[#6F7682] text-white'
+                                                }`}
+                                            >
+                                                {template.name}
+                                            </div>
+
+                                            {/* Right Status / Lock / Check */}
+                                            {isSelected ? (
+                                                <div
+                                                    className="w-6 h-6 rounded-full bg-brand-green text-brand-dark flex items-center justify-center shadow-2xs shrink-0"
+                                                    title="Active Template"
+                                                >
+                                                    <Check size={12} className="stroke-[3]" />
+                                                </div>
+                                            ) : !isFree ? (
+                                                <div
+                                                    className="w-6 h-6 rounded-full bg-[#6F7682] text-white flex items-center justify-center shadow-2xs shrink-0"
+                                                    title="Pro Template"
+                                                >
+                                                    <Lock size={11} className="stroke-[2.5]" />
+                                                </div>
+                                            ) : null}
+                                        </div>
+
+                                        {/* Inner White Preview Canvas */}
+                                        <div className="relative w-full aspect-[4/3] bg-white rounded-xl border border-gray-200/70 overflow-hidden shadow-2xs flex items-center justify-center">
+                                            {/* Scaled Resume Preview */}
+                                            <div className="absolute inset-0 flex items-start justify-center pt-2 overflow-hidden pointer-events-none select-none">
+                                                <div className="w-[210mm] origin-top transform scale-[0.27] sm:scale-[0.29] pointer-events-none select-none shadow-xs rounded-xs bg-white">
+                                                    <ResumePreview
+                                                        data={data?.fullName ? data : getTemplatePreviewData(template.id)}
+                                                        template={template.id}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            {/* Hover Overlay */}
+                                            <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-brand-dark/25 backdrop-blur-[2px] p-2.5">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        onTemplateChange(template.id);
+                                                    }}
+                                                    className="w-full max-w-[140px] bg-brand-green hover:bg-brand-greenHover text-brand-dark px-3 py-1.5 rounded-xl font-bold shadow-lg transition-all flex items-center justify-center gap-1.5 text-xs cursor-pointer"
+                                                >
+                                                    {isSelected ? 'Active' : 'Apply'} <ArrowRight size={13} />
+                                                </button>
                                             </div>
                                         </div>
 
-                                        {/* Hover Overlay */}
-                                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent pt-8 pb-3 px-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <span className="text-[10px] font-bold text-white text-center block">Use Template</span>
-                                        </div>
-
-                                        {/* Active Indicator */}
-                                        {currentTemplate === t.id && (
-                                            <div className="absolute top-2 right-2 w-5 h-5 bg-brand-green rounded-full flex items-center justify-center shadow-md z-10">
-                                                <Check size={10} className="text-white" />
-                                            </div>
-                                        )}
-
-                                        {/* Status Indicator */}
-                                        {FREE_TEMPLATES.includes(t.id) ? (
-                                            <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-brand-green/90 rounded text-[9px] font-bold tracking-wider text-white flex items-center shadow-sm z-10">
-                                                FREE
-                                            </div>
-                                        ) : !canAccessTemplate(userSubscription.planId, t.id) && (
-                                            <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-brand-green/90 rounded text-[9px] font-bold tracking-wider text-white flex items-center gap-1 shadow-sm z-10">
-                                                <Crown size={9} className="text-[#1a1a2e] fill-current" /> PRO
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Template Footer Info (Smaller Card version) */}
-                                    <div className="w-full p-2.5 flex items-center gap-2 bg-white z-20">
-                                        <div className="w-7 h-7 rounded bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
-                                            {React.cloneElement(t.icon as React.ReactElement, { size: 14 })}
-                                        </div>
-                                        <div className="flex flex-col overflow-hidden">
-                                            <h3 className="text-[11px] font-bold text-gray-900 truncate tracking-tight leading-none mb-0.5">
-                                                {t.name}
-                                            </h3>
-                                            <span className="text-[9px] text-gray-500 truncate mt-0.5 leading-none">
-                                                {t.subtitle}
+                                        {/* Bottom Subtitle Line */}
+                                        <div className="mt-2 px-1 flex items-center justify-between text-xs text-gray-500">
+                                            <span className="font-medium truncate text-[11px] sm:text-xs">
+                                                {template.subtitle}
+                                            </span>
+                                            <span className="text-[10px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-wider shrink-0 ml-2">
+                                                {isFree ? 'Free' : 'Pro'}
                                             </span>
                                         </div>
                                     </div>
-                                </button>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 )}

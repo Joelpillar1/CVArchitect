@@ -105,7 +105,11 @@ function normalizeGreenhouseJob(
 
   const { responsibilities, requirements, benefits } = bucketSections(splitHtmlSections(rawContent));
   const { salary, summary } = salaryFromMetadata(job.metadata);
-  const postedAt = toIsoString(job.first_published || job.updated_at || null);
+  // `updated_at` moves whenever the posting is edited or the board re-syncs, so using it
+  // as a publication date re-aged old postings to "Today" on every sync. Without
+  // `first_published` we report no date rather than a wrong one — the UI falls back to
+  // first-seen, which is a date we do know.
+  const postedAt = toIsoString(job.first_published || null);
 
   return {
     id: buildJobId(GREENHOUSE_PROVIDER, externalId),
@@ -132,8 +136,10 @@ function normalizeGreenhouseJob(
     requirements,
     benefits,
     skills: extractSkills(title, description),
-    applyUrl: job.absolute_url || `https://job-boards.greenhouse.io/${slug}`,
-    sourceUrl: job.absolute_url || `https://job-boards.greenhouse.io/${slug}`,
+    // `absolute_url` is the canonical posting page. If a board omits it we reconstruct the
+    // same URL from the board token + job id, so the link never degrades to the board root.
+    applyUrl: job.absolute_url || `https://job-boards.greenhouse.io/${slug}/jobs/${externalId}`,
+    sourceUrl: job.absolute_url || `https://job-boards.greenhouse.io/${slug}/jobs/${externalId}`,
     postedAt,
     raw: job,
   };

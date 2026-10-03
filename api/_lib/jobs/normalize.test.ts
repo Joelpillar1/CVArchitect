@@ -504,3 +504,53 @@ describe('ashby adapter', () => {
     expect(job.location).toBe('San Francisco, New York');
   });
 });
+
+/**
+ * The card and details modal link users to the *exact posting* on the employer's career
+ * page. When an ATS payload omits the per-posting URL, the adapter must rebuild that URL
+ * from the board token + job id — never degrade to the board root, which would dump the
+ * user on a listing page instead of the role they clicked.
+ */
+describe('exact posting links', () => {
+  it('rebuilds an Ashby posting URL from the token and job id', () => {
+    const [job] = normalizeAshbyJobs(
+      { jobs: [{ id: 'ebb03b3f-uuid', title: 'Backend Engineer' }] },
+      { name: 'Abridge', domain: 'abridge.com' },
+      'abridge',
+    );
+    expect(job.sourceUrl).toBe('https://jobs.ashbyhq.com/abridge/ebb03b3f-uuid');
+    expect(job.applyUrl).toBe('https://jobs.ashbyhq.com/abridge/ebb03b3f-uuid');
+  });
+
+  it('prefers the ATS-provided Ashby URL when present', () => {
+    const [job] = normalizeAshbyJobs(
+      {
+        jobs: [
+          { id: 'x', title: 'Designer', jobUrl: 'https://jobs.ashbyhq.com/abridge/x', applyUrl: 'https://jobs.ashbyhq.com/abridge/x/application' },
+        ],
+      },
+      { name: 'Abridge', domain: 'abridge.com' },
+      'abridge',
+    );
+    expect(job.sourceUrl).toBe('https://jobs.ashbyhq.com/abridge/x');
+  });
+
+  it('rebuilds a Greenhouse posting URL from the board token and job id', () => {
+    const [job] = normalizeGreenhouseJobs(
+      { jobs: [{ id: 8143930, title: 'Data Engineer', location: { name: 'Remote' } }] },
+      { name: 'Monzo', domain: 'monzo.com' },
+      'monzo',
+    );
+    expect(job.sourceUrl).toBe('https://job-boards.greenhouse.io/monzo/jobs/8143930');
+    expect(job.applyUrl).toBe('https://job-boards.greenhouse.io/monzo/jobs/8143930');
+  });
+
+  it('rebuilds a Lever posting URL from the token and posting id', () => {
+    const [job] = normalizeLeverJobs(
+      [{ id: 'abc-123', text: 'Platform Engineer', categories: { location: 'London' } }],
+      { name: 'Acme', domain: 'acme.com' },
+      'acme',
+    );
+    expect(job.sourceUrl).toBe('https://jobs.lever.co/acme/abc-123');
+  });
+});

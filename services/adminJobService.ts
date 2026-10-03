@@ -76,10 +76,12 @@ export function loadLocalAdminJobs(): Job[] {
   const deletedSet = new Set(overrides.deletedJobIds);
   const scrapedJobs: Job[] = MOCK_JOBS
     .filter(j => !deletedSet.has(j.id))
-    .map((j, index) => {
+    .map((j) => {
       const update = overrides.updatedJobs[j.id];
-      const dayOffset = ((index % 14) + 1) * 0.8;
-      const postedAt = j.postedAt || new Date(now.getTime() - dayOffset * 86400000).toISOString();
+      // No fabricated timestamps: fall back to the job's real first-seen date, else null
+      // so formatPostedDate reports "Recently posted" instead of a synthetic offset that
+      // resets to "Today" on every load.
+      const postedAt = j.postedAt || j.firstSeenAt || null;
 
       let sourceProvider: Job['sourceProvider'] = j.sourceProvider;
       if (!sourceProvider) {

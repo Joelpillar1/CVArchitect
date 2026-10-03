@@ -88,6 +88,7 @@ export default function PublicFooter() {
         {
             title: 'Resources',
             links: [
+                { label: 'Tech Job Board', href: '/jobs' },
                 { label: 'Pricing', href: '/pricing' },
                 { label: 'Career Blog', href: '/blog' },
                 { label: 'Support Center', href: '/support' },

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2, Building2, MapPin, DollarSign, Sparkles, Globe, Link as LinkIcon, Check } from 'lucide-react';
 import { Job, Department, ExperienceLevel, JobType, WorkplaceType } from '../../types/job';
+import { formatPostedDate } from '../../utils/jobMatching';
 
 interface AdminJobModalProps {
   isOpen: boolean;
@@ -175,6 +176,10 @@ export default function AdminJobModal({
     setSaving(true);
     setError(null);
 
+    // A new job is posted now; an edit keeps the original postedAt. postedDate is always
+    // derived from postedAt — never a hardcoded 'Today' that goes stale the next day.
+    const postedAt = jobToEdit?.postedAt || new Date().toISOString();
+
     const payload: Omit<Job, 'id'> | Job = {
       ...(jobToEdit ? { id: jobToEdit.id } : {}),
       title: title.trim(),
@@ -200,8 +205,8 @@ export default function AdminJobModal({
       applyUrl: applyUrl.trim() || undefined,
       sourceUrl: companyWebsiteUrl.trim() || applyUrl.trim() || undefined,
       isActive,
-      postedAt: jobToEdit?.postedAt || new Date().toISOString(),
-      postedDate: jobToEdit?.postedDate || 'Today',
+      postedAt,
+      postedDate: formatPostedDate(postedAt),
       sourceProvider: jobToEdit?.sourceProvider || 'manual',
     };
 

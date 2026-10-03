@@ -168,83 +168,103 @@ export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, 
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <div onClick={onCreateNew} className="group border-2 border-dashed border-gray-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-brand-green/50 hover:bg-white transition-all duration-300 min-h-[340px]">
-            <div className="w-16 h-16 rounded-full bg-brand-secondary flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-brand-green/20 transition-all duration-300">
-              <Plus className="text-gray-400 group-hover:text-brand-dark" size={28} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {/* Start Blank Card */}
+          <div
+            onClick={onCreateNew}
+            className="group bg-[#EEF1F4] rounded-[24px] border border-dashed border-gray-300 hover:border-brand-green p-3 sm:p-3.5 hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col"
+          >
+            {/* Top Card Header */}
+            <div className="flex items-center justify-between gap-2 mb-2.5">
+              <div className="bg-[#6F7682] text-white text-xs font-semibold px-3 py-1 rounded-full shadow-2xs">
+                New Resume
+              </div>
+              <div className="w-6 h-6 rounded-full bg-brand-green text-brand-dark flex items-center justify-center shadow-2xs">
+                <Plus size={13} className="stroke-[3]" />
+              </div>
             </div>
-            <h4 className="font-semibold text-brand-dark text-lg mb-2">Start Blank</h4>
-            <p className="text-sm text-gray-400 font-light">Create a masterpiece from scratch</p>
+
+            {/* Inner White Frame */}
+            <div className="relative w-full aspect-[4/3] bg-white rounded-xl border border-dashed border-gray-200 group-hover:border-brand-green/50 overflow-hidden shadow-2xs flex flex-col items-center justify-center p-4 transition-colors">
+              <div className="w-12 h-12 rounded-full bg-brand-secondary flex items-center justify-center mb-2 group-hover:scale-110 group-hover:bg-brand-green/20 transition-all duration-300">
+                <Plus className="text-gray-400 group-hover:text-brand-dark" size={24} />
+              </div>
+              <h4 className="font-bold text-brand-dark text-sm">Start Blank</h4>
+              <p className="text-[11px] text-gray-400 font-medium text-center">Create from scratch</p>
+            </div>
+
+            {/* Bottom Subtitle Line */}
+            <div className="mt-2 px-1 flex items-center justify-between text-xs text-gray-500">
+              <span className="font-medium truncate">Blank Canvas</span>
+              <span className="text-[11px] font-bold text-brand-green uppercase tracking-wider shrink-0 ml-2">Quick Start</span>
+            </div>
           </div>
 
+          {/* Recent Templates Cards */}
           {recentTemplates.map((template) => {
             const metadata = getTemplateMetadata(template.baseTemplate);
             return (
               <div
                 key={template.id}
-                className="group bg-white rounded-xl shadow-sm border border-gray-200 hover:border-brand-green hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden flex flex-col h-[340px]"
+                className="group bg-[#EEF1F4] rounded-[24px] border border-gray-200/80 p-3 sm:p-3.5 hover:border-gray-300 hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col"
                 onClick={() => onLoadTemplate(template)}
               >
-                {/* Template Preview Area - Real Render */}
-                <div className="relative flex-1 bg-gray-100 overflow-hidden w-full">
-                  {/* Scaled Resume Preview - Centered */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[210mm] origin-top transform scale-[0.45] pointer-events-none select-none">
-                    <ResumePreview data={template.data} template={template.baseTemplate} />
+                {/* Top Card Header */}
+                <div className="flex items-center justify-between gap-2 mb-2.5">
+                  {/* Name / Tag Pill */}
+                  <div className="bg-[#6F7682] text-white text-xs font-semibold px-3 py-1 rounded-full shadow-2xs tracking-tight truncate max-w-[170px]">
+                    {template.tag || metadata.name}
                   </div>
 
-                  {/* Hover Overlay */}
-                  <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-brand-dark/20 backdrop-blur-[2px]">
-                    <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-200 flex flex-col gap-2">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); onLoadTemplate(template); }}
-                        className="bg-brand-green hover:bg-brand-greenHover text-brand-dark px-5 py-2 rounded-lg font-bold shadow-xl transition-all flex items-center justify-center gap-1.5 text-sm"
-                      >
-                        <Edit size={14} /> Resume Editing
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons: Duplicate & Delete */}
-                  <div className="absolute top-2 right-2 z-20 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all">
+                  {/* Right Actions: Duplicate & Delete */}
+                  <div className="flex items-center gap-1 shrink-0">
                     {onDuplicateTemplate && (
                       <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); onDuplicateTemplate(template); }}
-                        className="bg-white/90 backdrop-blur-sm text-gray-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-brand-green hover:text-brand-dark transition-all shadow-sm cursor-pointer"
+                        className="w-6 h-6 rounded-full bg-[#6F7682]/20 text-gray-700 flex items-center justify-center hover:bg-brand-green hover:text-brand-dark transition-all shadow-2xs"
                         title="Duplicate Resume"
                       >
-                        <Copy size={13} />
+                        <Copy size={11} />
                       </button>
                     )}
                     <button
                       type="button"
                       onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(template.id); }}
-                      className="bg-white/90 backdrop-blur-sm text-gray-400 w-8 h-8 rounded-full flex items-center justify-center hover:bg-red-50 hover:text-red-600 transition-all shadow-sm cursor-pointer"
+                      className="w-6 h-6 rounded-full bg-[#6F7682]/20 text-gray-700 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-2xs"
                       title="Delete Template"
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={11} />
                     </button>
                   </div>
                 </div>
 
-                {/* Template Footer Info */}
-                <div className="h-20 px-4 flex items-center justify-between border-t border-gray-100 bg-white z-20 relative">
-                  <div className="flex items-center gap-3 overflow-hidden">
-                    {/* Logo / Icon */}
-                    <div className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
-                      {metadata.icon}
-                    </div>
-
-                    {/* Text Info */}
-                    <div className="flex flex-col overflow-hidden">
-                      <h3 className="text-sm font-bold text-gray-900 truncate pr-2">
-                        {template.tag}
-                      </h3>
-                      <span className="text-xs text-gray-500 truncate">
-                        {metadata.name}
-                      </span>
+                {/* Inner White Preview Canvas */}
+                <div className="relative w-full aspect-[4/3] bg-white rounded-xl border border-gray-200/70 overflow-hidden shadow-2xs flex items-center justify-center">
+                  {/* Scaled Resume Preview */}
+                  <div className="absolute inset-0 flex items-start justify-center pt-2 overflow-hidden pointer-events-none select-none">
+                    <div className="w-[210mm] origin-top transform scale-[0.27] sm:scale-[0.29] pointer-events-none select-none shadow-xs rounded-xs bg-white">
+                      <ResumePreview data={template.data} template={template.baseTemplate} />
                     </div>
                   </div>
+
+                  {/* Hover Overlay */}
+                  <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-brand-dark/25 backdrop-blur-[2px] p-3">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onLoadTemplate(template); }}
+                      className="bg-brand-green hover:bg-brand-greenHover text-brand-dark px-4 py-2 rounded-xl font-bold shadow-lg transition-all flex items-center justify-center gap-1.5 text-xs"
+                    >
+                      <Edit size={13} /> Resume Editing
+                    </button>
+                  </div>
+                </div>
+
+                {/* Bottom Subtitle Line */}
+                <div className="mt-2 px-1 flex items-center justify-between text-xs text-gray-500">
+                  <span className="font-medium truncate">{metadata.name}</span>
+                  <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider shrink-0 ml-2">
+                    {new Date(template.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                  </span>
                 </div>
               </div>
             );

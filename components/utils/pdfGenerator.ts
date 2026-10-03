@@ -6,8 +6,8 @@ export const generatePDF = async (data: ResumeData, template: TemplateType = 'va
   return exportResumeToPdf(data, template, filename);
 };
 
-export const generateDocx = async (data: ResumeData, filename?: string) => {
-  return exportResumeToDocx(data, filename);
+export const generateDocx = async (data: ResumeData, filename?: string, template?: TemplateType) => {
+  return exportResumeToDocx(data, filename, template);
 };
 
 export { printResumeToPdf, exportResumeToPlainText, downloadFile, exportResumeToDocx };

@@ -60,7 +60,7 @@ export default function MyTemplates({ templates, onLoadTemplate, onDeleteTemplat
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
           <div>
-            <h2 className="text-4xl font-bold text-brand-dark tracking-tight mb-3">My Templates</h2>
+            <h2 className="text-4xl font-bold text-brand-dark tracking-tight mb-3">My Resumes</h2>
             <p className="text-gray-500 text-lg font-light">
               Your personalized collection of resumes. Ready to be adapted and deployed.
             </p>
@@ -124,105 +124,94 @@ export default function MyTemplates({ templates, onLoadTemplate, onDeleteTemplat
                 return (
                   <div
                     key={template.id}
-                    className={`group bg-white rounded-xl shadow-sm border transition-all duration-300 overflow-hidden flex flex-col h-[340px] ${
+                    className={`group bg-[#EEF1F4] rounded-[24px] border transition-all duration-300 p-3 sm:p-3.5 flex flex-col ${
                       isSelectMode
                         ? isSelected
-                          ? 'border-brand-green shadow-lg ring-2 ring-brand-green/30 cursor-pointer'
-                          : 'border-gray-200 hover:border-brand-green hover:shadow-md cursor-pointer'
-                        : 'border-gray-200 hover:border-brand-green hover:shadow-xl cursor-pointer'
+                          ? 'border-brand-green shadow-md ring-2 ring-brand-green/30 cursor-pointer'
+                          : 'border-gray-200/80 hover:border-gray-300 hover:shadow-md cursor-pointer'
+                        : 'border-gray-200/80 hover:border-gray-300 hover:shadow-lg cursor-pointer'
                     }`}
                     onClick={() => {
                       if (isSelectMode) toggleSelect(template.id);
                       else onLoadTemplate(template);
                     }}
                   >
-                    {/* Template Preview Area */}
-                    <div className="relative flex-1 bg-gray-100 overflow-hidden w-full">
-                      {/* Scaled Resume Preview */}
-                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[210mm] origin-top transform scale-[0.34] pointer-events-none select-none shadow-md">
-                        <ResumePreview data={template.data} template={template.baseTemplate} />
+                    {/* Top Card Header */}
+                    <div className="flex items-center justify-between gap-2 mb-2.5">
+                      {/* Name / Tag Pill */}
+                      <div className="bg-[#6F7682] text-white text-xs font-semibold px-3 py-1 rounded-full shadow-2xs tracking-tight truncate max-w-[170px]">
+                        {template.tag || metadata.name}
                       </div>
 
-                      {/* Select Mode Overlay */}
-                      {isSelectMode && (
-                        <div
-                          className={`absolute inset-0 z-10 transition-all duration-200 ${
-                            isSelected ? 'bg-brand-green/10' : 'bg-transparent hover:bg-brand-dark/5'
-                          }`}
-                        >
-                          {/* Checkbox */}
-                          <div className="absolute top-2 left-2 z-20">
-                            <div
-                              className={`w-6 h-6 rounded-md border-2 flex items-center justify-center shadow-sm transition-all ${
-                                isSelected
-                                  ? 'bg-brand-green border-brand-green'
-                                  : 'bg-white/90 border-gray-300 backdrop-blur-sm'
-                              }`}
-                            >
-                              {isSelected && (
-                                <svg className="w-3.5 h-3.5 text-brand-dark" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                              )}
-                            </div>
+                      {/* Right Actions */}
+                      {isSelectMode ? (
+                        <div className="shrink-0">
+                          <div
+                            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shadow-2xs transition-all ${
+                              isSelected
+                                ? 'bg-brand-green border-brand-green'
+                                : 'bg-white/90 border-gray-300'
+                            }`}
+                          >
+                            {isSelected && (
+                              <svg className="w-3.5 h-3.5 text-brand-dark" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                              </svg>
+                            )}
                           </div>
                         </div>
-                      )}
-
-                      {/* Hover Overlay (non-select mode) */}
-                      {!isSelectMode && (
-                        <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-brand-dark/20 backdrop-blur-[2px]">
-                          <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-200 flex flex-col gap-2">
-                            <button
-                              onClick={(e) => { e.stopPropagation(); onLoadTemplate(template); }}
-                              className="bg-brand-green hover:bg-brand-greenHover text-brand-dark px-5 py-2 rounded-lg font-bold shadow-xl transition-all flex items-center justify-center gap-1.5 text-sm"
-                            >
-                              <Edit size={14} /> Resume Editing
-                            </button>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Action Buttons: Duplicate & Delete (non-select mode) */}
-                      {!isSelectMode && (
-                        <div className="absolute top-2 right-2 z-20 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all">
+                      ) : (
+                        <div className="flex items-center gap-1 shrink-0">
                           {onDuplicateTemplate && (
                             <button
                               type="button"
                               onClick={(e) => { e.stopPropagation(); onDuplicateTemplate(template); }}
-                              className="bg-white/90 backdrop-blur-sm text-gray-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-brand-green hover:text-brand-dark transition-all shadow-sm cursor-pointer"
+                              className="w-6 h-6 rounded-full bg-[#6F7682]/20 text-gray-700 flex items-center justify-center hover:bg-brand-green hover:text-brand-dark transition-all shadow-2xs"
                               title="Duplicate Resume"
                             >
-                              <Copy size={13} />
+                              <Copy size={11} />
                             </button>
                           )}
                           <button
                             type="button"
                             onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(template.id); }}
-                            className="bg-white/90 backdrop-blur-sm text-gray-400 w-8 h-8 rounded-full flex items-center justify-center hover:bg-red-50 hover:text-red-600 transition-all shadow-sm cursor-pointer"
+                            className="w-6 h-6 rounded-full bg-[#6F7682]/20 text-gray-700 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-2xs"
                             title="Delete Template"
                           >
-                            <Trash2 size={14} />
+                            <Trash2 size={11} />
                           </button>
                         </div>
                       )}
                     </div>
 
-                    {/* Template Footer Info */}
-                    <div className="h-20 px-4 flex items-center justify-between border-t border-gray-100 bg-white z-20 relative">
-                      <div className="flex items-center gap-3 overflow-hidden">
-                        <div className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
-                          {metadata.icon}
-                        </div>
-                        <div className="flex flex-col overflow-hidden">
-                          <h3 className="text-sm font-bold text-gray-900 truncate pr-2">
-                            {template.tag}
-                          </h3>
-                          <span className="text-xs text-gray-500 truncate">
-                            {metadata.name}
-                          </span>
+                    {/* Inner White Preview Canvas */}
+                    <div className="relative w-full aspect-[4/3] bg-white rounded-xl border border-gray-200/70 overflow-hidden shadow-2xs flex items-center justify-center">
+                      {/* Scaled Resume Preview */}
+                      <div className="absolute inset-0 flex items-start justify-center pt-2 overflow-hidden pointer-events-none select-none">
+                        <div className="w-[210mm] origin-top transform scale-[0.27] sm:scale-[0.29] pointer-events-none select-none shadow-xs rounded-xs bg-white">
+                          <ResumePreview data={template.data} template={template.baseTemplate} />
                         </div>
                       </div>
+
+                      {/* Hover Overlay (non-select mode) */}
+                      {!isSelectMode && (
+                        <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-brand-dark/25 backdrop-blur-[2px] p-3">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); onLoadTemplate(template); }}
+                            className="bg-brand-green hover:bg-brand-greenHover text-brand-dark px-4 py-2 rounded-xl font-bold shadow-lg transition-all flex items-center justify-center gap-1.5 text-xs"
+                          >
+                            <Edit size={13} /> Resume Editing
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Bottom Subtitle Line */}
+                    <div className="mt-2 px-1 flex items-center justify-between text-xs text-gray-500">
+                      <span className="font-medium truncate">{metadata.name}</span>
+                      <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider shrink-0 ml-2">
+                        {new Date(template.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                      </span>
                     </div>
                   </div>
                 );

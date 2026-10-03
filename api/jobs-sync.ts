@@ -278,11 +278,46 @@ function toJobRow(job: CompanySyncResult['jobs'][number]) {
 }
 
 /**
+ * Read the stored `posted_at` for the rows about to be upserted, keyed by id.
+ *
+ * Only non-null values are returned: a NULL row should be backfilled by the provider's
+ * date. The read is chunked because `in.(...)` URL lengths grow fast at 400 ids, and it
+ * fails open — if the read errors we log and use the provider's date (the pre-fix
+ * behaviour) rather than aborting the whole sync over a read.
+ */
+async function readStoredPostedAt(
+  supabaseAdmin: AdminClient,
+  chunk: Array<{ id: string }>,
+): Promise<Map<string, string>> {
+  const stored = new Map<string, string>();
+  const READ_CHUNK_SIZE = 100;
+
+  for (let i = 0; i < chunk.length; i += READ_CHUNK_SIZE) {
+    const ids = chunk.slice(i, i + READ_CHUNK_SIZE).map((row) => row.id);
+    const { data, error } = await supabaseAdmin.from('jobs').select('id, posted_at').in('id', ids);
+    if (error) {
+      console.warn('[jobs-sync] posted_at pre-read failed; provider dates will be used:', error.message);
+      continue;
+    }
+    for (const row of data || []) {
+      if (row.posted_at) stored.set(row.id, row.posted_at);
+    }
+  }
+
+  return stored;
+}
+
+/**
  * Write a sync run to Supabase.
  *
  * `first_seen_at` is intentionally omitted from the upsert payload: the column defaults on
  * insert and must not be overwritten on update, or "first seen" would silently become
  * "last seen" on every run.
+ *
+ * `posted_at` is written first-wins for the same reason: a provider whose date moves
+ * (Greenhouse `updated_at`, a regenerated Wise sitemap, a `new Date()` fallback) must not
+ * re-age a posting we already have a date for — otherwise every re-sync pushes old jobs
+ * back to "Today". Rows still missing a date take the provider's value (backfill).
  */
 async function persistResults(
   supabaseAdmin: AdminClient,
@@ -294,7 +329,18 @@ async function persistResults(
   let upserted = 0;
   for (let i = 0; i < rows.length; i += UPSERT_CHUNK_SIZE) {
     const chunk = rows.slice(i, i + UPSERT_CHUNK_SIZE);
-    const { error } = await supabaseAdmin.from('jobs').upsert(chunk, { onConflict: 'id' });
+
+    // First-write-wins for posted_at: keep the stored date when one exists so a moving
+    // provider date cannot re-age old postings to "Today" on every run. Every row keeps
+    // the same key set (explicit value vs provider value) so the upsert payload stays
+    // uniform for PostgREST.
+    const storedPostedAt = await readStoredPostedAt(supabaseAdmin, chunk);
+    const payload = chunk.map((row) => {
+      const stored = storedPostedAt.get(row.id);
+      return stored ? { ...row, posted_at: stored } : row;
+    });
+
+    const { error } = await supabaseAdmin.from('jobs').upsert(payload, { onConflict: 'id' });
     if (error) {
       console.error(`[jobs-sync] upsert failed for chunk @${i}:`, error.message);
       continue;

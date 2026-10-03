@@ -2075,7 +2075,8 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
     try {
       const activeData = resumeDataRef.current || resumeData;
       const activeTitle = (resumeTitleRef.current || resumeTitle || activeData.fullName || 'Resume').trim();
-      await exportResumeToDocx(activeData, activeTitle);
+      const activeTemplate = templateRef.current || template || activeData.template || 'classic';
+      await exportResumeToDocx(activeData, activeTitle, activeTemplate);
       showToast('Resume downloaded as Word (.docx) successfully!', 'success');
     } catch (e: any) {
       console.error('DOCX export error:', e);

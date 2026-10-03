@@ -6,7 +6,11 @@ import {
     Eye,
     X,
     LayoutTemplate,
-    Search
+    Search,
+    Lock,
+    Unlock,
+    Sparkles,
+    Check
 } from 'lucide-react';
 import ResumePreview from './ResumePreview';
 import { FREE_TEMPLATES } from '../utils/pricingConfig';
@@ -120,68 +124,61 @@ export default function Templates({ onSelect, data, isPublic }: TemplatesProps) 
                                 return (
                                     <div
                                         key={template.id}
-                                        className="group bg-white rounded-xl shadow-sm border border-gray-200 hover:border-brand-green hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden flex flex-col h-[340px]"
+                                        className="group bg-[#EEF1F4] rounded-[24px] border border-gray-200/80 p-3 sm:p-3.5 hover:border-gray-300 hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col"
                                         onClick={() => onSelect(template.id)}
                                     >
-                                        {/* Template Preview Area - Real Render */}
-                                        <div className="relative flex-1 bg-gray-100 overflow-hidden w-full">
+                                        {/* Top Card Header */}
+                                        <div className="flex items-center justify-between gap-2 mb-2.5">
+                                            {/* Category / Name Pill */}
+                                            <div className="bg-[#6F7682] text-white text-xs font-semibold px-3 py-1 rounded-full shadow-2xs tracking-tight truncate max-w-[170px]">
+                                                {template.name}
+                                            </div>
+
+                                            {/* Right Action / Lock Circle (Pro Only) */}
+                                            {!isPublic && !isFree && (
+                                                <div
+                                                    className="w-6 h-6 rounded-full bg-[#6F7682] text-white flex items-center justify-center shadow-2xs shrink-0"
+                                                    title="Pro Template"
+                                                >
+                                                    <Lock size={11} className="stroke-[2.5]" />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Inner White Preview Canvas */}
+                                        <div className="relative w-full aspect-[4/3] bg-white rounded-xl border border-gray-200/70 overflow-hidden shadow-2xs flex items-center justify-center">
                                             {/* Scaled Resume Preview - Centered */}
-                                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[210mm] origin-top transform scale-[0.34] pointer-events-none select-none">
-                                                <ResumePreview data={getPreviewDataForTemplate(template.id)} template={template.id} />
+                                            <div className="absolute inset-0 flex items-start justify-center pt-2 overflow-hidden pointer-events-none select-none">
+                                                <div className="w-[210mm] origin-top transform scale-[0.27] sm:scale-[0.29] pointer-events-none select-none shadow-xs rounded-xs bg-white">
+                                                    <ResumePreview data={getPreviewDataForTemplate(template.id)} template={template.id} />
+                                                </div>
                                             </div>
 
                                             {/* Hover Overlay */}
-                                            <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-brand-dark/20 backdrop-blur-[2px]">
-                                                <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-200 flex flex-col gap-2">
+                                            <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-brand-dark/25 backdrop-blur-[2px] p-3">
+                                                <div className="transform translate-y-3 group-hover:translate-y-0 transition-transform duration-200 flex flex-col gap-1.5 w-full max-w-[170px]">
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); onSelect(template.id); }}
-                                                        className="bg-brand-green hover:bg-brand-greenHover text-brand-dark px-5 py-2 rounded-lg font-bold shadow-xl transition-all flex items-center justify-center gap-1.5 text-sm"
+                                                        className="w-full bg-brand-green hover:bg-brand-greenHover text-brand-dark px-3.5 py-2 rounded-xl font-bold shadow-lg transition-all flex items-center justify-center gap-1.5 text-xs"
                                                     >
-                                                        Use Template <ArrowRight size={14} />
+                                                        Use Template <ArrowRight size={13} />
                                                     </button>
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); setPreviewTemplate(template.id); }}
-                                                        className="bg-white hover:bg-gray-50 text-brand-dark px-5 py-2 rounded-lg font-bold shadow-xl transition-all flex items-center justify-center gap-1.5 text-sm"
+                                                        className="w-full bg-white hover:bg-gray-50 text-brand-dark px-3.5 py-2 rounded-xl font-bold shadow-lg transition-all flex items-center justify-center gap-1.5 text-xs"
                                                     >
-                                                        <Eye size={14} /> Quick View
+                                                        <Eye size={13} /> Quick View
                                                     </button>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {/* Template Footer Info */}
-                                        <div className="h-20 px-4 flex items-center justify-between border-t border-gray-100 bg-white z-20 relative">
-                                            <div className="flex items-center gap-3 overflow-hidden">
-                                                {/* Logo / Icon */}
-                                                <div className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
-                                                    {template.icon}
-                                                </div>
-
-                                                {/* Text Info */}
-                                                <div className="flex flex-col overflow-hidden">
-                                                    <h3 className="text-sm font-bold text-gray-900 truncate pr-2">
-                                                        {template.name}
-                                                    </h3>
-                                                    <span className="text-xs text-gray-500 truncate">
-                                                        {template.subtitle}
-                                                    </span>
-                                                </div>
-                                            </div>
-
-                                            {/* Badge */}
-                                            {!isPublic && (
-                                                <div className="shrink-0">
-                                                    {isFree ? (
-                                                        <div className="bg-brand-green/10 text-brand-green px-2 py-1 rounded text-[10px] font-bold tracking-wider uppercase flex items-center gap-1 border border-brand-green/20">
-                                                            FREE
-                                                        </div>
-                                                    ) : (
-                                                        <div className="bg-brand-green/90 text-white px-2 py-1 rounded text-[10px] font-bold tracking-wider uppercase flex items-center gap-1 shadow-sm">
-                                                            <Crown size={10} className="text-[#1a1a2e] fill-current" /> PRO
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
+                                        {/* Bottom Subtitle Line */}
+                                        <div className="mt-2 px-1 flex items-center justify-between text-xs text-gray-500">
+                                            <span className="font-medium truncate">{template.subtitle}</span>
+                                            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider shrink-0 ml-2">
+                                                {isFree ? 'Free' : 'Pro'}
+                                            </span>
                                         </div>
                                     </div>
                                 );
