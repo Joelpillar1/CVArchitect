@@ -16,9 +16,7 @@ import {
   MapPin,
   Clock,
   ExternalLink,
-  CheckCircle,
-  Sparkles,
-  ArrowUp,
+  BadgeCheck,
   Plus,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -26,8 +24,6 @@ import { useAuth } from '../contexts/AuthContext';
 interface JobCardData {
   id: string;
   company: string;
-  verified: boolean;
-  external: boolean;
   logo: React.ReactNode;
   location: string;
   title: string;
@@ -40,32 +36,72 @@ interface JobCardData {
 const JOBS_DATA: JobCardData[] = [
   {
     id: '1',
-    company: 'Hootsuite',
-    verified: true,
-    external: true,
+    company: 'DriveWealth',
     logo: (
-      <div className="w-6 h-6 rounded-full bg-[#D62828] text-white flex items-center justify-center text-xs font-bold">
-        🦉
+      <div className="w-5.5 h-5.5 rounded-md bg-[#FFF7ED] border border-orange-200 text-[#EA580C] flex items-center justify-center text-xs font-black shrink-0">
+        W
       </div>
     ),
-    location: 'West Canada',
-    title: 'Manager, Contract Operations',
-    tags: ['Finance'],
+    location: 'Office - Chicago',
+    title: 'Program Manager',
+    tags: ['Engineering'],
     salary: 'Salary not disclosed',
     level: 'Lead / Staff',
-    posted: 'Today',
+    posted: '1 day ago',
   },
   {
     id: '2',
-    company: 'Oyster',
-    verified: true,
-    external: true,
+    company: 'ClickHouse',
     logo: (
-      <div className="w-6 h-6 rounded-full bg-black text-white flex items-center justify-center text-[10px] font-black">
+      <div className="w-5.5 h-5.5 rounded-md bg-black text-[#FACC15] flex items-center justify-center text-[11px] font-black shrink-0">
+        |||
+      </div>
+    ),
+    location: 'United States, Canada, United Kingdom, Germany, ...',
+    title: 'Database Research Scientist',
+    tags: ['Remote', 'Full-time', 'Engineering'],
+    salary: '$175k - $235k/yr',
+    posted: '1 day ago',
+  },
+  {
+    id: '3',
+    company: 'Speechmatics',
+    logo: (
+      <div className="w-5.5 h-5.5 rounded-md bg-[#F0FDF4] border border-emerald-200 text-[#16A34A] flex items-center justify-center text-xs font-black shrink-0">
         O
       </div>
     ),
-    location: 'Spain, Austria, Ireland, Portugal, Poland',
+    location: 'Cambridge, England, United Kingdom',
+    title: 'Senior Machine Learning Engineer',
+    tags: ['AI & Data'],
+    salary: 'Salary not disclosed',
+    level: 'Senior',
+    posted: '1 day ago',
+  },
+  {
+    id: '4',
+    company: 'Corti',
+    logo: (
+      <div className="w-5.5 h-5.5 rounded-md bg-[#1E3A4C] text-white flex items-center justify-center text-[10px] font-bold shrink-0">
+        🫀
+      </div>
+    ),
+    location: 'Copenhagen, Denmark',
+    title: 'Senior Backend Engineer',
+    tags: ['Full-time', 'Engineering'],
+    salary: 'Salary not disclosed',
+    level: 'Senior',
+    posted: 'Today',
+  },
+  {
+    id: '5',
+    company: 'Oyster',
+    logo: (
+      <div className="w-5.5 h-5.5 rounded-md bg-black text-white flex items-center justify-center text-[10px] font-black shrink-0">
+        O
+      </div>
+    ),
+    location: 'Remote - EMEA, Americas',
     title: 'Senior International HRBP',
     tags: ['Remote', 'Full-time', 'Operations'],
     salary: 'EUR44k - EUR275k/yr',
@@ -73,69 +109,18 @@ const JOBS_DATA: JobCardData[] = [
     posted: 'Today',
   },
   {
-    id: '3',
-    company: 'Corti',
-    verified: true,
-    external: true,
+    id: '6',
+    company: 'Hootsuite',
     logo: (
-      <div className="w-6 h-6 rounded-full bg-[#1E3A4C] text-white flex items-center justify-center text-[10px] font-bold">
-        🫀
+      <div className="w-5.5 h-5.5 rounded-md bg-[#D62828] text-white flex items-center justify-center text-xs font-bold shrink-0">
+        🦉
       </div>
     ),
-    location: 'New York, USA, London, UK',
-    title: 'Product Marketing Manager',
-    tags: ['Full-time', 'Sales & Growth'],
+    location: 'Vancouver, Canada',
+    title: 'Manager, Contract Operations',
+    tags: ['Finance', 'Full-time'],
     salary: 'Salary not disclosed',
     level: 'Lead / Staff',
-    posted: 'Today',
-  },
-  {
-    id: '4',
-    company: 'Corti',
-    verified: true,
-    external: true,
-    logo: (
-      <div className="w-6 h-6 rounded-full bg-[#1E3A4C] text-white flex items-center justify-center text-[10px] font-bold">
-        🫀
-      </div>
-    ),
-    location: 'Copenhagen, Denmark',
-    title: 'GTM Engineer',
-    tags: ['Full-time', 'Sales & Growth'],
-    salary: 'Salary not disclosed',
-    posted: 'Today',
-  },
-  {
-    id: '5',
-    company: 'Corti',
-    verified: true,
-    external: true,
-    logo: (
-      <div className="w-6 h-6 rounded-full bg-[#1E3A4C] text-white flex items-center justify-center text-[10px] font-bold">
-        🫀
-      </div>
-    ),
-    location: 'Copenhagen, Denmark',
-    title: 'Senior Backend Engineer, Audio Processing',
-    tags: ['Full-time', 'Engineering'],
-    salary: 'Salary not disclosed',
-    level: 'Senior',
-    posted: 'Today',
-  },
-  {
-    id: '6',
-    company: 'Corti',
-    verified: true,
-    external: true,
-    logo: (
-      <div className="w-6 h-6 rounded-full bg-[#1E3A4C] text-white flex items-center justify-center text-[10px] font-bold">
-        🫀
-      </div>
-    ),
-    location: 'Copenhagen, Denmark, Remote, US, Remote, Euro...',
-    title: "Join Corti's Talent Community",
-    tags: ['Remote', 'Full-time', 'Operations'],
-    salary: 'Salary not disclosed',
     posted: 'Today',
   },
 ];
@@ -154,73 +139,73 @@ export default function JobsHeroPreview() {
       className="w-full bg-[#fbfcfd] flex flex-col md:flex-row select-none text-[#242e3f] font-sans text-left transition-all group overflow-hidden cursor-pointer"
     >
       {/* Left Sidebar */}
-      <aside className="hidden lg:flex w-64 bg-white border-r border-gray-200/80 p-4 flex-col justify-between shrink-0 min-h-[680px]">
-        <div className="space-y-4">
+      <aside className="hidden lg:flex w-60 bg-white border-r border-gray-200/80 p-3.5 flex-col justify-between shrink-0 min-h-[560px]">
+        <div className="space-y-3.5">
           {/* Header with Logo */}
-          <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-            <div className="flex items-center gap-2.5">
+          <div className="flex items-center justify-between pb-2.5 border-b border-gray-100">
+            <div className="flex items-center gap-2">
               <img
                 src="/images/logo icon.png"
                 alt="CVArchitect Logo"
-                className="w-7 h-7 rounded-lg object-contain shrink-0"
+                className="w-6 h-6 rounded-md object-contain shrink-0"
               />
-              <span className="font-bold text-base text-gray-900 tracking-tight">
+              <span className="font-bold text-sm text-gray-900 tracking-tight">
                 CVArchitect
               </span>
             </div>
             <button className="p-1 text-gray-400 hover:text-gray-700 rounded-lg">
-              <ChevronLeft size={16} />
+              <ChevronLeft size={15} />
             </button>
           </div>
 
           {/* Create New Resume Button */}
-          <div className="pb-2">
-            <div className="w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-brand-green text-brand-dark font-bold text-xs tracking-wide uppercase rounded-xl shadow-xs cursor-pointer">
-              <Plus size={16} className="stroke-[2.5] shrink-0" />
+          <div className="pb-1">
+            <div className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-brand-green text-brand-dark font-bold text-[11px] tracking-wide uppercase rounded-xl shadow-2xs cursor-pointer">
+              <Plus size={14} className="stroke-[2.5] shrink-0" />
               <span>Create New Resume</span>
             </div>
           </div>
 
           {/* Nav List */}
-          <nav className="space-y-1.5">
-            <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100/70">
-              <Home size={18} className="text-gray-400" />
+          <nav className="space-y-1">
+            <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-gray-600 hover:bg-gray-100/70">
+              <Home size={16} className="text-gray-400" />
               <span>Overview</span>
             </div>
-            <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold bg-gray-100 text-gray-900 shadow-2xs">
-              <Briefcase size={18} className="text-gray-900" />
+            <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold bg-gray-100 text-gray-900 shadow-2xs">
+              <Briefcase size={16} className="text-gray-900" />
               <span>Jobs</span>
             </div>
-            <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100/70">
-              <Layout size={18} className="text-gray-400" />
+            <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-gray-600 hover:bg-gray-100/70">
+              <Layout size={16} className="text-gray-400" />
               <span>Templates</span>
             </div>
-            <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100/70">
-              <Bookmark size={18} className="text-gray-400" />
+            <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-gray-600 hover:bg-gray-100/70">
+              <Bookmark size={16} className="text-gray-400" />
               <span>My Resumes</span>
             </div>
-            <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100/70">
-              <FileText size={18} className="text-gray-400" />
+            <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-gray-600 hover:bg-gray-100/70">
+              <FileText size={16} className="text-gray-400" />
               <span>Cover Letters</span>
             </div>
-            <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100/70">
-              <BookOpen size={18} className="text-gray-400" />
+            <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-gray-600 hover:bg-gray-100/70">
+              <BookOpen size={16} className="text-gray-400" />
               <span>Interview Prep</span>
             </div>
-            <div className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100/70">
-              <SettingsIcon size={18} className="text-gray-400" />
+            <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-gray-600 hover:bg-gray-100/70">
+              <SettingsIcon size={16} className="text-gray-400" />
               <span>Settings</span>
             </div>
           </nav>
         </div>
 
         {/* Bottom Card with Plan Usage & Profile */}
-        <div className="pt-3">
+        <div className="pt-2">
           {/* Usage & Plan Card */}
-          <div className="rounded-2xl bg-gray-50/80 p-3.5 border border-gray-200/90 shadow-2xs select-none space-y-3">
+          <div className="rounded-xl bg-gray-50/80 p-3 border border-gray-200/90 shadow-2xs select-none space-y-2.5">
             {/* Resumes Row */}
             <div className="flex items-center justify-between py-0.5">
-              <span className="text-[11px] font-semibold tracking-wider text-gray-500 uppercase">
+              <span className="text-[10px] font-semibold tracking-wider text-gray-500 uppercase">
                 RESUMES
               </span>
               <span className="text-xs font-semibold text-gray-700">
@@ -233,7 +218,7 @@ export default function JobsHeroPreview() {
 
             {/* Applications Row */}
             <div className="flex items-center justify-between py-0.5">
-              <span className="text-[11px] font-bold tracking-wider text-brand-dark uppercase">
+              <span className="text-[10px] font-bold tracking-wider text-brand-dark uppercase">
                 APPLICATIONS
               </span>
               <span className="text-xs font-bold text-brand-dark">
@@ -242,7 +227,7 @@ export default function JobsHeroPreview() {
             </div>
 
             {/* Upgrade Button */}
-            <div className="w-full py-2 px-3 bg-brand-green hover:bg-brand-greenHover text-brand-dark text-xs font-extrabold tracking-wider uppercase rounded-xl flex items-center justify-center shadow-xs transition-all cursor-pointer">
+            <div className="w-full py-1.5 px-3 bg-brand-green hover:bg-brand-greenHover text-brand-dark text-[11px] font-extrabold tracking-wider uppercase rounded-lg flex items-center justify-center shadow-2xs transition-all cursor-pointer">
               <span>UPGRADE</span>
             </div>
 
@@ -251,23 +236,23 @@ export default function JobsHeroPreview() {
 
             {/* Profile Row */}
             <div className="flex items-center justify-between gap-2 pt-0.5">
-              <div className="flex items-center gap-2.5 min-w-0 cursor-pointer flex-1">
-                <div className="w-8 h-8 rounded-full bg-brand-green/25 text-brand-dark border border-brand-green/40 flex items-center justify-center font-bold text-xs shrink-0">
+              <div className="flex items-center gap-2 min-w-0 cursor-pointer flex-1">
+                <div className="w-7 h-7 rounded-full bg-brand-green/25 text-brand-dark border border-brand-green/40 flex items-center justify-center font-bold text-[11px] shrink-0">
                   JD
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-xs font-bold text-brand-dark truncate leading-tight">
+                  <div className="text-[11px] font-bold text-brand-dark truncate leading-tight">
                     John Doe
                   </div>
-                  <div className="text-[11px] text-gray-500 truncate leading-tight mt-0.5">
+                  <div className="text-[10px] text-gray-500 truncate leading-tight mt-0.5">
                     john.doe@example.com
                   </div>
                 </div>
               </div>
 
               {/* Quick Sign Out */}
-              <div className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors shrink-0 cursor-pointer" title="Sign Out">
-                <LogOut size={15} />
+              <div className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors shrink-0 cursor-pointer" title="Sign Out">
+                <LogOut size={14} />
               </div>
             </div>
           </div>
@@ -275,34 +260,34 @@ export default function JobsHeroPreview() {
       </aside>
 
       {/* Main Jobs Workspace */}
-      <main className="flex-1 p-5 sm:p-7 space-y-4 overflow-hidden bg-[#fbfcfd]">
+      <main className="flex-1 p-4 sm:p-6 space-y-3.5 overflow-hidden bg-[#fbfcfd]">
         {/* Top Search & Filter Bar */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Search Input Box */}
-          <div className="relative flex-1 min-w-[280px]">
-            <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <div className="w-full pl-10 pr-3 py-2 text-xs bg-white border border-gray-200/90 rounded-xl text-gray-400 shadow-2xs flex items-center">
+          <div className="relative flex-1 min-w-[240px]">
+            <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <div className="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-gray-200/90 rounded-xl text-gray-400 shadow-2xs flex items-center">
               Search by job title, skill (e.g. React, Python), or company...
             </div>
           </div>
 
           {/* Controls */}
-          <div className="flex items-center gap-2 text-xs font-medium text-gray-700">
-            <div className="px-3.5 py-2 bg-white border border-gray-200/90 rounded-xl flex items-center gap-1.5 shadow-2xs">
+          <div className="flex items-center gap-1.5 text-xs font-medium text-gray-700">
+            <div className="px-3 py-1.5 bg-white border border-gray-200/90 rounded-xl flex items-center gap-1 shadow-2xs">
               <span>All Companies</span>
-              <ChevronDown size={14} className="text-gray-400" />
+              <ChevronDown size={13} className="text-gray-400" />
             </div>
-            <div className="px-3.5 py-2 bg-white border border-gray-200/90 rounded-xl flex items-center gap-1.5 shadow-2xs">
-              <Bookmark size={14} className="text-gray-400" />
+            <div className="px-3 py-1.5 bg-white border border-gray-200/90 rounded-xl flex items-center gap-1 shadow-2xs">
+              <Bookmark size={13} className="text-gray-400" />
               <span>Saved (0)</span>
             </div>
-            <div className="px-3.5 py-2 bg-white border border-gray-200/90 rounded-xl flex items-center gap-1.5 shadow-2xs">
-              <SlidersHorizontal size={14} className="text-gray-400" />
+            <div className="px-3 py-1.5 bg-white border border-gray-200/90 rounded-xl flex items-center gap-1 shadow-2xs">
+              <SlidersHorizontal size={13} className="text-gray-400" />
               <span>Filters</span>
             </div>
-            <div className="px-3.5 py-2 bg-white border border-gray-200/90 rounded-xl items-center gap-1.5 shadow-2xs hidden sm:flex">
+            <div className="px-3 py-1.5 bg-white border border-gray-200/90 rounded-xl items-center gap-1 shadow-2xs hidden sm:flex">
               <span>Most Recent</span>
-              <ChevronDown size={14} className="text-gray-400" />
+              <ChevronDown size={13} className="text-gray-400" />
             </div>
           </div>
         </div>
@@ -314,7 +299,7 @@ export default function JobsHeroPreview() {
             {['Remote', '$150k+ Salary', 'Engineering', 'AI & Data', 'Senior'].map((filter, i) => (
               <span
                 key={i}
-                className="px-3 py-1 bg-white border border-gray-200/90 text-gray-700 rounded-lg text-xs font-medium shadow-2xs hover:border-gray-400"
+                className="px-2.5 py-0.5 bg-white border border-gray-200/90 text-gray-700 rounded-lg text-[11px] font-medium shadow-2xs hover:border-gray-400"
               >
                 {filter}
               </span>
@@ -327,77 +312,87 @@ export default function JobsHeroPreview() {
           Showing <span className="font-bold text-gray-900">60</span> of 8184 jobs
         </div>
 
-        {/* 3x2 Job Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-1">
+        {/* 3x2 Job Cards Grid — matching exact Dashboard JobCard layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-0.5">
           {JOBS_DATA.map((job) => (
             <div
               key={job.id}
-              className="bg-white border border-gray-200/90 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+              className="bg-white rounded-2xl border border-neutral-200/80 hover:border-neutral-400 transition-all duration-200 flex flex-col justify-between overflow-hidden shadow-2xs hover:shadow-sm"
             >
-              <div className="space-y-3">
-                {/* Header: Logo, Company, Verified, External, Bookmark */}
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-start gap-2.5 min-w-0">
-                    <div className="shrink-0 pt-0.5">{job.logo}</div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-sm font-bold text-gray-900">{job.company}</span>
-                        {job.verified && (
-                          <span className="inline-block w-3.5 h-3.5 text-blue-500">
-                            <CheckCircle size={14} className="fill-blue-500 text-white" />
-                          </span>
-                        )}
-                        {job.external && (
-                          <ExternalLink size={12} className="text-gray-400" />
-                        )}
-                      </div>
-                      <div className="text-[11px] text-gray-500 flex items-center gap-1 mt-0.5">
-                        <MapPin size={12} className="text-gray-400 shrink-0" />
-                        <span className="truncate">{job.location}</span>
-                      </div>
+              <div className="p-4 sm:p-5">
+                {/* Header: Company, Location & Save Button */}
+                <div className="flex items-start justify-between gap-2.5 mb-2.5">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {job.logo}
+                      <span className="font-semibold text-neutral-900 text-sm truncate flex items-center gap-1">
+                        {job.company}
+                        <BadgeCheck size={14} className="text-[#3B82F6] fill-[#3B82F6] shrink-0" stroke="white" strokeWidth={2} />
+                      </span>
+                      <ExternalLink size={10} className="shrink-0 text-neutral-400" />
                     </div>
+                    <p className="text-xs text-neutral-500 flex items-center gap-1 mt-1">
+                      <MapPin size={12} className="shrink-0 text-neutral-400" />
+                      <span className="truncate">{job.location}</span>
+                    </p>
                   </div>
 
-                  <button className="w-8 h-8 rounded-xl border border-gray-200/90 flex items-center justify-center text-gray-400 hover:text-gray-700 shrink-0 bg-white">
+                  {/* Bookmark Button */}
+                  <button
+                    onClick={(e) => e.stopPropagation()}
+                    className="p-1.5 rounded-xl border border-neutral-200 text-neutral-400 hover:text-neutral-900 bg-white shrink-0"
+                    title="Save job"
+                    aria-label="Save bookmark"
+                  >
                     <Bookmark size={14} />
                   </button>
                 </div>
 
                 {/* Job Title */}
-                <h4 className="text-sm font-bold text-gray-900 leading-snug line-clamp-1 pt-1">
+                <h3 className="text-[15px] font-bold text-neutral-900 line-clamp-1 mb-2.5">
                   {job.title}
-                </h4>
+                </h3>
 
-                {/* Tags */}
-                <div className="flex flex-wrap gap-1.5">
-                  {job.tags.map((tag, tIdx) => (
+                {/* Badges Row */}
+                <div className="flex flex-wrap items-center gap-1.5 mb-3 min-h-[24px]">
+                  {job.tags.map((tag) => (
                     <span
-                      key={tIdx}
-                      className="px-2.5 py-0.5 bg-gray-100/90 text-gray-600 rounded-lg text-[11px] font-medium"
+                      key={tag}
+                      className="text-[11px] px-2.5 py-0.5 rounded-md border border-neutral-200/70 bg-neutral-50 text-neutral-700 font-medium"
                     >
                       {tag}
                     </span>
                   ))}
                 </div>
 
-                {/* Salary Box */}
-                <div className="px-3.5 py-2 bg-gray-50/80 rounded-xl border border-gray-100 flex items-center justify-between text-xs font-medium text-gray-800">
-                  <span>{job.salary}</span>
+                {/* Salary Row */}
+                <div className="flex items-center justify-between py-1.5 px-3 bg-neutral-50/80 rounded-xl border border-neutral-150 text-xs">
+                  <span className="font-semibold text-neutral-900 truncate">
+                    {job.salary}
+                  </span>
                   {job.level && (
-                    <span className="text-[11px] text-gray-400">{job.level}</span>
+                    <span className="text-neutral-500 font-medium text-[11px] shrink-0 ml-2">
+                      {job.level}
+                    </span>
                   )}
                 </div>
               </div>
 
-              {/* Card Footer: Time + Tailor Resume Button */}
-              <div className="pt-2 flex items-center justify-between">
-                <span className="text-xs text-gray-400 font-medium flex items-center gap-1">
-                  <Clock size={12} />
-                  {job.posted}
-                </span>
+              {/* Card Footer */}
+              <div className="px-4 sm:px-5 py-2.5 bg-neutral-50/40 border-t border-neutral-150 flex items-center justify-between gap-2 text-xs text-neutral-500">
+                <div className="flex items-center gap-1 text-neutral-400 truncate">
+                  <Clock size={12} className="shrink-0" />
+                  <span className="truncate">{job.posted}</span>
+                </div>
 
-                <button className="px-4 py-2 bg-[#242e3f] hover:bg-[#1a2230] text-white text-xs font-bold rounded-xl shadow-xs transition-colors">
-                  Tailor Resume
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpenJobs();
+                  }}
+                  className="inline-flex items-center justify-center px-3.5 py-1.5 bg-[#1e293b] hover:bg-[#0f172a] text-white font-medium rounded-lg text-xs transition-colors whitespace-nowrap shrink-0 shadow-2xs"
+                >
+                  <span>Tailor Resume</span>
                 </button>
               </div>
             </div>
