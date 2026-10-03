@@ -28,6 +28,7 @@ import PrintResumePage from './pages/PrintResumePage';
 import Dashboard from './pages/Dashboard';
 import ResumeAgentPage from './pages/ResumeAgentPage';
 import AdminJobsPage from './pages/AdminJobsPage';
+import ScreenshotEditorPage from './pages/ScreenshotEditorPage';
 
 // TEMP DEV HARNESS — remove before shipping
 import AgentToolbarTestPage from './dev/AgentToolbarTestPage';
@@ -180,6 +181,9 @@ export default function AppRoutes() {
 
             {/* Protected Route - Dashboard with nested routes */}
             <Route path="/dashboard/*" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+
+            {/* Screenshot route for editor captures */}
+            <Route path="/screenshot" element={<ScreenshotEditorPage />} />
 
             {/* Print/PDF capture route — used by Puppeteer, no auth needed */}
             <Route path="/print-resume" element={<PrintResumePage />} />
