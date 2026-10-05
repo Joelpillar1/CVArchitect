@@ -20,6 +20,15 @@ export function createSSE(res: VercelResponse): SSEWriter {
   res.setHeader('Cache-Control', 'no-cache, no-transform');
   res.setHeader('Connection', 'keep-alive');
   res.setHeader('X-Accel-Buffering', 'no');
+  
+  // Disable Nagle's algorithm on the socket to ensure small SSE chunks are sent immediately
+  try {
+    (res as any).socket?.setNoDelay?.(true);
+    (res as any).connection?.setNoDelay?.(true);
+  } catch {
+    /* ignore socket configuration failure */
+  }
+
   // Flush the headers immediately so the client's reader unblocks before the first event.
   (res as unknown as { flushHeaders?: () => void }).flushHeaders?.();
 

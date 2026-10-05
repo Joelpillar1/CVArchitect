@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Check, Loader2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Check, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { PlanId, UserSubscription } from '../types/pricing';
 import {
     PLANS,
@@ -13,6 +12,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { useNavigate } from 'react-router-dom';
 import { subscriptionService } from '../services/subscriptionService';
+import PricingSection from './ui/pricing';
 
 type ComparisonCellType = 'check' | 'dash' | 'text';
 interface ComparisonCell {
@@ -38,50 +38,50 @@ function PricingCell({ cell, emphasize }: { cell: ComparisonCell; emphasize?: bo
     );
 }
 
-const comparisonSections: { title: string; rows: { label: string; cells: [ComparisonCell, ComparisonCell, ComparisonCell, ComparisonCell] }[] }[] = [
+const comparisonSections: { title: string; rows: { label: string; cells: [ComparisonCell, ComparisonCell, ComparisonCell] }[] }[] = [
     {
         title: 'AI Resume Agent & Matching',
         rows: [
-            { label: 'AI Tailored Resumes', cells: [{ type: 'text', text: '1 Resume' }, { type: 'text', text: 'Unlimited*' }, { type: 'text', text: 'Unlimited*' }, { type: 'text', text: 'Unlimited*' }] },
-            { label: 'Job Description Match & Score', cells: [{ type: 'text', text: 'Basic' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
-            { label: 'AI Bullet Optimizer & Metrics', cells: [{ type: 'text', text: '1 Rewrite' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
-            { label: 'AI Summary & Skill Extraction', cells: [{ type: 'text', text: '1 Resume' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
-            { label: 'Grounded Evidence Verification', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'AI Tailored Resumes', cells: [{ type: 'text', text: '1 Resume' }, { type: 'text', text: 'Unlimited*' }, { type: 'text', text: 'Unlimited*' }] },
+            { label: 'Job Description Match & Score', cells: [{ type: 'text', text: 'Basic' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'AI Bullet Optimizer & Metrics', cells: [{ type: 'text', text: '1 Rewrite' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'AI Summary & Skill Extraction', cells: [{ type: 'text', text: '1 Resume' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'Grounded Evidence Verification', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }] },
         ],
     },
     {
         title: 'Editor & Customization',
         rows: [
-            { label: 'Interactive Drag & Drop Editor', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
-            { label: 'Custom & Reorderable Sections', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
-            { label: 'ATS Resume Templates', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
-            { label: 'Custom Fonts, Colors & Spacing', cells: [{ type: 'text', text: 'Basic' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
-            { label: 'Multi-Page Page Break Control', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'Interactive Drag & Drop Editor', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'Custom & Reorderable Sections', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'ATS Resume Templates', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'Custom Fonts, Colors & Spacing', cells: [{ type: 'text', text: 'Basic' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'Multi-Page Page Break Control', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }] },
         ],
     },
     {
         title: 'Career & Application Suite',
         rows: [
-            { label: 'Saved Resume Versions', cells: [{ type: 'text', text: '1 Version' }, { type: 'text', text: 'Unlimited' }, { type: 'text', text: 'Unlimited' }, { type: 'text', text: 'Unlimited' }] },
-            { label: 'Cover Letter Builder', cells: [{ type: 'dash' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
-            { label: 'Interview Prep & Q&A', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
-            { label: 'Job Search Feed & 1-Click Tailor', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'Saved Resume Versions', cells: [{ type: 'text', text: '1 Version' }, { type: 'text', text: 'Unlimited' }, { type: 'text', text: 'Unlimited' }] },
+            { label: 'Cover Letter Builder', cells: [{ type: 'dash' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'Interview Prep & Q&A', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'Job Search Feed & 1-Click Tailor', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }] },
         ],
     },
     {
         title: 'Exports & Downloads',
         rows: [
-            { label: 'Pixel-Perfect PDF Export', cells: [{ type: 'text', text: '1 Download' }, { type: 'text', text: 'Unlimited' }, { type: 'text', text: 'Unlimited' }, { type: 'text', text: 'Unlimited' }] },
-            { label: 'Editable Word (.DOCX) Export', cells: [{ type: 'dash' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
-            { label: 'Plain Text (.TXT) Export', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'Pixel-Perfect PDF Export', cells: [{ type: 'text', text: '1 Download' }, { type: 'text', text: 'Unlimited' }, { type: 'text', text: 'Unlimited' }] },
+            { label: 'Editable Word (.DOCX) Export', cells: [{ type: 'dash' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'Plain Text (.TXT) Export', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }] },
         ],
     },
 ];
 
-const DISPLAY_PLANS: PlanId[] = ['free', 'sprint', 'build', 'lifetime'];
+const ALL_DISPLAY_PLANS: PlanId[] = ['free', 'build', 'lifetime'];
 
 function normalizePlanIdForPicker(planId: string): string {
-    if (planId === 'week_pass') return 'sprint';
+    if (planId === 'week_pass' || planId === 'sprint') return 'build';
     if (planId === 'pro_monthly') return 'build';
     return planId;
 }
@@ -89,14 +89,20 @@ function normalizePlanIdForPicker(planId: string): string {
 interface PricingPlansProps {
     onFreeClick?: () => void;
     compact?: boolean;
+    showLifetime?: boolean;
 }
 
-export default function PricingPlans({ onFreeClick, compact = false }: PricingPlansProps) {
+export default function PricingPlans({ onFreeClick, compact = false, showLifetime = false }: PricingPlansProps) {
     const { user, loading: authLoading } = useAuth();
     const { showToast } = useToast();
     const navigate = useNavigate();
     const [loadingPlanId, setLoadingPlanId] = useState<PlanId | null>(null);
     const [subscription, setSubscription] = useState<UserSubscription | null>(null);
+    const [showComparison, setShowComparison] = useState(false);
+
+    const activeDisplayPlans = showLifetime
+        ? ALL_DISPLAY_PLANS
+        : ALL_DISPLAY_PLANS.filter((p) => p !== 'lifetime');
 
     React.useEffect(() => {
         if (!user) {
@@ -106,7 +112,9 @@ export default function PricingPlans({ onFreeClick, compact = false }: PricingPl
 
         let cancelled = false;
         subscriptionService.getSubscription(user.id).then((sub) => {
-            if (!cancelled) setSubscription(sub);
+            if (!cancelled) {
+                setSubscription(sub);
+            }
         });
 
         return () => {
@@ -172,122 +180,89 @@ export default function PricingPlans({ onFreeClick, compact = false }: PricingPl
 
     return (
         <div className="w-full">
-            {!compact && (
-                <div className="text-center mb-12 max-w-3xl mx-auto">
-                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-brand-dark mb-4">
-                        Pay when you're ready to apply
-                    </h2>
-                    <p className="text-brand-dark/60 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
-                        Start free with one AI-tailored resume. Upgrade for unlimited tailoring, every template, and unlimited exports. Cancel anytime.
-                    </p>
+            {/* Primary Pricing Cards Deck */}
+            <PricingSection
+                onSelectPlan={handlePlanAction}
+                loadingPlanId={loadingPlanId}
+                currentPlanId={currentPlanId}
+                isPaidSubscriber={isPaidSubscriber}
+                compact={compact}
+                showLifetime={showLifetime}
+            />
+
+            {/* Expandable Detailed Feature Comparison Toggle */}
+            <div className="mt-12 text-center">
+                <button
+                    onClick={() => setShowComparison(!showComparison)}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-brand-border text-brand-dark font-bold text-xs sm:text-sm hover:border-brand-green/60 hover:bg-brand-secondary/50 transition-all cursor-pointer"
+                >
+                    <span>{showComparison ? 'Hide' : 'View'} Detailed Feature Comparison Matrix</span>
+                    {showComparison ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
+            </div>
+
+            {/* Comparison Table (Expandable) */}
+            {showComparison && (
+                <div className="mt-8 max-w-5xl mx-auto overflow-x-auto animate-fadeIn">
+                    <div className="min-w-[560px] bg-white p-6 sm:p-8 rounded-xl border border-brand-border">
+                        <div className="text-center mb-8">
+                            <h3 className="text-xl sm:text-2xl font-bold text-brand-dark">
+                                Side-by-Side Feature Matrix
+                            </h3>
+                            <p className="text-xs sm:text-sm text-brand-dark/60 mt-1">
+                                Complete breakdown of what's included across {showLifetime ? 'Foundation, Build, and Lifetime.' : 'Foundation and Build.'}
+                            </p>
+                        </div>
+
+                        {/* Matrix Header */}
+                        <div className={`grid ${showLifetime ? 'grid-cols-[1.5fr_repeat(3,1fr)]' : 'grid-cols-[1.5fr_repeat(2,1fr)]'} gap-x-6 mb-6 items-end border-b border-brand-border pb-4`}>
+                            <div className="text-xs font-bold uppercase tracking-wider text-brand-dark/50">Feature</div>
+                            {activeDisplayPlans.map((planId) => {
+                                const plan = PLANS[planId];
+                                const { amount, period } = formatPlanPrice(plan);
+                                return (
+                                    <div key={planId} className="text-center">
+                                        <h4 className="text-sm sm:text-base font-bold text-brand-dark">{plan.name}</h4>
+                                        <div className="text-sm font-extrabold text-brand-dark mt-0.5">
+                                            {amount}
+                                            {period && <span className="text-xs font-normal text-brand-dark/60 ml-0.5">{period}</span>}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {/* Feature Groups */}
+                        {comparisonSections.map((section) => (
+                            <div key={section.title} className="mb-8 last:mb-0">
+                                <h5 className="text-xs font-bold uppercase tracking-wider text-brand-dark/70 mb-3 px-2">
+                                    {section.title}
+                                </h5>
+                                <div className="space-y-1">
+                                    {section.rows.map((row, i) => (
+                                        <div
+                                            key={row.label}
+                                            className={`grid ${showLifetime ? 'grid-cols-[1.5fr_repeat(3,1fr)]' : 'grid-cols-[1.5fr_repeat(2,1fr)]'} gap-x-6 items-center px-4 py-3 rounded-xl transition-colors ${
+                                                i % 2 === 0 ? 'bg-brand-secondary/60' : 'bg-transparent'
+                                            }`}
+                                        >
+                                            <span className="text-xs sm:text-sm text-brand-dark/85 font-medium">{row.label}</span>
+                                            {row.cells.slice(0, activeDisplayPlans.length).map((cell, cIdx) => (
+                                                <PricingCell key={cIdx} cell={cell} emphasize={cell.type === 'text'} />
+                                            ))}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+
+                        <p className="mt-8 text-center text-xs text-brand-dark/50">
+                            * Unlimited AI tailoring is subject to standard fair use guidelines. Free plan includes full editor preview and 1 credit without requiring a credit card.
+                        </p>
+                    </div>
                 </div>
             )}
-
-            {/* Comparison Table */}
-            <div className="max-w-5xl mx-auto overflow-x-auto">
-                <div className="min-w-[640px]">
-                    {/* Header  -  Plan name, big price, full-width CTA per column */}
-                    <div className="grid grid-cols-[1.2fr_repeat(4,1fr)] gap-x-3 sm:gap-x-6 mb-8 items-end">
-                        <div aria-hidden="true" />
-                        {DISPLAY_PLANS.map((planId) => {
-                            const plan = PLANS[planId];
-                            const { amount, period } = formatPlanPrice(plan);
-                            const isCurrent = isPaidSubscriber ? currentPlanId === planId : planId === 'free';
-                            const isLoading = loadingPlanId === planId;
-
-                            return (
-                                <div key={planId} className="text-center">
-                                    <h3 className="text-base sm:text-lg font-semibold tracking-tight text-brand-dark">{plan.name}</h3>
-                                    <div className="mt-1 flex items-baseline justify-center">
-                                        <span className="text-2xl sm:text-4xl font-extrabold tracking-[-0.03em] text-brand-dark">
-                                            {amount}
-                                        </span>
-                                        {period && (
-                                            <span className="text-xs sm:text-sm font-semibold text-brand-dark/70 ml-1">
-                                                {period}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <button
-                                        onClick={() => handlePlanAction(planId)}
-                                        disabled={isLoading || (isPaidSubscriber && isCurrent)}
-                                        className={`mt-4 w-full py-2.5 px-2 rounded-xl font-bold text-xs sm:text-sm shadow-sm transition-all flex items-center justify-center gap-1.5 ${
-                                            isPaidSubscriber && isCurrent
-                                                ? 'bg-gray-100 text-gray-400 cursor-default'
-                                                : 'bg-brand-green hover:bg-brand-greenHover text-brand-dark'
-                                        } disabled:opacity-75`}
-                                    >
-                                        {isLoading ? (
-                                            <Loader2 size={14} className="animate-spin" />
-                                        ) : isPaidSubscriber && isCurrent ? (
-                                            'Current plan'
-                                        ) : (
-                                            'Get started'
-                                        )}
-                                    </button>
-                                </div>
-                            );
-                        })}
-                    </div>
-
-                    {/* Feature Groups */}
-                    {comparisonSections.map((section) => (
-                        <div key={section.title} className="mb-10 last:mb-0">
-                            <h4 className="text-base sm:text-lg font-semibold text-brand-dark mb-4">{section.title}</h4>
-                            <div>
-                                {section.rows.map((row, i) => (
-                                    <div
-                                        key={row.label}
-                                        className={`grid grid-cols-[1.2fr_repeat(4,1fr)] gap-x-3 sm:gap-x-6 items-center px-4 sm:px-5 py-3.5 rounded-lg ${
-                                            i % 2 === 0 ? 'bg-brand-secondary' : ''
-                                        }`}
-                                    >
-                                        <span className="text-xs sm:text-sm text-brand-dark/85">{row.label}</span>
-                                        {row.cells.map((cell, cIdx) => (
-                                            <PricingCell key={cIdx} cell={cell} emphasize={cell.type === 'text'} />
-                                        ))}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
-
-                    {/* Bottom CTA buttons below all comparison features */}
-                    <div className="grid grid-cols-[1.2fr_repeat(4,1fr)] gap-x-3 sm:gap-x-6 items-center pt-8 border-t border-brand-border mt-8">
-                        <div aria-hidden="true" />
-                        {DISPLAY_PLANS.map((planId) => {
-                            const isCurrent = isPaidSubscriber ? currentPlanId === planId : planId === 'free';
-                            const isLoading = loadingPlanId === planId;
-
-                            return (
-                                <div key={planId} className="text-center">
-                                    <button
-                                        onClick={() => handlePlanAction(planId)}
-                                        disabled={isLoading || (isPaidSubscriber && isCurrent)}
-                                        className={`w-full py-2.5 px-2 rounded-xl font-bold text-xs sm:text-sm shadow-sm transition-all flex items-center justify-center gap-1.5 ${
-                                            isPaidSubscriber && isCurrent
-                                                ? 'bg-gray-100 text-gray-400 cursor-default'
-                                                : 'bg-brand-green hover:bg-brand-greenHover text-brand-dark'
-                                        } disabled:opacity-75`}
-                                    >
-                                        {isLoading ? (
-                                            <Loader2 size={14} className="animate-spin" />
-                                        ) : isPaidSubscriber && isCurrent ? (
-                                            'Current plan'
-                                        ) : (
-                                            'Get started'
-                                        )}
-                                    </button>
-                                </div>
-                            );
-                        })}
-                    </div>
-
-                    <p className="mt-8 text-center text-xs text-brand-dark/50">
-                        * Unlimited AI tailoring is subject to standard fair use guidelines to ensure service reliability for all users. Free plan includes full editor preview and 1 AI tailoring credit without requiring a credit card.
-                    </p>
-                </div>
-            </div>
         </div>
     );
 }
+

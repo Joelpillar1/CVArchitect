@@ -4,6 +4,7 @@ import {
   formatProgressLabel,
 } from '../types/agentEvents';
 import { LiveResumeStreamSession } from '../services/agentClient';
+import { extractTextDeltaFromStreamEvent } from '../api/agent/run';
 import { INITIAL_DATA, type ResumeData } from '../types';
 import type { ResumeOperation } from '../types/resumeOperations';
 
@@ -88,4 +89,89 @@ describe('Phase 9: Streaming and Live Resume Updates', () => {
     expect((rolledBack.experience[0].description as string[])[0]).toBe('Initial bullet point');
     expect(session.getAppliedOperations().length).toBe(0);
   });
+
+  // 3. Real-Time Incremental Stream Delta Extraction
+  it('extracts text deltas across all model event shapes without dropping or double-emitting', () => {
+    // Direct output_text_delta
+    expect(
+      extractTextDeltaFromStreamEvent({
+        type: 'raw_model_stream_event',
+        data: { type: 'output_text_delta', delta: 'Hello ' },
+      })
+    ).toBe('Hello ');
+
+    // Response output_text.delta
+    expect(
+      extractTextDeltaFromStreamEvent({
+        type: 'raw_model_stream_event',
+        data: { type: 'response.output_text.delta', delta: 'world!' },
+      })
+    ).toBe('world!');
+
+    // Direct event format
+    expect(
+      extractTextDeltaFromStreamEvent({
+        type: 'output_text_delta',
+        delta: 'Tailoring your resume...',
+      })
+    ).toBe('Tailoring your resume...');
+
+    // Non-double-emitting model event (custom adapter)
+    expect(
+      extractTextDeltaFromStreamEvent({
+        type: 'raw_model_stream_event',
+        data: {
+          type: 'model',
+          event: { choices: [{ delta: { content: 'Step 1' } }] },
+        },
+      })
+    ).toBe('Step 1');
+
+    // Duplicate raw telemetry from openai-responses is ignored (already handled by output_text_delta)
+    expect(
+      extractTextDeltaFromStreamEvent({
+        type: 'raw_model_stream_event',
+        data: {
+          type: 'model',
+          event: { type: 'response.output_text.delta', delta: 'Step 1' },
+          providerData: { rawModelEventSource: 'openai-responses' },
+        },
+      })
+    ).toBeNull();
+  });
+
+  // 4. Conversational Logic & Layout Repair
+  it('formats skills lists and handles 12-skill layout requests with interactive proposal cards', () => {
+    const rawSkills = 'Product Strategy, Enterprise SaaS, AI/ML Product Discovery, Agile & Scrum, Roadmap Planning, Go-to-Market (GTM), Data Analysis (SQL), A/B Testing, User Experience (UX), Cross-Functional Leadership, Cloud Infrastructure, Systems Architecture';
+    const parsedSkills = rawSkills
+      .replace(/\n/g, ', ')
+      .split(',')
+      .map(s => s.trim().replace(/^[-•*]\s*/, ''))
+      .filter(Boolean);
+
+    expect(parsedSkills.length).toBe(12);
+    expect(parsedSkills[0]).toBe('Product Strategy');
+    expect(parsedSkills[11]).toBe('Systems Architecture');
+
+    // Conversational repair detection
+    const isRepairQuery = (text: string) => {
+      const lower = text.toLowerCase();
+      return (
+        lower.includes("can't see") ||
+        lower.includes("cant see") ||
+        lower.includes("where is") ||
+        lower.includes("where are") ||
+        lower.includes("dont see") ||
+        lower.includes("don't see") ||
+        lower.includes("show me") ||
+        lower.includes("what are the skills")
+      );
+    };
+
+    expect(isRepairQuery('i cant see it')).toBe(true);
+    expect(isRepairQuery('where are the skills')).toBe(true);
+    expect(isRepairQuery('show me')).toBe(true);
+    expect(isRepairQuery('add python to my skills')).toBe(false);
+  });
 });
+

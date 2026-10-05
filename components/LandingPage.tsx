@@ -77,7 +77,7 @@ const SectionAnalysisOverlay = () => {
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true }}
       transition={{ delay: 0.5, duration: 0.8 }}
-      className="absolute top-8 right-8 z-30 w-64 bg-white/95 backdrop-blur-md rounded-2xl shadow-float border border-gray-100 p-5 pointer-events-none hidden lg:block"
+      className="absolute top-8 right-8 z-30 w-64 bg-white/95 backdrop-blur-md rounded-xl shadow-float border border-gray-100 p-5 pointer-events-none hidden lg:block"
     >
       <div className="flex items-center gap-2 mb-6">
         <div className="p-1.5 bg-brand-dark/5 rounded-lg">
@@ -164,7 +164,7 @@ export default function LandingPage() {
                 "name": "How much does CV Architect cost?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "CV Architect offers a free Foundation tier with 1 AI-tailored resume. Paid plans start at $6/week (Sprint), $20/month (Build), or $99 one-time (Lifetime Access)."
+                  "text": "CV Architect offers a free Foundation tier with 1 AI-tailored resume. Paid plans start at $10/month (Build), or $99 one-time (Lifetime Access)."
                 }
               },
               {

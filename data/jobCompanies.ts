@@ -391,6 +391,213 @@ export const JOB_SOURCE_COMPANIES: JobSourceCompany[] = [
   { name: "Tekton Dynamics", domain: "tekton-dynamics.com", provider: "ashby", slug: "tekton-dynamics" }, // 2
   { name: "UNLOCKLAND", domain: "unlock.land", provider: "greenhouse", slug: "unlock" }, // 2
   { name: "YGO", domain: "ygo.ai", provider: "ashby", slug: "ygo" }, // 4
+  // ---- Waves 6-8: Agent Reach discovery (insurtech/ERP/payroll, veterinary/utility/space,
+  // cybersecurity/health-IT/fintech-infra/vertical-SaaS). Each board below was verified live
+  // by recon and returned postings in the full fetch. Trailing count = postings at pin time.
+  { name: "Elastic",                              domain: "elastic.co",                     provider: "greenhouse", slug: "elastic" }, // 393
+  { name: "Fivetran",                             domain: "fivetran.com",                   provider: "greenhouse", slug: "fivetran" }, // 178
+  { name: "Astranis Space Technologies",          domain: "astranis.com",                   provider: "greenhouse", slug: "astranis" }, // 173
+  { name: "VetEvolve",                            domain: "vetevolve.com",                  provider: "greenhouse", slug: "vetevolve" }, // 146
+  { name: "Cohere",                               domain: "cohere.com",                     provider: "ashby", slug: "cohere" }, // 136
+  { name: "Klaviyo",                              domain: "klaviyo.com",                    provider: "greenhouse", slug: "klaviyo" }, // 129
+  { name: "Grafana Labs",                         domain: "grafana.com",                    provider: "greenhouse", slug: "grafanalabs" }, // 121
+  { name: "Mercor",                               domain: "mercor.com",                     provider: "ashby", slug: "mercor" }, // 111
+  { name: "E-Space",                              domain: "e-space.com",                    provider: "lever", slug: "espace" }, // 105
+  { name: "Baseten",                              domain: "baseten.co",                     provider: "ashby", slug: "baseten" }, // 104
+  { name: "Cognition",                            domain: "cognition.ai",                   provider: "ashby", slug: "cognition" }, // 103
+  { name: "Lambda",                               domain: "lambda.ai",                      provider: "ashby", slug: "lambda" }, // 90
+  { name: "Cresta",                               domain: "cresta.com",                     provider: "greenhouse", slug: "cresta" }, // 87
+  { name: "Essential AI",                         domain: "essential.ai",                   provider: "greenhouse", slug: "essential" }, // 85
+  { name: "Chowbus",                              domain: "chowbus.com",                    provider: "greenhouse", slug: "chowbus" }, // 81
+  { name: "Together AI",                          domain: "together.ai",                    provider: "greenhouse", slug: "togetherai" }, // 77
+  { name: "PubMatic",                             domain: "pubmatic.com",                   provider: "greenhouse", slug: "pubmatic" }, // 76
+  { name: "DualEntry",                            domain: "dualentry.com",                  provider: "ashby", slug: "dualentry" }, // 75
+  { name: "Alpaca",                               domain: "alpaca.markets",                 provider: "greenhouse", slug: "alpaca" }, // 71
+  { name: "Sigma Computing",                      domain: "sigmacomputing.com",             provider: "greenhouse", slug: "sigmacomputing" }, // 69
+  { name: "AppDirect",                            domain: "appdirect.com",                  provider: "greenhouse", slug: "appdirect" }, // 66
+  { name: "Temporal",                             domain: "temporal.io",                    provider: "ashby", slug: "temporal" }, // 64
+  { name: "Prenuvo",                              domain: "prenuvo.com",                    provider: "greenhouse", slug: "prenuvo" }, // 64
+  { name: "Ping Identity",                        domain: "pingidentity.com",               provider: "greenhouse", slug: "pingidentity" }, // 64
+  { name: "Mixpanel",                             domain: "mixpanel.com",                   provider: "greenhouse", slug: "mixpanel" }, // 63
+  { name: "Mercury",                              domain: "mercury.com",                    provider: "greenhouse", slug: "mercury" }, // 61
+  { name: "LaunchDarkly",                         domain: "launchdarkly.com",               provider: "greenhouse", slug: "launchdarkly" }, // 59
+  { name: "Clay",                                 domain: "clay.com",                       provider: "ashby", slug: "claylabs" }, // 58
+  { name: "Podium",                               domain: "podium.com",                     provider: "greenhouse", slug: "podium81" }, // 57
+  { name: "Benchling",                            domain: "benchling.com",                  provider: "ashby", slug: "benchling" }, // 56
+  { name: "ID.me",                                domain: "id.me",                          provider: "greenhouse", slug: "idme" }, // 51
+  { name: "Abridge",                              domain: "abridge.com",                    provider: "ashby", slug: "abridge" }, // 50
+  { name: "Writer",                               domain: "writer.com",                     provider: "ashby", slug: "writer" }, // 49
+  { name: "adjoe",                                domain: "adjoe.io",                       provider: "ashby", slug: "adjoe" }, // 44
+  { name: "Fastly",                               domain: "fastly.com",                     provider: "greenhouse", slug: "fastly" }, // 43
+  { name: "Rain",                                 domain: "rain.xyz",                       provider: "ashby", slug: "rain" }, // 42
+  { name: "Sentry",                               domain: "sentry.io",                      provider: "ashby", slug: "sentry" }, // 41
+  { name: "Rillet",                               domain: "rillet.com",                     provider: "ashby", slug: "rillet" }, // 40
+  { name: "Everlaw",                              domain: "everlaw.com",                    provider: "greenhouse", slug: "everlaw" }, // 39
+  { name: "Sardine",                              domain: "sardine.ai",                     provider: "ashby", slug: "sardine" }, // 38
+  { name: "Yuno",                                 domain: "y.uno",                          provider: "lever", slug: "yuno" }, // 38
+  { name: "Clipboard Health",                     domain: "clipboardhealth.com",            provider: "ashby", slug: "clipboard" }, // 37
+  { name: "Hex",                                  domain: "hex.tech",                       provider: "ashby", slug: "hex" }, // 36
+  { name: "Tarro",                                domain: "tarro.com",                      provider: "ashby", slug: "tarro" }, // 36
+  { name: "Amplitude",                            domain: "amplitude.com",                  provider: "ashby", slug: "amplitude" }, // 34
+  { name: "Project44",                            domain: "project44.com",                  provider: "greenhouse", slug: "project44" }, // 34
+  { name: "Hudl",                                 domain: "hudl.com",                       provider: "greenhouse", slug: "hudl" }, // 33
+  { name: "Axle",                                 domain: "axle.insure",                    provider: "greenhouse", slug: "axle" }, // 33
+  { name: "Ironclad",                             domain: "ironcladapp.com",                provider: "ashby", slug: "ironcladhq" }, // 32
+  { name: "Attentive",                            domain: "attentive.com",                  provider: "greenhouse", slug: "attentive" }, // 32
+  { name: "Inferact",                             domain: "inferact.ai",                    provider: "ashby", slug: "inferact" }, // 32
+  { name: "FlexAI",                               domain: "flex.ai",                        provider: "greenhouse", slug: "flex" }, // 32
+  { name: "Prime Intellect",                      domain: "primeintellect.ai",              provider: "ashby", slug: "primeintellect" }, // 30
+  { name: "Tillster",                             domain: "tillster.com",                   provider: "ashby", slug: "tillster" }, // 30
+  { name: "Farther",                              domain: "farther.com",                    provider: "greenhouse", slug: "fartherfinance" }, // 30
+  { name: "Betterment",                           domain: "betterment.com",                 provider: "greenhouse", slug: "betterment" }, // 29
+  { name: "Vetcove",                              domain: "vetcove.com",                    provider: "ashby", slug: "vetcove" }, // 27
+  { name: "Traversal",                            domain: "traversal.com",                  provider: "ashby", slug: "traversal" }, // 27
+  { name: "Primer",                               domain: "primer.io",                      provider: "ashby", slug: "primer" }, // 26
+  { name: "iFIT",                                 domain: "ifit.com",                       provider: "greenhouse", slug: "ifit" }, // 25
+  { name: "Valon",                                domain: "valon.ai",                       provider: "ashby", slug: "valon" }, // 25
+  { name: "Orb",                                  domain: "withorb.com",                    provider: "ashby", slug: "orb" }, // 25
+  { name: "Porter",                               domain: "porter.run",                     provider: "lever", slug: "porter" }, // 25
+  { name: "MeridianLink",                         domain: "meridianlink.com",               provider: "ashby", slug: "meridianlink" }, // 24
+  { name: "Alloy",                                domain: "alloy.com",                      provider: "greenhouse", slug: "alloy" }, // 23
+  { name: "Wealthfront",                          domain: "wealthfront.com",                provider: "lever", slug: "wealthfront" }, // 23
+  { name: "Tonal",                                domain: "tonal.com",                      provider: "ashby", slug: "tonal" }, // 23
+  { name: "Paddle",                               domain: "paddle.com",                     provider: "ashby", slug: "paddle" }, // 23
+  { name: "Latent",                               domain: "latenthealth.com",               provider: "ashby", slug: "latent" }, // 23
+  { name: "Nevis",                                domain: "neviswealth.com",                provider: "ashby", slug: "nevis" }, // 23
+  { name: "Otter",                                domain: "tryotter.com",                   provider: "greenhouse", slug: "otter" }, // 22
+  { name: "Melio",                                domain: "melio.com",                      provider: "greenhouse", slug: "melio" }, // 21
+  { name: "BVNK",                                 domain: "bvnk.com",                       provider: "greenhouse", slug: "bvnk" }, // 21
+  { name: "Anyscale",                             domain: "anyscale.com",                   provider: "ashby", slug: "anyscale" }, // 21
+  { name: "Honeycomb",                            domain: "honeycomb.io",                   provider: "greenhouse", slug: "honeycomb" }, // 20
+  { name: "Cockroach Labs",                       domain: "cockroachlabs.com",              provider: "greenhouse", slug: "cockroachlabs" }, // 19
+  { name: "Wisdom AI",                            domain: "wisdom.ai",                      provider: "ashby", slug: "wisdom-ai" }, // 19
+  { name: "Kai",                                  domain: "kai.security",                   provider: "greenhouse", slug: "kaicyberinc" }, // 19
+  { name: "Tensordyne",                           domain: "tensordyne.ai",                  provider: "greenhouse", slug: "tensordyne" }, // 19
+  { name: "Column",                               domain: "column.com",                     provider: "ashby", slug: "column" }, // 18
+  { name: "Welltech",                             domain: "welltech.com",                   provider: "ashby", slug: "welltech" }, // 18
+  { name: "Kepler Aviation",                      domain: "kepler.aero",                    provider: "lever", slug: "kepler" }, // 18
+  { name: "Carta Healthcare",                     domain: "carta.healthcare",               provider: "greenhouse", slug: "cartahealthcare" }, // 18
+  { name: "Elation Health",                       domain: "elationhealth.com",              provider: "greenhouse", slug: "elationhealth" }, // 18
+  { name: "DriveWealth",                          domain: "drivewealth.com",                provider: "greenhouse", slug: "drivewealth" }, // 17
+  { name: "Easygenerator",                        domain: "easygenerator.com",              provider: "ashby", slug: "easygenerator" }, // 17
+  { name: "KnowledgeCity",                        domain: "knowledgecity.com",              provider: "greenhouse", slug: "knowledgecity" }, // 17
+  { name: "vCluster",                             domain: "vcluster.com",                   provider: "ashby", slug: "vclusterlabs" }, // 17
+  { name: "Obsidian Security",                    domain: "obsidiansecurity.com",           provider: "greenhouse", slug: "obsidiansecurity" }, // 17
+  { name: "Gorgias",                              domain: "gorgias.com",                    provider: "ashby", slug: "gorgias" }, // 16
+  { name: "Z1 Tech",                              domain: "z1tech.com",                     provider: "lever", slug: "z1tech" }, // 16
+  { name: "Loft Orbital",                         domain: "loftorbital.com",                provider: "greenhouse", slug: "loftfederal" }, // 16
+  { name: "Andromeda",                            domain: "andromeda.ai",                   provider: "ashby", slug: "andromeda" }, // 16
+  { name: "SigNoz",                               domain: "signoz.io",                      provider: "ashby", slug: "signoz" }, // 16
+  { name: "Brigit",                               domain: "brigit.com",                     provider: "ashby", slug: "brigit" }, // 15
+  { name: "Yotpo",                                domain: "yotpo.com",                      provider: "greenhouse", slug: "yotpo" }, // 15
+  { name: "Mesh",                                 domain: "meshpay.com",                    provider: "greenhouse", slug: "mesh" }, // 15
+  { name: "april",                                domain: "getapril.com",                   provider: "ashby", slug: "april" }, // 14
+  { name: "Flipdish",                             domain: "flipdish.com",                   provider: "greenhouse", slug: "flipdish" }, // 14
+  { name: "LearnUpon",                            domain: "learnupon.com",                  provider: "greenhouse", slug: "learnupon" }, // 14
+  { name: "Mantra Inc.",                          domain: "mantra.co.jp",                   provider: "lever", slug: "mantra" }, // 14
+  { name: "DataGuard",                            domain: "dataguard.com",                  provider: "ashby", slug: "dataguard" }, // 14
+  { name: "DebtBook",                             domain: "debtbook.com",                   provider: "greenhouse", slug: "debtbook" }, // 14
+  { name: "Semgrep",                              domain: "semgrep.dev",                    provider: "ashby", slug: "semgrep" }, // 13
+  { name: "Snyk",                                 domain: "snyk.io",                        provider: "ashby", slug: "snyk" }, // 13
+  { name: "Brightwheel",                          domain: "mybrightwheel.com",              provider: "ashby", slug: "brightwheel" }, // 13
+  { name: "Litmos",                               domain: "litmos.com",                     provider: "greenhouse", slug: "litmos" }, // 13
+  { name: "Sureify",                              domain: "sureify.com",                    provider: "greenhouse", slug: "sureify" }, // 13
+  { name: "Abacus Insights",                      domain: "abacusinsights.com",             provider: "greenhouse", slug: "abacusinsights" }, // 13
+  { name: "PlanetScale",                          domain: "planetscale.com",                provider: "greenhouse", slug: "planetscale" }, // 12
+  { name: "Lattice",                              domain: "lattice.com",                    provider: "greenhouse", slug: "lattice" }, // 12
+  { name: "Civitech",                             domain: "civitech.io",                    provider: "lever", slug: "civitech" }, // 12
+  { name: "ACME Technologies Inc.",               domain: "acmeticketing.com",              provider: "ashby", slug: "peek" }, // 12
+  { name: "Arlo Training Management Software",    domain: "arlo.co",                        provider: "ashby", slug: "arlo" }, // 12
+  { name: "A-LIGN",                               domain: "a-lign.com",                     provider: "greenhouse", slug: "align" }, // 12
+  { name: "Sciforium",                            domain: "sciforium.ai",                   provider: "ashby", slug: "sciforium" }, // 12
+  { name: "Afresh",                               domain: "afresh.com",                     provider: "greenhouse", slug: "afresh" }, // 12
+  { name: "Lyceum",                               domain: "lyceum.technology",              provider: "ashby", slug: "lyceum" }, // 12
+  { name: "Office Ally",                          domain: "officeally.com",                 provider: "greenhouse", slug: "officeally" }, // 12
+  { name: "Hive",                                 domain: "hive.app",                       provider: "greenhouse", slug: "hive" }, // 12
+  { name: "Lithic",                               domain: "lithic.com",                     provider: "greenhouse", slug: "lithic" }, // 11
+  { name: "Portcast",                             domain: "portcast.io",                    provider: "lever", slug: "portcast" }, // 11
+  { name: "Recidiviz",                            domain: "recidiviz.org",                  provider: "greenhouse", slug: "recidiviz" }, // 11
+  { name: "PetDesk",                              domain: "petdesk.com",                    provider: "lever", slug: "petdesk" }, // 11
+  { name: "Sequence",                             domain: "sequencehq.com",                 provider: "ashby", slug: "sequence" }, // 11
+  { name: "FurtherAI",                            domain: "furtherai.com",                  provider: "ashby", slug: "furtherai" }, // 11
+  { name: "Velocity",                             domain: "velocity.xyz",                   provider: "ashby", slug: "velocity" }, // 11
+  { name: "Sourcegraph",                          domain: "sourcegraph.com",                provider: "greenhouse", slug: "sourcegraph91" }, // 10
+  { name: "Element Science",                      domain: "elementscience.com",             provider: "greenhouse", slug: "elementscience" }, // 10
+  { name: "Aviya Aerospace Systems",              domain: "aviyatech.com",                  provider: "lever", slug: "aviyatech" }, // 10
+  { name: "Paymentology",                         domain: "paymentology.com",               provider: "ashby", slug: "paymentology" }, // 10
+  { name: "Adonis",                               domain: "adonis.io",                      provider: "ashby", slug: "adonis" }, // 10
+  { name: "Xage Security",                        domain: "xage.com",                       provider: "lever", slug: "xage-security" }, // 10
+  { name: "Modern Treasury",                      domain: "moderntreasury.com",             provider: "ashby", slug: "moderntreasury" }, // 9
+  { name: "Acorns",                               domain: "acorns.com",                     provider: "ashby", slug: "acorns" }, // 9
+  { name: "Browserbase",                          domain: "browserbase.com",                provider: "ashby", slug: "browserbase" }, // 9
+  { name: "GumGum",                               domain: "gumgum.com",                     provider: "greenhouse", slug: "gumgum" }, // 9
+  { name: "Anomali",                              domain: "anomali.com",                    provider: "lever", slug: "anomali" }, // 9
+  { name: "Zania",                                domain: "zania.ai",                       provider: "ashby", slug: "zania" }, // 9
+  { name: "Expel",                                domain: "expel.com",                      provider: "greenhouse", slug: "expel" }, // 9
+  { name: "Red Canyon Engineering & Software",    domain: "redcanyonsoftware.com",          provider: "lever", slug: "redcanyonsoftware" }, // 8
+  { name: "Mirelo",                               domain: "mirelo.ai",                      provider: "ashby", slug: "mirelo" }, // 8
+  { name: "Watershed",                            domain: "watershed.com",                  provider: "greenhouse", slug: "watershed" }, // 8
+  { name: "Elroy Air",                            domain: "elroyair.com",                   provider: "lever", slug: "elroyair" }, // 8
+  { name: "Protegrity",                           domain: "protegrity.com",                 provider: "ashby", slug: "protegrity" }, // 8
+  { name: "Ciroos",                               domain: "ciroos.ai",                      provider: "ashby", slug: "ciroos" }, // 8
+  { name: "Finto",                                domain: "gofinto.com",                    provider: "ashby", slug: "finto" }, // 7
+  { name: "Samara Aerospace",                     domain: "samaraaerospace.com",            provider: "greenhouse", slug: "samaraaerospace" }, // 7
+  { name: "TodayTix Group (TTG)",                 domain: "todaytixgroup.com",              provider: "lever", slug: "todaytixgroup" }, // 7
+  { name: "Constellation Space (YC26)",           domain: "constellation.space",            provider: "ashby", slug: "constellation" }, // 7
+  { name: "Diagrid",                              domain: "diagrid.io",                     provider: "ashby", slug: "diagrid" }, // 7
+  { name: "Tread",                                domain: "tread.ai",                       provider: "ashby", slug: "tread" }, // 7
+  { name: "LeafLink",                             domain: "leaflink.com",                   provider: "greenhouse", slug: "leaflink" }, // 7
+  { name: "Atlan",                                domain: "atlan.com",                      provider: "ashby", slug: "atlan" }, // 6
+  { name: "Monte Carlo",                          domain: "montecarlodata.com",             provider: "ashby", slug: "montecarlodata" }, // 6
+  { name: "Dave",                                 domain: "dave.com",                       provider: "ashby", slug: "dave" }, // 6
+  { name: "Postscript",                           domain: "postscript.io",                  provider: "greenhouse", slug: "postscript" }, // 6
+  { name: "Stellar Entertainment Software",       domain: "stellarentertainment.software",  provider: "ashby", slug: "stellarentertainment" }, // 6
+  { name: "Tempo",                                domain: "tempo.fit",                      provider: "greenhouse", slug: "tempo" }, // 6
+  { name: "Lupa",                                 domain: "lupapets.com",                   provider: "ashby", slug: "lupapets" }, // 6
+  { name: "DataGrail",                            domain: "datagrail.io",                   provider: "greenhouse", slug: "datagrail" }, // 6
+  { name: "InfluxData",                           domain: "influxdata.com",                 provider: "ashby", slug: "influxdata" }, // 5
+  { name: "Pinecone",                             domain: "pinecone.io",                    provider: "ashby", slug: "pinecone" }, // 5
+  { name: "Highnote",                             domain: "highnote.com",                   provider: "greenhouse", slug: "highnote" }, // 5
+  { name: "Udio",                                 domain: "udio.com",                       provider: "greenhouse", slug: "udio" }, // 5
+  { name: "Lithosquare",                          domain: "lithosquare.com",                provider: "ashby", slug: "lithosquare" }, // 5
+  { name: "Upbound",                              domain: "upbound.io",                     provider: "greenhouse", slug: "upbound" }, // 5
+  { name: "Gradient",                             domain: "gradient.network",               provider: "ashby", slug: "gradient" }, // 5
+  { name: "Airtable",                             domain: "airtable.com",                   provider: "greenhouse", slug: "airtable" }, // 4
+  { name: "Carley Corporation",                   domain: "carleycorp.com",                 provider: "greenhouse", slug: "carleycorporation" }, // 4
+  { name: "Knock",                                domain: "knock.com",                      provider: "greenhouse", slug: "knock" }, // 4
+  { name: "Lokalise",                             domain: "lokalise.com",                   provider: "greenhouse", slug: "lokalise" }, // 4
+  { name: "Nest Veterinary",                      domain: "nestveterinary.com",             provider: "ashby", slug: "nestveterinary" }, // 4
+  { name: "Kertos",                               domain: "kertos.io",                      provider: "ashby", slug: "kertos" }, // 4
+  { name: "Stacklok",                             domain: "stacklok.com",                   provider: "greenhouse", slug: "stacklok" }, // 4
+  { name: "Odin",                                 domain: "joinodin.com",                   provider: "ashby", slug: "odin" }, // 4
+  { name: "Unit",                                 domain: "unit.co",                        provider: "ashby", slug: "unit" }, // 3
+  { name: "Hook",                                 domain: "hookmusic.com",                  provider: "ashby", slug: "hookmusic" }, // 3
+  { name: "CivicPlus",                            domain: "civicplus.com",                  provider: "greenhouse", slug: "civicplus" }, // 3
+  { name: "FastSpring",                           domain: "fastspring.com",                 provider: "greenhouse", slug: "fastspring" }, // 3
+  { name: "OpsMill",                              domain: "opsmill.com",                    provider: "ashby", slug: "opsmill" }, // 3
+  { name: "Public",                               domain: "public.com",                     provider: "greenhouse", slug: "public" }, // 2
+  { name: "Smallest AI",                          domain: "smallest.ai",                    provider: "ashby", slug: "smallest" }, // 2
+  { name: "INFINIT",                              domain: "infinit.com",                    provider: "lever", slug: "infinit" }, // 2
+  { name: "Homeward",                             domain: "homeward.com",                   provider: "greenhouse", slug: "homeward" }, // 2
+  { name: "Opus Training",                        domain: "opus.so",                        provider: "ashby", slug: "opus-training" }, // 2
+  { name: "GoodParty.org",                        domain: "goodparty.org",                  provider: "ashby", slug: "goodparty" }, // 2
+  { name: "NovoEd",                               domain: "novoed.com",                     provider: "greenhouse", slug: "novoed" }, // 2
+  { name: "ARMORY",                               domain: "armorydefense.com",              provider: "ashby", slug: "armory" }, // 2
+  { name: "Mandrel",                              domain: "mandrel.inc",                    provider: "ashby", slug: "mandrel" }, // 2
+  { name: "Fly.io",                               domain: "fly.io",                         provider: "lever", slug: "fly" }, // 1
+  { name: "Mux",                                  domain: "mux.com",                        provider: "ashby", slug: "mux" }, // 1
+  { name: "Chroma",                               domain: "trychroma.com",                  provider: "ashby", slug: "trychroma" }, // 1
+  { name: "15Five",                               domain: "15five.com",                     provider: "lever", slug: "15five" }, // 1
+  { name: "Patronus AI",                          domain: "patronus.ai",                    provider: "ashby", slug: "patronus" }, // 1
+  { name: "Optimum Media",                        domain: "optimum.media",                  provider: "ashby", slug: "optimum" }, // 1
+  { name: "CARIAD",                               domain: "cariad.us",                      provider: "greenhouse", slug: "cariadinc" }, // 1
+  { name: "JOOR",                                 domain: "joor.com",                       provider: "ashby", slug: "joor" }, // 1
+  { name: "Ticketure",                            domain: "ticketure.com",                  provider: "ashby", slug: "ticketure" }, // 1
+  { name: "Articulate",                           domain: "articulate.com",                 provider: "lever", slug: "articulate" }, // 1
+  { name: "Vega",                                 domain: "vega.io",                        provider: "greenhouse", slug: "vega" }, // 1
+  { name: "DexCare",                              domain: "dexcare.com",                    provider: "lever", slug: "dexcarehealth" }, // 1
+  { name: "HealthAxis Group",                     domain: "healthaxis.com",                 provider: "ashby", slug: "healthaxis" }, // 1
+  { name: "ElasticRun",                           domain: "elastic.run",                    provider: "greenhouse", slug: "elastic" }, // 0
 ];
 
 /**

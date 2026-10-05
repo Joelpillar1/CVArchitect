@@ -17,10 +17,10 @@ export const FOUNDATION_FEATURES = [
     'Full download included',
 ];
 
-export const PAID_PLAN_IDS: PlanId[] = ['sprint', 'build', 'lifetime'];
+export const PAID_PLAN_IDS: PlanId[] = ['build', 'lifetime'];
 
 /** @deprecated Legacy paid plan IDs still stored for some users */
-export const LEGACY_PAID_PLAN_IDS = ['week_pass', 'pro_monthly'];
+export const LEGACY_PAID_PLAN_IDS = ['sprint', 'week_pass', 'pro_monthly'];
 
 // ========================================================
 // PLAN CONFIGURATIONS
@@ -30,7 +30,7 @@ export const PLANS: Record<string, Plan> = {
     free: {
         id: 'free',
         name: 'Foundation',
-        tagline: 'Try before you pay',
+        tagline: '',
         description: 'Try the tailoring before you pay for anything.',
         price: { monthly: 0 },
         billingLabel: 'Free',
@@ -71,7 +71,7 @@ export const PLANS: Record<string, Plan> = {
     sprint: {
         id: 'sprint',
         name: 'Sprint',
-        tagline: 'For a quick push',
+        tagline: '',
         description: 'Unlimited AI tailoring for 7 days.',
         price: { weekly: 6 },
         billingLabel: '$6 / week',
@@ -111,11 +111,11 @@ export const PLANS: Record<string, Plan> = {
     build: {
         id: 'build',
         name: 'Build',
-        tagline: 'For an active search',
+        tagline: '',
         description: 'Unlimited AI tailoring, every month.',
-        price: { monthly: 20 },
-        billingLabel: '$20 / month',
-        renewalNote: 'Renews monthly at $20. Cancel anytime.',
+        price: { monthly: 10 },
+        billingLabel: '$10 / month',
+        renewalNote: 'Renews monthly at $10. Cancel anytime.',
         ctaLabel: 'Get started',
         features: {
             resumeUploads: 'unlimited',

@@ -14,6 +14,10 @@ import { CANDIDATE_COMPANIES } from './probe-career-sources';
 import { AGENT_REACH_CANDIDATES } from './agent-reach-candidates';
 import { AGENT_REACH_CANDIDATES_WAVE4 } from './agent-reach-candidates-wave4';
 import { AGENT_REACH_CANDIDATES_WAVE5 } from './agent-reach-candidates-wave5';
+import { AGENT_REACH_CANDIDATES_WAVE6 } from './agent-reach-candidates-wave6';
+import { AGENT_REACH_CANDIDATES_WAVE7 } from './agent-reach-candidates-wave7';
+import { AGENT_REACH_CANDIDATES_WAVE8 } from './agent-reach-candidates-wave8';
+import { AGENT_REACH_CANDIDATES_WAVE9 } from './agent-reach-candidates-wave9';
 
 /**
  * Every candidate list — the hand-curated set plus both Agent Reach discovery waves.
@@ -27,6 +31,10 @@ const ALL_CANDIDATES = (() => {
     ...AGENT_REACH_CANDIDATES,
     ...AGENT_REACH_CANDIDATES_WAVE4,
     ...AGENT_REACH_CANDIDATES_WAVE5,
+    ...AGENT_REACH_CANDIDATES_WAVE6,
+    ...AGENT_REACH_CANDIDATES_WAVE7,
+    ...AGENT_REACH_CANDIDATES_WAVE8,
+    ...AGENT_REACH_CANDIDATES_WAVE9,
   ]) {
     const key = company.domain.toLowerCase();
     if (seen.has(key)) continue;

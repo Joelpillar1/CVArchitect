@@ -32,14 +32,12 @@ import NotchHeroPreview from './NotchHeroPreview';
 import EditorHeroPreview from './EditorHeroPreview';
 import { parseResume } from '../utils/resumeParser';
 import { ResumeData, INITIAL_DATA, createEmptyResume } from '../types';
-import { PLANS, formatPlanPrice } from '../utils/pricingConfig';
-import { setPendingCheckoutPlan } from '../utils/pendingCheckout';
-import { PlanId } from '../types/pricing';
 import { useStreamingPlaceholder } from '../utils/useStreamingPlaceholder';
 import { HighlightedText } from './MetricBulletsMarquee';
 import LandingJobsSection from './LandingJobsSection';
 import { formatJobDescriptionForChat } from '../pages/JobsPage';
 import { Job } from '../types/job';
+import PricingPlans from './PricingPlans';
 
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 32, scale: 0.98 },
@@ -126,72 +124,6 @@ function Counter({ value, decimals = 0, suffix = '' }: { value: number; decimals
 /* Pill-shaped section badge  -  a colored chip with a short section name, followed
    by a descriptive phrase, matching the app theme (green chip, white pill, navy
    text). Replaces the old mono SectionLabel eyebrow. */
-/* Pricing comparison table  -  value renderers for a single cell. */
-type ComparisonCellType = 'check' | 'dash' | 'text';
-interface ComparisonCell {
-  type: ComparisonCellType;
-  text?: string;
-}
-
-function PricingCell({ cell, emphasize }: { cell: ComparisonCell; emphasize?: boolean }) {
-  if (cell.type === 'check') {
-    return (
-      <span className="flex justify-center">
-        <Check size={18} className="text-brand-dark" strokeWidth={2.5} />
-      </span>
-    );
-  }
-  if (cell.type === 'dash') {
-    return <span className="text-center text-sm text-brand-dark/30">-</span>;
-  }
-  return (
-    <span className={`text-center text-sm ${emphasize ? 'font-bold text-brand-dark' : 'font-semibold text-brand-dark'}`}>
-      {cell.text}
-    </span>
-  );
-}
-
-/* Comparison table content  -  grouped rows matching all Dashboard & Editor features:
-   name + price header, zebra-striped rows, ✓ where a plan unlocks a feature. */
-const comparisonSections: { title: string; rows: { label: string; cells: [ComparisonCell, ComparisonCell, ComparisonCell] }[] }[] = [
-  {
-    title: 'AI Resume Agent & Matching',
-    rows: [
-      { label: 'AI Tailored Resumes', cells: [{ type: 'text', text: '1 Resume' }, { type: 'text', text: 'Unlimited*' }, { type: 'text', text: 'Unlimited*' }] },
-      { label: 'Job Description Match & Score', cells: [{ type: 'text', text: 'Basic' }, { type: 'check' }, { type: 'check' }] },
-      { label: 'AI Bullet Optimizer & Metrics', cells: [{ type: 'text', text: '1 Rewrite' }, { type: 'check' }, { type: 'check' }] },
-      { label: 'AI Summary & Skill Extraction', cells: [{ type: 'text', text: '1 Resume' }, { type: 'check' }, { type: 'check' }] },
-      { label: 'Grounded Evidence Verification', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }] },
-    ],
-  },
-  {
-    title: 'Editor & Customization',
-    rows: [
-      { label: 'Interactive Drag & Drop Editor', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }] },
-      { label: 'Custom & Reorderable Sections', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }] },
-      { label: 'ATS Resume Templates', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }] },
-      { label: 'Custom Fonts, Colors & Spacing', cells: [{ type: 'text', text: 'Basic' }, { type: 'check' }, { type: 'check' }] },
-      { label: 'Multi-Page Page Break Control', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }] },
-    ],
-  },
-  {
-    title: 'Career & Application Suite',
-    rows: [
-      { label: 'Saved Resume Versions', cells: [{ type: 'text', text: '1 Version' }, { type: 'text', text: 'Unlimited' }, { type: 'text', text: 'Unlimited' }] },
-      { label: 'Cover Letter Builder', cells: [{ type: 'dash' }, { type: 'check' }, { type: 'check' }] },
-      { label: 'Interview Prep & Q&A', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }] },
-      { label: 'Job Search Feed & 1-Click Tailor', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }] },
-    ],
-  },
-  {
-    title: 'Exports & Downloads',
-    rows: [
-      { label: 'Pixel-Perfect PDF Export', cells: [{ type: 'text', text: '1 Download' }, { type: 'text', text: 'Unlimited' }, { type: 'text', text: 'Unlimited' }] },
-      { label: 'Editable Word (.DOCX) Export', cells: [{ type: 'dash' }, { type: 'check' }, { type: 'check' }] },
-      { label: 'Plain Text (.TXT) Export', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }] },
-    ],
-  },
-];
 
 function SectionBadge({ chip, children }: { chip: string; children: React.ReactNode }) {
   return (
@@ -241,26 +173,26 @@ function AnimatedProgressBar({ pct, tone = 'bg-brand-green' }: { pct: number; to
 
 function ReadinessChecklistModule() {
   const items = [
-    { label: 'Contact & Personal Info', status: 'Complete' },
+    { label: 'Contact & Personal Info', status: 'Verified' },
     { label: 'Work Experience', status: '2 Roles Added' },
     { label: 'Quantified Metrics', status: 'Google XYZ Format' },
-    { label: 'Action Verbs', status: 'Strong & Unique' },
+    { label: 'Action Verbs', status: 'High-Impact' },
   ];
 
   return (
-    <div className="w-full max-w-sm bg-white rounded-2xl border border-brand-border p-4 sm:p-5 shadow-sm space-y-3">
+    <div className="w-full max-w-sm bg-white rounded-xl border border-brand-border p-4 sm:p-5 shadow-sm space-y-3">
       <div className="flex items-center justify-between border-b border-brand-border/60 pb-3">
-        <span className="font-mono text-xs font-semibold text-brand-dark/70 uppercase tracking-wider block">
-          Readiness Checklist
+        <span className="text-xs font-bold text-brand-dark/80 tracking-wide block">
+          Readiness Audit
         </span>
         <motion.span 
           initial={{ opacity: 0, scale: 0.8 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.4, delay: 0.2 }}
-          className="font-mono text-[10px] uppercase tracking-widest text-brand-green font-semibold bg-brand-green/10 px-2 py-0.5 rounded-md"
+          className="text-[11px] font-bold text-emerald-800 bg-brand-green/15 px-2.5 py-0.5 rounded-full"
         >
-          Complete
+          Ready
         </motion.span>
       </div>
       
@@ -292,49 +224,36 @@ function ReadinessChecklistModule() {
   );
 }
 
-function TailoringLoopModule() {
-  return (
-    <div className="bg-brand-bg border-t border-brand-border p-4 sm:p-6">
-      <div className="flex items-center gap-3">
-        <motion.div 
-          whileHover={{ scale: 1.02 }}
-          className="flex-1 text-center border border-brand-border bg-white px-3 py-3 rounded-lg shadow-2xs"
-        >
-          <span className="block text-xs font-mono uppercase tracking-widest text-brand-dark/70">JD in</span>
-        </motion.div>
-        
-        <div className="relative flex items-center justify-center shrink-0 w-8">
-          <motion.div
-            animate={{ x: [-3, 3, -3] }}
-            transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
-          >
-            <ArrowRight size={18} className="text-brand-green" />
-          </motion.div>
-        </div>
+function JobKeywordAlignmentModule() {
+  const keywords = [
+    { name: 'Core Skill Alignment', count: '100% match' },
+    { name: 'Seniority Signals', count: '4 verified' },
+    { name: 'JD Keyword Coverage', count: '14 / 14 mapped' },
+  ];
 
-        <motion.div 
-          animate={{
-            borderColor: ['rgba(16, 185, 129, 0.25)', 'rgba(16, 185, 129, 0.75)', 'rgba(16, 185, 129, 0.25)'],
-            boxShadow: [
-              '0 0 0px rgba(16, 185, 129, 0)',
-              '0 0 10px rgba(16, 185, 129, 0.18)',
-              '0 0 0px rgba(16, 185, 129, 0)'
-            ]
-          }}
-          transition={{ repeat: Infinity, duration: 2.4, ease: 'easeInOut' }}
-          className="flex-1 text-center border border-brand-green/40 bg-brand-green/5 px-3 py-3 rounded-lg"
-        >
-          <span className="block text-xs font-mono uppercase tracking-widest text-brand-green font-semibold">Tailored</span>
-        </motion.div>
+  return (
+    <div className="bg-brand-bg border-t border-brand-border p-3.5 sm:p-4 space-y-2">
+      <div className="flex items-center justify-between text-xs font-semibold px-0.5">
+        <span className="text-[11px] uppercase tracking-wider text-brand-dark/60 font-bold">Target Posting Match</span>
+        <span className="text-emerald-800 font-bold bg-brand-green/20 px-2 py-0.5 rounded-full text-[10px]">
+          100% Aligned
+        </span>
       </div>
-      <div className="flex items-center justify-center gap-1.5 mt-3">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ repeat: Infinity, duration: 8, ease: 'linear' }}
-        >
-          <Repeat size={11} className="text-brand-dark/45" />
-        </motion.div>
-        <p className="text-xs font-mono uppercase tracking-widest text-brand-dark/45 text-center">Re-run per posting</p>
+      <div className="space-y-1.5">
+        {keywords.map((kw, i) => (
+          <div
+            key={i}
+            className="flex items-center justify-between bg-white border border-brand-border rounded-lg px-2.5 py-1.5 text-xs shadow-2xs"
+          >
+            <div className="flex items-center gap-2 truncate">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+              <span className="font-semibold text-brand-dark text-xs truncate">{kw.name}</span>
+            </div>
+            <span className="text-[11px] font-semibold text-emerald-700 shrink-0 ml-2">
+              {kw.count}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -343,17 +262,17 @@ function TailoringLoopModule() {
 function ZeroHallucinationControlsModule() {
   const rules = [
     { status: 'ok', text: 'Rewrote bullet with verified metrics' },
-    { status: 'ok', text: 'Added keyword from JD #2' },
-    { status: 'blocked', text: 'Invented skill not in history' },
+    { status: 'ok', text: 'Matched requirements from job posting' },
+    { status: 'blocked', text: 'Blocked unsupported skill' },
   ];
 
   return (
-    <div className="bg-brand-bg border-t sm:border-t-0 sm:border-l border-brand-border p-5 sm:p-8 lg:p-10 flex flex-col justify-between gap-6">
+    <div className="bg-brand-bg border-t sm:border-t-0 sm:border-l border-brand-border p-5 sm:p-6 lg:p-7 flex flex-col justify-center gap-3.5">
       {/* Threshold bar */}
-      <div className="bg-white rounded-xl border border-brand-border p-4 sm:p-5 shadow-2xs">
-        <div className="flex items-center justify-between mb-4">
-          <span className="font-mono text-xs uppercase tracking-[0.2em] text-brand-dark/70">Grounding threshold</span>
-          <span className="text-3xl font-bold tracking-[-0.03em] text-brand-dark">
+      <div className="bg-white rounded-xl border border-brand-border p-3.5 sm:p-4 shadow-2xs">
+        <div className="flex items-center justify-between mb-2.5">
+          <span className="text-xs font-bold text-brand-dark/70">Grounding Confidence Threshold</span>
+          <span className="text-2xl font-bold tracking-[-0.03em] text-brand-dark">
             <Counter value={95} suffix="%" />
           </span>
         </div>
@@ -361,19 +280,19 @@ function ZeroHallucinationControlsModule() {
       </div>
       
       {/* Blocked indicator */}
-      <div className="bg-white rounded-xl border border-brand-border p-4 sm:p-5 shadow-2xs">
-        <div className="flex items-center gap-3 mb-3">
+      <div className="bg-white rounded-xl border border-brand-border p-3.5 sm:p-4 shadow-2xs">
+        <div className="flex items-center gap-2 mb-2">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             whileInView={{ scale: 1, opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4 }}
           >
-            <ShieldCheck size={18} className="text-brand-green shrink-0" />
+            <ShieldCheck size={16} className="text-brand-green shrink-0" />
           </motion.div>
-          <span className="text-sm font-semibold text-brand-dark">Below threshold → blocked</span>
+          <span className="text-xs font-bold text-brand-dark">Automatic Fact-Checking</span>
         </div>
-        <div className="space-y-2.5">
+        <div className="space-y-1.5">
           {rules.map((item, idx) => (
             <motion.div
               key={item.text}
@@ -381,14 +300,14 @@ function ZeroHallucinationControlsModule() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.35, delay: 0.2 + idx * 0.12 }}
-              className="flex items-center gap-2.5"
+              className="flex items-center gap-2"
             >
-              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-transform ${
+              <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 transition-transform ${
                 item.status === 'ok' ? 'bg-brand-green/15 text-brand-green' : 'bg-red-50 text-red-500'
               }`}>
                 {item.status === 'ok' ? '✓' : '×'}
               </span>
-              <span className={`text-xs leading-snug ${
+              <span className={`text-[11px] leading-tight ${
                 item.status === 'ok' ? 'text-brand-dark/70 font-medium' : 'text-red-400 line-through'
               }`}>
                 {item.text}
@@ -406,7 +325,7 @@ function ATSScorecardModule() {
   const inView = useInView(ref, { once: true, margin: '-40px' });
 
   return (
-    <div ref={ref} className="w-full max-w-sm bg-white rounded-3xl border border-brand-border p-4 sm:p-6 shadow-sm space-y-4">
+    <div ref={ref} className="w-full max-w-sm bg-white rounded-xl border border-brand-border p-4 sm:p-6 shadow-sm space-y-4">
       {/* Center Score & Status */}
       <div className="flex flex-col items-center justify-center text-center">
         <span className="font-sans font-black text-6xl text-brand-dark tracking-tight leading-none">
@@ -509,7 +428,7 @@ function ATSScorecardModule() {
         ].map((col, cIdx) => (
           <div 
             key={cIdx} 
-            className="bg-neutral-50/90 rounded-2xl border border-neutral-100 p-2 sm:p-3 flex flex-col items-center gap-2"
+            className="bg-neutral-50/90 rounded-xl border border-neutral-100 p-2 sm:p-3 flex flex-col items-center gap-2"
           >
             <div className="flex flex-col-reverse gap-1.5 h-20 w-full px-1">
               {Array.from({ length: 8 }).map((_, bIdx) => {
@@ -638,16 +557,6 @@ export default function AgentLandingPage() {
     document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Plan CTA  -  the free plan routes to signup/dashboard; paid plans persist the
-  // pending checkout plan and route to signup, which resumes the Dodo checkout.
-  const handlePlanClick = (planId: string) => {
-    if (planId === 'free') {
-      navigate(user ? '/dashboard' : '/signup');
-      return;
-    }
-    setPendingCheckoutPlan(planId as PlanId);
-    navigate(`/signup?plan=${planId}`);
-  };
 
   const handleResumeFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -949,7 +858,7 @@ export default function AgentLandingPage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleGoToDashboard}
-                className="px-4 py-2 rounded-2xl bg-brand-dark hover:bg-brand-dark/90 text-white font-bold text-sm shadow-sm transition-all flex items-center gap-2 cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-brand-dark hover:bg-brand-dark/90 text-white font-bold text-sm shadow-sm transition-all flex items-center gap-2 cursor-pointer"
               >
                 <span>Launch Agent</span>
                 <ArrowRight className="w-4 h-4 text-brand-green" />
@@ -960,7 +869,7 @@ export default function AgentLandingPage() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleGoogleSignIn}
-                  className="flex items-center gap-2 rounded-2xl border border-brand-border bg-white px-3.5 py-2 text-sm font-semibold text-brand-dark shadow-xs hover:bg-brand-secondary transition-colors cursor-pointer whitespace-nowrap"
+                  className="flex items-center gap-2 rounded-xl border border-brand-border bg-white px-3.5 py-2 text-sm font-semibold text-brand-dark shadow-xs hover:bg-brand-secondary transition-colors cursor-pointer whitespace-nowrap"
                 >
                   <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -975,7 +884,7 @@ export default function AgentLandingPage() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => navigate('/signup')}
-                  className="hidden sm:inline-flex rounded-2xl bg-brand-green px-4 py-2 text-sm font-bold text-brand-dark shadow-xs transition-colors hover:bg-brand-greenHover cursor-pointer whitespace-nowrap"
+                  className="hidden sm:inline-flex rounded-xl bg-brand-green px-4 py-2 text-sm font-bold text-brand-dark shadow-xs transition-colors hover:bg-brand-greenHover cursor-pointer whitespace-nowrap"
                 >
                   Try it free →
                 </motion.button>
@@ -1029,10 +938,10 @@ export default function AgentLandingPage() {
 
               {/* Interactive prompt card */}
               <motion.div variants={fadeInUp} className="w-full max-w-2xl mx-auto">
-                <BorderBeam size="md" theme="light" borderRadius={16} strength={0.75} className="rounded-2xl shadow-float focus-within:ring-4 focus-within:ring-brand-green/10">
+                <BorderBeam size="md" theme="light" borderRadius={12} strength={0.75} className="rounded-xl shadow-float focus-within:ring-4 focus-within:ring-brand-green/10">
                 <form
                   onSubmit={handleLaunchAgent}
-                  className="bg-brand-surface rounded-2xl border border-brand-border p-3 sm:p-4 relative transition-all"
+                  className="bg-brand-surface rounded-xl border border-brand-border p-3 sm:p-4 relative transition-all"
                 >
                   <textarea
                     value={promptInput}
@@ -1354,22 +1263,22 @@ export default function AgentLandingPage() {
               variants={fadeInUp}
               className="text-center mb-16 lg:mb-20"
             >
-              <SectionBadge chip="Core features">The four systems in action</SectionBadge>
+              <SectionBadge chip="Core capabilities">Built for real hiring workflows</SectionBadge>
               <h2 className="text-[clamp(2.2rem,4.5vw,3.6rem)] font-bold tracking-[-0.03em] leading-[1.02] text-brand-dark mt-5 text-balance">
-                The four systems behind every tailored resume
+                Everything you need to tailor and pass screening
               </h2>
               <p className="text-base text-brand-dark/60 mt-5 max-w-2xl mx-auto">
-                Memory holds the facts. Loops drive the tailoring. Controls stop hallucination. Analytics show your match.
+                Grounded in your real experience, aligned with job requirements, and verified against top ATS parser rules.
               </p>
             </motion.div>
 
             {/* Bento grid
-                Row 1: Grounded Evidence Engine  -  full width (copy left, module right)
-                Row 2: JD Tailoring Loop (1 col) + Zero-Hallucination Controls (2 cols)
-                Row 3: ATS Match Analytics  -  full width (copy left, module right) */}
+                Row 1: Grounded Evidence  -  full width (copy left, module right)
+                Row 2: Job Alignment (1 col) + Accuracy Guardrails (2 cols)
+                Row 3: ATS Match Scoring  -  full width (copy left, module right) */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-              {/* ─── Row 1: Grounded Evidence Engine  -  full width ─── */}
+              {/* ─── Row 1: Grounded Evidence  -  full width ─── */}
               <motion.div
                 custom={0}
                 initial="hidden"
@@ -1377,17 +1286,19 @@ export default function AgentLandingPage() {
                 viewport={{ once: true, margin: '-60px' }}
                 variants={bentoCardVariants}
                 whileHover={{ y: -4, transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] } }}
-                className="lg:col-span-3 bg-white rounded-2xl border border-brand-border overflow-hidden cursor-default transition-shadow hover:shadow-md"
+                className="lg:col-span-3 bg-white rounded-xl border border-brand-border overflow-hidden cursor-default transition-shadow hover:shadow-md"
               >
                 <div className="grid grid-cols-1 md:grid-cols-2">
                   {/* Left: copy */}
                   <div className="p-8 sm:p-10 lg:p-12 flex flex-col justify-center">
-                    <span className="block font-mono text-xs uppercase tracking-[0.2em] text-brand-dark/45 font-semibold mb-4">01 / Engine</span>
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-dark/80 bg-brand-bg border border-brand-border px-3 py-1 rounded-lg mb-4 w-fit">
+                      Work History Grounding
+                    </span>
                     <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-dark mb-4">
-                      Grounded <em className="not-italic text-brand-green">Evidence</em> Engine
+                      Evidence-Based <em className="not-italic text-brand-green">Experience</em> Mapping
                     </h3>
                     <p className="text-sm sm:text-base text-brand-dark/60 leading-relaxed max-w-md">
-                      Every rewritten bullet traces back to a real role in your history. Nothing is invented, nothing is padded. The agent builds a verified evidence trace before touching a single word.
+                      Every rewritten bullet traces back to a verified role in your history. Nothing is fabricated or exaggerated. The agent maps your genuine accomplishments before polishing a single word.
                     </p>
                   </div>
                   {/* Right: diagnostic module  -  Readiness Checklist */}
@@ -1397,7 +1308,7 @@ export default function AgentLandingPage() {
                 </div>
               </motion.div>
 
-              {/* ─── Row 2 Left: JD Tailoring Loop ─── */}
+              {/* ─── Row 2 Left: Targeted Job Matching ─── */}
               <motion.div
                 custom={1}
                 initial="hidden"
@@ -1405,22 +1316,22 @@ export default function AgentLandingPage() {
                 viewport={{ once: true, margin: '-60px' }}
                 variants={bentoCardVariants}
                 whileHover={{ y: -4, transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] } }}
-                className="lg:col-span-1 bg-white rounded-2xl border border-brand-border overflow-hidden flex flex-col min-h-[340px] cursor-default transition-shadow hover:shadow-md"
+                className="lg:col-span-1 bg-white rounded-xl border border-brand-border overflow-hidden flex flex-col justify-between cursor-default transition-shadow hover:shadow-md"
               >
-                <div className="p-8 sm:p-10 flex-1 flex flex-col justify-between">
-                  <div>
-                    <span className="block font-mono text-xs uppercase tracking-[0.2em] text-brand-dark/45 font-semibold mb-4">02 / Loop</span>
-                    <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-brand-dark mb-3">JD Tailoring Loop</h3>
-                    <p className="text-sm text-brand-dark/60 leading-relaxed">
-                      Each posting gets its own pass: keywords, seniority signals, and achievement framing mapped onto your real experience.
-                    </p>
-                  </div>
+                <div className="p-6 sm:p-7">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-dark/80 bg-brand-bg border border-brand-border px-3 py-1 rounded-lg mb-3.5 w-fit">
+                    Job Alignment
+                  </span>
+                  <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-brand-dark mb-2.5">Targeted Keyword Matching</h3>
+                  <p className="text-sm text-brand-dark/60 leading-relaxed">
+                    Each job posting is analyzed individually: key competencies, seniority signals, and impact framing mapped onto your experience.
+                  </p>
                 </div>
-                {/* Bottom: animated flow diagram on brand-bg */}
-                <TailoringLoopModule />
+                {/* Bottom: Real keyword alignment module */}
+                <JobKeywordAlignmentModule />
               </motion.div>
 
-              {/* ─── Row 2 Right: Zero-Hallucination Controls ─── */}
+              {/* ─── Row 2 Right: Strict Accuracy Guardrails ─── */}
               <motion.div
                 custom={2}
                 initial="hidden"
@@ -1428,17 +1339,19 @@ export default function AgentLandingPage() {
                 viewport={{ once: true, margin: '-60px' }}
                 variants={bentoCardVariants}
                 whileHover={{ y: -4, transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] } }}
-                className="lg:col-span-2 bg-white rounded-2xl border border-brand-border overflow-hidden flex flex-col cursor-default transition-shadow hover:shadow-md"
+                className="lg:col-span-2 bg-white rounded-xl border border-brand-border overflow-hidden flex flex-col cursor-default transition-shadow hover:shadow-md"
               >
                 <div className="grid grid-cols-1 sm:grid-cols-2 flex-1">
                   {/* Left: copy */}
-                  <div className="p-8 sm:p-10 flex flex-col justify-center">
-                    <span className="block font-mono text-xs uppercase tracking-[0.2em] text-brand-dark/45 font-semibold mb-4">03 / Controls</span>
-                    <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-brand-dark mb-3">
-                      Zero-Hallucination <em className="not-italic text-brand-green">Controls</em>
+                  <div className="p-6 sm:p-7 flex flex-col justify-center">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-dark/80 bg-brand-bg border border-brand-border px-3 py-1 rounded-lg mb-3.5 w-fit">
+                      Accuracy Guardrails
+                    </span>
+                    <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-brand-dark mb-2.5">
+                      Zero-Exaggeration <em className="not-italic text-brand-green">Safety Controls</em>
                     </h3>
                     <p className="text-sm text-brand-dark/60 leading-relaxed">
-                      A strict confidence threshold blocks any suggestion that cannot be grounded. <span className="font-semibold text-brand-dark">Quality over keyword volume.</span>
+                      A strict confidence threshold blocks unsupported claims. You get truthful, high-impact phrasing that holds up under scrutiny in interviews.
                     </p>
                   </div>
                   {/* Right: animated grounding threshold module */}
@@ -1454,14 +1367,16 @@ export default function AgentLandingPage() {
                 viewport={{ once: true, margin: '-60px' }}
                 variants={bentoCardVariants}
                 whileHover={{ y: -4, transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] } }}
-                className="lg:col-span-3 bg-white rounded-2xl border border-brand-border overflow-hidden cursor-default transition-shadow hover:shadow-md"
+                className="lg:col-span-3 bg-white rounded-xl border border-brand-border overflow-hidden cursor-default transition-shadow hover:shadow-md"
               >
                 <div className="grid grid-cols-1 md:grid-cols-2">
                   {/* Left: copy */}
                   <div className="p-8 sm:p-10 lg:p-12 flex flex-col justify-center">
-                    <span className="block font-mono text-xs uppercase tracking-[0.2em] text-brand-dark/45 font-semibold mb-4">04 / Analytics</span>
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-dark/80 bg-brand-bg border border-brand-border px-3 py-1 rounded-lg mb-4 w-fit">
+                      ATS Verification
+                    </span>
                     <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-brand-dark mb-4">
-                      ATS Match <em className="not-italic text-brand-green">Analytics</em>
+                      Real-Time ATS <em className="not-italic text-brand-green">Match Scoring</em>
                     </h3>
                     <p className="text-sm sm:text-base text-brand-dark/60 leading-relaxed max-w-md mb-8">
                       Score your resume against Workday, Taleo, Lever, and Greenhouse parsing rules before you hit submit. Watch the match score update in real time as you tailor.
@@ -1878,115 +1793,11 @@ export default function AgentLandingPage() {
           </div>
         </section>
 
-        {/* PRICING  -  flat plans */}
+        {/* PRICING */}
         <section id="pricing" className="relative py-24 md:py-36 bg-brand-bg border-t border-brand-border">
           <VerticalBoundLines />
           <div className="relative z-10 w-full max-w-[calc(100%-1.5rem)] sm:max-w-[calc(100%-3rem)] md:max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Header */}
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: '-60px' }}
-              variants={fadeInUp}
-              className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-end mb-16 lg:mb-20"
-            >
-              <div className="lg:col-span-5">
-                <SectionBadge chip="Pricing">Simple, flat plans</SectionBadge>
-                <h2 className="text-[clamp(2.2rem,4.5vw,3.6rem)] font-bold tracking-[-0.03em] leading-[1.02] text-brand-dark mt-5">
-                  Pay when you're ready to apply
-                </h2>
-              </div>
-              <div className="lg:col-span-7 lg:pb-1">
-                <p className="text-base text-brand-dark/60 leading-relaxed max-w-xl">
-                  Start free with one AI-tailored resume. Upgrade for unlimited tailoring*, every template, and unlimited exports. Cancel anytime.
-                </p>
-              </div>
-            </motion.div>
-
-            {/* Comparison table */}
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="max-w-4xl mx-auto overflow-x-auto"
-            >
-              <div className="min-w-[560px]">
-                {/* Header */}
-                <div className="grid grid-cols-[1.2fr_repeat(3,1fr)] gap-x-4 sm:gap-x-8 mb-8">
-                  <div aria-hidden="true" />
-                  {(['free', 'sprint', 'build'] as const).map((planId) => {
-                    const plan = PLANS[planId];
-                    const { amount, period } = formatPlanPrice(plan);
-                    return (
-                      <div key={planId} className="text-center">
-                        <h3 className="text-base sm:text-lg font-semibold tracking-tight text-brand-dark">{plan.name}</h3>
-                        <div className="mt-1 flex items-baseline justify-center">
-                          <span className="text-2xl sm:text-4xl font-extrabold tracking-[-0.03em] text-brand-dark">
-                            {amount}
-                          </span>
-                          {period && (
-                            <span className="text-xs sm:text-sm font-semibold text-brand-dark/70 ml-1">
-                              {period}
-                            </span>
-                          )}
-                        </div>
-                        <motion.button
-                          whileHover={{ scale: 1.02, y: -2 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => handlePlanClick(planId)}
-                          className="mt-4 w-full py-2 sm:py-2.5 px-2 rounded-xl bg-brand-green hover:bg-brand-greenHover text-brand-dark font-bold text-xs sm:text-sm shadow-sm transition-all cursor-pointer"
-                        >
-                          Get started
-                        </motion.button>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {comparisonSections.map((section) => (
-                  <div key={section.title} className="mb-10 last:mb-0">
-                    <h4 className="text-base sm:text-lg font-semibold text-brand-dark mb-4">{section.title}</h4>
-                    <div>
-                      {section.rows.map((row, i) => (
-                        <div
-                          key={row.label}
-                          className={`grid grid-cols-[1.2fr_repeat(3,1fr)] gap-x-4 sm:gap-x-8 items-center px-4 sm:px-5 py-3.5 rounded-lg transition-colors ${
-                            i % 2 === 0 ? 'bg-brand-secondary' : 'hover:bg-neutral-50/50'
-                          }`}
-                        >
-                          <span className="text-xs sm:text-sm text-brand-dark/85 font-medium">{row.label}</span>
-                          {row.cells.map((cell, cIdx) => (
-                            <PricingCell key={cIdx} cell={cell} emphasize={cell.type === 'text'} />
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-
-                {/* Bottom CTA buttons below all comparison features */}
-                <div className="grid grid-cols-[1.2fr_repeat(3,1fr)] gap-x-4 sm:gap-x-8 items-center pt-8 border-t border-brand-border mt-8">
-                  <div aria-hidden="true" />
-                  {(['free', 'sprint', 'build'] as const).map((planId) => (
-                    <div key={planId} className="text-center">
-                      <motion.button
-                        whileHover={{ scale: 1.02, y: -2 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => handlePlanClick(planId)}
-                        className="w-full py-2 sm:py-2.5 px-2 rounded-xl bg-brand-green hover:bg-brand-greenHover text-brand-dark font-bold text-xs sm:text-sm shadow-sm transition-all cursor-pointer"
-                      >
-                        Get started
-                      </motion.button>
-                    </div>
-                  ))}
-                </div>
-
-                <p className="mt-8 text-center text-xs text-brand-dark/50">
-                  * Unlimited AI tailoring is subject to standard fair use guidelines to ensure service reliability for all users. Free plan includes full preview and 1 AI tailoring credit without requiring payment.
-                </p>
-              </div>
-            </motion.div>
+            <PricingPlans onFreeClick={() => (user ? navigate('/dashboard') : navigate('/signup'))} />
           </div>
         </section>
 
@@ -2088,8 +1899,8 @@ export default function AgentLandingPage() {
               </div>
 
               {/* Right  -  prompt card */}
-              <BorderBeam size="md" theme="dark" borderRadius={16} strength={0.75} className="rounded-2xl focus-within:ring-4 focus-within:ring-brand-green/10">
-              <div className="bg-white/[0.06] border border-white/10 rounded-2xl p-5 sm:p-6 shadow-2xl">
+              <BorderBeam size="md" theme="dark" borderRadius={12} strength={0.75} className="rounded-xl focus-within:ring-4 focus-within:ring-brand-green/10">
+              <div className="bg-white/[0.06] border border-white/10 rounded-xl p-5 sm:p-6 shadow-2xl">
                 <textarea
                   value={promptInput}
                   onChange={(e) => setPromptInput(e.target.value)}

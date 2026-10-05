@@ -368,17 +368,11 @@ ${resumeAnalysis.missingOrWeakSections.join(', ') || 'none'}
 
     for await (const event of result) {
       if (ac.signal.aborted) break;
-      if (event.type === 'raw_model_stream_event') {
-        const data = event.data as { type?: string; delta?: string };
-        // @openai/agents normalizes the model's text stream to "output_text_delta".
-        // Accept the raw Responses API name too, so this survives an SDK version change.
-        if (
-          (data.type === 'output_text_delta' || data.type === 'response.output_text.delta') &&
-          data.delta
-        ) {
-          textDeltas += 1;
-          sse.send({ type: 'chat_delta', text: data.delta });
-        }
+
+      const delta = extractTextDeltaFromStreamEvent(event);
+      if (delta) {
+        textDeltas += 1;
+        sse.send({ type: 'chat_delta', text: delta });
       }
     }
 
@@ -390,7 +384,15 @@ ${resumeAnalysis.missingOrWeakSections.join(', ') || 'none'}
     if (!ac.signal.aborted) {
       if (textDeltas === 0) {
         const finalText = String((result as { finalOutput?: unknown }).finalOutput ?? '').trim();
-        if (finalText) sse.send({ type: 'chat_delta', text: finalText });
+        if (finalText) {
+          // Send tokens in quick chunks with micro-delays if fallback was hit
+          const words = finalText.split(/(\s+)/);
+          for (const word of words) {
+            if (word) {
+              sse.send({ type: 'chat_delta', text: word });
+            }
+          }
+        }
       }
       sse.send({ type: 'memory_updated', memory: currentMemory });
       sse.send({ type: 'run_completed', agentRunId });
@@ -407,6 +409,74 @@ ${resumeAnalysis.missingOrWeakSections.join(', ') || 'none'}
     res.off('close', onClose);
     sse.close();
   }
+}
+
+export function extractTextDeltaFromStreamEvent(event: unknown): string | null {
+  if (!event || typeof event !== 'object') return null;
+  const anyEvent = event as Record<string, any>;
+
+  // 1. Direct output_text_delta or response.output_text.delta event
+  if (
+    (anyEvent.type === 'output_text_delta' || anyEvent.type === 'response.output_text.delta') &&
+    typeof anyEvent.delta === 'string'
+  ) {
+    return anyEvent.delta;
+  }
+
+  // 2. Wrapped in raw_model_stream_event (standard @openai/agents stream wrapper)
+  if (anyEvent.type === 'raw_model_stream_event' && anyEvent.data) {
+    const data = anyEvent.data as Record<string, any>;
+
+    // Case A: Normalized output_text_delta / response.output_text.delta
+    if (
+      (data.type === 'output_text_delta' || data.type === 'response.output_text.delta') &&
+      typeof data.delta === 'string'
+    ) {
+      return data.delta;
+    }
+
+    // Case B: Raw model event chunk from custom adapter or un-normalized provider
+    // Note: openai-responses and openai-chat-completions emit both raw 'model' event and normalized 'output_text_delta'.
+    // We only inspect 'model' if it's not already covered by standard rawModelEventSource to avoid duplicate deltas.
+    if (data.type === 'model' && data.event && typeof data.event === 'object') {
+      const isKnownDoubleEmittingProvider =
+        data.providerData?.rawModelEventSource === 'openai-responses' ||
+        data.providerData?.rawModelEventSource === 'openai-chat-completions';
+
+      if (!isKnownDoubleEmittingProvider) {
+        const modelEvent = data.event as Record<string, any>;
+
+        if (
+          (modelEvent.type === 'response.output_text.delta' || modelEvent.type === 'output_text_delta') &&
+          typeof modelEvent.delta === 'string'
+        ) {
+          return modelEvent.delta;
+        }
+
+        if (
+          modelEvent.type === 'response.content_part.delta' &&
+          modelEvent.delta &&
+          typeof modelEvent.delta.text === 'string'
+        ) {
+          return modelEvent.delta.text;
+        }
+
+        if (Array.isArray(modelEvent.choices) && modelEvent.choices.length > 0) {
+          const choice = modelEvent.choices[0];
+          if (choice?.delta && typeof choice.delta.content === 'string') {
+            return choice.delta.content;
+          }
+        }
+      }
+    }
+
+    // Case C: Raw delta field on data
+    if (typeof data.delta === 'string' && data.type !== 'response_done') {
+      return data.delta;
+    }
+  }
+
+  return null;
 }
 
 export function formatUserFriendlyAgentErrorMessage(err: unknown): string {

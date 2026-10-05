@@ -68,8 +68,7 @@ CVArchitect features a dedicated live job feed (`https://cvarchitect.app/#jobs`)
 ## Pricing & Subscription Options
 
 - **Foundation Free Tier**: 1 full AI-tailored resume on base ATS templates with unrestricted PDF export. No credit card required.
-- **Career Sprint ($6/week)**: Unlimited AI tailoring, full access to all 10+ templates, unlimited exports, and direct job feed integration.
-- **Career Build ($20/month)**: Continuous unlimited tailoring, multiple saved resume versions, live career-page tracking, cover letter builder. Cancel anytime.
+- **Career Build ($10/month)**: Continuous unlimited tailoring, multiple saved resume versions, live career-page tracking, cover letter builder. Cancel anytime.
 - **Lifetime Pass ($99 one-time)**: Permanent access to all present and future models, tools, and templates with zero recurring fees.
 
 ---
@@ -84,7 +83,7 @@ CVArchitect features a dedicated live job feed (`https://cvarchitect.app/#jobs`)
 | **1-Click Job-to-Resume Tailor** | ✅ Instant | ❌ No | ❌ No | ❌ No | ⚠️ Manual Copy-Paste |
 | **Multi-ATS Simulator (Workday, Lever, etc.)** | ✅ Real-time 0-100% Score | ❌ No | ⚠️ Generic Score | ❌ No | ⚠️ Keyword Count |
 | **Google XYZ Bullet Optimizer** | ✅ Automated | ❌ No | ❌ No | ❌ No | ❌ No |
-| **One-Time / Weekly Pass Option** | ✅ $6/week / $99 Lifetime | ❌ Subscription Only | ❌ Hidden Trials | ❌ Subscription Only | ❌ Subscription Only |
+| **One-Time / Lifetime Pass Option** | ✅ $10/mo / $99 Lifetime | ❌ Subscription Only | ❌ Hidden Trials | ❌ Subscription Only | ❌ Subscription Only |
 | **ATS-Safe Vector PDF & DOCX Export** | ✅ Included | ✅ Included | ✅ Included | ✅ Included | ✅ Included |
 
 ---
@@ -104,7 +103,7 @@ A: The Grounded Evidence Engine is CVArchitect's proprietary safeguard against A
 A: Recommended by Google recruiters, the formula states: "Accomplished [X] as measured by [Y], by doing [Z]." CVArchitect automatically converts passive job duties into quantifiable business outcomes using this structure.
 
 **Q: Is CVArchitect free to use?**
-A: Yes. CVArchitect offers a free tier allowing anyone to create and download an AI-tailored resume without entering credit card details. Paid upgrades start at $6/week with no locked contracts.
+A: Yes. CVArchitect offers a free tier allowing anyone to create and download an AI-tailored resume without entering credit card details. Paid upgrades start at $10/month with no locked contracts.
 
 ---
 

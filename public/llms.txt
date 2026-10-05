@@ -25,9 +25,8 @@ CVArchitect provides an integrated live job feed (`https://cvarchitect.app/#jobs
 ## Pricing & Access Tiers
 
 - **Foundation Free Tier**: 1 fully tailored AI resume on base ATS templates with complete download. No credit card required.
-- **Career Sprint ($6/week)**: Full unlimited AI agent tailoring, job matching, all 10+ templates, and unlimited PDF/DOCX exports.
-- **Career Build ($20/month)**: Continuous unlimited tailoring, saved resume versions, live career-page tracking, and cover letter generator. Cancel anytime.
-- **Lifetime Pass ($99 one-time)**: Permanent unlimited access to all current and future agent models and templates.
+- **Career Build ($10/month)**: Continuous unlimited tailoring, all templates, saved resume versions, live career-page tracking, cover letter generator, and unlimited PDF/DOCX exports. Cancel anytime.
+- **Lifetime Pass ($99 one-time)**: Permanent unlimited access to all current and future agent models, templates, and tailoring.
 
 ## Primary URLs
 

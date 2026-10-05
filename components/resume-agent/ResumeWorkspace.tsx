@@ -728,6 +728,91 @@ export default function ResumeWorkspace({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, template]);
 
+  // ── AI Recruiter Canvas Spotlight & Eye-Tracking Listener ───────────────────
+  useEffect(() => {
+    const handleHighlightEvent = (e: Event) => {
+      const customEv = e as CustomEvent<{
+        path?: string;
+        action?: 'highlight' | 'applied' | 'clear';
+        duration?: number;
+      }>;
+      const detail = customEv.detail || {};
+      const paper = paperRef.current;
+      if (!paper) return;
+
+      // 1. Clear previous highlights
+      const prevHighlights = Array.from(
+        paper.querySelectorAll('.agent-target-highlight, .agent-target-highlight-applied')
+      );
+      prevHighlights.forEach((el) => {
+        el.classList.remove('agent-target-highlight', 'agent-target-highlight-applied');
+      });
+
+      if (detail.action === 'clear' || !detail.path) return;
+
+      const path = detail.path.trim();
+
+      // 2. Find target element by exact, prefix, or fuzzy data-path
+      let targetEl: HTMLElement | null = null;
+
+      // Try exact data-path
+      targetEl = paper.querySelector(`[data-path="${path}"]`) as HTMLElement | null;
+
+      // Try prefix data-path (e.g. experience.0)
+      if (!targetEl) {
+        targetEl = paper.querySelector(`[data-path^="${path}"]`) as HTMLElement | null;
+      }
+
+      // Try fuzzy matches for common sections
+      if (!targetEl) {
+        if (path === 'summary') {
+          targetEl = (paper.querySelector('[data-path*="summary"]') ||
+            paper.querySelector('section:has([data-path*="summary"])')) as HTMLElement | null;
+        } else if (path === 'skills') {
+          targetEl = (paper.querySelector('[data-skills-grid]') ||
+            paper.querySelector('[data-path*="skills"]') ||
+            paper.querySelector('section:has([data-skills-grid])')) as HTMLElement | null;
+        } else if (path === 'jobTitle' || path === 'title') {
+          targetEl = paper.querySelector('[data-path="jobTitle"]') as HTMLElement | null;
+        } else if (path.startsWith('experience')) {
+          targetEl = paper.querySelector(`[data-path*="${path}"]`) as HTMLElement | null;
+        }
+      }
+
+      if (targetEl) {
+        if (detail.action === 'applied') {
+          targetEl.classList.add('agent-target-highlight-applied');
+          setTimeout(() => {
+            targetEl?.classList.remove('agent-target-highlight-applied');
+          }, 1400);
+        } else {
+          targetEl.classList.add('agent-target-highlight');
+
+          // Smoothly scroll into visible canvas container if not fully in view
+          const scrollContainer = scrollContainerRef.current;
+          if (scrollContainer) {
+            const containerRect = scrollContainer.getBoundingClientRect();
+            const elRect = targetEl.getBoundingClientRect();
+            if (elRect.top < containerRect.top + 60 || elRect.bottom > containerRect.bottom - 60) {
+              targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }
+
+          if (detail.duration) {
+            setTimeout(() => {
+              targetEl?.classList.remove('agent-target-highlight');
+            }, detail.duration);
+          }
+        }
+      }
+    };
+
+    window.addEventListener('cv_agent_highlight', handleHighlightEvent);
+    return () => {
+      window.removeEventListener('cv_agent_highlight', handleHighlightEvent);
+    };
+  }, []);
+
   // The freshest ResumeData, read by the sheets-reinjected callback below
   // (which is stable and must not capture a stale render's `data`).
   const dataRef = useRef(data);

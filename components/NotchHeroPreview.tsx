@@ -66,7 +66,7 @@ export default function NotchHeroPreview() {
       </div>
 
       {/* Scenic Meadow Frame Container (Flat, No Heavy Shadow) */}
-      <div className="relative rounded-2xl overflow-hidden border border-gray-200/60 p-4 sm:p-6 md:p-8 lg:p-10 min-h-[500px] sm:min-h-[600px] flex items-center justify-center">
+      <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-gray-200/60 p-2.5 sm:p-6 md:p-8 lg:p-10 min-h-0 sm:min-h-[560px] flex items-center justify-center shadow-lg sm:shadow-none">
         {/* Scenic Background (Nature meadow with flowers & blue sky) */}
         <div
           className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 scale-100"
@@ -88,10 +88,10 @@ export default function NotchHeroPreview() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="bg-white rounded-xl border border-white/90 overflow-hidden"
+            className="bg-white rounded-xl sm:rounded-2xl border border-white/90 overflow-hidden shadow-xl"
           >
             {/* Window Content based on selected tab */}
-            <div className="relative bg-white min-h-[380px] sm:min-h-[480px]">
+            <div className="relative bg-white w-full">
               {activeTab === 'editor' && (
                 <div className="w-full">
                   <EditorHeroPreview />

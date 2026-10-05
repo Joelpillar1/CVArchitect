@@ -91,6 +91,7 @@ interface ChatMessage {
         jobData?: JobDescriptionData;
         applied?: boolean;
         skipped?: boolean;
+        mode?: 'append' | 'replace';
     };
     actionPrompt?: {
         label: string;
@@ -103,6 +104,7 @@ interface ChatMessage {
         jobData?: JobDescriptionData;
     };
     suggestions?: string[];
+    isStreaming?: boolean;
 }
 
 /** Lightweight Markdown renderer for structured AI chat output */
@@ -214,6 +216,38 @@ export default function EditorSidebarRight({
     embedded = false
 }: EditorSidebarRightProps) {
     const isEmbeddedPreview = Boolean(embedded || userSubscription?.userId === 'preview');
+    const broadcastHighlight = (path: string, action: 'highlight' | 'applied' | 'clear' = 'highlight', duration?: number) => {
+        if (typeof window !== 'undefined' && path) {
+            window.dispatchEvent(
+                new CustomEvent('cv_agent_highlight', {
+                    detail: { path, action, duration }
+                })
+            );
+        }
+    };
+
+    const getProposalTargetDataPath = (proposal?: NonNullable<ChatMessage['proposal']> | null): string => {
+        if (!proposal) return '';
+        if (proposal.section === 'title_and_summary') return 'summary';
+        if (proposal.section === 'summary') return 'summary';
+        if (proposal.section === 'title') return 'jobTitle';
+        if (proposal.section === 'skills') return 'skills';
+        if (proposal.section === 'keyAchievements') return 'keyAchievements';
+        if (proposal.section === 'experience') {
+            return `experience.${proposal.experienceIndex ?? 0}`;
+        }
+        if (proposal.section === 'projects') {
+            return `projects.${proposal.projectIndex ?? 0}`;
+        }
+        if (proposal.section === 'leadership') {
+            return `leadership.${proposal.leadershipIndex ?? 0}`;
+        }
+        if (proposal.section === 'additionalInfo') {
+            return `additionalInfo.${proposal.additionalInfoIndex ?? 0}`;
+        }
+        return '';
+    };
+
     const location = useLocation();
     const [activeTab, setActiveTab] = useState<'chat' | 'context' | 'history'>('chat');
     const [inputText, setInputText] = useState('');
@@ -402,7 +436,15 @@ export default function EditorSidebarRight({
         } catch (e) {
             console.error('Failed to save chat messages to localStorage:', e);
         }
-    }, [messages, currentStorageKey]);
+        // Sync completed messages into resume data so Supabase saves chat history
+        const hasStreaming = messages.some(m => m.isStreaming);
+        if (!hasStreaming && !isProcessing) {
+            const currentSavedMsgs = data?.agentMessages || [];
+            if (JSON.stringify(currentSavedMsgs) !== JSON.stringify(messages)) {
+                onChange({ ...data, agentMessages: messages as any });
+            }
+        }
+    }, [messages, currentStorageKey, isProcessing, data]);
 
     // Keep scroll anchored to bottom
     useEffect(() => {
@@ -1969,6 +2011,10 @@ Return 3-4 bullet points starting with '• '. Output ONLY the bullet points.`;
     // Apply proposal to resume data
     const handleApplyProposal = (msgId: string, proposal: NonNullable<ChatMessage['proposal']>) => {
         const job = proposal.jobData;
+        const targetPath = getProposalTargetDataPath(proposal);
+        if (targetPath) {
+            broadcastHighlight(targetPath, 'applied');
+        }
 
         if (proposal.section === 'title_and_summary') {
             onChange({
@@ -2014,40 +2060,58 @@ Return 3-4 bullet points starting with '• '. Output ONLY the bullet points.`;
             ]);
             return;
         } else if (proposal.section === 'skills') {
-            onChange({ ...data, skills: proposal.proposedSkills || proposal.proposed });
-            setMessages(prev => [
-                ...prev.map(m => m.id === msgId && m.proposal ? { ...m, proposal: { ...m.proposal, applied: true } } : m),
-                {
-                    id: `complete-step-${Date.now()}`,
-                    sender: 'agent',
-                    timestamp: Date.now(),
-                    type: 'text',
-                    text: `**All Step-by-Step Tailoring Actions Complete!**\n\nYour resume is now fully aligned with the target role and optimized for ATS algorithms and executive recruiters.`
-                }
-            ]);
+            const newSkills = proposal.proposedSkills || proposal.proposed;
+            onChange({ ...data, skills: newSkills });
+            setMessages(prev =>
+                prev.map(m => m.id === msgId && m.proposal ? { ...m, proposal: { ...m.proposal, applied: true } } : m)
+            );
+            if (job) {
+                setMessages(prev => [
+                    ...prev,
+                    {
+                        id: `complete-step-${Date.now()}`,
+                        sender: 'agent',
+                        timestamp: Date.now(),
+                        type: 'text',
+                        text: `**All Step-by-Step Tailoring Actions Complete!**\n\nYour resume is now fully aligned with the target role and optimized for ATS algorithms and executive recruiters.`
+                    }
+                ]);
+            }
             return;
         } else if (proposal.section === 'experience') {
             const expIdx = proposal.experienceIndex ?? 0;
             const updated = [...data.experience];
-            const bulletsOnly = proposal.proposedSummary || proposal.proposed.replace(/^\*\*[^*]+\*\*:\s*/i, '').trim();
+            const rawContent = proposal.proposedSummary || proposal.proposed.replace(/^\*\*[^*]+\*\*:\s*/i, '').trim();
 
             if (updated[expIdx]) {
-                updated[expIdx] = { ...updated[expIdx], description: bulletsOnly };
+                if (proposal.mode === 'append') {
+                    const existing = (updated[expIdx].description || '').trim();
+                    const newDescription = existing ? `${existing}\n${rawContent}` : rawContent;
+                    updated[expIdx] = { ...updated[expIdx], description: newDescription };
+                } else {
+                    updated[expIdx] = { ...updated[expIdx], description: rawContent };
+                }
                 onChange({ ...data, experience: updated });
             }
 
-            const nextStep = getNextStepPrompt('experience', expIdx, job);
-            setMessages(prev => [
-                ...prev.map(m => m.id === msgId && m.proposal ? { ...m, proposal: { ...m.proposal, applied: true } } : m),
-                {
-                    id: `next-step-${Date.now()}`,
-                    sender: 'agent',
-                    timestamp: Date.now(),
-                    type: 'text',
-                    text: nextStep.text,
-                    actionPrompt: nextStep.actionPrompt
-                }
-            ]);
+            if (job) {
+                const nextStep = getNextStepPrompt('experience', expIdx, job);
+                setMessages(prev => [
+                    ...prev.map(m => m.id === msgId && m.proposal ? { ...m, proposal: { ...m.proposal, applied: true } } : m),
+                    {
+                        id: `next-step-${Date.now()}`,
+                        sender: 'agent',
+                        timestamp: Date.now(),
+                        type: 'text',
+                        text: nextStep.text,
+                        actionPrompt: nextStep.actionPrompt
+                    }
+                ]);
+            } else {
+                setMessages(prev =>
+                    prev.map(m => m.id === msgId && m.proposal ? { ...m, proposal: { ...m.proposal, applied: true } } : m)
+                );
+            }
             return;
         } else if (proposal.section === 'projects') {
             const projIdx = proposal.projectIndex ?? 0;
@@ -2255,6 +2319,62 @@ Return 3-4 bullet points starting with '• '. Output ONLY the bullet points.`;
         }
     };
 
+    // Stream an assistant reply token-by-token for a smooth streaming experience
+    const streamAssistantMessage = (
+        messageTemplate: Omit<ChatMessage, 'text'>,
+        fullText: string,
+        onDone?: () => void
+    ) => {
+        const msgId = messageTemplate.id || `agent-${Date.now()}`;
+        const initialMsg: ChatMessage = {
+            ...messageTemplate,
+            id: msgId,
+            sender: 'agent',
+            timestamp: Date.now(),
+            text: '',
+            isStreaming: Boolean(fullText && fullText.trim().length > 0)
+        };
+
+        setMessages(prev => [...prev, initialMsg]);
+        setIsProcessing(false);
+
+        if (!fullText) {
+            if (messageTemplate.type === 'proposal' && (messageTemplate as any).proposal) {
+                const targetPath = getProposalTargetDataPath((messageTemplate as any).proposal);
+                if (targetPath) broadcastHighlight(targetPath, 'highlight', 4000);
+            }
+            onDone?.();
+            return;
+        }
+
+        // Split text into chunks for realistic streaming typing speed
+        const tokens = fullText.split(/(\s+)/);
+        let currentIndex = 0;
+        let accumulated = '';
+
+        const interval = setInterval(() => {
+            if (currentIndex >= tokens.length) {
+                clearInterval(interval);
+                setMessages(prev =>
+                    prev.map(m => (m.id === msgId ? { ...m, text: fullText, isStreaming: false } : m))
+                );
+                if (messageTemplate.type === 'proposal' && (messageTemplate as any).proposal) {
+                    const targetPath = getProposalTargetDataPath((messageTemplate as any).proposal);
+                    if (targetPath) broadcastHighlight(targetPath, 'highlight', 4000);
+                }
+                onDone?.();
+                return;
+            }
+
+            accumulated += tokens[currentIndex];
+            currentIndex++;
+
+            setMessages(prev =>
+                prev.map(m => (m.id === msgId ? { ...m, text: accumulated, isStreaming: true } : m))
+            );
+        }, 16);
+    };
+
     // Handle user sending text
     const handleSend = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
@@ -2297,49 +2417,61 @@ Return 3-4 bullet points starting with '• '. Output ONLY the bullet points.`;
             setTimeout(() => {
                 const lower = clean.toLowerCase();
 
+                // 1. Conversational Repair / "Where is it" / "I can't see it" / "Where are the skills"
+                if (
+                    lower.includes("can't see") ||
+                    lower.includes("cant see") ||
+                    lower.includes("where is") ||
+                    lower.includes("where are") ||
+                    lower.includes("dont see") ||
+                    lower.includes("don't see") ||
+                    lower.includes("show me") ||
+                    lower.includes("what are the skills") ||
+                    lower.includes("what are they")
+                ) {
+                    const proposedSkills = 'Product Strategy, Enterprise SaaS, AI/ML Product Discovery, Agile & Scrum, Roadmap Planning, Go-to-Market (GTM), Data Analysis (SQL), A/B Testing, User Experience (UX), Cross-Functional Leadership, Cloud Infrastructure, Systems Architecture';
+                    streamAssistantMessage(
+                        {
+                            id: `proposal-${Date.now()}`,
+                            type: 'proposal',
+                            proposal: {
+                                section: 'skills',
+                                title: 'Core Skills (12 Skills — 4-Row Layout)',
+                                proposed: proposedSkills,
+                                proposedSkills: proposedSkills,
+                                applied: false
+                            }
+                        },
+                        'Here is your curated set of 12 Core Skills optimized for a 4-row layout:'
+                    );
+                    return;
+                }
+
                 // 1. Greetings / Introduction / How does it work
                 if (/^(hi|hello|hey|greetings|hola|good\s*(morning|afternoon|evening)|who are you|what can you do|help|how does this work)/i.test(lower)) {
-                    setMessages(prev => [
-                        ...prev,
-                        {
-                            id: `agent-${Date.now()}`,
-                            sender: 'agent',
-                            timestamp: Date.now(),
-                            type: 'text',
-                            text: `Welcome to the **CVArchitect Live AI Preview**! I am your Executive Resume Architect.\n\nHere is what you can test right now in this interactive preview:\n1. **Paste any Job Description** into the chat below to trigger real-time ATS match scoring and keyword gap analysis.\n2. Ask me to **strengthen bullets**, **harmonize skills**, or **align your summary**.\n3. Click **1-Click AI Tailor** above or step through each role to see instant Google XYZ transformations!`
-                        }
-                    ]);
-                    setIsProcessing(false);
+                    streamAssistantMessage(
+                        { id: `agent-${Date.now()}`, type: 'text' },
+                        `Welcome to the **CVArchitect Live AI Preview**! I am your Executive Resume Architect.\n\nHere is what you can test right now in this interactive preview:\n1. **Paste any Job Description** into the chat below to trigger real-time ATS match scoring and keyword gap analysis.\n2. Ask me to **strengthen bullets**, **harmonize skills**, or **align your summary**.\n3. Click **1-Click AI Tailor** above or step through each role to see instant Google XYZ transformations!`
+                    );
                     return;
                 }
 
                 // 2. Section guidance ("how to add section", "add certification", "add project", etc.)
                 if (lower.includes('add section') || lower.includes('how do i add') || lower.includes('add certification') || lower.includes('add custom section') || lower.includes('add publication') || lower.includes('add volunteer')) {
-                    setMessages(prev => [
-                        ...prev,
-                        {
-                            id: `agent-${Date.now()}`,
-                            sender: 'agent',
-                            timestamp: Date.now(),
-                            type: 'text',
-                            text: `To add a new section in CVArchitect:\n\n1. In the **Left Editor Sidebar** (or via the **+ Add Section** button at the bottom of the live resume canvas), click **+ Add Section**.\n2. Select your desired section (*Key Achievements, Projects, Leadership, Certifications, Publications, Languages, Coursework, Awards, Volunteer*) or choose *Custom Section*.\n3. Once added, you can edit the text directly or ask me to draft tailored Google XYZ impact bullets for you!`
-                        }
-                    ]);
-                    setIsProcessing(false);
+                    streamAssistantMessage(
+                        { id: `agent-${Date.now()}`, type: 'text' },
+                        `To add a new section in CVArchitect:\n\n1. In the **Left Editor Sidebar** (or via the **+ Add Section** button at the bottom of the live resume canvas), click **+ Add Section**.\n2. Select your desired section (*Key Achievements, Projects, Leadership, Certifications, Publications, Languages, Coursework, Awards, Volunteer*) or choose *Custom Section*.\n3. Once added, you can edit the text directly or ask me to draft tailored Google XYZ impact bullets for you!`
+                    );
                     return;
                 }
 
                 // 3. Bullets / Experience enhancement requests
                 if (lower.includes('bullet') || lower.includes('experience') || lower.includes('metric') || lower.includes('achievement') || lower.includes('quantif') || lower.includes('role')) {
                     const proposedBullet = '• Spearheaded cross-functional go-to-market architecture across 14 engineers and designers, accelerating enterprise product release velocity by 35% while maintaining 99.9% uptime.';
-                    setMessages(prev => [
-                        ...prev,
+                    streamAssistantMessage(
                         {
                             id: `proposal-${Date.now()}`,
-                            sender: 'agent',
-                            timestamp: Date.now(),
                             type: 'proposal',
-                            text: `I have architected a high-impact **Google XYZ standard bullet** for your **Senior Product Manager** role at **TechFlow Solutions**:`,
                             proposal: {
                                 section: 'experience',
                                 experienceIndex: 0,
@@ -2347,9 +2479,9 @@ Return 3-4 bullet points starting with '• '. Output ONLY the bullet points.`;
                                 proposed: proposedBullet,
                                 applied: false
                             }
-                        }
-                    ]);
-                    setIsProcessing(false);
+                        },
+                        `I have architected a high-impact **Google XYZ standard bullet** for your **Senior Product Manager** role at **TechFlow Solutions**:`
+                    );
                     return;
                 }
 
@@ -2357,14 +2489,10 @@ Return 3-4 bullet points starting with '• '. Output ONLY the bullet points.`;
                 if (lower.includes('summary') || lower.includes('title') || lower.includes('headline') || lower.includes('about') || lower.includes('profile')) {
                     const proposedTitle = 'Principal Product Manager | AI & Enterprise Platforms';
                     const proposedSummary = 'Strategic Product Leader with 8+ years architecting enterprise SaaS platforms and AI-driven workflow engines. Proven track record scaling ARR from $4.2M to $8.4M, leading 14-engineer agile squads, and delivering human-centered digital experiences across global Fortune 500 accounts.';
-                    setMessages(prev => [
-                        ...prev,
+                    streamAssistantMessage(
                         {
                             id: `proposal-${Date.now()}`,
-                            sender: 'agent',
-                            timestamp: Date.now(),
                             type: 'proposal',
-                            text: `I have prepared an executive-level **Title & Summary alignment** tailored for top-tier enterprise product leadership roles:`,
                             proposal: {
                                 section: 'title_and_summary',
                                 title: 'Align Title & Professional Summary',
@@ -2373,80 +2501,55 @@ Return 3-4 bullet points starting with '• '. Output ONLY the bullet points.`;
                                 proposedSummary,
                                 applied: false
                             }
-                        }
-                    ]);
-                    setIsProcessing(false);
+                        },
+                        `I have prepared an executive-level **Title & Summary alignment** tailored for top-tier enterprise product leadership roles:`
+                    );
                     return;
                 }
 
                 // 5. Skills requests
-                if (lower.includes('skill') || lower.includes('keyword') || lower.includes('technolog') || lower.includes('stack') || lower.includes('harmoniz')) {
-                    const proposedSkills = 'Product Strategy, AI/ML Product Discovery, Enterprise SaaS, Agile & Scrum, Roadmap Planning, Go-to-Market (GTM), Data Analysis (SQL), A/B Testing, Cross-Functional Leadership, User Experience (UX)';
-                    setMessages(prev => [
-                        ...prev,
+                if (lower.includes('skill') || lower.includes('keyword') || lower.includes('technolog') || lower.includes('stack') || lower.includes('harmoniz') || lower.includes('4 row') || lower.includes('12')) {
+                    const proposedSkills = 'Product Strategy, Enterprise SaaS, AI/ML Product Discovery, Agile & Scrum, Roadmap Planning, Go-to-Market (GTM), Data Analysis (SQL), A/B Testing, User Experience (UX), Cross-Functional Leadership, Cloud Infrastructure, Systems Architecture';
+                    streamAssistantMessage(
                         {
                             id: `proposal-${Date.now()}`,
-                            sender: 'agent',
-                            timestamp: Date.now(),
                             type: 'proposal',
-                            text: `I have harmonized your **Core Skills** to match enterprise recruiter ATS keyword filters:`,
                             proposal: {
                                 section: 'skills',
-                                title: 'Harmonize Core Skills',
+                                title: 'Core Skills (12 Skills — 4-Row Layout)',
                                 proposed: proposedSkills,
-                                proposedSkills,
+                                proposedSkills: proposedSkills,
                                 applied: false
                             }
-                        }
-                    ]);
-                    setIsProcessing(false);
+                        },
+                        'I have curated 12 high-impact **Core Skills** aligned for a 4-row layout and ATS keyword matching:'
+                    );
                     return;
                 }
 
                 // 6. Pricing / Export / Save
                 if (lower.includes('price') || lower.includes('cost') || lower.includes('buy') || lower.includes('save') || lower.includes('export') || lower.includes('download') || lower.includes('pdf') || lower.includes('word') || lower.includes('docx')) {
-                    setMessages(prev => [
-                        ...prev,
-                        {
-                            id: `agent-${Date.now()}`,
-                            sender: 'agent',
-                            timestamp: Date.now(),
-                            type: 'text',
-                            text: `In this live interactive preview, you have full access to explore the AI Resume Architect with zero credit usage! When you're ready to create your own personalized resume, export to PDF/DOCX, or unlock unlimited tailoring, click **Save** or **Download** in the top bar.`
-                        }
-                    ]);
-                    setIsProcessing(false);
+                    streamAssistantMessage(
+                        { id: `agent-${Date.now()}`, type: 'text' },
+                        `In this live interactive preview, you have full access to explore the AI Resume Architect with zero credit usage! When you're ready to create your own personalized resume, export to PDF/DOCX, or unlock unlimited tailoring, click **Save** or **Download** in the top bar.`
+                    );
                     return;
                 }
 
                 // 7. Off-topic queries (weather, recipes, general non-resume trivia)
                 if (lower.includes('weather') || lower.includes('recipe') || lower.includes('poem') || lower.includes('joke') || lower.includes('song') || lower.includes('capital of') || lower.includes('president')) {
-                    setMessages(prev => [
-                        ...prev,
-                        {
-                            id: `agent-${Date.now()}`,
-                            sender: 'agent',
-                            timestamp: Date.now(),
-                            type: 'text',
-                            text: `I specialize exclusively in resume architecture, ATS optimization, and career strategy—how can I assist with your resume or target job search today?`
-                        }
-                    ]);
-                    setIsProcessing(false);
+                    streamAssistantMessage(
+                        { id: `agent-${Date.now()}`, type: 'text' },
+                        `I specialize exclusively in resume architecture, ATS optimization, and career strategy—how can I assist with your resume or target job search today?`
+                    );
                     return;
                 }
 
                 // 8. Default contextual response
-                setMessages(prev => [
-                    ...prev,
-                    {
-                        id: `agent-${Date.now()}`,
-                        sender: 'agent',
-                        timestamp: Date.now(),
-                        type: 'text',
-                        text: `I have analyzed "${clean}" against Sarah Jenkins's executive profile. In this preview mode, you can paste any target job description below or try asking me to **strengthen bullets**, **update summary**, or **harmonize skills**!`
-                    }
-                ]);
-                setIsProcessing(false);
+                streamAssistantMessage(
+                    { id: `agent-${Date.now()}`, type: 'text' },
+                    `I have analyzed "${clean}" against Sarah Jenkins's executive profile. In this preview mode, you can paste any target job description below or try asking me to **strengthen bullets**, **update summary**, or **harmonize skills**!`
+                );
             }, 400);
             return;
         }
@@ -2476,8 +2579,8 @@ ${data.experience.map((e, idx) => `[Role Index ${idx}] "${e.role || 'Role'}" at 
 ${e.description || 'No bullets'}`).join('\n\n')}
 ${data.jobDescription ? `Target Job Description:\n${data.jobDescription.slice(0, 600)}...` : ''}`;
 
-            const prompt = `You are CVArchitect AI, an expert Executive Resume Strategist & Recruiter.
-You understand the full conversation context, user intent, and how to execute changes to the candidate's resume.
+            const prompt = `You are CVArchitect AI, an elite Senior Executive Recruiter and Talent Strategist with 15+ years of experience hiring for top tech, fintech, finance, and enterprise companies.
+You evaluate resumes through the eyes of hiring managers and modern ATS algorithms (Workday, Greenhouse, Lever).
 
 CONVERSATION HISTORY:
 ${recentHistory || 'No prior conversation turns.'}
@@ -2487,60 +2590,193 @@ ${resumeContext}
 
 LATEST USER MESSAGE: "${clean}"
 
-INSTRUCTIONS & RULES:
-1. DOMAIN BOUNDARY & OFF-TOPIC HANDLING (STRICT):
-   - You are exclusively a Resume, Career, and Recruitment Strategist. You ONLY answer questions pertaining to resumes, CV tailoring, career strategy, job applications, interviews, hiring processes, and professional positioning.
-   - If the user asks a question that does NOT pertain to resumes, careers, or recruitment (e.g. general trivia, coding tasks, math, recipes, weather, general chatbot chit-chat):
-     * Professionally and politely decline in ONE short, simple, professional sentence.
-     * Example: "I specialize exclusively in resume architecture and career strategy—how can I assist with your resume or job search today?"
-     * Do NOT give bulky or preachy answers.
-     * Set "action": { "type": "none" } and "isDirectApply": false.
+INTENT CLASSIFICATION & RECRUITER PROTOCOL (CRITICAL):
+Identify the user's intent and strictly follow the corresponding protocol:
 
-2. CONVERSATION CONTEXT & FOLLOW-UP COMMANDS:
-   - When the user asks a follow-up (e.g. "add it to the resume", "add this bullet to the role", "yes apply it", "put it under Acme", "add that"), look at the recent conversation history to identify what was previously generated or requested, and execute that action!
-   - When the user asks to add/generate a bullet point for a specific role (e.g. "add one new bullet point to my Lead Designer role at Acme"), generate the high-impact bullet and specify the matching role index.
-   - When the user asks to update their summary, skills, or job title, prepare the update.
-   - When the user asks general questions or advice within career/resume scope, answer directly, concisely, and contextually.
+SENIORITY-AWARE EXECUTIVE CALIBRATION (CRITICAL):
+- Dynamically detect the candidate's seniority from their title and context:
+  * C-SUITE / CEO / FOUNDER / VP / MANAGING DIRECTOR / EXECUTIVE:
+    - Language MUST strictly center on Enterprise P&L, Commercial & Revenue Scale ($M/$B), Board & Investor Governance, Organizational Headcount Scale (hundreds to thousands of employees), Global Market Expansion, Capital Allocation, M&A / Ecosystem Strategy, and Transformative Market Leadership.
+    - NEVER generate tactical task-level bullets (e.g. "managed tasks", "wrote Jira tickets", "attended meetings").
+    - Summary MUST open with an authoritative executive mandate (e.g., "Chief Executive Officer with 18+ years scaling high-growth technology enterprises, expanding ARR from $50M to $600M+, and governing a 2,500+ global workforce across North America, EMEA, and APAC.").
+  * STAFF / PRINCIPAL / DIRECTOR / LEAD:
+    - Focus on strategic systems architecture, cross-functional organizational leadership, multi-team roadmap ownership, technical vision, and quantifiable business outcomes.
+  * SENIOR / MID / EARLY CAREER:
+    - Calibrate to their authentic scope with high-impact Google XYZ execution, velocity, and measurable deliverables.
 
-3. ADDING SECTIONS (PROFESSIONAL PERSONAL ASSISTANT GUIDANCE):
-   - When the user asks to add a section, or asks how to add a section (e.g. "add section", "how do I add certifications?", "add project section", "add key achievements", "add volunteer section", "add custom section"):
-   - Instruct them clearly, warmly, and professionally on how to add it themselves in CVArchitect:
-     1. In the Left Editor Sidebar (or via the "+ Add Section" button at the bottom of the live resume canvas), click "+ Add Section".
-     2. Select your desired section (e.g. Key Achievements, Projects, Leadership, Certifications, Publications, Languages, Coursework, Awards, Volunteer) or choose "Custom Section" to create a custom heading.
-     3. Once added, you can fill in your details or ask me to polish the wording for you!
-   - If they requested specific accomplishments or content for that new section in their message, provide a drafted Google XYZ impact snippet directly in your replyText so they can easily copy/paste it into their newly added section.
-   - Set "action": { "type": "none" } and "isDirectApply": false so no existing sections are overwritten.
+1. GENERAL RECRUITER CONVERSATION / GREETINGS / CAREER ADVICE / OFF-TOPIC:
+   - User says "hi", "hello", asks general career questions, asks ATS formatting questions (e.g., "is 1 page better?", "how long should my resume be?"), or casual discussion.
+   - Behavior: Respond conversationally as a top-tier executive recruiter. Be warm, direct, insightful, and concise. Offer clear guidance or suggest 2-3 strategic ways you can help.
+   - Action: Set "action": { "type": "none" }.
+   - "replyText": Your complete conversational response in markdown. Do NOT force an edit card!
 
-4. BULLET POINT FORMULA & SUMMARY CRAFTING (CRITICAL):
-   - Every bullet MUST follow Google XYZ format: [Decisive Power Action Verb] + [Technical Challenge & Scope] + [Execution / Method / Tools] + [Measurable Business / Operational Outcome].
-   - Strict 2-Full-Lines Standard: 24 to 34 words (150 to 220 characters).
-   - NO % SPAM: Do NOT invent fake percentages or put % on every bullet. At most 1 percentage across an entire role, and 0 percentages preferred unless verified in candidate facts. Focus on technical architecture, system throughput, deliverables, scope, and tool integrations.
-   - UNIQUE VERBS: Open with a strong, fresh action verb (e.g. Engineered, Orchestrated, Spearheaded, Architected, Automated).
-   - PROFESSIONAL SUMMARY RULES: When generating or updating a summary, NEVER start with cliché buzzwords ("Dynamic", "Results-driven", "Results-oriented", "Passionate", "Dedicated", "Seasoned", "Motivated", "Hardworking", "Self-starter", "Proven track record", "Adept at", "Accomplished"). Open authoritatively with the candidate's professional title and functional specialization. NEVER claim past work at the target hiring company or fabricate ungrounded niche sectors.
+2. RESUME AUDIT / 6-SECOND SCAN / "HOW CAN I IMPROVE THIS?":
+   - User asks "how can i improve this resume?", "what is wrong with my CV?", "audit my resume", "review my resume", or asks for overall critique.
+   - Behavior: Perform an authentic 6-second recruiter scan. Provide a sharp, honest, professional critique broken into 3 clear pillars:
+     1. **Top-of-Fold Hook (Title & Summary)**: Evaluate whether the opening value proposition hooks a hiring manager in 6 seconds.
+     2. **Impact & Metric Density (Work Experience)**: Evaluate whether bullets use the Google XYZ formula (Action + Context/Scale + Quantified Outcome) or read like passive task lists.
+     3. **ATS & Competency Alignment (Skills & Structure)**: Evaluate whether technical and domain keywords are scannable and aligned.
+     End with an engaging question asking which area they would like to tackle first.
+   - Action: Set "action": { "type": "none" }.
+   - "replyText": Your complete audit and critique formatted in clean markdown. Do NOT force an edit card!
 
-5. RESPONSE FORMAT:
+3. METRIC DISCOVERY / RECRUITER INTERVIEW & COACHING STANDARDS:
+   - User wants to strengthen a bullet or role, or asks how to add metrics/impact.
+   - METRIC DIVERSITY & ANTI-% SPAM RULES (ABSOLUTE MANDATE):
+     * NEVER tell candidates to just spam percentages (%) on every bullet point.
+     * STRICT LIMIT: At most ONE percentage (%) per role. The vast majority of bullets must use diverse real-world metrics:
+       - Dollar amounts & budgets (e.g., "$75,000 marketing budget", "$1.8M ARR pipeline", "$350k cost reduction")
+       - Volume & scale (e.g., "4,500 new newsletter subscribers", "50,000+ daily transactions", "120k monthly active users")
+       - Team & operational scope (e.g., "14-engineer agile squad", "across 8 enterprise client accounts")
+       - Timeframes & latency (e.g., "delivered in 3 months", "reduced deployment cycle from 2 weeks to 3 days", "cut latency from 450ms to 95ms")
+   - TOP-NOTCH EXECUTIVE EXAMPLES (NEVER USE WEAK JUNIOR SAMPLES):
+     * When giving examples or coaching in chat, NEVER use lazy placeholders like "increased retention by 15%".
+     * ALWAYS showcase elite, high-caliber Google XYZ examples such as:
+       - "Managed a marketing budget of $75,000, achieving a 12% reduction in customer acquisition cost while scaling organic leads by 3,200/month."
+       - "Increased email newsletter subscriptions by 4,500 in 3 months through targeted landing page optimizations and multi-variant A/B testing."
+       - "Architected scalable microservices handling 2.4M daily requests, cutting server latency from 380ms to 65ms across 12 distributed regions."
+       - "Spearheaded fintech checkout redesign across 6 design sprints, cutting drop-offs and processing $4.8M in monthly transaction volume."
+   - Action: Set "action": { "type": "none" }.
+   - "replyText": Your concise discovery question or coaching in markdown.
+
+4. CONCRETE RESUME MUTATION / SECTION REWRITE / PROPOSAL:
+   - User EXPLICITLY requests to rewrite, update, add, delete, or tailor a specific section/bullet/skill/title (e.g. "rewrite my summary", "change my title to Senior Product Designer", "add TypeScript to skills", "add this bullet to my Google role", "give me 12 skills for a 4-row layout", "tailor for this job").
+   - Behavior:
+     * Set "action.type" to the appropriate mutation ("update_summary", "update_title", "set_skills", "add_skill", "remove_skill", "replace_bullets", "add_bullet", "update_achievements").
+     * Populate the action payload with top-tier, calibrated content:
+       - Bullets: Google XYZ format, strictly 2 full lines (24-34 words / 150-220 chars), strong unique action verbs, max 1 percentage per role, enriched with real scale/dollars/volume/timeframes.
+       - Summary: 2-3 authoritative sentences, dynamic opener (NO cliché buzzwords like "Results-driven", "Dynamic", "Passionate", "Self-starter").
+       - Skills: High-value keywords, exact count if requested.
+     * "replyText": A concise 1-2 sentence recruiter rationale explaining WHY this change strengthens their candidacy (e.g., "I've harmonized your core skills to match the target ATS keyword taxonomy:"). CRITICAL: NEVER list or repeat the raw skills, bullet items, summary text, or achievements inside replyText, as the UI automatically displays the interactive proposal card directly beneath your message.
+
+5. CONVERSATIONAL REPAIR / "WHERE IS IT?":
+   - If the user says "i cant see it", "where are the skills", "where did it go", "show me":
+   - Inspect conversation history, re-generate the action payload for that item, and introduce it in 1 sentence.
+
 Return strictly valid JSON with this shape:
 {
-  "replyText": "Professional response with clear instructions on how to add the section, or answering the user.",
+  "replyText": "Your markdown response (for advice/critique/chat) OR 1-2 sentence recruiter rationale (if proposing an action).",
   "action": {
-    "type": "add_bullet" | "replace_bullets" | "update_summary" | "add_skill" | "set_skills" | "update_title" | "none",
+    "type": "none" | "set_skills" | "add_skill" | "remove_skill" | "replace_bullets" | "add_bullet" | "update_summary" | "update_title" | "update_achievements",
     "experienceIndex": 0,
-    "bulletText": "• Engineered modular payment gateway integrating Stripe and GraphQL, reducing checkout latency and processing 50K daily transactions.",
-    "summaryText": "Executive summary paragraph...",
+    "bulletText": "• Engineered modular payment gateway integrating Stripe and GraphQL, cutting transaction latency from 450ms to 95ms and processing 50K daily checkouts.",
+    "summaryText": "Senior Product Designer with deep expertise in fintech workflows and complex multi-step checkout architecture...",
     "skill": "React.js",
-    "skills": "React.js, TypeScript, Node.js, GraphQL",
-    "title": "Senior Product Lead"
-  },
-  "isDirectApply": true
+    "skills": "Product Strategy, Enterprise SaaS, AI/ML Discovery, Agile & Scrum, Roadmap Planning, Go-to-Market, SQL, A/B Testing, User Experience, Cross-Functional Leadership, Cloud Infrastructure, Systems Architecture",
+    "achievementsText": "• Spearheaded end-to-end launch of 3 B2B SaaS products, generating $1.4M in new ARR across 12 enterprise accounts in the first 6 months...",
+    "title": "Senior Product Designer"
+  }
 }
-Note: Set "isDirectApply": true if the user explicitly asked to "add", "apply", "insert", "update", or gave a follow-up command like "add it to the resume". For off-topic queries or section addition guidance, set action type to "none" and isDirectApply to false.`;
+`;
 
             const res = await callAIJSON(prompt, 'gpt-4o', 0.3);
-            const replyText = res.replyText || 'I have reviewed your request.';
+            let replyText = (res.replyText || 'I have reviewed your request.').trim();
             const action = res.action;
-            const isDirectApply = res.isDirectApply ?? true;
 
-            if (action && action.type === 'add_bullet' && typeof action.experienceIndex === 'number' && action.bulletText) {
+            // Strip any accidental full-text duplication or quotation from replyText if an action is present
+            if (action && action.type !== 'none') {
+                const quoteMatch = replyText.match(/^(.*?):\s*"[\s\S]*"$/);
+                if (quoteMatch && quoteMatch[1]) {
+                    replyText = `${quoteMatch[1].trim()}:`;
+                }
+                if (replyText.includes('\n•') || replyText.includes('\n-') || replyText.includes('\n*') || replyText.includes('\n1.')) {
+                    const firstLine = replyText.split('\n')[0].trim();
+                    if (firstLine) {
+                        replyText = firstLine.endsWith(':') ? firstLine : `${firstLine}:`;
+                    }
+                }
+            }
+
+            if (action && action.type === 'set_skills') {
+                const rawSkills = action.skills || action.skill || '';
+                const skillsList = Array.isArray(rawSkills)
+                    ? rawSkills.join(', ')
+                    : String(rawSkills).replace(/\n/g, ', ').split(',').map(s => s.trim().replace(/^[-•*]\s*/, '')).filter(Boolean).join(', ');
+                const skillCount = skillsList.split(',').filter(Boolean).length;
+
+                streamAssistantMessage(
+                    {
+                        id: `proposal-${Date.now()}`,
+                        type: 'proposal',
+                        proposal: {
+                            section: 'skills',
+                            title: `Core Skills Update (${skillCount} Skills)`,
+                            proposed: skillsList,
+                            proposedSkills: skillsList,
+                            applied: false
+                        }
+                    },
+                    replyText || `Here is your updated set of ${skillCount} Core Skills:`
+                );
+            } else if (action && action.type === 'add_skill' && action.skill) {
+                const newSkill = action.skill.trim();
+                const currentSkills = (data.skills || '').split(',').map(s => s.trim()).filter(Boolean);
+                if (!currentSkills.some(s => s.toLowerCase() === newSkill.toLowerCase())) {
+                    currentSkills.push(newSkill);
+                    const updatedSkillsStr = currentSkills.join(', ');
+                    streamAssistantMessage(
+                        {
+                            id: `proposal-${Date.now()}`,
+                            type: 'proposal',
+                            proposal: {
+                                section: 'skills',
+                                title: `Add Skill: ${newSkill}`,
+                                proposed: updatedSkillsStr,
+                                proposedSkills: updatedSkillsStr,
+                                applied: false
+                            }
+                        },
+                        replyText
+                    );
+                } else {
+                    streamAssistantMessage(
+                        { id: `agent-${Date.now()}`, type: 'text' },
+                        `The skill "${newSkill}" is already in your skills list.`
+                    );
+                }
+            } else if (action && action.type === 'remove_skill' && (action.skill || action.skills)) {
+                const toRemove = (action.skill || action.skills || '').toLowerCase().trim();
+                const currentSkills = (data.skills || '').split(',').map(s => s.trim()).filter(Boolean);
+                const filtered = currentSkills.filter(s => s.toLowerCase() !== toRemove);
+                const updatedSkillsStr = filtered.join(', ');
+                streamAssistantMessage(
+                    {
+                        id: `proposal-${Date.now()}`,
+                        type: 'proposal',
+                        proposal: {
+                            section: 'skills',
+                            title: `Remove Skill: ${action.skill || action.skills}`,
+                            proposed: updatedSkillsStr,
+                            proposedSkills: updatedSkillsStr,
+                            applied: false
+                        }
+                    },
+                    replyText
+                );
+            } else if (action && action.type === 'replace_bullets' && action.bulletText) {
+                const expIdx = Math.max(0, Math.min(data.experience.length - 1, action.experienceIndex ?? 0));
+                const targetExp = data.experience[expIdx];
+                const domain = detectActionVerbDomain(`${targetExp?.role || ''} ${targetExp?.company || ''}`);
+                const usedVerbs = getUsedStartingVerbs(data);
+                const uniqueBullets = ensureAllBulletsHaveUniqueVerbs(action.bulletText.trim(), usedVerbs, domain);
+
+                streamAssistantMessage(
+                    {
+                        id: `proposal-${Date.now()}`,
+                        type: 'proposal',
+                        proposal: {
+                            section: 'experience',
+                            experienceIndex: expIdx,
+                            title: `Experience Bullets for ${targetExp?.role || 'Role'} at ${targetExp?.company || 'Company'}`,
+                            proposed: uniqueBullets,
+                            proposedSummary: uniqueBullets,
+                            mode: 'replace',
+                            applied: false
+                        }
+                    },
+                    replyText
+                );
+            } else if (action && action.type === 'add_bullet' && typeof action.experienceIndex === 'number' && action.bulletText) {
                 const expIdx = Math.max(0, Math.min(data.experience.length - 1, action.experienceIndex));
                 const targetExp = data.experience[expIdx];
                 let bullet = action.bulletText.trim();
@@ -2551,155 +2787,82 @@ Note: Set "isDirectApply": true if the user explicitly asked to "add", "apply", 
                 const usedVerbs = getUsedStartingVerbs(data);
                 const uniqueBullet = ensureAllBulletsHaveUniqueVerbs(bullet, usedVerbs, domain);
 
-                if (isDirectApply && targetExp) {
-                    const existing = (targetExp.description || '').trim();
-                    const updatedDescription = existing ? `${existing}\n${uniqueBullet}` : uniqueBullet;
-                    const updatedExpList = [...data.experience];
-                    updatedExpList[expIdx] = { ...targetExp, description: updatedDescription };
-                    onChange({ ...data, experience: updatedExpList });
-
-                    setMessages(prev => [
-                        ...prev,
-                        {
-                            id: `proposal-${Date.now()}`,
-                            sender: 'agent',
-                            timestamp: Date.now(),
-                            type: 'proposal',
-                            text: replyText,
-                            proposal: {
-                                section: 'experience',
-                                experienceIndex: expIdx,
-                                title: `Added Bullet to ${targetExp.role || 'Role'} at ${targetExp.company || 'Company'}`,
-                                proposed: uniqueBullet,
-                                applied: true
-                            }
-                        }
-                    ]);
-                } else {
-                    setMessages(prev => [
-                        ...prev,
-                        {
-                            id: `proposal-${Date.now()}`,
-                            sender: 'agent',
-                            timestamp: Date.now(),
-                            type: 'proposal',
-                            text: replyText,
-                            proposal: {
-                                section: 'experience',
-                                experienceIndex: expIdx,
-                                title: `Suggested Bullet for ${targetExp?.role || 'Role'} at ${targetExp?.company || 'Company'}`,
-                                proposed: uniqueBullet,
-                                applied: false
-                            }
-                        }
-                    ]);
-                }
-            } else if (action && action.type === 'update_summary' && action.summaryText) {
-                const cleanSummary = action.summaryText.trim();
-                if (isDirectApply) {
-                    onChange({ ...data, summary: cleanSummary });
-                }
-                setMessages(prev => [
-                    ...prev,
+                streamAssistantMessage(
                     {
                         id: `proposal-${Date.now()}`,
-                        sender: 'agent',
-                        timestamp: Date.now(),
                         type: 'proposal',
-                        text: replyText,
+                        proposal: {
+                            section: 'experience',
+                            experienceIndex: expIdx,
+                            title: `Proposed Bullet for ${targetExp?.role || 'Role'} at ${targetExp?.company || 'Company'}`,
+                            proposed: uniqueBullet,
+                            mode: 'append',
+                            applied: false
+                        }
+                    },
+                    replyText
+                );
+            } else if (action && action.type === 'update_summary' && action.summaryText) {
+                const cleanSummary = action.summaryText.trim();
+                streamAssistantMessage(
+                    {
+                        id: `proposal-${Date.now()}`,
+                        type: 'proposal',
                         proposal: {
                             section: 'summary',
                             title: 'Professional Summary Update',
                             proposed: cleanSummary,
                             proposedSummary: cleanSummary,
-                            applied: Boolean(isDirectApply)
+                            applied: false
                         }
-                    }
-                ]);
-            } else if (action && action.type === 'add_skill' && action.skill) {
-                const newSkill = action.skill.trim();
-                const currentSkills = (data.skills || '').split(',').map(s => s.trim()).filter(Boolean);
-                if (!currentSkills.some(s => s.toLowerCase() === newSkill.toLowerCase())) {
-                    currentSkills.push(newSkill);
-                    const updatedSkillsStr = currentSkills.join(', ');
-                    if (isDirectApply) {
-                        onChange({ ...data, skills: updatedSkillsStr });
-                    }
-                    setMessages(prev => [
-                        ...prev,
-                        {
-                            id: `proposal-${Date.now()}`,
-                            sender: 'agent',
-                            timestamp: Date.now(),
-                            type: 'proposal',
-                            text: replyText,
-                            proposal: {
-                                section: 'skills',
-                                title: 'Skills Update',
-                                proposed: updatedSkillsStr,
-                                proposedSkills: updatedSkillsStr,
-                                applied: Boolean(isDirectApply)
-                            }
-                        }
-                    ]);
-                } else {
-                    setMessages(prev => [
-                        ...prev,
-                        {
-                            id: `agent-${Date.now()}`,
-                            sender: 'agent',
-                            timestamp: Date.now(),
-                            type: 'text',
-                            text: `The skill "${newSkill}" is already in your skills list.`
-                        }
-                    ]);
-                }
-            } else if (action && action.type === 'update_title' && action.title) {
-                const newTitle = action.title.trim();
-                if (isDirectApply) {
-                    onChange({ ...data, jobTitle: newTitle });
-                }
-                setMessages(prev => [
-                    ...prev,
+                    },
+                    replyText
+                );
+            } else if (action && action.type === 'update_achievements' && action.achievementsText) {
+                const cleanAchievements = action.achievementsText.trim();
+                streamAssistantMessage(
                     {
                         id: `proposal-${Date.now()}`,
-                        sender: 'agent',
-                        timestamp: Date.now(),
                         type: 'proposal',
-                        text: replyText,
+                        proposal: {
+                            section: 'keyAchievements',
+                            title: 'Key Achievements Update',
+                            proposed: cleanAchievements,
+                            proposedSummary: cleanAchievements,
+                            applied: false
+                        }
+                    },
+                    replyText
+                );
+            } else if (action && action.type === 'update_title' && action.title) {
+                const newTitle = action.title.trim();
+                streamAssistantMessage(
+                    {
+                        id: `proposal-${Date.now()}`,
+                        type: 'proposal',
                         proposal: {
                             section: 'title',
                             title: 'Job Title Alignment',
                             proposed: newTitle,
                             proposedTitle: newTitle,
-                            applied: Boolean(isDirectApply)
+                            applied: false
                         }
-                    }
-                ]);
+                    },
+                    replyText
+                );
             } else {
-                setMessages(prev => [
-                    ...prev,
-                    {
-                        id: `agent-${Date.now()}`,
-                        sender: 'agent',
-                        timestamp: Date.now(),
-                        type: 'text',
-                        text: replyText
-                    }
-                ]);
+                // Natural conversational recruiter response (no proposal card)
+                streamAssistantMessage(
+                    { id: `agent-${Date.now()}`, type: 'text' },
+                    replyText
+                );
             }
         } catch (err: any) {
             console.error('Chat handling error:', err);
-            setMessages(prev => [
-                ...prev,
-                {
-                    id: `agent-${Date.now()}`,
-                    sender: 'agent',
-                    timestamp: Date.now(),
-                    type: 'text',
-                    text: 'I can help you tailor your resume, add new bullet points, or optimize for ATS systems. What would you like to update next?'
-                }
-            ]);
+            streamAssistantMessage(
+                { id: `agent-${Date.now()}`, type: 'text' },
+                'I can help you tailor your resume, add new bullet points, or optimize for ATS systems. What would you like to update next?'
+            );
         } finally {
             setIsProcessing(false);
         }
@@ -2944,6 +3107,7 @@ Note: Set "isDirectApply": true if the user explicitly asked to "add", "apply", 
                                                 num: stepNum++,
                                                 title: 'Align Title & Summary',
                                                 desc: 'Mirror target role title and lead with executive narrative',
+                                                targetPath: 'summary',
                                                 onClick: () => handleAlignTitleAndSummary(a.jobData)
                                             });
 
@@ -2957,7 +3121,8 @@ Note: Set "isDirectApply": true if the user explicitly asked to "add", "apply", 
                                                     num: stepNum++,
                                                     title: 'Elevate Key Achievements',
                                                     desc: 'Align flagship career highlights with target role outcomes',
-                                                    onClick: () => handleTailorAchievements(a.jobData)
+                                                    targetPath: 'keyAchievements',
+                                                onClick: () => handleTailorAchievements(a.jobData)
                                                 });
                                             }
 
@@ -2967,7 +3132,8 @@ Note: Set "isDirectApply": true if the user explicitly asked to "add", "apply", 
                                                     num: stepNum++,
                                                     title: `Tailor Experience Bullets (${data.experience.length} ${data.experience.length === 1 ? 'role' : 'roles'})`,
                                                     desc: 'Weave JD keywords into real achievements (Google XYZ format)',
-                                                    onClick: () => handleTailorExperience(a.jobData, 0)
+                                                    targetPath: 'experience.0',
+                                                onClick: () => handleTailorExperience(a.jobData, 0)
                                                 });
                                             }
 
@@ -2977,6 +3143,7 @@ Note: Set "isDirectApply": true if the user explicitly asked to "add", "apply", 
                                                     num: stepNum++,
                                                     title: `Tailor Projects (${data.projects.length} ${data.projects.length === 1 ? 'project' : 'projects'})`,
                                                     desc: 'Highlight tech stack and architecture outcomes for target JD',
+                                                    targetPath: 'projects.0',
                                                     onClick: () => handleTailorProjects(a.jobData, 0)
                                                 });
                                             }
@@ -2987,6 +3154,7 @@ Note: Set "isDirectApply": true if the user explicitly asked to "add", "apply", 
                                                     num: stepNum++,
                                                     title: `Elevate Leadership (${data.leadership.length} ${data.leadership.length === 1 ? 'role' : 'roles'})`,
                                                     desc: 'Emphasize governance, mentoring, and team leadership',
+                                                    targetPath: 'leadership.0',
                                                     onClick: () => handleTailorLeadership(a.jobData, 0)
                                                 });
                                             }
@@ -2998,6 +3166,7 @@ Note: Set "isDirectApply": true if the user explicitly asked to "add", "apply", 
                                                     num: stepNum++,
                                                     title: `Elevate ${item.label || 'Custom Section'}`,
                                                     desc: `Align ${item.label?.toLowerCase() || 'section'} details with target role context`,
+                                                    targetPath: `additionalInfo.${idx}`,
                                                     onClick: () => handleTailorAdditionalInfo(a.jobData, idx)
                                                 });
                                             });
@@ -3007,6 +3176,7 @@ Note: Set "isDirectApply": true if the user explicitly asked to "add", "apply", 
                                                 num: stepNum++,
                                                 title: 'Harmonize Core Skills',
                                                 desc: 'Align competencies with target job requirements',
+                                                targetPath: 'skills',
                                                 onClick: () => handleHarmonizeSkills(a.jobData)
                                             });
 
@@ -3025,6 +3195,13 @@ Note: Set "isDirectApply": true if the user explicitly asked to "add", "apply", 
                                                                 key={st.num}
                                                                 type="button"
                                                                 onClick={st.onClick}
+                                                                onMouseEnter={() => {
+                                                                    const path = (st as any).targetPath;
+                                                                    if (path) broadcastHighlight(path, 'highlight');
+                                                                }}
+                                                                onMouseLeave={() => {
+                                                                    broadcastHighlight('', 'clear');
+                                                                }}
                                                                 disabled={isProcessing}
                                                                 className="w-full px-3.5 py-2.5 text-left transition-colors flex items-center justify-between group hover:bg-white cursor-pointer bg-transparent"
                                                             >
@@ -3067,12 +3244,31 @@ Note: Set "isDirectApply": true if the user explicitly asked to "add", "apply", 
                             if (msg.type === 'proposal' && msg.proposal) {
                                 const prop = msg.proposal;
                                 return (
-                                    <div key={msg.id} className="bg-white rounded-2xl border border-neutral-200/80 p-4 shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-3 animate-fadeIn">
+                                    <div key={msg.id} className="space-y-2.5 animate-fadeIn">
                                         {msg.text && (
-                                            <div className="pb-1 border-b border-neutral-100/70">
+                                            <div className="bg-white rounded-2xl border border-neutral-200/80 p-3.5 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
                                                 <FormattedMarkdown content={msg.text} />
                                             </div>
                                         )}
+
+                                        {!msg.isStreaming && (
+                                    <div
+
+                                        onMouseEnter={() => {
+                                            const targetPath = getProposalTargetDataPath(prop);
+                                            if (targetPath) broadcastHighlight(targetPath, 'highlight');
+                                        }}
+                                        onMouseLeave={() => {
+                                            broadcastHighlight('', 'clear');
+                                        }}
+                                        className="bg-white rounded-2xl border border-neutral-200/80 hover:border-emerald-300/90 p-4 shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:shadow-xs space-y-3 animate-fadeIn transition-all"
+                                    >
+
+
+
+
+
+                                        
 
                                         <div className="flex items-center justify-between border-b border-neutral-100 pb-2">
                                             <span className="text-xs font-bold text-neutral-900">{prop.title}</span>
@@ -3128,6 +3324,8 @@ Note: Set "isDirectApply": true if the user explicitly asked to "add", "apply", 
                                                 </div>
                                             </div>
                                         )}
+                                            </div>
+                                        )}
                                     </div>
                                 );
                             }
@@ -3138,7 +3336,7 @@ Note: Set "isDirectApply": true if the user explicitly asked to "add", "apply", 
                                     <div className="bg-white rounded-2xl border border-neutral-200/80 p-3.5 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
                                         <FormattedMarkdown content={msg.text || ''} />
 
-                                        {msg.actionPrompt && (
+                                        {!msg.isStreaming && msg.actionPrompt && (
                                             <div className="pt-2.5 border-t border-neutral-100 mt-2.5">
                                                 <button
                                                     type="button"
@@ -3167,6 +3365,23 @@ Note: Set "isDirectApply": true if the user explicitly asked to "add", "apply", 
                                                         Proceed <ArrowRight className="w-3.5 h-3.5" />
                                                     </span>
                                                 </button>
+                                            </div>
+                                        )}
+
+                                        {!msg.isStreaming && msg.suggestions && msg.suggestions.length > 0 && (
+                                            <div className="pt-2 border-t border-neutral-100 mt-2 flex flex-wrap gap-1.5 animate-fadeIn">
+                                                {msg.suggestions.map((sug, sIdx) => (
+                                                    <button
+                                                        key={sIdx}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setInputText(sug);
+                                                        }}
+                                                        className="text-[11px] px-2.5 py-1 rounded-lg bg-neutral-100 hover:bg-neutral-200/80 text-neutral-700 font-medium transition-colors cursor-pointer"
+                                                    >
+                                                        {sug}
+                                                    </button>
+                                                ))}
                                             </div>
                                         )}
                                     </div>

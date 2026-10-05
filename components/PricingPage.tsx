@@ -17,7 +17,7 @@ const faqs = [
     },
     {
         q: 'Can I cancel my subscription anytime?',
-        a: 'Yes. You can cancel your Sprint ($6/week) or Build ($20/month) plan at any time with one click from your account dashboard. You will retain full access until the end of your billing cycle.',
+        a: 'Yes. You can cancel your Build ($10/month) plan at any time with one click from your account dashboard. You will retain full access until the end of your billing cycle.',
     },
     {
         q: 'What is the Lifetime plan?',
@@ -40,8 +40,8 @@ export default function PricingPage() {
     return (
         <div className="min-h-screen bg-brand-bg text-brand-dark flex flex-col font-sans selection:bg-brand-green selection:text-brand-dark">
             <SEO
-                title="CV Architect Pricing | AI Resume Plans from $6/week"
-                description="CV Architect pricing: Foundation free tier with 1 AI resume, Sprint pass from $6/wk, Build at $20/mo, and Lifetime access for $99."
+                title="CV Architect Pricing | AI Resume Plans from $10/month"
+                description="CV Architect pricing: Foundation free tier with 1 AI resume, Build monthly at $10/mo, and Lifetime access for $99."
                 canonicalPath="/pricing"
             />
             <PublicHeader />
@@ -66,7 +66,7 @@ export default function PricingPage() {
 
                 {/* COMPARISON TABLE */}
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
-                    <PricingPlans onFreeClick={() => navigate('/signup')} compact />
+                    <PricingPlans onFreeClick={() => navigate('/signup')} compact showLifetime />
                 </div>
 
                 {/* FAQ SECTION */}

@@ -18,6 +18,8 @@
 
 import { writeFileSync, readFileSync } from 'node:fs';
 import { fetchSourceJobs, logoUrlForDomain, type NormalizedJob } from '../api/_lib/jobs';
+import type { JobSourceCompany } from '../api/_lib/jobs/types';
+import { fetchBustemJobs, BUSTEM_COMPANY, BUSTEM_PROVIDER } from '../api/_lib/jobs/providers/bustem';
 import { MOCK_JOBS } from '../data/mockJobs';
 import type { Job } from '../types/job';
 
@@ -200,6 +202,34 @@ async function main() {
   }
 
   await Promise.all(Array.from({ length: Math.min(CONCURRENCY, targets.length) }, worker));
+
+  // ---- Employers with no ATS at all ----
+  // `recon.resolved` only ever contains boards the ATS fingerprinters could read, so a company
+  // that hand-builds its careers page can never appear there. These are fetched explicitly and
+  // still run through the same `fetchSourceJobs` normalization as everything else, so the
+  // postings that land in the feed are byte-for-byte what a live sync would write.
+  const CUSTOM_COMPANIES: JobSourceCompany[] = [BUSTEM_COMPANY];
+
+  for (const company of CUSTOM_COMPANIES) {
+    if (existing.has(company.name.trim().toLowerCase())) continue;
+    try {
+      const jobs = await fetchBustemJobs(fetch, company);
+      let kept = 0;
+      for (const job of jobs) {
+        const key = `${job.company.toLowerCase()}|${job.title.toLowerCase()}|${(job.location || '').toLowerCase()}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        allJobs.push({ job, domain: company.domain });
+        kept += 1;
+      }
+      perCompany.push({ company: company.name, provider: BUSTEM_PROVIDER, slug: 'careers', jobs: kept });
+      console.log(`  ${company.name.padEnd(20)} ${BUSTEM_PROVIDER}:careers → ${kept} jobs`);
+    } catch (err) {
+      const message = (err as Error).message;
+      perCompany.push({ company: company.name, provider: BUSTEM_PROVIDER, slug: 'careers', jobs: 0, error: message });
+      console.log(`  ${company.name.padEnd(20)} FAILED: ${message}`);
+    }
+  }
 
   const freshJobs = allJobs.map(({ job, domain }) => toJob(job, domain));
 

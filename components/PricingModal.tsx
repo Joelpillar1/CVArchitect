@@ -44,12 +44,12 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
 
     return createPortal(
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/90 backdrop-blur-md animate-fadeIn p-4 overflow-y-auto">
-            <div className="bg-brand-dark rounded-3xl shadow-2xl w-full max-w-4xl overflow-hidden animate-scaleIn relative">
+            <div className="bg-brand-dark rounded-xl w-full max-w-4xl overflow-hidden animate-scaleIn relative border border-white/10">
 
                 <button
                     onClick={onClose}
                     disabled={!!loadingPlanId}
-                    className="absolute top-4 right-4 z-50 w-9 h-9 rounded-full bg-white/10 text-white shadow-md flex items-center justify-center hover:bg-white/20 transition-colors disabled:opacity-50"
+                    className="absolute top-4 right-4 z-50 w-9 h-9 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition-colors disabled:opacity-50"
                     aria-label="Close pricing"
                 >
                     <X size={20} />
@@ -69,7 +69,7 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 max-w-2xl mx-auto gap-4">
                         {PAID_PLAN_IDS.map((planId) => {
                             const plan = PLANS[planId];
                             const { amount, period } = formatPlanPrice(plan);
@@ -82,9 +82,9 @@ export default function PricingModal({ isOpen, onClose, onSelectPlan, currentPla
                                     type="button"
                                     onClick={() => !loadingPlanId && handlePlanSelect(planId)}
                                     disabled={!!loadingPlanId || isCurrent}
-                                    className={`relative text-left rounded-2xl p-5 border transition-all flex flex-col ${
+                                    className={`relative text-left rounded-xl p-5 border transition-all flex flex-col ${
                                         isHighlighted
-                                            ? 'border-brand-green bg-white shadow-float ring-2 ring-brand-green/25'
+                                            ? 'border-brand-green bg-white ring-1 ring-brand-green/40'
                                             : 'border-brand-border bg-brand-secondary hover:border-brand-green/40'
                                     } ${isCurrent ? 'opacity-60 cursor-not-allowed' : ''}`}
                                 >

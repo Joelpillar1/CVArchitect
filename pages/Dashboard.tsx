@@ -748,7 +748,7 @@ export default function Dashboard() {
                                     </button>
                                     <button
                                         onClick={() => navigate('/dashboard/settings')}
-                                        className="w-8 h-8 rounded-full bg-brand-green/25 text-brand-dark border border-brand-green/40 flex items-center justify-center font-bold text-xs hover:ring-2 hover:ring-brand-green/50 transition-all"
+                                        className="w-8 h-8 rounded-full bg-brand-dark text-brand-green flex items-center justify-center font-bold text-xs hover:ring-2 hover:ring-brand-green/50 shadow-xs transition-all"
                                         title={displayName}
                                     >
                                         {initials}
@@ -818,7 +818,7 @@ export default function Dashboard() {
                                                     className="w-8 h-8 rounded-full object-cover shrink-0 border border-gray-200"
                                                 />
                                             ) : (
-                                                <div className="w-8 h-8 rounded-full bg-brand-green/25 text-brand-dark border border-brand-green/40 flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-brand-green/40 transition-colors">
+                                                <div className="w-8 h-8 rounded-full bg-brand-dark text-brand-green flex items-center justify-center font-bold text-xs shrink-0 shadow-xs group-hover:ring-2 group-hover:ring-brand-green/40 transition-all">
                                                     {initials}
                                                 </div>
                                             )}

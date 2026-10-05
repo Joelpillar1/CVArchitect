@@ -964,4 +964,52 @@ body.print-resume-mode #print-resume-root {
   }
 }
 
+/* ==========================================================================
+   AI Recruiter Canvas Spotlight & Eye-Tracking Glow
+   ========================================================================== */
+@keyframes agentTargetPulse {
+  0%, 100% {
+    outline: 2px solid rgba(16, 185, 129, 0.85);
+    outline-offset: 3px;
+    background-color: rgba(16, 185, 129, 0.08);
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15), 0 4px 16px rgba(16, 185, 129, 0.2);
+  }
+  50% {
+    outline: 2.5px solid rgba(16, 185, 129, 1);
+    outline-offset: 4px;
+    background-color: rgba(16, 185, 129, 0.16);
+    box-shadow: 0 0 0 7px rgba(16, 185, 129, 0.3), 0 6px 24px rgba(16, 185, 129, 0.35);
+  }
+}
+
+@keyframes agentAppliedFlash {
+  0% {
+    outline: 3px solid #10b981;
+    outline-offset: 3px;
+    background-color: rgba(16, 185, 129, 0.35);
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.4);
+  }
+  100% {
+    outline: 2px solid transparent;
+    outline-offset: 0px;
+    background-color: transparent;
+    box-shadow: none;
+  }
+}
+
+.agent-target-highlight {
+  animation: agentTargetPulse 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+  border-radius: 4px !important;
+  position: relative !important;
+  transition: all 0.25s ease-in-out !important;
+  z-index: 20 !important;
+}
+
+.agent-target-highlight-applied {
+  animation: agentAppliedFlash 1.4s ease-out forwards !important;
+  border-radius: 4px !important;
+  position: relative !important;
+  z-index: 20 !important;
+}
+
 

@@ -145,18 +145,21 @@ export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUp
 
   const getPlanIcon = () => {
     if (userSubscription.planId === 'build' || userSubscription.planId === 'blueprint' || userSubscription.planId === 'pro_monthly') {
-      return <Crown className="text-purple-600 fill-current" size={24} />;
+      return <Crown className="text-brand-green" size={24} />;
     }
-    if (isPaid) return <Zap className="text-brand-dark fill-current" size={24} />;
-    return <User className="text-gray-600" size={24} />;
+    if (userSubscription.planId === 'lifetime') {
+      return <Crown className="text-brand-green" size={24} />;
+    }
+    if (isPaid) return <Zap className="text-brand-green" size={24} />;
+    return <User className="text-brand-dark/70" size={24} />;
   };
 
   const getPlanColor = () => {
-    if (userSubscription.planId === 'build' || userSubscription.planId === 'blueprint' || userSubscription.planId === 'pro_monthly') {
-      return 'from-purple-500 to-indigo-600 text-white';
+    if (userSubscription.planId === 'build' || userSubscription.planId === 'blueprint' || userSubscription.planId === 'pro_monthly' || userSubscription.planId === 'lifetime') {
+      return 'bg-brand-dark text-white border border-brand-green/30';
     }
-    if (isPaid) return 'from-brand-green to-emerald-500 text-brand-dark';
-    return 'from-gray-100 to-gray-200 text-gray-800';
+    if (isPaid) return 'bg-brand-dark text-white border border-brand-green/20';
+    return 'bg-gray-50 text-brand-dark border border-brand-border';
   };
 
   const formatDate = (date?: Date) => {
@@ -653,15 +656,15 @@ export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUp
                 <p className="text-sm text-gray-500 mt-1 font-medium">Manage your subscription and billing.</p>
               </div>
               <div className="p-8">
-                <div className={`p-6 bg-gradient-to-r ${getPlanColor()} rounded-xl text-white mb-6`}>
+                <div className={`p-6 ${getPlanColor()} rounded-xl mb-6`}>
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-4 min-w-0">
-                      <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isPaid ? 'bg-white/10' : 'bg-brand-secondary'}`}>
                         {getPlanIcon()}
                       </div>
                       <div className="min-w-0">
                         <p className="font-bold text-xl sm:text-2xl break-words">{plan?.name || 'Current Plan'}</p>
-                        <p className="text-white/80 text-sm break-words">
+                        <p className={`text-sm break-words ${isPaid ? 'text-white/80' : 'text-brand-dark/70'}`}>
                           {isFree ? 'Foundation — free tier' : (plan?.billingLabel ?? '')}
                         </p>
                       </div>
@@ -736,7 +739,7 @@ export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUp
                   {isFree && (
                     <button
                       onClick={() => setActiveTab('plan')}
-                      className="bg-gradient-to-r from-brand-green to-emerald-500 hover:from-emerald-400 hover:to-emerald-600 text-brand-dark px-6 py-3 rounded-xl font-bold text-sm transition-all shadow-lg"
+                      className="bg-brand-dark hover:bg-brand-dark/90 text-white px-6 py-3 rounded-xl font-bold text-sm transition-all"
                     >
                       Upgrade Plan
                     </button>
@@ -775,12 +778,12 @@ export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUp
           <div className="space-y-6">
             <div className="bg-white shadow-soft rounded-2xl border border-brand-border overflow-hidden">
               <div className="p-8 border-b border-brand-border">
-                <h3 className="text-xl font-bold text-brand-dark">Pick your job hunt timeline</h3>
+                <h3 className="text-xl font-bold text-brand-dark">Choose your plan</h3>
                 <p className="text-sm text-gray-500 mt-1 font-medium">
-                  Unlimited AI tailoring, all templates, and unlimited downloads on every paid plan.
+                  Upgrade, switch plans, or manage your subscription anytime.
                 </p>
               </div>
-              <div className="p-8">
+              <div className="p-6 sm:p-8">
                 <PaidPlanPicker
                   currentPlanId={userSubscription.planId}
                   dodoSubscriptionId={userSubscription.dodoSubscriptionId}

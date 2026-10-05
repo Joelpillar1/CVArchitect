@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { Lock, Eye, EyeOff, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import AuthHeroShowcase from './AuthHeroShowcase';
 
 interface ResetPasswordProps {
     onSuccess: () => void;
@@ -83,10 +83,10 @@ export default function ResetPassword({ onSuccess }: ResetPasswordProps) {
             if (error) throw error;
             setSuccess(true);
 
-            // Redirect to sign in after 3 seconds
+            // Redirect to sign in after 2.5 seconds
             setTimeout(() => {
                 onSuccess();
-            }, 3000);
+            }, 2500);
         } catch (err: any) {
             setError(err.message || 'Failed to reset password');
         } finally {
@@ -94,165 +94,204 @@ export default function ResetPassword({ onSuccess }: ResetPasswordProps) {
         }
     };
 
-    if (checkingToken) {
-        return (
-            <div className="min-h-screen bg-white flex items-center justify-center px-6 py-12">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-green mx-auto mb-4"></div>
-                    <p className="text-gray-600">Verifying reset link...</p>
-                </div>
-            </div>
-        );
-    }
-
-    if (!isValidToken) {
-        return (
-            <div className="min-h-screen bg-white flex items-center justify-center px-6 py-12">
-                <div className="w-full max-w-md text-center">
-                    <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <AlertCircle className="w-8 h-8 text-red-600" />
-                    </div>
-
-                    <h1 className="text-3xl font-extrabold text-brand-dark mb-4" style={{ fontFamily: 'Graphik, sans-serif' }}>
-                        Invalid Reset Link
-                    </h1>
-
-                    <p className="text-gray-600 mb-8">
-                        {error || 'This password reset link is invalid or has expired. Please request a new one.'}
-                    </p>
+    return (
+        <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-12 bg-white font-sans selection:bg-brand-green/30">
+            {/* Left Column: Form (Full Height) */}
+            <div className="lg:col-span-6 xl:col-span-5 min-h-screen flex flex-col justify-between p-6 sm:p-10 lg:p-12 xl:p-16 bg-white z-10">
+                {/* Top Bar: Brand & Back link */}
+                <div className="flex items-center justify-between">
+                    <a href="/" className="flex items-center gap-2.5 group">
+                        <img
+                            src="/images/logo icon.png"
+                            alt="CV Architect"
+                            className="w-8 h-8 object-contain transition-transform duration-200 group-hover:scale-105"
+                        />
+                        <span className="font-bold text-xl tracking-tight text-brand-dark">
+                            CV Architect
+                        </span>
+                    </a>
 
                     <button
                         onClick={onSuccess}
-                        className="w-full py-3 rounded-xl font-semibold bg-brand-green text-brand-dark hover:opacity-90 transition-all shadow-lg"
+                        className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-brand-dark transition-colors px-2.5 py-1.5 rounded-lg hover:bg-gray-100 cursor-pointer"
                     >
-                        Back to Sign In
+                        <ArrowLeft size={15} />
+                        <span>Sign In</span>
                     </button>
                 </div>
-            </div>
-        );
-    }
 
-    if (success) {
-        return (
-            <div className="min-h-screen bg-white flex items-center justify-center px-6 py-12">
-                <div className="w-full max-w-md text-center">
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <CheckCircle className="w-8 h-8 text-green-600" />
-                    </div>
-
-                    <h1 className="text-3xl font-extrabold text-brand-dark mb-4" style={{ fontFamily: 'Graphik, sans-serif' }}>
-                        Password Reset Successful!
-                    </h1>
-
-                    <p className="text-gray-600 mb-8">
-                        Your password has been successfully reset. You can now sign in with your new password.
-                    </p>
-
-                    <div className="animate-pulse text-sm text-gray-500">
-                        Redirecting to sign in...
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    return (
-        <div className="min-h-screen bg-white flex items-center justify-center px-6 py-12">
-            <div className="w-full max-w-md">
-                {/* Header */}
-                <div className="text-center mb-8">
-                    <h1 className="text-3xl md:text-4xl font-extrabold text-brand-dark mb-2" style={{ fontFamily: 'Graphik, sans-serif' }}>
-                        Reset Your Password
-                    </h1>
-                    <p className="text-gray-500">
-                        Enter your new password below
-                    </p>
-                </div>
-
-                {/* Form */}
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    {error && (
-                        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-                            {error}
+                {/* Center Form Container */}
+                <div className="w-full max-w-[390px] mx-auto my-auto py-8">
+                    {checkingToken ? (
+                        <div className="text-center py-12">
+                            <div className="animate-spin rounded-full h-10 w-10 border-2 border-brand-green border-t-transparent mx-auto mb-4"></div>
+                            <p className="text-sm font-medium text-gray-500">Verifying secure reset link...</p>
                         </div>
-                    )}
-
-                    {/* New Password */}
-                    <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                            New Password
-                        </label>
-                        <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                            <input
-                                type={showPassword ? 'text' : 'password'}
-                                id="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 transition-all"
-                                placeholder="Enter new password"
-                                autoFocus
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                            >
-                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                            </button>
-                        </div>
-                        <p className="mt-2 text-xs text-gray-500">
-                            Must be at least 6 characters with uppercase, lowercase, and numbers
-                        </p>
-                    </div>
-
-                    {/* Confirm Password */}
-                    <div>
-                        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                            Confirm New Password
-                        </label>
-                        <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                            <input
-                                type={showConfirmPassword ? 'text' : 'password'}
-                                id="confirmPassword"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 transition-all"
-                                placeholder="Confirm new password"
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                            >
-                                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Password Strength Indicator */}
-                    {password && (
-                        <div className="space-y-2">
-                            <p className="text-xs font-medium text-gray-700">Password strength:</p>
-                            <div className="flex gap-1">
-                                <div className={`h-1 flex-1 rounded ${password.length >= 6 ? 'bg-green-500' : 'bg-gray-200'}`}></div>
-                                <div className={`h-1 flex-1 rounded ${/[A-Z]/.test(password) && /[a-z]/.test(password) ? 'bg-green-500' : 'bg-gray-200'}`}></div>
-                                <div className={`h-1 flex-1 rounded ${/[0-9]/.test(password) ? 'bg-green-500' : 'bg-gray-200'}`}></div>
-                                <div className={`h-1 flex-1 rounded ${password.length >= 12 ? 'bg-green-500' : 'bg-gray-200'}`}></div>
+                    ) : !isValidToken ? (
+                        <div className="text-left animate-fadeIn">
+                            <div className="w-12 h-12 bg-rose-50 border border-rose-200 text-rose-600 rounded-2xl flex items-center justify-center mb-4">
+                                <AlertCircle className="w-6 h-6" />
                             </div>
+                            <h1 className="text-2xl sm:text-3xl font-extrabold text-brand-dark tracking-tight mb-2">
+                                Invalid Reset Link
+                            </h1>
+                            <p className="text-xs sm:text-sm text-gray-500 mb-6 leading-relaxed">
+                                {error || 'This password reset link is invalid or has expired. Please request a new one.'}
+                            </p>
+                            <button
+                                onClick={onSuccess}
+                                className="w-full bg-brand-green hover:bg-brand-greenHover text-brand-dark py-3.5 px-4 rounded-xl font-bold text-sm shadow-sm hover:shadow-md transition-all cursor-pointer"
+                            >
+                                Back to Sign In
+                            </button>
+                        </div>
+                    ) : success ? (
+                        <div className="text-left animate-fadeIn">
+                            <div className="w-12 h-12 bg-emerald-50 border border-emerald-200 text-emerald-600 rounded-2xl flex items-center justify-center mb-4">
+                                <CheckCircle className="w-6 h-6" />
+                            </div>
+                            <h1 className="text-2xl sm:text-3xl font-extrabold text-brand-dark tracking-tight mb-2">
+                                Password Updated
+                            </h1>
+                            <p className="text-xs sm:text-sm text-gray-500 mb-6 leading-relaxed">
+                                Your password has been successfully reset. Redirecting you to sign in...
+                            </p>
+                            <button
+                                onClick={onSuccess}
+                                className="w-full bg-brand-green hover:bg-brand-greenHover text-brand-dark py-3.5 px-4 rounded-xl font-bold text-sm shadow-sm hover:shadow-md transition-all cursor-pointer"
+                            >
+                                Sign In Now
+                            </button>
+                        </div>
+                    ) : (
+                        <div>
+                            {/* Header */}
+                            <div className="mb-7 text-left">
+                                <h1 className="text-2xl sm:text-3xl font-extrabold text-brand-dark tracking-tight mb-2">
+                                    Reset password
+                                </h1>
+                                <p className="text-xs sm:text-sm text-gray-500 font-normal leading-relaxed">
+                                    Choose a strong, new password for your account
+                                </p>
+                            </div>
+
+                            {/* Error Banner */}
+                            {error && (
+                                <div className="mb-5 bg-red-50 border border-red-200 text-red-600 px-3.5 py-2.5 rounded-xl text-xs text-left animate-fadeIn">
+                                    {error}
+                                </div>
+                            )}
+
+                            {/* Form */}
+                            <form onSubmit={handleSubmit} className="space-y-4 text-left">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                        New Password
+                                    </label>
+                                    <div className="relative">
+                                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                                        <input
+                                            type={showPassword ? 'text' : 'password'}
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            required
+                                            className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 transition-all text-sm text-brand-dark placeholder:text-gray-400"
+                                            placeholder="At least 6 characters"
+                                            autoFocus
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+                                            aria-label="Toggle password visibility"
+                                        >
+                                            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                        Confirm New Password
+                                    </label>
+                                    <div className="relative">
+                                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                                        <input
+                                            type={showConfirmPassword ? 'text' : 'password'}
+                                            value={confirmPassword}
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            required
+                                            className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 transition-all text-sm text-brand-dark placeholder:text-gray-400"
+                                            placeholder="Re-enter new password"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+                                            aria-label="Toggle confirm password visibility"
+                                        >
+                                            {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Password Strength Indicator */}
+                                {password && (
+                                    <div className="space-y-1.5 pt-1">
+                                        <div className="flex gap-1.5">
+                                            <div className={`h-1.5 flex-1 rounded-full ${password.length >= 6 ? 'bg-emerald-500' : 'bg-gray-200'} transition-all`}></div>
+                                            <div className={`h-1.5 flex-1 rounded-full ${/[A-Z]/.test(password) && /[a-z]/.test(password) ? 'bg-emerald-500' : 'bg-gray-200'} transition-all`}></div>
+                                            <div className={`h-1.5 flex-1 rounded-full ${/[0-9]/.test(password) ? 'bg-emerald-500' : 'bg-gray-200'} transition-all`}></div>
+                                            <div className={`h-1.5 flex-1 rounded-full ${password.length >= 10 ? 'bg-emerald-500' : 'bg-gray-200'} transition-all`}></div>
+                                        </div>
+                                        <p className="text-[11px] text-gray-400">
+                                            Include upper, lowercase, and numbers
+                                        </p>
+                                    </div>
+                                )}
+
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full mt-2 bg-brand-green hover:bg-brand-greenHover active:scale-[0.99] text-brand-dark py-3.5 px-4 rounded-xl font-bold text-sm shadow-sm hover:shadow-md transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+                                >
+                                    {loading ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-brand-dark/30 border-t-brand-dark rounded-full animate-spin"></div>
+                                            <span>Updating password...</span>
+                                        </>
+                                    ) : (
+                                        <span>Save & Continue</span>
+                                    )}
+                                </button>
+                            </form>
                         </div>
                     )}
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-brand-green hover:opacity-90 text-brand-dark px-6 py-3 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {loading ? 'Resetting Password...' : 'Reset Password'}
-                    </button>
-                </form>
+                    {/* Switcher to Login */}
+                    <p className="text-center text-xs text-gray-600 mt-6">
+                        Back to{' '}
+                        <button
+                            onClick={onSuccess}
+                            className="text-brand-dark font-bold hover:underline cursor-pointer ml-1"
+                        >
+                            Sign In
+                        </button>
+                    </p>
+                </div>
+
+                {/* Footer */}
+                <div className="flex items-center justify-center text-[11px] text-gray-400 pt-4 border-t border-gray-100">
+                    <span>© {new Date().getFullYear()} CV Architect</span>
+                </div>
+            </div>
+
+            {/* Right Column: Hero Showcase (Full Height) */}
+            <div className="hidden lg:block lg:col-span-6 xl:col-span-7 h-full min-h-screen sticky top-0">
+                <AuthHeroShowcase headlineTop="Simple & Powerful" headlineBottom="Secure & Protected" />
             </div>
         </div>
     );
 }
+
+

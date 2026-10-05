@@ -10,6 +10,7 @@ import {
 } from './_lib/jobs';
 import { JOB_SOURCE_COMPANIES } from '../data/jobCompanies';
 import { fetchWiseJobs, WISE_COMPANY } from './_lib/jobs/providers/wise';
+import { fetchBustemJobs, BUSTEM_COMPANY, BUSTEM_PROVIDER } from './_lib/jobs/providers/bustem';
 
 /**
  * POST /api/jobs-sync — ingest jobs from company career pages into Supabase.
@@ -163,6 +164,39 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         failures.push({ company: 'Wise', error: errMsg });
         results.push({ company: 'Wise', source: null, jobs: [], ok: false, error: errMsg });
         console.warn('[jobs-sync] Wise sitemap fetch failed:', errMsg);
+      }
+    }
+
+    // ---- Bustem (hand-built Framer careers page) ----
+    // Bustem runs no ATS at all, so discovery can never fingerprint it and it will never appear
+    // in JOB_SOURCE_COMPANIES as a resolved board. Their index page lists every live posting and
+    // each posting has its own static detail page, both server-rendered, so we read them directly
+    // — the same escape hatch used for Wise above.
+    const shouldSyncBustem =
+      !body.only?.length || body.only.some((n) => n.toLowerCase() === 'bustem');
+    if (shouldSyncBustem) {
+      try {
+        const bustemJobs = await fetchBustemJobs(fetch, BUSTEM_COMPANY);
+        results.push({
+          company: BUSTEM_COMPANY.name,
+          source: {
+            company: BUSTEM_COMPANY.name,
+            domain: BUSTEM_COMPANY.domain,
+            provider: BUSTEM_PROVIDER,
+            slug: 'careers',
+            careersUrl: BUSTEM_COMPANY.careersUrl || 'https://bustem.com/careers',
+            detection: 'declared',
+          },
+          jobs: bustemJobs,
+          ok: bustemJobs.length > 0,
+          error: bustemJobs.length === 0 ? 'Bustem careers page returned no jobs' : undefined,
+        });
+        console.log(`[jobs-sync] Bustem: ${bustemJobs.length} jobs from careers page`);
+      } catch (err) {
+        const errMsg = (err as Error).message || 'Unknown Bustem fetch error';
+        failures.push({ company: 'Bustem', error: errMsg });
+        results.push({ company: 'Bustem', source: null, jobs: [], ok: false, error: errMsg });
+        console.warn('[jobs-sync] Bustem careers fetch failed:', errMsg);
       }
     }
 
