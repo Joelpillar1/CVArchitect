@@ -14,6 +14,7 @@
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { ResumeData, TemplateType } from '../types';
+import { getSheetVerticalMarginPx } from './templateUtils';
 
 export interface PdfExportOptions {
   filename?: string;
@@ -598,20 +599,124 @@ export async function captureElement(el: HTMLElement, scale: number = 2): Promis
 }
 
 /**
+ * Build the download filename for a resume export.
+ * `Name_Role_Resume.pdf` by default, or the user-supplied custom name.
+ */
+export function buildResumeFilename(data: ResumeData, customFilename?: string): string {
+  if (customFilename && customFilename.trim()) {
+    return `${sanitizeFilename(customFilename.trim(), 'Resume')}.pdf`;
+  }
+  return `${sanitizeFilename(data.fullName, 'Resume')}_Resume.pdf`;
+}
+
+/** How long to wait for the server-side PDF pipeline before giving up (ms). */
+const SERVER_PDF_TIMEOUT_MS = 60_000;
+
+/**
+ * Count the page sheets the editor preview is currently showing (0 when the
+ * workspace isn't mounted, e.g. the resume-agent export path).
+ */
+function countPreviewSheets(): number {
+  const paper = document.querySelector<HTMLElement>('[data-resume-paper="true"]');
+  if (!paper) return 0;
+  return Array.from(paper.querySelectorAll<HTMLElement>('.resume-page-sheet')).filter(
+    (el) => !el.closest('.opacity-0') && window.getComputedStyle(el).opacity !== '0'
+  ).length;
+}
+
+/**
+ * Export the resume as a SERVER-RENDERED vector PDF (headless Chromium).
+ *
+ * This is the ATS-friendly path: real selectable text, tagged reading order,
+ * fonts guaranteed loaded by the capture route's readiness flag. The renderer
+ * is the same template component the editor previews, rendered on /print-resume.
+ *
+ * Throws an Error with a human-readable message on failure — callers decide the
+ * fallback (the editor falls back to the vector print portal).
+ */
+export async function exportResumeToServerPdf(
+  data: ResumeData,
+  template: TemplateType = 'vanguard',
+  customFilename?: string
+): Promise<{ filename: string; verified: boolean; pages: number | null }> {
+  const filename = buildResumeFilename(data, customFilename);
+  const pageSize = (data.pageSize || 'letter').toLowerCase() === 'a4' ? 'A4' : 'Letter';
+
+  // How many pages the editor's own preview shows — lets the server widen its
+  // verification ceiling so a legitimately long CV is never rejected, while a
+  // runaway render still fails the gate.
+  const expectedPages = countPreviewSheets();
+
+  // Same per-sheet top/bottom padding the preview uses, sent to page.pdf so it
+  // repeats on EVERY page — this is what keeps the user's margin setting.
+  const marginVerticalPx = getSheetVerticalMarginPx(data);
+
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), SERVER_PDF_TIMEOUT_MS);
+
+  let response: Response;
+  try {
+    response = await fetch('/api/export-pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        exportPayload: JSON.stringify({ data, template }),
+        origin: window.location.origin,
+        pageSize,
+        filename,
+        marginVerticalPx,
+        ...(expectedPages > 0 ? { expectedPages } : {}),
+      }),
+      signal: controller.signal,
+    });
+  } catch (err) {
+    const timedOut = controller.signal.aborted;
+    throw new Error(
+      timedOut
+        ? `The PDF service did not respond within ${SERVER_PDF_TIMEOUT_MS / 1000} seconds.`
+        : `Could not reach the PDF service: ${err instanceof Error ? err.message : String(err)}`
+    );
+  } finally {
+    window.clearTimeout(timer);
+  }
+
+  if (!response.ok) {
+    let detail = `HTTP ${response.status}`;
+    try {
+      const body = (await response.json()) as { error?: string };
+      if (body?.error) detail = body.error;
+    } catch {
+      // Non-JSON error body — keep the HTTP status as the detail.
+    }
+    throw new Error(detail);
+  }
+
+  const blob = await response.blob();
+  if (blob.size === 0) {
+    throw new Error('The PDF service returned an empty file.');
+  }
+
+  downloadFile(blob, filename);
+
+  const pagesHeader = response.headers.get('X-PDF-Pages');
+  return {
+    filename,
+    verified: response.headers.get('X-PDF-Verified') === 'ok',
+    pages: pagesHeader ? Number(pagesHeader) : null,
+  };
+}
+
+/**
  * Exports all visible resume page sheets directly to PDF using html2canvas + jsPDF.
+ * RASTER output (image-based, no text layer) — kept as an explicit legacy fallback only;
+ * prefer exportResumeToServerPdf for downloads.
  */
 export async function exportResumeToPdf(
   data: ResumeData,
   template: TemplateType = 'vanguard',
   customFilename?: string
 ): Promise<void> {
-  let finalFilename: string;
-  if (customFilename && customFilename.trim()) {
-    const clean = sanitizeFilename(customFilename.trim(), 'Resume');
-    finalFilename = `${clean}.pdf`;
-  } else {
-    finalFilename = `${sanitizeFilename(data.fullName, 'Resume')}_Resume.pdf`;
-  }
+  const finalFilename = buildResumeFilename(data, customFilename);
 
   /**
    * Find the sheets to export.

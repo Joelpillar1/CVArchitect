@@ -2049,11 +2049,25 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
       const activeData = resumeDataRef.current || resumeData;
       const activeTemplate = templateRef.current || template;
       const activeTitle = (resumeTitleRef.current || resumeTitle || activeData.fullName || 'Resume').trim();
-      await generatePDF(activeData, activeTemplate, activeTitle);
-      showToast('Resume downloaded successfully!', 'success');
+      const result = await generatePDF(activeData, activeTemplate, activeTitle);
+      showToast(
+        result?.verified && result.pages !== null
+          ? `Resume downloaded — ${result.pages} page${result.pages === 1 ? '' : 's'}, text layer verified.`
+          : 'Resume downloaded successfully!',
+        'success'
+      );
     } catch (e: any) {
-      console.error('Export error:', e);
-      showToast(e?.message || 'Failed to export PDF. Please try again.', 'error');
+      const message = e?.message || 'Failed to export PDF. Please try again.';
+      console.error('Server PDF export failed, falling back to vector print:', e);
+      // Approved fallback: vector print portal (selectable text, ATS-safe).
+      // Never fall back to the raster html2canvas path — it has no text layer.
+      showToast(`${message} Opening the print dialog instead.`, 'error');
+      try {
+        printResumeToPdf();
+      } catch (printError) {
+        console.error('Print fallback failed:', printError);
+        showToast('Could not open the print dialog either. Please retry.', 'error');
+      }
     } finally {
       setIsExporting(false);
     }

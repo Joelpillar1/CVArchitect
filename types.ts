@@ -191,6 +191,7 @@ export type TemplateType =
   | 'minimalist'
   | 'professional'
   | 'times'
+  | 'regent'
   | 'twocolumn'
   | 'freshgrad1'
   | 'freshgrad2'

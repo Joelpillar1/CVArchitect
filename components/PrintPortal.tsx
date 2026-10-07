@@ -18,6 +18,7 @@ import StyledTemplate from './templates/StyledTemplate';
 import ElegantTemplate from './templates/ElegantTemplate';
 import ProfessionalTemplate from './templates/ProfessionalTemplate';
 import TimesTemplate from './templates/TimesTemplate';
+import RegentTemplate from './templates/RegentTemplate';
 import TwoColumnTemplate from './templates/TwoColumnTemplate';
 import SageTemplate from './templates/SageTemplate';
 import ReziTemplate from './templates/ReziTemplate';
@@ -53,6 +54,7 @@ export function renderResumeTemplate(template: TemplateType, data: ResumeData) {
     case 'elegant': return <ElegantTemplate data={data} />;
     case 'professional': return <ProfessionalTemplate data={data} />;
     case 'times': return <TimesTemplate data={data} />;
+    case 'regent': return <RegentTemplate data={data} />;
     case 'twocolumn': return <TwoColumnTemplate data={data} />;
     case 'sage': return <SageTemplate data={data} />;
     case 'rezi': return <ReziTemplate data={data} />;

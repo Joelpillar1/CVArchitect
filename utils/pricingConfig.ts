@@ -282,6 +282,7 @@ export const ALL_TEMPLATES = [
     'elegant',
     'professional',
     'times',
+    'regent',
     'freshgrad2',
     'freshgrad3',
     'freshgrad4',

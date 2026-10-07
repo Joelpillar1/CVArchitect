@@ -27,6 +27,7 @@ import StyledTemplate from './templates/StyledTemplate';
 import ElegantTemplate from './templates/ElegantTemplate';
 import ProfessionalTemplate from './templates/ProfessionalTemplate';
 import TimesTemplate from './templates/TimesTemplate';
+import RegentTemplate from './templates/RegentTemplate';
 import TwoColumnTemplate from './templates/TwoColumnTemplate';
 import SageTemplate from './templates/SageTemplate';
 import ReziTemplate from './templates/ReziTemplate';
@@ -67,13 +68,15 @@ import { analyzeResume } from './utils/resumeAnalytics';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FileText as FileTextIcon } from 'lucide-react';
 import { saveToStorage, loadFromStorage } from '../utils/statePersistence';
-import { exportResumeToPdf, exportCoverLetterToPdf, printResumeToPdf, exportResumeToPlainText } from '../utils/pdfExport';
+import { exportResumeToServerPdf, exportCoverLetterToPdf, printResumeToPdf, exportResumeToPlainText } from '../utils/pdfExport';
 import { exportResumeToDocx } from '../utils/docxExport';
+import { useToast } from '../contexts/ToastContext';
 
 export default function Editor({ data, onChange, template, onTemplateChange, onBack, onSave, onSaveAsTemplate, currentResumeId, showWelcomeModal, onCloseWelcomeModal, auditResult, userSubscription, onAIAction, onShowPaywall, embedded = false, leftSidebarWidthClass, rightSidebarWidthClass }: EditorProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isDesignModalOpen, setIsDesignModalOpen] = useState(false);
   const location = useLocation();
+  const { showToast } = useToast();
   const [activeMobileTabState, setActiveMobileTabState] = useState<'editor' | 'preview' | 'job-match'>(() => {
     return embedded ? 'editor' : loadFromStorage<'editor' | 'preview' | 'job-match'>('editor_activeMobileTab', 'editor');
   });
@@ -308,10 +311,25 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
 
     setIsDownloading(true);
     try {
-      await exportResumeToPdf(data, template);
+      const result = await exportResumeToServerPdf(data, template);
+      showToast(
+        result.verified && result.pages !== null
+          ? `Resume downloaded — ${result.pages} page${result.pages === 1 ? '' : 's'}, text layer verified.`
+          : 'Resume downloaded.',
+        'success'
+      );
     } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert(`PDF export failed: ${error instanceof Error ? error.message : String(error)}`);
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('Server PDF export failed, falling back to vector print:', error);
+      // Approved fallback: vector print portal (selectable text, ATS-safe).
+      // Never fall back to the raster html2canvas path — it has no text layer.
+      showToast(`Direct PDF unavailable — ${message}. Opening the print dialog instead.`, 'error');
+      try {
+        printResumeToPdf();
+      } catch (printError) {
+        console.error('Print fallback failed:', printError);
+        showToast('Could not open the print dialog either. Please retry.', 'error');
+      }
     } finally {
       setIsDownloading(false);
     }
@@ -395,6 +413,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
       case 'elegant': return <ElegantTemplate data={data} />;
       case 'professional': return <ProfessionalTemplate data={data} />;
       case 'times': return <TimesTemplate data={data} />;
+      case 'regent': return <RegentTemplate data={data} />;
       case 'twocolumn': return <TwoColumnTemplate data={data} />;
       case 'sage': return <SageTemplate data={data} />;
       case 'rezi': return <ReziTemplate data={data} />;

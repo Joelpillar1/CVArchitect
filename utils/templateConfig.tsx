@@ -175,6 +175,13 @@ export const TEMPLATE_CONFIG: { id: TemplateType; name: string; subtitle: string
         bg: "bg-[#FFFFFF]"
     },
     {
+        id: 'regent',
+        name: "Regent Serif",
+        subtitle: "Centered Classic",
+        icon: <BookOpen className="text-gray-800" size={20} />,
+        bg: "bg-[#FFFFFF]"
+    },
+    {
         id: 'times',
         name: "Times Classic",
         subtitle: "ATS Serif",

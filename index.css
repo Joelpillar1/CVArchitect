@@ -854,21 +854,24 @@ body.print-resume-mode #print-resume-root {
     display: none !important;
   }
 
-  /* Hide app shell UI elements, toolbars, sidebars, modals during print (never resume/cover letter content) */
-  nav:not(.resume-page-sheet nav):not(.print-resume nav),
-  footer:not(.resume-page-sheet footer):not(.print-resume footer),
-  .print\:hidden,
-  [class*="print:hidden"],
-  button,
-  .fixed:not(.resume-page-sheet):not(:has(.resume-page-sheet)),
-  .sticky:not(.resume-page-sheet *):not(.print-resume *),
-  [role="dialog"],
-  [data-floating-toolbar],
-  .floating-toolbar,
-  header.sticky,
-  header[class*="sticky"],
-  body > #root > div > header,
-  body > #root > div > div > aside {
+  /* Hide app shell UI elements, toolbars, sidebars, modals during print (never resume/cover letter content).
+     Scoped away from .print-resume-mode (the /print-resume capture route): that route renders ONLY the
+     resume, so app-chrome hiding must never be able to swallow resume content such as a template
+     <footer> or <nav>. */
+  body:not(.print-resume-mode) nav:not(.resume-page-sheet nav):not(.print-resume nav),
+  body:not(.print-resume-mode) footer:not(.resume-page-sheet footer):not(.print-resume footer),
+  body:not(.print-resume-mode) .print\:hidden,
+  body:not(.print-resume-mode) [class*="print:hidden"],
+  body:not(.print-resume-mode) button,
+  body:not(.print-resume-mode) .fixed:not(.resume-page-sheet):not(:has(.resume-page-sheet)),
+  body:not(.print-resume-mode) .sticky:not(.resume-page-sheet *):not(.print-resume *),
+  body:not(.print-resume-mode) [role="dialog"],
+  body:not(.print-resume-mode) [data-floating-toolbar],
+  body:not(.print-resume-mode) .floating-toolbar,
+  body:not(.print-resume-mode) header.sticky,
+  body:not(.print-resume-mode) header[class*="sticky"],
+  body:not(.print-resume-mode) > #root > div > header,
+  body:not(.print-resume-mode) > #root > div > div > aside {
     display: none !important;
   }
 

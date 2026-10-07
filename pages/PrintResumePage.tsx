@@ -1,81 +1,60 @@
 /**
  * PrintResumePage — a clean, standalone page used exclusively by Puppeteer
  * for PDF generation. It reads resume data + template from sessionStorage
- * (set by pdfExport.ts before calling the API), renders the selected
- * template, and sets window.__PRINT_READY__ = true once fully painted so
- * Puppeteer knows when to fire page.pdf().
+ * (injected by the /api/export-pdf Puppeteer session), renders the selected
+ * template, and sets window.__PRINT_READY__ = true only once fonts, images and
+ * layout are fully painted — so Puppeteer never captures a half-rendered page.
+ * If rendering is impossible (missing/invalid payload) it sets
+ * window.__PRINT_ERROR__ so the endpoint can fail fast with a real message.
+ *
+ * SETTINGS PARITY: this wrapper applies exactly what ResumePreview's sheet
+ * applies (font family, body size, line height, white-space, bullet style and
+ * indent, skills casing) so the downloaded PDF matches what the user sees in
+ * the editor. Vertical page margins are NOT padded here — they travel to
+ * page.pdf via the API so they repeat on every page, mirroring the preview's
+ * per-sheet padding.
  *
  * Route: /print-resume  (public, no auth required)
  */
 import React, { useEffect, useState } from 'react';
 import { ResumeData, TemplateType } from '../types';
-import VanguardTemplate from '../components/templates/VanguardTemplate';
-import ElevateResume from '../components/templates/ElevateResume';
-import PrimeProfile from '../components/templates/PrimeProfile';
-import ImpactTemplate from '../components/templates/ImpactTemplate';
-import FreeTemplate from '../components/templates/FreeTemplate';
-import SimpleProTemplate from '../components/templates/SimpleProTemplate';
-import DevTemplate from '../components/templates/DevTemplate';
-import ApexTemplate from '../components/templates/ApexTemplate';
-import ModernTemplate from '../components/templates/ModernTemplate';
-import ExecutiveTemplate from '../components/templates/ExecutiveTemplate';
-import ClassicTemplate from '../components/templates/ClassicTemplate';
-import MinimalistTemplate from '../components/templates/MinimalistTemplate';
-import WonsultingTemplate from '../components/templates/WonsultingTemplate';
-import StyledTemplate from '../components/templates/StyledTemplate';
-import ElegantTemplate from '../components/templates/ElegantTemplate';
-import ProfessionalTemplate from '../components/templates/ProfessionalTemplate';
-import TimesTemplate from '../components/templates/TimesTemplate';
-import TwoColumnTemplate from '../components/templates/TwoColumnTemplate';
-import SageTemplate from '../components/templates/SageTemplate';
-import ReziTemplate from '../components/templates/ReziTemplate';
-import FreshGradTemplate from '../components/templates/FreshGradTemplate';
-import FreshGrad8Template from '../components/templates/FreshGrad8Template';
-import StudentTemplate from '../components/templates/StudentTemplate';
+import { renderResumeTemplate } from '../components/PrintPortal';
+import { formatSkillCase, getSheetVerticalMarginPx } from '../utils/templateUtils';
 
 declare global {
   interface Window {
+    /** Set true once the capture route is fully painted and safe to screenshot. */
     __PRINT_READY__: boolean;
+    /** Set to a human-readable message when the capture route cannot render. */
+    __PRINT_ERROR__?: string;
   }
 }
 
-function TemplateRenderer({ data, template }: { data: ResumeData; template: TemplateType }) {
-  switch (template) {
-    case 'vanguard': return <VanguardTemplate data={data} />;
-    case 'elevate': return <ElevateResume data={data} />;
-    case 'prime': return <PrimeProfile data={data} />;
-    case 'impact': return <ImpactTemplate data={data} />;
-    case 'free': return <FreeTemplate data={data} />;
-    case 'simplepro': return <SimpleProTemplate data={data} />;
-    case 'dev': return <DevTemplate data={data} />;
-    case 'elite':
-    case 'apex': return <ApexTemplate data={data} />;
-    case 'modern': return <ModernTemplate data={data} />;
-    case 'executive': return <ExecutiveTemplate data={data} />;
-    case 'classic': return <ClassicTemplate data={data} />;
-    case 'minimalist': return <MinimalistTemplate data={data} />;
-    case 'wonsulting': return <WonsultingTemplate data={data} />;
-    case 'styled': return <StyledTemplate data={data} />;
-    case 'smart':
-    case 'elegant': return <ElegantTemplate data={data} />;
-    case 'professional': return <ProfessionalTemplate data={data} />;
-    case 'times': return <TimesTemplate data={data} />;
-    case 'twocolumn': return <TwoColumnTemplate data={data} />;
-    case 'sage': return <SageTemplate data={data} />;
-    case 'rezi': return <ReziTemplate data={data} />;
-    case 'freshgrad1':
-    case 'freshgrad2':
-    case 'freshgrad4':
-    case 'freshgrad5':
-    case 'freshgrad6':
-      return <FreshGradTemplate data={data} />;
-    case 'freshgrad3':
-    case 'freshgrad7':
-    case 'freshgrad8':
-      return <FreshGrad8Template data={data} />;
-    case 'student': return <StudentTemplate data={data} />;
-    default: return <VanguardTemplate data={data} />;
+/**
+ * Wait until everything the PDF depends on has actually landed:
+ * 1. `document.fonts.ready` — the #1 cause of a wrong-font PDF is firing before
+ *    webfonts finish loading; a fixed sleep cannot guarantee this.
+ * 2. every <img> decoded — `decode()` resolves when pixels are available, unlike
+ *    the `load` event which can fire before the image is decoded.
+ * 3. two animation frames — React's committed DOM has been laid out and painted.
+ */
+async function waitForFullPaint(): Promise<void> {
+  try {
+    await document.fonts.ready;
+  } catch {
+    // Font Loading API unavailable — proceed rather than hang the export.
   }
+
+  await Promise.all(
+    Array.from(document.images).map((img) => {
+      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+      return img.decode?.().catch(() => undefined) ?? Promise.resolve();
+    })
+  );
+
+  await new Promise<void>((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+  });
 }
 
 export default function PrintResumePage() {
@@ -86,10 +65,24 @@ export default function PrintResumePage() {
   }>({ data: null, template: 'vanguard', error: null });
 
   useEffect(() => {
-    // Apply clean-print body class so global CSS hides all app chrome
+    // Apply clean-print body class so global CSS never hides the resume content
     document.body.classList.add('print-resume-mode');
     return () => document.body.classList.remove('print-resume-mode');
   }, []);
+
+  // Per-page margins via CSS @page. Chromium's printToPDF margin fields are
+  // overridden by the global `@page { margin: 0mm }` in index.css, so the user's
+  // margin setting has to travel as a LATER @page rule (document order wins for
+  // equal specificity). This is the per-page twin of the preview sheet's
+  // paddingTop/Bottom.
+  useEffect(() => {
+    if (!state.data) return;
+    const style = document.createElement('style');
+    style.id = 'print-resume-page-setup';
+    style.textContent = `@page { margin: ${getSheetVerticalMarginPx(state.data)}px 0; }`;
+    document.head.appendChild(style);
+    return () => style.remove();
+  }, [state.data]);
 
   useEffect(() => {
     try {
@@ -105,18 +98,31 @@ export default function PrintResumePage() {
     }
   }, []);
 
-  // Signal Puppeteer once the template has fully rendered (after 2 animation frames)
+  // Signal Puppeteer once the template is fully painted (fonts + images + layout).
+  // On failure, signal __PRINT_ERROR__ so the endpoint can fail fast with the
+  // real reason instead of burning its 20s waitForFunction timeout.
   useEffect(() => {
+    if (state.error) {
+      window.__PRINT_ERROR__ = state.error;
+      return;
+    }
     if (!state.data) return;
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        // Extra 500ms for any font loading / layout
-        setTimeout(() => {
-          window.__PRINT_READY__ = true;
-        }, 600);
+
+    let cancelled = false;
+    waitForFullPaint()
+      .then(() => {
+        if (!cancelled) window.__PRINT_READY__ = true;
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          window.__PRINT_ERROR__ =
+            err instanceof Error ? err.message : 'Failed to paint the resume for export.';
+        }
       });
-    });
-  }, [state.data]);
+    return () => {
+      cancelled = true;
+    };
+  }, [state.data, state.error]);
 
   if (state.error) {
     return (
@@ -134,16 +140,31 @@ export default function PrintResumePage() {
     );
   }
 
+  // Same pre-render transforms ResumePreview applies — skills casing, so the
+  // downloaded PDF shows the exact strings the user saw while editing.
+  const skills = state.data.skills
+    ? state.data.skills.split(',').map(s => formatSkillCase(s)).join(', ')
+    : '';
+  const dataToRender: ResumeData = { ...state.data, skills };
+
   return (
     <div
       id="print-resume-root"
+      data-bullet-style={state.data.bulletStyle || 'disc'}
       style={{
         backgroundColor: '#ffffff',
         margin: 0,
         padding: 0,
-      }}
+        // ── Settings parity with ResumePreview's sheet ──
+        fontFamily: state.data.font || 'Inter, sans-serif',
+        fontSize: `${state.data.fontSizes?.body || 9.5}pt`,
+        lineHeight: state.data.lineHeight || 1.5,
+        whiteSpace: 'pre-line',
+        '--resume-line-height': (state.data.lineHeight || 1.5).toString(),
+        '--resume-bullet-indent': `${state.data.bulletIndent ?? 0}px`,
+      } as React.CSSProperties}
     >
-      <TemplateRenderer data={state.data} template={state.template} />
+      {renderResumeTemplate(state.template, dataToRender)}
     </div>
   );
 }

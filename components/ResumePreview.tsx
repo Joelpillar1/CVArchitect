@@ -1,7 +1,7 @@
 import React, { useRef, useState, useLayoutEffect, useMemo } from 'react';
 import { ResumeData, TemplateType } from '../types';
 import { getPageSizeConfig } from '../utils/pageSizeConfig';
-import { getMarginVerticalIn, readSkillsGrid, placeCaretInSkillCell, appendEmptySkillCell } from '../utils/templateUtils';
+import { getSheetVerticalMarginPx, formatSkillCase, readSkillsGrid, placeCaretInSkillCell, appendEmptySkillCell } from '../utils/templateUtils';
 import VanguardTemplate from './templates/VanguardTemplate';
 import ElevateResume from './templates/ElevateResume';
 import PrimeProfile from './templates/PrimeProfile';
@@ -19,6 +19,7 @@ import ElegantTemplate from './templates/ElegantTemplate';
 import MinimalistTemplate from './templates/MinimalistTemplate';
 import ProfessionalTemplate from './templates/ProfessionalTemplate';
 import TimesTemplate from './templates/TimesTemplate';
+import RegentTemplate from './templates/RegentTemplate';
 import TwoColumnTemplate from './templates/TwoColumnTemplate';
 import FreshGradTemplate from './templates/FreshGradTemplate';
 import FreshGrad8Template from './templates/FreshGrad8Template';
@@ -107,36 +108,8 @@ const nextSkillCell = (current: HTMLElement, direction: 1 | -1): HTMLElement | n
 };
 
 export default function ResumePreview({ data, template, onChangeData, editable = true, onDomBlur, onDomInput, editHold = false, onSheetsReinjected, onBulletEnter, onBulletBackspace, onSkillEnter, onSkillBackspace }: ResumePreviewProps) {
-  // Helper to format skills from all-caps to title case (except acronyms)
-  const formatSkillCase = (skill: string): string => {
-    const trimmed = skill.trim();
-    if (!trimmed) return '';
-    const acronyms = new Set([
-      'HTML', 'CSS', 'JS', 'UI', 'UX', 'AI', 'ML', 'SQL', 'REST', 'API', 'AWS', 
-      'GCP', 'SEO', 'QA', 'CI', 'CD', 'SDK', 'JSON', 'XML', 'GIT', 'HTML5', 
-      'CSS3', 'SASS', 'PHP', 'VPS', 'CMS', 'RESTFUL', 'IP', 'DNS'
-    ]);
-    
-    return trimmed
-      .split(/(\s+|-|\/|\.)/)
-      .map(word => {
-        const trimmedWord = word.trim();
-        if (!trimmedWord) return word;
-        
-        // If it's a known acronym (case-insensitive), render it in uppercase
-        if (acronyms.has(trimmedWord.toUpperCase())) {
-          return trimmedWord.toUpperCase();
-        }
-        
-        // If the word is entirely uppercase and has length > 1, title-case it
-        if (trimmedWord === trimmedWord.toUpperCase() && trimmedWord.length > 1) {
-          return trimmedWord.charAt(0) + trimmedWord.slice(1).toLowerCase();
-        }
-        return word;
-      })
-      .join('');
-  };
-
+  // Skills are formatted by the shared formatSkillCase in utils/templateUtils so
+  // the preview and the server-side export render them identically.
   const formattedSkills = data.skills
     ? data.skills.split(',').map(s => formatSkillCase(s)).join(', ')
     : '';
@@ -152,7 +125,7 @@ export default function ResumePreview({ data, template, onChangeData, editable =
   // Vertical page margin in CSS px — drives the sheet's top/bottom padding so
   // content always stops at the same distance from the page edge (like Word's
   // page margins) and never creeps to the bottom before paginating.
-  const vMarginPx = Math.max(16, Math.round(getMarginVerticalIn(dataToRender) * 96));
+  const vMarginPx = getSheetVerticalMarginPx(dataToRender);
 
   // Dynamic Font Application. `whiteSpace: pre-line` makes the sheet render the
   // \n the write-back stores for Enter presses and multi-line pastes as REAL line
@@ -867,6 +840,7 @@ export default function ResumePreview({ data, template, onChangeData, editable =
         case 'minimalist': return <MinimalistTemplate data={renderData} />;
         case 'professional': return <ProfessionalTemplate data={renderData} />;
         case 'times': return <TimesTemplate data={renderData} />;
+        case 'regent': return <RegentTemplate data={renderData} />;
         case 'twocolumn': return <TwoColumnTemplate data={renderData} />;
         case 'freshgrad1':
         case 'freshgrad2':

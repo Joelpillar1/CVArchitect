@@ -23,6 +23,7 @@ export const TEMPLATE_OPTIONS: TemplateOption[] = [
   { id: 'impact', name: 'Impact Bold', category: 'Senior Roles', layoutType: 'compact' },
   { id: 'classic', name: 'Classic Serif', category: 'Academic & Law', layoutType: 'serif' },
   { id: 'times', name: 'Times Classic', category: 'ATS Serif', badge: 'New', layoutType: 'serif' },
+  { id: 'regent', name: 'Regent Serif', category: 'ATS Serif', badge: 'New', layoutType: 'serif' },
   { id: 'simplepro', name: 'Simple Pro', category: 'Clean Professional', layoutType: 'clean' },
   { id: 'sage', name: 'Sage Professional', category: 'Management', layoutType: 'clean' },
   { id: 'wonsulting', name: 'Expert Template', category: 'Consulting', layoutType: 'clean' },

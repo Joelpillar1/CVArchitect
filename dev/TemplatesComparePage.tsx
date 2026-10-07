@@ -17,6 +17,7 @@ import ElegantTemplate from '../components/templates/ElegantTemplate';
 import MinimalistTemplate from '../components/templates/MinimalistTemplate';
 import ProfessionalTemplate from '../components/templates/ProfessionalTemplate';
 import TimesTemplate from '../components/templates/TimesTemplate';
+import RegentTemplate from '../components/templates/RegentTemplate';
 import TwoColumnTemplate from '../components/templates/TwoColumnTemplate';
 import FreshGradTemplate from '../components/templates/FreshGradTemplate';
 import FreshGrad8Template from '../components/templates/FreshGrad8Template';
@@ -49,6 +50,7 @@ const TEMPLATES: { name: string; Component: React.ComponentType<{ data: any }> }
   { name: 'minimalist', Component: MinimalistTemplate },
   { name: 'professional', Component: ProfessionalTemplate },
   { name: 'times', Component: TimesTemplate },
+  { name: 'regent', Component: RegentTemplate },
   { name: 'twocolumn', Component: TwoColumnTemplate },
   { name: 'sage', Component: SageTemplate },
   { name: 'rezi', Component: ReziTemplate },

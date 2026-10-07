@@ -425,6 +425,51 @@ export function getMarginVerticalIn(data: ResumeData, variant: SpacingVariant = 
     return variant === 'compact' ? TEMPLATE_SPACING.compact.marginVertical : TEMPLATE_SPACING.marginVertical;
 }
 
+/**
+ * Vertical page margin in CSS px — the preview sheet's top/bottom padding and
+ * the server export's page.pdf top/bottom margin. Shared so the downloaded PDF
+ * stops content at exactly the distance from the page edge the user sees.
+ * (Floor of 16px matches the preview's historical minimum.)
+ */
+export function getSheetVerticalMarginPx(data: ResumeData): number {
+    return Math.max(16, Math.round(getMarginVerticalIn(data) * 96));
+}
+
+/**
+ * Format a skill for display: ALL-CAPS words become title case except known
+ * acronyms (HTML, CSS, AWS...). Lives here — not inside ResumePreview — so the
+ * preview and the /print-resume capture route render skills byte-identically:
+ * what the user downloads must be what they saw.
+ */
+export function formatSkillCase(skill: string): string {
+    const trimmed = skill.trim();
+    if (!trimmed) return '';
+    const acronyms = new Set([
+        'HTML', 'CSS', 'JS', 'UI', 'UX', 'AI', 'ML', 'SQL', 'REST', 'API', 'AWS',
+        'GCP', 'SEO', 'QA', 'CI', 'CD', 'SDK', 'JSON', 'XML', 'GIT', 'HTML5',
+        'CSS3', 'SASS', 'PHP', 'VPS', 'CMS', 'RESTFUL', 'IP', 'DNS'
+    ]);
+
+    return trimmed
+        .split(/(\s+|-|\/|\.)/)
+        .map(word => {
+            const trimmedWord = word.trim();
+            if (!trimmedWord) return word;
+
+            // If it's a known acronym (case-insensitive), render it in uppercase
+            if (acronyms.has(trimmedWord.toUpperCase())) {
+                return trimmedWord.toUpperCase();
+            }
+
+            // If the word is entirely uppercase and has length > 1, title-case it
+            if (trimmedWord === trimmedWord.toUpperCase() && trimmedWord.length > 1) {
+                return trimmedWord.charAt(0) + trimmedWord.slice(1).toLowerCase();
+            }
+            return word;
+        })
+        .join('');
+}
+
 export function getSectionGapIn(data: ResumeData, variant: SpacingVariant = 'default'): number {
     const rawGap = data.sectionGap !== undefined ? data.sectionGap : (variant === 'compact' ? TEMPLATE_SPACING.compact.sectionGap : TEMPLATE_SPACING.sectionGap);
     return Math.min(0.2, Math.max(0, rawGap));
