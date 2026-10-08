@@ -1,6 +1,6 @@
 # Dodo Payments Integration Setup
 
-CV Architect uses [Dodo Payments](https://docs.dodopayments.com/developer-resources/integration-guide) for subscriptions. Checkout and webhooks run through **Supabase Edge Functions** (primary path).
+CVArchitect uses [Dodo Payments](https://docs.dodopayments.com/developer-resources/integration-guide) for subscriptions. Checkout and webhooks run through **Supabase Edge Functions** (primary path).
 
 ## Architecture
 

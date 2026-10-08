@@ -49,7 +49,7 @@ const FAQS: FAQ[] = [
     {
         id: 'gs-1',
         category: 'getting-started',
-        question: 'How do I get started with CV Architect?',
+        question: 'How do I get started with CVArchitect?',
         answer: (
             <p>
                 Sign up for a free account at{' '}
@@ -76,7 +76,7 @@ const FAQS: FAQ[] = [
         question: 'Do I need to install anything?',
         answer: (
             <p>
-                No installation required. CV Architect is a fully web-based platform  -  simply open your browser and start building. We also offer a Chrome Extension that lets you import job descriptions directly from LinkedIn and other job boards with one click.
+                No installation required. CVArchitect is a fully web-based platform  -  simply open your browser and start building. We also offer a Chrome Extension that lets you import job descriptions directly from LinkedIn and other job boards with one click.
             </p>
         ),
     },
@@ -87,7 +87,7 @@ const FAQS: FAQ[] = [
         question: 'How many resume templates are available?',
         answer: (
             <p>
-                CV Architect offers a growing library of professionally designed templates across several styles  -  modern, classic, minimal, and creative. All templates are ATS-friendly and fully customisable with your preferred fonts, colours, and layouts.
+                CVArchitect offers a growing library of professionally designed templates across several styles  -  modern, classic, minimal, and creative. All templates are ATS-friendly and fully customisable with your preferred fonts, colours, and layouts.
             </p>
         ),
     },
@@ -111,7 +111,7 @@ const FAQS: FAQ[] = [
                     ATS (Applicant Tracking System) is software used by recruiters to automatically screen resumes before a human ever sees them. Resumes not optimised for ATS are often rejected instantly  -  even highly qualified candidates.
                 </p>
                 <p>
-                    CV Architect analyses your resume against the job description and gives you an ATS score with actionable suggestions for keyword improvements, formatting fixes, and section enhancements.
+                    CVArchitect analyses your resume against the job description and gives you an ATS score with actionable suggestions for keyword improvements, formatting fixes, and section enhancements.
                 </p>
             </>
         ),
@@ -168,7 +168,7 @@ const FAQS: FAQ[] = [
         question: 'What payment methods do you accept?',
         answer: (
             <p>
-                We accept standard card payments through our secure Dodo Payments checkout. We never store your full card details in CV Architect.
+                We accept standard card payments through our secure Dodo Payments checkout. We never store your full card details in CVArchitect.
             </p>
         ),
     },
@@ -202,7 +202,7 @@ const FAQS: FAQ[] = [
         question: 'Is my payment information secure?',
         answer: (
             <p>
-                Absolutely. All payments are processed by Dodo Payments, and CV Architect never stores your full card details on our servers.
+                Absolutely. All payments are processed by Dodo Payments, and CVArchitect never stores your full card details on our servers.
             </p>
         ),
     },
@@ -252,7 +252,7 @@ const FAQS: FAQ[] = [
         question: 'What formats can I export my resume in?',
         answer: (
             <p>
-                CV Architect exports your resume as a high-quality <strong>PDF</strong> with pixel-perfect formatting. We use a print-optimised renderer to ensure your resume looks exactly right for recruiters and ATS systems.
+                CVArchitect exports your resume as a high-quality <strong>PDF</strong> with pixel-perfect formatting. We use a print-optimised renderer to ensure your resume looks exactly right for recruiters and ATS systems.
             </p>
         ),
     },
@@ -367,8 +367,8 @@ export default function Support() {
     return (
         <div className="min-h-screen bg-white">
             <SEO
-                title="Support Center  -  CV Architect"
-                description="Find answers to common questions about CV Architect's AI resume builder, billing, and account management. Contact our support team for help."
+                title="Support Center  -  CVArchitect"
+                description="Find answers to common questions about CVArchitect's AI resume builder, billing, and account management. Contact our support team for help."
                 canonicalPath="/support"
             />
             <PublicHeader />

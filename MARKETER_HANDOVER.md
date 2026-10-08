@@ -1,10 +1,10 @@
-# Marketer's Guide: CV Architect
+# Marketer's Guide: CVArchitect
 
-Welcome to **CV Architect**! This document is designed specifically for marketers and growth strategists taking over the platform. It strips away the complex code jargon and focuses purely on what this product is, its core value proposition, the features you have at your disposal to sell, the existing funnels, and your pricing levers.
+Welcome to **CVArchitect**! This document is designed specifically for marketers and growth strategists taking over the platform. It strips away the complex code jargon and focuses purely on what this product is, its core value proposition, the features you have at your disposal to sell, the existing funnels, and your pricing levers.
 
 ## 1. The Core Value Proposition (What Are We Selling?)
 
-**CV Architect** is an AI-powered "career architectural" platform. Instead of users spending hours wrestling with Microsoft Word templates and struggling to think of the right action verbs, CV Architect does it for them instantly.
+**CVArchitect** is an AI-powered "career architectural" platform. Instead of users spending hours wrestling with Microsoft Word templates and struggling to think of the right action verbs, CVArchitect does it for them instantly.
 
 **The Pitch:** "Stop guessing what recruiters want. Paste the job description, click a button, and our AI will rewrite your resume to exactly match the role in a beautiful, ATS-optimized layout you can download in seconds."
 

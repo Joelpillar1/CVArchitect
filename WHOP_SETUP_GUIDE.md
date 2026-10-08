@@ -1,7 +1,7 @@
 # Whop Integration Setup Guide
 
 > **⚠️ OBSOLETE — July 2026**  
-> CV Architect migrated from Whop to **Dodo Payments**. Use **[DODO_PAYMENTS_SETUP.md](../DODO_PAYMENTS_SETUP.md)** instead. This file is kept for historical reference only.
+> CVArchitect migrated from Whop to **Dodo Payments**. Use **[DODO_PAYMENTS_SETUP.md](../DODO_PAYMENTS_SETUP.md)** instead. This file is kept for historical reference only.
 
 ---
 

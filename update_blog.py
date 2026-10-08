@@ -22,11 +22,11 @@ if start_idx != -1 and end_idx != -1:
     new_article = """    {
         slug: 'student-resume-no-experience-guide',
         title: 'How to Write a Student Resume With No Work Experience (And Still Get Hired)',
-        metaTitle: 'Student Resume With No Experience: Complete Guide & Examples (2026) | CV Architect',
+        metaTitle: 'Student Resume With No Experience: Complete Guide & Examples (2026) | CVArchitect',
         metaDescription: 'Step-by-step guide to writing a student resume or first job resume with no work experience. Includes real examples, templates, and what to put on your resume when you have no experience.',
         excerpt: 'Everyone needs experience to get hired, but you need a job to get experience. Here is how to break out of that loop with a student resume that actually lands interviews.',
         category: 'Career Advice',
-        author: 'CV Architect Team',
+        author: 'CVArchitect Team',
         publishDate: '2026-01-05',
         readTime: '18 min read',
         featured: false,
@@ -260,7 +260,7 @@ if start_idx != -1 and end_idx != -1:
             },
             {
                 type: 'tip',
-                content: 'Using a dedicated resume builder like CV Architect ensures your student resume is perfectly formatted, ATS-compliant, and professional. Our AI can help you extract the hidden skills from your coursework and extracurriculars, transforming them into interview-winning bullet points.'
+                content: 'Using a dedicated resume builder like CVArchitect ensures your student resume is perfectly formatted, ATS-compliant, and professional. Our AI can help you extract the hidden skills from your coursework and extracurriculars, transforming them into interview-winning bullet points.'
             }
         ]
     },

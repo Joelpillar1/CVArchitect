@@ -57,7 +57,7 @@ export default function SEO({
 
       {/* Open Graph */}
       <meta property="og:type" content="website" data-rh="true" />
-      <meta property="og:site_name" content="CV Architect" data-rh="true" />
+      <meta property="og:site_name" content="CVArchitect" data-rh="true" />
       <meta property="og:title" content={title} data-rh="true" />
       {description && <meta property="og:description" content={description} data-rh="true" />}
       <meta property="og:url" content={url} data-rh="true" />

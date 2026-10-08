@@ -184,7 +184,7 @@ export default function PublicFooter() {
             {/* Bottom bar */}
             <div className="public-footer__bottom">
                 <div className="public-footer__bottom-inner">
-                    <Link to="/" className="public-footer__brand" aria-label="CV Architect Home">
+                    <Link to="/" className="public-footer__brand" aria-label="CVArchitect Home">
                         <img
                             src="/images/logo icon.png"
                             alt=""
@@ -192,10 +192,10 @@ export default function PublicFooter() {
                             width="28"
                             height="28"
                         />
-                        <span className="public-footer__brand-name">CV Architect</span>
+                        <span className="public-footer__brand-name">CVArchitect</span>
                     </Link>
                     <p className="public-footer__copyright">
-                        © {currentYear} CV Architect. All rights reserved.
+                        © {currentYear} CVArchitect. All rights reserved.
                     </p>
                     <div className="public-footer__social" aria-label="Social media links">
                         {/* Twitter / X */}

@@ -132,8 +132,8 @@ export default function SignUp() {
     return (
         <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-12 bg-white font-sans selection:bg-brand-green/30">
             <SEO
-                title="Create Account — CV Architect | AI Resume Builder"
-                description="Create a CV Architect account to build ATS-optimized resumes and tailor cover letters with AI."
+                title="Create Account — CVArchitect | AI Resume Builder"
+                description="Create a CVArchitect account to build ATS-optimized resumes and tailor cover letters with AI."
                 canonicalPath="/signup"
             />
 
@@ -144,11 +144,11 @@ export default function SignUp() {
                     <a href="/" className="flex items-center gap-2.5 group">
                         <img
                             src="/images/logo icon.png"
-                            alt="CV Architect"
+                            alt="CVArchitect"
                             className="w-8 h-8 object-contain transition-transform duration-200 group-hover:scale-105"
                         />
                         <span className="font-bold text-xl tracking-tight text-brand-dark">
-                            CV Architect
+                            CVArchitect
                         </span>
                     </a>
 
@@ -329,7 +329,7 @@ export default function SignUp() {
 
                 {/* Footer */}
                 <div className="flex items-center justify-center text-[11px] text-gray-400 pt-4 border-t border-gray-100">
-                    <span>© {new Date().getFullYear()} CV Architect</span>
+                    <span>© {new Date().getFullYear()} CVArchitect</span>
                 </div>
             </div>
 

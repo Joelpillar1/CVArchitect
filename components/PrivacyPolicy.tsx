@@ -14,8 +14,8 @@ export default function PrivacyPolicy({ onBack }: PrivacyPolicyProps) {
     return (
         <div className="min-h-screen bg-white">
             <SEO
-                title="Privacy Policy — CV Architect"
-                description="Learn how CV Architect collects, uses, and protects your personal data with industry-standard encryption and strict privacy safeguards."
+                title="Privacy Policy — CVArchitect"
+                description="Learn how CVArchitect collects, uses, and protects your personal data with industry-standard encryption and strict privacy safeguards."
                 canonicalPath="/privacy"
             />
             <PublicHeader />
@@ -31,7 +31,7 @@ export default function PrivacyPolicy({ onBack }: PrivacyPolicyProps) {
                     <section>
                         <h2 className="text-2xl font-bold text-brand-dark mb-4">Introduction</h2>
                         <p className="text-gray-700 leading-relaxed">
-                            At CV Architect, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our resume building platform.
+                            At CVArchitect, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our resume building platform.
                         </p>
                     </section>
 
@@ -39,7 +39,7 @@ export default function PrivacyPolicy({ onBack }: PrivacyPolicyProps) {
                         <h2 className="text-2xl font-bold text-brand-dark mb-4">Information We Collect</h2>
                         <h3 className="text-xl font-semibold text-brand-dark mb-3">Personal Information</h3>
                         <p className="text-gray-700 leading-relaxed mb-4">
-                            When you create a resume using CV Architect, we collect information you provide, including:
+                            When you create a resume using CVArchitect, we collect information you provide, including:
                         </p>
                         <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
                             <li>Name, email address, and contact information</li>
@@ -107,7 +107,7 @@ export default function PrivacyPolicy({ onBack }: PrivacyPolicyProps) {
                     <section>
                         <h2 className="text-2xl font-bold text-brand-dark mb-4">Third-Party Services</h2>
                         <p className="text-gray-700 leading-relaxed">
-                            CV Architect uses third-party services for AI processing and analytics. These services have their own privacy policies and we encourage you to review them. We do not sell your personal information to third parties.
+                            CVArchitect uses third-party services for AI processing and analytics. These services have their own privacy policies and we encourage you to review them. We do not sell your personal information to third parties.
                         </p>
                     </section>
 

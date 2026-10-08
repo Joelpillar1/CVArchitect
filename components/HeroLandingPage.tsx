@@ -41,8 +41,8 @@ export default function HeroLandingPage() {
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col selection:bg-brand-green selection:text-brand-dark overflow-x-hidden font-sans">
       <SEO 
-        title="AI Resume Optimization & Job Matching System | CV Architect"
-        description="Create an ATS-proof resume with CV Architect AI. Instant job description matching, precision rewriting, and modern designer templates."
+        title="AI Resume Optimization & Job Matching System | CVArchitect"
+        description="Create an ATS-proof resume with CVArchitect AI. Instant job description matching, precision rewriting, and modern designer templates."
         canonicalPath="/landingpage"
       />
       

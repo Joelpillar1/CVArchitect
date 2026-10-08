@@ -1,10 +1,10 @@
-# Front-End Handover Guide: CV Architect
+# Front-End Handover Guide: CVArchitect
 
-Welcome to CV Architect! Congratulations on acquiring this SaaS. This document is your technical compass. It details everything you need to know about the **Front-End** of the application—how it works, where everything is located, and how you or your developers can make changes to it.
+Welcome to CVArchitect! Congratulations on acquiring this SaaS. This document is your technical compass. It details everything you need to know about the **Front-End** of the application—how it works, where everything is located, and how you or your developers can make changes to it.
 
 ## 1. What You Just Bought (The Front-End Perspective)
 
-CV Architect is a highly interactive, Single-Page Application (SPA) built to feel like a native desktop editor. The core magic happens directly in the user's browser: from real-time resume previews to client-side PDF generation and OCR (Optical Character Recognition) for reading uploaded files.
+CVArchitect is a highly interactive, Single-Page Application (SPA) built to feel like a native desktop editor. The core magic happens directly in the user's browser: from real-time resume previews to client-side PDF generation and OCR (Optical Character Recognition) for reading uploaded files.
 
 The frontend connects to OpenAI to provide "magic" buttons that rewrite, tailor, and optimize the user's resume bullet points and summaries on the fly based on specific job descriptions. 
 

@@ -15,8 +15,8 @@ export default function TermsOfService({ onBack }: TermsOfServiceProps) {
     return (
         <div className="min-h-screen bg-white">
             <SEO
-                title="Terms of Service — CV Architect"
-                description="Read the CV Architect Terms of Service. Understand your user rights, account obligations, subscription policies, and AI platform usage rules."
+                title="Terms of Service — CVArchitect"
+                description="Read the CVArchitect Terms of Service. Understand your user rights, account obligations, subscription policies, and AI platform usage rules."
                 canonicalPath="/terms"
             />
             <PublicHeader />
@@ -32,14 +32,14 @@ export default function TermsOfService({ onBack }: TermsOfServiceProps) {
                     <section>
                         <h2 className="text-2xl font-bold text-brand-dark mb-4">Agreement to Terms</h2>
                         <p className="text-gray-700 leading-relaxed">
-                            By accessing and using CV Architect, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using this service.
+                            By accessing and using CVArchitect, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using this service.
                         </p>
                     </section>
 
                     <section>
                         <h2 className="text-2xl font-bold text-brand-dark mb-4">Service Description</h2>
                         <p className="text-gray-700 leading-relaxed">
-                            CV Architect is an AI-powered resume building platform that helps users create ATS-optimized resumes. Our service includes:
+                            CVArchitect is an AI-powered resume building platform that helps users create ATS-optimized resumes. Our service includes:
                         </p>
                         <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4 mt-4">
                             <li>Professional resume templates designed for ATS compatibility</li>
@@ -53,7 +53,7 @@ export default function TermsOfService({ onBack }: TermsOfServiceProps) {
                     <section>
                         <h2 className="text-2xl font-bold text-brand-dark mb-4">User Accounts</h2>
                         <p className="text-gray-700 leading-relaxed mb-4">
-                            To use CV Architect, you may need to create an account. You are responsible for:
+                            To use CVArchitect, you may need to create an account. You are responsible for:
                         </p>
                         <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
                             <li>Maintaining the confidentiality of your account credentials</li>
@@ -82,7 +82,7 @@ export default function TermsOfService({ onBack }: TermsOfServiceProps) {
                     <section>
                         <h2 className="text-2xl font-bold text-brand-dark mb-4">Intellectual Property</h2>
                         <p className="text-gray-700 leading-relaxed">
-                            You retain all rights to the content you create using CV Architect. However, CV Architect and its original content, features, and functionality are owned by us and are protected by international copyright, trademark, and other intellectual property laws.
+                            You retain all rights to the content you create using CVArchitect. However, CVArchitect and its original content, features, and functionality are owned by us and are protected by international copyright, trademark, and other intellectual property laws.
                         </p>
                         <p className="text-gray-700 leading-relaxed mt-4">
                             Our resume templates are provided for your personal use. You may not redistribute, resell, or claim ownership of our template designs.
@@ -105,7 +105,7 @@ export default function TermsOfService({ onBack }: TermsOfServiceProps) {
                     <section>
                         <h2 className="text-2xl font-bold text-brand-dark mb-4">Subscription and Payments</h2>
                         <p className="text-gray-700 leading-relaxed mb-4">
-                            CV Architect offers various subscription plans:
+                            CVArchitect offers various subscription plans:
                         </p>
                         <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
                             <li>Monthly subscriptions renew automatically unless canceled</li>
@@ -125,14 +125,14 @@ export default function TermsOfService({ onBack }: TermsOfServiceProps) {
                     <section>
                         <h2 className="text-2xl font-bold text-brand-dark mb-4">Service Availability</h2>
                         <p className="text-gray-700 leading-relaxed">
-                            While we strive to provide uninterrupted service, we do not guarantee that CV Architect will be available at all times. We may experience downtime for maintenance, updates, or unforeseen technical issues. We are not liable for any losses resulting from service interruptions.
+                            While we strive to provide uninterrupted service, we do not guarantee that CVArchitect will be available at all times. We may experience downtime for maintenance, updates, or unforeseen technical issues. We are not liable for any losses resulting from service interruptions.
                         </p>
                     </section>
 
                     <section>
                         <h2 className="text-2xl font-bold text-brand-dark mb-4">Limitation of Liability</h2>
                         <p className="text-gray-700 leading-relaxed">
-                            CV Architect is provided "as is" without warranties of any kind. We are not responsible for:
+                            CVArchitect is provided "as is" without warranties of any kind. We are not responsible for:
                         </p>
                         <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4 mt-4">
                             <li>The outcome of your job applications</li>
@@ -145,21 +145,21 @@ export default function TermsOfService({ onBack }: TermsOfServiceProps) {
                     <section>
                         <h2 className="text-2xl font-bold text-brand-dark mb-4">Data and Privacy</h2>
                         <p className="text-gray-700 leading-relaxed">
-                            Your use of CV Architect is also governed by our Privacy Policy. We take data security seriously and implement industry-standard measures to protect your information. Please review our Privacy Policy to understand how we collect, use, and protect your data.
+                            Your use of CVArchitect is also governed by our Privacy Policy. We take data security seriously and implement industry-standard measures to protect your information. Please review our Privacy Policy to understand how we collect, use, and protect your data.
                         </p>
                     </section>
 
                     <section>
                         <h2 className="text-2xl font-bold text-brand-dark mb-4">Termination</h2>
                         <p className="text-gray-700 leading-relaxed">
-                            We reserve the right to terminate or suspend your account and access to CV Architect immediately, without prior notice, for any reason, including but not limited to breach of these Terms of Service.
+                            We reserve the right to terminate or suspend your account and access to CVArchitect immediately, without prior notice, for any reason, including but not limited to breach of these Terms of Service.
                         </p>
                     </section>
 
                     <section>
                         <h2 className="text-2xl font-bold text-brand-dark mb-4">Changes to Terms</h2>
                         <p className="text-gray-700 leading-relaxed">
-                            We reserve the right to modify these terms at any time. We will notify users of any material changes via email or through the service. Your continued use of CV Architect after changes constitutes acceptance of the new terms.
+                            We reserve the right to modify these terms at any time. We will notify users of any material changes via email or through the service. Your continued use of CVArchitect after changes constitutes acceptance of the new terms.
                         </p>
                     </section>
 

@@ -5,7 +5,7 @@
 1. Go to https://app.supabase.com/
 2. Click **"New project"**
 3. Fill in:
-   - **Name:** CV Architect
+   - **Name:** CVArchitect
    - **Database Password:** (create a strong password and SAVE IT!)
    - **Region:** Choose closest to you
 4. Click **"Create new project"**

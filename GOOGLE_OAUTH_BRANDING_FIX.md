@@ -4,7 +4,7 @@
 When users sign in with Google, they see "to continue to **lxtvqfqldhdpbuvxvdjj.supabase.co**" which looks unprofessional.
 
 ## Solution
-While you can't completely hide the Supabase URL (it's a Google security feature), you can make your app branding much more prominent so users see "CV Architect" first.
+While you can't completely hide the Supabase URL (it's a Google security feature), you can make your app branding much more prominent so users see "CVArchitect" first.
 
 ---
 
@@ -20,7 +20,7 @@ While you can't completely hide the Supabase URL (it's a Google security feature
 2. Fill in all fields to make your app look professional:
 
    **App information:**
-   - **App name:** `CV Architect` (or your preferred name)
+   - **App name:** `CVArchitect` (or your preferred name)
    - **User support email:** Your support email
    - **App logo:** Upload your app logo (recommended: 120x120px PNG)
    - **Application home page:** `https://cvarchitect.app`
@@ -75,7 +75,7 @@ While you can't completely hide the Supabase URL (it's a Google security feature
 ## Step 2: Verify Your App Branding
 
 After updating, when users sign in with Google, they should see:
-- ✅ **"CV Architect"** as the app name (prominently displayed)
+- ✅ **"CVArchitect"** as the app name (prominently displayed)
 - ✅ Your app logo (if uploaded)
 - ✅ "to continue to **lxtvqfqldhdpbuvxvdjj.supabase.co**" (still shown, but less prominent)
 
@@ -100,7 +100,7 @@ If you want to completely hide the Supabase URL, you would need to:
 ## Recommended Approach
 
 **For most cases, Step 1 is sufficient:**
-- Users will see "CV Architect" prominently
+- Users will see "CVArchitect" prominently
 - The Supabase URL is shown for security (Google requirement)
 - Most users won't notice or care about the technical URL
 - Your branding will be clear and professional
@@ -122,7 +122,7 @@ If you want to completely hide the Supabase URL, you would need to:
 ## Result
 
 After these changes:
-- ✅ Users see "CV Architect" prominently
+- ✅ Users see "CVArchitect" prominently
 - ✅ Your logo appears (if uploaded)
 - ✅ Professional appearance
 - ⚠️ Supabase URL still visible (Google security requirement, but less prominent)

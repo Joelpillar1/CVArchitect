@@ -1,11 +1,11 @@
-# CV Architect - Frontend Product Overview for Growth Strategy
+# CVArchitect - Frontend Product Overview for Growth Strategy
 
-This document provides a comprehensive breakdown of the **CV Architect** front-end application tailored for a Growth Strategist. It highlights the user-facing features, client-side technologies, acquisition assets, and UI monetization mechanics designed to convert free users into paid subscribers.
+This document provides a comprehensive breakdown of the **CVArchitect** front-end application tailored for a Growth Strategist. It highlights the user-facing features, client-side technologies, acquisition assets, and UI monetization mechanics designed to convert free users into paid subscribers.
 
 ---
 
 ### 1. Executive Summary
-**CV Architect** is an advanced, AI-powered React web application that helps professionals build ATS-optimized resumes and cover letters in minutes. Powered by the OpenAI API, the front-end is designed to solve the "blank-page syndrome," providing dynamic, real-time feedback and a hyper-customizable editing experience entirely within the browser.
+**CVArchitect** is an advanced, AI-powered React web application that helps professionals build ATS-optimized resumes and cover letters in minutes. Powered by the OpenAI API, the front-end is designed to solve the "blank-page syndrome," providing dynamic, real-time feedback and a hyper-customizable editing experience entirely within the browser.
 
 ### 2. Core Frontend Value Proposition & Features
 
@@ -24,7 +24,7 @@ This document provides a comprehensive breakdown of the **CV Architect** front-e
 
 *   **The CVArchitect Job Tailor (Chrome Extension):**
     *   **Functionality:** A dedicated browser extension that captures job postings natively on sites like LinkedIn, Indeed, Glassdoor, Greenhouse, and Lever.
-    *   **Growth Angle:** Once a job is captured, it directly opens the CV Architect web app and automatically populates the "Job Match" tab. This acts as a massive top-of-funnel acquisition channel, converting passive job browsing into active resume tailoring.
+    *   **Growth Angle:** Once a job is captured, it directly opens the CVArchitect web app and automatically populates the "Job Match" tab. This acts as a massive top-of-funnel acquisition channel, converting passive job browsing into active resume tailoring.
 *   **Seamless Onboarding & High-Conversion UI:**
     *   Frictionless access through sleek, modern forms and Google OAuth.
     *   **Gamified Progress:** Users see a direct reflection of their resume optimization progress, reinforcing the "Aha!" moment very early in the user journey.

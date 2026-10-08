@@ -2,7 +2,7 @@
 
 ## 🎯 What Was Added
 
-Added **OCR (Optical Character Recognition)** support to CV Architect so it can read text from:
+Added **OCR (Optical Character Recognition)** support to CVArchitect so it can read text from:
 - ✅ Scanned PDFs (image-based)
 - ✅ Screenshots saved as PDF
 - ✅ Direct image uploads (JPG, PNG)
@@ -209,4 +209,4 @@ For better accuracy on difficult documents:
 
 **Steve Jobs would approve!** 🍎✨
 
-This implementation makes CV Architect work with ANY resume format, even old scanned documents from the 1990s.
+This implementation makes CVArchitect work with ANY resume format, even old scanned documents from the 1990s.

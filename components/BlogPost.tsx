@@ -379,7 +379,7 @@ export default function BlogPost() {
                     },
                     "publisher": {
                         "@type": "Organization",
-                        "name": "CV Architect",
+                        "name": "CVArchitect",
                         "url": "https://cvarchitect.app",
                         "logo": {
                             "@type": "ImageObject",
@@ -430,10 +430,10 @@ export default function BlogPost() {
                     <div className="flex items-center gap-6 text-sm text-gray-500 pb-6 border-b border-gray-100">
                         <span className="flex items-center gap-2">
                             <div className="w-8 h-8 rounded-full overflow-hidden bg-brand-green/10 flex items-center justify-center">
-                                {post.author === 'CV Architect Team' ? (
+                                {post.author === 'CVArchitect Team' ? (
                                     <img 
                                         src="/images/logo icon.png" 
-                                        alt="CV Architect Team" 
+                                        alt="CVArchitect Team" 
                                         className="w-5 h-5 object-contain"
                                     />
                                 ) : (
@@ -558,7 +558,7 @@ export default function BlogPost() {
                         Put These Tips Into Action
                     </h2>
                     <p className="text-gray-300 text-lg mb-8">
-                        Build your ATS-optimized resume in minutes, not hours. CV Architect's AI handles the hard part.
+                        Build your ATS-optimized resume in minutes, not hours. CVArchitect's AI handles the hard part.
                     </p>
                     <a
                         href="/signup"

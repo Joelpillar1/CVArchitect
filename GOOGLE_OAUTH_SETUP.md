@@ -9,7 +9,7 @@
 ### 1.2 Create or Select a Project
 1. Click the project dropdown at the top
 2. Click **"New Project"**
-3. Name it: `CV Architect`
+3. Name it: `CVArchitect`
 4. Click **"Create"**
 5. Wait for project to be created
 6. Select the new project
@@ -24,7 +24,7 @@
 2. Select **External** (unless you have Google Workspace)
 3. Click **Create**
 4. Fill in:
-   - **App name:** CV Architect
+   - **App name:** CVArchitect
    - **User support email:** your-email@gmail.com
    - **Developer contact:** your-email@gmail.com
 5. Click **Save and Continue**
@@ -36,7 +36,7 @@
 1. Go to **APIs & Services** → **Credentials**
 2. Click **+ Create Credentials** → **OAuth 2.0 Client ID**
 3. Application type: **Web application**
-4. Name: `CV Architect Web`
+4. Name: `CVArchitect Web`
 5. **Authorized JavaScript origins:**
    - Add: `http://localhost:5173`
    - Add: `http://localhost:5174`

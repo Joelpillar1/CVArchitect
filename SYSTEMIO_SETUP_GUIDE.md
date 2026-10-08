@@ -9,7 +9,7 @@ This guide will help you set up automated email follow-ups for new user signups 
 1. **System.io Account** - Sign up at https://system.io
 2. **System.io API Key** - Get from System.io dashboard
 3. **System.io List/Sequence ID** - The ID of your email list or automation sequence
-4. **Supabase Project** - Your CV Architect Supabase project
+4. **Supabase Project** - Your CVArchitect Supabase project
 
 ---
 
@@ -37,7 +37,7 @@ This guide will help you set up automated email follow-ups for new user signups 
 
 1. **Open Supabase Dashboard**
    - Go to https://app.supabase.com
-   - Select your CV Architect project
+   - Select your CVArchitect project
 
 2. **Navigate to Edge Functions**
    - Click **Edge Functions** in the left sidebar
@@ -120,7 +120,7 @@ This guide will help you set up automated email follow-ups for new user signups 
 
 2. **Set Up Email Flow**
    - **Day 0 (Immediate):** Welcome email
-   - **Day 2:** Tips for using CV Architect
+   - **Day 2:** Tips for using CVArchitect
    - **Day 5:** Advanced features guide
    - **Day 7:** Success stories/testimonials
    - (Add more as needed)

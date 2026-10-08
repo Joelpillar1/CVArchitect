@@ -15,8 +15,8 @@ export default function RefundPolicy({ onBack }: RefundPolicyProps) {
     return (
         <div className="min-h-screen bg-white">
             <SEO
-                title="Refund Policy — CV Architect | 14-Day Money-Back Guarantee"
-                description="CV Architect offers a 14-day money-back guarantee for first-time subscribers. Learn about our refund process, eligibility, and how to request a refund."
+                title="Refund Policy — CVArchitect | 14-Day Money-Back Guarantee"
+                description="CVArchitect offers a 14-day money-back guarantee for first-time subscribers. Learn about our refund process, eligibility, and how to request a refund."
                 canonicalPath="/refund-policy"
             />
             <PublicHeader />
@@ -32,14 +32,14 @@ export default function RefundPolicy({ onBack }: RefundPolicyProps) {
                     <section>
                         <h2 className="text-2xl font-bold text-brand-dark mb-4">Our Commitment to You</h2>
                         <p className="text-gray-700 leading-relaxed">
-                            At CV Architect, we're confident in the quality of our AI-powered resume building platform. We want you to be completely satisfied with your purchase. This Refund Policy outlines the terms and conditions for requesting a refund for our services.
+                            At CVArchitect, we're confident in the quality of our AI-powered resume building platform. We want you to be completely satisfied with your purchase. This Refund Policy outlines the terms and conditions for requesting a refund for our services.
                         </p>
                     </section>
 
                     <section>
                         <h2 className="text-2xl font-bold text-brand-dark mb-4">14-Day Money-Back Guarantee</h2>
                         <p className="text-gray-700 leading-relaxed mb-4">
-                            We offer a 14-day money-back guarantee for first-time subscribers who are not satisfied with CV Architect. This applies to:
+                            We offer a 14-day money-back guarantee for first-time subscribers who are not satisfied with CVArchitect. This applies to:
                         </p>
                         <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
                             <li>Build ($10/month) subscriptions</li>
@@ -57,8 +57,8 @@ export default function RefundPolicy({ onBack }: RefundPolicyProps) {
                         </p>
                         <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
                             <li>The refund request is made within 14 days of the original purchase</li>
-                            <li>This is your first subscription to CV Architect (new customers only)</li>
-                            <li>You have not previously received a refund from CV Architect</li>
+                            <li>This is your first subscription to CVArchitect (new customers only)</li>
+                            <li>You have not previously received a refund from CVArchitect</li>
                             <li>The account has not been used to violate our Terms of Service</li>
                             <li>You provide a valid reason for the refund request</li>
                         </ul>
@@ -129,13 +129,13 @@ export default function RefundPolicy({ onBack }: RefundPolicyProps) {
                         <div className="bg-slate-50 rounded-lg p-6 mb-4">
                             <h3 className="text-lg font-bold text-brand-dark mb-2">Cancellation</h3>
                             <p className="text-gray-700 leading-relaxed">
-                                You can cancel your subscription at any time through your account settings. Upon cancellation, you will retain access to CV Architect until the end of your current billing period. No refund is provided for the remaining time in your current billing cycle.
+                                You can cancel your subscription at any time through your account settings. Upon cancellation, you will retain access to CVArchitect until the end of your current billing period. No refund is provided for the remaining time in your current billing cycle.
                             </p>
                         </div>
                         <div className="bg-slate-50 rounded-lg p-6">
                             <h3 className="text-lg font-bold text-brand-dark mb-2">Refund</h3>
                             <p className="text-gray-700 leading-relaxed">
-                                A refund returns your payment and immediately terminates your access to CV Architect's premium features. Refunds are only available within the 14-day money-back guarantee period for eligible purchases.
+                                A refund returns your payment and immediately terminates your access to CVArchitect's premium features. Refunds are only available within the 14-day money-back guarantee period for eligible purchases.
                             </p>
                         </div>
                     </section>
@@ -156,14 +156,14 @@ export default function RefundPolicy({ onBack }: RefundPolicyProps) {
                     <section>
                         <h2 className="text-2xl font-bold text-brand-dark mb-4">Technical Issues</h2>
                         <p className="text-gray-700 leading-relaxed">
-                            If you're experiencing technical difficulties with CV Architect, we encourage you to contact our support team before requesting a refund. Many issues can be resolved quickly, and we're committed to ensuring you have a smooth experience. Technical issues that prevent you from using the service may qualify for refunds outside the standard policy at our discretion.
+                            If you're experiencing technical difficulties with CVArchitect, we encourage you to contact our support team before requesting a refund. Many issues can be resolved quickly, and we're committed to ensuring you have a smooth experience. Technical issues that prevent you from using the service may qualify for refunds outside the standard policy at our discretion.
                         </p>
                     </section>
 
                     <section>
                         <h2 className="text-2xl font-bold text-brand-dark mb-4">Fraudulent or Abusive Refund Requests</h2>
                         <p className="text-gray-700 leading-relaxed">
-                            CV Architect reserves the right to deny refund requests that appear fraudulent or abusive. This includes but is not limited to:
+                            CVArchitect reserves the right to deny refund requests that appear fraudulent or abusive. This includes but is not limited to:
                         </p>
                         <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4 mt-4">
                             <li>Multiple refund requests from the same user using different accounts</li>
@@ -172,14 +172,14 @@ export default function RefundPolicy({ onBack }: RefundPolicyProps) {
                             <li>Providing false information in the refund request</li>
                         </ul>
                         <p className="text-gray-700 leading-relaxed mt-4">
-                            Accounts found to be abusing the refund policy may be permanently banned from using CV Architect.
+                            Accounts found to be abusing the refund policy may be permanently banned from using CVArchitect.
                         </p>
                     </section>
 
                     <section>
                         <h2 className="text-2xl font-bold text-brand-dark mb-4">Changes to This Policy</h2>
                         <p className="text-gray-700 leading-relaxed">
-                            We reserve the right to modify this Refund Policy at any time. Changes will be posted on this page with an updated "Last updated" date. Your continued use of CV Architect after changes are posted constitutes acceptance of the updated policy. Refund requests will be evaluated based on the policy in effect at the time of purchase.
+                            We reserve the right to modify this Refund Policy at any time. Changes will be posted on this page with an updated "Last updated" date. Your continued use of CVArchitect after changes are posted constitutes acceptance of the updated policy. Refund requests will be evaluated based on the policy in effect at the time of purchase.
                         </p>
                     </section>
 

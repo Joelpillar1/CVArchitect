@@ -148,7 +148,7 @@ export default function ActionVerbs() {
     return (
         <div className="min-h-screen bg-white font-sans text-slate-900">
             <SEO 
-                title="150+ Action Verbs for Resume: The Ultimate Action Words Guide | CV Architect"
+                title="150+ Action Verbs for Resume: The Ultimate Action Words Guide | CVArchitect"
                 description="Power up your resume with 150+ recruiter-approved action verbs for resume. Find the perfect action words to show impact, beat ATS, and land more interviews."
                 canonicalPath="/action-words"
                 jsonLd={{
@@ -313,7 +313,7 @@ export default function ActionVerbs() {
                             Strong <strong>action verbs</strong> signify ownership. When you use words like "Orchestrated" or "Architected," you are demonstrating a level of agency that "Worked on" simply cannot convey. These <strong>action words</strong> are the building blocks of a high-performance resume.
                         </p>
                         <p>
-                            At CV Architect, we've analyzed thousands of successful resumes to identify which <strong>action words for resume</strong> generate the highest response rates. Our database is curated to help you stand out in competitive fields like Tech, Finance, and Marketing.
+                            At CVArchitect, we've analyzed thousands of successful resumes to identify which <strong>action words for resume</strong> generate the highest response rates. Our database is curated to help you stand out in competitive fields like Tech, Finance, and Marketing.
                         </p>
                     </div>
                 </div>

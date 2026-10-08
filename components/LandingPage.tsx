@@ -142,8 +142,8 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-brand-bg font-sans text-brand-dark selection:bg-brand-green/30 overflow-x-hidden">
       <SEO
-        title="CV Architect | AI Resume Builder | Beat ATS & Land More Interviews"
-        description="Build an ATS-optimized resume in minutes with CV Architect. AI resume rewriter, keyword match scoring, professional templates, and tailored cover letters."
+        title="CVArchitect | AI Resume Builder | Beat ATS & Land More Interviews"
+        description="Build an ATS-optimized resume in minutes with CVArchitect. AI resume rewriter, keyword match scoring, professional templates, and tailored cover letters."
         canonicalPath="/cvarchitect"
         jsonLd={[
           {
@@ -152,18 +152,18 @@ export default function LandingPage() {
             "mainEntity": [
               {
                 "@type": "Question",
-                "name": "Can CV Architect prevent my resume from being rejected by ATS?",
+                "name": "Can CVArchitect prevent my resume from being rejected by ATS?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Yes! CV Architect uses AI to optimize your resume format, keywords, and structure specifically for Applicant Tracking Systems to maximize readability and ATS compatibility."
+                  "text": "Yes! CVArchitect uses AI to optimize your resume format, keywords, and structure specifically for Applicant Tracking Systems to maximize readability and ATS compatibility."
                 }
               },
               {
                 "@type": "Question",
-                "name": "How much does CV Architect cost?",
+                "name": "How much does CVArchitect cost?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "CV Architect offers a free Foundation tier with 1 AI-tailored resume. Paid plans start at $10/month (Build), or $99 one-time (Lifetime Access)."
+                  "text": "CVArchitect offers a free Foundation tier with 1 AI-tailored resume. Paid plans start at $10/month (Build), or $99 one-time (Lifetime Access)."
                 }
               },
               {
@@ -176,10 +176,10 @@ export default function LandingPage() {
               },
               {
                 "@type": "Question",
-                "name": "Does CV Architect offer a free version?",
+                "name": "Does CVArchitect offer a free version?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Yes! CV Architect offers a Foundation free tier: 1 AI-tailored resume on a base template with a full download. No credit card required."
+                  "text": "Yes! CVArchitect offers a Foundation free tier: 1 AI-tailored resume on a base template with a full download. No credit card required."
                 }
               }
             ]
@@ -367,7 +367,7 @@ export default function LandingPage() {
             >
               <img
                 src="/images/Section 2 illustration 2.png"
-                alt="Stack of resumes rejected by ATS - CV Architect solves this"
+                alt="Stack of resumes rejected by ATS - CVArchitect solves this"
                 loading="lazy"
                 className="w-full h-auto object-contain transform md:translate-x-12"
               />
@@ -520,7 +520,7 @@ export default function LandingPage() {
               <div className="relative bg-brand-dark p-4 pb-0 rounded-t-lg shadow-2xl mb-8 hover:transform hover:-translate-y-2 transition-transform duration-300">
                 <img
                   src="/images/Section 4 illustration - ATS Optimized.png"
-                  alt="ATS-optimized resume created with CV Architect AI builder"
+                  alt="ATS-optimized resume created with CVArchitect AI builder"
                   loading="lazy"
                   className="w-full h-auto rounded-t-sm"
                 />
@@ -776,7 +776,7 @@ export default function LandingPage() {
             >
               <img
                 src="/images/Section  7  illustration.png"
-                alt="ATS-optimised resume created with CV Architect AI builder"
+                alt="ATS-optimised resume created with CVArchitect AI builder"
                 loading="lazy"
                 className="w-full h-auto object-contain rounded-lg shadow-2xl"
               />
@@ -806,7 +806,7 @@ export default function LandingPage() {
           >
             <img
               src="/images/Section 8 illustration.png"
-              alt="CV Architect user testimonials and reviews"
+              alt="CVArchitect user testimonials and reviews"
               loading="lazy"
               className="w-full max-w-3xl mx-auto h-auto object-contain"
             />
@@ -851,7 +851,7 @@ export default function LandingPage() {
                         handle: "sarah_m_tech",
                         date: "12m",
                         avatar: "/images/testimonials/sarah-mitchell.jpg",
-                        quote: "I applied to 15 roles with my old resume, zero responses.\n\nAfter rebuilding with CV Architect and tailoring for each posting, I booked 3 interviews in the first week and accepted an offer in 10 days.",
+                        quote: "I applied to 15 roles with my old resume, zero responses.\n\nAfter rebuilding with CVArchitect and tailoring for each posting, I booked 3 interviews in the first week and accepted an offer in 10 days.",
                         views: "1.2K", replies: "3", retweets: "5", likes: "48", verified: true, theme: "light"
                       },
                       {
@@ -867,7 +867,7 @@ export default function LandingPage() {
                         handle: "priyareddy_ux",
                         date: "6h",
                         avatar: "/images/testimonials/priya-reddy.jpg",
-                        quote: "Every other builder made my resume look like a template.\n\nCV Architect gave me a layout that feels premium and still parses perfectly through ATS.\n\nMy Dribbble portfolio gets more clicks now.",
+                        quote: "Every other builder made my resume look like a template.\n\nCVArchitect gave me a layout that feels premium and still parses perfectly through ATS.\n\nMy Dribbble portfolio gets more clicks now.",
                         views: "840", replies: "0", retweets: "2", likes: "32", verified: true, theme: "light"
                       },
                       {
@@ -875,7 +875,7 @@ export default function LandingPage() {
                         handle: "elena_hrbp",
                         date: "10h",
                         avatar: "/images/testimonials/elena-garcia.jpg",
-                        quote: "As someone who reads resumes all day, I can tell when a candidate used CV Architect.\n\nThe structure is clean, the bullets are outcome-driven, and the key details are impossible to miss.",
+                        quote: "As someone who reads resumes all day, I can tell when a candidate used CVArchitect.\n\nThe structure is clean, the bullets are outcome-driven, and the key details are impossible to miss.",
                         views: "620", replies: "4", retweets: "8", likes: "41", verified: false, theme: "light"
                       }
                     ].map((t, idx) => (
@@ -1028,7 +1028,7 @@ export default function LandingPage() {
                 Can my resume be clean, simple, and optimized, yet still feel powerful?
               </p>
               <p className="text-xl text-gray-500 leading-relaxed mt-2">
-                With CV Architect, the answer is always YES.
+                With CVArchitect, the answer is always YES.
               </p>
             </motion.div>
 

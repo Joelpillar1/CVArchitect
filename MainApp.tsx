@@ -1115,9 +1115,9 @@ export default function App() {
           </button>
           <div className={`p-6 flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between'}`}>
             <div className="flex items-center gap-3 overflow-hidden">
-              <img src="/images/logo icon.png" alt="CV Architect" className="w-8 h-8 rounded-lg shadow-lg shadow-brand-dark/20 shrink-0" />
+              <img src="/images/logo icon.png" alt="CVArchitect" className="w-8 h-8 rounded-lg shadow-lg shadow-brand-dark/20 shrink-0" />
               <h1 className={`text-lg font-bold tracking-tight text-brand-dark whitespace-nowrap transition-opacity duration-300 ${isSidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
-                CV Architect
+                CVArchitect
               </h1>
             </div>
             <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden p-1 rounded-full hover:bg-gray-200 transition-colors"><X size={20} /></button>

@@ -1,5 +1,5 @@
 -- ============================================
--- CV Architect - Complete Database Schema
+-- CVArchitect - Complete Database Schema
 -- DROP AND RECREATE ALL TABLES
 -- ============================================
 

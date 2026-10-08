@@ -283,7 +283,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
     if (embedded) return;
     document.title = `${data.fullName} - Resume`;
     return () => {
-      document.title = 'CV Architect';
+      document.title = 'CVArchitect';
     };
   }, [data.fullName, embedded]);
 

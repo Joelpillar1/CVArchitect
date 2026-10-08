@@ -14,7 +14,7 @@ The database tables and triggers are not properly set up in your Supabase databa
 
 1. Visit: https://app.supabase.com/
 2. Sign in to your account
-3. Select your CV Architect project
+3. Select your CVArchitect project
 
 ---
 

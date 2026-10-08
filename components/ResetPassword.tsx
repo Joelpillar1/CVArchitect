@@ -103,11 +103,11 @@ export default function ResetPassword({ onSuccess }: ResetPasswordProps) {
                     <a href="/" className="flex items-center gap-2.5 group">
                         <img
                             src="/images/logo icon.png"
-                            alt="CV Architect"
+                            alt="CVArchitect"
                             className="w-8 h-8 object-contain transition-transform duration-200 group-hover:scale-105"
                         />
                         <span className="font-bold text-xl tracking-tight text-brand-dark">
-                            CV Architect
+                            CVArchitect
                         </span>
                     </a>
 
@@ -282,7 +282,7 @@ export default function ResetPassword({ onSuccess }: ResetPasswordProps) {
 
                 {/* Footer */}
                 <div className="flex items-center justify-center text-[11px] text-gray-400 pt-4 border-t border-gray-100">
-                    <span>© {new Date().getFullYear()} CV Architect</span>
+                    <span>© {new Date().getFullYear()} CVArchitect</span>
                 </div>
             </div>
 

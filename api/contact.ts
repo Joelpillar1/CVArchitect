@@ -14,7 +14,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY!;
 // FROM must match a verified Resend domain — using verified subdomain as default
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'CV Architect <support@support.cvarchitect.app>';
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'CVArchitect <support@support.cvarchitect.app>';
 const SUPPORT_EMAIL = 'support@cvarchitect.app';
 
 interface ResendPayload {
@@ -122,7 +122,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             html: `
                 <div style="font-family: Inter, -apple-system, sans-serif; max-width: 600px; margin: 0 auto; color: #333c4d;">
                     <div style="background: #333c4d; padding: 24px 32px; border-radius: 12px 12px 0 0; display: flex; align-items: center; gap: 12px;">
-                        <h1 style="margin: 0; font-size: 22px; color: #ffffff;">CV Architect Support</h1>
+                        <h1 style="margin: 0; font-size: 22px; color: #ffffff;">CVArchitect Support</h1>
                     </div>
                     <div style="background: #ffffff; padding: 32px; border: 1px solid #eaeaea; border-top: none; border-radius: 0 0 12px 12px;">
                         <p style="font-size: 16px; line-height: 1.6; margin: 0 0 16px;">Hi ${name.split(' ')[0]},</p>
@@ -138,7 +138,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                         </p>
                         <hr style="border: none; border-top: 1px solid #eaeaea; margin: 28px 0;" />
                         <p style="font-size: 13px; color: #9ca3af; margin: 0;">
-                            CV Architect &nbsp;·&nbsp; <a href="https://cvarchitect.app" style="color: #9ca3af;">cvarchitect.app</a>
+                            CVArchitect &nbsp;·&nbsp; <a href="https://cvarchitect.app" style="color: #9ca3af;">cvarchitect.app</a>
                         </p>
                     </div>
                 </div>

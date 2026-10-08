@@ -46,18 +46,18 @@ export default function BlogPage() {
     return (
         <div className="min-h-screen bg-white font-sans">
             <SEO
-                title="CV Architect Blog — Resume Tips, ATS Guides & Career Advice"
-                description="Expert resume writing tips, ATS optimization guides, and career advice to help you land more interviews. Resources from CV Architect's team of hiring experts."
+                title="CVArchitect Blog — Resume Tips, ATS Guides & Career Advice"
+                description="Expert resume writing tips, ATS optimization guides, and career advice to help you land more interviews. Resources from CVArchitect's team of hiring experts."
                 canonicalPath="/blog"
                 jsonLd={{
                     "@context": "https://schema.org",
                     "@type": "Blog",
-                    "name": "CV Architect Blog",
+                    "name": "CVArchitect Blog",
                     "description": "Expert resume writing tips, ATS optimization guides, and career advice.",
                     "url": "https://cvarchitect.app/blog",
                     "publisher": {
                         "@type": "Organization",
-                        "name": "CV Architect",
+                        "name": "CVArchitect",
                         "url": "https://cvarchitect.app"
                     }
                 }}
@@ -76,7 +76,7 @@ export default function BlogPage() {
                             Career Resources
                         </span>
                         <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-brand-dark mb-4 leading-tight" style={{ fontFamily: 'Graphik, sans-serif' }}>
-                            The CV Architect Blog
+                            The CVArchitect Blog
                         </h1>
                         <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto mb-8">
                             Expert resume tips, ATS optimization strategies, and career advice to help you land your dream job faster.

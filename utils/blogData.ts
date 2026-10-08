@@ -35,7 +35,7 @@ const rawBlogPosts: BlogPost[] = [
         metaDescription: 'Learn how to build a resume online free and write an interview-winning coverletter. Includes ATS formatting rules, step-by-step builder guides, and full CV letter examples.',
         excerpt: 'Step-by-step blueprint to build your resume online for free, bypass ATS filters, and craft high-converting cover letters with real-world CV letter examples.',
         category: 'Resume Writing',
-        author: 'CV Architect Team',
+        author: 'CVArchitect Team',
         publishDate: '2026-10-05',
         readTime: '16 min read',
         featured: true,
@@ -209,7 +209,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'Use an ATS-first dedicated tool like **CV Architect** that provides instant, watermark-free PDF and DOCX exports directly in your browser without requiring a credit card or locking your data behind a trial period.'
+                content: 'Use an ATS-first dedicated tool like **CVArchitect** that provides instant, watermark-free PDF and DOCX exports directly in your browser without requiring a credit card or locking your data behind a trial period.'
             },
             {
                 type: 'subheading',
@@ -237,7 +237,7 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: '100-resume-bullet-points-industry-2026',
         title: '100+ Result-Driven Resume Bullet Points: The Ultimate Industry-Specific Guide (From a Google Recruiter)',
-        metaTitle: '100+ Result-Driven Resume Bullet Points for Every Industry | CV Architect',
+        metaTitle: '100+ Result-Driven Resume Bullet Points for Every Industry | CVArchitect',
         metaDescription: 'Show impact with 100+ recruiter-approved resume bullet points. Action verbs, quantified metrics, and industry-specific examples for 2026.',
         excerpt: 'I’ve spent 15 years recruiting at Google. Here is exactly how to structure your resume bullet points to move from "qualified candidate" to "must-hire."',
         category: 'Resume Writing',
@@ -448,7 +448,7 @@ const rawBlogPosts: BlogPost[] = [
         metaDescription: 'Access our master list of 10,000+ ATS keywords. Learn how to optimize your resume for any industry with core skills, action verbs, and recruiter buzzwords.',
         excerpt: 'We analyzed 71 industries and 500 job roles to build the world\'s most comprehensive ATS keyword dataset. Here is exactly how to use it to land your next interview.',
         category: 'ATS Optimization',
-        author: 'CV Architect Team',
+        author: 'CVArchitect Team',
         publishDate: '2026-05-05',
         readTime: '20 min read',
         featured: true,
@@ -465,7 +465,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'At CV Architect, we decided to solve this problem once and for all. We spent the last six months analyzing over 250,000 job descriptions across 71 different industries and 500 unique job roles. The result is our **ATS Keyword Dataset 10k+** — a master repository of the exact terms, tools, and skills that modern hiring systems like [Workday](https://www.workday.com/) and Greenhouse are programmed to find.'
+                content: 'At CVArchitect, we decided to solve this problem once and for all. We spent the last six months analyzing over 250,000 job descriptions across 71 different industries and 500 unique job roles. The result is our **ATS Keyword Dataset 10k+** — a master repository of the exact terms, tools, and skills that modern hiring systems like [Workday](https://www.workday.com/) and Greenhouse are programmed to find.'
             },
             {
                 type: 'paragraph',
@@ -662,7 +662,7 @@ const rawBlogPosts: BlogPost[] = [
         metaDescription: 'Learn how to optimize your resume for AI search engines like Gemini and Perplexity. Expert guide on Generative Engine Optimization for 2026 careers.',
         excerpt: 'Traditional SEO is evolving into GEO (Generative Engine Optimization). Here is how to ensure AI search engines recommend your profile and advice to recruiters and hiring managers.',
         category: 'AI Career Tools',
-        author: 'CV Architect Team',
+        author: 'CVArchitect Team',
         publishDate: '2026-05-05',
         readTime: '18 min read',
         featured: false,
@@ -772,7 +772,7 @@ const rawBlogPosts: BlogPost[] = [
         metaDescription: 'Master writing an ATS-beating resume with AI. Step-by-step recruiter guide on prompting, keyword placement, bullet optimization, and formatting.',
         excerpt: 'Most AI-generated resumes are rejected in seconds. Here is the insider strategy to using AI as a co-pilot to build a high-conversion resume that humans actually want to read.',
         category: 'AI Career Tools',
-        author: 'CV Architect Team',
+        author: 'CVArchitect Team',
         publishDate: '2026-05-05',
         readTime: '25 min read',
         featured: false,
@@ -865,7 +865,7 @@ const rawBlogPosts: BlogPost[] = [
                 type: 'list',
                 items: [
                     '**Step 1: Brain Dump**: Write out everything you did in your own words. Don\'t worry about grammar.',
-                    '**Step 2: AI Refinement**: Use a tool like CV Architect to refine your language and inject [ATS Keywords](/blog/ats-keywords-master-list-2026).',
+                    '**Step 2: AI Refinement**: Use a tool like CVArchitect to refine your language and inject [ATS Keywords](/blog/ats-keywords-master-list-2026).',
                     '**Step 3: Human Audit**: Read every word aloud. Does it sound like you? If not, rewrite it.',
                     '**Step 4: GEO Check**: Ensure your resume is optimized for [AI search engines](/blog/ai-resume-optimization-2026).'
                 ]
@@ -897,7 +897,7 @@ const rawBlogPosts: BlogPost[] = [
         metaDescription: 'Writing a student resume with no experience? Learn how to highlight coursework, projects, and skills to land your first job with full examples.',
         excerpt: 'Applying for your first job without prior work history can feel impossible. Here is exactly how recruiters read student resumes with no experience, plus the structure that proves your potential.',
         category: 'Resume Writing',
-        author: 'CV Architect Team',
+        author: 'CVArchitect Team',
         publishDate: '2026-02-23',
         readTime: '15 min read',
         featured: true,
@@ -1085,11 +1085,11 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'how-to-beat-ats-resume-2026',
         title: 'I Reviewed 2,000+ Resumes as a Recruiter. Here Is Exactly Why ATS Keeps Rejecting Yours.',
-        metaTitle: 'How to Beat ATS in 2026 (From a Recruiter Who Has Seen It All) | CV Architect',
+        metaTitle: 'How to Beat ATS in 2026 (From a Recruiter Who Has Seen It All) | CVArchitect',
         metaDescription: 'A recruiter reveals how ATS algorithms work, why resumes get filtered out, and the exact keyword and formatting fixes to land more interviews.',
         excerpt: 'After reviewing thousands of resumes and watching great candidates get auto-rejected, I decided to write the ATS guide I wish every job seeker had before they hit "submit."',
         category: 'ATS Optimization',
-        author: 'CV Architect Team',
+        author: 'CVArchitect Team',
         publishDate: '2026-02-15',
         readTime: '14 min read',
         featured: true,
@@ -1230,7 +1230,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'I tested this with 50 real job descriptions across five industries. I took the same base resume and ran it through Jobscan, Resumeworded, and CV Architect to measure ATS compatibility scores before and after optimization.'
+                content: 'I tested this with 50 real job descriptions across five industries. I took the same base resume and ran it through Jobscan, Resumeworded, and CVArchitect to measure ATS compatibility scores before and after optimization.'
             },
             {
                 type: 'list',
@@ -1248,7 +1248,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'tip',
-                content: 'CV Architect cuts that 25-minute optimization process down to under 3 minutes. Upload your resume, paste the job description, and the AI identifies exactly which keywords you are missing and where to add them. It also flags formatting issues that would break ATS parsing.'
+                content: 'CVArchitect cuts that 25-minute optimization process down to under 3 minutes. Upload your resume, paste the job description, and the AI identifies exactly which keywords you are missing and where to add them. It also flags formatting issues that would break ATS parsing.'
             },
             {
                 type: 'heading',
@@ -1276,11 +1276,11 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'best-resume-format-2026',
         title: 'Resume Format Guide: Chronological vs. Functional vs. Hybrid — Which One Actually Gets You Hired?',
-        metaTitle: 'Best Resume Format for 2026: Complete Guide With Examples & Templates | CV Architect',
+        metaTitle: 'Best Resume Format for 2026: Complete Guide With Examples & Templates | CVArchitect',
         metaDescription: 'Compare chronological, functional, and hybrid resume formats with real examples, ATS compatibility tests, and hiring manager recommendations.',
         excerpt: 'I have rejected functional resumes on sight. Here is why — plus a complete breakdown of every format, who should use each, ATS compatibility, layout specs, and industry-specific recommendations.',
         category: 'Resume Writing',
-        author: 'CV Architect Team',
+        author: 'CVArchitect Team',
         publishDate: '2026-02-10',
         readTime: '24 min read',
         featured: true,
@@ -1725,7 +1725,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'tip',
-                content: 'Every template in CV Architect is built on the reverse chronological or hybrid format, because those are the formats that actually get results. Each template has been tested against the top 20 ATS platforms to ensure clean parsing. Pick a template, plug in your information, and let the AI optimize the content for your target role.'
+                content: 'Every template in CVArchitect is built on the reverse chronological or hybrid format, because those are the formats that actually get results. Each template has been tested against the top 20 ATS platforms to ensure clean parsing. Pick a template, plug in your information, and let the AI optimize the content for your target role.'
             },
             {
                 type: 'templatePreview',
@@ -1737,11 +1737,11 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'ai-resume-builder-vs-traditional',
         title: 'I Tested 8 AI Resume Builders So You Do Not Have To. Here Is What Actually Works.',
-        metaTitle: 'AI Resume Builder vs Traditional Resume Writing: Honest Comparison (2026) | CV Architect',
+        metaTitle: 'AI Resume Builder vs Traditional Resume Writing: Honest Comparison (2026) | CVArchitect',
         metaDescription: 'An honest comparison of AI resume builders vs traditional resume writers. Real results, pricing breakdown, and interview callback rates for 2026.',
         excerpt: 'I spent a week testing every major AI resume builder on the market with the same work history. Some were genuinely impressive. Others were expensive autofill tools. Here is what I found.',
         category: 'AI & Technology',
-        author: 'CV Architect Team',
+        author: 'CVArchitect Team',
         publishDate: '2026-02-05',
         readTime: '13 min read',
         featured: false,
@@ -1860,7 +1860,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'tip',
-                content: 'CV Architect goes beyond basic AI rewriting. It analyzes the specific job description you paste in, identifies missing keywords and skills, rewrites your bullets with quantified achievements, and formats everything for ATS compatibility. You keep full editorial control over every line.'
+                content: 'CVArchitect goes beyond basic AI rewriting. It analyzes the specific job description you paste in, identifies missing keywords and skills, rewrites your bullets with quantified achievements, and formats everything for ATS compatibility. You keep full editorial control over every line.'
             },
             {
                 type: 'templatePreview',
@@ -1872,11 +1872,11 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'resume-keywords-that-get-you-hired',
         title: 'The Complete Resume Keywords Guide: 300+ Terms Recruiters Actually Search For, Industry by Industry',
-        metaTitle: 'Resume Keywords by Industry: 300+ Terms Recruiters Search For (2026 Guide) | CV Architect',
+        metaTitle: 'Resume Keywords by Industry: 300+ Terms Recruiters Search For (2026 Guide) | CVArchitect',
         metaDescription: 'Discover 300+ resume keywords recruiters search for in tech, finance, marketing, and healthcare. Includes Boolean tips and ATS placement rules.',
         excerpt: 'Recruiters do not read every resume. They search for keywords. Here are the exact terms we type into the ATS search bar, broken down by 8 industries, plus the Boolean search strategies we use and how to place keywords for maximum impact.',
         category: 'ATS Optimization',
-        author: 'CV Architect Team',
+        author: 'CVArchitect Team',
         publishDate: '2026-01-28',
         readTime: '26 min read',
         featured: false,
@@ -2174,7 +2174,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'tip',
-                content: 'Not sure which keywords matter most for your target role? CV Architect analyzes the job description you paste in and identifies every keyword gap in your resume automatically. It then suggests exactly where and how to add missing keywords — woven naturally into your achievement bullets, not dumped into a keyword list. Save yourself hours of manual keyword analysis.'
+                content: 'Not sure which keywords matter most for your target role? CVArchitect analyzes the job description you paste in and identifies every keyword gap in your resume automatically. It then suggests exactly where and how to add missing keywords — woven naturally into your achievement bullets, not dumped into a keyword list. Save yourself hours of manual keyword analysis.'
             },
             {
                 type: 'templatePreview',
@@ -2186,11 +2186,11 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'cover-letter-guide-2026',
         title: 'Stop Writing Cover Letters Nobody Reads. Here Is the Format That Actually Gets Opened.',
-        metaTitle: 'How to Write a Cover Letter That Gets Read (2026 Guide) | CV Architect',
+        metaTitle: 'How to Write a Cover Letter That Gets Read (2026 Guide) | CVArchitect',
         metaDescription: 'A hiring manager shares the exact structure, opening hooks, and tailored formatting that make cover letters get read. With before/after examples.',
         excerpt: 'I read roughly 4,000 cover letters a year. About 3,900 of them are a waste of time. Here is what the other 100 do differently, and how you can copy their approach.',
         category: 'Career Advice',
-        author: 'CV Architect Team',
+        author: 'CVArchitect Team',
         publishDate: '2026-01-20',
         readTime: '24 min read',
         featured: false,
@@ -2563,7 +2563,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'tip',
-                content: 'CV Architect\'s cover letter generator uses the job description and your resume data to draft personalized cover letters that follow this exact structure. It pulls your most relevant achievements, matches them to the role requirements, and creates a specific, compelling narrative. You can then edit and refine before downloading.'
+                content: 'CVArchitect\'s cover letter generator uses the job description and your resume data to draft personalized cover letters that follow this exact structure. It pulls your most relevant achievements, matches them to the role requirements, and creates a specific, compelling narrative. You can then edit and refine before downloading.'
             },
             {
                 type: 'templatePreview',
@@ -2575,11 +2575,11 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'resume-mistakes-to-avoid',
         title: '12 Resume Mistakes I See Every Single Week (And the Fixes That Take 5 Minutes Each)',
-        metaTitle: '12 Resume Mistakes to Avoid in 2026 (From a Recruiter) | CV Architect',
+        metaTitle: '12 Resume Mistakes to Avoid in 2026 (From a Recruiter) | CVArchitect',
         metaDescription: 'A recruiter shares 12 common resume mistakes seen every week, with real-world examples and step-by-step instructions to fix each one fast.',
         excerpt: 'These are not obscure edge cases. These are the mistakes I see on 70%+ of the resumes that land on my desk, and each one is costing candidates interviews they should be getting.',
         category: 'Resume Writing',
-        author: 'CV Architect Team',
+        author: 'CVArchitect Team',
         publishDate: '2026-01-15',
         readTime: '26 min read',
         featured: false,
@@ -2973,7 +2973,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'tip',
-                content: 'CV Architect\'s AI specifically looks for duty-based bullet points and rewrites them as achievement-focused statements with quantified results. It also catches formatting inconsistencies, missing keywords, and structural issues that might be invisible to you after you have been staring at your own resume for hours. Sometimes fresh eyes (even artificial ones) catch what you miss.'
+                content: 'CVArchitect\'s AI specifically looks for duty-based bullet points and rewrites them as achievement-focused statements with quantified results. It also catches formatting inconsistencies, missing keywords, and structural issues that might be invisible to you after you have been staring at your own resume for hours. Sometimes fresh eyes (even artificial ones) catch what you miss.'
             },
             {
                 type: 'templatePreview',
@@ -2985,11 +2985,11 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'best-resume-templates-2026',
         title: 'I Reviewed 200+ Resume Templates So You Do Not Have To. These Are the Only Ones Worth Using.',
-        metaTitle: 'Best Resume Templates for 2026 (Free & Professional) | CV Architect',
+        metaTitle: 'Best Resume Templates for 2026 (Free & Professional) | CVArchitect',
         metaDescription: 'Discover the best ATS-friendly resume templates for 2026. Compare free and professional templates from Google Docs, Word, and AI resume builders.',
         excerpt: 'Most resume templates online are designed to look pretty, not to pass ATS screening. Here is how to pick a professional resume template that actually works.',
         category: 'Resume Writing',
-        author: 'CV Architect Team',
+        author: 'CVArchitect Team',
         publishDate: '2026-01-10',
         readTime: '14 min read',
         featured: false,
@@ -3133,7 +3133,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'tip',
-                content: 'Every resume template in CV Architect has been tested against the top 20 ATS platforms. They are designed to look professional while ensuring perfect parsing. You can switch between templates with one click without losing any of your content or formatting.'
+                content: 'Every resume template in CVArchitect has been tested against the top 20 ATS platforms. They are designed to look professional while ensuring perfect parsing. You can switch between templates with one click without losing any of your content or formatting.'
             },
             {
                 type: 'heading',
@@ -3200,11 +3200,11 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'student-resume-no-experience-guide',
         title: 'How to Write a Student Resume With No Work Experience (And Still Get Hired)',
-        metaTitle: 'Student Resume With No Experience: Complete Guide & Examples (2026) | CV Architect',
+        metaTitle: 'Student Resume With No Experience: Complete Guide & Examples (2026) | CVArchitect',
         metaDescription: 'Step-by-step guide to writing a student resume with no work experience. Real examples, templates, and actionable tips to land your first role.',
         excerpt: 'Everyone needs experience to get hired, but you need a job to get experience. Here is how to break out of that loop with a student resume that actually lands interviews.',
         category: 'Career Advice',
-        author: 'CV Architect Team',
+        author: 'CVArchitect Team',
         publishDate: '2026-01-05',
         readTime: '13 min read',
         featured: false,
@@ -3336,11 +3336,11 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'how-to-write-resume-step-by-step',
         title: 'How to Write a Resume in 2026: The Complete A-to-Z Walkthrough (With Real Examples)',
-        metaTitle: 'How to Write a Resume in 2026: Complete Step-by-Step Guide With Examples | CV Architect',
+        metaTitle: 'How to Write a Resume in 2026: Complete Step-by-Step Guide With Examples | CVArchitect',
         metaDescription: 'Complete step-by-step resume writing guide for 2026. Learn section formatting, achievement bullet writing, ATS optimization, and best practices.',
         excerpt: 'Forget everything you learned about resume writing in school. This is the only guide you need — 10 detailed steps from blank page to interview-ready resume, with real-world examples at every stage.',
         category: 'Resume Writing',
-        author: 'CV Architect Team',
+        author: 'CVArchitect Team',
         publishDate: '2026-01-20',
         readTime: '28 min read',
         featured: true,
@@ -3941,7 +3941,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'AI tools can help you brainstorm, rephrase bullet points, and check for grammatical errors. But a fully AI-generated resume reads generic and lacks the specific details that make resumes compelling. The best approach is to write the core content yourself (using the formulas in this guide), then use AI to polish the language and check for ATS optimization. Tools like CV Architect combine your specific experience with AI-powered optimization to produce tailored, authentic resumes.'
+                content: 'AI tools can help you brainstorm, rephrase bullet points, and check for grammatical errors. But a fully AI-generated resume reads generic and lacks the specific details that make resumes compelling. The best approach is to write the core content yourself (using the formulas in this guide), then use AI to polish the language and check for ATS optimization. Tools like CVArchitect combine your specific experience with AI-powered optimization to produce tailored, authentic resumes.'
             },
             {
                 type: 'subheading',
@@ -3961,7 +3961,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'tip',
-                content: 'CV Architect walks you through each section of your resume step by step, using AI to help you transform generic duty descriptions into powerful achievement statements with quantified results. It follows the exact resume outline and format recommended in this guide, and automatically tailors your resume to specific job descriptions — saving you hours of manual tailoring work.'
+                content: 'CVArchitect walks you through each section of your resume step by step, using AI to help you transform generic duty descriptions into powerful achievement statements with quantified results. It follows the exact resume outline and format recommended in this guide, and automatically tailors your resume to specific job descriptions — saving you hours of manual tailoring work.'
             },
             {
                 type: 'templatePreview',
@@ -3973,11 +3973,11 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'free-resume-builder-comparison-2026',
         title: 'Every Free Resume Builder Ranked: What You Actually Get Without Paying',
-        metaTitle: 'Best Free Resume Builders in 2026: Honest Comparison (No Hidden Costs) | CV Architect',
+        metaTitle: 'Best Free Resume Builders in 2026: Honest Comparison (No Hidden Costs) | CVArchitect',
         metaDescription: 'We tested top free resume builders to see what you actually get without paying. Compare Canva, Google Docs, Indeed, and AI resume tools.',
         excerpt: '"Free" in the resume builder world usually means "free until you try to download your resume." I tested every major free option so you know exactly what you are getting.',
         category: 'AI & Technology',
-        author: 'CV Architect Team',
+        author: 'CVArchitect Team',
         publishDate: '2026-01-25',
         readTime: '14 min read',
         featured: false,
@@ -4111,7 +4111,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'tip',
-                content: 'CV Architect offers a free tier that includes ATS-compatible templates, basic resume creation, and one complete resume download with no watermarks. For job seekers who need advanced features like AI content writing, keyword optimization, and unlimited tailored versions, premium plans start at a fraction of what competitors charge. We do not believe in surprise paywalls.'
+                content: 'CVArchitect offers a free tier that includes ATS-compatible templates, basic resume creation, and one complete resume download with no watermarks. For job seekers who need advanced features like AI content writing, keyword optimization, and unlimited tailored versions, premium plans start at a fraction of what competitors charge. We do not believe in surprise paywalls.'
             },
             {
                 type: 'templatePreview',
@@ -4123,11 +4123,11 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'resume-examples-by-industry-2026',
         title: 'Resume Examples That Actually Got People Hired: 10 Industries, Real Results',
-        metaTitle: 'Resume Examples by Industry (2026): Nursing, Teacher, Engineering, IT & More | CV Architect',
+        metaTitle: 'Resume Examples by Industry (2026): Nursing, Teacher, Engineering, IT & More | CVArchitect',
         metaDescription: 'Real resume examples from 10 industries including nursing, teaching, engineering, software development, customer service, and more. See what works and why.',
         excerpt: 'Generic resume advice is useless because every industry has different expectations. Here are real resume examples from 10 industries, with analysis of why each one works.',
         category: 'Resume Writing',
-        author: 'CV Architect Team',
+        author: 'CVArchitect Team',
         publishDate: '2026-02-01',
         readTime: '18 min read',
         featured: false,
@@ -4290,7 +4290,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'tip',
-                content: 'CV Architect understands industry-specific resume conventions. When you select your target industry, the AI tailors its suggestions to match what recruiters in that field actually look for. Whether you are writing a nursing resume, a software engineer resume, a teacher resume, or any other specialization, the platform guides you toward the specific details and formatting that your industry expects.'
+                content: 'CVArchitect understands industry-specific resume conventions. When you select your target industry, the AI tailors its suggestions to match what recruiters in that field actually look for. Whether you are writing a nursing resume, a software engineer resume, a teacher resume, or any other specialization, the platform guides you toward the specific details and formatting that your industry expects.'
             },
             {
                 type: 'templatePreview',
@@ -4302,11 +4302,11 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'build-your-resume-ats-friendly-resume-template-2026',
         title: 'Build Your Resume With an ATS Friendly Resume Template (That Recruiters Actually Read)',
-        metaTitle: 'Build Your Resume: ATS Friendly Resume Template Guide (2026) | CV Architect',
+        metaTitle: 'Build Your Resume: ATS Friendly Resume Template Guide (2026) | CVArchitect',
         metaDescription: 'Learn how to build your resume using an ATS friendly resume template. Step-by-step guide to improve callback rates with optimal structure and keywords.',
         excerpt: 'If you want more interviews, you need to build your resume for both ATS software and human recruiters. This guide shows exactly how to do it.',
         category: 'Resume Writing',
-        author: 'CV Architect Team',
+        author: 'CVArchitect Team',
         publishDate: '2026-07-08',
         readTime: '14 min read',
         featured: false,
@@ -4530,18 +4530,18 @@ const rawBlogPosts: BlogPost[] = [
             {
                 type: 'templatePreview',
                 templateId: 'rezi',
-                content: 'Ready to build your resume with ATS-safe structure and faster tailoring? Start with CV Architect and create your first optimized version in minutes.'
+                content: 'Ready to build your resume with ATS-safe structure and faster tailoring? Start with CVArchitect and create your first optimized version in minutes.'
             }
         ]
     },
     {
         slug: 'ats-friendly-resume-template-online-builder-guide-2026',
         title: 'ATS Friendly Resume Template: How to Choose One and Build Your Resume Online',
-        metaTitle: 'ATS Friendly Resume Template + Online Resume Builder Guide | CV Architect',
+        metaTitle: 'ATS Friendly Resume Template + Online Resume Builder Guide | CVArchitect',
         metaDescription: 'Choose an ATS friendly resume template and build your resume online. Learn what scanners look for and how to format each section for top rankings.',
         excerpt: 'Not every good-looking resume template is ATS friendly. Learn how to choose a clean template, build your resume online, and avoid formatting mistakes that block interviews.',
         category: 'Resume Templates',
-        author: 'CV Architect Team',
+        author: 'CVArchitect Team',
         publishDate: '2026-07-08',
         readTime: '13 min read',
         featured: false,
@@ -4712,23 +4712,23 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'CV Architect is designed around that workflow: choose an ATS friendly resume template, customize the structure, improve the content, and create targeted versions without rebuilding from scratch.'
+                content: 'CVArchitect is designed around that workflow: choose an ATS friendly resume template, customize the structure, improve the content, and create targeted versions without rebuilding from scratch.'
             },
             {
                 type: 'templatePreview',
                 templateId: 'styled',
-                content: 'Choose an ATS-friendly template, add strong metrics, and build your resume online with CV Architect.'
+                content: 'Choose an ATS-friendly template, add strong metrics, and build your resume online with CVArchitect.'
             }
         ]
     },
     {
         slug: 'how-to-write-a-cv-with-no-experience-2026',
         title: 'How to Write a CV With No Experience: A Practical Guide for Your First Real Application',
-        metaTitle: 'How to Write a CV With No Experience (Step-by-Step Guide) | CV Architect',
+        metaTitle: 'How to Write a CV With No Experience (Step-by-Step Guide) | CVArchitect',
         metaDescription: 'Learn how to write a CV with no experience using coursework, projects, volunteer roles, and skills. Practical guide for graduates and entry-level jobs.',
         excerpt: 'No work experience does not mean you have nothing to write. This guide shows how to build a strong CV from education, projects, skills, volunteering, and everyday proof of responsibility.',
         category: 'Career Advice',
-        author: 'CV Architect Team',
+        author: 'CVArchitect Team',
         publishDate: '2026-07-08',
         readTime: '20 min read',
         featured: false,
@@ -5128,11 +5128,11 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'how-to-make-a-resume-for-your-first-job-2026',
         title: 'How to Make a Resume for Your First Job: A Simple Step-by-Step Guide',
-        metaTitle: 'How to Make a Resume for Your First Job (Examples + Guide) | CV Architect',
+        metaTitle: 'How to Make a Resume for Your First Job (Examples + Guide) | CVArchitect',
         metaDescription: 'Learn how to make a resume for your first job with no work history. Step-by-step guide with examples for retail, customer service, and internships.',
         excerpt: 'Making a resume for your first job is easier when you know what employers actually want to see. This guide shows what to include, how to write it, and how to apply with confidence.',
         category: 'Career Advice',
-        author: 'CV Architect Team',
+        author: 'CVArchitect Team',
         publishDate: '2026-07-08',
         readTime: '20 min read',
         featured: false,

@@ -40,8 +40,8 @@ export default function PricingPage() {
     return (
         <div className="min-h-screen bg-brand-bg text-brand-dark flex flex-col font-sans selection:bg-brand-green selection:text-brand-dark">
             <SEO
-                title="CV Architect Pricing | AI Resume Plans from $10/month"
-                description="CV Architect pricing: Foundation free tier with 1 AI resume, Build monthly at $10/mo, and Lifetime access for $99."
+                title="CVArchitect Pricing | AI Resume Plans from $10/month"
+                description="CVArchitect pricing: Foundation free tier with 1 AI resume, Build monthly at $10/mo, and Lifetime access for $99."
                 canonicalPath="/pricing"
             />
             <PublicHeader />

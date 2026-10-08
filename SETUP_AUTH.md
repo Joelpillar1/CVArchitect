@@ -16,7 +16,7 @@ This guide will help you configure:
 
 2. **Create a New Project** (or select existing)
    - Click "Select a project" → "New Project"
-   - Name: "CV Architect" (or your app name)
+   - Name: "CVArchitect" (or your app name)
    - Click "Create"
 
 3. **Enable Google+ API**
@@ -28,7 +28,7 @@ This guide will help you configure:
    - Go to "APIs & Services" → "OAuth consent screen"
    - Select "External" → Click "Create"
    - Fill in:
-     - App name: `CV Architect`
+     - App name: `CVArchitect`
      - User support email: Your email
      - Developer contact: Your email
    - Click "Save and Continue"
@@ -39,7 +39,7 @@ This guide will help you configure:
    - Go to "APIs & Services" → "Credentials"
    - Click "Create Credentials" → "OAuth client ID"
    - Application type: "Web application"
-   - Name: "CV Architect Web Client"
+   - Name: "CVArchitect Web Client"
    - **Authorized JavaScript origins:**
      ```
      http://localhost:5173
@@ -91,13 +91,13 @@ This guide will help you configure:
    ```html
    <h2>Confirm Your Email</h2>
    <p>Hi there!</p>
-   <p>Thanks for signing up for CV Architect! Please confirm your email address by clicking the button below:</p>
+   <p>Thanks for signing up for CVArchitect! Please confirm your email address by clicking the button below:</p>
    <p><a href="{{ .ConfirmationURL }}" style="background-color: #00D9A3; color: #0A0F1C; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Confirm Email</a></p>
    <p>If the button doesn't work, copy and paste this link into your browser:</p>
    <p>{{ .ConfirmationURL }}</p>
    <p>This link will expire in 24 hours.</p>
    <p>If you didn't create an account, you can safely ignore this email.</p>
-   <p>Best regards,<br>The CV Architect Team</p>
+   <p>Best regards,<br>The CVArchitect Team</p>
    ```
 
    - Click "Save"
@@ -112,13 +112,13 @@ This guide will help you configure:
    ```html
    <h2>Reset Your Password</h2>
    <p>Hi there!</p>
-   <p>We received a request to reset your password for your CV Architect account.</p>
+   <p>We received a request to reset your password for your CVArchitect account.</p>
    <p><a href="{{ .ConfirmationURL }}" style="background-color: #00D9A3; color: #0A0F1C; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Reset Password</a></p>
    <p>If the button doesn't work, copy and paste this link into your browser:</p>
    <p>{{ .ConfirmationURL }}</p>
    <p>This link will expire in 1 hour.</p>
    <p>If you didn't request a password reset, you can safely ignore this email.</p>
-   <p>Best regards,<br>The CV Architect Team</p>
+   <p>Best regards,<br>The CVArchitect Team</p>
    ```
 
    - Click "Save"

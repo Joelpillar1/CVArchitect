@@ -1,5 +1,5 @@
 -- ============================================
--- CV Architect - Resume Versions Table Migration
+-- CVArchitect - Resume Versions Table Migration
 -- Supports both saved_resumes and legacy resumes
 -- ============================================
 

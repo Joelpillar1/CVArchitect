@@ -15,7 +15,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY!;
 const LOOPS_API_KEY = process.env.LOOPS_API_KEY;
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'CV Architect <support@support.cvarchitect.app>';
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'CVArchitect <support@support.cvarchitect.app>';
 
 // ─── Resend ───────────────────────────────────────────────────────────────────
 
@@ -31,7 +31,7 @@ async function sendWelcomeEmail(name: string, email: string) {
     body: JSON.stringify({
       from: FROM_EMAIL,
       to: [email],
-      subject: `Welcome to CV Architect, ${firstName}! 🎉`,
+      subject: `Welcome to CVArchitect, ${firstName}! 🎉`,
       html: `
 <!DOCTYPE html>
 <html lang="en">
@@ -44,7 +44,7 @@ async function sendWelcomeEmail(name: string, email: string) {
         <!-- Header -->
         <tr>
           <td style="background:#333c4d;border-radius:16px 16px 0 0;padding:32px 40px;text-align:center;">
-            <span style="font-size:24px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">CV Architect</span>
+            <span style="font-size:24px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">CVArchitect</span>
           </td>
         </tr>
 
@@ -53,7 +53,7 @@ async function sendWelcomeEmail(name: string, email: string) {
           <td style="background:#ffffff;padding:48px 40px 32px;text-align:center;">
             <div style="width:72px;height:72px;background:#70e098;border-radius:50%;margin:0 auto 24px;font-size:32px;line-height:72px;text-align:center;">🎉</div>
             <h1 style="margin:0 0 12px;font-size:28px;font-weight:800;color:#333c4d;line-height:1.2;">Welcome aboard, ${firstName}!</h1>
-            <p style="margin:0;font-size:16px;color:#6b7280;line-height:1.6;">Your CV Architect account is ready. Let's build a resume that gets you hired.</p>
+            <p style="margin:0;font-size:16px;color:#6b7280;line-height:1.6;">Your CVArchitect account is ready. Let's build a resume that gets you hired.</p>
           </td>
         </tr>
 
@@ -117,7 +117,7 @@ async function sendWelcomeEmail(name: string, email: string) {
         <tr>
           <td style="background:#ffffff;border-radius:0 0 16px 16px;padding:28px 40px;">
             <p style="font-size:13px;color:#9ca3af;margin:0 0 8px;">Need help? Visit our <a href="https://cvarchitect.app/support" style="color:#70e098;text-decoration:none;font-weight:600;">Support Centre</a> or reply to this email.</p>
-            <p style="font-size:13px;color:#9ca3af;margin:0;">© ${new Date().getFullYear()} CV Architect &nbsp;·&nbsp; <a href="https://cvarchitect.app" style="color:#9ca3af;">cvarchitect.app</a></p>
+            <p style="font-size:13px;color:#9ca3af;margin:0;">© ${new Date().getFullYear()} CVArchitect &nbsp;·&nbsp; <a href="https://cvarchitect.app" style="color:#9ca3af;">cvarchitect.app</a></p>
           </td>
         </tr>
 
