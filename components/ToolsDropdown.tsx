@@ -1,15 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Target, FileSearch, Sparkles, FileText, ArrowRight, Briefcase } from 'lucide-react';
+import { ChevronDown, Target, FileSearch, Sparkles, FileText, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const FREE_TOOLS = [
-    {
-        label: 'Live Tech Jobs Feed',
-        link: '/jobs',
-        description: 'Explore verified tech roles with instant 1-click AI resume matching.',
-        icon: Briefcase
-    },
     {
         label: 'AI Resume Agent',
         link: '/',

@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { Layout, FileText, Settings as SettingsIcon, Home, ChevronRight, ChevronLeft, LogOut, Bookmark, Menu, X, BookOpen, Briefcase, ShieldCheck, Zap, Sparkles, ArrowUp, Plus } from 'lucide-react';
+import { Layout, FileText, Settings as SettingsIcon, Home, ChevronRight, ChevronLeft, LogOut, Bookmark, Menu, X, BookOpen, ShieldCheck, Zap, Sparkles, ArrowUp, Plus } from 'lucide-react';
 import { ResumeData, INITIAL_DATA, createEmptyResume, TemplateType, SavedTemplate } from '../types';
-import { Job } from '../types/job';
 import Editor from '../components/Editor';
 import Overview from '../components/Overview';
 import Templates from '../components/Templates';
@@ -13,7 +12,6 @@ import TemplateOnboardingModal from '../components/TemplateOnboardingModal';
 import PaywallModal from '../components/PaywallModal';
 import CoverLetterPage from './CoverLetterPage';
 import InterviewPrep from './interview';
-import JobsPage, { formatJobDescriptionForChat } from './JobsPage';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { UserSubscription, PlanId } from '../types/pricing';
@@ -718,7 +716,6 @@ export default function Dashboard() {
 
                     <nav className="flex-1 px-3 py-2 space-y-1.5 overflow-y-auto">
                         <NavItem icon={<Home size={19} />} label="Overview" to="/dashboard" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
-                        <NavItem icon={<Briefcase size={19} />} label="Jobs" to="/dashboard/jobs" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
                         <NavItem icon={<Layout size={19} />} label="Templates" to="/dashboard/templates" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
                         <NavItem icon={<Bookmark size={19} />} label="My Resumes" to="/dashboard/my-templates" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
                         <NavItem icon={<FileText size={19} />} label="Cover Letters" to="/dashboard/cover-letters" collapsed={isSidebarCollapsed} onClick={() => setIsMobileMenuOpen(false)} />
@@ -1063,55 +1060,6 @@ export default function Dashboard() {
                     <Route
                         path="interview-prep"
                         element={<InterviewPrep />}
-                    />
-
-                    {/* Jobs Section */}
-                    <Route
-                        path="jobs"
-                        element={
-                            <JobsPage
-                                resumeData={resumeData}
-                                savedTemplates={savedTemplates}
-                                currentResumeId={currentResumeId}
-                                currentTemplate={selectedTemplate}
-                                onSelectResumeForTailoring={(chosenResume, job: Job) => {
-                                    const jobPrompt = formatJobDescriptionForChat(job);
-
-                                    try {
-                                        const updatedResume: ResumeData = {
-                                            ...(chosenResume.data || resumeData || INITIAL_DATA),
-                                            jobDescription: jobPrompt,
-                                        };
-
-                                        setResumeData(updatedResume);
-                                        setSelectedTemplate(chosenResume.baseTemplate || selectedTemplate || 'vanguard');
-                                        setCurrentResumeId(chosenResume.id || null);
-
-                                        saveToStorage('cv_app_data', updatedResume);
-                                        saveToStorage('cv_app_template', chosenResume.baseTemplate || selectedTemplate || 'vanguard');
-                                        if (chosenResume.id) {
-                                            saveToStorage('cv_app_resume_id', chosenResume.id);
-                                        } else {
-                                            localStorage.removeItem('cv_app_resume_id');
-                                        }
-                                        saveToStorage('cv_pending_chat_prompt', jobPrompt);
-                                        saveToStorage('editor_openJobMatchTab', true);
-                                        saveToStorage('editor_activeMobileTab', 'job-match');
-                                        setHasUnsavedChanges(true);
-                                        showToast(`Loaded "${chosenResume.tag || 'Resume'}" with role requirements.`, 'success');
-                                    } catch (err) {
-                                        console.warn('Error saving tailored state:', err);
-                                    }
-
-                                    navigate('/dashboard/editor', {
-                                        state: {
-                                            pendingChatPrompt: jobPrompt,
-                                            openChat: true,
-                                        },
-                                    });
-                                }}
-                            />
-                        }
                     />
 
                     {/* Editor */}

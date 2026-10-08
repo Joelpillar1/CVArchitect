@@ -130,7 +130,7 @@ export default function CoverLetterPage({ resumeData, userSubscription, onDeduct
                 setStructuredEdit(initialLetter.content.structured);
             }
         } else if (prefillJob) {
-            // Prefill with selected job from Job Board
+            // Prefill from the job details passed via router state
             setStep('input');
             setJobTitle(prefillJob.jobTitle || '');
             setCompanyName(prefillJob.companyName || '');

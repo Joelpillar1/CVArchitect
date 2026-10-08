@@ -297,7 +297,7 @@ export default function AgentPanel({
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Prefill pending chat prompt if loaded from Job Board
+  // Prefill pending chat prompt if one was staged before navigating here
   useEffect(() => {
     const storedPrompt = loadFromStorage<string | null>('cv_pending_chat_prompt', null);
     if (storedPrompt && typeof storedPrompt === 'string' && storedPrompt.trim()) {

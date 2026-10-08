@@ -9,7 +9,6 @@ import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
 import PricingPlans from './PricingPlans';
 import Templates from './Templates';
-import LandingJobsSection from './LandingJobsSection';
 import { INITIAL_DATA } from '../types';
 
 // Animation Variants
@@ -143,7 +142,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-brand-bg font-sans text-brand-dark selection:bg-brand-green/30 overflow-x-hidden">
       <SEO
-        title="CV Architect | AI Resume Builder | Beat ATS & Land Interviews 3x Faster"
+        title="CV Architect | AI Resume Builder | Beat ATS & Land More Interviews"
         description="Build an ATS-optimized resume in minutes with CV Architect. AI resume rewriter, keyword match scoring, professional templates, and tailored cover letters."
         canonicalPath="/cvarchitect"
         jsonLd={[
@@ -280,7 +279,7 @@ export default function LandingPage() {
                   <Star key={i} size={12} className="fill-brand-green text-brand-green" />
                 ))}
               </div>
-              <p className="text-xs font-medium">Trusted by 200+ job seekers</p>
+              <p className="text-xs font-medium">Trusted by job seekers worldwide</p>
             </div>
           </motion.div>
         </div>
@@ -526,14 +525,6 @@ export default function LandingPage() {
                   className="w-full h-auto rounded-t-sm"
                 />
 
-                {/* Top Right Banner */}
-                <motion.div
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ repeat: Infinity, duration: 2 }}
-                  className="absolute -top-4 -right-4 bg-brand-green py-2 px-6 transform rotate-2 shadow-lg z-10"
-                >
-                  <span className="text-brand-dark font-bold">98% Pass Rate</span>
-                </motion.div>
                 {/* Bottom Left Banner */}
                 <div className="absolute -bottom-5 -left-4 bg-brand-green py-3 px-8 transform -rotate-2 shadow-lg z-10">
                   <span className="text-brand-dark font-bold text-lg">ATS-Optimized</span>
@@ -785,25 +776,22 @@ export default function LandingPage() {
             >
               <img
                 src="/images/Section  7  illustration.png"
-                alt="CV Architect resume passing ATS with 98 percent compatibility score"
+                alt="ATS-optimised resume created with CV Architect AI builder"
                 loading="lazy"
                 className="w-full h-auto object-contain rounded-lg shadow-2xl"
               />
-              {/* 98% Pass Rate Badge */}
+              {/* ATS Badge */}
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
                 className="absolute -top-4 -right-4 bg-brand-green py-3 px-8 shadow-lg z-10 rounded-full w-24 h-24 flex items-center justify-center"
               >
-                <span className="text-brand-dark font-bold text-lg text-center leading-tight">98%<br />Pass Rate</span>
+                <span className="text-brand-dark font-bold text-lg text-center leading-tight">ATS<br />Optimized</span>
               </motion.div>
             </motion.div>
           </div>
         </div>
       </section>
-
-      {/* Direct Career-Page Job Feed */}
-      <LandingJobsSection />
 
       {/* Section 8: Testimonials */}
       <section className="py-16 px-6 bg-white overflow-hidden">

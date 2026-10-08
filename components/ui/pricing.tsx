@@ -68,7 +68,6 @@ const cvPlans: PricingPlanData[] = [
       'All premium ATS templates',
       'Cover Letter Builder & Interview Prep',
       'Saved resume versions for every job',
-      'Job Search Feed & 1-Click Tailor',
       'Renews monthly at $10. Cancel anytime.',
     ],
   },

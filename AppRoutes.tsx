@@ -21,13 +21,11 @@ import Support from './components/Support';
 import ResumeMatchChecker from './components/ResumeMatchChecker';
 import ActionVerbs from './components/ActionVerbs';
 import AgentLandingPage from './components/AgentLandingPage';
-import PublicJobsPage from './components/PublicJobsPage';
 import PrintResumePage from './pages/PrintResumePage';
 
 // New dashboard with nested routing
 import Dashboard from './pages/Dashboard';
 import ResumeAgentPage from './pages/ResumeAgentPage';
-import AdminJobsPage from './pages/AdminJobsPage';
 import ScreenshotEditorPage from './pages/ScreenshotEditorPage';
 
 // TEMP DEV HARNESS — remove before shipping
@@ -166,7 +164,6 @@ export default function AppRoutes() {
             <Route path="/support" element={<Support />} />
             <Route path="/resume-checker" element={<ResumeMatchChecker />} />
             <Route path="/action-words" element={<ActionVerbs />} />
-            <Route path="/jobs" element={<PublicJobsPage />} />
 
             {/* Blog */}
             <Route path="/blog" element={<BlogPage />} />
@@ -187,10 +184,6 @@ export default function AppRoutes() {
 
             {/* Print/PDF capture route — used by Puppeteer, no auth needed */}
             <Route path="/print-resume" element={<PrintResumePage />} />
-
-            {/* Admin Job Feed Management Panel */}
-            <Route path="/admin" element={<ProtectedRoute><AdminJobsPage /></ProtectedRoute>} />
-            <Route path="/admin/jobs" element={<ProtectedRoute><AdminJobsPage /></ProtectedRoute>} />
 
             {/* Catch all - redirect to home */}
             <Route path="*" element={<Navigate to="/" replace />} />

@@ -7,7 +7,6 @@
 User-agent: *
 Allow: /
 Allow: /agent
-Allow: /#jobs
 Allow: /pricing
 Allow: /resume-checker
 Allow: /action-words

@@ -48,7 +48,6 @@ export default function PublicHeader({ variant = 'default' }: PublicHeaderProps)
 
     const navLinks = [
         { label: 'Features', path: '/#features' },
-        { label: 'Job Board', path: '/jobs' },
         { label: 'The Difference', path: '/#the-difference' },
         { label: 'Pricing', path: '/pricing' },
         { label: 'Blog', path: '/blog' },

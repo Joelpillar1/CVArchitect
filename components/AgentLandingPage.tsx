@@ -34,9 +34,6 @@ import { parseResume } from '../utils/resumeParser';
 import { ResumeData, INITIAL_DATA, createEmptyResume } from '../types';
 import { useStreamingPlaceholder } from '../utils/useStreamingPlaceholder';
 import { HighlightedText } from './MetricBulletsMarquee';
-import LandingJobsSection from './LandingJobsSection';
-import { formatJobDescriptionForChat } from '../pages/JobsPage';
-import { Job } from '../types/job';
 import PricingPlans from './PricingPlans';
 
 const fadeInUp: Variants = {
@@ -820,12 +817,6 @@ export default function AgentLandingPage() {
     '/images/Agent Resume/Template-3.png',
   ];
 
-  const handleTailorFromJobsSection = (job: Job) => {
-    const formatted = formatJobDescriptionForChat(job);
-    setPromptInput(formatted);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   return (
     <div className="relative min-h-screen bg-brand-bg text-brand-dark flex flex-col font-sans selection:bg-brand-green selection:text-brand-dark overflow-x-clip">
       <SEO
@@ -846,7 +837,6 @@ export default function AgentLandingPage() {
 
           <nav className="hidden md:flex items-center gap-7">
             <button onClick={scrollToFeatures} className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors cursor-pointer">Core Features</button>
-            <button onClick={() => navigate('/jobs')} className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors cursor-pointer">Job board</button>
             <button onClick={() => navigate('/blog')} className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors cursor-pointer">Resources</button>
             <a href="#usecases" className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors">Use case</a>
             <button onClick={() => navigate('/pricing')} className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors cursor-pointer">Pricing</button>
@@ -1554,10 +1544,6 @@ export default function AgentLandingPage() {
                     loading="lazy"
                     className="w-full h-auto rounded-t-xl block"
                   />
-                  {/* Top Right Banner */}
-                  <div className="absolute -top-3 -right-3 bg-brand-green text-brand-dark font-extrabold text-xs tracking-wider py-2 px-5 rounded-xl shadow-lg z-10">
-                    98% Pass Rate
-                  </div>
                   {/* Bottom Left Banner */}
                   <div className="absolute -bottom-4 -left-3 bg-brand-green text-brand-dark font-bold text-sm tracking-wide py-2.5 px-6 rounded-xl shadow-lg z-10">
                     ATS-Optimized with AI
@@ -1618,9 +1604,6 @@ export default function AgentLandingPage() {
           </div>
         </div>
 
-        {/* DIRECT CAREER-PAGE JOB FEED SECTION */}
-        <LandingJobsSection onTailorJob={handleTailorFromJobsSection} />
-
         {/* REAL RESULTS  -  dark section with animated counters */}
         <section className="relative py-24 md:py-40 bg-brand-dark text-white overflow-hidden">
           <div className="relative z-10 w-full max-w-[calc(100%-1.5rem)] sm:max-w-[calc(100%-3rem)] md:max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
@@ -1649,9 +1632,9 @@ export default function AgentLandingPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-10">
               {[
-                { value: 2.4, decimals: 1, suffix: '×', label: 'more interviews' },
+                { value: 4, decimals: 0, suffix: '', label: 'ATS engines scored' },
                 { value: 10, decimals: 0, suffix: ' min', label: 'per tailored resume' },
-                { value: 98, decimals: 0, suffix: '%', label: 'avg. ATS match' },
+                { value: 20, decimals: 0, suffix: '+', label: 'ATS-tuned templates' },
               ].map((stat, i) => (
                 <motion.div
                   key={stat.label}

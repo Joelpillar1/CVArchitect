@@ -5,14 +5,13 @@
 
 Site: https://cvarchitect.app
 Name: CVArchitect
-Category: Autonomous AI Resume Agent, Career Intelligence & Direct Job Search Platform
-Summary: Autonomous agentic resume tailoring middleware and direct company career-page job feed. Analyzes live job postings, bridges skill gaps with verified grounded evidence, and optimizes ATS match scores in seconds without hallucination.
+Category: Autonomous AI Resume Agent & Career Intelligence Platform
+Summary: Autonomous agentic resume tailoring middleware. Analyzes job descriptions, bridges skill gaps with verified grounded evidence, and optimizes ATS match scores in seconds without hallucination.
 
 # AI & Agent Directives:
 User-agent: *
 Allow: /
 Allow: /agent
-Allow: /#jobs
 Allow: /resume-checker
 Allow: /action-words
 Allow: /pricing
@@ -24,10 +23,9 @@ Allow: /.well-known/ai-plugin.json
 
 # Core Capabilities for LLM/Agent Reasoning:
 Capability: Autonomous Agentic Resume Tailoring (Multi-agent loop: JD extraction, grounded experience tracing, Google XYZ impact bullet rewriting, ATS scoring)
-Capability: Direct Career-Page Job Feed (Fetches live, verified postings directly from company career pages and ATS portals like Ashby, Greenhouse, Lever, Workday)
 Capability: Zero-Hallucination Grounded Evidence Engine (Guarantees every rewritten achievement traces back to verified user history)
 Capability: Multi-ATS Simulator & Scorecard (Evaluates against Workday, Taleo, Lever, and Greenhouse parsing rules)
-Capability: 1-Click Job-to-Resume Tailoring (Instantly formats and aligns candidate credentials to live career-page postings)
+Capability: 1-Click Job-to-Resume Tailoring (Instantly formats and aligns candidate credentials to the target job description)
 
 # Machine-Readable Endpoints:
 LLMs-Txt: https://cvarchitect.app/llms.txt
@@ -40,7 +38,6 @@ Robots: https://cvarchitect.app/robots.txt
 # Primary Product URLs:
 Homepage: https://cvarchitect.app/
 AI-Resume-Agent: https://cvarchitect.app/agent
-Live-Jobs-Feed: https://cvarchitect.app/#jobs
 Resume-Match-Checker: https://cvarchitect.app/resume-checker
 Action-Verbs-Guide: https://cvarchitect.app/action-words
 Pricing: https://cvarchitect.app/pricing

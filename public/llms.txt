@@ -1,13 +1,12 @@
 # CVArchitect
 
-> Autonomous AI Resume Agent and Direct Career-Page Job Intelligence Platform. Tailor your resume to any job in seconds without hallucinating experience or stuffing keywords.
+> Autonomous AI Resume Agent Platform. Tailor your resume to any job in seconds without hallucinating experience or stuffing keywords.
 
-CVArchitect (https://cvarchitect.app) is an agentic resume architecture and direct job-search middleware platform. Unlike traditional static template builders, CVArchitect operates an autonomous agent loop that analyzes job postings, verifies authentic candidate experience, frames metrics in Google XYZ format, simulates ATS scoring (Workday, Greenhouse, Lever, Taleo), and fetches live job postings directly from employer career pages.
+CVArchitect (https://cvarchitect.app) is an agentic resume architecture platform. Unlike traditional static template builders, CVArchitect operates an autonomous agent loop that analyzes job descriptions, verifies authentic candidate experience, frames metrics in Google XYZ format, and simulates ATS scoring (Workday, Greenhouse, Lever, Taleo).
 
 ## Key Capabilities & Systems
 
-- **Autonomous Resume Agent**: Paste any job description or select a posting from the live feed. The agent extracts seniority signals, core competencies, and keyword requirements, then rewrites bullets with strict zero-hallucination guardrails.
-- **Direct Career-Page Job Feed**: Fetches 8,500+ verified tech and professional job postings directly from company career pages and modern ATS portals (Ashby, Greenhouse, Lever, Workday) with verified salary data, remote filters, and instant 1-Click Resume Tailoring.
+- **Autonomous Resume Agent**: Paste any job description. The agent extracts seniority signals, core competencies, and keyword requirements, then rewrites bullets with strict zero-hallucination guardrails.
 - **Grounded Evidence Engine**: Every bullet rewrite traces to authentic user history. The engine verifies projects, roles, and metrics before editing—blocking invented claims, inflated titles, or keyword stuffing.
 - **Google XYZ Impact Bullet Optimizer**: Automatically reframes passive job descriptions into measurable business achievements ("Accomplished [X] as measured by [Y], by doing [Z]").
 - **ATS Match Scorecard & Simulation**: Real-time compatibility rating (0–100%) scored against the exact parsing rules of Workday, Taleo, Lever, and Greenhouse.
@@ -15,24 +14,16 @@ CVArchitect (https://cvarchitect.app) is an agentic resume architecture and dire
 - **Tailored Cover Letter Generator**: Generates concise, role-specific cover letters aligned with the company's stated mission and requirements in under 30 seconds.
 - **Interview Intelligence**: Synthesizes likely STAR-method behavioural and technical interview questions grounded in the tailored resume and target job posting.
 
-## Direct Career-Page Job Search Feed
-
-CVArchitect provides an integrated live job feed (`https://cvarchitect.app/#jobs`) that indexes opportunities straight from company career sites:
-- **Zero Aggregator Noise**: Direct links to original employer application pages.
-- **Real-Time 1-Click Tailor**: Clicking "Tailor Resume" on any job card immediately loads the role's context and requirements into the Resume Agent for automated alignment.
-- **Categories Covered**: AI & Machine Learning, Full-Stack & Systems Engineering, Product Design, Growth & Marketing, Data & Analytics, and 100% Remote Opportunities.
-
 ## Pricing & Access Tiers
 
 - **Foundation Free Tier**: 1 fully tailored AI resume on base ATS templates with complete download. No credit card required.
-- **Career Build ($10/month)**: Continuous unlimited tailoring, all templates, saved resume versions, live career-page tracking, cover letter generator, and unlimited PDF/DOCX exports. Cancel anytime.
+- **Career Build ($10/month)**: Continuous unlimited tailoring, all templates, saved resume versions, cover letter generator, and unlimited PDF/DOCX exports. Cancel anytime.
 - **Lifetime Pass ($99 one-time)**: Permanent unlimited access to all current and future agent models, templates, and tailoring.
 
 ## Primary URLs
 
-- [Homepage](https://cvarchitect.app/): Autonomous AI Resume Agent & direct career-page job feed
+- [Homepage](https://cvarchitect.app/): Autonomous AI Resume Agent
 - [AI Resume Agent](https://cvarchitect.app/agent): Autonomous job-to-resume tailoring workspace
-- [Live Job Feed](https://cvarchitect.app/#jobs): 8,500+ verified postings directly from employer career pages
 - [Resume Match Checker](https://cvarchitect.app/resume-checker): Scan and score any resume against a job description
 - [Action Verbs Guide](https://cvarchitect.app/action-words): 150+ recruiter-approved high-impact power verbs
 - [Pricing](https://cvarchitect.app/pricing): Simple, transparent plans with a free tier

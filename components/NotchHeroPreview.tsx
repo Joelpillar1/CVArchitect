@@ -2,14 +2,12 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   FileText,
-  Briefcase,
 } from 'lucide-react';
 import EditorHeroPreview from './EditorHeroPreview';
-import JobsHeroPreview from './JobsHeroPreview';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
-type NotchTab = 'editor' | 'jobs';
+type NotchTab = 'editor';
 
 interface TabConfig {
   id: NotchTab;
@@ -19,7 +17,6 @@ interface TabConfig {
 
 const TABS: TabConfig[] = [
   { id: 'editor', label: 'Create Resume', icon: <FileText className="w-3.5 h-3.5" /> },
-  { id: 'jobs', label: 'Job Search', icon: <Briefcase className="w-3.5 h-3.5" /> },
 ];
 
 export default function NotchHeroPreview() {
@@ -95,12 +92,6 @@ export default function NotchHeroPreview() {
               {activeTab === 'editor' && (
                 <div className="w-full">
                   <EditorHeroPreview />
-                </div>
-              )}
-
-              {activeTab === 'jobs' && (
-                <div className="w-full">
-                  <JobsHeroPreview />
                 </div>
               )}
             </div>

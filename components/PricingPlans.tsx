@@ -65,7 +65,6 @@ const comparisonSections: { title: string; rows: { label: string; cells: [Compar
             { label: 'Saved Resume Versions', cells: [{ type: 'text', text: '1 Version' }, { type: 'text', text: 'Unlimited' }, { type: 'text', text: 'Unlimited' }] },
             { label: 'Cover Letter Builder', cells: [{ type: 'dash' }, { type: 'check' }, { type: 'check' }] },
             { label: 'Interview Prep & Q&A', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }] },
-            { label: 'Job Search Feed & 1-Click Tailor', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }] },
         ],
     },
     {

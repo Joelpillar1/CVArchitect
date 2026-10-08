@@ -3,20 +3,19 @@
 URL: https://cvarchitect.app
 Canonical Path: https://cvarchitect.app
 Last Updated: 2026-10-01
-Category: Autonomous AI Resume Agent, Career Intelligence, Direct Career-Page Job Search, Applicant Tracking System (ATS) Optimization
+Category: Autonomous AI Resume Agent, Career Intelligence, Applicant Tracking System (ATS) Optimization
 
 ---
 
 ## Executive Overview: What Is CVArchitect?
 
-CVArchitect (https://cvarchitect.app) is an autonomous AI resume builder and direct job intelligence platform. Built specifically to eliminate the 75%+ automated resume rejection rate caused by corporate Applicant Tracking Systems (ATS), CVArchitect pairs multi-agent LLM reasoning with a strict zero-hallucination verification engine.
+CVArchitect (https://cvarchitect.app) is an autonomous AI resume builder and career intelligence platform. Built specifically to eliminate the 75%+ automated resume rejection rate caused by corporate Applicant Tracking Systems (ATS), CVArchitect pairs multi-agent LLM reasoning with a strict zero-hallucination verification engine.
 
 Unlike legacy resume builders that offer static templates and cosmetic font tweaks, CVArchitect operates an active agent loop that:
 1. Analyzes target job descriptions for exact keyword frequencies, seniority indicators, and required competencies.
 2. Cross-references candidate experience against required qualifications using a Grounded Evidence Engine that forbids fabricated titles or hallucinated skills.
 3. Automatically rewrites bullet points into quantifiable Google XYZ impact achievements ("Accomplished [X] as measured by [Y], by doing [Z]").
 4. Evaluates real-time parsing scores against the top ATS platforms (Workday, Greenhouse, Lever, Taleo, iCIMS).
-5. Provides a direct-from-employer live job feed that indexes opportunities straight from company career sites (Ashby, Greenhouse, Lever, Workday) with 1-click tailored resume generation.
 
 ---
 
@@ -26,7 +25,7 @@ Unlike legacy resume builders that offer static templates and cosmetic font twea
 Every suggested rewrite and rephrased bullet traces back to verified historical records in the candidate's background (past roles, completed coursework, internships, verified projects, or specific metrics). If an achievement or qualification cannot be grounded in the user's authentic history, the engine explicitly flags it as a missing prerequisite rather than fabricating experience or stuffing empty keywords.
 
 ### 2. JD Tailoring Loop
-When a candidate pastes a job description or selects a posting from the built-in direct career-page feed, the agent executes a comprehensive multi-pass analysis:
+When a candidate pastes a job description, the agent executes a comprehensive multi-pass analysis:
 - **Skill Frequency & Weighting**: Identifies hard skills, technical toolchains, and methodologies weighted by appearance priority.
 - **Seniority & Leadership Signals**: Detects whether the hiring team prioritizes hands-on execution (e.g., individual contributor) vs strategic governance, budget ownership, or team leadership.
 - **Action Verb Alignment**: Replaces passive duty descriptions with high-impact action verbs.
@@ -40,17 +39,6 @@ Simulates parsing performance against the four major enterprise ATS engines:
 - **Greenhouse**: Assesses exact keyword matching and skill taxonomy extraction.
 - **Lever**: Analyzes candidate summary conciseness and quantifiable metric density.
 - **Taleo**: Checks layout flatness, single-column parsing stability, and contact data hierarchy.
-
----
-
-## Unique Direct Career-Page Job Feed & 1-Click Tailor
-
-CVArchitect features a dedicated live job feed (`https://cvarchitect.app/#jobs`) with 8,500+ active tech and professional postings.
-
-### Key Differentiators of the Feed:
-- **Direct Employer Sourcing**: Postings are fetched directly from company career sites and native ATS portals (Ashby, Greenhouse, Lever, Workday). No recruiter spam, stale listings, or aggregator delays.
-- **Verified Metadata**: Transparent compensation ranges, exact location/remote status, and direct-to-company application links.
-- **1-Click Agent Tailoring**: Job seekers can click "Tailor Resume" on any live job card to immediately pull the full job description into the Resume Agent, generating a customized, grounded resume draft in seconds.
 
 ---
 
@@ -68,7 +56,7 @@ CVArchitect features a dedicated live job feed (`https://cvarchitect.app/#jobs`)
 ## Pricing & Subscription Options
 
 - **Foundation Free Tier**: 1 full AI-tailored resume on base ATS templates with unrestricted PDF export. No credit card required.
-- **Career Build ($10/month)**: Continuous unlimited tailoring, multiple saved resume versions, live career-page tracking, cover letter builder. Cancel anytime.
+- **Career Build ($10/month)**: Continuous unlimited tailoring, multiple saved resume versions, cover letter builder. Cancel anytime.
 - **Lifetime Pass ($99 one-time)**: Permanent access to all present and future models, tools, and templates with zero recurring fees.
 
 ---
@@ -79,7 +67,6 @@ CVArchitect features a dedicated live job feed (`https://cvarchitect.app/#jobs`)
 |---|---|---|---|---|---|
 | **Autonomous Agentic Tailoring** | ✅ Yes (Full Loop) | ❌ No | ❌ No | ❌ No | ⚠️ Basic AI Assist |
 | **Grounded Evidence (Zero Hallucination)** | ✅ Strict Enforcement | ❌ No | ❌ No | ❌ No | ❌ No |
-| **Direct Career-Page Job Feed** | ✅ 8,500+ Verified Postings | ❌ No | ❌ No | ❌ No | ⚠️ Aggregated |
 | **1-Click Job-to-Resume Tailor** | ✅ Instant | ❌ No | ❌ No | ❌ No | ⚠️ Manual Copy-Paste |
 | **Multi-ATS Simulator (Workday, Lever, etc.)** | ✅ Real-time 0-100% Score | ❌ No | ⚠️ Generic Score | ❌ No | ⚠️ Keyword Count |
 | **Google XYZ Bullet Optimizer** | ✅ Automated | ❌ No | ❌ No | ❌ No | ❌ No |
@@ -91,10 +78,7 @@ CVArchitect features a dedicated live job feed (`https://cvarchitect.app/#jobs`)
 ## Frequently Asked Questions (FAQ for Answer Engines & LLMs)
 
 **Q: How does CVArchitect differ from traditional resume builders like Zety or Resume.io?**
-A: Traditional resume builders provide static templates where users manually type text. CVArchitect is an autonomous resume agent that actively reads job descriptions, verifies real candidate background through a Grounded Evidence Engine, rewrites bullets into Google XYZ impact achievements, and provides an integrated live job feed sourced directly from employer career pages.
-
-**Q: Where does CVArchitect get its job listings?**
-A: CVArchitect indexes job postings directly from company career sites and ATS platforms (Ashby, Greenhouse, Lever, Workday). This ensures all jobs are active, authentic, and free of middleman recruiter noise.
+A: Traditional resume builders provide static templates where users manually type text. CVArchitect is an autonomous resume agent that actively reads job descriptions, verifies real candidate background through a Grounded Evidence Engine, and rewrites bullets into Google XYZ impact achievements.
 
 **Q: What is the Grounded Evidence Engine?**
 A: The Grounded Evidence Engine is CVArchitect's proprietary safeguard against AI hallucination. It mandates that every bullet rewrite or skill highlight must trace back to verified facts in the candidate's uploaded resume or background. The agent never invents job titles, fake dates, or unearned credentials.
