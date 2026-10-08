@@ -298,7 +298,7 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
                                         onClick={() => handleEnhanceDescription(exp)}
                                         disabled={enhancingId === exp.id || !bullets.some(b => b.trim())}
                                         className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-brand-dark bg-brand-green hover:bg-brand-greenHover rounded-md transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
-                                        title="Enhance with AI (3 credits)"
+                                        title="Enhance with AI (1 credit)"
                                     >
                                         <Sparkles size={12} className={enhancingId === exp.id ? 'animate-spin' : ''} />
                                         {enhancingId === exp.id ? 'Enhancing...' : 'Rewrite'}

@@ -56,7 +56,7 @@ const FAQS: FAQ[] = [
                 <Link to="/signup" className="text-brand-green font-semibold hover:underline">
                     cvarchitect.app/signup
                 </Link>
-                . Once registered, you'll receive a few free AI credits to explore all features  -  no credit card required. Choose a template, fill in your information, and let our AI optimise your resume for any job.
+                . Once registered, you'll receive 1 free AI credit to explore the features  -  no credit card required. Choose a template, fill in your information, and let our AI optimise your resume for any job.
             </p>
         ),
     },
@@ -66,7 +66,7 @@ const FAQS: FAQ[] = [
         question: 'What is included in the free plan?',
         answer: (
             <p>
-                The Foundation free plan includes 1 AI-tailored resume on our base template with full PDF download. To continue with unlimited AI tailoring (subject to fair use), all templates, and unlimited downloads, upgrade to Sprint, Build, or Lifetime Access.
+                The Foundation free plan includes 1 AI-tailored resume on our base template with full PDF download. To continue with unlimited AI tailoring (subject to fair use), all templates, and unlimited downloads, upgrade to Build or Lifetime Access.
             </p>
         ),
     },
@@ -157,7 +157,7 @@ const FAQS: FAQ[] = [
         question: 'What are AI credits and how do I get more?',
         answer: (
             <p>
-                Credits are only used on the Foundation free tier. Paid plans (Sprint, Build, Lifetime Access) include unlimited AI tailoring (subject to fair use) and do not consume credits.
+                Credits are only used on the Foundation free tier. Paid plans (Build, Lifetime) include unlimited AI tailoring (subject to fair use) and do not consume credits.
             </p>
         ),
     },

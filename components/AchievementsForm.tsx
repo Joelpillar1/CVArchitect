@@ -110,7 +110,7 @@ export default function AchievementsForm({ data, onChange, onAIAction }: Achieve
                         onClick={handleEnhanceAchievements}
                         disabled={isEnhancingAchievements || !data.experience[0]?.description}
                         className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-brand-dark bg-brand-green hover:bg-brand-greenHover rounded-md transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
-                        title="Generate with AI (3 credits)"
+                        title="Generate with AI (1 credit)"
                     >
                         <Sparkles size={12} className={isEnhancingAchievements ? 'animate-spin' : ''} />
                         {isEnhancingAchievements ? 'Generating...' : 'Generate'}

@@ -53,7 +53,7 @@ const rawBlogPosts: BlogPost[] = [
             {
                 type: 'image',
                 src: '/images/blog/build-resume-online-free-coverletter.png',
-                alt: 'CVArchitect online resume builder interface showing an ATS friendly resume template alongside a matching cover letter with a 98% ATS compatibility score',
+                alt: 'CVArchitect online resume builder interface showing an ATS friendly resume template alongside a matching cover letter',
                 content: 'CVArchitect editor workspace: Build an ATS-optimized resume and matching cover letter with real-time formatting and ATS compatibility scan.'
             },
             {

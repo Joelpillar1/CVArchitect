@@ -62,7 +62,7 @@ export default function SummaryForm({ data, onChange, onAIAction }: SummaryFormP
                         onClick={handleEnhanceSummary}
                         disabled={isEnhancingSummary || !data.summary.trim()}
                         className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-brand-dark bg-brand-green hover:bg-brand-greenHover rounded-md transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
-                        title="Enhance with AI (3 credits)"
+                        title="Enhance with AI (1 credit)"
                     >
                         <Sparkles size={12} className={isEnhancingSummary ? 'animate-spin' : ''} />
                         {isEnhancingSummary ? 'Enhancing...' : 'Rewrite'}

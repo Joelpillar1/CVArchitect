@@ -675,7 +675,7 @@ export default function ResumeMatchChecker() {
                                     Tired of Manually <br className="hidden md:block" /> Optimizing Every Resume?
                                 </h3>
                                 <p className="text-gray-400 text-lg mb-10 max-w-xl mx-auto">
-                                    Join 10,000+ professionals using CVArchitect to build ATS-optimized resumes that land interview callbacks 3x faster.
+                                    Join professionals using CVArchitect to build ATS-optimized resumes that get more interview callbacks.
                                 </p>
                                 <button 
                                     onClick={() => window.location.href = 'https://CVArchitect.app/signup'}

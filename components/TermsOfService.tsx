@@ -109,7 +109,6 @@ export default function TermsOfService({ onBack }: TermsOfServiceProps) {
                         </p>
                         <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
                             <li>Monthly subscriptions renew automatically unless canceled</li>
-                            <li>Yearly subscriptions provide discounted rates</li>
                             <li>Lifetime access is a one-time payment</li>
                             <li>All payments are processed securely through our payment provider</li>
                             <li>Refunds may be available within 14 days of purchase (see Refund Policy)</li>

@@ -42,8 +42,7 @@ export default function RefundPolicy({ onBack }: RefundPolicyProps) {
                             We offer a 14-day money-back guarantee for first-time subscribers who are not satisfied with CV Architect. This applies to:
                         </p>
                         <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
-                            <li>Week Pass subscriptions</li>
-                            <li>Pro Quarterly subscriptions (first billing cycle only)</li>
+                            <li>Build ($10/month) subscriptions</li>
                             <li>Lifetime access purchases</li>
                         </ul>
                         <p className="text-gray-700 leading-relaxed mt-4">
