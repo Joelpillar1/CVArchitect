@@ -60,7 +60,10 @@ export const downloadFile = (blob: Blob, filename: string): void => {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  window.URL.revokeObjectURL(url);
+  // Revoking synchronously after click aborts the transfer in Safari / iOS,
+  // which drops the file with no error at all — hold the object URL for a
+  // minute so the browser can finish pulling the blob (URLs are cheap).
+  window.setTimeout(() => window.URL.revokeObjectURL(url), 60_000);
 };
 
 // Persistent 1×1 canvas used to convert any CSS color to sRGB.
@@ -631,8 +634,9 @@ function countPreviewSheets(): number {
  * fonts guaranteed loaded by the capture route's readiness flag. The renderer
  * is the same template component the editor previews, rendered on /print-resume.
  *
- * Throws an Error with a human-readable message on failure — callers decide the
- * fallback (the editor falls back to the vector print portal).
+ * Throws an Error with a human-readable message on failure — callers own the
+ * UX (the editor retries once, then reports the reason; the print dialog is
+ * only ever opened from the explicit "Print / Vector PDF" menu entry).
  */
 export async function exportResumeToServerPdf(
   data: ResumeData,

@@ -10,9 +10,14 @@
  * Degradation rule (mirrors the upstream exit-2 semantics): if the verifier
  * itself cannot run, we report `skipped`, never `ok`. Callers decide whether a
  * skipped gate still ships the file.
+ *
+ * pdfjs is loaded LAZILY (dynamic `import()` inside verifyPdfBuffer), never as
+ * a static module-scope import. A top-level import of the pure-ESM `pdf.mjs`
+ * takes down the whole serverless function during module init on Vercel
+ * (`FUNCTION_INVOCATION_FAILED` — every request, including GETs, dies before
+ * the handler can answer), while a call-time `import()` runs through the native
+ * ESM loader and, failing that, is caught here and degraded to `skipped`.
  */
-import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
-
 export interface PdfGateOptions {
   /** Sanity ceiling for page count — catches runaway pagination, not a product page policy. */
   maxPages?: number;
@@ -54,6 +59,7 @@ export async function verifyPdfBuffer(buf: Buffer, opts: PdfGateOptions = {}): P
   const minChars = opts.minChars ?? 50;
 
   try {
+    const { getDocument } = await import('pdfjs-dist/legacy/build/pdf.mjs');
     const data = new Uint8Array(buf); // copy: pdfjs detaches the input buffer
     const doc = await getDocument({
       data,

@@ -2049,7 +2049,16 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
       const activeData = resumeDataRef.current || resumeData;
       const activeTemplate = templateRef.current || template;
       const activeTitle = (resumeTitleRef.current || resumeTitle || activeData.fullName || 'Resume').trim();
-      const result = await generatePDF(activeData, activeTemplate, activeTitle);
+      let result;
+      try {
+        result = await generatePDF(activeData, activeTemplate, activeTitle);
+      } catch (firstError) {
+        // One automatic retry: the server render is a long-lived POST and
+        // mobile connections drop mid-request far more often than desktops.
+        console.warn('PDF export failed, retrying once:', firstError);
+        await new Promise((resolve) => setTimeout(resolve, 750));
+        result = await generatePDF(activeData, activeTemplate, activeTitle);
+      }
       showToast(
         result?.verified && result.pages !== null
           ? `Resume downloaded — ${result.pages} page${result.pages === 1 ? '' : 's'}, text layer verified.`
@@ -2058,16 +2067,11 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
       );
     } catch (e: any) {
       const message = e?.message || 'Failed to export PDF. Please try again.';
-      console.error('Server PDF export failed, falling back to vector print:', e);
-      // Approved fallback: vector print portal (selectable text, ATS-safe).
-      // Never fall back to the raster html2canvas path — it has no text layer.
-      showToast(`${message} Opening the print dialog instead.`, 'error');
-      try {
-        printResumeToPdf();
-      } catch (printError) {
-        console.error('Print fallback failed:', printError);
-        showToast('Could not open the print dialog either. Please retry.', 'error');
-      }
+      console.error('Server PDF export failed:', e);
+      // Direct download only — never hijack the flow with the print dialog.
+      // The user asked for a file, so surface the reason and let them retry;
+      // "Print / Vector PDF" stays an explicit opt-in in the dropdown.
+      showToast(`Download failed — ${message}. Tap Download to retry.`, 'error');
     } finally {
       setIsExporting(false);
     }
