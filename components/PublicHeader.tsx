@@ -48,7 +48,6 @@ export default function PublicHeader({ variant = 'default' }: PublicHeaderProps)
 
     const navLinks = [
         { label: 'Features', path: '/#features' },
-        { label: 'The Difference', path: '/#the-difference' },
         { label: 'Pricing', path: '/pricing' },
         { label: 'Blog', path: '/blog' },
     ];
@@ -58,8 +57,8 @@ export default function PublicHeader({ variant = 'default' }: PublicHeaderProps)
     const navContent = (
         <>
             <button onClick={() => navigate('/')} className="flex shrink-0 items-center gap-2 hover:opacity-80 transition-opacity">
-                <img src="/images/logo icon.png" alt="CV Architect Logo" className="w-8 h-8 object-contain" />
-                <span className="text-lg font-bold tracking-tight text-brand-dark md:text-xl">CV Architect</span>
+                <img src="/images/logo icon.png" alt="CVArchitect Logo" className="w-8 h-8 object-contain" />
+                <span className="text-lg font-bold tracking-tight text-brand-dark md:text-xl">CVArchitect</span>
             </button>
 
             <div className={`hidden items-center gap-6 lg:flex ${isFloating ? 'flex-1 justify-center' : 'absolute left-1/2 -translate-x-1/2'}`}>

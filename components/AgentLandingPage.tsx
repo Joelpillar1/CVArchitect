@@ -21,7 +21,8 @@ import {
   ShoppingCart,
   BarChart3,
   Check,
-  Plus
+  Plus,
+  Menu
 } from 'lucide-react';
 import { BorderBeam } from 'border-beam';
 import { useAuth } from '../contexts/AuthContext';
@@ -35,6 +36,7 @@ import { ResumeData, INITIAL_DATA, createEmptyResume } from '../types';
 import { useStreamingPlaceholder } from '../utils/useStreamingPlaceholder';
 import { HighlightedText } from './MetricBulletsMarquee';
 import PricingPlans from './PricingPlans';
+import ToolsDropdown from './ToolsDropdown';
 
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 32, scale: 0.98 },
@@ -483,6 +485,9 @@ export default function AgentLandingPage() {
   // FAQ accordion  -  first question open by default
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
+  // Mobile menu toggle (phones see only the logo + CTAs without it)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   // The embedded /resume-agent iframe bootstraps the moment it mounts and would
   // consume any one-shot handoff keys left over from a previous session (auto-firing
   // an agent analysis). Clear them on mount so the hero preview stays inert until the
@@ -836,10 +841,10 @@ export default function AgentLandingPage() {
           </div>
 
           <nav className="hidden md:flex items-center gap-7">
-            <button onClick={scrollToFeatures} className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors cursor-pointer">Core Features</button>
-            <button onClick={() => navigate('/blog')} className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors cursor-pointer">Resources</button>
-            <a href="#usecases" className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors">Use case</a>
+            <button onClick={scrollToFeatures} className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors cursor-pointer">Features</button>
             <button onClick={() => navigate('/pricing')} className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors cursor-pointer">Pricing</button>
+            <button onClick={() => navigate('/blog')} className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors cursor-pointer">Blog</button>
+            <ToolsDropdown />
           </nav>
 
           <div className="flex items-center gap-2.5">
@@ -880,8 +885,51 @@ export default function AgentLandingPage() {
                 </motion.button>
               </>
             )}
+
+            <button
+              className="md:hidden p-2 -mr-2 text-brand-dark cursor-pointer"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile menu panel  -  same four items as the desktop nav */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="overflow-hidden border-t border-brand-border bg-brand-bg md:hidden"
+            >
+              <div className="flex flex-col gap-5 px-5 py-5">
+                <button
+                  onClick={() => { scrollToFeatures(); setIsMobileMenuOpen(false); }}
+                  className="text-left text-lg font-bold text-brand-dark hover:text-brand-green py-2 border-b border-brand-border/60 cursor-pointer"
+                >
+                  Features
+                </button>
+                <button
+                  onClick={() => { navigate('/pricing'); setIsMobileMenuOpen(false); }}
+                  className="text-left text-lg font-bold text-brand-dark hover:text-brand-green py-2 border-b border-brand-border/60 cursor-pointer"
+                >
+                  Pricing
+                </button>
+                <button
+                  onClick={() => { navigate('/blog'); setIsMobileMenuOpen(false); }}
+                  className="text-left text-lg font-bold text-brand-dark hover:text-brand-green py-2 border-b border-brand-border/60 cursor-pointer"
+                >
+                  Blog
+                </button>
+                <ToolsDropdown isMobile={true} onClose={() => setIsMobileMenuOpen(false)} />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
       <main className="relative z-10 flex-1 pt-16">
@@ -1540,7 +1588,7 @@ export default function AgentLandingPage() {
                 <div className="relative bg-brand-dark p-4 pb-0 rounded-2xl shadow-2xl mb-8 hover:transform hover:-translate-y-1 transition-transform duration-300 group">
                   <img
                     src="/images/Section 4 illustration - ATS Optimized.png"
-                    alt="ATS-optimized resume created with CV Architect AI builder"
+                    alt="ATS-optimized resume created with CVArchitect AI builder"
                     loading="lazy"
                     className="w-full h-auto rounded-t-xl block"
                   />
