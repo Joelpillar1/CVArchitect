@@ -926,6 +926,15 @@ export default function AgentLandingPage() {
                   Blog
                 </button>
                 <ToolsDropdown isMobile={true} onClose={() => setIsMobileMenuOpen(false)} />
+
+                {!user && (
+                  <button
+                    onClick={() => { navigate('/login'); setIsMobileMenuOpen(false); }}
+                    className="w-full mt-1 rounded-xl bg-brand-dark hover:bg-brand-dark/90 text-white font-bold text-sm py-3.5 shadow-sm transition-colors cursor-pointer"
+                  >
+                    Log in
+                  </button>
+                )}
               </div>
             </motion.div>
           )}

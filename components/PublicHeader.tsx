@@ -175,6 +175,15 @@ export default function PublicHeader({ variant = 'default' }: PublicHeaderProps)
 
                                     <ToolsDropdown isMobile={true} onClose={() => setIsMobileMenuOpen(false)} />
 
+                                    {!user && (
+                                        <button
+                                            onClick={() => handleNavigation('/login')}
+                                            className="w-full rounded-xl bg-brand-dark hover:bg-brand-dark/90 text-white font-bold text-sm py-3 shadow-sm transition-colors"
+                                        >
+                                            Log in
+                                        </button>
+                                    )}
+
                                     <div className="flex flex-col gap-3 pt-2">
                                         {user ? (
                                             <button
@@ -242,6 +251,15 @@ export default function PublicHeader({ variant = 'default' }: PublicHeaderProps)
                             ))}
 
                             <ToolsDropdown isMobile={true} onClose={() => setIsMobileMenuOpen(false)} />
+
+                            {!user && (
+                                <button
+                                    onClick={() => handleNavigation('/login')}
+                                    className="w-full rounded-xl bg-brand-dark hover:bg-brand-dark/90 text-white font-bold text-sm py-3 shadow-sm transition-colors"
+                                >
+                                    Log in
+                                </button>
+                            )}
 
                             <div className="pt-4 flex flex-col gap-4">
                                 {user ? (
