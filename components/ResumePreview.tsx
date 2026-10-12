@@ -152,12 +152,25 @@ export default function ResumePreview({ data, template, onChangeData, editable =
 
   const [fontsLoaded, setFontsLoaded] = useState(false);
   useEffect(() => {
-    if (typeof document !== 'undefined' && document.fonts?.ready) {
+    if (typeof document === 'undefined') return;
+    if (typeof (window as any).loadTemplateFonts === 'function') {
+      (window as any).loadTemplateFonts();
+    }
+    const fontName = data.font ? data.font.split(',')[0].replace(/['"]/g, '').trim() : 'Inter';
+    if (document.fonts?.load) {
+      Promise.allSettled([
+        document.fonts.load(`12pt "${fontName}"`),
+        document.fonts.load(`bold 12pt "${fontName}"`),
+        document.fonts.load(`italic 12pt "${fontName}"`),
+      ]).then(() => {
+        document.fonts.ready.then(() => setFontsLoaded(true)).catch(() => setFontsLoaded(true));
+      });
+    } else if (document.fonts?.ready) {
       document.fonts.ready.then(() => setFontsLoaded(true)).catch(() => setFontsLoaded(true));
     } else {
       setFontsLoaded(true);
     }
-  }, []);
+  }, [data.font]);
 
   useLayoutEffect(() => {
     if (!measureRef.current) return;
@@ -902,6 +915,7 @@ export default function ResumePreview({ data, template, onChangeData, editable =
       className="resume-preview-root w-full flex flex-col items-center relative print:pb-0"
       data-bullet-style={data.bulletStyle || 'disc'}
       data-bullet-indent={data.bulletIndent ?? 0}
+      data-paginated={activePages.length > 0 ? "true" : "false"}
       style={{
         '--resume-line-height': (data.lineHeight || 1.5).toString(),
         '--resume-bullet-indent': `${data.bulletIndent ?? 0}px`,
@@ -934,6 +948,10 @@ export default function ResumePreview({ data, template, onChangeData, editable =
               onKeyDown={handleSheetKeyDown}
               onPaste={handleSheetPaste}
               className="resume-page-sheet resume-page bg-white mx-auto relative print:border-0 print:shadow-none print:m-0 outline-none select-text cursor-text"
+              data-paginated-sheet="true"
+              data-page-index={index}
+              data-page-number={index + 1}
+              data-total-pages={activePages.length}
               style={{
                 ...containerStyle,
                 width: widthCss,
@@ -971,6 +989,7 @@ export default function ResumePreview({ data, template, onChangeData, editable =
           onKeyDown={handleSheetKeyDown}
           onPaste={handleSheetPaste}
           className="resume-page-sheet resume-page bg-white mx-auto relative print:border-0 print:shadow-none print:m-0 outline-none select-text cursor-text"
+          data-paginated-sheet="false"
           style={{
             ...containerStyle,
             width: widthCss,

@@ -75,7 +75,7 @@ export default function JakeTemplate({ data }: { data: ResumeData }) {
       <h2
         className="section-header leading-normal"
         style={{
-          fontFamily: '"Times New Roman", Times, Georgia, serif',
+          fontFamily: data.font || '"Times New Roman", Times, Georgia, serif',
           fontSize: `${fontSizes?.sectionTitle || 11}pt`,
           fontWeight: 500,
           // The source resume renders section titles as small caps
@@ -693,7 +693,7 @@ export default function JakeTemplate({ data }: { data: ResumeData }) {
       className="resume-content text-gray-900 w-full box-border"
       style={{
         ...getPagePaddingStyle(data),
-        fontFamily: '"Times New Roman", Times, Georgia, serif',
+        fontFamily: data.font || '"Times New Roman", Times, Georgia, serif',
         lineHeight: data.lineHeight || 1.4,
         fontSize: `${bodyPt}pt`,
       }}

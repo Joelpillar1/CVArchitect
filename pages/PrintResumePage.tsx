@@ -26,15 +26,17 @@ declare global {
     __PRINT_READY__: boolean;
     /** Set to a human-readable message when the capture route cannot render. */
     __PRINT_ERROR__?: string;
+    /** Helper injected by index.html to force load template Google Fonts */
+    loadTemplateFonts?: () => void;
   }
 }
 
 /**
  * Wait until everything the PDF depends on has actually landed:
- * 1. `document.fonts.ready` — webfonts are loaded so measurements are accurate.
- * 2. `.resume-page-sheet` elements exist and contain measured, rendered content.
- * 3. every <img> decoded — pixels available for render.
- * 4. two animation frames — React's committed DOM has been laid out and painted.
+ * 1. Web fonts are fully loaded via document.fonts.ready and document.fonts.load.
+ * 2. `.resume-page-sheet[data-paginated-sheet="true"]` elements exist and contain measured, sliced content.
+ * 3. Every <img> decoded — pixels available for render.
+ * 4. Two animation frames — React's committed DOM has been laid out and painted.
  */
 async function waitForFullPaint(): Promise<void> {
   try {
@@ -43,11 +45,18 @@ async function waitForFullPaint(): Promise<void> {
     // Font Loading API unavailable — proceed rather than hang the export.
   }
 
-  // Poll until .resume-page-sheet elements exist with rendered layout
+  // Poll until ResumePreview has completed measurement and sliced the real paginated sheets
   let attempts = 0;
-  while (attempts < 60) {
-    const sheets = document.querySelectorAll<HTMLElement>('.resume-page-sheet');
-    if (sheets.length > 0 && sheets[0].innerHTML.trim().length > 50) {
+  while (attempts < 80) {
+    const root = document.querySelector<HTMLElement>('.resume-preview-root');
+    const isPaginated = root?.getAttribute('data-paginated') === 'true';
+    const paginatedSheets = document.querySelectorAll<HTMLElement>('.resume-page-sheet[data-paginated-sheet="true"]');
+    if (isPaginated && paginatedSheets.length > 0 && paginatedSheets[0].innerHTML.trim().length > 50) {
+      break;
+    }
+    // Fallback: if single-page mode explicitly finished
+    const allSheets = document.querySelectorAll<HTMLElement>('.resume-page-sheet');
+    if (attempts > 30 && allSheets.length > 0 && allSheets[0].innerHTML.trim().length > 50) {
       break;
     }
     await new Promise((resolve) => setTimeout(resolve, 50));
@@ -78,15 +87,10 @@ export default function PrintResumePage() {
   useEffect(() => {
     // Apply clean-print body class so global CSS never hides the resume content
     document.body.classList.add('print-resume-mode');
-    return () => document.body.classList.remove('print-resume-mode');
-  }, []);
-
-  useEffect(() => {
-    if (document.fonts?.ready) {
-      document.fonts.ready.then(() => setFontsLoaded(true)).catch(() => setFontsLoaded(true));
-    } else {
-      setFontsLoaded(true);
+    if (typeof window.loadTemplateFonts === 'function') {
+      window.loadTemplateFonts();
     }
+    return () => document.body.classList.remove('print-resume-mode');
   }, []);
 
   useEffect(() => {
@@ -104,6 +108,54 @@ export default function PrintResumePage() {
       setState(s => ({ ...s, error: 'Failed to parse resume data.' }));
     }
   }, []);
+
+  // Ensure exact webfont is loaded and exact @page size is injected
+  useEffect(() => {
+    if (!state.data) return;
+
+    // 1. Inject exact @page dimension rule matching the resume's paper format
+    const isA4 = (state.data.pageSize || 'letter').toLowerCase() === 'a4';
+    const existingStyle = document.getElementById('print-page-size-style');
+    if (existingStyle) existingStyle.remove();
+    const pageStyle = document.createElement('style');
+    pageStyle.id = 'print-page-size-style';
+    pageStyle.textContent = `@page { size: ${isA4 ? 'A4 portrait' : 'letter portrait'} !important; margin: 0mm !important; }`;
+    document.head.appendChild(pageStyle);
+
+    // 2. Ensure Google Fonts stylesheet is attached
+    if (typeof window.loadTemplateFonts === 'function') {
+      window.loadTemplateFonts();
+    }
+
+    // 3. Explicitly load font family and weights before layout measurement
+    const fontName = state.data.font ? state.data.font.split(',')[0].replace(/['"]/g, '').trim() : 'Inter';
+    const loadFont = async () => {
+      try {
+        if (typeof document !== 'undefined' && document.fonts?.load) {
+          await Promise.allSettled([
+            document.fonts.load(`12pt "${fontName}"`),
+            document.fonts.load(`bold 12pt "${fontName}"`),
+            document.fonts.load(`italic 12pt "${fontName}"`),
+            document.fonts.load(`bold italic 12pt "${fontName}"`),
+          ]);
+        }
+        if (typeof document !== 'undefined' && document.fonts?.ready) {
+          await document.fonts.ready;
+        }
+      } catch (err) {
+        console.warn('Font load error in PrintResumePage:', err);
+      } finally {
+        setFontsLoaded(true);
+      }
+    };
+
+    loadFont();
+
+    return () => {
+      const el = document.getElementById('print-page-size-style');
+      if (el) el.remove();
+    };
+  }, [state.data]);
 
   // Signal Puppeteer once the template is fully painted (fonts + images + layout).
   // On failure, signal __PRINT_ERROR__ so the endpoint can fail fast with the

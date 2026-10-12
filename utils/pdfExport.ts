@@ -485,13 +485,25 @@ export async function exportResumeToPdf(
   // This guarantees identical desktop paper dimensions, accurate font metrics,
   // and full page slicing even on mobile phones or when the editor tab is active.
   try {
-    // Wait for all web fonts to load before creating offscreen host
-    if (typeof document !== 'undefined' && document.fonts?.ready) {
+    if (typeof (window as any).loadTemplateFonts === 'function') {
+      (window as any).loadTemplateFonts();
+    }
+    const fontName = dataWithTemplate.font ? dataWithTemplate.font.split(',')[0].replace(/['"]/g, '').trim() : 'Inter';
+    if (typeof document !== 'undefined') {
       try {
-        await Promise.race([
-          document.fonts.ready,
-          new Promise((resolve) => setTimeout(resolve, 2000)),
-        ]);
+        if (document.fonts?.load) {
+          await Promise.allSettled([
+            document.fonts.load(`12pt "${fontName}"`),
+            document.fonts.load(`bold 12pt "${fontName}"`),
+            document.fonts.load(`italic 12pt "${fontName}"`),
+          ]);
+        }
+        if (document.fonts?.ready) {
+          await Promise.race([
+            document.fonts.ready,
+            new Promise((resolve) => setTimeout(resolve, 2500)),
+          ]);
+        }
       } catch {
         // Continue if font check fails
       }
@@ -519,13 +531,15 @@ export async function exportResumeToPdf(
     const root = createRoot(offscreenHost);
     root.render(React.createElement(ResumePreview, { data: dataWithTemplate, template: resolvedTemplate, editable: false }));
 
-    // Wait for fonts and for .resume-page-sheet elements to be computed and injected
+    // Wait for fonts and for real paginated .resume-page-sheet elements to be computed and injected
     await new Promise<void>((resolve) => {
       let attempts = 0;
       const check = () => {
         attempts++;
-        const found = offscreenHost.querySelectorAll<HTMLElement>('.resume-page-sheet');
-        if (found.length > 0 && found[0].innerHTML.trim().length > 50) {
+        const rootEl = offscreenHost.querySelector<HTMLElement>('.resume-preview-root');
+        const isPaginated = rootEl?.getAttribute('data-paginated') === 'true';
+        const found = offscreenHost.querySelectorAll<HTMLElement>('.resume-page-sheet[data-paginated-sheet="true"]');
+        if (isPaginated && found.length > 0 && found[0].innerHTML.trim().length > 50) {
           requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
         } else if (attempts < 80) {
           setTimeout(check, 50);
@@ -536,7 +550,7 @@ export async function exportResumeToPdf(
       check();
     });
 
-    const offscreenSheets = Array.from(offscreenHost.querySelectorAll<HTMLElement>('.resume-page-sheet'));
+    const offscreenSheets = Array.from(offscreenHost.querySelectorAll<HTMLElement>('.resume-page-sheet[data-paginated-sheet="true"]'));
     if (offscreenSheets.length > 0) {
       sheets = offscreenSheets;
       cleanupOffscreen = () => {

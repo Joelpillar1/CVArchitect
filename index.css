@@ -36,7 +36,7 @@ body {
 @media print {
     @page {
         margin: 0;
-        size: A4;
+        size: auto;
     }
 
     body {
@@ -98,8 +98,6 @@ body {
     .print-resume .resume-content {
         padding-top: 0 !important;
         padding-bottom: 0 !important;
-        padding-left: 4mm !important;
-        padding-right: 4mm !important;
     }
 
     /* Target the print wrapper for cover letters - single page */

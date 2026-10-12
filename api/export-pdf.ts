@@ -178,7 +178,7 @@ export default async function handler(req: IncomingMessage & { body?: unknown },
     const pdfBuffer = await page.pdf({
       format,
       printBackground: true,
-      preferCSSPageSize: false,
+      preferCSSPageSize: true,
       margin: { top: '0px', right: '0px', bottom: '0px', left: '0px' },
     });
 

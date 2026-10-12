@@ -119,28 +119,33 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   </noscript>
 
-  <!-- Step 4: Template fonts (Roboto, Open Sans, Lato, Montserrat, Merriweather, Fira Code)
-       are ONLY used inside the resume editor/templates  -  not on the public landing page.
-       Load them asynchronously after the page has painted to avoid LCP penalty. -->
+  <!-- Step 4: Template fonts (Roboto, Open Sans, Lato, Montserrat, Merriweather, Playfair Display, EB Garamond, Fira Code)
+       are loaded immediately on editor/preview/print routes to guarantee accurate layout & PDF typography. -->
   <script>
-    // Defer template fonts until after first interaction or idle
     function loadTemplateFonts() {
       if (document._templateFontsLoaded) return;
       document._templateFontsLoaded = true;
       var link = document.createElement('link');
       link.rel = 'stylesheet';
-      link.href = 'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Open+Sans:wght@300;400;600;700;800&family=Lato:wght@300;400;700;900&family=Montserrat:wght@300;400;500;600;700;800;900&family=Merriweather:wght@300;400;700;900&family=Fira+Code&display=swap';
+      link.id = 'cvarchitect-template-fonts';
+      link.href = 'https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,300;1,400;1,700&family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400;1,600&family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,400;1,700&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Fira+Code:wght@400;500;600&display=swap';
       document.head.appendChild(link);
     }
-    // Load on first user interaction or after 3s idle  -  whichever comes first
-    var _tfTimer = setTimeout(loadTemplateFonts, 3000);
-    ['mousedown', 'touchstart', 'keydown', 'scroll'].forEach(function(e) {
-      window.addEventListener(e, function once() {
-        clearTimeout(_tfTimer);
-        loadTemplateFonts();
-        window.removeEventListener(e, once);
-      }, { once: true, passive: true });
-    });
+    window.loadTemplateFonts = loadTemplateFonts;
+
+    // Load immediately on any route except pure landing page root to ensure instant, accurate typography
+    if (window.location.pathname !== '/' && window.location.pathname !== '') {
+      loadTemplateFonts();
+    } else {
+      var _tfTimer = setTimeout(loadTemplateFonts, 2500);
+      ['mousedown', 'touchstart', 'keydown', 'scroll'].forEach(function(e) {
+        window.addEventListener(e, function once() {
+          clearTimeout(_tfTimer);
+          loadTemplateFonts();
+          window.removeEventListener(e, once);
+        }, { once: true, passive: true });
+      });
+    }
   </script>
 
   <!-- Structured Data: SoftwareApplication -->
@@ -415,7 +420,7 @@
       /* Page setup */
       @page {
         margin: 0;
-        size: A4 portrait;
+        size: auto;
       }
 
       @media print {
