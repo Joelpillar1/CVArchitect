@@ -461,12 +461,12 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
     >
       {/* Header */}
       <header
-        className="break-inside-avoid"
-        style={{ marginBottom: `${getHeaderGapIn(data)}in` }}
+        className="break-inside-avoid w-full"
+        style={{ marginBottom: `${getHeaderGapIn(data)}in`, width: '100%' }}
       >
         <h1
           data-path="fullName"
-          className={`font-black tracking-widest leading-none text-gray-900 ${
+          className={`font-black tracking-widest leading-none text-gray-900 w-full ${
             data.headerAlignment === 'left' ? 'text-left' :
             data.headerAlignment === 'right' ? 'text-right' :
             'text-center'
@@ -474,6 +474,7 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
           style={{
             fontSize: `${fontSizes?.header || 20}pt`,
             marginBottom: `${getHeaderItemGapIn(data)}in`,
+            width: '100%',
           }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase)} />
@@ -483,7 +484,7 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
         {isTitleFirst(data, false) && data.jobTitle && (
           <p
             data-path="jobTitle"
-            className={`tracking-[0.15em] text-gray-600 font-semibold ${
+            className={`tracking-[0.15em] text-gray-600 font-semibold w-full ${
               data.jobTitleAlignment === 'left' ? 'text-left' :
               data.jobTitleAlignment === 'right' ? 'text-right' :
               data.jobTitleAlignment === 'center' ? 'text-center' :
@@ -496,6 +497,7 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
               color: data.accentColor || '#000000',
               marginBottom: `${getHeaderContactGapIn(data)}in`,
               lineHeight: 1.25,
+              width: '100%',
             }}
           >
             <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />
@@ -610,7 +612,7 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
 
           return (
             <div
-              className={`flex flex-wrap items-center ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-500 font-medium text-xs ${
+              className={`flex flex-wrap items-center w-full mx-auto ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-500 font-medium text-xs ${
                 data.contactAlignment === 'left' ? 'justify-start text-left' :
                 data.contactAlignment === 'right' ? 'justify-end text-right' :
                 data.contactAlignment === 'center' ? 'justify-center text-center' :
@@ -620,6 +622,7 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
               }`}
               style={{
                 ...bodyStyle,
+                width: '100%',
                 marginBottom: !isTitleFirst(data, false) && data.jobTitle ? `${getHeaderContactGapIn(data)}in` : undefined,
               }}
             >
@@ -639,7 +642,7 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
         {!isTitleFirst(data, false) && data.jobTitle && (
           <p
             data-path="jobTitle"
-            className={`tracking-[0.15em] text-gray-600 font-semibold ${
+            className={`tracking-[0.15em] text-gray-600 font-semibold w-full ${
               data.jobTitleAlignment === 'left' ? 'text-left' :
               data.jobTitleAlignment === 'right' ? 'text-right' :
               data.jobTitleAlignment === 'center' ? 'text-center' :
@@ -651,6 +654,7 @@ export default function ExecutiveTemplate({ data }: { data: ResumeData }) {
               fontSize: `${fontSizes?.jobTitle || 11}pt`,
               color: data.accentColor || '#000000',
               lineHeight: 1.25,
+              width: '100%',
             }}
           >
             <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />

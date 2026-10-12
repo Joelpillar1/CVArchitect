@@ -813,14 +813,15 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
       }}
     >
       {/* ── Header: name, contact line, thick horizontal rule ── */}
-      <header className="break-inside-avoid">
+      <header className="break-inside-avoid w-full" style={{ width: '100%' }}>
         <h1
           data-path="fullName"
-          className={`font-bold tracking-normal ${getTextAlignment()}`}
+          className={`font-bold tracking-normal w-full ${getTextAlignment()}`}
           style={{
             fontSize: `${fontSizes?.header || 16}pt`,
             marginBottom: NAME_TO_CONTACT,
             lineHeight: 1.15,
+            width: '100%',
           }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase)} />
@@ -904,9 +905,9 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
 
           return (
             <div
-              className={`flex flex-wrap items-center gap-x-1.5 gap-y-1 text-gray-800 ${getTextAlignment()} ${data.headerAlignment === 'left' ? 'justify-start' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-center'
+              className={`flex flex-wrap items-center w-full mx-auto gap-x-1.5 gap-y-1 text-gray-800 ${getTextAlignment()} ${data.headerAlignment === 'left' ? 'justify-start' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-center'
                 }`}
-              style={bodyStyle}
+              style={{ ...bodyStyle, width: '100%' }}
             >
               {contactItems.map((item, idx) => (
                 <React.Fragment key={idx}>
@@ -939,17 +940,18 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
       {/* ── Job title heading (no underline) + justified summary ── */}
       {showTitleBlock && (
         <section
-          className="break-inside-avoid"
-          style={{ marginBottom: `${getSectionGapIn(data)}in` }}
+          className="break-inside-avoid w-full"
+          style={{ marginBottom: `${getSectionGapIn(data)}in`, width: '100%' }}
         >
           {data.jobTitle ? (
             <h2
               data-path="jobTitle"
-              className={`font-bold leading-normal text-center ${getSectionHeaderAlignment()}`}
+              className={`font-bold leading-normal text-center w-full ${getSectionHeaderAlignment()}`}
               style={{
                 fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                 color: accentColor,
                 marginBottom: '0.08in',
+                width: '100%',
               }}
             >
               <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />

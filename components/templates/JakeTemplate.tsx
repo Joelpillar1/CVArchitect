@@ -699,13 +699,14 @@ export default function JakeTemplate({ data }: { data: ResumeData }) {
       }}
     >
       {/* Header */}
-      <header className="break-inside-avoid" style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
+      <header className="break-inside-avoid w-full" style={{ marginBottom: `${getHeaderGapIn(data)}in`, width: '100%' }}>
         <h1
           data-path="fullName"
-          className={`font-bold tracking-normal ${alignmentClass}`}
+          className={`font-bold tracking-normal w-full ${alignmentClass}`}
           style={{
             // Name uses the template's own serif face (inherited from the
             // root style) — no separate sans-serif override.
+            width: '100%',
             fontSize: `${fontSizes?.header || 20}pt`,
             marginBottom: `${getHeaderItemGapIn(data)}in`,
             lineHeight: 1.15,
@@ -719,7 +720,7 @@ export default function JakeTemplate({ data }: { data: ResumeData }) {
             (No job-title line: the source resume's header is name + contact.) */}
         {contactItems.length > 0 && (
           <div
-            className={`flex flex-wrap items-center text-gray-900 ${
+            className={`flex flex-wrap items-center w-full mx-auto text-gray-900 ${
               alignmentClass === 'text-left'
                 ? 'justify-start text-left'
                 : alignmentClass === 'text-right'
@@ -728,6 +729,7 @@ export default function JakeTemplate({ data }: { data: ResumeData }) {
             }`}
             style={{
               ...bodyStyle,
+              width: '100%',
             }}
           >
             {contactItems.map((item, idx) => (

@@ -62,10 +62,12 @@ const FreshGradEngTemplate: React.FC<FreshGradEngTemplateProps> = ({ data }) => 
       }}
     >
       {/* Header */}
-      <header className="break-inside-avoid" style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
+      <header className="break-inside-avoid w-full" style={{ marginBottom: `${getHeaderGapIn(data)}in`, width: '100%' }}>
         <h1
-          className={`font-bold ${data.headerAlignment === 'left' ? 'text-left' : data.headerAlignment === 'right' ? 'text-right' : 'text-center'}`}
+          data-path="fullName"
+          className={`font-bold w-full ${data.headerAlignment === 'left' ? 'text-left' : data.headerAlignment === 'right' ? 'text-right' : 'text-center'}`}
           style={{
+            width: '100%',
             marginBottom: `${getHeaderItemGapIn(data)}in`,
             lineHeight: 1.15,
             fontSize: `${fontSizes?.header || 18}pt`,
@@ -74,7 +76,7 @@ const FreshGradEngTemplate: React.FC<FreshGradEngTemplateProps> = ({ data }) => 
           <RichText text={formatNameDisplay(data.fullName, data.headerCase) || 'NAME'} />
         </h1>
         <div
-          className={`text-gray-900 flex flex-wrap ${
+          className={`text-gray-900 flex flex-wrap w-full mx-auto ${
             data.contactAlignment === 'left' ? 'justify-start text-left' :
             data.contactAlignment === 'right' ? 'justify-end text-right' :
             data.contactAlignment === 'center' ? 'justify-center text-center' :
@@ -82,7 +84,7 @@ const FreshGradEngTemplate: React.FC<FreshGradEngTemplateProps> = ({ data }) => 
             data.headerAlignment === 'right' ? 'justify-end text-right' :
             'justify-center text-center'
           } ${data.showContactIcons ?? true ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'}`}
-          style={{ ...bodyStyle, marginBottom: `${getHeaderContactGapIn(data)}in` }}
+          style={{ ...bodyStyle, width: '100%', marginBottom: `${getHeaderContactGapIn(data)}in` }}
         >
           {(() => {
             const showIcons = data.showContactIcons ?? true;
@@ -149,15 +151,16 @@ const FreshGradEngTemplate: React.FC<FreshGradEngTemplateProps> = ({ data }) => 
         {data.jobTitle && (
           <p
             data-path="jobTitle"
-            className={
+            className={`w-full ${
               data.jobTitleAlignment === 'left' ? 'text-left' :
               data.jobTitleAlignment === 'right' ? 'text-right' :
               data.jobTitleAlignment === 'center' ? 'text-center' :
               data.headerAlignment === 'left' ? 'text-left' :
               data.headerAlignment === 'right' ? 'text-right' :
               'text-center'
-            }
+            }`}
             style={{
+              width: '100%',
               fontSize: `${fontSizes?.jobTitle || 11}pt`,
               color: data.accentColor || '#000000',
               lineHeight: 1.25,
@@ -176,7 +179,7 @@ const FreshGradEngTemplate: React.FC<FreshGradEngTemplateProps> = ({ data }) => 
         >
           {renderSectionHeader('Education')}
           <div className="flex flex-col" style={{ gap: `${Math.max(0.14, getSectionGapIn(data))}in` }}>
-            {data.education.map((edu) => (
+            {data.education.map((edu, index) => (
               <div key={edu.id} className="break-inside-avoid" style={bodyStyle}>
                 <div className="flex justify-between items-baseline">
                   <div className="font-semibold text-gray-900">

@@ -483,10 +483,10 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
       }}
     >
       {/* Header */}
-      <header className="break-inside-avoid" style={{ marginBottom: headerGap }}>
+      <header className="break-inside-avoid w-full" style={{ marginBottom: headerGap, width: '100%' }}>
         <h1
           data-path="fullName"
-          className={`font-bold tracking-widest leading-none text-gray-900 ${
+          className={`font-bold tracking-widest leading-none text-gray-900 w-full ${
             data.headerAlignment === 'left' ? 'text-left' :
             data.headerAlignment === 'right' ? 'text-right' :
             'text-center'
@@ -495,6 +495,7 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
             fontSize: `${fontSizes?.header || 20}pt`,
             marginBottom: headerItemGap,
             color: accentColor,
+            width: '100%',
           }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase)} />
@@ -504,7 +505,7 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
         {isTitleFirst(data, false) && data.jobTitle && (
           <p
             data-path="jobTitle"
-            className={`tracking-wider font-semibold text-gray-600 ${
+            className={`tracking-wider font-semibold text-gray-600 w-full ${
               data.jobTitleAlignment === 'left' ? 'text-left' :
               data.jobTitleAlignment === 'right' ? 'text-right' :
               data.jobTitleAlignment === 'center' ? 'text-center' :
@@ -517,6 +518,7 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
               color: accentColor,
               marginBottom: headerContactGap,
               lineHeight: 1.25,
+              width: '100%',
             }}
           >
             <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />
@@ -631,7 +633,7 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
 
           return (
             <div
-              className={`flex flex-wrap items-center ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-600 ${
+              className={`flex flex-wrap items-center w-full mx-auto ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-600 ${
                 data.contactAlignment === 'left' ? 'justify-start text-left' :
                 data.contactAlignment === 'right' ? 'justify-end text-right' :
                 data.contactAlignment === 'center' ? 'justify-center text-center' :
@@ -641,6 +643,7 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
               }`}
               style={{
                 ...bodyStyle,
+                width: '100%',
                 marginBottom: !isTitleFirst(data, false) && data.jobTitle ? headerContactGap : undefined,
               }}
             >
@@ -660,7 +663,7 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
         {!isTitleFirst(data, false) && data.jobTitle && (
           <p
             data-path="jobTitle"
-            className={`tracking-wider font-semibold text-gray-600 ${
+            className={`tracking-wider font-semibold text-gray-600 w-full ${
               data.jobTitleAlignment === 'left' ? 'text-left' :
               data.jobTitleAlignment === 'right' ? 'text-right' :
               data.jobTitleAlignment === 'center' ? 'text-center' :
@@ -672,6 +675,7 @@ export default function SmartTemplate({ data }: SmartTemplateProps) {
               fontSize: `${fontSizes?.jobTitle || 11}pt`,
               color: accentColor,
               lineHeight: 1.25,
+              width: '100%',
             }}
           >
             <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />

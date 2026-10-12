@@ -63,14 +63,16 @@ const FreshGradFinanceTemplate: React.FC<FreshGradFinanceTemplateProps> = ({ dat
       }}
     >
       {/* Header */}
-      <header className="break-inside-avoid" style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
+      <header className="break-inside-avoid w-full" style={{ marginBottom: `${getHeaderGapIn(data)}in`, width: '100%' }}>
         <h1
-          className={`font-bold ${
+          data-path="fullName"
+          className={`font-bold w-full ${
             data.headerAlignment === 'left' ? 'text-left' :
             data.headerAlignment === 'right' ? 'text-right' :
             'text-center'
           }`}
           style={{
+            width: '100%',
             marginBottom: `${getHeaderItemGapIn(data)}in`,
             lineHeight: 1.15,
             fontSize: `${fontSizes?.header || 18}pt`,
@@ -136,7 +138,7 @@ const FreshGradFinanceTemplate: React.FC<FreshGradFinanceTemplateProps> = ({ dat
 
           return (
             <div
-              className={`text-gray-900 flex flex-wrap ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} ${
+              className={`text-gray-900 flex flex-wrap w-full mx-auto ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} ${
                 data.contactAlignment === 'left' ? 'justify-start text-left' :
                 data.contactAlignment === 'right' ? 'justify-end text-right' :
                 data.contactAlignment === 'center' ? 'justify-center text-center' :
@@ -144,7 +146,7 @@ const FreshGradFinanceTemplate: React.FC<FreshGradFinanceTemplateProps> = ({ dat
                 data.headerAlignment === 'right' ? 'justify-end text-right' :
                 'justify-center text-center'
               }`}
-              style={{ ...bodyStyle, marginBottom: `${getHeaderContactGapIn(data)}in` }}
+              style={{ ...bodyStyle, width: '100%', marginBottom: `${getHeaderContactGapIn(data)}in` }}
             >
               {items.map((item, index) => (
                 <React.Fragment key={index}>
@@ -157,15 +159,17 @@ const FreshGradFinanceTemplate: React.FC<FreshGradFinanceTemplateProps> = ({ dat
         })()}
         {data.jobTitle && (
           <p
-            className={
+            data-path="jobTitle"
+            className={`w-full ${
               data.jobTitleAlignment === 'left' ? 'text-left' :
               data.jobTitleAlignment === 'right' ? 'text-right' :
               data.jobTitleAlignment === 'center' ? 'text-center' :
               data.headerAlignment === 'left' ? 'text-left' :
               data.headerAlignment === 'right' ? 'text-right' :
               'text-center'
-            }
+            }`}
             style={{
+              width: '100%',
               fontSize: `${fontSizes?.jobTitle || 11}pt`,
               color: data.accentColor || '#000000',
               lineHeight: 1.25,
@@ -184,7 +188,7 @@ const FreshGradFinanceTemplate: React.FC<FreshGradFinanceTemplateProps> = ({ dat
         >
           {renderSectionHeader('Education')}
           <div className="flex flex-col" style={{ gap: `${Math.max(0.14, getSectionGapIn(data))}in` }}>
-            {data.education.map((edu) => (
+            {data.education.map((edu, index) => (
               <div key={edu.id} className="break-inside-avoid" style={bodyStyle}>
                 {/* School + Location / Date */}
                 <div className="flex justify-between items-baseline">

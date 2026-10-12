@@ -500,16 +500,17 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
     >
       {/* Header */}
       <header
-        className="text-center break-inside-avoid border-b-2 pb-3"
-        style={{ marginBottom: `${getHeaderGapIn(data)}in`, borderColor: accentColor }}
+        className="text-center break-inside-avoid border-b-2 pb-3 w-full"
+        style={{ marginBottom: `${getHeaderGapIn(data)}in`, borderColor: accentColor, width: '100%' }}
       >
         <h1
           data-path="fullName"
-          className="font-bold text-gray-900"
+          className="font-bold text-gray-900 w-full"
           style={{
             fontSize: `${fontSizes?.header || 20}pt`,
             marginBottom: `${getHeaderItemGapIn(data)}in`,
             lineHeight: 1.15,
+            width: '100%',
           }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase) || 'YOUR NAME'} />
@@ -518,7 +519,7 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
         {isTitleFirst(data, false) && data.jobTitle && (
           <p
             data-path="jobTitle"
-            className={`font-semibold ${
+            className={`font-semibold w-full ${
               data.jobTitleAlignment === 'left' ? 'text-left' :
               data.jobTitleAlignment === 'right' ? 'text-right' :
               data.jobTitleAlignment === 'center' ? 'text-center' :
@@ -531,6 +532,7 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
               color: accentColor,
               lineHeight: 1.25,
               marginBottom: `${getHeaderContactGapIn(data)}in`,
+              width: '100%',
             }}
           >
             <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />
@@ -612,7 +614,7 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
           if (items.length === 0) return null;
           return (
             <div
-              className={`flex flex-wrap items-center ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-600 ${
+              className={`flex flex-wrap items-center w-full mx-auto ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-600 ${
                 data.contactAlignment === 'left' ? 'justify-start text-left' :
                 data.contactAlignment === 'right' ? 'justify-end text-right' :
                 data.contactAlignment === 'center' ? 'justify-center text-center' :
@@ -620,7 +622,7 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
                 data.headerAlignment === 'right' ? 'justify-end text-right' :
                 'justify-start text-left'
               }`}
-              style={{ ...bodyStyle, marginBottom: `${getHeaderContactGapIn(data)}in` }}
+              style={{ ...bodyStyle, width: '100%', marginBottom: `${getHeaderContactGapIn(data)}in` }}
             >
               {items.map((item, index) => (
                 <React.Fragment key={index}>
@@ -635,7 +637,7 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
         {!isTitleFirst(data, false) && data.jobTitle && (
           <p
             data-path="jobTitle"
-            className={`font-semibold ${
+            className={`font-semibold w-full ${
               data.jobTitleAlignment === 'left' ? 'text-left' :
               data.jobTitleAlignment === 'right' ? 'text-right' :
               data.jobTitleAlignment === 'center' ? 'text-center' :
@@ -647,6 +649,7 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
               fontSize: `${fontSizes?.jobTitle || 11}pt`,
               color: accentColor,
               lineHeight: 1.25,
+              width: '100%',
             }}
           >
             <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />

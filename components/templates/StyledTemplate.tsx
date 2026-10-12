@@ -484,10 +484,10 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
       }}
     >
       {/* Header */}
-      <header className="break-inside-avoid" style={{ marginBottom: headerGap }}>
+      <header className="break-inside-avoid w-full" style={{ marginBottom: headerGap, width: '100%' }}>
         <h1
           data-path="fullName"
-          className={`font-bold tracking-wider ${data.headerAlignment === 'left' ? 'text-left' :
+          className={`font-bold tracking-wider w-full ${data.headerAlignment === 'left' ? 'text-left' :
               data.headerAlignment === 'right' ? 'text-right' :
                 'text-center'
             }`}
@@ -496,6 +496,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
             marginBottom: headerItemGap,
             color: accentColor,
             lineHeight: 1.2,
+            width: '100%',
           }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase)} />
@@ -505,7 +506,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
         {isTitleFirst(data, false) && data.jobTitle && (
           <p
             data-path="jobTitle"
-            className={`tracking-wider ${data.jobTitleAlignment === 'left' ? 'text-left' :
+            className={`tracking-wider w-full ${data.jobTitleAlignment === 'left' ? 'text-left' :
                 data.jobTitleAlignment === 'right' ? 'text-right' :
                   data.jobTitleAlignment === 'center' ? 'text-center' :
                     data.headerAlignment === 'left' ? 'text-left' :
@@ -517,6 +518,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
               color: accentColor,
               marginBottom: headerContactGap,
               lineHeight: 1.25,
+              width: '100%',
             }}
           >
             <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />
@@ -631,7 +633,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
 
           return (
             <div
-              className={`flex flex-wrap items-center ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-600 ${data.contactAlignment === 'left' ? 'justify-start text-left' :
+              className={`flex flex-wrap items-center w-full mx-auto ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-600 ${data.contactAlignment === 'left' ? 'justify-start text-left' :
                   data.contactAlignment === 'right' ? 'justify-end text-right' :
                     data.contactAlignment === 'center' ? 'justify-center text-center' :
                       data.headerAlignment === 'left' ? 'justify-start text-left' :
@@ -640,6 +642,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                 }`}
               style={{
                 ...bodyStyle,
+                width: '100%',
                 marginBottom: !isTitleFirst(data, false) && data.jobTitle ? headerContactGap : undefined,
               }}
             >
@@ -659,7 +662,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
         {!isTitleFirst(data, false) && data.jobTitle && (
           <p
             data-path="jobTitle"
-            className={`tracking-wider ${data.jobTitleAlignment === 'left' ? 'text-left' :
+            className={`tracking-wider w-full ${data.jobTitleAlignment === 'left' ? 'text-left' :
                 data.jobTitleAlignment === 'right' ? 'text-right' :
                   data.jobTitleAlignment === 'center' ? 'text-center' :
                     data.headerAlignment === 'left' ? 'text-left' :
@@ -670,6 +673,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
               fontSize: `${fontSizes?.jobTitle || 11}pt`,
               color: accentColor,
               lineHeight: 1.25,
+              width: '100%',
             }}
           >
             <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />

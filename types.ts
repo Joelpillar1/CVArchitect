@@ -21,6 +21,7 @@ export interface Education {
   location?: string; // City, State shown right-aligned on the school line
   gpa?: string;
   relevantCourses?: string | string[];
+  description?: string | string[];
 }
 
 export interface Certification {
@@ -153,7 +154,6 @@ export interface ResumeData {
   coursework?: CourseworkItem[] | string;
   thesis?: string;
   academicAchievements?: string[] | string;
-  portfolio?: Project[];
   caseStudies?: Project[];
   selectedWork?: Project[];
   patents?: Certification[];

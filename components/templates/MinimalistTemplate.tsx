@@ -471,15 +471,16 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
       }}
     >
       {/* Header */}
-      <header className="break-inside-avoid" style={{ marginBottom: headerGap }}>
+      <header className="break-inside-avoid w-full" style={{ marginBottom: headerGap, width: '100%' }}>
         <h1
           data-path="fullName"
-          className={`font-normal tracking-[0.2em] leading-none ${
+          className={`font-normal tracking-[0.2em] leading-none w-full ${
             data.headerAlignment === 'left' ? 'text-left' :
             data.headerAlignment === 'right' ? 'text-right' :
             'text-center'
           }`}
           style={{
+            width: '100%',
             fontSize: `${fontSizes?.header || 18}pt`,
             marginBottom: headerItemGap,
             color: accentColor,
@@ -596,7 +597,7 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
 
           return (
             <div
-              className={`flex flex-wrap items-center ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-600 ${
+              className={`flex flex-wrap items-center w-full mx-auto ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-600 ${
                 data.contactAlignment === 'left' ? 'justify-start text-left' :
                 data.contactAlignment === 'right' ? 'justify-end text-right' :
                 data.contactAlignment === 'center' ? 'justify-center text-center' :
@@ -604,7 +605,7 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
                 data.headerAlignment === 'right' ? 'justify-end text-right' :
                 'justify-center text-center'
               }`}
-              style={bodyStyle}
+              style={{ ...bodyStyle, width: '100%' }}
             >
               {contactItems.map((item, idx) => (
                 <React.Fragment key={idx}>

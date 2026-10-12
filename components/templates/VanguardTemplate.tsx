@@ -588,7 +588,7 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
 
   return (
     <div
-      className="resume-content text-gray-900"
+      className="resume-content text-gray-900 w-full box-border"
       style={{
         lineHeight: data.lineHeight || 1.5,
         fontSize: `${fontSizes?.body || 8}pt`,
@@ -596,15 +596,17 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
         paddingRight: `${getMarginHorizontalIn(data)}in`,
         paddingTop: `${getMarginVerticalIn(data)}in`,
         paddingBottom: `${getMarginVerticalIn(data)}in`,
+        boxSizing: 'border-box',
+        width: '100%',
       }}
     >
       <header
-        className="break-inside-avoid"
-        style={{ marginBottom: `${getHeaderGapIn(data)}in` }}
+        className="break-inside-avoid w-full"
+        style={{ marginBottom: `${getHeaderGapIn(data)}in`, width: '100%' }}
       >
         <h1
           data-path="fullName"
-          className={`font-bold tracking-wider leading-none ${
+          className={`font-bold tracking-wider leading-none w-full ${
             data.headerAlignment === 'left'
               ? 'text-left'
               : data.headerAlignment === 'right'
@@ -614,6 +616,7 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
           style={{
             fontSize: `${fontSizes?.header || 18}pt`,
             marginBottom: `${getHeaderItemGapIn(data)}in`,
+            width: '100%',
           }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase)} />
@@ -783,7 +786,7 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
 
           return (
             <div
-              className={`flex flex-wrap items-center ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} break-inside-avoid text-gray-700 ${
+              className={`flex flex-wrap items-center w-full mx-auto ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} break-inside-avoid text-gray-700 ${
                 data.contactAlignment === 'left'
                   ? 'justify-start text-left'
                   : data.contactAlignment === 'right'
@@ -798,6 +801,7 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
               }`}
               style={{
                 ...bodyStyle,
+                width: '100%',
                 marginBottom: !isTitleFirst(data, false) && data.jobTitle ? `${getHeaderContactGapIn(data)}in` : undefined,
               }}
             >
@@ -817,7 +821,7 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
         {!isTitleFirst(data, false) && data.jobTitle && (
           <p
             data-path="jobTitle"
-            className={
+            className={`w-full ${
               data.jobTitleAlignment === 'left'
                 ? 'text-left'
                 : data.jobTitleAlignment === 'right'
@@ -829,11 +833,12 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
                 : data.headerAlignment === 'right'
                 ? 'text-right'
                 : 'text-center'
-            }
+            }`}
             style={{
               fontSize: `${fontSizes?.jobTitle || 11}pt`,
               color: accentColor,
               lineHeight: 1.25,
+              width: '100%',
             }}
           >
             <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />

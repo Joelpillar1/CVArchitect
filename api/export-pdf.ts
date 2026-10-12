@@ -137,6 +137,7 @@ export default async function handler(req: IncomingMessage & { body?: unknown },
     });
 
     const page = await browser.newPage();
+    await page.setViewport({ width: 1280, height: 1600, deviceScaleFactor: 2 });
     const t0 = Date.now(); // page phases; launch time = t0 - tStart
 
     // First navigate to the print page so the React app initialises and sets up its router

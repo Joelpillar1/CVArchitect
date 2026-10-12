@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import RichText from '../RichText';
 import { ResumeData, Experience, Education, Project, Certification, LanguageItem, AdditionalInfoItem, CourseworkItem } from '../../types';
 import { MapPin, Phone, Mail, Linkedin, Send, Github, Globe } from 'lucide-react';
@@ -477,10 +477,10 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
       }}
     >
       {/* Header */}
-      <header className="break-inside-avoid" style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
+      <header className="break-inside-avoid w-full" style={{ marginBottom: `${getHeaderGapIn(data)}in`, width: '100%' }}>
         <h1
           data-path="fullName"
-          className={`font-bold leading-tight ${data.headerAlignment === 'left' ? 'text-left' :
+          className={`font-bold leading-tight w-full ${data.headerAlignment === 'left' ? 'text-left' :
               data.headerAlignment === 'right' ? 'text-right' :
                 'text-center'
             }`}
@@ -488,6 +488,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
             fontSize: `${fontSizes?.header || 22}pt`,
             color: accentColor,
             marginBottom: `${getHeaderItemGapIn(data)}in`,
+            width: '100%',
           }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase)} />
@@ -497,7 +498,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
         {isTitleFirst(data, false) && data.jobTitle && (
           <p
             data-path="jobTitle"
-            className={`tracking-wider font-semibold text-gray-700 ${data.jobTitleAlignment === 'left' ? 'text-left' :
+            className={`tracking-wider font-semibold text-gray-700 w-full ${data.jobTitleAlignment === 'left' ? 'text-left' :
                 data.jobTitleAlignment === 'right' ? 'text-right' :
                   data.jobTitleAlignment === 'center' ? 'text-center' :
                     data.headerAlignment === 'left' ? 'text-left' :
@@ -508,6 +509,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
               fontSize: `${fontSizes?.jobTitle || 11}pt`,
               marginBottom: `${getHeaderContactGapIn(data)}in`,
               lineHeight: 1.25,
+              width: '100%',
             }}
           >
             <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />
@@ -622,7 +624,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
 
           return (
             <div
-              className={`flex flex-wrap items-center ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-600 ${data.contactAlignment === 'left' ? 'justify-start text-left' :
+              className={`flex flex-wrap items-center w-full mx-auto ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-600 ${data.contactAlignment === 'left' ? 'justify-start text-left' :
                   data.contactAlignment === 'right' ? 'justify-end text-right' :
                     data.contactAlignment === 'center' ? 'justify-center text-center' :
                       data.headerAlignment === 'left' ? 'justify-start text-left' :
@@ -631,6 +633,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                 }`}
               style={{
                 ...bodyStyle,
+                width: '100%',
                 marginBottom: !isTitleFirst(data, false) && data.jobTitle ? `${getHeaderContactGapIn(data)}in` : undefined,
               }}
             >
@@ -650,7 +653,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
         {!isTitleFirst(data, false) && data.jobTitle && (
           <p
             data-path="jobTitle"
-            className={`tracking-wider font-semibold text-gray-700 ${data.jobTitleAlignment === 'left' ? 'text-left' :
+            className={`tracking-wider font-semibold text-gray-700 w-full ${data.jobTitleAlignment === 'left' ? 'text-left' :
                 data.jobTitleAlignment === 'right' ? 'text-right' :
                   data.jobTitleAlignment === 'center' ? 'text-center' :
                     data.headerAlignment === 'left' ? 'text-left' :
@@ -660,6 +663,7 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
             style={{
               fontSize: `${fontSizes?.jobTitle || 11}pt`,
               lineHeight: 1.25,
+              width: '100%',
             }}
           >
             <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />

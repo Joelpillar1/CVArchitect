@@ -647,7 +647,7 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
 
     return (
       <div
-        className={`flex flex-wrap items-center ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} ${
+        className={`flex flex-wrap items-center w-full mx-auto ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} ${
           data.contactAlignment === 'left'
             ? 'justify-start text-left'
             : data.contactAlignment === 'right'
@@ -661,6 +661,7 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
             : 'justify-center text-center'
         }`}
         style={{
+          width: '100%',
           fontSize: `${bodyPt}pt`,
           fontWeight: W_BODY,
           lineHeight: 1.4,
@@ -721,15 +722,15 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
       }}
     >
       {/* Header */}
-      <header className="flex flex-col break-inside-avoid" style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
+      <header className="flex flex-col break-inside-avoid w-full" style={{ marginBottom: `${getHeaderGapIn(data)}in`, width: '100%' }}>
         <h1
           data-path="fullName"
-          className={
+          className={`w-full ${
             data.headerAlignment === 'left' ? 'text-left' :
             data.headerAlignment === 'right' ? 'text-right' :
             'text-center'
-          }
-          style={{ fontSize: `${fontSizes?.header || 18}pt`, color: REZI_INK, fontFamily: 'Merriweather, serif', fontWeight: W_BOLD, lineHeight: 1.2, marginBottom: '4px' }}
+          }`}
+          style={{ width: '100%', fontSize: `${fontSizes?.header || 18}pt`, color: REZI_INK, fontFamily: 'Merriweather, serif', fontWeight: W_BOLD, lineHeight: 1.2, marginBottom: '4px' }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase)} />
         </h1>

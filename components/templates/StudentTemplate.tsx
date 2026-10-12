@@ -518,12 +518,12 @@ const StudentTemplate: React.FC<StudentTemplateProps> = ({ data }) => {
     >
       {/* Header */}
       <header
-        className="break-inside-avoid"
-        style={{ marginBottom: `${getHeaderGapIn(data)}in` }}
+        className="break-inside-avoid w-full"
+        style={{ marginBottom: `${getHeaderGapIn(data)}in`, width: '100%' }}
       >
         <h1
           data-path="fullName"
-          className={`font-bold tracking-normal ${
+          className={`font-bold tracking-normal w-full ${
             data.headerAlignment === 'left' ? 'text-left' :
             data.headerAlignment === 'right' ? 'text-right' :
             'text-center'
@@ -532,6 +532,7 @@ const StudentTemplate: React.FC<StudentTemplateProps> = ({ data }) => {
             fontSize: `${fontSizes?.header || 22}pt`,
             marginBottom: `${getHeaderItemGapIn(data)}in`,
             lineHeight: 1.2,
+            width: '100%',
           }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase)} />
@@ -541,12 +542,13 @@ const StudentTemplate: React.FC<StudentTemplateProps> = ({ data }) => {
         {isTitleFirst(data, false) && data.jobTitle && (
           <p
             data-path="jobTitle"
-            className={`tracking-wider font-semibold text-gray-700 ${getJobTitleAlignClass()}`}
+            className={`tracking-wider font-semibold text-gray-700 w-full ${getJobTitleAlignClass()}`}
             style={{
               fontSize: `${fontSizes?.jobTitle || 11}pt`,
               color: accentColor,
               marginBottom: `${getHeaderContactGapIn(data)}in`,
               lineHeight: 1.25,
+              width: '100%',
             }}
           >
             <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />
@@ -661,9 +663,10 @@ const StudentTemplate: React.FC<StudentTemplateProps> = ({ data }) => {
 
           return (
             <div
-              className={`flex flex-wrap items-center ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-600 ${getContactAlignClass()}`}
+              className={`flex flex-wrap items-center w-full mx-auto ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-600 ${getContactAlignClass()}`}
               style={{
                 ...bodyStyle,
+                width: '100%',
                 marginBottom: !isTitleFirst(data, false) && data.jobTitle ? `${getHeaderContactGapIn(data)}in` : undefined,
               }}
             >
@@ -683,11 +686,12 @@ const StudentTemplate: React.FC<StudentTemplateProps> = ({ data }) => {
         {!isTitleFirst(data, false) && data.jobTitle && (
           <p
             data-path="jobTitle"
-            className={`tracking-wider font-semibold text-gray-700 ${getJobTitleAlignClass()}`}
+            className={`tracking-wider font-semibold text-gray-700 w-full ${getJobTitleAlignClass()}`}
             style={{
               fontSize: `${fontSizes?.jobTitle || 11}pt`,
               color: accentColor,
               lineHeight: 1.25,
+              width: '100%',
             }}
           >
             <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />

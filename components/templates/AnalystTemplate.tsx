@@ -295,11 +295,13 @@ export default function AnalystTemplate({ data }: { data: ResumeData }) {
                         name: trimmed.slice(0, pipeIdx).trim(),
                         technologies: trimmed.slice(pipeIdx + 1).replace(/\s+LINK\s*$/i, '').trim(),
                         link: /\bLINK\b/i.test(trimmed) ? '#' : '',
+                        description: '',
                       };
                     } else {
                       currentProj = {
                         id: `p-${extractedProjects.length}`,
                         name: trimmed,
+                        description: '',
                       };
                     }
                   } else if (trimmed) {
@@ -786,11 +788,12 @@ export default function AnalystTemplate({ data }: { data: ResumeData }) {
       }}
     >
       {/* Header */}
-      <header className="break-inside-avoid" style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
+      <header className="break-inside-avoid w-full" style={{ marginBottom: `${getHeaderGapIn(data)}in`, width: '100%' }}>
         <h1
           data-path="fullName"
-          className={`font-bold tracking-normal ${alignmentClass}`}
+          className={`font-bold tracking-normal w-full ${alignmentClass}`}
           style={{
+            width: '100%',
             fontFamily: '"Times New Roman", Times, Georgia, serif',
             fontSize: `${fontSizes?.header || 22}pt`,
             marginBottom: `${getHeaderItemGapIn(data)}in`,
@@ -805,7 +808,7 @@ export default function AnalystTemplate({ data }: { data: ResumeData }) {
             line: the source header is name + contact.) */}
         {contactItems.length > 0 && (
           <div
-            className={`flex flex-wrap items-center text-gray-900 ${
+            className={`flex flex-wrap items-center w-full mx-auto text-gray-900 ${
               alignmentClass === 'text-left'
                 ? 'justify-start text-left'
                 : alignmentClass === 'text-right'
@@ -814,6 +817,7 @@ export default function AnalystTemplate({ data }: { data: ResumeData }) {
             }`}
             style={{
               ...bodyStyle,
+              width: '100%',
             }}
           >
             {contactItems.map((item, idx) => (

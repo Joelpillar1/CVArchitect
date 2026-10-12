@@ -459,17 +459,18 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
     >
       {/* Header */}
       <header
-        className="break-inside-avoid"
-        style={{ marginBottom: `${getHeaderGapIn(data)}in` }}
+        className="break-inside-avoid w-full"
+        style={{ marginBottom: `${getHeaderGapIn(data)}in`, width: '100%' }}
       >
         <h1
           data-path="fullName"
-          className={`font-bold tracking-wider ${
+          className={`font-bold tracking-wider w-full ${
             data.headerAlignment === 'left' ? 'text-left' :
             data.headerAlignment === 'right' ? 'text-right' :
             'text-center'
           }`}
           style={{
+            width: '100%',
             fontSize: `${fontSizes?.header || 18}pt`,
             marginBottom: `${getHeaderItemGapIn(data)}in`,
             lineHeight: 1.2,
@@ -482,7 +483,7 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
         {isTitleFirst(data, false) && data.jobTitle && (
           <p
             data-path="jobTitle"
-            className={`tracking-wider ${
+            className={`tracking-wider w-full ${
               data.jobTitleAlignment === 'left' ? 'text-left' :
               data.jobTitleAlignment === 'right' ? 'text-right' :
               data.jobTitleAlignment === 'center' ? 'text-center' :
@@ -491,6 +492,7 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
               'text-center'
             }`}
             style={{
+              width: '100%',
               fontSize: `${fontSizes?.jobTitle || 11}pt`,
               color: accentColor,
               marginBottom: `${getHeaderContactGapIn(data)}in`,
@@ -599,7 +601,7 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
 
           return (
             <div
-              className={`flex flex-wrap items-center ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-600 ${
+              className={`flex flex-wrap items-center w-full mx-auto ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-600 ${
                 data.contactAlignment === 'left' ? 'justify-start text-left' :
                 data.contactAlignment === 'right' ? 'justify-end text-right' :
                 data.contactAlignment === 'center' ? 'justify-center text-center' :
@@ -609,6 +611,7 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
               }`}
               style={{
                 ...bodyStyle,
+                width: '100%',
                 marginBottom: !isTitleFirst(data, false) && data.jobTitle ? `${getHeaderContactGapIn(data)}in` : undefined,
               }}
             >
@@ -628,7 +631,7 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
         {!isTitleFirst(data, false) && data.jobTitle && (
           <p
             data-path="jobTitle"
-            className={`tracking-wider ${
+            className={`tracking-wider w-full ${
               data.jobTitleAlignment === 'left' ? 'text-left' :
               data.jobTitleAlignment === 'right' ? 'text-right' :
               data.jobTitleAlignment === 'center' ? 'text-center' :
@@ -637,6 +640,7 @@ export default function PrimeProfile({ data }: { data: ResumeData }) {
               'text-center'
             }`}
             style={{
+              width: '100%',
               fontSize: `${fontSizes?.jobTitle || 11}pt`,
               color: accentColor,
               lineHeight: 1.25,

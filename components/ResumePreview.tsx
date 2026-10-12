@@ -1,4 +1,4 @@
-import React, { useRef, useState, useLayoutEffect, useMemo } from 'react';
+import React, { useRef, useState, useLayoutEffect, useMemo, useEffect } from 'react';
 import { ResumeData, TemplateType } from '../types';
 import { getPageSizeConfig } from '../utils/pageSizeConfig';
 import { getSheetVerticalMarginPx, formatSkillCase, readSkillsGrid, placeCaretInSkillCell, appendEmptySkillCell } from '../utils/templateUtils';
@@ -150,6 +150,15 @@ export default function ResumePreview({ data, template, onChangeData, editable =
   // the hold is released, so the sheets are never rebuilt mid-keystroke.
   const pendingPagesRef = useRef<string[] | null>(null);
 
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+  useEffect(() => {
+    if (typeof document !== 'undefined' && document.fonts?.ready) {
+      document.fonts.ready.then(() => setFontsLoaded(true)).catch(() => setFontsLoaded(true));
+    } else {
+      setFontsLoaded(true);
+    }
+  }, []);
+
   useLayoutEffect(() => {
     if (!measureRef.current) return;
 
@@ -250,8 +259,8 @@ export default function ResumePreview({ data, template, onChangeData, editable =
     // at the bottom (and top) before the next block moves to the next page.
     const PAGE_VERTICAL_PAD = vMarginPx;
     const vertPaddingPx = PAGE_VERTICAL_PAD * 2; // Top + Bottom padding
-    // Safety buffer (25px) to prevent sub-pixel font measurement overflow slicing
-    const maxPageContentPx = Math.max(200, pageHeightPx - vertPaddingPx - 25);
+    // Safety buffer (65px) to prevent sub-pixel font measurement overflow slicing
+    const maxPageContentPx = Math.max(200, pageHeightPx - vertPaddingPx - 65);
 
     interface AtomicBlock {
       sectionClass: string;
@@ -452,11 +461,11 @@ export default function ResumePreview({ data, template, onChangeData, editable =
     blocks.forEach((block) => {
       const isNewEntry = !!block.entryHeaderHtml;
       // If adding this block exceeds page height, or if this block starts a new entry (role/company)
-      // and remaining height is too tight (< 20px safety buffer), move cleanly to next page so
+      // and remaining height is too tight (< 80px safety buffer), move cleanly to next page so
       // job titles are never chopped or orphaned at the bottom margin.
       const shouldBreak = currentHeight > 0 && (
         currentHeight + block.height > maxPageContentPx ||
-        (isNewEntry && currentHeight + block.height > maxPageContentPx - 20)
+        (isNewEntry && currentHeight + block.height > maxPageContentPx - 80)
       );
 
       if (shouldBreak && currentPageIndex < 4) {
@@ -597,7 +606,7 @@ export default function ResumePreview({ data, template, onChangeData, editable =
     }
     pendingPagesRef.current = null;
     setPagesHtml(formattedPages);
-  }, [data, template, pageSizeId, heightMm, editHold]);
+  }, [data, template, pageSizeId, heightMm, editHold, fontsLoaded]);
 
   // The sheets were just re-injected (or initially built) from `pagesHtml` —
   // tell the caller synchronously, in this same layout pass, so it can rebuild

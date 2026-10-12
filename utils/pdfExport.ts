@@ -485,6 +485,18 @@ export async function exportResumeToPdf(
   // This guarantees identical desktop paper dimensions, accurate font metrics,
   // and full page slicing even on mobile phones or when the editor tab is active.
   try {
+    // Wait for all web fonts to load before creating offscreen host
+    if (typeof document !== 'undefined' && document.fonts?.ready) {
+      try {
+        await Promise.race([
+          document.fonts.ready,
+          new Promise((resolve) => setTimeout(resolve, 2000)),
+        ]);
+      } catch {
+        // Continue if font check fails
+      }
+    }
+
     const offscreenHost = document.createElement('div');
     offscreenHost.id = 'cvarchitect-pdf-export-host';
     offscreenHost.style.cssText = [
@@ -498,6 +510,9 @@ export async function exportResumeToPdf(
       'visibility:visible',
       'pointer-events:none',
       'background:#ffffff',
+      '-webkit-text-size-adjust:100%',
+      'text-size-adjust:100%',
+      'box-sizing:border-box',
     ].join(';');
     document.body.appendChild(offscreenHost);
 
@@ -512,7 +527,7 @@ export async function exportResumeToPdf(
         const found = offscreenHost.querySelectorAll<HTMLElement>('.resume-page-sheet');
         if (found.length > 0 && found[0].innerHTML.trim().length > 50) {
           requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
-        } else if (attempts < 60) {
+        } else if (attempts < 80) {
           setTimeout(check, 50);
         } else {
           resolve();

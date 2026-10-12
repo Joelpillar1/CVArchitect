@@ -64,17 +64,19 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
             }}
         >
             {/* Full Width Header Container */}
-            <div
+            <header
                 className="w-full py-6 px-8 flex flex-col break-inside-avoid"
-                style={{ backgroundColor: headerBgColor }}
+                style={{ backgroundColor: headerBgColor, width: '100%' }}
             >
                 <h1
-                    className={`font-bold text-gray-900 ${
+                    data-path="fullName"
+                    className={`font-bold text-gray-900 w-full ${
                         data.headerAlignment === 'left' ? 'text-left' :
                         data.headerAlignment === 'right' ? 'text-right' :
                         'text-center'
                     }`}
                     style={{
+                        width: '100%',
                         marginBottom: `${getHeaderItemGapIn(data)}in`,
                         lineHeight: 1.15,
                         fontSize: `${fontSizes?.header || 18}pt`,
@@ -140,7 +142,7 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
 
                     return (
                         <div
-                            className={`text-gray-900 flex flex-wrap ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} ${
+                            className={`text-gray-900 flex flex-wrap w-full mx-auto ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} ${
                                 data.contactAlignment === 'left' ? 'justify-start text-left' :
                                 data.contactAlignment === 'right' ? 'justify-end text-right' :
                                 data.contactAlignment === 'center' ? 'justify-center text-center' :
@@ -148,7 +150,7 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
                                 data.headerAlignment === 'right' ? 'justify-end text-right' :
                                 'justify-center text-center'
                             }`}
-                            style={{ ...bodyStyle, marginBottom: `${getHeaderContactGapIn(data)}in` }}
+                            style={{ ...bodyStyle, width: '100%', marginBottom: `${getHeaderContactGapIn(data)}in` }}
                         >
                             {items.map((item, index) => (
                                 <React.Fragment key={index}>
@@ -161,15 +163,17 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
                 })()}
                 {data.jobTitle && (
                     <p
-                        className={
+                        data-path="jobTitle"
+                        className={`w-full ${
                             data.jobTitleAlignment === 'left' ? 'text-left' :
                             data.jobTitleAlignment === 'right' ? 'text-right' :
                             data.jobTitleAlignment === 'center' ? 'text-center' :
                             data.headerAlignment === 'left' ? 'text-left' :
                             data.headerAlignment === 'right' ? 'text-right' :
                             'text-center'
-                        }
+                        }`}
                         style={{
+                            width: '100%',
                             fontSize: `${fontSizes?.jobTitle || 11}pt`,
                             color: data.accentColor || '#000000',
                             lineHeight: 1.25,
@@ -178,7 +182,7 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
                         <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />
                     </p>
                 )}
-            </div>
+            </header>
 
             {/* Main Content Area (padding matches other templates) */}
             <div

@@ -24,6 +24,8 @@ html,
 body {
     overflow-x: hidden;
     max-width: 100vw;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
 
 /* Prevent horizontal scroll on mobile */
@@ -847,6 +849,8 @@ body.print-resume-mode #print-resume-root {
     overflow: visible !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    -webkit-text-size-adjust: 100% !important;
+    text-size-adjust: 100% !important;
   }
 
   /* When print portal (.print-root) is active, hide the app UI root (#root) so ONLY the clean vector portal prints */
@@ -883,8 +887,37 @@ body.print-resume-mode #print-resume-root {
   [data-resume-paper] header,
   .resume-preview-root header {
     display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
     visibility: visible !important;
     opacity: 1 !important;
+  }
+
+  /* Prevent any float or flex wrapping misalignments inside resume headers in print/PDF */
+  .resume-page-sheet header > h1,
+  .resume-page header > h1,
+  .print-resume header > h1,
+  .resume-preview-root header > h1 {
+    display: block !important;
+    width: 100% !important;
+    clear: both !important;
+  }
+
+  .resume-page-sheet header > div,
+  .resume-page header > div,
+  .print-resume header > div,
+  .resume-preview-root header > div {
+    width: 100% !important;
+    clear: both !important;
+  }
+
+  .resume-page-sheet header > p,
+  .resume-page header > p,
+  .print-resume header > p,
+  .resume-preview-root header > p {
+    display: block !important;
+    width: 100% !important;
+    clear: both !important;
   }
 
   .print-resume aside,
@@ -972,13 +1005,14 @@ body.print-resume-mode #print-resume-root {
     margin: 0 auto !important;
   }
 
-  .resume-preview-root > div,
-  .resume-preview-root [class*="space-y-"] {
+  .resume-preview-root > div:has(> .resume-page-sheet),
+  .resume-preview-root > div.space-y-8 {
     gap: 0 !important;
     row-gap: 0 !important;
   }
 
-  .resume-preview-root [class*="space-y-"] > :not([hidden]) ~ :not([hidden]) {
+  .resume-preview-root > div:has(> .resume-page-sheet) > .resume-page-sheet ~ .resume-page-sheet,
+  .resume-preview-root > div.space-y-8 > .resume-page-sheet ~ .resume-page-sheet {
     margin-top: 0 !important;
   }
 }

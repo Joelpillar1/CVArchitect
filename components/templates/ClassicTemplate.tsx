@@ -610,7 +610,7 @@ export default function ClassicTemplate({ data, fontSizes }: ClassicTemplateProp
 
   return (
     <div
-      className="resume-content text-gray-900"
+      className="resume-content text-gray-900 w-full box-border"
       style={{
         lineHeight: data.lineHeight || 1.5,
         fontSize: `${fontSizes?.body || data.fontSizes?.body || 9}pt`,
@@ -618,27 +618,29 @@ export default function ClassicTemplate({ data, fontSizes }: ClassicTemplateProp
         paddingRight: `${getMarginHorizontalIn(data)}in`,
         paddingTop: `${getMarginVerticalIn(data)}in`,
         paddingBottom: `${getMarginVerticalIn(data)}in`,
+        boxSizing: 'border-box',
+        width: '100%',
       }}
     >
-      <div
-        className="break-inside-avoid"
-        style={{ marginBottom: `${getHeaderGapIn(data)}in` }}
+      <header
+        className="break-inside-avoid w-full"
+        style={{ marginBottom: `${getHeaderGapIn(data)}in`, width: '100%' }}
       >
         <h1
           data-path="fullName"
-          className={`text-5xl font-bold ${
+          className={`text-5xl font-bold w-full ${
             data.headerAlignment === 'left' ? 'text-left' :
             data.headerAlignment === 'right' ? 'text-right' :
             'text-center'
           }`}
-          style={{ fontSize: `${fontSizes?.header || 18}pt`, marginBottom: `${getHeaderItemGapIn(data)}in`, lineHeight: 1.15 }}
+          style={{ fontSize: `${fontSizes?.header || 18}pt`, marginBottom: `${getHeaderItemGapIn(data)}in`, lineHeight: 1.15, width: '100%' }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase)} />
         </h1>
         {titleFirst && jobTitleBlock}
         {contactItems.length > 0 && (
           <div
-            className={`text-sm flex flex-wrap items-center ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} ${
+            className={`text-sm flex flex-wrap items-center w-full mx-auto ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} ${
               data.contactAlignment === 'left' ? 'justify-start text-left' :
               data.contactAlignment === 'right' ? 'justify-end text-right' :
               data.contactAlignment === 'center' ? 'justify-center text-center' :
@@ -646,7 +648,7 @@ export default function ClassicTemplate({ data, fontSizes }: ClassicTemplateProp
               data.headerAlignment === 'right' ? 'justify-end text-right' :
               'justify-center text-center'
             }`}
-            style={{ ...bodyStyle, marginBottom: `${getHeaderContactGapIn(data)}in` }}
+            style={{ ...bodyStyle, width: '100%', marginBottom: `${getHeaderContactGapIn(data)}in` }}
           >
             {contactItems.map((item, idx) => (
               <React.Fragment key={idx}>
@@ -659,7 +661,7 @@ export default function ClassicTemplate({ data, fontSizes }: ClassicTemplateProp
           </div>
         )}
         {!titleFirst && jobTitleBlock}
-      </div>
+      </header>
 
       {/* Dynamic Sections */}
       {getResolvedSectionOrder(data).map((id) => (

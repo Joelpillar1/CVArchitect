@@ -482,15 +482,16 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
       }}
     >
       {/* Header */}
-      <header className="break-inside-avoid" style={{ marginBottom: headerGap }}>
+      <header className="break-inside-avoid w-full" style={{ marginBottom: headerGap, width: '100%' }}>
         <h1
           data-path="fullName"
-          className={`font-bold tracking-tight leading-none text-gray-900 ${
+          className={`font-bold tracking-tight leading-none text-gray-900 w-full ${
             data.headerAlignment === 'left' ? 'text-left' :
             data.headerAlignment === 'right' ? 'text-right' :
             'text-center'
           }`}
           style={{
+            width: '100%',
             fontSize: `${fontSizes?.header || 24}pt`,
             marginBottom: headerItemGap,
           }}
@@ -502,7 +503,7 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
         {isTitleFirst(data, false) && data.jobTitle && (
           <p
             data-path="jobTitle"
-            className={`tracking-wider font-semibold ${
+            className={`tracking-wider font-semibold w-full ${
               data.jobTitleAlignment === 'left' ? 'text-left' :
               data.jobTitleAlignment === 'right' ? 'text-right' :
               data.jobTitleAlignment === 'center' ? 'text-center' :
@@ -511,6 +512,7 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
               'text-center'
             }`}
             style={{
+              width: '100%',
               fontSize: `${fontSizes?.jobTitle || 11}pt`,
               color: accentColor,
               marginBottom: headerContactGap,
@@ -629,7 +631,7 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
 
           return (
             <div
-              className={`flex flex-wrap items-center ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-600 ${
+              className={`flex flex-wrap items-center w-full mx-auto ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-600 ${
                 data.contactAlignment === 'left' ? 'justify-start text-left' :
                 data.contactAlignment === 'right' ? 'justify-end text-right' :
                 data.contactAlignment === 'center' ? 'justify-center text-center' :
@@ -639,6 +641,7 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
               }`}
               style={{
                 ...bodyStyle,
+                width: '100%',
                 marginBottom: !isTitleFirst(data, false) && data.jobTitle ? headerContactGap : undefined,
               }}
             >
@@ -658,7 +661,7 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
         {!isTitleFirst(data, false) && data.jobTitle && (
           <p
             data-path="jobTitle"
-            className={`tracking-wider font-semibold ${
+            className={`tracking-wider font-semibold w-full ${
               data.jobTitleAlignment === 'left' ? 'text-left' :
               data.jobTitleAlignment === 'right' ? 'text-right' :
               data.jobTitleAlignment === 'center' ? 'text-center' :
@@ -667,6 +670,7 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
               'text-center'
             }`}
             style={{
+              width: '100%',
               fontSize: `${fontSizes?.jobTitle || 11}pt`,
               color: accentColor,
               lineHeight: 1.25,
