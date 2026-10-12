@@ -7,9 +7,10 @@ interface MyCoverLettersProps {
     onViewLetter: (letter: SavedCoverLetter) => void;
     onDeleteLetter: (id: string) => void;
     onCreateNew: () => void;
+    isLoading?: boolean;
 }
 
-export default function MyCoverLetters({ letters, onViewLetter, onDeleteLetter, onCreateNew }: MyCoverLettersProps) {
+export default function MyCoverLetters({ letters, onViewLetter, onDeleteLetter, onCreateNew, isLoading = false }: MyCoverLettersProps) {
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
     const handleDelete = () => {
@@ -41,7 +42,29 @@ export default function MyCoverLetters({ letters, onViewLetter, onDeleteLetter, 
                 </div>
 
                 <div>
-                    {letters.length > 0 ? (
+                    {isLoading ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+                            {[1, 2, 3].map((i) => (
+                                <div key={i} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col pointer-events-none select-none">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="w-10 h-10 rounded-lg skeleton-shimmer" />
+                                        <div className="w-16 h-5 rounded-full skeleton-shimmer" />
+                                    </div>
+                                    <div className="h-5 w-40 rounded skeleton-shimmer mb-2" />
+                                    <div className="h-4 w-28 rounded skeleton-shimmer mb-4" />
+                                    <div className="space-y-2 mb-6">
+                                        <div className="h-3 w-full rounded skeleton-shimmer" />
+                                        <div className="h-3 w-11/12 rounded skeleton-shimmer" />
+                                        <div className="h-3 w-3/4 rounded skeleton-shimmer" />
+                                    </div>
+                                    <div className="pt-4 border-t border-gray-100 flex justify-between items-center">
+                                        <div className="h-4 w-20 rounded skeleton-shimmer" />
+                                        <div className="h-4 w-16 rounded skeleton-shimmer" />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : letters.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
                             {letters.map((letter) => (
                                 <div

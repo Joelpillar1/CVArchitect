@@ -18,8 +18,7 @@
  */
 import React, { useEffect, useState } from 'react';
 import { ResumeData, TemplateType } from '../types';
-import { renderResumeTemplate } from '../components/PrintPortal';
-import { formatSkillCase, getSheetVerticalMarginPx } from '../utils/templateUtils';
+import ResumePreview from '../components/ResumePreview';
 
 declare global {
   interface Window {
@@ -32,17 +31,27 @@ declare global {
 
 /**
  * Wait until everything the PDF depends on has actually landed:
- * 1. `document.fonts.ready` — the #1 cause of a wrong-font PDF is firing before
- *    webfonts finish loading; a fixed sleep cannot guarantee this.
- * 2. every <img> decoded — `decode()` resolves when pixels are available, unlike
- *    the `load` event which can fire before the image is decoded.
- * 3. two animation frames — React's committed DOM has been laid out and painted.
+ * 1. `document.fonts.ready` — webfonts are loaded so measurements are accurate.
+ * 2. `.resume-page-sheet` elements exist and contain measured, rendered content.
+ * 3. every <img> decoded — pixels available for render.
+ * 4. two animation frames — React's committed DOM has been laid out and painted.
  */
 async function waitForFullPaint(): Promise<void> {
   try {
     await document.fonts.ready;
   } catch {
     // Font Loading API unavailable — proceed rather than hang the export.
+  }
+
+  // Poll until .resume-page-sheet elements exist with rendered layout
+  let attempts = 0;
+  while (attempts < 60) {
+    const sheets = document.querySelectorAll<HTMLElement>('.resume-page-sheet');
+    if (sheets.length > 0 && sheets[0].innerHTML.trim().length > 50) {
+      break;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    attempts++;
   }
 
   await Promise.all(
@@ -64,25 +73,21 @@ export default function PrintResumePage() {
     error: string | null;
   }>({ data: null, template: 'vanguard', error: null });
 
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
   useEffect(() => {
     // Apply clean-print body class so global CSS never hides the resume content
     document.body.classList.add('print-resume-mode');
     return () => document.body.classList.remove('print-resume-mode');
   }, []);
 
-  // Per-page margins via CSS @page. Chromium's printToPDF margin fields are
-  // overridden by the global `@page { margin: 0mm }` in index.css, so the user's
-  // margin setting has to travel as a LATER @page rule (document order wins for
-  // equal specificity). This is the per-page twin of the preview sheet's
-  // paddingTop/Bottom.
   useEffect(() => {
-    if (!state.data) return;
-    const style = document.createElement('style');
-    style.id = 'print-resume-page-setup';
-    style.textContent = `@page { margin: ${getSheetVerticalMarginPx(state.data)}px 0; }`;
-    document.head.appendChild(style);
-    return () => style.remove();
-  }, [state.data]);
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(() => setFontsLoaded(true)).catch(() => setFontsLoaded(true));
+    } else {
+      setFontsLoaded(true);
+    }
+  }, []);
 
   useEffect(() => {
     try {
@@ -92,7 +97,9 @@ export default function PrintResumePage() {
         return;
       }
       const parsed = JSON.parse(raw) as { data: ResumeData; template: TemplateType };
-      setState({ data: parsed.data, template: parsed.template || 'vanguard', error: null });
+      const resolvedTemplate = parsed.template || parsed.data?.template || 'vanguard';
+      const dataWithTemplate = parsed.data ? { ...parsed.data, template: resolvedTemplate } : null;
+      setState({ data: dataWithTemplate, template: resolvedTemplate, error: null });
     } catch (e) {
       setState(s => ({ ...s, error: 'Failed to parse resume data.' }));
     }
@@ -106,7 +113,7 @@ export default function PrintResumePage() {
       window.__PRINT_ERROR__ = state.error;
       return;
     }
-    if (!state.data) return;
+    if (!state.data || !fontsLoaded) return;
 
     let cancelled = false;
     waitForFullPaint()
@@ -122,7 +129,7 @@ export default function PrintResumePage() {
     return () => {
       cancelled = true;
     };
-  }, [state.data, state.error]);
+  }, [state.data, state.error, fontsLoaded]);
 
   if (state.error) {
     return (
@@ -132,20 +139,13 @@ export default function PrintResumePage() {
     );
   }
 
-  if (!state.data) {
+  if (!state.data || !fontsLoaded) {
     return (
       <div style={{ padding: '2rem', color: '#666', fontFamily: 'sans-serif' }}>
         Loading resume...
       </div>
     );
   }
-
-  // Same pre-render transforms ResumePreview applies — skills casing, so the
-  // downloaded PDF shows the exact strings the user saw while editing.
-  const skills = state.data.skills
-    ? state.data.skills.split(',').map(s => formatSkillCase(s)).join(', ')
-    : '';
-  const dataToRender: ResumeData = { ...state.data, skills };
 
   return (
     <div
@@ -155,16 +155,14 @@ export default function PrintResumePage() {
         backgroundColor: '#ffffff',
         margin: 0,
         padding: 0,
-        // ── Settings parity with ResumePreview's sheet ──
-        fontFamily: state.data.font || 'Inter, sans-serif',
-        fontSize: `${state.data.fontSizes?.body || 9.5}pt`,
-        lineHeight: state.data.lineHeight || 1.5,
-        whiteSpace: 'pre-line',
-        '--resume-line-height': (state.data.lineHeight || 1.5).toString(),
-        '--resume-bullet-indent': `${state.data.bulletIndent ?? 0}px`,
-      } as React.CSSProperties}
+        width: '100%',
+      }}
     >
-      {renderResumeTemplate(state.template, dataToRender)}
+      <ResumePreview
+        data={state.data}
+        template={state.template}
+        editable={false}
+      />
     </div>
   );
 }

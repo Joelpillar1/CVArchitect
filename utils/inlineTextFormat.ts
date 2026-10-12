@@ -1,11 +1,14 @@
 import type { ResumeData } from '../types';
 import {
   formatDate,
+  formatDateRange,
   formatNameDisplay,
   formatJobTitleDisplay,
   formatContactText,
   formatLocationDisplay,
   formatLinkedInDisplay,
+  formatGitHubDisplay,
+  formatPortfolioDisplay,
   parseDescriptionBullets,
   parseAchievementBullets,
 } from './templateUtils';
@@ -117,6 +120,7 @@ export function isBodyTextField(path: string): boolean {
     /^(?:projects|portfolio|caseStudies|selectedWork)\.\d+\.description(?:\.\d+)?$/.test(path) ||
     /^(?:coursework)\.\d+\.description(?:\.\d+)?$/.test(path) ||
     /^(?:coursework)\.\d+\.skills$/.test(path) ||
+    /^(?:education)\.\d+\.relevantCourses(?:\.\d+)?$/.test(path) ||
     /^(?:keyAchievements|achievements|awards|publications|conferencesSpeaking|academicAchievements)(?:\.\d+)?$/.test(path) ||
     /^customSections\.[^.]+\.content(?:\.\d+)?$/.test(path) ||
     path === 'coursework' ||
@@ -159,6 +163,10 @@ export function buildTextCandidates(data: ResumeData): Candidate[] {
   pushCandidate(out, 'atHandle', data.atHandle, formatContactText(data.atHandle));
   pushCandidate(out, 'address', data.address, formatLocationDisplay(data.address));
   pushCandidate(out, 'linkedin', data.linkedin, formatLinkedInDisplay(data.linkedin));
+  pushCandidate(out, 'github', data.github, formatGitHubDisplay(data.github));
+  if (typeof data.portfolio === 'string') {
+    pushCandidate(out, 'portfolio', data.portfolio, formatPortfolioDisplay(data.portfolio));
+  }
   pushCandidate(out, 'location', data.location, formatLocationDisplay(data.location));
   pushCandidate(out, 'summary', data.summary);
   pushCandidate(out, 'skills', data.skills);
@@ -200,7 +208,8 @@ export function buildTextCandidates(data: ResumeData): Candidate[] {
   ] as const;
 
   expKeys.forEach((key) => {
-    const items = (data[key] as any[]) || [];
+    const rawItems = data[key];
+    const items = Array.isArray(rawItems) ? rawItems : [];
     items.forEach((exp, i) => {
       const base = `${key}.${i}`;
       pushCandidate(out, `${base}.company`, exp.company);
@@ -209,6 +218,10 @@ export function buildTextCandidates(data: ResumeData): Candidate[] {
       pushCandidate(out, `${base}.location`, exp.location);
       pushDate(`${base}.startDate`, exp.startDate);
       pushDate(`${base}.endDate`, exp.endDate);
+      const dateRangeStr = formatDateRange(exp.startDate, exp.endDate);
+      if (dateRangeStr) {
+        pushCandidate(out, `${base}.dates`, dateRangeStr);
+      }
 
       const bullets = parseDescriptionBullets(exp.description);
       bullets.forEach((b: any, j: number) => {
@@ -220,16 +233,34 @@ export function buildTextCandidates(data: ResumeData): Candidate[] {
   });
 
   // 2. Education
-  (data.education || []).forEach((edu, i) => {
+  (Array.isArray(data.education) ? data.education : []).forEach((edu, i) => {
     pushCandidate(out, `education.${i}.school`, edu.school);
     pushCandidate(out, `education.${i}.degree`, edu.degree);
     pushCandidate(out, `education.${i}.year`, edu.year);
+    pushCandidate(out, `education.${i}.gpa`, edu.gpa);
+    pushCandidate(out, `education.${i}.location`, edu.location);
+
+    if (edu.relevantCourses) {
+      const courses = Array.isArray(edu.relevantCourses)
+        ? edu.relevantCourses
+        : typeof edu.relevantCourses === 'string'
+          ? parseDescriptionBullets(edu.relevantCourses)
+          : [];
+      const rawAll = Array.isArray(edu.relevantCourses) ? edu.relevantCourses.join('\n') : String(edu.relevantCourses);
+      pushCandidate(out, `education.${i}.relevantCourses`, rawAll);
+      courses.forEach((c: any, j: number) => {
+        const raw = String(c || '');
+        const cleaned = raw.replace(/^[•·\-*]\s*/, '').replace(/^(?:Relevant\s+Coursework|Relevant\s+Courses?):\s*/i, '');
+        pushCandidate(out, `education.${i}.relevantCourses.${j}`, raw, cleaned !== raw ? cleaned : undefined);
+      });
+    }
   });
 
   // 3. Certifications-like sections
   const certKeys = ['certifications', 'licenses', 'patents', 'grants', 'memberships'] as const;
   certKeys.forEach((key) => {
-    const items = (data[key] as any[]) || [];
+    const rawItems = data[key];
+    const items = Array.isArray(rawItems) ? rawItems : [];
     items.forEach((cert, i) => {
       pushCandidate(out, `${key}.${i}.name`, cert.name);
       pushCandidate(out, `${key}.${i}.issuer`, cert.issuer);
@@ -238,9 +269,10 @@ export function buildTextCandidates(data: ResumeData): Candidate[] {
   });
 
   // 4. Projects-like sections
-  const projKeys = ['projects', 'portfolio', 'caseStudies', 'selectedWork'] as const;
+  const projKeys = ['projects', 'caseStudies', 'selectedWork'] as const;
   projKeys.forEach((key) => {
-    const items = (data[key] as any[]) || [];
+    const rawItems = data[key];
+    const items = Array.isArray(rawItems) ? rawItems : [];
     items.forEach((p, i) => {
       const base = `${key}.${i}`;
       pushCandidate(out, `${base}.name`, p.name);
@@ -255,6 +287,23 @@ export function buildTextCandidates(data: ResumeData): Candidate[] {
       });
     });
   });
+
+  // 4b. Portfolio items if array of projects
+  if (Array.isArray(data.portfolio)) {
+    data.portfolio.forEach((p, i) => {
+      const base = `portfolio.${i}`;
+      pushCandidate(out, `${base}.name`, p.name);
+      pushCandidate(out, `${base}.technologies`, p.technologies);
+      pushCandidate(out, `${base}.link`, p.link);
+
+      const bullets = parseDescriptionBullets(p.description);
+      bullets.forEach((b: any, j: number) => {
+        const raw = String(b || '');
+        const cleaned = raw.replace(/^[•·\-*]\s*/, '');
+        pushCandidate(out, `${base}.description.${j}`, raw, cleaned !== raw ? cleaned : undefined);
+      });
+    });
+  }
 
   // 5. Bullet-list sections
   const bulletKeys = [
@@ -276,13 +325,13 @@ export function buildTextCandidates(data: ResumeData): Candidate[] {
   });
 
   // 6. Additional Info
-  (data.additionalInfo || []).forEach((info, i) => {
+  (Array.isArray(data.additionalInfo) ? data.additionalInfo : []).forEach((info, i) => {
     pushCandidate(out, `additionalInfo.${i}.label`, info.label);
     pushCandidate(out, `additionalInfo.${i}.value`, info.value);
   });
 
   // 7. Languages
-  (data.languages || []).forEach((lang, i) => {
+  (Array.isArray(data.languages) ? data.languages : []).forEach((lang, i) => {
     pushCandidate(out, `languages.${i}.language`, lang.language);
     pushCandidate(out, `languages.${i}.proficiency`, lang.proficiency);
   });
@@ -341,9 +390,8 @@ export function applyPlainEdit(stored: string, oldPlain: string, newPlain: strin
   while (pre > 0 && !/\s/.test(oldPlain[pre - 1])) pre--;
   let b = oldPlain.length - suf;
   while (b < oldPlain.length && !/\s/.test(oldPlain[b])) b++;
-  // The edited region has the same length delta as the whole strings, so the new
-  // region starts at `pre` and spans (b - pre) + (newPlain.length - oldPlain.length).
-  const newMiddle = newPlain.slice(pre, pre + (b - pre) + (newPlain.length - oldPlain.length));
+  const spanLen = Math.max(0, (b - pre) + (newPlain.length - oldPlain.length));
+  const newMiddle = newPlain.slice(pre, pre + spanLen);
 
   if (!/<[^>]+>/.test(stored)) {
     return newPlain;

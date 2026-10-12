@@ -9,6 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { coverLetterService, SavedCoverLetter } from '../services/coverLetterService';
 import { exportElementToPdf, exportCoverLetterToPdf, sanitizeFilename } from '../utils/pdfExport';
+import { Loader } from './ui/Loader';
 
 interface CoverLetterModalProps {
     isOpen: boolean;
@@ -242,12 +243,7 @@ export default function CoverLetterModal({ isOpen, onClose, resumeData, onDeduct
 
                     {step === 'generating' && (
                         <div className="flex flex-col items-center justify-center py-12 animate-fadeIn space-y-4 h-full bg-white">
-                            <div className="relative">
-                                <div className="w-16 h-16 border-4 border-gray-100 border-t-brand-green rounded-full animate-spin"></div>
-                                <div className="absolute inset-0 flex items-center justify-center text-brand-green">
-                                    <Sparkles size={24} className="animate-pulse" />
-                                </div>
-                            </div>
+                            <Loader size="xl" />
                             <h3 className="text-lg font-bold text-brand-dark">Crafting your letter...</h3>
                             <p className="text-gray-500 text-sm">Analyzing your resume against the job description.</p>
                         </div>
@@ -494,7 +490,7 @@ export default function CoverLetterModal({ isOpen, onClose, resumeData, onDeduct
                                 disabled={isExporting}
                                 className="flex items-center gap-2 px-6 py-2 text-sm font-bold text-white bg-brand-dark hover:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
                             >
-                                {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+                                {isExporting ? <Loader size="xs" variant="light" /> : <Download size={16} />}
                                 {isExporting ? 'Downloading...' : 'Download PDF'}
                             </button>
                         </>

@@ -15,6 +15,10 @@ import {
   formatContactText, formatLocationDisplay,
   formatLinkedInDisplay,
   getLinkedInHref,
+  formatGitHubDisplay,
+  getGitHubHref,
+  formatPortfolioDisplay,
+  getPortfolioHref,
   formatNameDisplay,
   formatJobTitleDisplay,
   formatSectionTitle,
@@ -27,7 +31,7 @@ import {
 import { resolveSection, getResolvedSectionOrder } from '../../utils/sectionRegistry';
 import type { CustomSectionData } from '../../types/resumeSections';
 import { getTranslation, Language } from '../../i18n/translations';
-import { Phone, Mail, MapPin, Linkedin, Send } from 'lucide-react';
+import { Phone, Mail, MapPin, Linkedin, Send, Github, Globe } from 'lucide-react';
 
 const formatMonthYear = (dateString: string | null | undefined) => {
   return formatMonthYearUtil(dateString, 'short');
@@ -234,6 +238,28 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
                     <RichText text={edu.year} />
                   </div>
                 )}
+                {(() => {
+                  const courseItems = (Array.isArray(edu.relevantCourses)
+                    ? edu.relevantCourses
+                    : typeof edu.relevantCourses === 'string'
+                      ? edu.relevantCourses.split('\n')
+                      : []
+                  )
+                    .map(c => c.replace(/^[•\-\*]\s*/, '').replace(/^(?:Relevant\s+Coursework|Relevant\s+Courses?):\s*/i, '').trim())
+                    .filter(Boolean);
+
+                  if (courseItems.length === 0) return null;
+
+                  return (
+                    <ul className="list-disc list-outside ml-5 mt-1 text-gray-700" style={bodyStyle}>
+                      {courseItems.map((item, i) => (
+                        <li key={i} data-path={`${basePath}.${index}.relevantCourses.${i}`} className="mb-0.5">
+                          <RichText text={item} />
+                        </li>
+                      ))}
+                    </ul>
+                  );
+                })()}
               </div>
             );
           })}
@@ -546,6 +572,34 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
                 className="text-gray-900 no-underline break-all"
               >
                 <RichText text={formatLinkedInDisplay(data.linkedin)} />
+              </a>
+            </span>
+          );
+          if (data.github) items.push(
+            <span key="github" className="inline-flex items-center gap-1">
+              {showIcons && <Github size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
+              <a
+                data-path="github"
+                href={getGitHubHref(data.github)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-900 underline break-all"
+              >
+                <RichText text={formatGitHubDisplay(data.github)} />
+              </a>
+            </span>
+          );
+          if (data.portfolio) items.push(
+            <span key="portfolio" className="inline-flex items-center gap-1">
+              {showIcons && <Globe size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
+              <a
+                data-path="portfolio"
+                href={getPortfolioHref(data.portfolio)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-900 underline break-all"
+              >
+                <RichText text={formatPortfolioDisplay(data.portfolio)} />
               </a>
             </span>
           );

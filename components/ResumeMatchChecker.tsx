@@ -4,6 +4,7 @@ import { Check, X, ArrowRight, Zap, Target, FileSearch, Sparkles, Layout, Trophy
 import SEO from './SEO';
 import PublicFooter from './PublicFooter';
 import PublicHeader from './PublicHeader';
+import { Loader } from './ui/Loader';
 
 import { ATSEngine } from '../utils/ats-engine/engine';
 import taxonomyData from '../Bullets/ats_keyword_dataset_10k_plus.json';
@@ -142,9 +143,8 @@ export default function ResumeMatchChecker() {
                             <div className="absolute top-0 left-0 h-1 bg-brand-green transition-all duration-500 shadow-[0_0_15px_rgba(112,224,152,0.8)]" style={{ width: `${((loadingStep + 1) / LOADING_STEPS.length) * 100}%` }}></div>
                             
                             <div className="flex flex-col items-center gap-6 py-6">
-                                <div className="relative">
-                                    <div className="w-20 h-20 border-4 border-brand-green/20 border-t-brand-green rounded-full animate-spin"></div>
-                                    <Sparkles size={32} className="absolute inset-0 m-auto text-brand-green animate-pulse" />
+                                <div className="relative flex items-center justify-center p-2">
+                                    <Loader size="xl" />
                                 </div>
                                 
                                 <div className="space-y-2">
@@ -180,13 +180,13 @@ export default function ResumeMatchChecker() {
                     <button 
                         onClick={calculateScore}
                         disabled={!resume || !jobDesc || isLoading}
-                        className="group relative px-10 py-5 bg-brand-dark text-white rounded-full font-bold text-lg shadow-float disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden transition-all hover:scale-105 active:scale-95"
+                        className="group relative px-10 py-5 bg-brand-dark text-white rounded-lg font-bold text-lg shadow-float disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden transition-all hover:scale-105 active:scale-95 cursor-pointer"
                     >
                         <span className="relative z-10 flex items-center gap-3">
                             {isLoading ? (
                                 <>
-                                    Analyzing...
-                                    <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                                    <span>Analyzing...</span>
+                                    <Loader size="xs" variant="light" />
                                 </>
                             ) : (
                                 <>

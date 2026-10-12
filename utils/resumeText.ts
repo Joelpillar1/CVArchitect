@@ -47,7 +47,7 @@ export function serializeResumeToText(resume: ResumeData): string {
 
   // Education
   for (const e of resume.education ?? []) {
-    push([e.degree, e.school, e.relevantCourses].filter(Boolean).join(' — '));
+    push([e.degree, e.school, Array.isArray(e.relevantCourses) ? e.relevantCourses.join(', ') : e.relevantCourses].filter(Boolean).join(' — '));
   }
 
   // Certifications

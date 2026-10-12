@@ -19,6 +19,8 @@ import ElegantTemplate from './templates/ElegantTemplate';
 import MinimalistTemplate from './templates/MinimalistTemplate';
 import ProfessionalTemplate from './templates/ProfessionalTemplate';
 import TimesTemplate from './templates/TimesTemplate';
+import JakeTemplate from './templates/JakeTemplate';
+import AnalystTemplate from './templates/AnalystTemplate';
 import RegentTemplate from './templates/RegentTemplate';
 import TwoColumnTemplate from './templates/TwoColumnTemplate';
 import FreshGradTemplate from './templates/FreshGradTemplate';
@@ -55,6 +57,8 @@ interface ResumePreviewProps {
    * ResumeData in place (no modal).
    */
   onDomBlur?: (sheet: HTMLElement) => void;
+  /** Fires when a page sheet receives focus to hold DOM updates during typing */
+  onDomFocus?: (sheet: HTMLElement) => void;
   /** Fires on contentEditable input so the caller can debounce a live write-back. */
   onDomInput?: (sheet: HTMLElement) => void;
   /**
@@ -107,7 +111,7 @@ const nextSkillCell = (current: HTMLElement, direction: 1 | -1): HTMLElement | n
   return idx > 0 ? cells[idx - 1] : null;
 };
 
-export default function ResumePreview({ data, template, onChangeData, editable = true, onDomBlur, onDomInput, editHold = false, onSheetsReinjected, onBulletEnter, onBulletBackspace, onSkillEnter, onSkillBackspace }: ResumePreviewProps) {
+export default function ResumePreview({ data, template, onChangeData, editable = true, onDomBlur, onDomFocus, onDomInput, editHold = false, onSheetsReinjected, onBulletEnter, onBulletBackspace, onSkillEnter, onSkillBackspace }: ResumePreviewProps) {
   // Skills are formatted by the shared formatSkillCase in utils/templateUtils so
   // the preview and the server-side export render them identically.
   const formattedSkills = data.skills
@@ -316,7 +320,13 @@ export default function ResumePreview({ data, template, onChangeData, editable =
         const headerElement = subHeader ? children.find((c) => c === subHeader || c.contains(subHeader)) : null;
         let items = children.filter((c) => c !== headerElement);
 
-        const isSkillsSection = sec.className.includes('skills') || (subHeader && subHeader.textContent?.toLowerCase().includes('skills'));
+        const isSkillsSection =
+          sec.className.includes('skills') ||
+          sec.className.includes('competenc') ||
+          (subHeader && (
+            subHeader.textContent?.toLowerCase().includes('skills') ||
+            subHeader.textContent?.toLowerCase().includes('competenc')
+          ));
 
         // If items are wrapped in a single container div, unpack it (but not if it's the skills section or layout grid)
         if (
@@ -778,6 +788,15 @@ export default function ResumePreview({ data, template, onChangeData, editable =
 
   const handleBlur = (e: React.FocusEvent<HTMLDivElement>) => {
     if (!editable) return;
+    // If focus is shifting to another element inside this sheet or another sheet in the resume preview,
+    // do NOT treat it as a blur.
+    if (
+      e.relatedTarget &&
+      (e.currentTarget.contains(e.relatedTarget as Node) ||
+        (e.relatedTarget as HTMLElement).closest?.('.resume-page-sheet'))
+    ) {
+      return;
+    }
     if (onDomBlur) {
       onDomBlur(e.currentTarget);
       return;
@@ -820,7 +839,8 @@ export default function ResumePreview({ data, template, onChangeData, editable =
 
   const renderTemplate = (renderData: ResumeData = dataToRender) => {
     try {
-      switch (template) {
+      const activeTemplate = template || renderData?.template || data?.template || 'vanguard';
+      switch (activeTemplate) {
         case 'vanguard': return <VanguardTemplate data={renderData} />;
         case 'elevate': return <ElevateResume data={renderData} />;
         case 'prime': return <PrimeProfile data={renderData} />;
@@ -840,6 +860,8 @@ export default function ResumePreview({ data, template, onChangeData, editable =
         case 'minimalist': return <MinimalistTemplate data={renderData} />;
         case 'professional': return <ProfessionalTemplate data={renderData} />;
         case 'times': return <TimesTemplate data={renderData} />;
+        case 'jake': return <JakeTemplate data={renderData} />;
+        case 'gaurav': return <AnalystTemplate data={renderData} />;
         case 'regent': return <RegentTemplate data={renderData} />;
         case 'twocolumn': return <TwoColumnTemplate data={renderData} />;
         case 'freshgrad1':
@@ -891,12 +913,13 @@ export default function ResumePreview({ data, template, onChangeData, editable =
 
       {/* Multi-Page Sheets View: Physical Pages with Fixed Dimensions & Workspace Gaps */}
       {activePages.length > 0 ? (
-        <div className="flex flex-col items-center w-full space-y-8">
+        <div className="flex flex-col items-center w-full space-y-8 print:space-y-0">
           {activePages.map((htmlString, index) => (
             <div
               key={index}
               contentEditable={editable}
               suppressContentEditableWarning={true}
+              onFocus={onDomFocus ? (e) => onDomFocus(e.currentTarget) : undefined}
               onBlur={handleBlur}
               onInput={onDomInput ? (e) => onDomInput(e.currentTarget) : undefined}
               onKeyDown={handleSheetKeyDown}
@@ -933,6 +956,7 @@ export default function ResumePreview({ data, template, onChangeData, editable =
         <div
           contentEditable={editable}
           suppressContentEditableWarning={true}
+          onFocus={onDomFocus ? (e) => onDomFocus(e.currentTarget) : undefined}
           onBlur={handleBlur}
           onInput={onDomInput ? (e) => onDomInput(e.currentTarget) : undefined}
           onKeyDown={handleSheetKeyDown}

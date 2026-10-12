@@ -17,6 +17,7 @@ import {
   SPRING_SWAP,
 } from "../../lib/ease";
 import { cn } from "../../lib/utils";
+import { Loader } from "../ui/Loader";
 
 export type TodoItemStatus =
   | "pending"
@@ -110,31 +111,9 @@ function TodoStatusIcon({
 }) {
   if (status === "in-progress") {
     return (
-      <svg
-        aria-hidden="true"
-        viewBox="0 0 24 24"
-        className="mx-0.5 size-4 shrink-0 animate-spin text-brand-dark overflow-visible"
-      >
-        <circle
-          cx="12"
-          cy="12"
-          r="9"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeOpacity="0.2"
-        />
-        <circle
-          cx="12"
-          cy="12"
-          r="9"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.2"
-          strokeDasharray="20 40"
-          strokeLinecap="round"
-        />
-      </svg>
+      <span className="mx-0.5 size-4 shrink-0 flex items-center justify-center">
+        <Loader size="xs" variant="default" />
+      </span>
     );
   }
 

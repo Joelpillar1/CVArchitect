@@ -106,7 +106,7 @@ export default function PublicHeader({ variant = 'default' }: PublicHeaderProps)
                         {isFloating && (
                             <button
                                 onClick={handleGoogleSignIn}
-                                className="flex items-center gap-2 rounded-xl border border-brand-border bg-white px-3 py-2.5 text-sm font-semibold text-brand-dark transition-colors hover:bg-brand-secondary whitespace-nowrap"
+                                className="flex items-center gap-2 rounded-lg border border-brand-border bg-white px-3 py-2.5 text-sm font-semibold text-brand-dark transition-colors hover:bg-brand-secondary whitespace-nowrap"
                             >
                                 <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24">
                                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -122,7 +122,7 @@ export default function PublicHeader({ variant = 'default' }: PublicHeaderProps)
                             whileHover={{ scale: 1.03 }}
                             whileTap={{ scale: 0.97 }}
                             onClick={handleGetStarted}
-                            className="rounded-xl bg-brand-green px-4 py-2.5 text-sm font-bold text-brand-dark shadow-sm transition-colors hover:bg-brand-greenHover whitespace-nowrap"
+                            className="rounded-lg bg-brand-green px-4 py-2.5 text-sm font-bold text-brand-dark shadow-sm transition-colors hover:bg-brand-greenHover whitespace-nowrap"
                         >
                             {isFloating ? 'Try it free →' : 'Get Started'}
                         </motion.button>
@@ -188,7 +188,7 @@ export default function PublicHeader({ variant = 'default' }: PublicHeaderProps)
                                         {user ? (
                                             <button
                                                 onClick={handleGetStarted}
-                                                className="w-full rounded-xl bg-brand-green py-3 font-bold text-brand-dark shadow-sm"
+                                                className="w-full rounded-lg bg-brand-green py-3 font-bold text-brand-dark shadow-sm"
                                             >
                                                 Go to Dashboard
                                             </button>
@@ -196,13 +196,13 @@ export default function PublicHeader({ variant = 'default' }: PublicHeaderProps)
                                             <>
                                                 <button
                                                     onClick={handleGoogleSignIn}
-                                                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-border py-3 font-semibold text-brand-dark hover:bg-brand-secondary"
+                                                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-brand-border py-3 font-semibold text-brand-dark hover:bg-brand-secondary"
                                                 >
                                                     Join with Google
                                                 </button>
                                                 <button
                                                     onClick={handleGetStarted}
-                                                    className="w-full rounded-xl bg-brand-green py-3 font-bold text-brand-dark shadow-sm hover:bg-brand-greenHover"
+                                                    className="w-full rounded-lg bg-brand-green py-3 font-bold text-brand-dark shadow-sm hover:bg-brand-greenHover"
                                                 >
                                                     Try it free →
                                                 </button>
@@ -255,7 +255,7 @@ export default function PublicHeader({ variant = 'default' }: PublicHeaderProps)
                             {!user && (
                                 <button
                                     onClick={() => handleNavigation('/login')}
-                                    className="w-full rounded-xl bg-brand-dark hover:bg-brand-dark/90 text-white font-bold text-sm py-3 shadow-sm transition-colors"
+                                    className="w-full rounded-lg bg-brand-dark hover:bg-brand-dark/90 text-white font-bold text-sm py-3 shadow-sm transition-colors"
                                 >
                                     Log in
                                 </button>
@@ -273,7 +273,7 @@ export default function PublicHeader({ variant = 'default' }: PublicHeaderProps)
                                     <>
                                         <button
                                             onClick={handleGoogleSignIn}
-                                            className="w-full flex items-center justify-center gap-2 border border-brand-border text-brand-dark py-3 rounded-xl font-semibold hover:bg-brand-secondary"
+                                            className="w-full flex items-center justify-center gap-2 border border-brand-border text-brand-dark py-3 rounded-lg font-semibold hover:bg-brand-secondary"
                                         >
                                             <svg className="h-4 w-4" viewBox="0 0 24 24">
                                                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -285,7 +285,7 @@ export default function PublicHeader({ variant = 'default' }: PublicHeaderProps)
                                         </button>
                                         <button
                                             onClick={handleGetStarted}
-                                            className="w-full bg-brand-green text-brand-dark py-3 rounded-xl font-bold shadow-sm hover:bg-brand-greenHover"
+                                            className="w-full bg-brand-green text-brand-dark py-3 rounded-lg font-bold shadow-sm hover:bg-brand-greenHover"
                                         >
                                             Try it free →
                                         </button>

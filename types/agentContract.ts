@@ -268,7 +268,7 @@ export const EducationSchema = z.object({
   year: z.string().default(''),
   gpa: z.string().optional(),
   honors: z.string().optional(),
-  relevantCourses: z.string().optional(),
+  relevantCourses: z.union([z.string(), z.array(z.string())]).optional(),
   location: z.string().optional(),
 });
 

@@ -149,7 +149,7 @@ export default async function handler(req: IncomingMessage & { body?: unknown },
     }, exportPayload);
 
     // Reload so the React component picks up the sessionStorage data
-    await page.reload({ waitUntil: ['domcontentloaded', 'networkidle0'], timeout: 30000 });
+    await page.reload({ waitUntil: 'domcontentloaded', timeout: 15000 });
 
     // Wait until the page signals it is fully painted (fonts + images + layout)
     // OR reports that it cannot render. Timeout after 20 seconds just in case.

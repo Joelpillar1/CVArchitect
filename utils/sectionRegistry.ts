@@ -502,6 +502,8 @@ export function getSectionContent(data: ResumeData, type: ResumeSectionType, cus
         email: data.email,
         phone: data.phone,
         linkedin: data.linkedin,
+        github: data.github,
+        portfolio: data.portfolio,
         location: data.location,
         address: data.address,
         atHandle: data.atHandle,
@@ -601,7 +603,9 @@ export function hasSectionContent(data: ResumeData, type: ResumeSectionType, cus
         data.phone?.trim() ||
         data.location?.trim() ||
         data.address?.trim() ||
-        data.linkedin?.trim()
+        data.linkedin?.trim() ||
+        data.github?.trim() ||
+        (typeof data.portfolio === 'string' && data.portfolio.trim())
       );
     }
     case 'summary':
@@ -633,11 +637,7 @@ export function hasSectionContent(data: ResumeData, type: ResumeSectionType, cus
       return typeof val === 'string' && val.trim().length > 0;
     }
     case 'expert_skills': {
-      const val = getSectionContent(data, type) as ExpertSkillItem[] | string | undefined;
-      if (Array.isArray(val)) {
-        return val.some((item) => Boolean(item?.category?.trim() || item?.skills?.trim()));
-      }
-      return typeof val === 'string' && val.trim().length > 0;
+      return false;
     }
     case 'experience':
     case 'leadership':
@@ -726,7 +726,7 @@ export function isSectionVisible(data: ResumeData, id: string): boolean {
 
   const isCustom = id.startsWith('custom_') || id === 'custom';
   const type = isCustom ? 'custom' : normalizeSectionType(id);
-  if (!type) return false;
+  if (!type || type === 'expert_skills') return false;
 
   const def = SECTION_REGISTRY[type];
 
@@ -754,6 +754,52 @@ export function isSectionVisible(data: ResumeData, id: string): boolean {
 }
 
 /**
+ * Sections hidden by default for specific templates — the template's source
+ * document doesn't include them, but users can still add them explicitly
+ * (Add Section and visibility toggles write sectionVisibility[id] = true).
+ */
+export const TEMPLATE_HIDDEN_SECTION_TYPES: Record<string, string[]> = {
+  jake: ['summary', 'achievements', 'certifications', 'additional_information', 'references', 'leadership'],
+  // The Gaurav source resume shows Summary / Core Skills / Experience /
+  // Education / Certification only — its project entries live nested under
+  // experience, so the top-level Projects section stays hidden by default too.
+  gaurav: ['achievements', 'leadership', 'projects', 'additional_information', 'references'],
+  rezi: [
+    'summary',
+    'projects',
+    'certifications',
+    'achievements',
+    'additional_information',
+    'references',
+    'coursework',
+    'languages',
+    'volunteering',
+    'awards',
+    'publications',
+  ],
+};
+
+/**
+ * Whether `sectionKey` is hidden by default on `templateId` and has not been
+ * explicitly opted in via sectionVisibility (checks both the raw key and its
+ * canonical type, mirroring isSectionVisible's precedence rules).
+ */
+export function isSectionHiddenByTemplateDefault(
+  templateId: string | undefined,
+  sectionKey: string,
+  sectionVisibility?: Record<string, boolean>
+): boolean {
+  if (!templateId || !sectionKey) return false;
+  const hidden = TEMPLATE_HIDDEN_SECTION_TYPES[templateId];
+  if (!hidden) return false;
+  const type = normalizeSectionType(sectionKey) || sectionKey;
+  if (!hidden.includes(type)) return false;
+  if (sectionVisibility && sectionVisibility[sectionKey] === true) return false;
+  if (sectionVisibility && sectionVisibility[type] === true) return false;
+  return true;
+}
+
+/**
  * Resolves the complete, ordered list of section IDs to render for a given document.
  * Preserves the exact user-specified sequence in `sectionOrder`, and dynamically
  * includes any populated sections that have not been explicitly hidden.
@@ -765,7 +811,8 @@ export function getResolvedSectionOrder(data: ResumeData): string[] {
     ? data.sectionOrder
     : createDefaultSectionOrder();
 
-  const normalizedBase = Array.from(new Set(baseOrder.map((s) => normalizeSectionType(s) || s)));
+  const normalizedBase = Array.from(new Set(baseOrder.map((s) => normalizeSectionType(s) || s)))
+    .filter((s) => s !== 'expert_skills' && s !== 'expertSkills');
 
   // Discover any non-core or optional sections in data that contain content
   const allRegisteredTypes = Object.keys(SECTION_REGISTRY) as ResumeSectionType[];
@@ -844,7 +891,7 @@ export function resolveSection(data: ResumeData, id: string): ResolvedSection | 
   const isCustom = id.startsWith('custom_') || id === 'custom';
   const type = isCustom ? 'custom' : normalizeSectionType(id);
 
-  if (!type) return null;
+  if (!type || type === 'expert_skills') return null;
 
   const def = SECTION_REGISTRY[type];
   if (!def) return null;

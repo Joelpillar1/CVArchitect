@@ -6,13 +6,14 @@ import {
     formatPlanPrice,
     isPaidPlan,
 } from '../utils/pricingConfig';
-import { upgradeToPlan } from '../services/dodoPaymentsService';
+import { upgradeToPlan } from '../services/creemPaymentsService';
 import { setPendingCheckoutPlan } from '../utils/pendingCheckout';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { useNavigate } from 'react-router-dom';
 import { subscriptionService } from '../services/subscriptionService';
 import PricingSection from './ui/pricing';
+import LifetimeUpgradeModal from './LifetimeUpgradeModal';
 
 type ComparisonCellType = 'check' | 'dash' | 'text';
 interface ComparisonCell {
@@ -98,6 +99,7 @@ export default function PricingPlans({ onFreeClick, compact = false, showLifetim
     const [loadingPlanId, setLoadingPlanId] = useState<PlanId | null>(null);
     const [subscription, setSubscription] = useState<UserSubscription | null>(null);
     const [showComparison, setShowComparison] = useState(false);
+    const [showLifetimeConfirm, setShowLifetimeConfirm] = useState(false);
 
     const activeDisplayPlans = showLifetime
         ? ALL_DISPLAY_PLANS
@@ -121,8 +123,47 @@ export default function PricingPlans({ onFreeClick, compact = false, showLifetim
         };
     }, [user]);
 
-    const currentPlanId = subscription ? normalizePlanIdForPicker(subscription.planId) : 'free';
+    const currentPlanId = user ? (subscription ? normalizePlanIdForPicker(subscription.planId) : 'free') : null;
     const isPaidSubscriber = subscription ? isPaidPlan(subscription.planId) : false;
+
+    const executeUpgrade = async (planId: PlanId) => {
+        setLoadingPlanId(planId);
+        try {
+            if (isPaidSubscriber) {
+                const result = await upgradeToPlan(planId, {
+                    hasDodoSubscription: Boolean(subscription?.dodoSubscriptionId),
+                });
+
+                if (!result.usedCheckout) {
+                    showToast(
+                        result.scheduled
+                            ? result.message || 'Plan change scheduled for your next billing date.'
+                            : result.message || 'Plan updated successfully.',
+                        'success'
+                    );
+                    const refreshed = await subscriptionService.getSubscription(user!.id);
+                    if (refreshed) setSubscription(refreshed);
+                    setLoadingPlanId(null);
+                    setShowLifetimeConfirm(false);
+                }
+                return;
+            }
+
+            const result = await upgradeToPlan(planId, { hasDodoSubscription: false });
+            if (!result.usedCheckout) {
+                setLoadingPlanId(null);
+                setShowLifetimeConfirm(false);
+            }
+        } catch (error) {
+            console.error('Checkout failed:', error);
+            showToast(
+                error instanceof Error ? error.message : 'Failed to start checkout. Please try again.',
+                'error'
+            );
+            setLoadingPlanId(null);
+            setShowLifetimeConfirm(false);
+        }
+    };
 
     const handlePlanAction = async (planId: PlanId) => {
         if (planId === 'free') {
@@ -142,39 +183,13 @@ export default function PricingPlans({ onFreeClick, compact = false, showLifetim
             return;
         }
 
-        setLoadingPlanId(planId);
-        try {
-            if (isPaidSubscriber) {
-                const result = await upgradeToPlan(planId, {
-                    hasDodoSubscription: Boolean(subscription?.dodoSubscriptionId),
-                });
-
-                if (!result.usedCheckout) {
-                    showToast(
-                        result.scheduled
-                            ? result.message || 'Plan change scheduled for your next billing date.'
-                            : result.message || 'Plan updated successfully.',
-                        'success'
-                    );
-                    const refreshed = await subscriptionService.getSubscription(user.id);
-                    if (refreshed) setSubscription(refreshed);
-                    setLoadingPlanId(null);
-                }
-                return;
-            }
-
-            const result = await upgradeToPlan(planId, { hasDodoSubscription: false });
-            if (!result.usedCheckout) {
-                setLoadingPlanId(null);
-            }
-        } catch (error) {
-            console.error('Checkout failed:', error);
-            showToast(
-                error instanceof Error ? error.message : 'Failed to start checkout. Please try again.',
-                'error'
-            );
-            setLoadingPlanId(null);
+        // Intercept when user on Build clicks Lifetime to confirm the switch
+        if (currentPlanId === 'build' && planId === 'lifetime') {
+            setShowLifetimeConfirm(true);
+            return;
         }
+
+        await executeUpgrade(planId);
     };
 
     return (
@@ -184,6 +199,7 @@ export default function PricingPlans({ onFreeClick, compact = false, showLifetim
                 onSelectPlan={handlePlanAction}
                 loadingPlanId={loadingPlanId}
                 currentPlanId={currentPlanId}
+                isLoggedIn={Boolean(user)}
                 isPaidSubscriber={isPaidSubscriber}
                 compact={compact}
                 showLifetime={showLifetime}
@@ -261,6 +277,14 @@ export default function PricingPlans({ onFreeClick, compact = false, showLifetim
                     </div>
                 </div>
             )}
+
+            {/* Confirmation card when upgrading from Build to Lifetime */}
+            <LifetimeUpgradeModal
+                isOpen={showLifetimeConfirm}
+                onClose={() => setShowLifetimeConfirm(false)}
+                onConfirm={() => executeUpgrade('lifetime')}
+                isLoading={loadingPlanId === 'lifetime'}
+            />
         </div>
     );
 }

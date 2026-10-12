@@ -1,7 +1,7 @@
 import React from 'react';
 import RichText from '../RichText';
 import { ResumeData, Experience, Education, Project, Certification, LanguageItem, AdditionalInfoItem, CourseworkItem } from '../../types';
-import { MapPin, Phone, Mail, Linkedin, Send } from 'lucide-react';
+import { MapPin, Phone, Mail, Linkedin, Send, Github, Globe } from 'lucide-react';
 import {
   parseDescriptionBullets,
   formatDate as formatDateUtil,
@@ -15,6 +15,10 @@ import {
   formatContactText, formatLocationDisplay,
   formatLinkedInDisplay,
   getLinkedInHref,
+  formatGitHubDisplay,
+  getGitHubHref,
+  formatPortfolioDisplay,
+  getPortfolioHref,
   formatNameDisplay,
   CONTACT_SEPARATOR,
   formatJobTitleDisplay,
@@ -42,10 +46,13 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
     lineHeight: data.lineHeight || 1.5,
   };
   const getSectionHeaderAlignment = () => {
-    const align = data.bodyHeaderAlignment || data.sectionHeaderAlignment || 'left';
-    if (align === 'center') return 'text-center';
+    const align =
+      data.sectionHeaderAlignment ||
+      (data.bodyHeaderAlignment && data.bodyHeaderAlignment !== 'left' ? data.bodyHeaderAlignment : undefined) ||
+      'center';
+    if (align === 'left') return 'text-left';
     if (align === 'right') return 'text-right';
-    return 'text-left';
+    return 'text-center';
   };
   const accentColor = data.accentColor || '#374151';
   const sectionGap = `${getSectionGapIn(data)}in`;
@@ -54,7 +61,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
   const headerContactGap = `${getHeaderContactGapIn(data)}in`;
 
   const renderSectionHeader = (title: string) => (
-    <div className="w-full py-1 px-3 mt-0 mb-2 bg-gray-100 break-inside-avoid rounded-sm box-border">
+    <div className={`w-full py-1 px-3 mt-0 mb-2 bg-gray-100 break-inside-avoid rounded-sm box-border ${getSectionHeaderAlignment()}`}>
       <h2
         className={`section-header tracking-widest font-bold leading-tight ${getSectionHeaderAlignment()}`}
         style={{
@@ -75,14 +82,14 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
     data.headerAlignment === 'center'
       ? 'justify-center'
       : data.headerAlignment === 'right'
-      ? 'justify-end'
-      : 'justify-start';
+        ? 'justify-end'
+        : 'justify-start';
   const textAlignment =
     data.headerAlignment === 'center'
       ? 'text-center'
       : data.headerAlignment === 'right'
-      ? 'text-right'
-      : 'text-left';
+        ? 'text-right'
+        : 'text-left';
 
   const renderTextBlock = (title: string, text: string, path: string = 'summary') => {
     if (!text || !text.trim()) return null;
@@ -480,11 +487,10 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
       <header className="break-inside-avoid" style={{ marginBottom: headerGap }}>
         <h1
           data-path="fullName"
-          className={`font-bold tracking-wider ${
-            data.headerAlignment === 'left' ? 'text-left' :
-            data.headerAlignment === 'right' ? 'text-right' :
-            'text-center'
-          }`}
+          className={`font-bold tracking-wider ${data.headerAlignment === 'left' ? 'text-left' :
+              data.headerAlignment === 'right' ? 'text-right' :
+                'text-center'
+            }`}
           style={{
             fontSize: `${fontSizes?.header || 18}pt`,
             marginBottom: headerItemGap,
@@ -499,14 +505,13 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
         {isTitleFirst(data, false) && data.jobTitle && (
           <p
             data-path="jobTitle"
-            className={`tracking-wider ${
-              data.jobTitleAlignment === 'left' ? 'text-left' :
-              data.jobTitleAlignment === 'right' ? 'text-right' :
-              data.jobTitleAlignment === 'center' ? 'text-center' :
-              data.headerAlignment === 'left' ? 'text-left' :
-              data.headerAlignment === 'right' ? 'text-right' :
-              'text-center'
-            }`}
+            className={`tracking-wider ${data.jobTitleAlignment === 'left' ? 'text-left' :
+                data.jobTitleAlignment === 'right' ? 'text-right' :
+                  data.jobTitleAlignment === 'center' ? 'text-center' :
+                    data.headerAlignment === 'left' ? 'text-left' :
+                      data.headerAlignment === 'right' ? 'text-right' :
+                        'text-center'
+              }`}
             style={{
               fontSize: `${fontSizes?.jobTitle || 11}pt`,
               color: accentColor,
@@ -569,9 +574,43 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
                   href={getLinkedInHref(data.linkedin)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ textDecoration: 'none', color: 'inherit' }}
+                  style={{ textDecoration: 'underline', color: 'inherit' }}
                 >
                   <RichText text={formatLinkedInDisplay(data.linkedin)} />
+                </a>
+              </span>
+            );
+          }
+
+          if (data.github) {
+            contactItems.push(
+              <span key="gh" className="inline-flex items-center gap-1">
+                {showIcons && <Github size={12} className="shrink-0" color={accentColor} />}
+                <a
+                  data-path="github"
+                  href={getGitHubHref(data.github)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: 'underline', color: 'inherit' }}
+                >
+                  <RichText text={formatGitHubDisplay(data.github)} />
+                </a>
+              </span>
+            );
+          }
+
+          if (data.portfolio) {
+            contactItems.push(
+              <span key="port" className="inline-flex items-center gap-1">
+                {showIcons && <Globe size={12} className="shrink-0" color={accentColor} />}
+                <a
+                  data-path="portfolio"
+                  href={getPortfolioHref(data.portfolio)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: 'underline', color: 'inherit' }}
+                >
+                  <RichText text={formatPortfolioDisplay(data.portfolio)} />
                 </a>
               </span>
             );
@@ -592,14 +631,13 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
 
           return (
             <div
-              className={`flex flex-wrap items-center ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-600 ${
-                data.contactAlignment === 'left' ? 'justify-start text-left' :
-                data.contactAlignment === 'right' ? 'justify-end text-right' :
-                data.contactAlignment === 'center' ? 'justify-center text-center' :
-                data.headerAlignment === 'left' ? 'justify-start text-left' :
-                data.headerAlignment === 'right' ? 'justify-end text-right' :
-                'justify-center text-center'
-              }`}
+              className={`flex flex-wrap items-center ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-600 ${data.contactAlignment === 'left' ? 'justify-start text-left' :
+                  data.contactAlignment === 'right' ? 'justify-end text-right' :
+                    data.contactAlignment === 'center' ? 'justify-center text-center' :
+                      data.headerAlignment === 'left' ? 'justify-start text-left' :
+                        data.headerAlignment === 'right' ? 'justify-end text-right' :
+                          'justify-center text-center'
+                }`}
               style={{
                 ...bodyStyle,
                 marginBottom: !isTitleFirst(data, false) && data.jobTitle ? headerContactGap : undefined,
@@ -621,14 +659,13 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
         {!isTitleFirst(data, false) && data.jobTitle && (
           <p
             data-path="jobTitle"
-            className={`tracking-wider ${
-              data.jobTitleAlignment === 'left' ? 'text-left' :
-              data.jobTitleAlignment === 'right' ? 'text-right' :
-              data.jobTitleAlignment === 'center' ? 'text-center' :
-              data.headerAlignment === 'left' ? 'text-left' :
-              data.headerAlignment === 'right' ? 'text-right' :
-              'text-center'
-            }`}
+            className={`tracking-wider ${data.jobTitleAlignment === 'left' ? 'text-left' :
+                data.jobTitleAlignment === 'right' ? 'text-right' :
+                  data.jobTitleAlignment === 'center' ? 'text-center' :
+                    data.headerAlignment === 'left' ? 'text-left' :
+                      data.headerAlignment === 'right' ? 'text-right' :
+                        'text-center'
+              }`}
             style={{
               fontSize: `${fontSizes?.jobTitle || 11}pt`,
               color: accentColor,

@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { BorderBeam } from 'border-beam';
 import { useStreamingPlaceholder } from '../utils/useStreamingPlaceholder';
+import { Loader } from './ui/Loader';
 import { analyzeResume, AnalyticsResult } from './utils/resumeAnalytics';
 import { tailorResumeToJob } from './utils/aiEnhancer';
 import { callAIText, callAIJSON } from '../services/aiService';
@@ -35,6 +36,8 @@ import { parseJobDescription, analyzeJobMatch } from '../services/resumeAgentSer
 import { JobDescriptionData, JobMatchAnalysis } from '../types/resumeAgent';
 import { ensureAllBulletsHaveUniqueVerbs, getUsedStartingVerbs, detectActionVerbDomain } from '../utils/actionVerbs';
 import { versionService, ResumeVersion } from '../services/versionService';
+import { isPaidPlan } from '../utils/pricingConfig';
+import { SubscriptionManager } from '../utils/subscriptionManager';
 
 interface EditorSidebarRightProps {
     data: ResumeData;
@@ -587,6 +590,15 @@ export default function EditorSidebarRight({
             const experienceKeywords = Array.from(new Set(cleanKeywords.slice(2, 7))).filter(Boolean);
             const coreCompetencies = Array.from(new Set(cleanSkills.slice(0, 5))).filter(Boolean);
 
+            if (!isPaidPlan(userSubscription.planId) && userSubscription.userId && userSubscription.userId !== 'guest') {
+                if (new SubscriptionManager(userSubscription).getUsageCount('job_match') === 0) {
+                    import('../services/subscriptionService').then(({ subscriptionService }) => {
+                        subscriptionService.performAction(userSubscription.userId, 'job_match', 0)
+                            .catch(e => console.warn('Failed to sync job_match usage:', e));
+                    });
+                }
+            }
+
             const analysisMsg: ChatMessage = {
                 id: `msg-${Date.now()}`,
                 sender: 'agent',
@@ -595,8 +607,8 @@ export default function EditorSidebarRight({
                 analysis: {
                     jobTitle: parsedJob.title,
                     company: parsedJob.company,
-                    matchScore: matchAnalysis.matchScore,
-                    atsScore: matchAnalysis.categoryScores?.atsStructure || 92,
+                    matchScore: (!isPaidPlan(userSubscription.planId) && new SubscriptionManager(userSubscription).getUsageCount('job_match') > 0) ? Math.min(matchAnalysis.matchScore, 62) : matchAnalysis.matchScore,
+                    atsScore: (!isPaidPlan(userSubscription.planId) && new SubscriptionManager(userSubscription).getUsageCount('job_match') > 0) ? Math.min(matchAnalysis.categoryScores?.atsStructure || 92, 68) : (matchAnalysis.categoryScores?.atsStructure || 92),
                     categoryScores: matchAnalysis.categoryScores,
                     strategy: {
                         titleAndSummaryKeywords,
@@ -604,7 +616,9 @@ export default function EditorSidebarRight({
                         coreCompetencies: coreCompetencies.length > 0 ? coreCompetencies : ['Core domain skills']
                     },
                     strengths: matchAnalysis.strongMatches || ['Relevant work history', 'Core foundational skills'],
-                    gaps: matchAnalysis.gaps || ['Target role title alignment', 'Quantified domain outcomes'],
+                    gaps: (!isPaidPlan(userSubscription.planId) && new SubscriptionManager(userSubscription).getUsageCount('job_match') > 0)
+                        ? ['Free plan tailoring pass completed — Upgrade to Build to re-tailor for this role', ...(matchAnalysis.gaps || [])]
+                        : (matchAnalysis.gaps || ['Target role title alignment', 'Quantified domain outcomes']),
                     jobData: parsedJob
                 }
             };
@@ -3391,7 +3405,7 @@ Return strictly valid JSON with this shape:
 
                         {isProcessing && (
                             <div className="flex items-center gap-2 text-xs font-medium text-neutral-600 p-2.5 bg-neutral-50/90 rounded-xl border border-neutral-200/70 animate-pulse">
-                                <Loader2 className="w-3.5 h-3.5 animate-spin text-neutral-800 shrink-0" />
+                                <Loader size="xs" variant="default" className="shrink-0" />
                                 <span className="truncate">{processingStatus || 'Architecting role alignment...'}</span>
                             </div>
                         )}
@@ -3532,7 +3546,7 @@ Return strictly valid JSON with this shape:
                     <div className="flex-1 overflow-y-auto p-3 space-y-2.5 custom-scrollbar w-full">
                         {isLoadingVersions ? (
                             <div className="py-12 flex flex-col items-center justify-center text-center space-y-2 text-neutral-400">
-                                <Clock className="w-5 h-5 animate-spin text-brand-green" />
+                                <Loader size="sm" variant="default" />
                                 <span className="text-xs font-medium">Loading snapshots...</span>
                             </div>
                         ) : sidebarVersions.length === 0 ? (

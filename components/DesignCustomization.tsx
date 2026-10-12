@@ -90,6 +90,8 @@ export default function DesignCustomization({
         { id: 'minimalist', name: 'Minimalist Serif' },
         { id: 'professional', name: 'Professional Clean' },
         { id: 'times', name: 'Times Classic' },
+        { id: 'jake', name: 'Jake Template' },
+        { id: 'gaurav', name: 'Analyst' },
         { id: 'regent', name: 'Regent Serif' },
         { id: 'sage', name: 'Sage' },
         { id: 'rezi', name: 'Harvard' }

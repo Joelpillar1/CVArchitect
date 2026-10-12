@@ -31,43 +31,101 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        let isMounted = true;
+        const hasAuthParams = typeof window !== 'undefined' && (
+            window.location.hash.includes('access_token') ||
+            window.location.search.includes('code=') ||
+            window.location.hash.includes('refresh_token')
+        );
+
+        // Safety fallback timer if OAuth callback takes too long or fails
+        let timeoutId: any = null;
+        if (hasAuthParams) {
+            timeoutId = setTimeout(() => {
+                if (isMounted) {
+                    setLoading(false);
+                }
+            }, 6000);
+        }
+
+        // If there is a PKCE code in query string, exchange it for a session
+        if (typeof window !== 'undefined' && window.location.search.includes('code=')) {
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get('code');
+            if (code) {
+                supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
+                    if (!isMounted) return;
+                    if (data?.session) {
+                        setSession(data.session);
+                        setUser(data.session.user);
+                        setLoading(false);
+                        if (timeoutId) clearTimeout(timeoutId);
+                    } else if (error) {
+                        console.warn('exchangeCodeForSession error:', error);
+                    }
+                }).catch(err => {
+                    console.warn('exchangeCodeForSession exception:', err);
+                });
+            }
+        }
+
         // Get initial session
         supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session);
-            setUser(session?.user ?? null);
-            setLoading(false);
+            if (!isMounted) return;
+            if (session) {
+                setSession(session);
+                setUser(session.user);
+                setLoading(false);
+                if (timeoutId) clearTimeout(timeoutId);
+            } else if (!hasAuthParams) {
+                // Only mark loading as false if we aren't waiting for an in-flight OAuth exchange
+                setSession(null);
+                setUser(null);
+                setLoading(false);
+            }
         });
 
         // Listen for auth changes
         const {
             data: { subscription },
         } = supabase.auth.onAuthStateChange((_event, session) => {
+            if (!isMounted) return;
             setSession(session);
             setUser(session?.user ?? null);
             setLoading(false);
+            if (timeoutId) clearTimeout(timeoutId);
 
-            // Detect brand-new Google OAuth signups and fire welcome email + Loops
+            // Detect brand-new Google OAuth signups and fire welcome email fallback via Supabase Edge Function
             if (_event === 'SIGNED_IN' && session?.user) {
                 const u = session.user;
                 const isOAuth = u.app_metadata?.provider === 'google';
                 const createdAt = new Date(u.created_at).getTime();
                 const lastSignIn = new Date(u.last_sign_in_at ?? u.created_at).getTime();
-                const isNewUser = Math.abs(lastSignIn - createdAt) < 10_000; // within 10 seconds
+                // Brand new user if last sign in is within 60 seconds of user creation
+                const isNewUser = Math.abs(lastSignIn - createdAt) < 60_000;
                 const dedupeKey = `welcome_sent_${u.id}`;
 
                 if (isOAuth && isNewUser && !localStorage.getItem(dedupeKey)) {
                     localStorage.setItem(dedupeKey, '1');
                     const name = u.user_metadata?.full_name || u.user_metadata?.name || '';
-                    fetch('/api/welcome', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name, email: u.email }),
-                    }).catch(err => console.warn('Welcome email (Google) failed (non-critical):', err));
+                    supabase.functions
+                        .invoke('resend-email', {
+                            body: {
+                                type: 'welcome',
+                                email: u.email,
+                                name,
+                            },
+                        })
+                        .catch((err) => console.warn('Welcome email (Google fallback) failed (non-critical):', err));
                 }
             }
         });
 
-        return () => subscription.unsubscribe();
+        return () => {
+            isMounted = false;
+            if (timeoutId) clearTimeout(timeoutId);
+            subscription.unsubscribe();
+        };
     }, []);
 
     const signUp = async (email: string, password: string, fullName: string) => {
@@ -129,9 +187,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const signInWithGoogle = async () => {
         try {
             const pendingPlan = getPendingCheckoutPlan();
-            const redirectTo = pendingPlan
-                ? getAppUrl(`/dashboard?plan=${pendingPlan}`)
-                : getAppUrl('/dashboard');
+            const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+            const redirectParam = searchParams?.get('redirect');
+
+            let targetPath = '/dashboard';
+            if (pendingPlan) {
+                targetPath = `/dashboard?plan=${pendingPlan}`;
+            } else if (redirectParam) {
+                targetPath = redirectParam.startsWith('/') ? redirectParam : `/${redirectParam}`;
+            }
+
+            const redirectTo = getAppUrl(targetPath);
 
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',

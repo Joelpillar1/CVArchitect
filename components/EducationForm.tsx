@@ -1,13 +1,31 @@
 import React, { useState } from 'react';
 import { ResumeData, Education } from '../types';
-import { GraduationCap, Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
+import { GraduationCap, Plus, Trash2, ChevronUp, ChevronDown, Sparkles, X } from 'lucide-react';
+import { enhanceCoursework } from './utils/aiEnhancer';
 
 interface EducationFormProps {
     data: ResumeData;
     onChange: (data: ResumeData) => void;
+    onAIAction?: (action: 'ai_rewrite' | 'cv_regeneration' | 'cover_letter' | 'bullet_optimization') => boolean;
 }
 
-export default function EducationForm({ data, onChange }: EducationFormProps) {
+export default function EducationForm({ data, onChange, onAIAction }: EducationFormProps) {
+    const [enhancingId, setEnhancingId] = useState<string | null>(null);
+
+    const getCourseworkBullets = (courses: string | string[] | undefined): string[] => {
+        if (Array.isArray(courses)) {
+            return courses.length > 0 ? courses : [''];
+        }
+        if (typeof courses === 'string' && courses.trim()) {
+            const lines = courses
+                .split('\n')
+                .map(line => line.replace(/^[•\-\*]\s*/, '').replace(/^(?:Relevant\s+Coursework|Relevant\s+Courses?):\s*/i, '').trim())
+                .filter(Boolean);
+            return lines.length > 0 ? lines : [''];
+        }
+        return [''];
+    };
+
     const handleAdd = () => {
         const newEducation: Education = {
             id: Date.now().toString(),
@@ -15,7 +33,7 @@ export default function EducationForm({ data, onChange }: EducationFormProps) {
             degree: '',
             year: '',
             gpa: '',
-            relevantCourses: ''
+            relevantCourses: ['']
         };
         onChange({ ...data, education: [newEducation, ...data.education] });
     };
@@ -24,13 +42,73 @@ export default function EducationForm({ data, onChange }: EducationFormProps) {
         onChange({ ...data, education: data.education.filter(edu => edu.id !== id) });
     };
 
-    const handleChange = (id: string, field: keyof Education, value: string) => {
+    const handleChange = (id: string, field: keyof Education, value: string | string[]) => {
         onChange({
             ...data,
             education: data.education.map(edu =>
                 edu.id === id ? { ...edu, [field]: value } : edu
             )
         });
+    };
+
+    const handleCourseworkChange = (eduId: string, bulletIndex: number, value: string) => {
+        const edu = data.education.find(e => e.id === eduId);
+        if (!edu) return;
+
+        const bullets = [...getCourseworkBullets(edu.relevantCourses)];
+        bullets[bulletIndex] = value;
+        handleChange(eduId, 'relevantCourses', bullets);
+    };
+
+    const handleAddCourseworkBullet = (eduId: string) => {
+        const edu = data.education.find(e => e.id === eduId);
+        if (!edu) return;
+
+        const bullets = getCourseworkBullets(edu.relevantCourses);
+        handleChange(eduId, 'relevantCourses', [...bullets, '']);
+    };
+
+    const handleRemoveCourseworkBullet = (eduId: string, bulletIndex: number) => {
+        const edu = data.education.find(e => e.id === eduId);
+        if (!edu) return;
+
+        const bullets = getCourseworkBullets(edu.relevantCourses);
+        if (bullets.length <= 1) {
+            handleChange(eduId, 'relevantCourses', ['']);
+            return;
+        }
+
+        const newBullets = bullets.filter((_, index) => index !== bulletIndex);
+        handleChange(eduId, 'relevantCourses', newBullets);
+    };
+
+    const handleEnhanceCoursework = async (edu: Education) => {
+        const bullets = getCourseworkBullets(edu.relevantCourses);
+        const hasContent = bullets.some(b => b.trim());
+
+        if (!hasContent) {
+            alert('Please add at least one course or note first.');
+            return;
+        }
+
+        if (onAIAction) {
+            const allowed = onAIAction('ai_rewrite');
+            if (!allowed) return;
+        }
+
+        setEnhancingId(edu.id);
+        try {
+            const combined = bullets.filter(b => b.trim()).join('\n');
+            const enhanced = await enhanceCoursework(combined, edu.degree, edu.school);
+            if (enhanced && enhanced.length > 0) {
+                handleChange(edu.id, 'relevantCourses', enhanced);
+            }
+        } catch (error) {
+            alert('Failed to enhance coursework. Check your connection or API key.');
+            console.error(error);
+        } finally {
+            setEnhancingId(null);
+        }
     };
 
     const moveEducation = (index: number, direction: 'up' | 'down') => {
@@ -105,6 +183,19 @@ export default function EducationForm({ data, onChange }: EducationFormProps) {
 
                                 <div className="space-y-1">
                                     <label className="text-xs font-medium text-gray-500 block">
+                                        Location (optional)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={edu.location || ''}
+                                        onChange={(e) => handleChange(edu.id, 'location', e.target.value)}
+                                        className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
+                                        placeholder="City, State"
+                                    />
+                                </div>
+
+                                <div className="space-y-1">
+                                    <label className="text-xs font-medium text-gray-500 block">
                                         Graduation Year
                                     </label>
                                     <input
@@ -130,17 +221,61 @@ export default function EducationForm({ data, onChange }: EducationFormProps) {
                                 </div>
                             </div>
 
-                            <div className="space-y-1">
-                                <label className="text-xs font-medium text-gray-500">
-                                    Relevant Courses (optional)
-                                </label>
-                                <textarea
-                                    value={edu.relevantCourses || ''}
-                                    onChange={(e) => handleChange(edu.id, 'relevantCourses', e.target.value)}
-                                    className="w-full p-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all min-h-[60px]"
-                                    placeholder="List key courses separated by commas, e.g. Data Structures, Algorithms, Operating Systems"
-                                />
-                            </div>
+                            {(() => {
+                                const bullets = getCourseworkBullets(edu.relevantCourses);
+                                return (
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <label className="text-xs font-medium text-gray-500">
+                                                Coursework & Academic Notes
+                                            </label>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleEnhanceCoursework(edu)}
+                                                disabled={enhancingId === edu.id || !bullets.some(b => b.trim())}
+                                                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-brand-dark bg-brand-green hover:bg-brand-greenHover rounded-md transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+                                                title="Enhance with AI (1 credit)"
+                                            >
+                                                <Sparkles size={12} className={enhancingId === edu.id ? 'animate-spin' : ''} />
+                                                {enhancingId === edu.id ? 'Enhancing...' : 'Rewrite'}
+                                            </button>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            {bullets.map((bullet, bulletIndex) => (
+                                                <div key={bulletIndex} className="flex items-start gap-2 group/bullet">
+                                                    <div className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-brand-green mt-2"></div>
+                                                    <input
+                                                        type="text"
+                                                        value={bullet}
+                                                        onChange={(e) => handleCourseworkChange(edu.id, bulletIndex, e.target.value)}
+                                                        className="flex-1 p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
+                                                        placeholder={`Coursework or academic highlight ${bulletIndex + 1}`}
+                                                    />
+                                                    {bullets.length > 1 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleRemoveCourseworkBullet(edu.id, bulletIndex)}
+                                                            className="flex-shrink-0 text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover/bullet:opacity-100 p-1"
+                                                            title="Remove bullet point"
+                                                        >
+                                                            <X size={14} />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => handleAddCourseworkBullet(edu.id)}
+                                            className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-brand-dark bg-brand-green/10 hover:bg-brand-green/20 border border-brand-green/20 rounded-lg transition-all"
+                                        >
+                                            <Plus size={14} /> Add More
+                                        </button>
+                                    </div>
+                                );
+                            })()}
                         </div>
                     ))}
                 </div>

@@ -155,9 +155,13 @@ export default function ResumeAgentToolbar({
   const currentAccentColor = data.accentColor || '#000000';
   const currentBulletIndent = data.bulletIndent ?? 0;
   const currentHeaderAlign = data.contactAlignment || data.headerAlignment || 'center';
-  const currentSectionHeaderAlign = data.bodyHeaderAlignment || data.sectionHeaderAlignment || 'left';
+  const currentSectionHeaderAlign =
+    data.sectionHeaderAlignment ||
+    (data.bodyHeaderAlignment && data.bodyHeaderAlignment !== 'left' ? data.bodyHeaderAlignment : undefined) ||
+    ((data.template === 'styled' || data.template === 'regent') ? 'center' : (data.bodyHeaderAlignment || 'left'));
   const currentPageSize = (data.pageSize || 'letter').toLowerCase();
-  const currentSectionHeaderCase = data.sectionHeaderCase || 'uppercase';
+  const isTitleCaseByDefault = data.template === 'regent';
+  const currentSectionHeaderCase = data.sectionHeaderCase || (isTitleCaseByDefault ? 'titlecase' : 'uppercase');
   const currentJobTitleCase = data.jobTitleCase || 'sentence';
   const currentHeaderOrder = data.headerOrder || 'title-first';
   const currentSkillsColumnCount = data.skillsColumnCount || 3;

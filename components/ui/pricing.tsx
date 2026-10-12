@@ -9,6 +9,7 @@ import { Sparkles, CheckCheck, FileText, Layers, ShieldCheck, Infinity as Infini
 import { motion, AnimatePresence } from 'framer-motion';
 import { BorderBeam } from 'border-beam';
 import { PlanId } from '../../types/pricing';
+import { Loader } from './Loader';
 
 interface PricingPlanData {
   id: PlanId;
@@ -99,15 +100,16 @@ const cvPlans: PricingPlanData[] = [
 interface PricingSectionProps {
   onSelectPlan?: (planId: PlanId) => void;
   loadingPlanId?: PlanId | null;
-  currentPlanId?: string;
+  currentPlanId?: string | null;
+  isLoggedIn?: boolean;
   isPaidSubscriber?: boolean;
   compact?: boolean;
   showLifetime?: boolean;
   className?: string;
 }
 
-function normalizeCurrentPlanId(id?: string): string {
-  if (!id) return 'free';
+function normalizeCurrentPlanId(id?: string | null): string | null {
+  if (!id) return null;
   if (id === 'week_pass' || id === 'sprint' || id === 'pro_monthly' || id === 'blueprint') return 'build';
   return id;
 }
@@ -115,7 +117,8 @@ function normalizeCurrentPlanId(id?: string): string {
 export default function PricingSection({
   onSelectPlan,
   loadingPlanId = null,
-  currentPlanId = 'free',
+  currentPlanId = null,
+  isLoggedIn,
   isPaidSubscriber = false,
   compact = false,
   showLifetime = false,
@@ -124,6 +127,7 @@ export default function PricingSection({
   const pricingRef = useRef<HTMLDivElement>(null);
   const displayedPlans = showLifetime ? cvPlans : cvPlans.filter((p) => p.id !== 'lifetime');
   const normalizedCurrentPlan = normalizeCurrentPlanId(currentPlanId);
+  const userIsLoggedIn = isLoggedIn !== undefined ? isLoggedIn : Boolean(currentPlanId);
 
   const revealVariants = {
     visible: (i: number) => ({
@@ -187,7 +191,8 @@ export default function PricingSection({
         )}
       >
         {displayedPlans.map((plan, index) => {
-          const isCurrent = normalizedCurrentPlan === plan.id;
+          const isCurrent = Boolean(userIsLoggedIn && normalizedCurrentPlan && normalizedCurrentPlan === plan.id);
+          const isIncludedInLifetime = Boolean(userIsLoggedIn && normalizedCurrentPlan === 'lifetime' && plan.id !== 'lifetime');
           const isLoading = loadingPlanId === plan.id;
           const isDark = plan.id === 'build';
 
@@ -209,6 +214,16 @@ export default function PricingSection({
                       : 'bg-brand-dark/10 text-brand-dark border border-brand-dark/20'
                   )}>
                     Current plan
+                  </span>
+                )}
+                {isIncludedInLifetime && (
+                  <span className={cn(
+                    'absolute top-4 right-4 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider',
+                    isDark
+                      ? 'bg-brand-green/20 text-brand-green border border-brand-green/40'
+                      : 'bg-brand-dark/10 text-brand-dark border border-brand-dark/20'
+                  )}>
+                    Included
                   </span>
                 )}
 
@@ -254,10 +269,10 @@ export default function PricingSection({
                 {/* Action Button */}
                 <button
                   onClick={() => onSelectPlan?.(plan.id)}
-                  disabled={isLoading || isCurrent}
+                  disabled={isLoading || isCurrent || isIncludedInLifetime}
                   className={cn(
-                    'w-full mb-6 py-3 px-4 text-sm sm:text-base font-extrabold rounded-xl transition-all flex items-center justify-center gap-2',
-                    isCurrent
+                    'w-full mb-6 py-3 px-4 text-sm sm:text-base font-extrabold rounded-lg transition-all flex items-center justify-center gap-2',
+                    isCurrent || isIncludedInLifetime
                       ? isDark
                         ? 'bg-white/10 text-white/50 cursor-default border border-white/10'
                         : 'bg-brand-secondary/80 text-brand-dark/50 cursor-default border border-brand-border'
@@ -267,11 +282,16 @@ export default function PricingSection({
                   )}
                 >
                   {isLoading ? (
-                    <Loader2 size={18} className="animate-spin" />
+                    <Loader size="xs" variant={isDark ? 'contrast' : 'light'} />
                   ) : isCurrent ? (
                     <span className="flex items-center gap-1.5">
                       <CheckCheck size={16} className={isDark ? 'text-brand-green' : 'text-brand-dark'} />
                       Current Plan
+                    </span>
+                  ) : isIncludedInLifetime ? (
+                    <span className="flex items-center gap-1.5">
+                      <CheckCheck size={16} className={isDark ? 'text-brand-green' : 'text-brand-dark'} />
+                      Included in Lifetime
                     </span>
                   ) : (
                     <>

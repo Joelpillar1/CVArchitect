@@ -12,9 +12,11 @@ export const PAID_PLAN_FEATURES = [
 ];
 
 export const FOUNDATION_FEATURES = [
-    '1 free AI-tailored resume',
-    'Base template included',
-    'Full download included',
+    '1 full AI-tailored resume & job match',
+    '3 PDF downloads on base templates',
+    '10 in-editor AI rewrites',
+    'Interview prep & Q&A included',
+    '1 active cloud-saved resume',
 ];
 
 export const PAID_PLAN_IDS: PlanId[] = ['build', 'lifetime'];
@@ -39,13 +41,16 @@ export const PLANS: Record<string, Plan> = {
         features: {
             resumeUploads: 1,
             resumeAnalyses: 1,
-            aiRewrites: 1,
+            aiRewrites: 10,
             jobMatches: 1,
             coverLetterGeneration: 0,
-            bulletOptimizations: 1,
+            bulletOptimizations: 10,
             cvRegenerations: 0,
             pdfExport: true,
-            watermarkFree: false,
+            pdfExports: 3,
+            docxExport: false,
+            interviewPrep: true,
+            watermarkFree: true,
             allTemplates: false,
             templateAccess: 'free',
             maxResumePages: 1,
@@ -55,13 +60,13 @@ export const PLANS: Record<string, Plan> = {
         },
         creditRules: {
             usesCredits: true,
-            startingCredits: 1,
+            startingCredits: 10,
             monthlyCredits: 0,
             creditsReset: false,
             creditCosts: {
                 fullRewrite: 1,
                 cvRegeneration: 1,
-                resumeUpload: 1,
+                resumeUpload: 0,
                 coverLetter: 1,
                 bulletOptimization: 1,
                 keywordEnhancement: 1,
@@ -70,7 +75,7 @@ export const PLANS: Record<string, Plan> = {
     },
     sprint: {
         id: 'sprint',
-        name: 'Sprint',
+        name: 'Build',
         tagline: '',
         description: 'Unlimited AI tailoring for 7 days.',
         price: { weekly: 6 },
@@ -126,6 +131,9 @@ export const PLANS: Record<string, Plan> = {
             bulletOptimizations: 'unlimited',
             cvRegenerations: 'unlimited',
             pdfExport: true,
+            pdfExports: 'unlimited',
+            docxExport: true,
+            interviewPrep: true,
             watermarkFree: true,
             allTemplates: true,
             templateAccess: 'all',
@@ -209,6 +217,9 @@ export const PLANS: Record<string, Plan> = {
             bulletOptimizations: 'unlimited',
             cvRegenerations: 'unlimited',
             pdfExport: true,
+            pdfExports: 'unlimited',
+            docxExport: true,
+            interviewPrep: true,
             watermarkFree: true,
             allTemplates: true,
             templateAccess: 'all',
@@ -282,6 +293,8 @@ export const ALL_TEMPLATES = [
     'elegant',
     'professional',
     'times',
+    'jake',
+    'gaurav',
     'regent',
     'freshgrad2',
     'freshgrad3',
@@ -296,15 +309,24 @@ export const ALL_TEMPLATES = [
 ];
 
 export const getPlanById = (planId: string): Plan | undefined => {
+    if (planId === 'week_pass' || planId === 'sprint' || planId === 'pro_monthly' || planId === 'blueprint') {
+        return PLANS['build'];
+    }
     return PLANS[planId];
 };
 
 export const getPlanDisplayName = (planId?: string): string => {
     if (!planId) return 'Foundation';
-    const plan = PLANS[planId];
+    const lower = planId.trim().toLowerCase();
+    if (lower === 'lifetime') return 'Lifetime';
+    if (lower === 'build' || lower === 'sprint' || lower === 'week_pass' || lower === 'pro_monthly' || lower === 'blueprint') {
+        return 'Build';
+    }
+    if (lower === 'free' || lower === 'foundation') {
+        return 'Foundation';
+    }
+    const plan = PLANS[lower];
     if (plan) return plan.name;
-    if (planId === 'week_pass') return 'Sprint (legacy)';
-    if (planId === 'pro_monthly') return 'Build (legacy)';
     return 'Foundation';
 };
 
@@ -335,6 +357,7 @@ export const getTemplatesForPlan = (planId: string): string[] => {
 };
 
 export const canAccessTemplate = (planId: string, templateId: string): boolean => {
+    if (import.meta.env.DEV) return true;
     const allowedTemplates = getTemplatesForPlan(planId);
     return allowedTemplates.includes(templateId);
 };

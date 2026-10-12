@@ -51,6 +51,7 @@ import {
 } from '../types';
 import { downloadFile, sanitizeFilename } from './pdfExport';
 import { parseExpertSkillItems } from './templateUtils';
+import { isSectionHiddenByTemplateDefault } from './sectionRegistry';
 
 // --- Color & Unit Helpers ---
 
@@ -225,7 +226,8 @@ type HeadingDividerStyle =
   | 'left_bar' // Thick colored left bar border, no bottom line (Executive, Apex, Elite)
   | 'prefix_block' // Square/pipe colored prefix symbol '▎ ', no underline (DevPro)
   | 'no_border' // Clean open heading without underline (Modern, Minimalist)
-  | 'harvard_rule'; // Dark/Black formal rule (Rezi, Times, Sage)
+  | 'harvard_rule' // Dark/Black formal rule (Rezi, Times, Sage)
+  | 'double_rule'; // Top and bottom horizontal lines (Regent)
 
 interface TemplateProfile {
   defaultFont: string;
@@ -265,19 +267,40 @@ const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
     defaultHeaderAlign: 'center',
     defaultSectionOrder: ['summary', 'experience', 'education', 'skills', 'projects', 'certifications', 'leadership', 'additionalInfo'],
   },
+  jake: {
+    defaultFont: 'Times New Roman',
+    defaultAccent: '000000',
+    headingStyle: 'harvard_rule',
+    defaultHeaderAlign: 'center',
+    defaultSectionOrder: ['education', 'experience', 'projects', 'skills', 'summary', 'certifications', 'leadership', 'additionalInfo'],
+  },
+  gaurav: {
+    defaultFont: 'Times New Roman',
+    defaultAccent: '000000',
+    headingStyle: 'harvard_rule',
+    defaultHeaderAlign: 'center',
+    defaultSectionOrder: ['summary', 'skills', 'experience', 'education', 'certifications', 'projects', 'leadership', 'additionalInfo'],
+  },
+  regent: {
+    defaultFont: 'Times New Roman',
+    defaultAccent: '000000',
+    headingStyle: 'double_rule',
+    defaultHeaderAlign: 'center',
+    defaultSectionOrder: ['summary', 'experience', 'education', 'projects', 'skills', 'certifications', 'leadership', 'additionalInfo'],
+  },
   rezi: {
     defaultFont: 'Garamond',
     defaultAccent: '2E3D50',
     headingStyle: 'harvard_rule',
     defaultHeaderAlign: 'center',
-    defaultSectionOrder: ['summary', 'education', 'coursework', 'experience', 'projects', 'skills', 'certifications', 'leadership', 'additionalInfo'],
+    defaultSectionOrder: ['education', 'experience', 'leadership', 'skills', 'projects', 'summary', 'certifications', 'coursework', 'additionalInfo'],
   },
   dev: {
     defaultFont: 'Consolas',
     defaultAccent: '0F172A',
     headingStyle: 'prefix_block',
     defaultHeaderAlign: 'left',
-    defaultSectionOrder: ['summary', 'skills', 'expert_skills', 'experience', 'projects', 'education', 'certifications', 'leadership', 'additionalInfo'],
+    defaultSectionOrder: ['summary', 'skills', 'experience', 'projects', 'education', 'certifications', 'leadership', 'additionalInfo'],
   },
   executive: {
     defaultFont: 'Calibri',
@@ -538,6 +561,36 @@ function createSectionHeading(
     });
   }
 
+  // 4b. Double Rule (Regent Serif) - Top and bottom horizontal lines
+  if (headingStyle === 'double_rule') {
+    return new Paragraph({
+      heading: HeadingLevel.HEADING_2,
+      alignment: align,
+      spacing: { before: 180, after: 70 },
+      border: {
+        top: {
+          style: BorderStyle.SINGLE,
+          size: 8, // 1pt solid line
+          color: '111827',
+        },
+        bottom: {
+          style: BorderStyle.SINGLE,
+          size: 8, // 1pt solid line
+          color: '111827',
+        },
+      },
+      children: [
+        new TextRun({
+          text: displayTitle,
+          bold: true,
+          font: fontFamily,
+          size: headingHalfPt,
+          color: accentColorHex !== '000000' && accentColorHex !== '111827' ? accentColorHex : '111827',
+        }),
+      ],
+    });
+  }
+
   // 5. Subtle Gray Line (Elevate / Classic / Free)
   if (headingStyle === 'gray_line') {
     return new Paragraph({
@@ -611,9 +664,20 @@ function generateSectionParagraphs(
     return paras;
   }
 
+  // Sections a template hides by default (its source resume omits them) stay
+  // out of the export too, unless the user explicitly opted them in via
+  // sectionVisibility — keeps DOCX output identical to the preview.
+  if (isSectionHiddenByTemplateDefault(data.template, sectionKey, data.sectionVisibility)) {
+    return paras;
+  }
+
   // Helper for section heading alignment
   const align =
-    data.bodyHeaderAlignment === 'center' || data.sectionHeaderAlignment === 'center'
+    data.template === 'minimalist' || data.template === 'regent'
+      ? AlignmentType.CENTER
+      : data.template === 'styled' && !data.sectionHeaderAlignment && (!data.bodyHeaderAlignment || data.bodyHeaderAlignment === 'left')
+      ? AlignmentType.CENTER
+      : data.bodyHeaderAlignment === 'center' || data.sectionHeaderAlignment === 'center'
       ? AlignmentType.CENTER
       : data.bodyHeaderAlignment === 'right' || data.sectionHeaderAlignment === 'right'
       ? AlignmentType.RIGHT
@@ -793,26 +857,32 @@ function generateSectionParagraphs(
       }
 
       if (edu.relevantCourses) {
-        paras.push(
-          new Paragraph({
-            spacing: { after: 40, line: bodyLineSpacing },
-            children: [
-              new TextRun({
-                text: 'Relevant Coursework: ',
-                bold: true,
-                font: fontFamily,
-                size: smallSize,
-                color: textColor,
-              }),
-              new TextRun({
-                text: edu.relevantCourses,
-                font: fontFamily,
-                size: smallSize,
-                color: subtextColor,
-              }),
-            ],
-          })
-        );
+        const rawLines = Array.isArray(edu.relevantCourses)
+          ? edu.relevantCourses
+          : typeof edu.relevantCourses === 'string'
+          ? edu.relevantCourses.split('\n')
+          : [String(edu.relevantCourses)];
+
+        const lines = rawLines.map((l) => (typeof l === 'string' ? l.trim() : '')).filter(Boolean);
+
+        lines.forEach((line) => {
+          const cleanLine = line.replace(/^(?:Relevant\s+Coursework|Relevant\s+Courses?):\s*/i, '').trim();
+          if (!cleanLine) return;
+          paras.push(
+            new Paragraph({
+              bullet: { level: 0 },
+              spacing: { after: 30, line: bodyLineSpacing },
+              children: [
+                new TextRun({
+                  text: cleanLine,
+                  font: fontFamily,
+                  size: smallSize,
+                  color: subtextColor,
+                }),
+              ],
+            })
+          );
+        });
       }
     }
   }
@@ -851,39 +921,6 @@ function generateSectionParagraphs(
             new TextRun({ text: 'Core Competencies: ', bold: true, font: fontFamily, size: bodySize, color: textColor }),
             new TextRun({ text: data.coreCompetencies, font: fontFamily, size: bodySize, color: textColor }),
           ],
-        })
-      );
-    }
-  }
-
-  // 5. EXPERT SKILLS
-  if ((sectionKey === 'expert_skills' || sectionKey === 'expertSkills') && data.expertSkills) {
-    const title = data.sectionTitles?.expert_skills || data.sectionTitles?.expertSkills || 'Expert-Level Skills';
-    paras.push(createSectionHeading(title, fontFamily, sectionTitleSize, accentColor, headingStyle, data.sectionHeaderCase, align));
-
-    const expertItems = parseExpertSkillItems(data.expertSkills);
-    for (const item of expertItems) {
-      if (!item.category && !item.skills) continue;
-      const runs: (TextRun | ExternalHyperlink)[] = [];
-      if (item.category) {
-        runs.push(
-          new TextRun({
-            text: `${item.category}: `,
-            bold: true,
-            font: fontFamily,
-            size: bodySize,
-            color: textColor,
-          })
-        );
-      }
-      if (item.skills) {
-        runs.push(...parseHtmlToDocxRuns(item.skills, baseBodyStyle, accentColor));
-      }
-
-      paras.push(
-        new Paragraph({
-          spacing: { after: 40, line: bodyLineSpacing },
-          children: runs,
         })
       );
     }
@@ -1019,11 +1056,33 @@ function generateSectionParagraphs(
   }
 
   // 8. LEADERSHIP & ACTIVITIES
-  if (sectionKey === 'leadership' && data.leadership && data.leadership.length > 0) {
+  const DEFAULT_HARVARD_LEADERSHIP: Experience[] = [
+    {
+      id: 'default_harvard_lead_1',
+      company: 'Organization',
+      role: 'Position Title',
+      location: 'City, State',
+      startDate: 'Month Year',
+      endDate: 'Month Year',
+      description: [
+        'This section can be formatted similarly to the Experience section, or you can omit descriptions for activities.',
+        'If this section is more relevant to the opportunity you are applying for, consider moving this above your Experience section.',
+      ],
+    },
+  ];
+
+  const leadershipItems =
+    data.leadership && data.leadership.length > 0
+      ? data.leadership
+      : data.template === 'rezi' && data.sectionVisibility?.['leadership'] !== false
+      ? DEFAULT_HARVARD_LEADERSHIP
+      : [];
+
+  if (sectionKey === 'leadership' && leadershipItems.length > 0) {
     const title = data.sectionTitles?.leadership || 'Leadership & Activities';
     paras.push(createSectionHeading(title, fontFamily, sectionTitleSize, accentColor, headingStyle, data.sectionHeaderCase, align));
 
-    for (const lead of data.leadership) {
+    for (const lead of leadershipItems) {
       const dateRange = [lead.startDate, lead.endDate].filter(Boolean).join(' - ');
       paras.push(
         new Paragraph({
@@ -1412,7 +1471,7 @@ export function buildResumeDocxDocument(data: ResumeData, templateOverride?: Tem
   }
 
   // 2. Header: Professional Job Title (if Title is before contact)
-  if (data.jobTitle) {
+  if (data.jobTitle && resolvedTemplate !== 'minimalist') {
     let jobTitleText = data.jobTitle;
     if (data.jobTitleCase === 'uppercase') jobTitleText = jobTitleText.toUpperCase();
 
@@ -1517,6 +1576,50 @@ export function buildResumeDocxDocument(data: ResumeData, templateOverride?: Tem
     }
   }
 
+  if (data.github) {
+    const githubUrl = toSafeLink(data.github) || `https://github.com/${data.github.replace(/^https?:\/\/(www\.)?github\.com\//i, '')}`;
+    if (githubUrl) {
+      addSeparator();
+      const label = 'GitHub';
+      contactParts.push(
+        new ExternalHyperlink({
+          link: githubUrl,
+          children: [
+            new TextRun({
+              text: label,
+              underline: {},
+              color: accentColor,
+              font: fontFamily,
+              size: smallSize,
+            }),
+          ],
+        })
+      );
+    }
+  }
+
+  if (data.portfolio) {
+    const portfolioUrl = toSafeLink(data.portfolio) || `https://${data.portfolio.replace(/^https?:\/\/(www\.)?/i, '')}`;
+    if (portfolioUrl) {
+      addSeparator();
+      const label = 'Portfolio';
+      contactParts.push(
+        new ExternalHyperlink({
+          link: portfolioUrl,
+          children: [
+            new TextRun({
+              text: label,
+              underline: {},
+              color: accentColor,
+              font: fontFamily,
+              size: smallSize,
+            }),
+          ],
+        })
+      );
+    }
+  }
+
   if (data.atHandle) {
     const handleUrl = toSafeLink(data.atHandle);
     if (handleUrl) {
@@ -1544,7 +1647,15 @@ export function buildResumeDocxDocument(data: ResumeData, templateOverride?: Tem
         alignment: contactAlign,
         spacing: { after: 120 },
         border:
-          resolvedTemplate === 'rezi'
+          resolvedTemplate === 'regent'
+            ? {
+                bottom: {
+                  style: BorderStyle.SINGLE,
+                  size: 24, // 3pt thick black rule
+                  color: '111827',
+                },
+              }
+            : resolvedTemplate === 'rezi'
             ? {
                 bottom: {
                   style: BorderStyle.SINGLE,
@@ -1564,7 +1675,7 @@ export function buildResumeDocxDocument(data: ResumeData, templateOverride?: Tem
 
   // Check for Two-Column Layout (TwoColumnTemplate)
   if (profile.isTwoColumn) {
-    const sidebarKeys = new Set(['skills', 'expert_skills', 'expertSkills', 'education', 'certifications', 'languages', 'additionalInfo']);
+    const sidebarKeys = new Set(['skills', 'education', 'certifications', 'languages', 'additionalInfo']);
     const sidebarParagraphs: Paragraph[] = [];
     const mainParagraphs: Paragraph[] = [];
 

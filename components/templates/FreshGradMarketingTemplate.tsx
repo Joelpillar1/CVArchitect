@@ -1,7 +1,7 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { MapPin, Phone, Mail, Linkedin, Send } from 'lucide-react';
-import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getItemGapIn, getMarginHorizontalIn, getMarginVerticalIn, formatContactText, formatLocationDisplay, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay, formatSectionTitle, splitSkillsList, CONTACT_SEPARATOR, renderExpertSkillsBlockHelper } from '../../utils/templateUtils';
+import { MapPin, Phone, Mail, Linkedin, Send, Github, Globe } from 'lucide-react';
+import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getItemGapIn, getMarginHorizontalIn, getMarginVerticalIn, formatContactText, formatLocationDisplay, formatLinkedInDisplay, getLinkedInHref, formatGitHubDisplay, getGitHubHref, formatPortfolioDisplay, getPortfolioHref, formatNameDisplay, formatJobTitleDisplay, formatSectionTitle, splitSkillsList, CONTACT_SEPARATOR, renderExpertSkillsBlockHelper } from '../../utils/templateUtils';
 import RichText from '../RichText';
 
 interface FreshGradMarketingTemplateProps {
@@ -107,6 +107,22 @@ const FreshGradMarketingTemplate: React.FC<FreshGradMarketingTemplateProps> = ({
               {showIcons && <Linkedin size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
               <a data-path="linkedin" href={getLinkedInHref(data.linkedin)} target="_blank" rel="noopener noreferrer" className="text-inherit no-underline">
                 <RichText text={formatLinkedInDisplay(data.linkedin)} />
+              </a>
+            </span>
+          );
+          if (data.github) items.push(
+            <span key="gh" className="inline-flex items-center gap-1">
+              {showIcons && <Github size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
+              <a data-path="github" href={getGitHubHref(data.github)} target="_blank" rel="noopener noreferrer" className="text-inherit underline">
+                <RichText text={formatGitHubDisplay(data.github)} />
+              </a>
+            </span>
+          );
+          if (data.portfolio) items.push(
+            <span key="port" className="inline-flex items-center gap-1">
+              {showIcons && <Globe size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
+              <a data-path="portfolio" href={getPortfolioHref(data.portfolio)} target="_blank" rel="noopener noreferrer" className="text-inherit underline">
+                <RichText text={formatPortfolioDisplay(data.portfolio)} />
               </a>
             </span>
           );
@@ -279,17 +295,6 @@ const FreshGradMarketingTemplate: React.FC<FreshGradMarketingTemplateProps> = ({
         </section>
       )}
 
-      {/* EXPERT-LEVEL SKILLS */}
-      {data.expertSkills && (
-        renderExpertSkillsBlockHelper({
-          data,
-          title: (data.sectionTitles && data.sectionTitles['expert_skills']) || 'Expert-Level Skills',
-          items: data.expertSkills,
-          basePath: 'expertSkills',
-          renderSectionHeader,
-          bodyStyle,
-        })
-      )}
 
       {/* ADDITIONAL INFORMATION */}
       {(data.skills || (data.additionalInfo && data.additionalInfo.length > 0)) && (

@@ -24,6 +24,9 @@ export interface PlanFeatures {
     bulletOptimizations: number | 'unlimited';
     cvRegenerations: number | 'unlimited';
     pdfExport: boolean;
+    pdfExports?: number | 'unlimited';
+    docxExport?: boolean;
+    interviewPrep?: boolean;
     watermarkFree: boolean;
     allTemplates: boolean;
     templateAccess: 'free' | 'basic' | 'all';
@@ -80,6 +83,8 @@ export interface UserSubscription {
     subscriptionStart?: Date;
     subscriptionEnd?: Date;
     isActive: boolean;
+    creemSubscriptionId?: string;
+    creemCustomerId?: string;
     dodoSubscriptionId?: string;
     dodoCustomerId?: string;
     cancelAtPeriodEnd?: boolean;
@@ -108,4 +113,5 @@ export type FeatureAction =
     | 'bullet_optimization'
     | 'keywordEnhancement'
     | 'pdf_export'
+    | 'docx_export'
     | 'template_access';

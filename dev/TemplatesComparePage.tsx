@@ -1,5 +1,5 @@
 import React from 'react';
-import { TEMPLATE_GALLERY_PREVIEW_DATA } from '../utils/sampleResumeData';
+import { TEMPLATE_GALLERY_PREVIEW_DATA, getTemplatePreviewData } from '../utils/sampleResumeData';
 import VanguardTemplate from '../components/templates/VanguardTemplate';
 import ElevateResume from '../components/templates/ElevateResume';
 import PrimeProfile from '../components/templates/PrimeProfile';
@@ -17,6 +17,8 @@ import ElegantTemplate from '../components/templates/ElegantTemplate';
 import MinimalistTemplate from '../components/templates/MinimalistTemplate';
 import ProfessionalTemplate from '../components/templates/ProfessionalTemplate';
 import TimesTemplate from '../components/templates/TimesTemplate';
+import JakeTemplate from '../components/templates/JakeTemplate';
+import AnalystTemplate from '../components/templates/AnalystTemplate';
 import RegentTemplate from '../components/templates/RegentTemplate';
 import TwoColumnTemplate from '../components/templates/TwoColumnTemplate';
 import FreshGradTemplate from '../components/templates/FreshGradTemplate';
@@ -50,6 +52,8 @@ const TEMPLATES: { name: string; Component: React.ComponentType<{ data: any }> }
   { name: 'minimalist', Component: MinimalistTemplate },
   { name: 'professional', Component: ProfessionalTemplate },
   { name: 'times', Component: TimesTemplate },
+  { name: 'jake', Component: JakeTemplate },
+  { name: 'gaurav', Component: AnalystTemplate },
   { name: 'regent', Component: RegentTemplate },
   { name: 'twocolumn', Component: TwoColumnTemplate },
   { name: 'sage', Component: SageTemplate },
@@ -72,7 +76,7 @@ export default function TemplatesComparePage() {
               {name}
             </h2>
             <div className="bg-white shadow-lg" data-template-name={name} style={{ width: '210mm' }}>
-              <Component data={TEMPLATE_GALLERY_PREVIEW_DATA} />
+              <Component data={getTemplatePreviewData(name as any)} />
             </div>
             {name === 'vanguard' && (
               <div className="bg-white shadow-lg mt-2" data-template-name="vanguard-7skills" style={{ width: '210mm' }}>

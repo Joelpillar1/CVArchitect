@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, MessageSquare, Send, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
+import { Loader } from './ui/Loader';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
 import SEO from './SEO';
@@ -229,8 +230,8 @@ export default function Contact({ onBack }: ContactProps) {
                                 >
                                     {status === 'loading' ? (
                                         <>
-                                            <Loader2 size={20} className="animate-spin" />
-                                            Sending…
+                                            <Loader size="xs" variant="default" />
+                                            <span>Sending…</span>
                                         </>
                                     ) : (
                                         <>

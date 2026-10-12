@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ResumeData } from '../types';
 import { UserSubscription } from '../types/pricing';
-import { Loader2 } from 'lucide-react';
+import { Loader } from './ui/Loader';
 import { tailorResumeToJob } from './utils/aiEnhancer';
 import { analyzeResume } from './utils/resumeAnalytics';
 
@@ -181,7 +181,7 @@ export default function JobMatchForm({ data, onChange, onAIAction }: JobMatchFor
                     >
                         {isRewriting ? (
                             <>
-                                <Loader2 size={13} className="animate-spin text-white" />
+                                <Loader size="xs" variant="light" />
                                 <span>{progressSteps[progressStep]}</span>
                             </>
                         ) : (

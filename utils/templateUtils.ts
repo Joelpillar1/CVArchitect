@@ -547,6 +547,26 @@ export function sectionMarginBottom(data: ResumeData, variant: SpacingVariant = 
 
 export function splitSkillsList(skills: string): string[] {
     if (!skills) return [];
+
+    // If skills contains categorized lines ("Category: skill1, skill2"),
+    // extract just the skills without the category prefixes for flat/badge templates.
+    const lines = skills.split(/[\r\n]+/).map((l) => l.trim()).filter(Boolean);
+    const hasCategoryHeaders = lines.some((l) => /^[^:\n]{1,40}:\s*.+/i.test(l));
+
+    if (hasCategoryHeaders) {
+        const flatList: string[] = [];
+        for (const line of lines) {
+            const colonIdx = line.indexOf(':');
+            const skillsPart = colonIdx !== -1 ? line.slice(colonIdx + 1).trim() : line.trim();
+            const items = skillsPart
+                .split(/[,|•]+/)
+                .map((s) => s.trim().replace(/^[-*•]\s*/, ''))
+                .filter(Boolean);
+            flatList.push(...items);
+        }
+        return flatList;
+    }
+
     return skills
         .split(/[\n,\r|•]+/)
         .map((s) => s.trim().replace(/^[-*•]\s*/, ''))
@@ -924,6 +944,38 @@ export function getLinkedInHref(linkedin: string | null | undefined): string {
     return normalizeUrl(`linkedin.com/${display}`);
 }
 
+/** Clean GitHub label: shows 'GitHub' when provided */
+export function formatGitHubDisplay(github: string | null | undefined): string {
+    if (!github || typeof github !== 'string' || !github.trim()) return '';
+    return 'GitHub';
+}
+
+/** Full GitHub URL for href attributes */
+export function getGitHubHref(github: string | null | undefined): string {
+    if (!github || typeof github !== 'string') return '';
+    let s = github.trim();
+    if (!s) return '';
+    s = s.replace(/^https?:\/\//i, '').replace(/^www\./i, '');
+    if (!s.toLowerCase().startsWith('github.com/')) {
+        s = `github.com/${s}`;
+    }
+    return normalizeUrl(s);
+}
+
+/** Clean portfolio / website display: shows 'Portfolio' when provided */
+export function formatPortfolioDisplay(portfolio: string | null | undefined): string {
+    if (!portfolio || typeof portfolio !== 'string' || !portfolio.trim()) return '';
+    return 'Portfolio';
+}
+
+/** Full Portfolio URL for href attributes */
+export function getPortfolioHref(portfolio: string | null | undefined): string {
+    if (!portfolio || typeof portfolio !== 'string') return '';
+    let s = portfolio.trim();
+    if (!s) return '';
+    return normalizeUrl(s);
+}
+
 // Alias for achievements (same logic as descriptions)
 export const parseAchievementBullets = parseDescriptionBullets;
 
@@ -1129,7 +1181,10 @@ export function renderCourseworkBlockHelper({
     'section',
     { style: { marginBottom: `${getSectionGapIn(data)}in` } },
     renderSectionHeader(title),
-    validItems.map((item, index) => {
+    React.createElement(
+      React.Fragment,
+      null,
+      validItems.map((item, index) => {
       const bullets = parseDescriptionBullets(item.description || '');
       const children: React.ReactNode[] = [];
 
@@ -1247,7 +1302,8 @@ export function renderCourseworkBlockHelper({
         children
       );
     })
-  );
+  )
+);
 }
 
 /** Helper to get text alignment class for full name / header */
@@ -1343,76 +1399,9 @@ export interface RenderExpertSkillsBlockHelperProps {
  *   Leadership: Speaking, Fundraising, Product Development, Communication, Partnerships
  *   Front End: HTML, CSS, Bootstrap, Webflow | Design: Photoshop, Illustrator, Sketch
  */
-export function renderExpertSkillsBlockHelper({
-  data,
-  title,
-  items,
-  basePath = 'expertSkills',
-  renderSectionHeader,
-  bodyStyle,
-}: RenderExpertSkillsBlockHelperProps): React.ReactNode {
-  const parsedItems = parseExpertSkillItems(items);
-  if (parsedItems.length === 0) return null;
-
-  const defaultBodyStyle: React.CSSProperties = bodyStyle || {
-    fontSize: `${data.fontSizes?.body || 9}pt`,
-    lineHeight: data.lineHeight || 1.5,
-  };
-
-  return React.createElement(
-    'section',
-    {
-      className: 'break-inside-avoid',
-      style: { marginBottom: `${getSectionGapIn(data)}in` },
-    },
-    renderSectionHeader(title),
-    React.createElement(
-      'div',
-      {
-        className: 'space-y-1 text-gray-800',
-        style: defaultBodyStyle,
-      },
-      parsedItems.map((item, index) => {
-        const hasCategory = Boolean(item.category?.trim());
-        return React.createElement(
-          'div',
-          {
-            key: item.id || index,
-            className: 'leading-relaxed',
-          },
-          hasCategory
-            ? [
-                React.createElement(
-                  'span',
-                  {
-                    key: 'cat',
-                    'data-path': `${basePath}.${index}.category`,
-                    className: 'font-bold text-gray-900',
-                  },
-                  React.createElement(RichText, { text: item.category.trim() }),
-                  item.category.trim().endsWith(':') ? ' ' : ': '
-                ),
-                React.createElement(
-                  'span',
-                  {
-                    key: 'skills',
-                    'data-path': `${basePath}.${index}.skills`,
-                  },
-                  React.createElement(RichText, { text: item.skills ?? '' })
-                ),
-              ]
-            : React.createElement(
-                'span',
-                {
-                  key: 'skills',
-                  'data-path': `${basePath}.${index}.skills`,
-                },
-                React.createElement(RichText, { text: item.skills ?? '' })
-              )
-        );
-      })
-    )
-  );
+export function renderExpertSkillsBlockHelper(_props: RenderExpertSkillsBlockHelperProps): React.ReactNode {
+  // Expert-Level Skills is removed from all templates in favor of unified Skills
+  return null;
 }
 
 

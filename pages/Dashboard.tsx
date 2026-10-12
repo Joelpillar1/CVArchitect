@@ -10,6 +10,7 @@ import MyTemplates from '../components/MyTemplates';
 import MyCoverLetters from '../components/MyCoverLetters';
 import TemplateOnboardingModal from '../components/TemplateOnboardingModal';
 import PaywallModal from '../components/PaywallModal';
+import PricingModal from '../components/PricingModal';
 import CoverLetterPage from './CoverLetterPage';
 import InterviewPrep from './interview';
 import { useAuth } from '../contexts/AuthContext';
@@ -20,14 +21,14 @@ import { subscriptionService } from '../services/subscriptionService';
 import { profileService, UserProfile } from '../services/profileService';
 import { coverLetterService, SavedCoverLetter } from '../services/coverLetterService';
 import { SubscriptionManager } from '../utils/subscriptionManager';
-import { PLANS, isPaidPlan } from '../utils/pricingConfig';
+import { PLANS, isPaidPlan, canAccessTemplate } from '../utils/pricingConfig';
 import {
     clearPendingCheckoutPlan,
     getPendingCheckoutPlan,
     redirectToPendingCheckoutIfAny,
     syncPendingPlanFromSearch,
 } from '../utils/pendingCheckout';
-import { linkDodoSubscriptionFromCheckout } from '../services/dodoPaymentsService';
+import { linkCreemSubscriptionFromCheckout } from '../services/creemPaymentsService';
 import { saveToStorage, debouncedSaveToStorage, loadFromStorage } from '../utils/statePersistence';
 
 <meta name="google-site-verification" content="tM8NcOMoT43REWAXI4sUDCX6usdXgja0epq5QCK1Ygc" />
@@ -97,7 +98,9 @@ export default function Dashboard() {
     }, []);
 
     const [savedTemplates, setSavedTemplates] = useState<SavedTemplate[]>([]);
+    const [isLoadingResumes, setIsLoadingResumes] = useState<boolean>(true);
     const [savedCoverLetters, setSavedCoverLetters] = useState<SavedCoverLetter[]>([]);
+    const [isLoadingCoverLetters, setIsLoadingCoverLetters] = useState<boolean>(true);
     const [currentResumeId, setCurrentResumeIdState] = useState<string | null>(() => {
         return loadFromStorage<string | null>('cv_app_resume_id', null);
     });
@@ -129,6 +132,8 @@ export default function Dashboard() {
     const paymentReturnHandledRef = React.useRef(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [showPaywall, setShowPaywall] = useState(false);
+    const [showPricingModal, setShowPricingModal] = useState(false);
+    const [paywallFeature, setPaywallFeature] = useState<'templates' | 'job-match' | 'general' | 'credits' | 'export' | 'docx' | 'pdf_limit' | 'resumes_limit' | 'upload_limit' | 'cover_letter'>('general');
     const [showOnboardingModal, setShowOnboardingModal] = useState(false);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
@@ -147,9 +152,11 @@ export default function Dashboard() {
                 setSavedTemplates([]);
                 setCurrentResumeId(null);
                 hasLoadedResumesRef.current = false;
+                setIsLoadingResumes(false);
                 return;
             }
             try {
+                setIsLoadingResumes(true);
                 console.log('Loading resumes for user:', user.id);
                 const rows = await resumeService.getResumes(user.id);
                 console.log('Fetched resumes from database:', rows.length, rows);
@@ -232,6 +239,8 @@ export default function Dashboard() {
             } catch (err) {
                 console.error('Failed to load resumes:', err);
                 showToast('Failed to load saved resumes. Please refresh the page.', 'error');
+            } finally {
+                setIsLoadingResumes(false);
             }
         };
         loadResumes();
@@ -242,14 +251,18 @@ export default function Dashboard() {
         const loadCoverLetters = async () => {
             if (!user) {
                 setSavedCoverLetters([]);
+                setIsLoadingCoverLetters(false);
                 return;
             }
             try {
+                setIsLoadingCoverLetters(true);
                 const letters = await coverLetterService.getCoverLetters(user.id);
                 setSavedCoverLetters(letters);
             } catch (err) {
                 console.error('Failed to load cover letters:', err);
                 // Don't show toast for cover letters - it's not critical
+            } finally {
+                setIsLoadingCoverLetters(false);
             }
         };
         loadCoverLetters();
@@ -598,6 +611,14 @@ export default function Dashboard() {
 
     const handleDuplicateTemplate = async (template: SavedTemplate) => {
         try {
+            const isUserPro = isPaidPlan(userSubscription.planId);
+            if (!isUserPro && savedTemplates.length >= 1) {
+                setPaywallFeature('resumes_limit');
+                setShowPaywall(true);
+                showToast('Free tier includes 1 active resume. Upgrade to Build to duplicate and manage multiple resumes.', 'error');
+                return;
+            }
+
             const originalData: ResumeData = template.data
                 ? JSON.parse(JSON.stringify(template.data))
                 : { ...INITIAL_DATA };
@@ -867,6 +888,13 @@ export default function Dashboard() {
                         element={
                             <Overview
                                 onCreateNew={() => {
+                                    const isUserPro = isPaidPlan(userSubscription.planId);
+                                    if (!isUserPro && savedTemplates.length >= 1) {
+                                        setPaywallFeature('resumes_limit');
+                                        setShowPaywall(true);
+                                        showToast('Free tier includes 1 active resume. Upgrade to Build to create multiple resumes.', 'error');
+                                        return;
+                                    }
                                     // starting a fresh resume; clear current id so autosave creates new entry
                                     setCurrentResumeId(null);
                                     navigate('/dashboard/templates');
@@ -905,6 +933,7 @@ export default function Dashboard() {
                                 onDuplicateTemplate={handleDuplicateTemplate}
                                 userName={userProfile?.full_name || user?.email || 'User'}
                                 userSubscription={userSubscription}
+                                isLoading={isLoadingResumes}
                             />
                         }
                     />
@@ -915,11 +944,24 @@ export default function Dashboard() {
                         element={
                             <Templates
                                 onSelect={(template) => {
+                                    if (!canAccessTemplate(userSubscription.planId, template)) {
+                                        setShowPricingModal(true);
+                                        return;
+                                    }
                                     setSelectedTemplate(template);
                                     setCurrentResumeId(null);
                                     setShowOnboardingModal(true);
                                 }}
                                 data={resumeData}
+                                userPlan={userSubscription.planId}
+                                onShowPaywall={(feat) => {
+                                    if (feat === 'templates') {
+                                        setShowPricingModal(true);
+                                    } else {
+                                        setPaywallFeature(feat);
+                                        setShowPaywall(true);
+                                    }
+                                }}
                             />
                         }
                     />
@@ -960,6 +1002,7 @@ export default function Dashboard() {
                                     }
                                 }}
                                 onDuplicateTemplate={handleDuplicateTemplate}
+                                isLoading={isLoadingResumes}
                             />
                         }
                     />
@@ -970,6 +1013,7 @@ export default function Dashboard() {
                         element={
                             <MyCoverLetters
                                 letters={savedCoverLetters}
+                                isLoading={isLoadingCoverLetters}
                                 onViewLetter={(letter) => {
                                     navigate('/dashboard/cover-letter', { state: { initialLetter: letter } });
                                 }}
@@ -1008,8 +1052,9 @@ export default function Dashboard() {
                                 onDeductCredit={() => {
                                     const check = subscriptionManager.canUseFeature('cover_letter');
                                     if (!check.allowed) {
+                                        setPaywallFeature('cover_letter');
                                         setShowPaywall(true);
-                                        showToast(check.reason || 'You are out of credits. Please upgrade to continue using AI.', 'error');
+                                        showToast(check.reason || 'Cover letter generation is a Pro feature.', 'error');
                                         return false;
                                     }
 
@@ -1074,6 +1119,10 @@ export default function Dashboard() {
                                 }}
                                 template={selectedTemplate}
                                 onTemplateChange={(template) => {
+                                    if (!canAccessTemplate(userSubscription.planId, template)) {
+                                        setShowPricingModal(true);
+                                        return;
+                                    }
                                     setSelectedTemplate(template);
                                     // Immediately persist template to localStorage
                                     localStorage.setItem('cv_app_template', template);
@@ -1111,11 +1160,10 @@ export default function Dashboard() {
                                         setHasUnsavedChanges(true);
                                     }
                                 }}
+                                hasUnsavedChanges={hasUnsavedChanges}
+                                onDiscardChanges={() => setHasUnsavedChanges(false)}
                                 onBack={() => {
-                                    if (hasUnsavedChanges) {
-                                        const confirmLeave = window.confirm('You have unsaved changes. Are you sure you want to leave without saving?');
-                                        if (!confirmLeave) return;
-                                    }
+                                    setHasUnsavedChanges(false);
                                     navigate('/dashboard');
                                 }}
                                 onAIAction={(action) => {
@@ -1344,7 +1392,14 @@ export default function Dashboard() {
                                     }
                                 }}
                                 userSubscription={userSubscription}
-                                onShowPaywall={() => setShowPaywall(true)}
+                                onShowPaywall={(feat) => {
+                                    if (feat === 'templates') {
+                                        setShowPricingModal(true);
+                                    } else {
+                                        setPaywallFeature(feat || 'general');
+                                        setShowPaywall(true);
+                                    }
+                                }}
                                 currentResumeId={currentResumeId}
                             />
                         }
@@ -1380,10 +1435,18 @@ export default function Dashboard() {
                 onClose={() => setShowPaywall(false)}
                 onUpgrade={() => {
                     setShowPaywall(false);
-                    navigate('/dashboard/settings?tab=plan');
+                    setShowPricingModal(true);
                 }}
-                feature="general"
+                feature={paywallFeature}
                 currentPlan={userSubscription.planId}
+            />
+
+            <PricingModal
+                isOpen={showPricingModal}
+                onClose={() => setShowPricingModal(false)}
+                currentPlanId={userSubscription.planId}
+                title="Upgrade to Unlock Premium Templates"
+                description="Choose a plan to unlock all premium ATS-optimized templates, unlimited AI rewrites, and PDF exports."
             />
 
             {/* Onboarding modal: upload vs start from scratch */}
@@ -1393,7 +1456,9 @@ export default function Dashboard() {
                 onCheckUploadPermission={() => {
                     const check = subscriptionManager.canUseFeature('resume_upload');
                     if (!check.allowed) {
+                        setPaywallFeature('upload_limit');
                         setShowPaywall(true);
+                        showToast(check.reason || 'You have used your 1 free resume upload.', 'error');
                         return false;
                     }
                     return true;
@@ -1404,32 +1469,32 @@ export default function Dashboard() {
                     let newResumeData: ResumeData;
 
                     if (data.method === 'upload') {
-                        // Check access and deduct credits for resume upload
+                        // Check access for resume upload
                         const check = subscriptionManager.canUseFeature('resume_upload');
                         if (!check.allowed) {
+                            setPaywallFeature('upload_limit');
                             setShowPaywall(true);
                             return;
                         }
 
-                        // Try to deduct credit if authorized
-                        const previousCredits = subscriptionManager.getCreditBalance();
-                        const creditResult = subscriptionManager.deductCredit('resume_upload');
-                        if (!creditResult.success) {
-                            setShowPaywall(true);
-                            showToast('Insufficient credits. Resume upload costs 1 credit.', 'error');
-                            return;
-                        }
-
-                        // Update subscription state
-                        setUserSubscription(subscriptionManager.getSubscription());
-
-                        // Persist to backend
+                        // Log upload usage
                         if (user) {
-                            const cost = previousCredits - creditResult.remainingCredits;
-                            if (cost > 0) {
-                                subscriptionService.deductCredits(user.id, cost)
-                                    .catch(err => console.error('Failed to sync credits for upload:', err));
-                            }
+                            subscriptionService.performAction(user.id, 'resume_upload', 0)
+                                .then(() => {
+                                    setUserSubscription(prev => ({
+                                        ...prev,
+                                        usageHistory: [
+                                            {
+                                                timestamp: new Date(),
+                                                action: 'resume_upload',
+                                                creditsCost: 0,
+                                                remainingCredits: prev.credits,
+                                            },
+                                            ...prev.usageHistory,
+                                        ],
+                                    }));
+                                })
+                                .catch(err => console.error('Failed to sync upload usage:', err));
                         }
 
                         // Use parsed data from uploaded resume

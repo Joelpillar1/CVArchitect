@@ -11,10 +11,13 @@
  * - Native vector print export (printResumeToPdf) for 100% crisp selectable vector text and ATS compatibility.
  * - Plain text / Markdown export for quick job-board copy pasting.
  */
+import React from 'react';
+import { createRoot } from 'react-dom/client';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { ResumeData, TemplateType } from '../types';
 import { getSheetVerticalMarginPx } from './templateUtils';
+import ResumePreview from '../components/ResumePreview';
 
 export interface PdfExportOptions {
   filename?: string;
@@ -52,11 +55,19 @@ export const downloadFile = (blob: Blob, filename: string): void => {
       ? filename
       : `${filename}.pdf`;
 
-  const url = window.URL.createObjectURL(blob);
+  // Ensure blob has explicit application/pdf MIME type for mobile download handlers
+  const typedBlob =
+    cleanName.toLowerCase().endsWith('.pdf') && blob.type !== 'application/pdf'
+      ? new Blob([blob], { type: 'application/pdf' })
+      : blob;
+
+  const url = window.URL.createObjectURL(typedBlob);
   const a = document.createElement('a');
   a.style.display = 'none';
   a.href = url;
   a.download = cleanName;
+  a.target = '_blank';
+  a.rel = 'noopener noreferrer';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -152,21 +163,32 @@ export function toSrgbString(cssColor: string): string {
  *  - currentColor on SVG path children resolved to a real hex/rgb value
  *  - <hr> converted to height+background-color (not border)
  */
-export async function captureElement(el: HTMLElement, scale: number = 2): Promise<HTMLCanvasElement> {
-  // Wait for all web fonts to load with a 1-second timeout safety
+export async function captureElement(
+  el: HTMLElement,
+  scale: number = 2,
+  pageSize: 'letter' | 'a4' = 'letter'
+): Promise<HTMLCanvasElement> {
+  // Wait for all web fonts to load with a 1.5-second timeout safety
   if (document.fonts?.ready) {
     try {
       await Promise.race([
         document.fonts.ready,
-        new Promise((resolve) => setTimeout(resolve, 1000)),
+        new Promise((resolve) => setTimeout(resolve, 1500)),
       ]);
     } catch {
       // Ignore font readiness errors
     }
   }
 
-  const w = el.offsetWidth || el.clientWidth || 794;
-  const h = el.offsetHeight || el.clientHeight || 1123;
+  const isA4 = pageSize === 'a4';
+  const defaultW = isA4 ? 794 : 816;
+  const defaultH = isA4 ? 1123 : 1056;
+
+  const rawW = el.offsetWidth || el.clientWidth || 0;
+  const rawH = el.offsetHeight || el.clientHeight || 0;
+  // Use measured element dimensions when available, otherwise exact paper size
+  const w = rawW >= 650 ? rawW : defaultW;
+  const h = rawH >= 900 ? rawH : defaultH;
 
   const host = document.createElement('div');
   host.style.cssText = [
@@ -188,7 +210,10 @@ export async function captureElement(el: HTMLElement, scale: number = 2): Promis
   clone.style.position = 'static';
   clone.style.margin = '0';
   clone.style.width = `${w}px`;
+  clone.style.minWidth = `${w}px`;
+  clone.style.maxWidth = `${w}px`;
   clone.style.height = `${h}px`;
+  clone.style.minHeight = `${h}px`;
   clone.style.overflow = 'hidden';
   clone.style.backgroundColor = '#ffffff';
   clone.style.visibility = 'visible';
@@ -211,342 +236,46 @@ export async function captureElement(el: HTMLElement, scale: number = 2): Promis
   // Remove page-number badges, floating icons, and print-hidden elements
   clone.querySelectorAll('.print\\:hidden, [class*="print:hidden"], .absolute.bottom-3').forEach((c) => c.remove());
 
-  // 1. Remove awkward stretched justification gaps across all templates
-  clone.querySelectorAll<HTMLElement>('.text-justify, [style*="text-align: justify"], [style*="text-align:justify"]').forEach((node) => {
-    node.classList.remove('text-justify');
-    node.style.setProperty('text-align', 'left', 'important');
-  });
-
-  // 2. Convert list markers and ensure uniform bullet styling on export
-  const activeBulletStyle =
-    clone.getAttribute('data-bullet-style') ||
-    el.closest('[data-bullet-style]')?.getAttribute('data-bullet-style') ||
-    'disc';
-  const bulletGlyph =
-    activeBulletStyle === 'check' ? '✓' : activeBulletStyle === 'dash' ? '–' : activeBulletStyle === 'none' ? '' : '•';
-  const bulletWeight =
-    activeBulletStyle === 'check' || activeBulletStyle === 'dash' ? 'bold' : 'normal';
-
-  clone.querySelectorAll<HTMLUListElement>('ul').forEach((ul) => {
-    const isDisc = ul.classList.contains('list-disc') || ul.classList.contains('list-outside') || window.getComputedStyle(ul).listStyleType === 'disc';
-    if (isDisc) {
-      ul.classList.remove('list-disc', 'list-outside');
-      ul.style.setProperty('list-style', 'none', 'important');
-      ul.style.setProperty('padding-left', '0', 'important');
-      ul.style.setProperty('margin-left', '0', 'important');
-
-      Array.from(ul.children).forEach((child) => {
-        if (child instanceof HTMLElement && !child.querySelector('[data-bullet]')) {
-          child.style.setProperty('display', 'flex', 'important');
-          child.style.setProperty('align-items', 'baseline', 'important');
-          child.style.setProperty('gap', '0.5rem', 'important');
-          child.style.setProperty('text-align', 'left', 'important');
-
-          const dot = document.createElement('span');
-          dot.setAttribute('data-bullet', 'true');
-          dot.setAttribute('aria-hidden', 'true');
-          dot.style.cssText = `flex-shrink:0;user-select:none;pointer-events:none;line-height:1;color:inherit;font-weight:${bulletWeight};`;
-          dot.textContent = bulletGlyph;
-          if (activeBulletStyle === 'none') {
-            dot.style.display = 'none';
-          }
-          child.insertBefore(dot, child.firstChild);
-        }
-      });
-    }
-  });
-
-  // Ensure all standard bullets (including skills grid and converted lists) have uniform glyph and weight
-  clone.querySelectorAll<HTMLElement>('[data-bullet]').forEach((dot) => {
-    dot.textContent = bulletGlyph;
-    dot.style.fontWeight = bulletWeight;
-    dot.style.setProperty('font-weight', bulletWeight, 'important');
-    if (activeBulletStyle === 'none') {
-      dot.style.display = 'none';
-      dot.style.setProperty('display', 'none', 'important');
-    }
-  });
-
-  // ─── PHASE 1: FullName Header spacing & line-height fix ──────────────────
-  //
-  //  h1 elements often have leading-none (line-height: 1) and small bottom margin
-  //  (0.03in / ~3px). In html2canvas, this causes font descenders to collide with
-  //  or overlap the contact row immediately beneath the candidate name.
-  //
-  // ─── PHASE 1: FullName Header spacing & line-height fix ──────────────────
-  //
-  //  h1 elements often have leading-none (line-height: 1) and small bottom margin
-  //  (0.03in / ~3px). In html2canvas, this causes font descenders to collide with
-  //  or overlap the contact row immediately beneath the candidate name.
-  //
-  const h1 = clone.querySelector<HTMLElement>('header h1, header [data-path="fullName"]');
-  if (h1) {
-    h1.style.lineHeight = '1.25';
-    const compMb = parseFloat(window.getComputedStyle(h1).marginBottom || '0');
-    if (compMb < 8) {
-      h1.style.marginBottom = '8px';
-    }
-  }
-
-  // ─── PHASE 2: Contact row centering & spacing ─────────────────────────────
-  //
-  //  html2canvas ignores CSS `gap` and fails to center `justify-content: center`
-  //  on flex-wrap containers. We normalize the contact container into a block with
-  //  explicit text-align (matching the computed alignment), and each contact item
-  //  into an inline-block element with explicit horizontal margins.
-  //
-  const contactContainers = clone.querySelectorAll<HTMLElement>(
-    'header > div[class*="flex"], header [class*="flex-wrap"], header .contact-info, [data-contact-row]'
-  );
-  contactContainers.forEach((container) => {
-    // Only process top-level contact container divs, not individual items or inner spans
-    if (container.tagName.toLowerCase() === 'span') return;
-    if (container.getAttribute('data-pdf-contact-processed')) return;
-    if (container.closest('[data-pdf-contact-processed]')) return;
-    container.setAttribute('data-pdf-contact-processed', 'true');
-
-    if (!container.querySelector('svg, img')) return;
-
-    // Read computed alignment before stripping classes
-    const comp = window.getComputedStyle(container);
-    const jc = comp.justifyContent;
-    let align: 'left' | 'center' | 'right' = 'center';
-    if (jc === 'flex-start' || jc === 'start' || container.classList.contains('justify-start')) align = 'left';
-    if (jc === 'flex-end' || jc === 'end' || container.classList.contains('justify-end')) align = 'right';
-
-    // Remove problematic Tailwind classes that html2canvas misinterprets
-    const toRemove: string[] = [];
-    container.classList.forEach((cls) => {
-      if (
-        cls.startsWith('flex') ||
-        cls.startsWith('gap-') ||
-        cls.startsWith('gap_') ||
-        cls.startsWith('items-') ||
-        cls.startsWith('justify-')
-      ) {
-        toRemove.push(cls);
-      }
-    });
-    toRemove.forEach((cls) => container.classList.remove(cls));
-
-    Object.assign(container.style, {
-      display:      'block',
-      textAlign:    align,
-      lineHeight:   '1.4',
-      width:        '100%',
-      marginBottom: '6px',
-    });
-
-    Array.from(container.children).forEach((item) => {
-      if (item instanceof HTMLElement) {
-        const spanClasses: string[] = [];
-        item.classList.forEach((cls) => {
-          if (
-            cls.startsWith('inline-flex') ||
-            cls.startsWith('flex') ||
-            cls.startsWith('gap-') ||
-            cls.startsWith('items-')
-          ) {
-            spanClasses.push(cls);
-          }
-        });
-        spanClasses.forEach((cls) => item.classList.remove(cls));
-
-        Object.assign(item.style, {
-          display:       'inline-block',
-          verticalAlign: 'middle',
-          whiteSpace:    'nowrap',
-          margin:        '2px 8px',
-          lineHeight:    '1.3',
-        });
-
-        // Ensure inner span or anchor text elements also align vertically
-        item.querySelectorAll<HTMLElement>('span, a').forEach((child) => {
-          child.style.display = 'inline-block';
-          child.style.verticalAlign = 'middle';
-        });
-      }
-    });
-  });
-
-  // ─── PHASE 3: SVG Icons to High-Res Raster <img> Elements ─────────────────
-  //
-  //  html2canvas has well-documented rendering defects when parsing <svg> elements
-  //  inside flex containers (icons jump upwards, drop, or overlap text).
-  //  By rasterizing each SVG onto an offscreen canvas at 4× scale via a data URI
-  //  (avoiding any blob/CORS errors) and replacing it with a native <img> element,
-  //  html2canvas renders a standard image with pixel-perfect vertical alignment.
-  //
-  const svgs = Array.from(clone.querySelectorAll<SVGSVGElement>('svg'));
-  for (const svg of svgs) {
-    const attrW = parseFloat(svg.getAttribute('width') || '0');
-    const attrH = parseFloat(svg.getAttribute('height') || '0');
-    const comp  = window.getComputedStyle(svg);
-    const svgW  = attrW > 0 ? attrW : (parseFloat(comp.width)  || 12);
-    const svgH  = attrH > 0 ? attrH : (parseFloat(comp.height) || 12);
-
-    // Resolve stroke color from explicit attribute or computed color
-    const strokeAttr = svg.getAttribute('stroke') || '';
-    const resolvedStroke =
-      strokeAttr && strokeAttr !== 'currentColor'
-        ? toSrgbString(strokeAttr)
-        : toSrgbString(
-            comp.stroke && comp.stroke !== 'none' ? comp.stroke : (comp.color || '#374151')
-          );
-
-    svg.setAttribute('width',  String(svgW));
-    svg.setAttribute('height', String(svgH));
-    svg.setAttribute('stroke', resolvedStroke);
-    if (!svg.getAttribute('xmlns')) svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-
-    svg.querySelectorAll<Element>('[stroke="currentColor"]').forEach((c) => c.setAttribute('stroke', resolvedStroke));
-    svg.querySelectorAll<Element>('[fill="currentColor"]').forEach((c)   => c.setAttribute('fill',   resolvedStroke));
-
+  // Resolve SVG colors cleanly so html2canvas renders exact colors
+  clone.querySelectorAll<SVGSVGElement>('svg').forEach((svg) => {
     try {
-      const xml = new XMLSerializer().serializeToString(svg);
-      const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
+      const comp = window.getComputedStyle(svg);
+      const strokeAttr = svg.getAttribute('stroke');
+      const fillAttr = svg.getAttribute('fill');
+      const strokeVal = comp.stroke && comp.stroke !== 'none' ? comp.stroke : (comp.color || '#374151');
+      const resolvedColor = toSrgbString(strokeVal);
 
-      const img = new Image();
-      await new Promise<void>((resolve) => {
-        img.onload = () => resolve();
-        img.onerror = () => resolve();
-        img.src = dataUrl;
-      });
-
-      const RASTER_SCALE = 4;
-      const cvs = document.createElement('canvas');
-      cvs.width = Math.max(1, Math.round(svgW * RASTER_SCALE));
-      cvs.height = Math.max(1, Math.round(svgH * RASTER_SCALE));
-      const ctx = cvs.getContext('2d');
-      if (ctx) {
-        ctx.drawImage(img, 0, 0, cvs.width, cvs.height);
+      if (strokeAttr && strokeAttr === 'currentColor') {
+        svg.setAttribute('stroke', resolvedColor);
       }
-
-      const pngDataUrl = cvs.toDataURL('image/png');
-
-      const newImg = document.createElement('img');
-      newImg.src = pngDataUrl;
-      newImg.width = Math.round(svgW);
-      newImg.height = Math.round(svgH);
-      Object.assign(newImg.style, {
-        width:           `${svgW}px`,
-        height:          `${svgH}px`,
-        display:         'inline-block',
-        position:        'relative',
-        top:             '1px',
-        marginRight:     '4px',
-        verticalAlign:   'middle',
-        flexShrink:      '0',
-      });
-
-      svg.parentNode?.replaceChild(newImg, svg);
+      if (fillAttr && fillAttr === 'currentColor') {
+        svg.setAttribute('fill', resolvedColor);
+      }
+      svg.querySelectorAll('[stroke="currentColor"]').forEach((c) => c.setAttribute('stroke', resolvedColor));
+      svg.querySelectorAll('[fill="currentColor"]').forEach((c) => c.setAttribute('fill', resolvedColor));
     } catch {
-      // Fallback in case of XML serialization edge cases: preserve styled SVG
-      Object.assign(svg.style, {
-        width:         `${svgW}px`,
-        height:        `${svgH}px`,
-        display:       'inline-block',
-        verticalAlign: 'middle',
-        marginRight:   '4px',
-      });
-    }
-  }
-
-  // ─── PHASE 4: Section Dividers ─────────────────────────────────────────────
-  //
-  //  html2canvas often renders heading bottom borders cutting directly across the
-  //  heading letters due to tight line-heights and subpixel baseline math.
-  //  We remove border-b and inject an explicit <div> with identical color, height,
-  //  and bottom margin immediately following the heading.
-  //
-  clone.querySelectorAll<HTMLElement>('h1, h2, h3, h4, .section-header').forEach((h) => {
-    if (h.getAttribute('data-pdf-divider')) return;
-
-    const comp = window.getComputedStyle(h);
-    const borderBottomWidth = parseFloat(comp.borderBottomWidth || '0');
-    const hasBorderB = borderBottomWidth > 0 || h.className.includes('border-b');
-
-    // Strip border-b classes so html2canvas sees no competing rules
-    const toRemove: string[] = [];
-    h.classList.forEach((cls) => {
-      if (
-        cls.startsWith('border-b') ||
-        cls.startsWith('border-gray') ||
-        cls.startsWith('border-black') ||
-        cls.startsWith('border-[')
-      ) {
-        toRemove.push(cls);
-      }
-    });
-    h.style.setProperty('border', 'none', 'important');
-    h.style.setProperty('border-bottom', 'none', 'important');
-
-    if (!hasBorderB) return;
-
-    h.style.setProperty('padding-bottom', '2px', 'important');
-    h.style.setProperty('margin-bottom', '6px', 'important');
-    h.style.setProperty('line-height', '1.3', 'important');
-
-    const borderColor = toSrgbString(comp.borderBottomColor || comp.color || '#374151');
-    const originalMb = comp.marginBottom || '8px';
-    const borderWidth = Math.max(1, borderBottomWidth);
-
-    const divider = document.createElement('div');
-    divider.setAttribute('aria-hidden', 'true');
-    divider.setAttribute('data-pdf-divider', 'true');
-    divider.style.cssText = [
-      `height:${borderWidth}px`,
-      `background-color:${borderColor}`,
-      'width:100%',
-      'display:block',
-      'margin-top:0px',
-      `margin-bottom:${originalMb}`,
-      'box-sizing:border-box',
-      'clear:both',
-    ].join(';');
-
-    h.after(divider);
-  });
-
-  // Ensure all explicit section dividers maintain a clean 6px clearance below headings
-  clone.querySelectorAll<HTMLElement>('.section-divider').forEach((div) => {
-    const prev = div.previousElementSibling as HTMLElement | null;
-    if (prev && (prev.tagName.startsWith('H') || prev.classList.contains('section-header'))) {
-      prev.style.setProperty('margin-bottom', '6px', 'important');
-      div.style.setProperty('margin-top', '0px', 'important');
+      // Fallback: ignore SVG color resolution errors
     }
   });
 
-  // ─── PHASE 5: HR elements ──────────────────────────────────────────────────
-  //
-  //  Native <hr> borders are inconsistently rendered by html2canvas.
-  //  Convert to a clean 1px solid background block while preserving template margins.
-  //
+  // Convert HR borders to clean solid 1px background block for html2canvas consistency
   clone.querySelectorAll<HTMLHRElement>('hr').forEach((hr) => {
-    const comp       = window.getComputedStyle(hr);
-    const hrColor    = toSrgbString(comp.borderTopColor || comp.borderColor || comp.color || '#374151');
-    const originalMb = comp.marginBottom || '12px';
-    const originalMt = comp.marginTop || '6px';
-    Object.assign(hr.style, {
-      border:          'none',
-      height:          '1px',
-      backgroundColor: hrColor,
-      width:           '100%',
-      display:         'block',
-      marginTop:       originalMt,
-      marginBottom:    originalMb,
-    });
+    try {
+      const comp = window.getComputedStyle(hr);
+      const hrColor = toSrgbString(comp.borderTopColor || comp.borderColor || comp.color || '#e5e7eb');
+      hr.style.border = 'none';
+      hr.style.height = '1px';
+      hr.style.backgroundColor = hrColor;
+    } catch {
+      // Fallback
+    }
   });
 
-  // ─── PHASE 5: Shadow removal + visibility ────────────────────────────────────
-  // 8. Strip shadows and ensure children visibility
+  // Strip shadows for clean raster output
   clone.querySelectorAll<HTMLElement>('*').forEach((child) => {
     if (child.style) {
       if (child.style.boxShadow) child.style.boxShadow = 'none';
       if (child.style.textShadow) child.style.textShadow = 'none';
-      if (child.style.visibility === 'hidden' && !child.classList.contains('print:hidden')) {
-        child.style.visibility = 'visible';
-      }
     }
   });
 
@@ -580,17 +309,17 @@ export async function captureElement(el: HTMLElement, scale: number = 2): Promis
         // Sanitize any modern oklch/oklab in stylesheets within the iframe
         clonedDoc.querySelectorAll('style').forEach((styleEl) => {
           if (styleEl.textContent && /oklch|oklab|color\(display-p3/i.test(styleEl.textContent)) {
-            styleEl.textContent = styleEl.textContent.replace(/oklch\([^)]+\)|oklab\([^)]+\)|color\(display-p3[^)]+\)/gi, (match) => {
-              return toSrgbString(match);
-            });
+            styleEl.textContent = styleEl.textContent.replace(
+              /oklch\([^)]+\)|oklab\([^)]+\)|color\(display-p3[^)]+\)/gi,
+              (match) => toSrgbString(match)
+            );
           }
         });
       },
     });
 
-    // 10-second timeout safety harness so PDF generation never hangs indefinitely
     const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('PDF capture timed out. Please try again or use Print / Vector PDF.')), 10000)
+      setTimeout(() => reject(new Error('PDF capture timed out. Please try again.')), 15000)
     );
 
     return await Promise.race([canvasPromise, timeoutPromise]);
@@ -640,11 +369,13 @@ function countPreviewSheets(): number {
  */
 export async function exportResumeToServerPdf(
   data: ResumeData,
-  template: TemplateType = 'vanguard',
+  template?: TemplateType,
   customFilename?: string
 ): Promise<{ filename: string; verified: boolean; pages: number | null }> {
-  const filename = buildResumeFilename(data, customFilename);
-  const pageSize = (data.pageSize || 'letter').toLowerCase() === 'a4' ? 'A4' : 'Letter';
+  const resolvedTemplate: TemplateType = template || data.template || 'vanguard';
+  const dataWithTemplate: ResumeData = { ...data, template: resolvedTemplate };
+  const filename = buildResumeFilename(dataWithTemplate, customFilename);
+  const pageSize = (dataWithTemplate.pageSize || 'letter').toLowerCase() === 'a4' ? 'A4' : 'Letter';
 
   // How many pages the editor's own preview shows — lets the server widen its
   // verification ceiling so a legitimately long CV is never rejected, while a
@@ -653,18 +384,19 @@ export async function exportResumeToServerPdf(
 
   // Same per-sheet top/bottom padding the preview uses, sent to page.pdf so it
   // repeats on EVERY page — this is what keeps the user's margin setting.
-  const marginVerticalPx = getSheetVerticalMarginPx(data);
+  const marginVerticalPx = getSheetVerticalMarginPx(dataWithTemplate);
 
   const controller = new AbortController();
   const timer = window.setTimeout(() => controller.abort(), SERVER_PDF_TIMEOUT_MS);
 
-  let response: Response;
+  let response: Response | undefined;
+  let serverExportError: string | null = null;
   try {
     response = await fetch('/api/export-pdf', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        exportPayload: JSON.stringify({ data, template }),
+        exportPayload: JSON.stringify({ data: dataWithTemplate, template: resolvedTemplate }),
         origin: window.location.origin,
         pageSize,
         filename,
@@ -675,29 +407,43 @@ export async function exportResumeToServerPdf(
     });
   } catch (err) {
     const timedOut = controller.signal.aborted;
-    throw new Error(
-      timedOut
-        ? `The PDF service did not respond within ${SERVER_PDF_TIMEOUT_MS / 1000} seconds.`
-        : `Could not reach the PDF service: ${err instanceof Error ? err.message : String(err)}`
-    );
+    serverExportError = timedOut
+      ? `PDF server timed out after ${SERVER_PDF_TIMEOUT_MS / 1000}s`
+      : (err instanceof Error ? err.message : String(err));
   } finally {
     window.clearTimeout(timer);
   }
 
-  if (!response.ok) {
-    let detail = `HTTP ${response.status}`;
-    try {
-      const body = (await response.json()) as { error?: string };
-      if (body?.error) detail = body.error;
-    } catch {
-      // Non-JSON error body — keep the HTTP status as the detail.
+  // If server render fails for ANY reason (HTTP 300/308 redirect, 500 error, network timeout, mobile proxy):
+  // Seamlessly fall back to client-side canvas PDF generation so the user ALWAYS gets their resume file.
+  if (!response || !response.ok || serverExportError) {
+    let detail = serverExportError || (response ? `HTTP ${response.status}` : 'No server response');
+    if (response && !response.ok) {
+      try {
+        const body = (await response.json()) as { error?: string };
+        if (body?.error) detail = body.error;
+      } catch {
+        // Non-JSON error body
+      }
     }
-    throw new Error(detail);
+    console.warn(`Server PDF export returned ${detail}. Automatically falling back to client-side PDF export...`);
+    await exportResumeToPdf(dataWithTemplate, resolvedTemplate, customFilename);
+    return {
+      filename,
+      verified: false,
+      pages: null,
+    };
   }
 
   const blob = await response.blob();
   if (blob.size === 0) {
-    throw new Error('The PDF service returned an empty file.');
+    console.warn('Server PDF export returned empty file. Automatically falling back to client-side PDF export...');
+    await exportResumeToPdf(dataWithTemplate, resolvedTemplate, customFilename);
+    return {
+      filename,
+      verified: false,
+      pages: null,
+    };
   }
 
   downloadFile(blob, filename);
@@ -717,45 +463,107 @@ export async function exportResumeToServerPdf(
  */
 export async function exportResumeToPdf(
   data: ResumeData,
-  template: TemplateType = 'vanguard',
+  template?: TemplateType,
   customFilename?: string
 ): Promise<void> {
-  const finalFilename = buildResumeFilename(data, customFilename);
+  const resolvedTemplate: TemplateType = template || data.template || 'vanguard';
+  const dataWithTemplate: ResumeData = { ...data, template: resolvedTemplate };
+  const finalFilename = buildResumeFilename(dataWithTemplate, customFilename);
+  const pageSize = (dataWithTemplate.pageSize || 'letter').toLowerCase();
+  const isA4 = pageSize === 'a4';
+
+  const pageWidthMm = isA4 ? 210 : 215.9;
+  const pageHeightMm = isA4 ? 297 : 279.4;
+  const format = isA4 ? 'a4' : 'letter';
+  const paperW = isA4 ? 794 : 816;
+
+  let sheets: HTMLElement[] = [];
+  let cleanupOffscreen: (() => void) | null = null;
+
+  // 1. Pristine offscreen render:
+  // Render ResumePreview at standard desktop width in an offscreen container.
+  // This guarantees identical desktop paper dimensions, accurate font metrics,
+  // and full page slicing even on mobile phones or when the editor tab is active.
+  try {
+    const offscreenHost = document.createElement('div');
+    offscreenHost.id = 'cvarchitect-pdf-export-host';
+    offscreenHost.style.cssText = [
+      'position:fixed',
+      'top:0',
+      'left:-99999px',
+      `width:${Math.max(1200, paperW + 100)}px`,
+      'height:auto',
+      'z-index:-99999',
+      'opacity:1',
+      'visibility:visible',
+      'pointer-events:none',
+      'background:#ffffff',
+    ].join(';');
+    document.body.appendChild(offscreenHost);
+
+    const root = createRoot(offscreenHost);
+    root.render(React.createElement(ResumePreview, { data: dataWithTemplate, template: resolvedTemplate, editable: false }));
+
+    // Wait for fonts and for .resume-page-sheet elements to be computed and injected
+    await new Promise<void>((resolve) => {
+      let attempts = 0;
+      const check = () => {
+        attempts++;
+        const found = offscreenHost.querySelectorAll<HTMLElement>('.resume-page-sheet');
+        if (found.length > 0 && found[0].innerHTML.trim().length > 50) {
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+        } else if (attempts < 60) {
+          setTimeout(check, 50);
+        } else {
+          resolve();
+        }
+      };
+      check();
+    });
+
+    const offscreenSheets = Array.from(offscreenHost.querySelectorAll<HTMLElement>('.resume-page-sheet'));
+    if (offscreenSheets.length > 0) {
+      sheets = offscreenSheets;
+      cleanupOffscreen = () => {
+        try {
+          root.unmount();
+        } catch {}
+        if (document.body.contains(offscreenHost)) {
+          document.body.removeChild(offscreenHost);
+        }
+      };
+    } else {
+      root.unmount();
+      offscreenHost.remove();
+    }
+  } catch (err) {
+    console.warn('Offscreen render for PDF export failed, falling back to visible DOM sheets:', err);
+  }
 
   /**
-   * Find the sheets to export.
-   *
-   * Priority order:
-   *  1. Sheets inside the main workspace paper container ([data-resume-paper="true"])
-   *     — this is the single, non-fullscreen, non-print canvas the user sees.
-   *  2. Global fallback filtered to exclude:
-   *     - offscreen measurement containers (.opacity-0 ancestors)
-   *     - fixed-position fullscreen overlays (z-50 preview modal)
-   *     - the hidden print portal (.print-root)
+   * Find the sheets from live DOM as fallback if offscreen render failed.
    */
   const getVisibleSheets = (): HTMLElement[] => {
-    // 1. Prefer sheets scoped to the main workspace paper container.
-    //    [data-resume-paper="true"] is set on the paperRef div in ResumeWorkspace.
     const paperContainer = document.querySelector<HTMLElement>('[data-resume-paper="true"]');
     if (paperContainer) {
       const scoped = Array.from(paperContainer.querySelectorAll<HTMLElement>('.resume-page-sheet'));
       const visible = scoped.filter((el) => {
-        // Skip the offscreen measurement container inside ResumePreview
         if (el.closest('.opacity-0') || el.classList.contains('opacity-0') || el.style.opacity === '0') return false;
         const style = window.getComputedStyle(el);
         return style.opacity !== '0' && style.visibility !== 'hidden' && style.display !== 'none';
       });
       if (visible.length > 0) return visible;
+
+      const mounted = scoped.filter((el) => {
+        return !el.closest('.opacity-0') && !el.classList.contains('opacity-0') && el.style.opacity !== '0';
+      });
+      if (mounted.length > 0) return mounted;
     }
 
-    // 2. Global fallback: exclude fixed-position overlays and hidden print portals.
     const all = Array.from(document.querySelectorAll<HTMLElement>('.resume-page-sheet'));
-    return all.filter((el) => {
-      // Exclude offscreen measurement containers
+    const visibleGlobal = all.filter((el) => {
       if (el.closest('.opacity-0') || el.classList.contains('opacity-0') || el.style.opacity === '0') return false;
-      // Exclude the hidden print portal rendered by Editor
       if (el.closest('.print-root')) return false;
-      // Exclude sheets inside fixed-position fullscreen overlays
       let ancestor: Element | null = el.parentElement;
       while (ancestor) {
         const s = window.getComputedStyle(ancestor as HTMLElement);
@@ -765,20 +573,30 @@ export async function exportResumeToPdf(
       const style = window.getComputedStyle(el);
       return style.opacity !== '0' && style.visibility !== 'hidden' && style.display !== 'none';
     });
+    if (visibleGlobal.length > 0) return visibleGlobal;
+
+    const mountedGlobal = all.filter((el) => {
+      if (el.closest('.opacity-0') || el.classList.contains('opacity-0') || el.style.opacity === '0') return false;
+      if (el.closest('.print-root')) return false;
+      return true;
+    });
+    if (mountedGlobal.length > 0) return mountedGlobal;
+
+    const printResume = document.querySelector<HTMLElement>('.print-resume');
+    if (printResume) {
+      return [printResume];
+    }
+
+    return [];
   };
 
-  let sheets = getVisibleSheets();
-
-  // If sheets are not yet in DOM (e.g. template just switched), wait for React to commit the new render.
+  // 2. If offscreen sheets were not created, fallback to getVisibleSheets()
   if (sheets.length === 0) {
-    await new Promise((resolve) => setTimeout(resolve, 300));
     sheets = getVisibleSheets();
-  }
-
-  // Final retry with a longer wait in case of slow template renders
-  if (sheets.length === 0) {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    sheets = getVisibleSheets();
+    if (sheets.length === 0) {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      sheets = getVisibleSheets();
+    }
   }
 
   // Secondary fallback: capture the paper container itself
@@ -791,58 +609,56 @@ export async function exportResumeToPdf(
   }
 
   if (sheets.length === 0) {
+    cleanupOffscreen?.();
     throw new Error(
       'No resume pages found on screen. Please ensure your resume is visible in the editor.'
     );
   }
 
-  const pageSize = (data.pageSize || 'letter').toLowerCase();
-  const isA4 = pageSize === 'a4';
+  try {
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format,
+      compress: true,
+    });
 
-  const pageWidthMm = isA4 ? 210 : 215.9;
-  const pageHeightMm = isA4 ? 297 : 279.4;
-  const format = isA4 ? 'a4' : 'letter';
+    const SCALE = 2; // High-clarity 2× rendering
 
-  const pdf = new jsPDF({
-    orientation: 'portrait',
-    unit: 'mm',
-    format,
-    compress: true,
-  });
+    for (let i = 0; i < sheets.length; i++) {
+      const sheet = sheets[i];
 
-  const SCALE = 2; // High-clarity 2× rendering
+      if (i > 0) {
+        pdf.addPage(format, 'portrait');
+      }
 
-  for (let i = 0; i < sheets.length; i++) {
-    const sheet = sheets[i];
+      let canvas: HTMLCanvasElement;
+      try {
+        canvas = await captureElement(sheet, SCALE, isA4 ? 'a4' : 'letter');
+      } catch (err) {
+        console.error('Canvas capture error on sheet', i, err);
+        throw new Error(`Failed to capture page ${i + 1}: ${err instanceof Error ? err.message : String(err)}`);
+      }
 
-    if (i > 0) {
-      pdf.addPage(format, 'portrait');
+      const imgData = canvas.toDataURL('image/png');
+
+      pdf.addImage(
+        imgData,
+        'PNG',
+        0,
+        0,
+        pageWidthMm,
+        pageHeightMm,
+        undefined,
+        'FAST'
+      );
     }
 
-    let canvas: HTMLCanvasElement;
-    try {
-      canvas = await captureElement(sheet, SCALE);
-    } catch (err) {
-      console.error('Canvas capture error on sheet', i, err);
-      throw new Error(`Failed to capture page ${i + 1}: ${err instanceof Error ? err.message : String(err)}`);
-    }
-
-    const imgData = canvas.toDataURL('image/png');
-
-    pdf.addImage(
-      imgData,
-      'PNG',
-      0,
-      0,
-      pageWidthMm,
-      pageHeightMm,
-      undefined,
-      'FAST'
-    );
+    const pdfBlob = pdf.output('blob');
+    downloadFile(pdfBlob, finalFilename);
+  } finally {
+    cleanupOffscreen?.();
   }
-
-  const pdfBlob = pdf.output('blob');
-  downloadFile(pdfBlob, finalFilename);
 }
 
 /**
@@ -996,7 +812,7 @@ export async function exportCoverLetterToPdf(
 
   try {
     const SCALE = 2;
-    const canvas = await captureElement(targetEl, SCALE);
+    const canvas = await captureElement(targetEl, SCALE, 'a4');
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
     const imgData = canvas.toDataURL('image/jpeg', 0.95);
     pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
@@ -1021,7 +837,7 @@ export async function exportElementToPdf(
   const pageHeightMm = isA4 ? 297 : 279.4;
   const format = isA4 ? 'a4' : 'letter';
 
-  const canvas = await captureElement(element, 2);
+  const canvas = await captureElement(element, 2, isA4 ? 'a4' : 'letter');
   const imgData = canvas.toDataURL('image/jpeg', 0.95);
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format, compress: true });
   pdf.addImage(imgData, 'JPEG', 0, 0, pageWidthMm, pageHeightMm);

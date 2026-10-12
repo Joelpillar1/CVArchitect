@@ -13,18 +13,29 @@ import {
     Check
 } from 'lucide-react';
 import ResumePreview from './ResumePreview';
-import { FREE_TEMPLATES } from '../utils/pricingConfig';
+import { FREE_TEMPLATES, canAccessTemplate } from '../utils/pricingConfig';
 import { getTemplatePreviewData } from '../utils/sampleResumeData';
-import { TEMPLATE_CONFIG } from '../utils/templateConfig';
+import { TEMPLATE_CONFIG, getTemplateCategory } from '../utils/templateConfig';
+import { TemplateGridSkeleton, TemplateCardPreviewCanvas, ResumeModalSkeleton } from './ui/TemplateSkeleton';
 
 interface TemplatesProps {
     onSelect: (template: TemplateType) => void;
     data: ResumeData;
     isPublic?: boolean;
+    userPlan?: string;
+    onShowPaywall?: (feature: 'templates') => void;
 }
 
-export default function Templates({ onSelect, data, isPublic }: TemplatesProps) {
+export default function Templates({ onSelect, data, isPublic, userPlan = 'free', onShowPaywall }: TemplatesProps) {
     const [previewTemplate, setPreviewTemplate] = useState<TemplateType | null>(null);
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
+
+    React.useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsInitialLoading(false);
+        }, 200);
+        return () => clearTimeout(timer);
+    }, []);
 
     const templates = TEMPLATE_CONFIG;
 
@@ -39,16 +50,6 @@ export default function Templates({ onSelect, data, isPublic }: TemplatesProps) 
 
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
-
-    const getTemplateCategory = (t: typeof templates[0]) => {
-        const sub = t.subtitle.toLowerCase();
-        // Categorization logic based on subtitles
-        if (['entry level', 'graduate', 'finance', 'engineering', 'creative', 'chemical eng', 'marketing', 'leadership', 'student'].some(k => sub.includes(k))) return 'Student';
-        if (['executive', 'senior leader', 'c-suite'].some(k => sub.includes(k))) return 'Executive';
-        if (['modern tech', 'bold design', 'contemporary', 'clean', 'developer', 'modern'].some(k => sub.includes(k))) return 'Modern';
-        if (['academic', 'research'].some(k => sub.includes(k))) return 'Academic';
-        return 'Professional';
-    };
 
     const categories = ['All', 'Professional', 'Modern', 'Student', 'Executive', 'Academic', 'Free', 'Pro'].filter(cat => {
         if (isPublic && (cat === 'Free' || cat === 'Pro')) return false;
@@ -72,6 +73,14 @@ export default function Templates({ onSelect, data, isPublic }: TemplatesProps) 
         const category = getTemplateCategory(t);
         return selectedCategory === 'All' || category === selectedCategory;
     });
+
+    const handleChooseTemplate = (templateId: TemplateType) => {
+        if (!isPublic && !canAccessTemplate(userPlan, templateId)) {
+            onShowPaywall?.('templates');
+            return;
+        }
+        onSelect(templateId);
+    };
 
     return (
         <div className="p-6 md:p-10 h-full overflow-y-auto bg-brand-bg">
@@ -104,7 +113,7 @@ export default function Templates({ onSelect, data, isPublic }: TemplatesProps) 
                             <button
                                 key={cat}
                                 onClick={() => setSelectedCategory(cat)}
-                                className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${selectedCategory === cat
+                                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${selectedCategory === cat
                                     ? 'bg-brand-dark text-white shadow-md transform scale-105'
                                     : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 hover:border-gray-300'
                                     }`}
@@ -117,15 +126,20 @@ export default function Templates({ onSelect, data, isPublic }: TemplatesProps) 
 
                 {/* Templates Grid */}
                 <div className="pb-16">
-                    {filteredTemplates.length > 0 ? (
+                    {isInitialLoading ? (
+                        <TemplateGridSkeleton count={8} />
+                    ) : filteredTemplates.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                             {filteredTemplates.map((template) => {
                                 const isFree = FREE_TEMPLATES.includes(template.id);
+                                const isAccessible = isPublic ? true : canAccessTemplate(userPlan, template.id);
                                 return (
                                     <div
                                         key={template.id}
-                                        className="group bg-[#EEF1F4] rounded-[24px] border border-gray-200/80 p-3 sm:p-3.5 hover:border-gray-300 hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col"
-                                        onClick={() => onSelect(template.id)}
+                                        className={`group bg-[#EEF1F4] rounded-[24px] border p-3 sm:p-3.5 hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col ${
+                                            !isAccessible ? 'border-gray-200/80 hover:border-amber-300' : 'border-gray-200/80 hover:border-gray-300'
+                                        }`}
+                                        onClick={() => handleChooseTemplate(template.id)}
                                     >
                                         {/* Top Card Header */}
                                         <div className="flex items-center justify-between gap-2 mb-2.5">
@@ -135,43 +149,51 @@ export default function Templates({ onSelect, data, isPublic }: TemplatesProps) 
                                             </div>
 
                                             {/* Right Action / Lock Circle (Pro Only) */}
-                                            {!isPublic && !isFree && (
+                                            {!isPublic && !isAccessible && (
                                                 <div
-                                                    className="w-6 h-6 rounded-full bg-[#6F7682] text-white flex items-center justify-center shadow-2xs shrink-0"
-                                                    title="Pro Template"
+                                                    className="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-2xs shrink-0"
+                                                    title="Pro Template — Requires Upgrade"
                                                 >
                                                     <Lock size={11} className="stroke-[2.5]" />
                                                 </div>
                                             )}
                                         </div>
 
-                                        {/* Inner White Preview Canvas */}
-                                        <div className="relative w-full aspect-[4/3] bg-white rounded-xl border border-gray-200/70 overflow-hidden shadow-2xs flex items-center justify-center">
-                                            {/* Scaled Resume Preview - Centered */}
-                                            <div className="absolute inset-0 flex items-start justify-center pt-2 overflow-hidden pointer-events-none select-none">
-                                                <div className="w-[210mm] origin-top transform scale-[0.27] sm:scale-[0.29] pointer-events-none select-none shadow-xs rounded-xs bg-white">
-                                                    <ResumePreview data={getPreviewDataForTemplate(template.id)} template={template.id} />
+                                        {/* Inner White Preview Canvas with Skeleton fallback */}
+                                        <TemplateCardPreviewCanvas
+                                            overlay={
+                                                <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-brand-dark/25 backdrop-blur-[2px] p-3">
+                                                    <div className="transform translate-y-3 group-hover:translate-y-0 transition-transform duration-200 flex flex-col gap-1.5 w-full max-w-[170px]">
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); handleChooseTemplate(template.id); }}
+                                                            className={`w-full px-3.5 py-2 rounded-lg font-bold shadow-lg transition-all flex items-center justify-center gap-1.5 text-xs ${
+                                                                !isAccessible
+                                                                    ? 'bg-amber-400 hover:bg-amber-500 text-brand-dark'
+                                                                    : 'bg-brand-green hover:bg-brand-greenHover text-brand-dark'
+                                                            }`}
+                                                        >
+                                                            {!isAccessible ? (
+                                                                <>
+                                                                    <Lock size={13} /> Unlock Pro
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    Use Template <ArrowRight size={13} />
+                                                                </>
+                                                            )}
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); setPreviewTemplate(template.id); }}
+                                                            className="w-full bg-white hover:bg-gray-50 text-brand-dark px-3.5 py-2 rounded-xl font-bold shadow-lg transition-all flex items-center justify-center gap-1.5 text-xs"
+                                                        >
+                                                            <Eye size={13} /> Quick View
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                            </div>
-
-                                            {/* Hover Overlay */}
-                                            <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-brand-dark/25 backdrop-blur-[2px] p-3">
-                                                <div className="transform translate-y-3 group-hover:translate-y-0 transition-transform duration-200 flex flex-col gap-1.5 w-full max-w-[170px]">
-                                                    <button
-                                                        onClick={(e) => { e.stopPropagation(); onSelect(template.id); }}
-                                                        className="w-full bg-brand-green hover:bg-brand-greenHover text-brand-dark px-3.5 py-2 rounded-xl font-bold shadow-lg transition-all flex items-center justify-center gap-1.5 text-xs"
-                                                    >
-                                                        Use Template <ArrowRight size={13} />
-                                                    </button>
-                                                    <button
-                                                        onClick={(e) => { e.stopPropagation(); setPreviewTemplate(template.id); }}
-                                                        className="w-full bg-white hover:bg-gray-50 text-brand-dark px-3.5 py-2 rounded-xl font-bold shadow-lg transition-all flex items-center justify-center gap-1.5 text-xs"
-                                                    >
-                                                        <Eye size={13} /> Quick View
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
+                                            }
+                                        >
+                                            <ResumePreview data={getPreviewDataForTemplate(template.id)} template={template.id} />
+                                        </TemplateCardPreviewCanvas>
 
                                         {/* Bottom Subtitle Line */}
                                         <div className="mt-2 px-1 flex items-center justify-between text-xs text-gray-500">
@@ -216,10 +238,29 @@ export default function Templates({ onSelect, data, isPublic }: TemplatesProps) 
                                     <X size={24} />
                                 </button>
                                 <button
-                                    onClick={() => { if (previewTemplate) onSelect(previewTemplate); }}
-                                    className="bg-brand-green hover:bg-brand-greenHover text-brand-dark px-6 py-2 rounded-lg font-bold shadow-lg transition-all"
+                                    onClick={() => {
+                                        if (previewTemplate) {
+                                            handleChooseTemplate(previewTemplate);
+                                            if (!isPublic && !canAccessTemplate(userPlan, previewTemplate)) {
+                                                // keep modal open or let paywall handle it
+                                            } else {
+                                                setPreviewTemplate(null);
+                                            }
+                                        }
+                                    }}
+                                    className={`px-6 py-2 rounded-lg font-bold shadow-lg transition-all flex items-center gap-2 ${
+                                        previewTemplate && !isPublic && !canAccessTemplate(userPlan, previewTemplate)
+                                            ? 'bg-amber-400 hover:bg-amber-500 text-brand-dark'
+                                            : 'bg-brand-green hover:bg-brand-greenHover text-brand-dark'
+                                    }`}
                                 >
-                                    Use This Template
+                                    {previewTemplate && !isPublic && !canAccessTemplate(userPlan, previewTemplate) ? (
+                                        <>
+                                            <Lock size={16} /> Unlock Pro Template
+                                        </>
+                                    ) : (
+                                        'Use This Template'
+                                    )}
                                 </button>
                             </div>
                         </div>

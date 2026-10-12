@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { X, Upload, FileText, Loader2, Sparkles } from 'lucide-react';
 import { parseResume } from '../../utils/resumeParser';
 import { ResumeData, INITIAL_DATA, createEmptyResume } from '../../types';
+import { Loader } from '../ui/Loader';
 
 interface ResumeUploadModalProps {
   isOpen: boolean;
@@ -90,7 +91,9 @@ export default function ResumeUploadModal({ isOpen, onClose, onResumeLoaded, aut
 
         {isUploading ? (
           <div className="py-8 text-center space-y-4">
-            <Loader2 className="w-10 h-10 text-emerald-600 animate-spin mx-auto" />
+            <div className="flex justify-center mb-2">
+              <Loader size="lg" />
+            </div>
             <div>
               <p className="text-sm font-semibold text-slate-800">Parsing Resume Data...</p>
               <p className="text-xs text-slate-500 mt-1">Extracting text & formatting structure ({progress}%)</p>

@@ -2,87 +2,35 @@
 
 ## Foundation (Free) Overview
 
-**Price**: $0 (Free Forever)  
-**Starting allowance**: **1 AI-tailored resume**  
-**Perfect For**: Trying the builder before subscribing
+**Price**: $0 (Free Forever, no credit card required)  
+**Starting allowance**: **1 AI-tailored resume + 10 in-editor AI rewrites + 3 PDF downloads**  
+**Target User**: Perfect for testing the builder and landing their first interview before upgrading.
 
 ---
 
-## What's Included
+## What's Included vs. Restricted
 
-| Feature | Limit | Notes |
-|---------|-------|-------|
-| **AI tailoring** | **1** | One full tailored resume pass |
-| Resume Uploads | 1 | Upload your existing resume |
-| Template Access | Base | Foundation template included |
-| PDF Export | Yes | Full download included |
-| Watermark-Free | No | Paid plans only |
-| Cover Letter Generation | 0 | Upgrade required |
-| Premium Templates | No | Upgrade for all 29+ templates |
-| Unlimited AI | No | Upgrade for unlimited |
-| Priority Processing | No | Paid plans only |
+| Feature | Foundation (Free) | Build ($10/mo) & Lifetime ($99) | Notes |
+|:---|:---:|:---:|:---|
+| **Resume Uploads** | **1** | Unlimited | Upload existing PDF/DOCX |
+| **Job Description Match & Tailoring** | **1 full pass** | Unlimited | First run gets full pro ATS score (88–95%); subsequent runs reflect gaps (~62%) |
+| **PDF Downloads** | **3** | Unlimited | Clean text-layer vector ATS PDF on base templates |
+| **Word (.DOCX) Export** | 🔒 **Pro Only** | ✅ **Unlimited** | Editable recruiter-ready Word documents |
+| **In-Editor AI Rewrites** | **10** | Unlimited | Micro-rewrites on individual bullets and summary |
+| **ATS Score & Audit** | Included (1st run) | Unlimited full scans | Shows real ATS score and keyword gap analysis |
+| **Interview Prep & Q&A** | ✅ **Free** | ✅ **Included** | Available to all users |
+| **Cloud Storage** | **1 active resume** | Unlimited versions | Full autosave on active resume |
+| **ATS Templates** | **4 Base Templates** | All 20+ Premium | Base: `Foundation`, `SimplePro`, `Minimalist`, `FreshGrad` |
+| **Cover Letter Builder** | 🔒 **Pro Only** | ✅ **Unlimited** | Tailored cover letter generator |
 
 ---
 
 ## Credit System (Foundation)
 
-Foundation uses a **minimal credit model** (1 starting credit), not the legacy 10-credit trial.
-
-### How it works:
-- New users start with **1 credit**
-- Each major AI action costs **1 credit** on free tier
-- Credits do not reset monthly
-- Upgrade for unlimited AI (no credits on paid plans)
-
-### Credit costs (free tier):
-| Action | Cost |
-|--------|------|
-| Full rewrite / tailoring | 1 credit |
-| Resume upload | 1 credit |
-| Bullet optimization | 1 credit |
-| Job match | 1 credit |
-
----
-
-## What You Can Do on Foundation
-
-### Example first session:
-1. **Upload resume** (uses your 1 credit if combined with tailoring)
-2. **Run one AI tailor** → optimized resume
-3. **Download** on base template
-
-**Result:** Real product value before paywall.
-
----
-
-## Upgrade Options
-
-### Sprint ($2.99 / week)
-- Unlimited AI tailoring
-- All premium templates
-- Watermark-free exports
-- Cover letters, priority processing
-- Renews weekly — cancel anytime
-
-### Build ($9.99 / month) — highlighted default
-- Everything in Sprint
-- Monthly billing for active searches
-
-### Blueprint Pass ($29 / 3 months)
-- Everything in Sprint/Build
-- Quarterly billing for longer transitions
-
----
-
-## Comparison
-
-| Feature | Foundation | Sprint | Build | Blueprint |
-|---------|------------|--------|-------|-----------|
-| AI tailoring | 1 | Unlimited | Unlimited | Unlimited |
-| Templates | Base | All | All | All |
-| Watermark-free | No | Yes | Yes | Yes |
-| Billing | Free | Weekly | Monthly | Quarterly |
-| Price | $0 | $2.99/wk | $9.99/mo | $29/3 mo |
+- New free accounts start with **10 credits**.
+- Each in-editor AI rewrite or bullet optimization costs **1 credit**.
+- Resume upload and initial tailoring are included in the 1-time onboarding allowance.
+- Once 10 credits are used, the user is prompted to upgrade to **Build** ($10/mo) or **Lifetime** ($99).
 
 ---
 

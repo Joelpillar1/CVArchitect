@@ -16,12 +16,17 @@ import {
   formatContactText, formatLocationDisplay,
   formatLinkedInDisplay,
   getLinkedInHref,
+  formatGitHubDisplay,
+  getGitHubHref,
+  formatPortfolioDisplay,
+  getPortfolioHref,
   formatNameDisplay,
   formatJobTitleDisplay,
   formatSectionTitle,
   getItemGapIn,
   splitSkillsList,
   CONTACT_SEPARATOR,
+  parseExpertSkillItems,
   renderCourseworkBlockHelper,
   renderExpertSkillsBlockHelper,
 } from '../../utils/templateUtils';
@@ -62,20 +67,19 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
   const hPadIn = data.margins?.horizontal !== undefined ? getMarginHorizontalIn(data) : 0.4;
   const vPadIn = getMarginVerticalIn(data);
 
-  const SECTION_PAD_TOP = '0.09in';
-  const SECTION_PAD_BOTTOM = '0.21in';
-  const HEADING_PAD_BOTTOM = '0.09in';
-  const HEADING_MARGIN_BOTTOM = '0.24in';
-  const ENTRY_GAP = `${getItemGapIn(data, 0.24)}in`;
+  const HEADING_MARGIN_BOTTOM = '0.09in';
+  const ENTRY_GAP = `${getItemGapIn(data, 0.16)}in`;
   // Header→contact and contact→rule gaps: honor explicit user settings, else
   // this template's measured design values.
   const NAME_TO_CONTACT = `${getHeaderItemGapIn(data)}in`;
-  const CONTACT_TO_RULE = `${data.headerGap !== undefined ? getHeaderGapIn(data) : 0.23}in`;
-  const BULLET_TOP = '0.04in';
+  const CONTACT_TO_RULE = `${data.headerGap !== undefined ? getHeaderGapIn(data) : 0.08}in`;
+  const BULLET_TOP = '0.03in';
 
   const getSectionHeaderAlignment = () => {
-    // Native default for this template is centered; user settings still win.
-    const align = data.sectionHeaderAlignment || data.bodyHeaderAlignment;
+    // Regent Serif: Section header is always centered by default.
+    const align =
+      data.sectionHeaderAlignment ||
+      (data.bodyHeaderAlignment && data.bodyHeaderAlignment !== 'left' ? data.bodyHeaderAlignment : undefined);
     if (align === 'left') return 'text-left';
     if (align === 'right') return 'text-right';
     return 'text-center';
@@ -87,32 +91,28 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
     return 'text-center';
   };
 
-  /** Centered heading with the reference's 1px underline. */
+  /** Centered heading with top and bottom 1px horizontal lines matching reference image. */
   const renderSectionHeader = (title: string) => (
-    <div className={`section-header-wrap break-inside-avoid w-full ${getSectionHeaderAlignment()}`}>
+    <div className={`section-header-wrap break-inside-avoid w-full text-center ${getSectionHeaderAlignment()}`} style={{ marginBottom: HEADING_MARGIN_BOTTOM }}>
       <h2
-        className="section-header font-bold leading-normal"
+        className={`section-header font-bold leading-tight w-full text-center ${getSectionHeaderAlignment()}`}
         style={{
           width: '100%',
           fontSize: `${fontSizes?.sectionTitle || 11}pt`,
           color: accentColor,
-          paddingBottom: HEADING_PAD_BOTTOM,
-          marginBottom: HEADING_MARGIN_BOTTOM,
-          // The reference's 1px underline. NOTE: only the border — the heading
-          // must never inherit a background fill (an earlier version spread the
-          // hairline rule's backgroundColor here and painted a solid block).
+          borderTop: `1px solid ${accentColor}`,
           borderBottom: `1px solid ${accentColor}`,
+          paddingTop: '0.04in',
+          paddingBottom: '0.04in',
+          margin: 0,
         }}
       >
-        {formatSectionTitle(title, data.sectionHeaderCase)}
+        {formatSectionTitle(title, data.sectionHeaderCase || 'titlecase')}
       </h2>
     </div>
   );
 
   const sectionStyle: React.CSSProperties = {
-    paddingTop: SECTION_PAD_TOP,
-    paddingBottom: SECTION_PAD_BOTTOM,
-    borderBottom: `1px solid ${accentColor}`,
     marginBottom: `${getSectionGapIn(data)}in`,
   };
 
@@ -150,16 +150,20 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
     }
     return (
       <div className="text-gray-900" style={{ ...bodyStyle, display: 'grid', gridTemplateColumns: 'max-content 1fr', columnGap: '1.1em', rowGap: '2px' }}>
-        {labelValue.map((row, i) => (
-          <React.Fragment key={keyOf(i)}>
-            <span className="font-bold" style={{ whiteSpace: 'nowrap' }}>
-              <RichText text={row.label} />
-            </span>
-            <span>
-              <RichText text={row.value} />
-            </span>
-          </React.Fragment>
-        ))}
+        {labelValue.map((row, i) => {
+          const rawLabel = (row.label || '').replace(/[:\-–—\s]+$/, '').trim();
+          const displayLabel = rawLabel ? `${rawLabel}:` : '';
+          return (
+            <React.Fragment key={keyOf(i)}>
+              <span className="font-bold" style={{ whiteSpace: 'nowrap' }}>
+                <RichText text={displayLabel} />
+              </span>
+              <span>
+                <RichText text={row.value} />
+              </span>
+            </React.Fragment>
+          );
+        })}
       </div>
     );
   };
@@ -174,33 +178,252 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
     });
   };
 
-  const renderSkillsBlock = (title: string, skillsStr: string) => {
-    if (!skillsStr || !skillsStr.trim()) return null;
-    // Newline-separated `Label: value` → the reference's two-column rows.
-    if (skillsStr.includes('\n')) {
-      const rows = parseLabelValueLines(skillsStr);
-      if (rows.length > 0) {
-        return (
-          <section style={sectionStyle}>
-            {renderSectionHeader(title)}
-            {renderLabelValueRows(rows, (i) => `skills-row-${i}`)}
-          </section>
-        );
-      }
-    }
-    const skillsList = splitSkillsList(skillsStr);
-    if (skillsList.length === 0) return null;
-    return (
-      <section style={sectionStyle}>
-        {renderSectionHeader(title)}
-        <p className="text-gray-900" style={bodyStyle} data-skills-grid>
-          {skillsList.map((skill, i) => (
+  /**
+   * Reference template's "Core Competencies" 2-column layout:
+   * Left: Bold category label without colon (e.g. Languages, Frameworks, Tools, Cloud & Infrastructure, Dev Practices)
+   * Right: Comma-separated skills aligned neatly in the second column
+   */
+  const renderCoreCompetenciesGrid = (
+    items: { category: string; skills: string }[],
+    basePath: string = 'skills'
+  ) => {
+    const valid = items
+      .map((it) => {
+        const rawCat = (it.category || '').replace(/[:\-–—\s]+$/, '').trim();
+        return {
+          category: rawCat ? `${rawCat}:` : '',
+          skills: (it.skills || '').trim(),
+        };
+      })
+      .filter((it) => it.category || it.skills);
+
+    if (valid.length === 0) return null;
+
+    // If none of the rows have a category label, render as clean comma-separated list
+    const hasCategoryLabels = valid.some((r) => r.category);
+    if (!hasCategoryLabels) {
+      return (
+        <p className="text-gray-900 leading-normal" style={bodyStyle}>
+          {valid.map((row, i) => (
             <React.Fragment key={i}>
               {i > 0 && ', '}
-              <span data-skill-cell><RichText text={skill} /></span>
+              <span data-path={`${basePath}.${i}.skills`}>
+                <RichText text={row.skills} />
+              </span>
             </React.Fragment>
           ))}
         </p>
+      );
+    }
+
+    return (
+      <div
+        className="grid text-gray-900"
+        style={{
+          ...bodyStyle,
+          display: 'grid',
+          gridTemplateColumns: 'max-content 1fr',
+          columnGap: '1.25rem',
+          rowGap: '2px',
+          alignItems: 'baseline',
+        }}
+      >
+        {valid.map((row, idx) => (
+          <React.Fragment key={idx}>
+            <div
+              className="font-bold text-gray-900 select-none"
+              style={{ whiteSpace: 'nowrap' }}
+              data-path={`${basePath}.${idx}.category`}
+            >
+              <RichText text={row.category} />
+            </div>
+            <div
+              className="text-gray-900 leading-normal text-left"
+              data-path={`${basePath}.${idx}.skills`}
+            >
+              <RichText text={row.skills} />
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
+    );
+  };
+
+  const categorizeSkillsString = (skillsStr: string): { category: string; skills: string }[] => {
+    if (!skillsStr || !skillsStr.trim()) return [];
+
+    // Check if skillsStr contains multiple categorized lines (newline, bullet, or semicolon separated with colons)
+    let rawItems: string[] = [];
+    if (skillsStr.includes('\n')) {
+      rawItems = skillsStr.split('\n').map((l) => l.trim()).filter(Boolean);
+    } else if (skillsStr.includes('•') && skillsStr.includes(':')) {
+      rawItems = skillsStr.split('•').map((l) => l.trim()).filter(Boolean);
+    } else if (skillsStr.includes(';') && skillsStr.includes(':')) {
+      rawItems = skillsStr.split(';').map((l) => l.trim()).filter(Boolean);
+    }
+
+    if (rawItems.length > 0) {
+      const explicitRows: { category: string; skills: string }[] = [];
+      for (const item of rawItems) {
+        const colonIdx = item.indexOf(':');
+        if (colonIdx !== -1) {
+          explicitRows.push({
+            category: item.slice(0, colonIdx).trim(),
+            skills: item.slice(colonIdx + 1).trim(),
+          });
+        } else {
+          const match = item.match(/^([A-Za-z\s&/]{2,25})\s{2,}(.+)$/);
+          if (match) {
+            explicitRows.push({
+              category: match[1].trim(),
+              skills: match[2].trim(),
+            });
+          } else {
+            explicitRows.push({
+              category: '',
+              skills: item.replace(/^[•-]\s*/, '').trim(),
+            });
+          }
+        }
+      }
+      if (explicitRows.some((r) => r.category)) {
+        return explicitRows;
+      }
+    }
+
+    // Check for single categorized string "Category: Skill1, Skill2..."
+    const colonIdx = skillsStr.indexOf(':');
+    if (colonIdx !== -1) {
+      return [
+        {
+          category: skillsStr.slice(0, colonIdx).trim(),
+          skills: skillsStr.slice(colonIdx + 1).trim(),
+        },
+      ];
+    }
+
+    // Flat comma-delimited list of skills -> auto-categorize into reference categories
+    const skillsList = splitSkillsList(skillsStr);
+    if (skillsList.length === 0) return [];
+
+    const KNOWN_CATEGORIES: { id: string; category: string; test: (s: string) => boolean }[] = [
+      {
+        id: 'strategy_product',
+        category: 'Strategy & Product',
+        test: (s) =>
+          /(product strategy|product management|roadmap|go-to-market|gtm|feature prioritization|product lifecycle|okrs?|kpis?|growth strategy|business development)/i.test(s),
+      },
+      {
+        id: 'methodologies',
+        category: 'Methodologies',
+        test: (s) =>
+          /(agile|scrum|kanban|sprint|lean|waterfall|ci\/cd|continuous integration|continuous deployment|tdd|test-driven|devops)/i.test(s),
+      },
+      {
+        id: 'analytics_research',
+        category: 'Data & Analytics',
+        test: (s) =>
+          /(data analysis|sql|a\/b test|experimentation|analytics|metrics|business intelligence|tableau|power bi|mixpanel|amplitude)/i.test(s),
+      },
+      {
+        id: 'design_ux',
+        category: 'Design & UX',
+        test: (s) =>
+          /(ui\/ux|ux\/ui|design principles|user research|wirefram|prototyp|figma|usability|design thinking|information architecture)/i.test(s),
+      },
+      {
+        id: 'leadership',
+        category: 'Leadership',
+        test: (s) =>
+          /(cross-functional leadership|leadership|team management|stakeholder management|mentoring|strategic planning|people management)/i.test(s),
+      },
+      {
+        id: 'languages_prog',
+        category: 'Languages',
+        test: (s) =>
+          /^(javascript|typescript|python|java|c\+\+|c#|c|sql|go|golang|rust|ruby|php|swift|kotlin|r|scala|dart|html|html5|css|css3|sass|scss|bash|shell|powershell|perl|matlab)$/i.test(s),
+      },
+      {
+        id: 'frameworks',
+        category: 'Frameworks',
+        test: (s) =>
+          /^(react|react\.js|react native|angular|angularjs|vue|vue\.js|node\.js|node|express|express\.js|spring|spring boot|django|flask|fastapi|next\.js|nuxt\.js|svelte|asp\.net|laravel|ruby on rails|rails|tailwind|tailwind css|bootstrap|jquery)$/i.test(s),
+      },
+      {
+        id: 'cloud_infra',
+        category: 'Cloud & Infrastructure',
+        test: (s) =>
+          /^(google cloud platform|gcp|aws|amazon web services|azure|microsoft azure|firebase|docker swarm|terraform|cloud computing|cloudflare|heroku|digitalocean|openstack|ansible)$/i.test(s),
+      },
+      {
+        id: 'tools',
+        category: 'Tools',
+        test: (s) =>
+          /^(git|docker|jenkins|kubernetes|k8s|webpack|babel|vite|npm|yarn|pnpm|jira|confluence|postman|insomnia|github|gitlab|bitbucket|vs code|visual studio|figma)$/i.test(s),
+      },
+      {
+        id: 'languages_spoken',
+        category: 'Languages',
+        test: (s) =>
+          /^(english|spanish|french|german|mandarin|chinese|japanese|russian|portuguese|arabic|hindi|italian|korean)$/i.test(s),
+      },
+    ];
+
+    const buckets: { [id: string]: string[] } = {};
+    const unassigned: string[] = [];
+
+    for (const skill of skillsList) {
+      const trimmed = skill.trim();
+      let matched = false;
+      for (const cat of KNOWN_CATEGORIES) {
+        if (cat.test(trimmed.toLowerCase())) {
+          if (!buckets[cat.id]) buckets[cat.id] = [];
+          buckets[cat.id].push(trimmed);
+          matched = true;
+          break;
+        }
+      }
+      if (!matched) {
+        unassigned.push(trimmed);
+      }
+    }
+
+    const result: { category: string; skills: string }[] = [];
+    for (const cat of KNOWN_CATEGORIES) {
+      if (buckets[cat.id] && buckets[cat.id].length > 0) {
+        result.push({
+          category: cat.category,
+          skills: buckets[cat.id].join(', '),
+        });
+      }
+    }
+
+    if (unassigned.length > 0) {
+      if (result.length > 0) {
+        result.push({
+          category: 'Key Competencies',
+          skills: unassigned.join(', '),
+        });
+      } else {
+        result.push({
+          category: 'Key Competencies',
+          skills: unassigned.join(', '),
+        });
+      }
+    }
+
+    return result;
+  };
+
+  const renderSkillsBlock = (title: string, skillsStr: string) => {
+    if (!skillsStr || !skillsStr.trim()) return null;
+    const categorized = categorizeSkillsString(skillsStr);
+    if (categorized.length === 0) return null;
+
+    return (
+      <section className="skills-section break-inside-avoid" style={sectionStyle}>
+        {renderSectionHeader(title)}
+        {renderCoreCompetenciesGrid(categorized, 'skills')}
       </section>
     );
   };
@@ -279,7 +502,7 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
     );
   };
 
-  /** Education: **School**, Degree, Dates on one line, then coursework bullets. */
+  /** Education: **School**, Degree, Dates on one line, then coursework & description bullets. */
   const renderEducationBlock = (title: string, items: Education[], basePath: string = 'education') => {
     if (!items || items.length === 0) return null;
     return (
@@ -288,7 +511,15 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
         {items.map((edu, index) => {
           if (!edu.school && !edu.degree && !edu.year) return null;
           const formattedYear = formatDate(edu.year) || edu.year;
-          const courses = (edu.relevantCourses || '').trim();
+          const courseItems = (Array.isArray(edu.relevantCourses)
+            ? edu.relevantCourses
+            : typeof edu.relevantCourses === 'string'
+              ? edu.relevantCourses.split('\n')
+              : []
+          )
+            .map(c => c.replace(/^[•\-\*]\s*/, '').replace(/^(?:Relevant\s+Coursework|Relevant\s+Courses?):\s*/i, '').trim())
+            .filter(Boolean);
+          const bullets = parseDescriptionBullets(edu.description);
           return (
             <div
               key={edu.id || index}
@@ -317,11 +548,18 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
                   <span className="text-gray-700"> • GPA: <RichText text={edu.gpa} /></span>
                 )}
               </div>
-              {courses && (
+              {(courseItems.length > 0 || bullets.length > 0) && (
                 <ul className="list-disc list-outside ml-5 space-y-0.5" style={{ marginTop: BULLET_TOP }}>
-                  <li data-path={`${basePath}.${index}.relevantCourses`}>
-                    <span className="italic">Relevant coursework:</span> <RichText text={courses} />
-                  </li>
+                  {courseItems.map((course, i) => (
+                    <li key={`rc-${i}`} data-path={`${basePath}.${index}.relevantCourses.${i}`}>
+                      <RichText text={course} />
+                    </li>
+                  ))}
+                  {bullets.map((bullet, i) => (
+                    <li key={i} data-path={`${basePath}.${index}.description.${i}`}>
+                      <RichText text={bullet ? bullet.replace(/^[•-]\s*/, '') : ''} />
+                    </li>
+                  ))}
                 </ul>
               )}
             </div>
@@ -504,7 +742,14 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
 
     let sectionTitle = resolved.title;
     if (resolved.type === 'summary') sectionTitle = t.professionalSummary || resolved.title;
-    if (resolved.type === 'skills') sectionTitle = t.technicalSkills || resolved.title;
+    if (resolved.type === 'skills' || resolved.id === 'skills') {
+      const isDefaultSkills =
+        !resolved.title ||
+        resolved.title === 'Technical Skills' ||
+        resolved.title === 'Skills' ||
+        resolved.title === t.technicalSkills;
+      sectionTitle = isDefaultSkills ? 'Core Competencies' : resolved.title;
+    }
     if (resolved.type === 'experience') sectionTitle = t.experienceTitle || resolved.title;
     if (resolved.type === 'education') sectionTitle = t.educationTitle || resolved.title;
     if (resolved.type === 'certifications') sectionTitle = t.certifications || resolved.title;
@@ -514,15 +759,9 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
         return renderTextBlock(sectionTitle, resolved.content as string, resolved.id);
       case 'skills':
         return renderSkillsBlock(sectionTitle, resolved.content as string);
-      case 'expert_skills':
-        return renderExpertSkillsBlockHelper({
-          data,
-          title: sectionTitle,
-          items: resolved.content as never,
-          basePath: resolved.id,
-          renderSectionHeader,
-          bodyStyle,
-        });
+      case 'expert_skills': {
+        return null;
+      }
       case 'bullets':
         return renderBulletsBlock(sectionTitle, resolved.content as string[] | string, resolved.id);
       case 'experience':
@@ -568,13 +807,13 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
         paddingRight: `${hPadIn}in`,
         paddingTop: `${vPadIn}in`,
         paddingBottom: `${vPadIn}in`,
-        fontFamily: '"Times New Roman", Times, Georgia, serif',
+        fontFamily: data.font || '"Times New Roman", Times, Georgia, serif',
         lineHeight: data.lineHeight || 1.45,
         fontSize: `${bodyPt}pt`,
       }}
     >
-      {/* ── Header: name, contact line, thick rule ── */}
-      <header className="break-inside-avoid" style={{ marginBottom: CONTACT_TO_RULE }}>
+      {/* ── Header: name, contact line, thick horizontal rule ── */}
+      <header className="break-inside-avoid">
         <h1
           data-path="fullName"
           className={`font-bold tracking-normal ${getTextAlignment()}`}
@@ -625,6 +864,34 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
               </a>
             );
           }
+          if (data.github) {
+            contactItems.push(
+              <a
+                key="gh"
+                data-path="github"
+                href={getGitHubHref(data.github)}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration: 'underline', color: 'inherit' }}
+              >
+                <RichText text={formatGitHubDisplay(data.github)} />
+              </a>
+            );
+          }
+          if (data.portfolio) {
+            contactItems.push(
+              <a
+                key="port"
+                data-path="portfolio"
+                href={getPortfolioHref(data.portfolio)}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration: 'underline', color: 'inherit' }}
+              >
+                <RichText text={formatPortfolioDisplay(data.portfolio)} />
+              </a>
+            );
+          }
           if (data.atHandle) {
             contactItems.push(
               <span key="at" data-path="atHandle">
@@ -637,9 +904,8 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
 
           return (
             <div
-              className={`flex flex-wrap items-center gap-x-1.5 gap-y-1 text-gray-800 ${getTextAlignment()} ${
-                data.headerAlignment === 'left' ? 'justify-start' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-center'
-              }`}
+              className={`flex flex-wrap items-center gap-x-1.5 gap-y-1 text-gray-800 ${getTextAlignment()} ${data.headerAlignment === 'left' ? 'justify-start' : data.headerAlignment === 'right' ? 'justify-end' : 'justify-center'
+                }`}
               style={bodyStyle}
             >
               {contactItems.map((item, idx) => (
@@ -655,25 +921,35 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
             </div>
           );
         })()}
-      </header>
 
-      {/* ── Thick rule (measured 3px at A4 scale) ── */}
-      <div className="break-inside-avoid" style={{ width: '100%', height: '3px', backgroundColor: accentColor }} />
+        {/* ── Horizontal Line Under Contact (Thick 2.5px solid rule) ── */}
+        <hr
+          data-contact-rule
+          className="w-full border-0 break-inside-avoid"
+          style={{
+            border: 'none',
+            borderTop: `2.5px solid ${accentColor || '#000000'}`,
+            width: '100%',
+            marginTop: CONTACT_TO_RULE,
+            marginBottom: '0.14in',
+          }}
+        />
+      </header>
 
       {/* ── Job title heading (no underline) + justified summary ── */}
       {showTitleBlock && (
         <section
           className="break-inside-avoid"
-          style={{ marginTop: '0.18in', paddingBottom: SECTION_PAD_BOTTOM, borderBottom: `1px solid ${accentColor}` }}
+          style={{ marginBottom: `${getSectionGapIn(data)}in` }}
         >
           {data.jobTitle ? (
             <h2
               data-path="jobTitle"
-              className={`font-bold leading-normal ${getSectionHeaderAlignment()}`}
+              className={`font-bold leading-normal text-center ${getSectionHeaderAlignment()}`}
               style={{
                 fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                 color: accentColor,
-                marginBottom: '0.19in',
+                marginBottom: '0.08in',
               }}
             >
               <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />

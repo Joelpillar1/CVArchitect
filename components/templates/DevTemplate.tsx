@@ -15,6 +15,10 @@ import {
   formatContactText, formatLocationDisplay,
   formatLinkedInDisplay,
   getLinkedInHref,
+  formatGitHubDisplay,
+  getGitHubHref,
+  formatPortfolioDisplay,
+  getPortfolioHref,
   formatNameDisplay,
   formatJobTitleDisplay,
   formatSectionTitle,
@@ -26,7 +30,7 @@ import {
 } from '../../utils/templateUtils';
 import { resolveSection, getResolvedSectionOrder } from '../../utils/sectionRegistry';
 import type { CustomSectionData } from '../../types/resumeSections';
-import { Mail, Phone, Linkedin, MapPin, Send } from 'lucide-react';
+import { Mail, Phone, Linkedin, MapPin, Send, Github, Globe } from 'lucide-react';
 import { getTranslation, Language } from '../../i18n/translations';
 
 const formatMonthYear = (dateString: string | null | undefined) => {
@@ -549,6 +553,40 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                   style={{ textDecoration: 'none', color: 'inherit' }}
                 >
                   <RichText text={formatLinkedInDisplay(data.linkedin)} />
+                </a>
+              </span>
+            );
+          }
+
+          if (data.github) {
+            contactItems.push(
+              <span key="gh" className="flex items-center gap-1">
+                {showIcons && <Github size={12} color={accentColor} />}
+                <a
+                  data-path="github"
+                  href={getGitHubHref(data.github)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: 'underline', color: 'inherit' }}
+                >
+                  <RichText text={formatGitHubDisplay(data.github)} />
+                </a>
+              </span>
+            );
+          }
+
+          if (data.portfolio) {
+            contactItems.push(
+              <span key="port" className="flex items-center gap-1">
+                {showIcons && <Globe size={12} color={accentColor} />}
+                <a
+                  data-path="portfolio"
+                  href={getPortfolioHref(data.portfolio)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: 'underline', color: 'inherit' }}
+                >
+                  <RichText text={formatPortfolioDisplay(data.portfolio)} />
                 </a>
               </span>
             );

@@ -2,7 +2,7 @@ import React from 'react';
 import RichText from '../RichText';
 import { ResumeData, Experience, Education, Project, Certification, LanguageItem, AdditionalInfoItem, CourseworkItem } from '../../types';
 import { getTranslation, Language } from '../../i18n/translations';
-import { MapPin, Phone, Mail, Linkedin, Send } from 'lucide-react';
+import { MapPin, Phone, Mail, Linkedin, Send, Github, Globe } from 'lucide-react';
 import {
   formatDate,
   formatDateRange,
@@ -19,6 +19,10 @@ import {
   formatContactText, formatLocationDisplay,
   formatLinkedInDisplay,
   getLinkedInHref,
+  formatGitHubDisplay,
+  getGitHubHref,
+  formatPortfolioDisplay,
+  getPortfolioHref,
   formatNameDisplay,
   CONTACT_SEPARATOR,
   formatJobTitleDisplay,
@@ -240,6 +244,28 @@ export default function ClassicTemplate({ data, fontSizes }: ClassicTemplateProp
                     <RichText text={edu.degree ?? ''} />
                   </span>
                 )}
+                {(() => {
+                  const courseItems = (Array.isArray(edu.relevantCourses)
+                    ? edu.relevantCourses
+                    : typeof edu.relevantCourses === 'string'
+                      ? edu.relevantCourses.split('\n')
+                      : []
+                  )
+                    .map(c => c.replace(/^[•\-\*]\s*/, '').replace(/^(?:Relevant\s+Coursework|Relevant\s+Courses?):\s*/i, '').trim())
+                    .filter(Boolean);
+
+                  if (courseItems.length === 0) return null;
+
+                  return (
+                    <ul className="list-disc list-outside ml-5 mt-1 text-gray-700">
+                      {courseItems.map((item, i) => (
+                        <li key={i} data-path={`${basePath}.${index}.relevantCourses.${i}`} className="mb-0.5">
+                          <RichText text={item} />
+                        </li>
+                      ))}
+                    </ul>
+                  );
+                })()}
               </div>
               {dateStr && (
                 <span data-path={`${basePath}.${index}.year`} className="font-bold text-gray-600 shrink-0 ml-4">
@@ -533,6 +559,40 @@ export default function ClassicTemplate({ data, fontSizes }: ClassicTemplateProp
           className="text-gray-600"
         >
           <RichText text={formatLinkedInDisplay(data.linkedin)} />
+        </a>
+      </span>
+    );
+  }
+  if (data.github) {
+    contactItems.push(
+      <span key="gh" className="inline-flex items-center gap-1">
+        {showIcons && <Github size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
+        <a
+          data-path="github"
+          href={getGitHubHref(data.github)}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ textDecoration: 'underline', color: 'inherit' }}
+          className="text-gray-600"
+        >
+          <RichText text={formatGitHubDisplay(data.github)} />
+        </a>
+      </span>
+    );
+  }
+  if (data.portfolio) {
+    contactItems.push(
+      <span key="port" className="inline-flex items-center gap-1">
+        {showIcons && <Globe size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
+        <a
+          data-path="portfolio"
+          href={getPortfolioHref(data.portfolio)}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ textDecoration: 'underline', color: 'inherit' }}
+          className="text-gray-600"
+        >
+          <RichText text={formatPortfolioDisplay(data.portfolio)} />
         </a>
       </span>
     );

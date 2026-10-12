@@ -175,6 +175,20 @@ export const TEMPLATE_CONFIG: { id: TemplateType; name: string; subtitle: string
         bg: "bg-[#FFFFFF]"
     },
     {
+        id: 'jake',
+        name: "Jake Template",
+        subtitle: "ATS Serif",
+        icon: <BookOpen className="text-gray-800" size={20} />,
+        bg: "bg-[#FFFFFF]"
+    },
+    {
+        id: 'gaurav',
+        name: "Analyst",
+        subtitle: "ATS Analyst",
+        icon: <BookOpen className="text-gray-800" size={20} />,
+        bg: "bg-[#FFFFFF]"
+    },
+    {
         id: 'regent',
         name: "Regent Serif",
         subtitle: "Centered Classic",
@@ -198,7 +212,7 @@ export const TEMPLATE_CONFIG: { id: TemplateType; name: string; subtitle: string
     {
         id: 'rezi',
         name: "Harvard",
-        subtitle: "Ivy & Academic",
+        subtitle: "Ivy Student",
         icon: <BookOpen className="text-teal-600" size={20} />,
         bg: "bg-[#FFFFFF]"
     },
@@ -206,4 +220,14 @@ export const TEMPLATE_CONFIG: { id: TemplateType; name: string; subtitle: string
 
 export const getTemplateMetadata = (id: TemplateType) => {
     return TEMPLATE_CONFIG.find(t => t.id === id) || TEMPLATE_CONFIG[0];
+};
+
+export const getTemplateCategory = (t: { id: TemplateType; name: string; subtitle: string }): string => {
+    if (t.id === 'rezi' || t.name.toLowerCase().includes('harvard')) return 'Student';
+    const sub = t.subtitle.toLowerCase();
+    if (['entry level', 'graduate', 'finance', 'engineering', 'creative', 'chemical eng', 'marketing', 'leadership', 'student'].some(k => sub.includes(k))) return 'Student';
+    if (['executive', 'senior leader', 'c-suite'].some(k => sub.includes(k))) return 'Executive';
+    if (['modern tech', 'bold design', 'contemporary', 'clean', 'developer', 'modern'].some(k => sub.includes(k))) return 'Modern';
+    if (['academic', 'research'].some(k => sub.includes(k))) return 'Academic';
+    return 'Professional';
 };

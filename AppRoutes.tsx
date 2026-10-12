@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
-import { applyPendingPlanFromSearch } from './utils/pendingCheckout';
+import { applyPendingPlanFromSearch, getPendingCheckoutPlan } from './utils/pendingCheckout';
 
 // Page Components
 import LandingPage from './components/LandingPage';
@@ -27,10 +27,12 @@ import PrintResumePage from './pages/PrintResumePage';
 import Dashboard from './pages/Dashboard';
 import ResumeAgentPage from './pages/ResumeAgentPage';
 import ScreenshotEditorPage from './pages/ScreenshotEditorPage';
+import { LoadingScreen } from './components/ui/Loader';
 
 // TEMP DEV HARNESS — remove before shipping
 import AgentToolbarTestPage from './dev/AgentToolbarTestPage';
 import TemplatesComparePage from './dev/TemplatesComparePage';
+import RegentReferenceCheck from './dev/RegentReferenceCheck';
 
 // Protected Route Component
 interface ProtectedRouteProps {
@@ -41,15 +43,15 @@ function ProtectedRoute({ children }: ProtectedRouteProps) {
     const { user, loading } = useAuth();
     const location = useLocation();
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-green mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading...</p>
-                </div>
-            </div>
-        );
+    // Check if an OAuth callback is currently in flight in the URL
+    const hasOAuthParams =
+        typeof window !== 'undefined' &&
+        (window.location.hash.includes('access_token') ||
+         window.location.search.includes('code=') ||
+         window.location.hash.includes('refresh_token'));
+
+    if (loading || (hasOAuthParams && !user)) {
+        return <LoadingScreen />;
     }
 
     if (!user) {
@@ -70,28 +72,52 @@ function PublicRoute({ children, redirectIfAuthenticated = true }: PublicRoutePr
     const { user, loading } = useAuth();
     const location = useLocation();
 
+    const hasOAuthParams =
+        typeof window !== 'undefined' &&
+        (window.location.hash.includes('access_token') ||
+         window.location.search.includes('code=') ||
+         window.location.hash.includes('refresh_token'));
+
     // Do not block public content (landing page, public tools, etc.) on auth loading
     if (!redirectIfAuthenticated) {
         return <>{children}</>;
     }
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-green mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading...</p>
-                </div>
-            </div>
-        );
+    if (loading || (hasOAuthParams && !user)) {
+        return <LoadingScreen />;
     }
 
     if (user && redirectIfAuthenticated) {
         const plan = applyPendingPlanFromSearch(location.search);
-        return <Navigate to={plan ? `/dashboard?plan=${plan}` : '/dashboard'} replace />;
+        const searchParams = new URLSearchParams(location.search);
+        const redirectTarget = searchParams.get('redirect');
+        const destination = redirectTarget || (plan ? `/dashboard?plan=${plan}` : '/dashboard');
+        return <Navigate to={destination} replace />;
     }
 
     return <>{children}</>;
+}
+
+// Auth Callback Component
+function AuthCallback() {
+    const { user, loading } = useAuth();
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        if (!loading) {
+            if (user) {
+                const plan = getPendingCheckoutPlan();
+                const searchParams = new URLSearchParams(location.search);
+                const redirectTarget = searchParams.get('redirect');
+                navigate(redirectTarget || (plan ? `/dashboard?plan=${plan}` : '/dashboard'), { replace: true });
+            } else {
+                navigate('/login', { replace: true });
+            }
+        }
+    }, [user, loading, navigate, location.search]);
+
+    return <LoadingScreen />;
 }
 
 // Reset Password Route Component (allows authenticated users for password reset flow)
@@ -103,14 +129,7 @@ function ResetPasswordRoute({ children }: ResetPasswordRouteProps) {
     const { loading } = useAuth();
 
     if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-green mx-auto"></div>
-                    <p className="mt-4 text-gray-600">Loading...</p>
-                </div>
-            </div>
-        );
+        return <LoadingScreen message="Verifying reset link..." description="Preparing secure password reset" />;
     }
 
     // Allow both authenticated and unauthenticated users to access reset password page
@@ -152,6 +171,7 @@ export default function AppRoutes() {
             <Route path="/agent" element={<AgentLandingPage />} />
             <Route path="/login" element={<PublicRoute><SignIn /></PublicRoute>} />
             <Route path="/signup" element={<PublicRoute><SignUp /></PublicRoute>} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
             <Route path="/reset-password" element={<ResetPasswordRoute><ResetPasswordWrapper /></ResetPasswordRoute>} />
 
@@ -172,6 +192,7 @@ export default function AppRoutes() {
             {/* TEMP DEV HARNESS ROUTE — remove before shipping */}
             <Route path="/dev-agent-test" element={<AgentToolbarTestPage />} />
             <Route path="/dev-templates" element={<TemplatesComparePage />} />
+            <Route path="/dev-regent" element={<RegentReferenceCheck />} />
 
             {/* Protected Route - Resume Agent */}
             <Route path="/resume-agent" element={<ProtectedRoute><ResumeAgentPage /></ProtectedRoute>} />

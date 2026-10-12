@@ -4,7 +4,7 @@ import { ResumeData, Experience, Project, Certification, LanguageItem } from '..
 import { SectionDefinition } from '../types/resumeSections';
 import { parseDescriptionBullets } from '../utils/templateUtils';
 import CourseworkForm from './CourseworkForm';
-import ExpertSkillsForm from './ExpertSkillsForm';
+import SkillsForm from './SkillsForm';
 
 interface GenericSectionFormProps {
   sectionType: string;
@@ -463,9 +463,9 @@ export default function GenericSectionForm({
     );
   }
 
-  // 5. EXPERT-SKILLS SECTION
+  // 5. EXPERT-SKILLS SECTION (Fallback to SkillsForm)
   if (definition.rendererKind === 'expert_skills' || sectionType === 'expert_skills') {
-    return <ExpertSkillsForm data={data} onChange={onChange} onAIAction={onAIAction} />;
+    return <SkillsForm data={data} onChange={onChange} onAIAction={onAIAction} />;
   }
 
   // 6. SKILLS-LIKE SECTIONS (technicalSkills, coreCompetencies, toolsAndTechnologies)

@@ -28,6 +28,7 @@ import { BorderBeam } from 'border-beam';
 import { useAuth } from '../contexts/AuthContext';
 import SEO from './SEO';
 import PublicFooter from './PublicFooter';
+import { Loader } from './ui/Loader';
 import { normalizeResumeData } from '../pages/ResumeAgentPage';
 import NotchHeroPreview from './NotchHeroPreview';
 import EditorHeroPreview from './EditorHeroPreview';
@@ -853,7 +854,7 @@ export default function AgentLandingPage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleGoToDashboard}
-                className="px-4 py-2 rounded-xl bg-brand-dark hover:bg-brand-dark/90 text-white font-bold text-sm shadow-sm transition-all flex items-center gap-2 cursor-pointer"
+                className="px-4 py-2 rounded-lg bg-brand-dark hover:bg-brand-dark/90 text-white font-medium text-sm shadow-sm transition-all flex items-center gap-2 cursor-pointer"
               >
                 <span>Launch Agent</span>
                 <ArrowRight className="w-4 h-4 text-brand-green" />
@@ -864,7 +865,7 @@ export default function AgentLandingPage() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleGoogleSignIn}
-                  className="flex items-center gap-2 rounded-xl border border-brand-border bg-white px-3.5 py-2 text-sm font-semibold text-brand-dark shadow-xs hover:bg-brand-secondary transition-colors cursor-pointer whitespace-nowrap"
+                  className="flex items-center gap-2 rounded-lg border border-brand-border bg-white px-3.5 py-2 text-sm font-semibold text-brand-dark shadow-xs hover:bg-brand-secondary transition-colors cursor-pointer whitespace-nowrap"
                 >
                   <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -930,7 +931,7 @@ export default function AgentLandingPage() {
                 {!user && (
                   <button
                     onClick={() => { navigate('/login'); setIsMobileMenuOpen(false); }}
-                    className="w-full mt-1 rounded-xl bg-brand-dark hover:bg-brand-dark/90 text-white font-bold text-sm py-3.5 shadow-sm transition-colors cursor-pointer"
+                    className="w-full mt-1 rounded-lg bg-brand-dark hover:bg-brand-dark/90 text-white font-medium text-sm py-3.5 shadow-sm transition-colors cursor-pointer"
                   >
                     Log in
                   </button>
@@ -1037,7 +1038,7 @@ export default function AgentLandingPage() {
                       >
                         {isParsingResume ? (
                           <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <Loader size="xs" variant="default" />
                             <span>Reading resume…</span>
                           </>
                         ) : (
@@ -1720,7 +1721,7 @@ export default function AgentLandingPage() {
                 whileHover={{ scale: 1.03, y: -2, transition: { duration: 0.2 } }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleGoToDashboard}
-                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-brand-green hover:bg-brand-greenHover text-brand-dark font-extrabold text-sm shadow-xl transition-colors cursor-pointer"
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-lg bg-brand-green hover:bg-brand-greenHover text-brand-dark font-medium text-sm shadow-xl transition-colors cursor-pointer"
               >
                 <span>Launch the Agent</span>
                 <ArrowRight className="w-4 h-4" />
@@ -1985,7 +1986,7 @@ export default function AgentLandingPage() {
                       className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-white/15 text-white/50 hover:text-white hover:border-white/30 transition-colors cursor-pointer disabled:opacity-60"
                     >
                       {isParsingResume ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <Loader size="xs" variant="light" />
                       ) : (
                         <Plus className="w-4 h-4" />
                       )}

@@ -15,6 +15,7 @@ import {
 import { createPortal } from 'react-dom';
 import { parseResume } from '../utils/resumeParser';
 import { ResumeData } from '../types';
+import { Loader } from './ui/Loader';
 
 interface TemplateOnboardingModalProps {
     isOpen: boolean;
@@ -486,7 +487,7 @@ export default function TemplateOnboardingModal({
                                                             {isCompleted ? (
                                                                 <CheckCircle2 size={16} className="text-brand-green fill-brand-green/20" />
                                                             ) : isCurrent ? (
-                                                                <Loader2 size={16} className="text-brand-green animate-spin" />
+                                                                <Loader size="xs" variant="default" />
                                                             ) : (
                                                                 <div className="w-4 h-4 rounded-full border-2 border-gray-200" />
                                                             )}

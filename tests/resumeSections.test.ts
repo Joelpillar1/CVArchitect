@@ -14,6 +14,7 @@ import {
 import type { ResumeSectionType } from '../types/resumeSections';
 import type { ResumeData } from '../types';
 import { INITIAL_DATA } from '../types';
+import { buildTextCandidates } from '../utils/inlineTextFormat';
 
 describe('Phase 1: Resume Section Domain Architecture', () => {
   const ALL_37_TYPES: ResumeSectionType[] = [
@@ -252,6 +253,23 @@ describe('Phase 1: Resume Section Domain Architecture', () => {
         additionalInfo: [{ id: '1', label: 'Certifications', value: 'AWS Solutions Architect' }],
       };
       expect(hasSectionContent(validInfo, 'additional_information')).toBe(true);
+    });
+
+    it('16b. Contact section correctly resolves github and portfolio', () => {
+      const contactData: ResumeData = {
+        ...INITIAL_DATA,
+        fullName: 'Jane Doe',
+        github: 'github.com/janedoe',
+        portfolio: 'janedoe.dev',
+      };
+      const contact = getSectionContent(contactData, 'contact') as any;
+      expect(contact.github).toBe('github.com/janedoe');
+      expect(contact.portfolio).toBe('janedoe.dev');
+      expect(hasSectionContent(contactData, 'contact')).toBe(true);
+
+      const candidates = buildTextCandidates(contactData);
+      expect(candidates.some((c: any) => c.path === 'github')).toBe(true);
+      expect(candidates.some((c: any) => c.path === 'portfolio')).toBe(true);
     });
 
     it('17. Custom sections resolve correctly according to contentType', () => {
@@ -597,11 +615,65 @@ describe('Phase 1: Resume Section Domain Architecture', () => {
         ...INITIAL_DATA,
         expertSkills: structuredInput,
       };
-      expect(hasSectionContent(data, 'expert_skills')).toBe(true);
+      // expert_skills is retired and never treated as populated content
+      expect(hasSectionContent(data, 'expert_skills')).toBe(false);
       expect(getSectionContent(data, 'expert_skills')).toEqual(structuredInput);
       expect(normalizeSectionType('expertSkills')).toBe('expert_skills');
       expect(normalizeSectionType('expert_level_skills')).toBe('expert_skills');
       expect(normalizeSectionType('expertLevelSkills')).toBe('expert_skills');
+    });
+
+    it('GitHub and Portfolio formatters return clean labels "GitHub" and "Portfolio" with normalized URLs', async () => {
+      const {
+        formatGitHubDisplay,
+        getGitHubHref,
+        formatPortfolioDisplay,
+        getPortfolioHref,
+      } = await import('../utils/templateUtils');
+
+      // GitHub
+      expect(formatGitHubDisplay('https://github.com/johndoe')).toBe('GitHub');
+      expect(formatGitHubDisplay('github.com/johndoe')).toBe('GitHub');
+      expect(formatGitHubDisplay('johndoe')).toBe('GitHub');
+      expect(formatGitHubDisplay('')).toBe('');
+      expect(formatGitHubDisplay(undefined)).toBe('');
+      expect(getGitHubHref('johndoe')).toBe('https://github.com/johndoe');
+      expect(getGitHubHref('https://github.com/johndoe')).toBe('https://github.com/johndoe');
+
+      // Portfolio
+      expect(formatPortfolioDisplay('https://myportfolio.dev')).toBe('Portfolio');
+      expect(formatPortfolioDisplay('myportfolio.dev/projects')).toBe('Portfolio');
+      expect(formatPortfolioDisplay('')).toBe('');
+      expect(formatPortfolioDisplay(undefined)).toBe('');
+      expect(getPortfolioHref('myportfolio.dev')).toBe('https://myportfolio.dev');
+      expect(getPortfolioHref('https://myportfolio.dev')).toBe('https://myportfolio.dev');
+    });
+
+    it('Harvard template is grouped under Student category', async () => {
+      const { TEMPLATE_CONFIG, getTemplateCategory } = await import('../utils/templateConfig');
+
+      const harvardTemplate = TEMPLATE_CONFIG.find(t => t.id === 'rezi');
+      expect(harvardTemplate).toBeDefined();
+      expect(harvardTemplate?.name).toBe('Harvard');
+      expect(getTemplateCategory(harvardTemplate!)).toBe('Student');
+
+      // Also ensure generic lookup with id 'rezi' or name 'Harvard' returns 'Student'
+      expect(getTemplateCategory({ id: 'rezi' as any, name: 'Harvard', subtitle: 'Ivy' })).toBe('Student');
+    });
+
+    it('Analyst template is named "Analyst" with updated preview details', async () => {
+      const { TEMPLATE_CONFIG } = await import('../utils/templateConfig');
+      const { GAURAV_TEMPLATE_PREVIEW_DATA } = await import('../utils/sampleResumeData');
+
+      const analystTemplate = TEMPLATE_CONFIG.find(t => t.id === 'gaurav');
+      expect(analystTemplate).toBeDefined();
+      expect(analystTemplate?.name).toBe('Analyst');
+
+      expect(GAURAV_TEMPLATE_PREVIEW_DATA.fullName).toBe('Alex Rivera');
+      expect(GAURAV_TEMPLATE_PREVIEW_DATA.email).toBe('alex.rivera@example.com');
+      expect(GAURAV_TEMPLATE_PREVIEW_DATA.phone).toBe('+1 (555) 432-8910');
+      expect(GAURAV_TEMPLATE_PREVIEW_DATA.atHandle).toBe('');
+      expect(GAURAV_TEMPLATE_PREVIEW_DATA.experience[0].role).toBe('Senior Data Analyst');
     });
   });
 });

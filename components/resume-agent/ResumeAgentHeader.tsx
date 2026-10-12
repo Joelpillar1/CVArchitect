@@ -4,6 +4,7 @@ import { Download, ChevronDown, Layout, Check, Loader2, Save, ZoomIn, ZoomOut, M
 import { JobMatchAnalysis } from '../../types/resumeAgent';
 import { TemplateType } from '../../types';
 import TemplateDropdown from './TemplateDropdown';
+import { Loader } from '../ui/Loader';
 
 interface ResumeAgentHeaderProps {
   resumeTitle: string;
@@ -29,6 +30,8 @@ interface ResumeAgentHeaderProps {
   onResetZoom?: () => void;
   onOpenFullscreen?: () => void;
   onNavigateDashboard?: () => void;
+  userPlan?: string;
+  onShowPaywall?: (feature: 'templates') => void;
 }
 
 export default function ResumeAgentHeader({
@@ -55,6 +58,8 @@ export default function ResumeAgentHeader({
   onResetZoom,
   onOpenFullscreen,
   onNavigateDashboard,
+  userPlan = 'free',
+  onShowPaywall,
 }: ResumeAgentHeaderProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isDownloadMenuOpen, setIsDownloadMenuOpen] = useState(false);
@@ -117,7 +122,12 @@ export default function ResumeAgentHeader({
 
       {/* Center: Template Selector Dropdown Pill Only */}
       <div className="hidden md:flex items-center">
-        <TemplateDropdown currentTemplate={template} onChangeTemplate={onChangeTemplate} />
+        <TemplateDropdown
+          currentTemplate={template}
+          onChangeTemplate={onChangeTemplate}
+          userPlan={userPlan}
+          onShowPaywall={onShowPaywall}
+        />
       </div>
 
       {/* Right Actions: Save, Zoom, Fullscreen, and Download PDF */}
@@ -135,7 +145,7 @@ export default function ResumeAgentHeader({
         >
           {isSaving || saveStatus === 'saving' ? (
             <>
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-dark/70" />
+              <Loader size="xs" variant="default" />
               <span>Saving...</span>
             </>
           ) : saveStatus === 'saved' ? (
@@ -201,7 +211,7 @@ export default function ResumeAgentHeader({
           >
             {isExporting ? (
               <>
-                <Loader2 className="w-3.5 h-3.5 text-brand-dark animate-spin" />
+                <Loader size="xs" variant="default" />
                 <span>Downloading...</span>
               </>
             ) : (

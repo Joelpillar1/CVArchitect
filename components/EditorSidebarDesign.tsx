@@ -84,29 +84,38 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
             <div className="p-4 border-b border-brand-border space-y-4">
                 <div>
                     <h3 className="text-xs font-bold text-gray-900 mb-3">Section Headers Align</h3>
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => onChange({ ...data, bodyHeaderAlignment: 'left', sectionHeaderAlignment: 'left' })}
-                            className={`p-2 rounded hover:bg-brand-secondary ${(!data.bodyHeaderAlignment || data.bodyHeaderAlignment === 'left') ? 'bg-brand-secondary text-brand-dark' : 'text-gray-400'}`}
-                            title="Align Left"
-                        >
-                            <AlignLeft size={18} />
-                        </button>
-                        <button
-                            onClick={() => onChange({ ...data, bodyHeaderAlignment: 'center', sectionHeaderAlignment: 'center' })}
-                            className={`p-2 rounded hover:bg-brand-secondary ${data.bodyHeaderAlignment === 'center' ? 'bg-brand-secondary text-brand-dark' : 'text-gray-400'}`}
-                            title="Align Center"
-                        >
-                            <AlignCenter size={18} />
-                        </button>
-                        <button
-                            onClick={() => onChange({ ...data, bodyHeaderAlignment: 'right', sectionHeaderAlignment: 'right' })}
-                            className={`p-2 rounded hover:bg-brand-secondary ${data.bodyHeaderAlignment === 'right' ? 'bg-brand-secondary text-brand-dark' : 'text-gray-400'}`}
-                            title="Align Right"
-                        >
-                            <AlignRight size={18} />
-                        </button>
-                    </div>
+                    {(() => {
+                        const isCenteredByDefault = data.template === 'styled' || data.template === 'regent';
+                        const currentAlign =
+                            data.sectionHeaderAlignment ||
+                            (data.bodyHeaderAlignment && data.bodyHeaderAlignment !== 'left' ? data.bodyHeaderAlignment : undefined) ||
+                            (isCenteredByDefault ? 'center' : (data.bodyHeaderAlignment || 'left'));
+                        return (
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => onChange({ ...data, bodyHeaderAlignment: 'left', sectionHeaderAlignment: 'left' })}
+                                    className={`p-2 rounded hover:bg-brand-secondary ${currentAlign === 'left' ? 'bg-brand-secondary text-brand-dark' : 'text-gray-400'}`}
+                                    title="Align Left"
+                                >
+                                    <AlignLeft size={18} />
+                                </button>
+                                <button
+                                    onClick={() => onChange({ ...data, bodyHeaderAlignment: 'center', sectionHeaderAlignment: 'center' })}
+                                    className={`p-2 rounded hover:bg-brand-secondary ${currentAlign === 'center' ? 'bg-brand-secondary text-brand-dark' : 'text-gray-400'}`}
+                                    title="Align Center"
+                                >
+                                    <AlignCenter size={18} />
+                                </button>
+                                <button
+                                    onClick={() => onChange({ ...data, bodyHeaderAlignment: 'right', sectionHeaderAlignment: 'right' })}
+                                    className={`p-2 rounded hover:bg-brand-secondary ${currentAlign === 'right' ? 'bg-brand-secondary text-brand-dark' : 'text-gray-400'}`}
+                                    title="Align Right"
+                                >
+                                    <AlignRight size={18} />
+                                </button>
+                            </div>
+                        );
+                    })()}
                 </div>
 
                 <div>

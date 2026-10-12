@@ -1,4 +1,4 @@
-import { redirectToCheckout } from '../services/dodoPaymentsService';
+import { redirectToCheckout } from '../services/creemPaymentsService';
 import { PlanId } from '../types/pricing';
 import { PAID_PLAN_IDS, getPlanDisplayName } from './pricingConfig';
 

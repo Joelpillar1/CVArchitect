@@ -965,6 +965,22 @@ body.print-resume-mode #print-resume-root {
     page-break-after: auto !important;
     break-after: auto !important;
   }
+
+  .resume-preview-root {
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+  }
+
+  .resume-preview-root > div,
+  .resume-preview-root [class*="space-y-"] {
+    gap: 0 !important;
+    row-gap: 0 !important;
+  }
+
+  .resume-preview-root [class*="space-y-"] > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 0 !important;
+  }
 }
 
 /* ==========================================================================
@@ -1014,5 +1030,185 @@ body.print-resume-mode #print-resume-root {
   position: relative !important;
   z-index: 20 !important;
 }
+
+/* ==========================================================================
+   CVArchitect App Theme Loader
+   ========================================================================== */
+.loader {
+  --color-1: #333C4D; /* brand.dark */
+  --color-2: #70E098; /* brand.green */
+  --size: 1px;
+
+  width: calc(48 * var(--size));
+  height: calc(48 * var(--size));
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  border: calc(3 * var(--size)) solid;
+  border-color: var(--color-1) var(--color-1) transparent transparent;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+.loader.loader-light {
+  --color-1: #ffffff;
+  --color-2: #70E098;
+}
+
+.loader.loader-white {
+  --color-1: rgba(255, 255, 255, 0.4);
+  --color-2: #ffffff;
+}
+
+.loader.loader-contrast {
+  --color-1: #333C4D;
+  --color-2: #ffffff;
+}
+
+.loader.loader-xs {
+  --size: 0.32px; /* ~15px */
+}
+
+.loader.loader-sm {
+  --size: 0.38px; /* ~18px */
+}
+
+.loader.loader-md {
+  --size: 0.65px; /* ~31px */
+}
+
+.loader.loader-lg {
+  --size: 1px; /* 48px */
+}
+
+.loader.loader-xl {
+  --size: 1.33px; /* 64px */
+}
+
+.loader::after,
+.loader::before {
+  content: '';
+  box-sizing: border-box;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  border: calc(3 * var(--size)) solid;
+  border-color: transparent transparent var(--color-2) var(--color-2);
+  width: calc(40 * var(--size));
+  height: calc(40 * var(--size));
+  border-radius: 50%;
+  box-sizing: border-box;
+  animation: rotationBack 0.5s linear infinite;
+  transform-origin: center center;
+}
+
+.loader::before {
+  width: calc(32 * var(--size));
+  height: calc(32 * var(--size));
+  border-color: var(--color-1) var(--color-1) transparent transparent;
+  animation: rotation 1.5s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rotationBack {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-360deg);
+  }
+}
+
+/* ==========================================================================
+   SKELETON SHIMMER UTILITIES
+   ========================================================================== */
+@keyframes skeletonShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    #e5e7eb 0%,
+    #f3f4f6 50%,
+    #e5e7eb 100%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.skeleton-shimmer-subtle {
+  background: linear-gradient(
+    90deg,
+    #f3f4f6 0%,
+    #fafafa 50%,
+    #f3f4f6 100%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ==========================================================================
+   BUTTON CORNER RADIUS REFINEMENT
+   Normalizes all buttons across the application from oversized radii
+   (rounded-xl 12px, rounded-2xl 16px, or elongated pill buttons) down to
+   a sleek, crisp, modern 8px radius (like Linear, Stripe, and Vercel).
+   Preserves small circular icon buttons, avatars, and pill switches.
+   ========================================================================== */
+
+button.rounded-xl,
+button.rounded-2xl,
+button.rounded-3xl,
+[role="button"].rounded-xl,
+[role="button"].rounded-2xl,
+[role="button"].rounded-3xl,
+a.rounded-xl[role="button"],
+a.rounded-2xl[role="button"],
+a.rounded-3xl[role="button"],
+a.rounded-xl[class*="bg-brand-"],
+a.rounded-2xl[class*="bg-brand-"],
+a.rounded-3xl[class*="bg-brand-"],
+a.rounded-xl[class*="bg-black"],
+a.rounded-2xl[class*="bg-black"] {
+  border-radius: 8px !important;
+}
+
+/* Text & CTA buttons that were styled with rounded-full pills */
+button.rounded-full[class*="px-"]:not([class*="w-5"]):not([class*="w-6"]):not([class*="w-7"]):not([class*="w-8"]):not([class*="w-9"]):not([class*="w-10"]):not([class*="w-12"]),
+a.rounded-full[class*="px-"]:not([class*="w-5"]):not([class*="w-6"]):not([class*="w-7"]):not([class*="w-8"]):not([class*="w-9"]):not([class*="w-10"]):not([class*="w-12"]) {
+  border-radius: 8px !important;
+}
+
+/* Maintain proper zero-radius borders on joined button groups */
+button[class*="rounded-l-"] {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-top-left-radius: 8px !important;
+  border-bottom-left-radius: 8px !important;
+}
+
+button[class*="rounded-r-"] {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-top-right-radius: 8px !important;
+  border-bottom-right-radius: 8px !important;
+}
+
 
 

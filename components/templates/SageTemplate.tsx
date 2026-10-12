@@ -1,7 +1,7 @@
-import React from 'react';
+﻿import React from 'react';
 import RichText from '../RichText';
 import { ResumeData, Experience, Education, Project, Certification, LanguageItem, AdditionalInfoItem, CourseworkItem } from '../../types';
-import { MapPin, Phone, Mail, Linkedin, Send } from 'lucide-react';
+import { MapPin, Phone, Mail, Linkedin, Send, Github, Globe } from 'lucide-react';
 import {
   parseDescriptionBullets,
   parseAchievementBullets,
@@ -19,6 +19,10 @@ import {
   formatContactText, formatLocationDisplay,
   formatLinkedInDisplay,
   getLinkedInHref,
+  formatGitHubDisplay,
+  getGitHubHref,
+  formatPortfolioDisplay,
+  getPortfolioHref,
   CONTACT_SEPARATOR,
   isTitleFirst,
   splitSkillsList,
@@ -56,8 +60,8 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
     data.headerAlignment === 'left'
       ? 'text-left'
       : data.headerAlignment === 'right'
-      ? 'text-right'
-      : 'text-center';
+        ? 'text-right'
+        : 'text-center';
 
   const renderSectionHeader = (title: string) => (
     <div
@@ -476,11 +480,10 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
       <header className="break-inside-avoid" style={{ marginBottom: `${getHeaderGapIn(data)}in` }}>
         <h1
           data-path="fullName"
-          className={`font-bold leading-tight ${
-            data.headerAlignment === 'left' ? 'text-left' :
-            data.headerAlignment === 'right' ? 'text-right' :
-            'text-center'
-          }`}
+          className={`font-bold leading-tight ${data.headerAlignment === 'left' ? 'text-left' :
+              data.headerAlignment === 'right' ? 'text-right' :
+                'text-center'
+            }`}
           style={{
             fontSize: `${fontSizes?.header || 22}pt`,
             color: accentColor,
@@ -494,14 +497,13 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
         {isTitleFirst(data, false) && data.jobTitle && (
           <p
             data-path="jobTitle"
-            className={`tracking-wider font-semibold text-gray-700 ${
-              data.jobTitleAlignment === 'left' ? 'text-left' :
-              data.jobTitleAlignment === 'right' ? 'text-right' :
-              data.jobTitleAlignment === 'center' ? 'text-center' :
-              data.headerAlignment === 'left' ? 'text-left' :
-              data.headerAlignment === 'right' ? 'text-right' :
-              'text-center'
-            }`}
+            className={`tracking-wider font-semibold text-gray-700 ${data.jobTitleAlignment === 'left' ? 'text-left' :
+                data.jobTitleAlignment === 'right' ? 'text-right' :
+                  data.jobTitleAlignment === 'center' ? 'text-center' :
+                    data.headerAlignment === 'left' ? 'text-left' :
+                      data.headerAlignment === 'right' ? 'text-right' :
+                        'text-center'
+              }`}
             style={{
               fontSize: `${fontSizes?.jobTitle || 11}pt`,
               marginBottom: `${getHeaderContactGapIn(data)}in`,
@@ -563,9 +565,43 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
                   href={getLinkedInHref(data.linkedin)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ textDecoration: 'none', color: 'inherit' }}
+                  style={{ textDecoration: 'underline', color: 'inherit' }}
                 >
                   <RichText text={formatLinkedInDisplay(data.linkedin)} />
+                </a>
+              </span>
+            );
+          }
+
+          if (data.github) {
+            contactItems.push(
+              <span key="gh" className="inline-flex items-center gap-1">
+                {showIcons && <Github size={12} className="shrink-0" color={ACCENT} />}
+                <a
+                  data-path="github"
+                  href={getGitHubHref(data.github)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: 'underline', color: 'inherit' }}
+                >
+                  <RichText text={formatGitHubDisplay(data.github)} />
+                </a>
+              </span>
+            );
+          }
+
+          if (data.portfolio) {
+            contactItems.push(
+              <span key="port" className="inline-flex items-center gap-1">
+                {showIcons && <Globe size={12} className="shrink-0" color={ACCENT} />}
+                <a
+                  data-path="portfolio"
+                  href={getPortfolioHref(data.portfolio)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: 'underline', color: 'inherit' }}
+                >
+                  <RichText text={formatPortfolioDisplay(data.portfolio)} />
                 </a>
               </span>
             );
@@ -586,14 +622,13 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
 
           return (
             <div
-              className={`flex flex-wrap items-center ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-600 ${
-                data.contactAlignment === 'left' ? 'justify-start text-left' :
-                data.contactAlignment === 'right' ? 'justify-end text-right' :
-                data.contactAlignment === 'center' ? 'justify-center text-center' :
-                data.headerAlignment === 'left' ? 'justify-start text-left' :
-                data.headerAlignment === 'right' ? 'justify-end text-right' :
-                'justify-center text-center'
-              }`}
+              className={`flex flex-wrap items-center ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-600 ${data.contactAlignment === 'left' ? 'justify-start text-left' :
+                  data.contactAlignment === 'right' ? 'justify-end text-right' :
+                    data.contactAlignment === 'center' ? 'justify-center text-center' :
+                      data.headerAlignment === 'left' ? 'justify-start text-left' :
+                        data.headerAlignment === 'right' ? 'justify-end text-right' :
+                          'justify-center text-center'
+                }`}
               style={{
                 ...bodyStyle,
                 marginBottom: !isTitleFirst(data, false) && data.jobTitle ? `${getHeaderContactGapIn(data)}in` : undefined,
@@ -615,14 +650,13 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
         {!isTitleFirst(data, false) && data.jobTitle && (
           <p
             data-path="jobTitle"
-            className={`tracking-wider font-semibold text-gray-700 ${
-              data.jobTitleAlignment === 'left' ? 'text-left' :
-              data.jobTitleAlignment === 'right' ? 'text-right' :
-              data.jobTitleAlignment === 'center' ? 'text-center' :
-              data.headerAlignment === 'left' ? 'text-left' :
-              data.headerAlignment === 'right' ? 'text-right' :
-              'text-center'
-            }`}
+            className={`tracking-wider font-semibold text-gray-700 ${data.jobTitleAlignment === 'left' ? 'text-left' :
+                data.jobTitleAlignment === 'right' ? 'text-right' :
+                  data.jobTitleAlignment === 'center' ? 'text-center' :
+                    data.headerAlignment === 'left' ? 'text-left' :
+                      data.headerAlignment === 'right' ? 'text-right' :
+                        'text-center'
+              }`}
             style={{
               fontSize: `${fontSizes?.jobTitle || 11}pt`,
               lineHeight: 1.25,

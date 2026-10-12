@@ -4,7 +4,7 @@ import { ResumeData, TemplateType } from '../types';
 import { UserSubscription } from '../types/pricing';
 import { SubscriptionManager } from '../utils/subscriptionManager';
 import { canAccessTemplate, FREE_TEMPLATES } from '../utils/pricingConfig';
-import { TEMPLATE_CONFIG } from '../utils/templateConfig';
+import { TEMPLATE_CONFIG, getTemplateCategory } from '../utils/templateConfig';
 import { getTemplatePreviewData } from '../utils/sampleResumeData';
 import { ResumeSectionType } from '../types/resumeSections';
 import { SECTION_REGISTRY, createDefaultSectionOrder } from '../utils/sectionRegistry';
@@ -14,7 +14,6 @@ import EducationForm from './EducationForm';
 import AchievementsForm from './AchievementsForm';
 import CertificationsForm from './CertificationsForm';
 import SkillsForm from './SkillsForm';
-import ExpertSkillsForm from './ExpertSkillsForm';
 import SummaryForm from './SummaryForm';
 import ReferencesForm from './ReferencesForm';
 import AdditionalInfoForm from './AdditionalInfoForm';
@@ -26,6 +25,7 @@ import CourseworkForm from './CourseworkForm';
 import AddSectionModal from './resume-agent/AddSectionModal';
 import ResumePreview from './ResumePreview';
 import AnalyticsDashboard from './AnalyticsDashboard';
+import { TemplateCardPreviewCanvas } from './ui/TemplateSkeleton';
 import { EditorTab } from './Editor';
 
 interface EditorSidebarLeftProps {
@@ -170,13 +170,6 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                             (updatedData as any)[field] =
                                 'JavaScript, TypeScript, React, Node.js, Python, Git, Problem Solving, Team Leadership';
                             break;
-                        case 'expert_skills':
-                            (updatedData as any)[field] = [
-                                { id: '1', category: 'Leadership', skills: 'Speaking, Fundraising, Product Development, Communication, Partnerships, International Marketing' },
-                                { id: '2', category: 'Front End', skills: 'HTML, CSS, Bootstrap, Webflow | Design: Photoshop, Illustrator, Sketch' },
-                                { id: '3', category: 'Fields of Interest', skills: 'Early-Stage Fundraising, Global Entrepreneurship, Web Design, Growth' },
-                            ];
-                            break;
                         case 'bullets':
                             (updatedData as any)[field] =
                                 '• Key milestone or contribution delivering measurable impact\n• Published research or presentation delivered to target audience';
@@ -220,10 +213,9 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
         { id: 'personal', label: 'Personal Information', icon: <User size={18} />, component: <PersonalInfoForm data={data} onChange={onChange} /> },
         { id: 'summary', label: 'Professional Summary', icon: <FileText size={18} />, component: <SummaryForm data={data} onChange={onChange} onAIAction={onAIAction} /> },
         { id: 'experience', label: 'Employment History', icon: <Briefcase size={18} />, component: <ExperienceForm data={data} onChange={onChange} onAIAction={onAIAction} /> },
-        { id: 'education', label: 'Education', icon: <GraduationCap size={18} />, component: <EducationForm data={data} onChange={onChange} /> },
+        { id: 'education', label: 'Education', icon: <GraduationCap size={18} />, component: <EducationForm data={data} onChange={onChange} onAIAction={onAIAction} /> },
         { id: 'projects', label: 'Projects', icon: <Target size={18} />, component: <ProjectsForm data={data} onChange={onChange} /> },
         { id: 'skills', label: 'Skills', icon: <Hash size={18} />, component: <SkillsForm data={data} onChange={onChange} onAIAction={onAIAction} /> },
-        { id: 'expert_skills', label: 'Expert-Level Skills', icon: <Sparkles size={18} />, component: <ExpertSkillsForm data={data} onChange={onChange} onAIAction={onAIAction} /> },
         { id: 'certifications', label: 'Certifications', icon: <Award size={18} />, component: <CertificationsForm data={data} onChange={onChange} /> },
         { id: 'achievements', label: 'Achievements', icon: <Award size={18} />, component: <AchievementsForm data={data} onChange={onChange} onAIAction={onAIAction} /> },
         { id: 'additionalInfo', label: 'Additional Information', icon: <Info size={18} />, component: <AdditionalInfoForm data={data} onChange={onChange} /> },
@@ -242,8 +234,8 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
     const extendedSectionsList: Array<{ id: string; label: string; icon: React.ReactNode; component: React.ReactNode }> = [];
     Object.entries(SECTION_REGISTRY).forEach(([secKey, def]) => {
         const secId = def.type;
-        // Avoid duplicating core standard sections
-        if (standardSections.some(s => s.id === secId || (secId === 'additional_information' && s.id === 'additionalInfo'))) {
+        // Avoid duplicating core standard sections or deprecated expert_skills
+        if (secId === 'expert_skills' || standardSections.some(s => s.id === secId || (secId === 'additional_information' && s.id === 'additionalInfo'))) {
             return;
         }
         const isVisible = Boolean(data.sectionVisibility?.[secId] || (Array.isArray(data.sectionOrder) && data.sectionOrder.includes(secId)));
@@ -303,16 +295,6 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
         if (!aIsFree && bIsFree) return 1;
         return 0; // Maintain original order within each group
     });
-
-    const getTemplateCategory = (t: typeof TEMPLATE_CONFIG[0]) => {
-        const sub = t.subtitle.toLowerCase();
-        // Categorization logic based on subtitles
-        if (['entry level', 'graduate', 'finance', 'engineering', 'creative', 'chemical eng', 'marketing', 'leadership'].some(k => sub.includes(k))) return 'Student';
-        if (['executive', 'senior leader', 'c-suite'].some(k => sub.includes(k))) return 'Executive';
-        if (['modern tech', 'bold design', 'contemporary', 'clean', 'developer', 'modern'].some(k => sub.includes(k))) return 'Modern';
-        if (['academic', 'research'].some(k => sub.includes(k))) return 'Academic';
-        return 'Professional';
-    };
 
     const categories = ['All', 'Professional', 'Modern', 'Student', 'Executive', 'Academic', 'Free', 'Pro'];
 
@@ -585,7 +567,16 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                         <div className="p-3.5 grid grid-cols-1 sm:grid-cols-2 gap-3.5 pb-12">
                             {filteredTemplates.map((template) => {
                                 const isFree = FREE_TEMPLATES.includes(template.id);
+                                const isAccessible = canAccessTemplate(userSubscription.planId, template.id);
                                 const isSelected = currentTemplate === template.id;
+
+                                const handleSelectThisTemplate = () => {
+                                    if (!isAccessible) {
+                                        onShowPaywall?.('templates');
+                                        return;
+                                    }
+                                    onTemplateChange(template.id);
+                                };
 
                                 return (
                                     <div
@@ -593,11 +584,11 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                                         className={`group bg-[#EEF1F4] rounded-[24px] border p-3 sm:p-3.5 hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col ${
                                             isSelected
                                                 ? 'border-brand-green ring-2 ring-brand-green/30 shadow-md bg-[#edf5f0]'
+                                                : !isAccessible
+                                                ? 'border-gray-200/80 hover:border-amber-300'
                                                 : 'border-gray-200/80 hover:border-gray-300'
                                         }`}
-                                        onClick={() => {
-                                            onTemplateChange(template.id);
-                                        }}
+                                        onClick={handleSelectThisTemplate}
                                     >
                                         {/* Top Card Header */}
                                         <div className="flex items-center justify-between gap-2 mb-2.5">
@@ -620,41 +611,49 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                                                 >
                                                     <Check size={12} className="stroke-[3]" />
                                                 </div>
-                                            ) : !isFree ? (
+                                            ) : !isAccessible ? (
                                                 <div
-                                                    className="w-6 h-6 rounded-full bg-[#6F7682] text-white flex items-center justify-center shadow-2xs shrink-0"
-                                                    title="Pro Template"
+                                                    className="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-2xs shrink-0"
+                                                    title="Pro Template — Requires Upgrade"
                                                 >
                                                     <Lock size={11} className="stroke-[2.5]" />
                                                 </div>
                                             ) : null}
                                         </div>
 
-                                        {/* Inner White Preview Canvas */}
-                                        <div className="relative w-full aspect-[4/3] bg-white rounded-xl border border-gray-200/70 overflow-hidden shadow-2xs flex items-center justify-center">
-                                            {/* Scaled Resume Preview */}
-                                            <div className="absolute inset-0 flex items-start justify-center pt-2 overflow-hidden pointer-events-none select-none">
-                                                <div className="w-[210mm] origin-top transform scale-[0.27] sm:scale-[0.29] pointer-events-none select-none shadow-xs rounded-xs bg-white">
-                                                    <ResumePreview
-                                                        data={data?.fullName ? data : getTemplatePreviewData(template.id)}
-                                                        template={template.id}
-                                                    />
+                                        {/* Inner White Preview Canvas with Skeleton fallback */}
+                                        <TemplateCardPreviewCanvas
+                                            overlay={
+                                                <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-brand-dark/25 backdrop-blur-[2px] p-2.5">
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleSelectThisTemplate();
+                                                        }}
+                                                        className={`w-full max-w-[140px] px-3 py-1.5 rounded-xl font-bold shadow-lg transition-all flex items-center justify-center gap-1.5 text-xs cursor-pointer ${
+                                                            !isAccessible
+                                                                ? 'bg-amber-400 hover:bg-amber-500 text-brand-dark'
+                                                                : 'bg-brand-green hover:bg-brand-greenHover text-brand-dark'
+                                                        }`}
+                                                    >
+                                                        {isSelected ? 'Active' : !isAccessible ? (
+                                                            <>
+                                                                <Lock size={12} /> Unlock Pro
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                Apply <ArrowRight size={13} />
+                                                            </>
+                                                        )}
+                                                    </button>
                                                 </div>
-                                            </div>
-
-                                            {/* Hover Overlay */}
-                                            <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-brand-dark/25 backdrop-blur-[2px] p-2.5">
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        onTemplateChange(template.id);
-                                                    }}
-                                                    className="w-full max-w-[140px] bg-brand-green hover:bg-brand-greenHover text-brand-dark px-3 py-1.5 rounded-xl font-bold shadow-lg transition-all flex items-center justify-center gap-1.5 text-xs cursor-pointer"
-                                                >
-                                                    {isSelected ? 'Active' : 'Apply'} <ArrowRight size={13} />
-                                                </button>
-                                            </div>
-                                        </div>
+                                            }
+                                        >
+                                            <ResumePreview
+                                                data={data?.fullName ? data : getTemplatePreviewData(template.id)}
+                                                template={template.id}
+                                            />
+                                        </TemplateCardPreviewCanvas>
 
                                         {/* Bottom Subtitle Line */}
                                         <div className="mt-2 px-1 flex items-center justify-between text-xs text-gray-500">

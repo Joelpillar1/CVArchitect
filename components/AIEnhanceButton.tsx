@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Sparkles, Loader2 } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
+import { Loader } from './ui/Loader';
 
 interface AIEnhanceButtonProps {
     onEnhance: () => Promise<void>;
@@ -47,7 +48,7 @@ export default function AIEnhanceButton({
         >
             {isEnhancing ? (
                 <>
-                    <Loader2 size={14} className="animate-spin" />
+                    <Loader size="xs" variant="default" />
                     <span>Enhancing...</span>
                 </>
             ) : (

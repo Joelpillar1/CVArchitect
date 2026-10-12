@@ -23,6 +23,7 @@ import {
   parseDescriptionBullets,
   parseAchievementBullets,
 } from '../../utils/templateUtils';
+import { Loader } from '../ui/Loader';
 import {
   batchImproveBullets,
   batchImproveSkills,
@@ -669,7 +670,7 @@ export default function BatchBulletImproveModal({
             >
               {isProcessing ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader size="xs" variant="light" />
                   <span>Improving {selectedBulletIds.size} Bullets...</span>
                 </>
               ) : (

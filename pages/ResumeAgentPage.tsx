@@ -24,7 +24,7 @@ import { SECTION_REGISTRY, createDefaultSectionOrder } from '../utils/sectionReg
 import { stripMarkdown, formatAllResumeBullets } from '../utils/templateUtils';
 import { loadFacts, saveFact, factsForRun, loadFactsFromBackend, type CandidateFact } from '../services/candidateProfile';
 import { resumeService, cleanSerializableObject, type SavedResume } from '../services/resumeService';
-import { generatePDF, printResumeToPdf, exportResumeToPlainText, exportResumeToDocx } from '../components/utils/pdfGenerator';
+import { generatePDF, exportResumeToPdf, printResumeToPdf, exportResumeToPlainText, exportResumeToDocx } from '../components/utils/pdfGenerator';
 import ResumeAgentHeader from '../components/resume-agent/ResumeAgentHeader';
 import ResumeWorkspace from '../components/resume-agent/ResumeWorkspace';
 import PrintPortal from '../components/PrintPortal';
@@ -43,7 +43,12 @@ import {
   createEmptyResumeMemory,
   recordMemoryDecision,
 } from '../utils/resumeAgentMemory';
+import PricingModal from '../components/PricingModal';
+import { subscriptionService } from '../services/subscriptionService';
+import { UserSubscription } from '../types/pricing';
+import { canAccessTemplate } from '../utils/pricingConfig';
 import { Layout, MessageSquare, Briefcase, Download, Save, Undo, Sparkles, Trash2, Loader2, AlertTriangle } from 'lucide-react';
+import { Loader } from '../components/ui/Loader';
 import { findBestTextMatch, setTextAtPath, stripInlineTags } from '../utils/inlineTextFormat';
 
 import {
@@ -185,7 +190,26 @@ export const normalizeResumeData = (raw: any): ResumeData => {
     mergedSectionTitles.achievements = 'Career Highlights';
   }
 
-  return formatAllResumeBullets({
+  // Clean section titles
+  delete mergedSectionTitles.expert_skills;
+  delete (mergedSectionTitles as any).expertSkills;
+
+  let skillsValue = typeof inner.skills === 'string' ? inner.skills : (Array.isArray(inner.skills) ? inner.skills.join(', ') : (inner.skills !== undefined ? inner.skills : ''));
+  if (!skillsValue.trim() && inner.expertSkills) {
+    if (Array.isArray(inner.expertSkills)) {
+      skillsValue = inner.expertSkills
+        .map((item: any) => (item?.category ? `${item.category}: ${item.skills || ''}` : (item?.skills || '')))
+        .filter(Boolean)
+        .join('\n');
+    } else if (typeof inner.expertSkills === 'string') {
+      skillsValue = inner.expertSkills;
+    }
+  }
+
+  const rawSectionOrder = Array.isArray(inner.sectionOrder) && inner.sectionOrder.length > 0 ? inner.sectionOrder : empty.sectionOrder;
+  const cleanedSectionOrder = (rawSectionOrder || []).filter((s: string) => s !== 'expert_skills' && s !== 'expertSkills');
+
+  const normalizedResult = formatAllResumeBullets({
     ...empty,
     ...inner,
     fullName: typeof inner.fullName === 'string' ? inner.fullName.trim() : (inner.fullName !== undefined ? inner.fullName : ''),
@@ -193,9 +217,11 @@ export const normalizeResumeData = (raw: any): ResumeData => {
     email: typeof inner.email === 'string' ? inner.email : (inner.email !== undefined ? inner.email : ''),
     phone: typeof inner.phone === 'string' ? inner.phone : (inner.phone !== undefined ? inner.phone : ''),
     linkedin: typeof inner.linkedin === 'string' ? inner.linkedin : (inner.linkedin !== undefined ? inner.linkedin : ''),
+    github: typeof inner.github === 'string' ? inner.github : (inner.github !== undefined ? inner.github : ''),
+    portfolio: typeof inner.portfolio === 'string' ? inner.portfolio : (inner.portfolio !== undefined ? inner.portfolio : ''),
     location: typeof inner.location === 'string' ? inner.location : (typeof inner.address === 'string' ? inner.address : (inner.location !== undefined ? inner.location : '')),
     summary: typeof inner.summary === 'string' ? inner.summary : (inner.summary !== undefined ? inner.summary : ''),
-    skills: typeof inner.skills === 'string' ? inner.skills : (Array.isArray(inner.skills) ? inner.skills.join(', ') : (inner.skills !== undefined ? inner.skills : '')),
+    skills: skillsValue,
     experience: Array.isArray(inner.experience) ? inner.experience : [],
     education: Array.isArray(inner.education) ? inner.education : [],
     certifications: Array.isArray(inner.certifications) ? inner.certifications : [],
@@ -208,8 +234,11 @@ export const normalizeResumeData = (raw: any): ResumeData => {
     keyAchievements: achievementsValue,
     referee: typeof inner.referee === 'string' ? inner.referee : '',
     sectionTitles: Object.keys(mergedSectionTitles).length > 0 ? mergedSectionTitles : undefined,
-    sectionOrder: Array.isArray(inner.sectionOrder) && inner.sectionOrder.length > 0 ? inner.sectionOrder : empty.sectionOrder,
+    sectionOrder: cleanedSectionOrder,
   });
+
+  delete (normalizedResult as any).expertSkills;
+  return normalizedResult;
 };
 
 export const isResumePopulated = (data: ResumeData | null | undefined): boolean => {
@@ -321,7 +350,7 @@ const getInitialStoredData = (): {
     }
 
     return {
-      data: resolvedData,
+      data: { ...resolvedData, template: resolvedTemplate },
       title: resolvedTitle,
       template: resolvedTemplate,
       resumeId: resolvedResumeId,
@@ -511,6 +540,16 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [resumeToDelete, setResumeToDelete] = useState<{ id: string; title: string } | null>(null);
   const [isDeletingResume, setIsDeletingResume] = useState(false);
+  const [userSubscription, setUserSubscription] = useState<UserSubscription | null>(null);
+  const [showPricingModal, setShowPricingModal] = useState(false);
+
+  useEffect(() => {
+    if (user?.id) {
+      subscriptionService.getUserSubscription(user.id)
+        .then((sub) => setUserSubscription(sub))
+        .catch((err) => console.warn('Failed to load subscription in agent page:', err));
+    }
+  }, [user?.id]);
 
   // Synchronous mirror of savedResumeId, so the manual Save never sees a stale null
   // (which would create a duplicate row in the resumes table / "My Templates").
@@ -915,6 +954,10 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
     const previousData = resumeDataRef.current;
     setUndoStack((prev) => [...prev.slice(-30), previousData]);
     setRedoStack([]);
+    if (newData.template && newData.template !== templateRef.current) {
+      templateRef.current = newData.template;
+      setTemplate(newData.template);
+    }
     resumeDataRef.current = newData;
     setResumeData(newData);
     setHasUnsavedChanges(true);
@@ -934,13 +977,23 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
   };
 
   const handleChangeTemplate = (newTemplate: TemplateType) => {
+    const planId = userSubscription?.planId || 'free';
+    if (!Boolean(import.meta.env.DEV) && !canAccessTemplate(planId, newTemplate)) {
+      setShowPricingModal(true);
+      return;
+    }
     templateRef.current = newTemplate;
     setTemplate(newTemplate);
-    const updatedData = { ...resumeDataRef.current, template: newTemplate };
+    const updatedData = { ...(resumeDataRef.current || resumeData), template: newTemplate };
     resumeDataRef.current = updatedData;
     setResumeData(updatedData);
     setHasUnsavedChanges(true);
     hasUnsavedChangesRef.current = true;
+    try {
+      const templateKey = getAgentTemplateKey(user?.id);
+      localStorage.setItem(templateKey, newTemplate);
+      localStorage.setItem('cv_app_template', newTemplate);
+    } catch (e) {}
   };
 
   const handleReload = () => {
@@ -2047,17 +2100,21 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
     setIsExporting(true);
     try {
       const activeData = resumeDataRef.current || resumeData;
-      const activeTemplate = templateRef.current || template;
+      const activeTemplate = templateRef.current || template || activeData.template || 'classic';
       const activeTitle = (resumeTitleRef.current || resumeTitle || activeData.fullName || 'Resume').trim();
+      const dataWithTemplate: ResumeData = {
+        ...activeData,
+        template: activeTemplate,
+      };
       let result;
       try {
-        result = await generatePDF(activeData, activeTemplate, activeTitle);
+        result = await generatePDF(dataWithTemplate, activeTemplate, activeTitle);
       } catch (firstError) {
         // One automatic retry: the server render is a long-lived POST and
         // mobile connections drop mid-request far more often than desktops.
         console.warn('PDF export failed, retrying once:', firstError);
         await new Promise((resolve) => setTimeout(resolve, 750));
-        result = await generatePDF(activeData, activeTemplate, activeTitle);
+        result = await generatePDF(dataWithTemplate, activeTemplate, activeTitle);
       }
       showToast(
         result?.verified && result.pages !== null
@@ -2066,12 +2123,22 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
         'success'
       );
     } catch (e: any) {
-      const message = e?.message || 'Failed to export PDF. Please try again.';
-      console.error('Server PDF export failed:', e);
-      // Direct download only — never hijack the flow with the print dialog.
-      // The user asked for a file, so surface the reason and let them retry;
-      // "Print / Vector PDF" stays an explicit opt-in in the dropdown.
-      showToast(`Download failed — ${message}. Tap Download to retry.`, 'error');
+      console.warn('Server PDF export failed, attempting direct client-side fallback:', e);
+      try {
+        const activeData = resumeDataRef.current || resumeData;
+        const activeTemplate = templateRef.current || template || activeData.template || 'classic';
+        const activeTitle = (resumeTitleRef.current || resumeTitle || activeData.fullName || 'Resume').trim();
+        const dataWithTemplate: ResumeData = {
+          ...activeData,
+          template: activeTemplate,
+        };
+        await exportResumeToPdf(dataWithTemplate, activeTemplate, activeTitle);
+        showToast('Resume downloaded successfully!', 'success');
+      } catch (fallbackError: any) {
+        const message = fallbackError?.message || e?.message || 'Failed to export PDF. Please try again.';
+        console.error('Client-side fallback also failed:', fallbackError);
+        showToast(`Download failed — ${message}. Tap Download to retry.`, 'error');
+      }
     } finally {
       setIsExporting(false);
     }
@@ -2094,7 +2161,11 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
       const activeData = resumeDataRef.current || resumeData;
       const activeTitle = (resumeTitleRef.current || resumeTitle || activeData.fullName || 'Resume').trim();
       const activeTemplate = templateRef.current || template || activeData.template || 'classic';
-      await exportResumeToDocx(activeData, activeTitle, activeTemplate);
+      const dataWithTemplate: ResumeData = {
+        ...activeData,
+        template: activeTemplate,
+      };
+      await exportResumeToDocx(dataWithTemplate, activeTitle, activeTemplate);
       showToast('Resume downloaded as Word (.docx) successfully!', 'success');
     } catch (e: any) {
       console.error('DOCX export error:', e);
@@ -2554,6 +2625,8 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
         onZoomOut={handleZoomOut}
         onResetZoom={handleResetZoom}
         onOpenFullscreen={() => setIsFullscreen(true)}
+        userPlan={userSubscription?.planId || 'free'}
+        onShowPaywall={() => setShowPricingModal(true)}
         onNavigateDashboard={() => {
           if (hasUnsavedChangesRef.current) {
             setPendingNavigation({
@@ -2701,7 +2774,7 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
               >
                 {isDeletingResume ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <Loader size="xs" variant="light" />
                     <span>Deleting...</span>
                   </>
                 ) : (
@@ -2778,7 +2851,7 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
               >
                 {isSaving ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <Loader size="xs" variant="default" />
                     <span>Saving...</span>
                   </>
                 ) : (
@@ -2806,6 +2879,14 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
       <PrintPortal
         data={resumeDataRef.current || resumeData}
         template={template}
+      />
+
+      <PricingModal
+        isOpen={showPricingModal}
+        onClose={() => setShowPricingModal(false)}
+        currentPlanId={userSubscription?.planId || 'free'}
+        title="Upgrade to Unlock Premium Templates"
+        description="Choose a plan to unlock all premium ATS-optimized templates, unlimited AI rewrites, and PDF exports."
       />
     </div>
   );

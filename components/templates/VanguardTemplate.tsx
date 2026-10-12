@@ -1,7 +1,7 @@
 import React from 'react';
 import RichText from '../RichText';
 import { ResumeData, Experience, Education, Project, Certification, LanguageItem, AdditionalInfoItem, CourseworkItem } from '../../types';
-import { Linkedin, Mail, Phone, MapPin, Send } from 'lucide-react';
+import { Linkedin, Mail, Phone, MapPin, Send, Github, Globe } from 'lucide-react';
 import { getTranslation, Language } from '../../i18n/translations';
 
 import {
@@ -18,6 +18,10 @@ import {
   formatContactText, formatLocationDisplay,
   formatLinkedInDisplay,
   getLinkedInHref,
+  formatGitHubDisplay,
+  getGitHubHref,
+  formatPortfolioDisplay,
+  getPortfolioHref,
   formatNameDisplay,
   formatJobTitleDisplay,
   formatSectionTitle,
@@ -711,6 +715,50 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
                   style={{ textDecoration: 'none', color: 'inherit' }}
                 >
                   <RichText text={formatLinkedInDisplay(data.linkedin)} />
+                </a>
+              </span>
+            );
+          }
+
+          if (data.github) {
+            contactItems.push(
+              <span key="github" className="inline-flex items-center gap-1.5 align-middle" style={{ verticalAlign: 'middle' }}>
+                {showIcons && (
+                  <span className="inline-flex items-center justify-center shrink-0" style={{ verticalAlign: 'middle' }}>
+                    <Github size={iconSize} className="shrink-0" color={accentColor} />
+                  </span>
+                )}
+                <a
+                  data-path="github"
+                  href={getGitHubHref(data.github)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block align-middle"
+                  style={{ textDecoration: 'underline', color: 'inherit' }}
+                >
+                  <RichText text={formatGitHubDisplay(data.github)} />
+                </a>
+              </span>
+            );
+          }
+
+          if (data.portfolio) {
+            contactItems.push(
+              <span key="portfolio" className="inline-flex items-center gap-1.5 align-middle" style={{ verticalAlign: 'middle' }}>
+                {showIcons && (
+                  <span className="inline-flex items-center justify-center shrink-0" style={{ verticalAlign: 'middle' }}>
+                    <Globe size={iconSize} className="shrink-0" color={accentColor} />
+                  </span>
+                )}
+                <a
+                  data-path="portfolio"
+                  href={getPortfolioHref(data.portfolio)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block align-middle"
+                  style={{ textDecoration: 'underline', color: 'inherit' }}
+                >
+                  <RichText text={formatPortfolioDisplay(data.portfolio)} />
                 </a>
               </span>
             );

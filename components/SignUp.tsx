@@ -13,6 +13,7 @@ import {
     redirectToPendingCheckoutIfAny,
     setPendingCheckoutPlan,
 } from '../utils/pendingCheckout';
+import { Loader } from './ui/Loader';
 
 export default function SignUp() {
     const navigate = useNavigate();
@@ -197,7 +198,7 @@ export default function SignUp() {
                             type="button"
                             onClick={handleGoogleSignIn}
                             disabled={loading}
-                            className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-brand-dark py-3 px-4 rounded-xl font-semibold text-sm shadow-xs transition-all cursor-pointer active:scale-[0.99] disabled:opacity-50"
+                            className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-brand-dark py-3 px-4 rounded-lg font-semibold text-sm shadow-xs transition-all cursor-pointer active:scale-[0.99] disabled:opacity-50"
                         >
                             <svg className="w-5 h-5" viewBox="0 0 24 24">
                                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -309,8 +310,9 @@ export default function SignUp() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full mt-2 bg-brand-green hover:bg-brand-greenHover active:scale-[0.99] text-brand-dark py-3.5 px-4 rounded-xl font-bold text-sm shadow-sm hover:shadow-md transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+                            className="w-full mt-2 bg-brand-green hover:bg-brand-greenHover active:scale-[0.99] text-brand-dark py-3.5 px-4 rounded-lg font-bold text-sm shadow-sm hover:shadow-md transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
                         >
+                            {loading && <Loader size="xs" variant="default" />}
                             <span>{loading ? 'Creating account...' : selectedPlan ? 'Create Account & Continue' : 'Create account'}</span>
                         </button>
                     </form>

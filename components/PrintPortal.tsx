@@ -1,6 +1,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { ResumeData, TemplateType } from '../types';
+import ResumePreview from './ResumePreview';
 import VanguardTemplate from './templates/VanguardTemplate';
 import ElevateResume from './templates/ElevateResume';
 import PrimeProfile from './templates/PrimeProfile';
@@ -18,6 +19,8 @@ import StyledTemplate from './templates/StyledTemplate';
 import ElegantTemplate from './templates/ElegantTemplate';
 import ProfessionalTemplate from './templates/ProfessionalTemplate';
 import TimesTemplate from './templates/TimesTemplate';
+import JakeTemplate from './templates/JakeTemplate';
+import AnalystTemplate from './templates/AnalystTemplate';
 import RegentTemplate from './templates/RegentTemplate';
 import TwoColumnTemplate from './templates/TwoColumnTemplate';
 import SageTemplate from './templates/SageTemplate';
@@ -33,8 +36,10 @@ interface PrintPortalProps {
   coverLetterContent?: string;
 }
 
-export function renderResumeTemplate(template: TemplateType, data: ResumeData) {
-  switch (template) {
+export function renderResumeTemplate(template?: TemplateType, data?: ResumeData) {
+  const activeTemplate = template || data?.template || 'vanguard';
+  const renderData = data || ({} as ResumeData);
+  switch (activeTemplate) {
     case 'vanguard': return <VanguardTemplate data={data} />;
     case 'elevate': return <ElevateResume data={data} />;
     case 'prime': return <PrimeProfile data={data} />;
@@ -54,6 +59,8 @@ export function renderResumeTemplate(template: TemplateType, data: ResumeData) {
     case 'elegant': return <ElegantTemplate data={data} />;
     case 'professional': return <ProfessionalTemplate data={data} />;
     case 'times': return <TimesTemplate data={data} />;
+    case 'jake': return <JakeTemplate data={data} />;
+    case 'gaurav': return <AnalystTemplate data={data} />;
     case 'regent': return <RegentTemplate data={data} />;
     case 'twocolumn': return <TwoColumnTemplate data={data} />;
     case 'sage': return <SageTemplate data={data} />;
@@ -82,50 +89,16 @@ export default function PrintPortal({
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <div className="print-root hidden print:block absolute top-0 left-0 w-full h-auto bg-white z-[9999] print:w-full print:max-w-[210mm]">
-      <table className="w-full">
-        <thead>
-          <tr>
-            <td>
-              {/* Top Margin Spacer (repeats on every printed page) */}
-              <div style={{ height: '10mm' }}></div>
-            </td>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <div
-                className="print-resume"
-                data-bullet-style={data.bulletStyle || 'disc'}
-                style={{
-                  fontFamily: data.font || 'Inter, sans-serif',
-                  fontSize: `${data.fontSizes?.body || 9.5}pt`,
-                  lineHeight: data.lineHeight || 1.7,
-                  '--resume-bullet-indent': `${data.bulletIndent ?? 0}px`,
-                } as React.CSSProperties}
-              >
-                {isPrintingCoverLetter ? (
-                  <div className="p-8 max-w-[210mm] mx-auto bg-white text-black font-sans leading-relaxed whitespace-pre-wrap">
-                    {coverLetterContent}
-                  </div>
-                ) : (
-                  renderResumeTemplate(template, data)
-                )}
-              </div>
-
-            </td>
-          </tr>
-        </tbody>
-        <tfoot>
-          <tr>
-            <td>
-              {/* Bottom Margin Spacer (repeats on every printed page) */}
-              <div style={{ height: '10mm' }}></div>
-            </td>
-          </tr>
-        </tfoot>
-      </table>
+    <div className="print-root hidden print:block absolute top-0 left-0 w-full h-auto bg-white z-[9999]">
+      {isPrintingCoverLetter ? (
+        <div className="p-8 max-w-[210mm] mx-auto bg-white text-black font-sans leading-relaxed whitespace-pre-wrap">
+          {coverLetterContent}
+        </div>
+      ) : (
+        <div className="w-full">
+          <ResumePreview data={data} template={template} editable={false} />
+        </div>
+      )}
     </div>,
     document.body
   );

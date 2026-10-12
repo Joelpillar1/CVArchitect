@@ -1,7 +1,7 @@
 import React from 'react';
 import RichText from '../RichText';
 import { ResumeData, Experience, Education, Project, Certification, LanguageItem, AdditionalInfoItem, CourseworkItem } from '../../types';
-import { MapPin, Phone, Mail, Linkedin, Send } from 'lucide-react';
+import { MapPin, Phone, Mail, Linkedin, Send, Github, Globe } from 'lucide-react';
 import {
   parseDescriptionBullets,
   parseAchievementBullets,
@@ -16,6 +16,10 @@ import {
   formatContactText, formatLocationDisplay,
   formatLinkedInDisplay,
   getLinkedInHref,
+  formatGitHubDisplay,
+  getGitHubHref,
+  formatPortfolioDisplay,
+  getPortfolioHref,
   formatNameDisplay,
   formatJobTitleDisplay,
   formatSectionTitle,
@@ -141,7 +145,7 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
 
           return (
             <div
-              key={exp.id}
+              key={exp.id || `exp-${index}`}
               className="break-inside-avoid"
               style={{ marginBottom: index === items.length - 1 ? 0 : itemGap }}
             >
@@ -203,7 +207,7 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
           if (!edu.school && !edu.degree && !edu.year) return null;
           return (
             <div
-              key={edu.id}
+              key={edu.id || `edu-${index}`}
               className="break-inside-avoid"
               style={{
                 ...bodyStyle,
@@ -257,7 +261,7 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
 
           return (
             <div
-              key={project.id}
+              key={project.id || `proj-${index}`}
               className="break-inside-avoid"
               style={{ marginBottom: index === items.length - 1 ? 0 : itemGap }}
             >
@@ -309,7 +313,7 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
         {renderSectionHeader(title)}
         <div className="space-y-2 text-gray-700" style={bodyStyle}>
           {validItems.map((cert, index) => (
-            <div key={cert.id} className="flex justify-between items-baseline">
+            <div key={cert.id || `cert-${index}`} className="flex justify-between items-baseline">
               <div>
                 <span data-path={`${basePath}.${index}.name`} className="font-bold">
                   <RichText text={cert.name ?? ''} />
@@ -345,7 +349,7 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
         {renderSectionHeader(title)}
         <div className="space-y-2 text-gray-700" style={bodyStyle}>
           {validItems.map((lang, index) => (
-            <div key={lang.id}>
+            <div key={lang.id || `lang-${index}`}>
               <span data-path={`${basePath}.${index}.language`} className="font-bold">
                 <RichText text={lang.language} />
               </span>
@@ -370,7 +374,7 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
         {renderSectionHeader(title)}
         <div className="space-y-2 text-gray-700" style={bodyStyle}>
           {validItems.map((item, index) => (
-            <div key={item.id}>
+            <div key={item.id || `item-${index}`}>
               <span data-path={`${basePath}.${index}.label`} className="font-bold">
                 <RichText text={item.label} />:
               </span>
@@ -565,6 +569,40 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
                   style={{ textDecoration: 'none', color: 'inherit' }}
                 >
                   <RichText text={formatLinkedInDisplay(data.linkedin)} />
+                </a>
+              </span>
+            );
+          }
+
+          if (data.github) {
+            contactItems.push(
+              <span key="gh" className="inline-flex items-center gap-1">
+                {showIcons && <Github size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
+                <a
+                  data-path="github"
+                  href={getGitHubHref(data.github)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: 'underline', color: 'inherit' }}
+                >
+                  <RichText text={formatGitHubDisplay(data.github)} />
+                </a>
+              </span>
+            );
+          }
+
+          if (data.portfolio) {
+            contactItems.push(
+              <span key="port" className="inline-flex items-center gap-1">
+                {showIcons && <Globe size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
+                <a
+                  data-path="portfolio"
+                  href={getPortfolioHref(data.portfolio)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: 'underline', color: 'inherit' }}
+                >
+                  <RichText text={formatPortfolioDisplay(data.portfolio)} />
                 </a>
               </span>
             );

@@ -98,11 +98,20 @@ const captureCaret = (sheet: HTMLElement, map: Map<Node, EditableFieldEntry>): C
 
   if (!sel.isCollapsed) return null;
 
-  // Field: the closest mapped ancestor owns the caret's location.
+  // Field: first check if anchor itself is directly mapped in map
+  if (map.has(anchor)) {
+    const entry = map.get(anchor)!;
+    const rootEl = anchor.nodeType === Node.TEXT_NODE ? anchor.parentElement : (anchor as HTMLElement);
+    return { kind: 'field', path: entry.path, offset: charOffsetIn(anchor, sel.anchorOffset, rootEl ?? sheet) };
+  }
+
+  // Then check the closest mapped ancestor
   let cur: Element | null = anchor.nodeType === Node.TEXT_NODE ? (anchor as Text).parentElement : (anchor as Element);
   while (cur && cur !== sheet) {
     const entry = map.get(cur);
     if (entry) return { kind: 'field', path: entry.path, offset: charOffsetIn(anchor, sel.anchorOffset, cur) };
+    const dp = cur.getAttribute?.('data-path');
+    if (dp) return { kind: 'field', path: dp, offset: charOffsetIn(anchor, sel.anchorOffset, cur) };
     cur = cur.parentElement;
   }
   return null;
@@ -190,8 +199,17 @@ const restoreCaret = (snap: CaretSnapshot, map: Map<Node, EditableFieldEntry>, p
   for (const [node, entry] of map) {
     if (entry.path !== snap.path) continue;
     if (!paper.contains(node)) continue;
-    if ((node as Element).closest?.('.resume-page-sheet')) {
+    const el = node.nodeType === Node.ELEMENT_NODE ? (node as HTMLElement) : node.parentElement;
+    if (el?.closest?.('.resume-page-sheet')) {
       placeCaretAt(node, snap.offset);
+      return;
+    }
+  }
+  // Direct data-path fallback:
+  if (snap.path) {
+    const directEl = paper.querySelector(`.resume-page-sheet [data-path="${snap.path}"]`);
+    if (directEl) {
+      placeCaretAt(directEl, snap.offset);
       return;
     }
   }
@@ -232,6 +250,7 @@ interface ResumeWorkspaceProps {
   hideToolbar?: boolean;
   showSectionControls?: boolean;
   onOpenDesignModal?: () => void;
+  onActiveSectionChange?: (section: string) => void;
 }
 
 export default function ResumeWorkspace({
@@ -264,6 +283,7 @@ export default function ResumeWorkspace({
   hideToolbar = false,
   showSectionControls = true,
   onOpenDesignModal,
+  onActiveSectionChange,
 }: ResumeWorkspaceProps) {
   const [internalZoom, setInternalZoom] = useState<number>(embedded ? 0.9 : 1.2);
   const [internalIsFullscreen, setInternalIsFullscreen] = useState(false);
@@ -474,6 +494,9 @@ export default function ResumeWorkspace({
   // flush to commit pending typing even though the timer's sheet may have been
   // detached by an intervening re-render.
   const lastInputSheetRef = useRef<HTMLElement | null>(null);
+  const idleHoldTimerRef = useRef<number | null>(null);
+  const lastInternalWrittenDataRef = useRef<ResumeData | null>(null);
+  const isEditingSheetRef = useRef<boolean>(false);
 
   // Read a field node's text, translating contentEditable line breaks into \n:
   // the browser inserts <br> and <div>/<p> wrappers for Enter presses and
@@ -605,6 +628,12 @@ export default function ResumeWorkspace({
             ) {
               matchedParentPath = m.path.slice(0, m.path.lastIndexOf('.'));
               break;
+            } else if (
+              m &&
+              /^(?:education)\.\d+\.relevantCourses\.\d+$/.test(m.path)
+            ) {
+              matchedParentPath = m.path.slice(0, m.path.lastIndexOf('.'));
+              break;
             } else if (m && /^customSections\.[^.]+\.content\.\d+$/.test(m.path)) {
               matchedParentPath = m.path.slice(0, m.path.lastIndexOf('.'));
               break;
@@ -684,6 +713,8 @@ export default function ResumeWorkspace({
     for (const [node, entry] of editableFieldMapRef.current) {
       if (entry.path === snap.path && node.contains(anchor)) return true;
     }
+    const anchorEl = anchor.nodeType === Node.ELEMENT_NODE ? (anchor as HTMLElement) : anchor.parentElement;
+    if (anchorEl?.closest?.(`[data-path="${snap.path}"]`)) return true;
     return false;
   };
 
@@ -705,6 +736,8 @@ export default function ResumeWorkspace({
     // silently builds a stale map — fields whose text just changed go unmapped
     // and the caret restore falls through to the default (position 0 = the name).
     dataRef.current = data;
+    // While the user is actively typing in a sheet directly on the canvas, do NOT yank their live caret
+    if (isEditingSheetRef.current) return;
     const tryRestore = () => {
       if (!paperRef.current) return;
       rebuildFieldMap();
@@ -818,7 +851,24 @@ export default function ResumeWorkspace({
   const dataRef = useRef(data);
   useEffect(() => {
     dataRef.current = data;
-  });
+    // When data is updated externally (from Agent insertions, Left Sidebar forms, or Undo/Redo)
+    // while the user is NOT actively typing in a sheet on the canvas:
+    // release editHold so the new data renders immediately on the canvas.
+    if (!isEditingSheetRef.current) {
+      if (lastInternalWrittenDataRef.current !== data) {
+        if (domInputTimerRef.current !== null) {
+          window.clearTimeout(domInputTimerRef.current);
+          domInputTimerRef.current = null;
+        }
+        if (idleHoldTimerRef.current !== null) {
+          window.clearTimeout(idleHoldTimerRef.current);
+          idleHoldTimerRef.current = null;
+        }
+        setEditHold(false);
+        lastInternalWrittenDataRef.current = data;
+      }
+    }
+  }, [data]);
 
   // Build the DOM→field map against the CURRENT sheets, then preserve mappings
   // for nodes that were already mapped and are still in the document. A plain
@@ -896,10 +946,10 @@ export default function ResumeWorkspace({
       // navigation that the field map has never seen. Skipping them here avoids
       // double-writing (whole-grid + per-span) the same skills field.
       if (node.nodeType === Node.ELEMENT_NODE && (node as Element).closest('[data-skills-grid]')) continue;
-      const newText = readNodeText(node).trim();
-      const oldPlain = stripInlineTags(entry.span).trim();
-      if (oldPlain === newText) continue;
-      changed.push({ node, entry, newText });
+      const cleanNew = readNodeText(node).replace(/\u00a0/g, ' ').replace(/\n+$/, '');
+      const cleanOld = stripInlineTags(entry.span).replace(/\u00a0/g, ' ').replace(/\n+$/, '');
+      if (cleanOld === cleanNew) continue;
+      changed.push({ node, entry, newText: cleanNew });
     }
 
     // Only the OUTERMOST changed node per path may write. A whole-field element
@@ -927,18 +977,88 @@ export default function ResumeWorkspace({
 
     let next = dataRef.current;
 
-    // Whole-grid skills write-back: read every cell in DOM (row-major) order and
+    // Whole-grid skills write-back: read every cell in DOM (row-major order) and
     // replace data.skills wholesale, preserving inline tags and picking up cells
     // the user added by pressing Enter at the end of the grid.
-    //
-    // Compared RAW (not normalizeText): normalizeText strips tags, so legacy
-    // span-wrapped stored skills ("<span>Skill</span>") would compare "equal" to
-    // the clean DOM grid and the corruption would never heal. The DOM grid is the
-    // user-visible truth — any difference (leftover <span> wrappers, entity or
-    // whitespace drift) is reconciled toward it.
     const gridSkills = readSkillsGrid(sheet);
-    if (gridSkills !== null && (data.skills ?? '') !== gridSkills) {
+    if (gridSkills !== null && (next.skills ?? '') !== gridSkills) {
       next = setTextAtPath(next, 'skills', () => gridSkills);
+    }
+
+    // Categorized skills write-back for templates with [data-path^="skills."] (e.g. Regent)
+    const hasCategorizedSkills = Array.from(writes.keys()).some(k => k.startsWith('skills.'));
+    if (hasCategorizedSkills) {
+      const allSkillPathEls = Array.from(sheet.querySelectorAll('[data-path^="skills."]')) as HTMLElement[];
+      const indices = allSkillPathEls
+        .map(el => {
+          const m = el.getAttribute('data-path')?.match(/^skills\.(\d+)\./);
+          return m ? parseInt(m[1], 10) : -1;
+        })
+        .filter(idx => idx >= 0);
+      const maxIdx = indices.length > 0 ? Math.max(...indices) : -1;
+      if (maxIdx >= 0) {
+        const lines: string[] = [];
+        for (let i = 0; i <= maxIdx; i++) {
+          const catNode = sheet.querySelector(`[data-path="skills.${i}.category"]`);
+          const skillNode = sheet.querySelector(`[data-path="skills.${i}.skills"]`);
+          const catText = catNode ? readNodeText(catNode).replace(/\u00a0/g, ' ').replace(/[:\s]+$/, '').trim() : '';
+          const skillText = skillNode ? readNodeText(skillNode).replace(/\u00a0/g, ' ').replace(/\n+$/, '').trim() : '';
+          if (catText && skillText) {
+            lines.push(`${catText}: ${skillText}`);
+          } else if (catText) {
+            lines.push(`${catText}:`);
+          } else if (skillText) {
+            lines.push(skillText);
+          }
+        }
+        if (lines.length > 0) {
+          const assembled = lines.join('\n');
+          if ((next.skills ?? '') !== assembled) {
+            next = { ...next, skills: assembled };
+          }
+        }
+      }
+      for (const k of Array.from(writes.keys())) {
+        if (k.startsWith('skills.')) {
+          writes.delete(k);
+        }
+      }
+    }
+
+    // Experience dates range write-back (e.g. experience.0.dates)
+    for (const [path, list] of Array.from(writes.entries())) {
+      const dateMatch = path.match(/^experience\.(\d+)\.dates$/);
+      if (dateMatch && list.length > 0) {
+        const expIdx = parseInt(dateMatch[1], 10);
+        const w = list[0];
+        const parts = w.newText.split(/\s*[-–—]\s*|\s+to\s+/i);
+        const startDate = (parts[0] || '').trim();
+        const endDate = (parts[1] || '').trim();
+        if (Array.isArray(next.experience) && next.experience[expIdx]) {
+          const updatedExp = [...next.experience];
+          updatedExp[expIdx] = {
+            ...updatedExp[expIdx],
+            startDate,
+            endDate,
+          };
+          next = { ...next, experience: updatedExp };
+        }
+        writes.delete(path);
+      }
+    }
+
+    // Address & Location bidirectional write-back
+    for (const [path, list] of Array.from(writes.entries())) {
+      if ((path === 'location' || path === 'address') && list.length > 0) {
+        const w = list[0];
+        next = {
+          ...next,
+          location: w.newText,
+          address: w.newText,
+        };
+        writes.delete('location');
+        writes.delete('address');
+      }
     }
 
     for (const [path, list] of writes) {
@@ -964,6 +1084,9 @@ export default function ResumeWorkspace({
       });
     }
     if (next === data) return null;
+    lastInternalWrittenDataRef.current = next;
+    dataRef.current = next;
+
     // The re-render triggered by this change rebuilds the sheets from scratch and
     // destroys the browser caret — snapshot it now so it can be restored after.
     const freshSnap = captureCaret(sheet, editableFieldMapRef.current);
@@ -982,6 +1105,11 @@ export default function ResumeWorkspace({
       window.clearTimeout(domInputTimerRef.current);
       domInputTimerRef.current = null;
     }
+    if (idleHoldTimerRef.current !== null) {
+      window.clearTimeout(idleHoldTimerRef.current);
+      idleHoldTimerRef.current = null;
+    }
+    isEditingSheetRef.current = false;
     setEditHold(false);
     const sheets = Array.from(
       paperRef.current?.querySelectorAll('.resume-page-sheet') ?? []
@@ -996,32 +1124,43 @@ export default function ResumeWorkspace({
     return latestData;
   };
 
+  const handleDomFocus = (sheet: HTMLElement) => {
+    isEditingSheetRef.current = true;
+    lastInputSheetRef.current = sheet;
+    setEditHold(true);
+  };
+
   const handleDomBlur = (sheet: HTMLElement) => {
     if (domInputTimerRef.current !== null) {
       window.clearTimeout(domInputTimerRef.current);
       domInputTimerRef.current = null;
     }
+    if (idleHoldTimerRef.current !== null) {
+      window.clearTimeout(idleHoldTimerRef.current);
+      idleHoldTimerRef.current = null;
+    }
+    isEditingSheetRef.current = false;
     lastInputSheetRef.current = null;
-    setEditHold(false);
     writeBackSheet(sheet);
+    setEditHold(false);
   };
 
-  // Live write-back while typing (debounced) so edits survive re-renders and focus
-  // moves within a sheet. The timer must use the LATEST write-back (a closure from
-  // an older render holds stale `data` and would overwrite newer edits with it) and
-  // the LIVE sheet (the captured one may be detached by an intervening re-render).
-  // While a write-back is pending the edit hold is ON, so ResumePreview never
-  // re-injects the sheets mid-keystroke.
+  // Live write-back while typing: 60ms micro-debounce propagates edits to
+  // ResumeData & Left Sidebar in real time without lag, while keeping editHold
+  // true during typing so the sheet's active DOM and caret are never wiped mid-keystroke.
   const handleDomInput = (sheet: HTMLElement) => {
+    isEditingSheetRef.current = true;
     if (domInputTimerRef.current !== null) window.clearTimeout(domInputTimerRef.current);
+    if (idleHoldTimerRef.current !== null) window.clearTimeout(idleHoldTimerRef.current);
     lastInputSheetRef.current = sheet;
     setEditHold(true);
+
+    // Live micro-debounce (60ms): updates ResumeData so Left Sidebar mirrors keystrokes immediately
     domInputTimerRef.current = window.setTimeout(() => {
       domInputTimerRef.current = null;
       const live = resolveLiveSheet(sheet);
       if (live) writeBackSheetRef.current(live);
-      setEditHold(false);
-    }, 400);
+    }, 60);
   };
 
   // Keep a ref to the latest write-back so the debounced input timer and the
@@ -1874,6 +2013,35 @@ export default function ResumeWorkspace({
   };
 
 
+  const handlePaperInteraction = useCallback((e: React.SyntheticEvent) => {
+    if (!onActiveSectionChange) return;
+    const target = e.target as HTMLElement | null;
+    if (!target) return;
+    const fieldEl = target.closest?.('[data-path]') as HTMLElement | null;
+    if (fieldEl) {
+      const path = fieldEl.getAttribute('data-path') || '';
+      let section = '';
+      if (/^(fullName|jobTitle|email|phone|address|location|linkedin|atHandle)$/.test(path)) section = 'personal';
+      else if (path === 'summary') section = 'summary';
+      else if (path.startsWith('experience')) section = 'experience';
+      else if (path.startsWith('education')) section = 'education';
+      else if (path.startsWith('skills') || path === 'technicalSkills' || path === 'coreCompetencies') section = 'skills';
+      else if (path.startsWith('keyAchievements') || path.startsWith('achievements') || path.startsWith('awards')) section = 'achievements';
+      else if (path.startsWith('projects')) section = 'projects';
+      else if (path.startsWith('certifications')) section = 'certifications';
+      else if (path.startsWith('leadership')) section = 'leadership';
+      else if (path.startsWith('coursework')) section = 'coursework';
+      else if (path.startsWith('additionalInfo')) section = 'additionalInfo';
+      else if (path.startsWith('customSections.')) {
+        const parts = path.split('.');
+        section = parts[1] || '';
+      }
+      if (section) {
+        onActiveSectionChange(section);
+      }
+    }
+  }, [onActiveSectionChange]);
+
   const handleToolbarSave = () => {
     const flushed = flushPendingInput();
     if (propOnSave) {
@@ -1957,6 +2125,8 @@ export default function ResumeWorkspace({
             <div
               ref={paperRef}
               data-resume-paper="true"
+              onClick={handlePaperInteraction}
+              onFocusCapture={handlePaperInteraction}
               onMouseUp={handleSelectionCheck}
               onKeyUp={handleSelectionCheck}
               className="select-text relative"
@@ -1968,6 +2138,7 @@ export default function ResumeWorkspace({
                 editable={true}
                 editHold={editHold}
                 onSheetsReinjected={handleSheetsReinjected}
+                onDomFocus={handleDomFocus}
                 onDomBlur={handleDomBlur}
                 onDomInput={handleDomInput}
                 onBulletEnter={handleBulletEnter}

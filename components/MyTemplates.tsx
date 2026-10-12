@@ -3,15 +3,17 @@ import { SavedTemplate } from '../types';
 import { Trash2, Copy, AlertTriangle, Bookmark, Edit, CheckSquare, Square, X } from 'lucide-react';
 import ResumePreview from './ResumePreview';
 import { getTemplateMetadata } from '../utils/templateConfig';
+import { TemplateGridSkeleton, TemplateCardPreviewCanvas } from './ui/TemplateSkeleton';
 
 interface MyTemplatesProps {
   templates: SavedTemplate[];
   onLoadTemplate: (template: SavedTemplate) => void;
   onDeleteTemplate: (id: string) => void;
   onDuplicateTemplate?: (template: SavedTemplate) => void;
+  isLoading?: boolean;
 }
 
-export default function MyTemplates({ templates, onLoadTemplate, onDeleteTemplate, onDuplicateTemplate }: MyTemplatesProps) {
+export default function MyTemplates({ templates, onLoadTemplate, onDeleteTemplate, onDuplicateTemplate, isLoading = false }: MyTemplatesProps) {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -67,7 +69,9 @@ export default function MyTemplates({ templates, onLoadTemplate, onDeleteTemplat
           </div>
 
           {/* Header actions */}
-          {templates.length > 0 && (
+          {isLoading ? (
+            <div className="h-9 w-24 rounded-lg skeleton-shimmer shrink-0" />
+          ) : templates.length > 0 ? (
             <div className="flex items-center gap-3 shrink-0">
               {isSelectMode ? (
                 <>
@@ -110,12 +114,14 @@ export default function MyTemplates({ templates, onLoadTemplate, onDeleteTemplat
                 </button>
               )}
             </div>
-          )}
+          ) : null}
         </div>
 
         {/* Grid */}
         <div>
-          {templates.length > 0 ? (
+          {isLoading ? (
+            <TemplateGridSkeleton count={4} />
+          ) : templates.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {templates.map((template) => {
                 const metadata = getTemplateMetadata(template.baseTemplate);
@@ -184,27 +190,23 @@ export default function MyTemplates({ templates, onLoadTemplate, onDeleteTemplat
                       )}
                     </div>
 
-                    {/* Inner White Preview Canvas */}
-                    <div className="relative w-full aspect-[4/3] bg-white rounded-xl border border-gray-200/70 overflow-hidden shadow-2xs flex items-center justify-center">
-                      {/* Scaled Resume Preview */}
-                      <div className="absolute inset-0 flex items-start justify-center pt-2 overflow-hidden pointer-events-none select-none">
-                        <div className="w-[210mm] origin-top transform scale-[0.27] sm:scale-[0.29] pointer-events-none select-none shadow-xs rounded-xs bg-white">
-                          <ResumePreview data={template.data} template={template.baseTemplate} />
-                        </div>
-                      </div>
-
-                      {/* Hover Overlay (non-select mode) */}
-                      {!isSelectMode && (
-                        <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-brand-dark/25 backdrop-blur-[2px] p-3">
-                          <button
-                            onClick={(e) => { e.stopPropagation(); onLoadTemplate(template); }}
-                            className="bg-brand-green hover:bg-brand-greenHover text-brand-dark px-4 py-2 rounded-xl font-bold shadow-lg transition-all flex items-center justify-center gap-1.5 text-xs"
-                          >
-                            <Edit size={13} /> Resume Editing
-                          </button>
-                        </div>
-                      )}
-                    </div>
+                    {/* Inner White Preview Canvas with Skeleton fallback */}
+                    <TemplateCardPreviewCanvas
+                      overlay={
+                        !isSelectMode && (
+                          <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-brand-dark/25 backdrop-blur-[2px] p-3">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); onLoadTemplate(template); }}
+                              className="bg-brand-green hover:bg-brand-greenHover text-brand-dark px-4 py-2 rounded-xl font-bold shadow-lg transition-all flex items-center justify-center gap-1.5 text-xs"
+                            >
+                              <Edit size={13} /> Resume Editing
+                            </button>
+                          </div>
+                        )
+                      }
+                    >
+                      <ResumePreview data={template.data} template={template.baseTemplate} />
+                    </TemplateCardPreviewCanvas>
 
                     {/* Bottom Subtitle Line */}
                     <div className="mt-2 px-1 flex items-center justify-between text-xs text-gray-500">

@@ -3,8 +3,9 @@ import { createPortal } from 'react-dom';
 import { ResumeData, TemplateType } from '../types';
 import { UserSubscription } from '../types/pricing';
 import { SubscriptionManager } from '../utils/subscriptionManager';
-import { canAccessTemplate } from '../utils/pricingConfig';
+import { canAccessTemplate, isPaidPlan } from '../utils/pricingConfig';
 import { ChevronLeft, ChevronDown, Maximize2, Minimize2, Download, User, Briefcase, GraduationCap, Award, Layout as LayoutIcon, Target, CheckCircle, Monitor, Edit3, Palette, ShoppingCart, Save, Check, Loader2, PanelLeftOpen, ZoomIn, ZoomOut, Pencil, Printer, FileText, Code } from 'lucide-react';
+import { Loader } from './ui/Loader';
 import ResumePreview from './ResumePreview';
 import ResumeWorkspace from './resume-agent/ResumeWorkspace';
 import EditorSidebarRight from './EditorSidebarRight';
@@ -27,6 +28,8 @@ import StyledTemplate from './templates/StyledTemplate';
 import ElegantTemplate from './templates/ElegantTemplate';
 import ProfessionalTemplate from './templates/ProfessionalTemplate';
 import TimesTemplate from './templates/TimesTemplate';
+import JakeTemplate from './templates/JakeTemplate';
+import AnalystTemplate from './templates/AnalystTemplate';
 import RegentTemplate from './templates/RegentTemplate';
 import TwoColumnTemplate from './templates/TwoColumnTemplate';
 import SageTemplate from './templates/SageTemplate';
@@ -35,6 +38,7 @@ import FreshGradTemplate from './templates/FreshGradTemplate';
 import FreshGrad8Template from './templates/FreshGrad8Template';
 import StudentTemplate from './templates/StudentTemplate';
 import PrintPortal from './PrintPortal';
+import UnsavedChangesModal from './UnsavedChangesModal';
 
 
 interface EditorProps {
@@ -51,7 +55,7 @@ interface EditorProps {
   auditResult?: { score: number; keywords: string[]; issues: string[] } | null;
   userSubscription: UserSubscription;
   onAIAction: (action: 'ai_rewrite' | 'cv_regeneration' | 'cover_letter' | 'bullet_optimization') => boolean;
-  onShowPaywall?: (feature: 'templates' | 'job-match' | 'general' | 'credits' | 'export') => void;
+  onShowPaywall?: (feature: 'templates' | 'job-match' | 'general' | 'credits' | 'export' | 'docx' | 'pdf_limit' | 'resumes_limit' | 'upload_limit' | 'cover_letter') => void;
   /** Render inside a fixed-size container (the /agent hero preview) instead of
    *  owning the viewport. The root fills its parent, the global side effects the
    *  real route relies on (document title, page-wide keyboard shortcuts, editor
@@ -59,6 +63,8 @@ interface EditorProps {
   embedded?: boolean;
   leftSidebarWidthClass?: string;
   rightSidebarWidthClass?: string;
+  hasUnsavedChanges?: boolean;
+  onDiscardChanges?: () => void;
 }
 
 export type EditorTab = 'personal' | 'summary' | 'education' | 'experience' | 'achievements' | 'skills' | 'certifications' | 'additionalInfo' | 'references' | 'projects' | 'leadership' | 'design' | 'job-match' | (string & {}) | '' | null;
@@ -68,15 +74,23 @@ import { analyzeResume } from './utils/resumeAnalytics';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FileText as FileTextIcon } from 'lucide-react';
 import { saveToStorage, loadFromStorage } from '../utils/statePersistence';
-import { exportResumeToServerPdf, exportCoverLetterToPdf, printResumeToPdf, exportResumeToPlainText } from '../utils/pdfExport';
+import { exportResumeToServerPdf, exportResumeToPdf, exportCoverLetterToPdf, printResumeToPdf, exportResumeToPlainText } from '../utils/pdfExport';
 import { exportResumeToDocx } from '../utils/docxExport';
 import { useToast } from '../contexts/ToastContext';
 
-export default function Editor({ data, onChange, template, onTemplateChange, onBack, onSave, onSaveAsTemplate, currentResumeId, showWelcomeModal, onCloseWelcomeModal, auditResult, userSubscription, onAIAction, onShowPaywall, embedded = false, leftSidebarWidthClass, rightSidebarWidthClass }: EditorProps) {
+export default function Editor({ data, onChange, template, onTemplateChange, onBack, onSave, onSaveAsTemplate, currentResumeId, showWelcomeModal, onCloseWelcomeModal, auditResult, userSubscription, onAIAction, onShowPaywall, embedded = false, leftSidebarWidthClass, rightSidebarWidthClass, hasUnsavedChanges, onDiscardChanges }: EditorProps) {
+  const [internalDirty, setInternalDirty] = useState(false);
+  const isDirty = hasUnsavedChanges !== undefined ? hasUnsavedChanges : internalDirty;
+  const [showUnsavedModal, setShowUnsavedModal] = useState(false);
+  const [pendingNavigationAction, setPendingNavigationAction] = useState<'back' | 'reload' | null>(null);
+  const [isSavingFromModal, setIsSavingFromModal] = useState(false);
+
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isDesignModalOpen, setIsDesignModalOpen] = useState(false);
   const location = useLocation();
   const { showToast } = useToast();
+  const subscriptionManager = new SubscriptionManager(userSubscription);
+  const isUserPro = isPaidPlan(userSubscription.planId);
   const [activeMobileTabState, setActiveMobileTabState] = useState<'editor' | 'preview' | 'job-match'>(() => {
     return embedded ? 'editor' : loadFromStorage<'editor' | 'preview' | 'job-match'>('editor_activeMobileTab', 'editor');
   });
@@ -149,6 +163,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
         };
         await onSave(enrichedData);
       }
+      setInternalDirty(false);
       setSaveStatus('saved');
       setTimeout(() => {
         setSaveStatus('idle');
@@ -170,6 +185,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
       setUndoStack((prevStack) => [...prevStack.slice(-30), prev]);
       setRedoStack([]);
     }
+    setInternalDirty(true);
     onChange(newData);
   }, [onChange]);
 
@@ -179,6 +195,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
     const newUndo = undoStack.slice(0, -1);
     setRedoStack((prev) => [resumeDataRef.current, ...prev]);
     setUndoStack(newUndo);
+    setInternalDirty(true);
     onChange(previous);
   }, [undoStack, onChange]);
 
@@ -188,8 +205,17 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
     const newRedo = redoStack.slice(1);
     setUndoStack((prev) => [...prev, resumeDataRef.current]);
     setRedoStack(newRedo);
+    setInternalDirty(true);
     onChange(next);
   }, [redoStack, onChange]);
+
+  const handleTemplateChange = React.useCallback((newTemplate: TemplateType) => {
+    if (!Boolean(import.meta.env.DEV) && !canAccessTemplate(userSubscription.planId, newTemplate)) {
+      onShowPaywall?.('templates');
+      return;
+    }
+    onTemplateChange(newTemplate);
+  }, [userSubscription.planId, onShowPaywall, onTemplateChange]);
 
   // Global Keyboard Shortcuts (Undo: Ctrl+Z / Cmd+Z, Redo: Ctrl+Y / Ctrl+Shift+Z / Cmd+Shift+Z)
   React.useEffect(() => {
@@ -303,43 +329,171 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleSaveClick, setIsLeftSidebarOpen, embedded]);
 
+  // Intercept browser back button when unsaved
+  React.useEffect(() => {
+    if (!isDirty || embedded) return;
+
+    const stateObj = { cvUnsavedTrap: true };
+    window.history.pushState(stateObj, '');
+
+    const handlePopState = () => {
+      window.history.pushState(stateObj, '');
+      setPendingNavigationAction('back');
+      setShowUnsavedModal(true);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [isDirty, embedded]);
+
+  // Intercept reload keyboard shortcuts (F5, Ctrl+R, Cmd+R) when unsaved
+  React.useEffect(() => {
+    if (!isDirty || embedded) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isReload =
+        e.key === 'F5' ||
+        ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'r');
+
+      if (isReload) {
+        e.preventDefault();
+        setPendingNavigationAction('reload');
+        setShowUnsavedModal(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isDirty, embedded]);
+
+  // Beforeunload listener for browser tab close / native toolbar reload
+  React.useEffect(() => {
+    if (!isDirty || embedded) return;
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isDirty, embedded]);
+
+  const handleBackClick = React.useCallback(() => {
+    if (isDirty) {
+      setPendingNavigationAction('back');
+      setShowUnsavedModal(true);
+    } else {
+      onBack();
+    }
+  }, [isDirty, onBack]);
+
+  const handleSaveAndExit = React.useCallback(async () => {
+    setIsSavingFromModal(true);
+    try {
+      await handleSaveClick();
+      setInternalDirty(false);
+      setShowUnsavedModal(false);
+      if (pendingNavigationAction === 'reload') {
+        window.location.reload();
+      } else {
+        onBack();
+      }
+    } catch (err) {
+      console.error('Error saving before exit:', err);
+    } finally {
+      setIsSavingFromModal(false);
+    }
+  }, [handleSaveClick, pendingNavigationAction, onBack]);
+
+  const handleDiscardAndExit = React.useCallback(() => {
+    setInternalDirty(false);
+    setShowUnsavedModal(false);
+    onDiscardChanges?.();
+    if (pendingNavigationAction === 'reload') {
+      window.location.reload();
+    } else {
+      onBack();
+    }
+  }, [pendingNavigationAction, onDiscardChanges, onBack]);
+
+  const handleCloseUnsavedModal = React.useCallback(() => {
+    setShowUnsavedModal(false);
+    setPendingNavigationAction(null);
+  }, []);
+
   const handleDownload = async () => {
     if (!canAccessTemplate(userSubscription.planId, template)) {
       onShowPaywall?.('export');
       return;
     }
 
+    const checkPdf = subscriptionManager.canUseFeature('pdf_export');
+    if (!checkPdf.allowed) {
+      onShowPaywall?.('pdf_limit');
+      return;
+    }
+
     setIsDownloading(true);
     try {
+      const activeTemplate = template || data.template || 'vanguard';
+      const dataWithTemplate: ResumeData = { ...data, template: activeTemplate };
       let result;
       try {
-        result = await exportResumeToServerPdf(data, template);
+        result = await exportResumeToServerPdf(dataWithTemplate, activeTemplate);
       } catch (firstError) {
         // One automatic retry: the server render is a long-lived POST and
         // mobile connections drop mid-request far more often than desktops.
         console.warn('PDF export failed, retrying once:', firstError);
         await new Promise((resolve) => setTimeout(resolve, 750));
-        result = await exportResumeToServerPdf(data, template);
+        result = await exportResumeToServerPdf(dataWithTemplate, activeTemplate);
       }
+
+      // Record export for usage counting on free tier
+      if (!isUserPro) {
+        subscriptionManager.deductCredit('pdf_export');
+        if (userSubscription.userId && userSubscription.userId !== 'guest') {
+          import('../services/subscriptionService').then(({ subscriptionService }) => {
+            subscriptionService.performAction(userSubscription.userId, 'pdf_export', 0)
+              .catch(e => console.warn('Failed to sync pdf_export usage:', e));
+          });
+        }
+      }
+
+      const pdfRemaining = Math.max(0, 3 - (subscriptionManager.getUsageCount('pdf_export') + 1));
+      const remainingNotice = !isUserPro ? ` (${pdfRemaining} free download${pdfRemaining === 1 ? '' : 's'} remaining)` : '';
+
       showToast(
         result.verified && result.pages !== null
-          ? `Resume downloaded — ${result.pages} page${result.pages === 1 ? '' : 's'}, text layer verified.`
-          : 'Resume downloaded.',
+          ? `Resume downloaded — ${result.pages} page${result.pages === 1 ? '' : 's'}, text layer verified.${remainingNotice}`
+          : `Resume downloaded.${remainingNotice}`,
         'success'
       );
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      console.error('Server PDF export failed:', error);
-      // Direct download only — never hijack the flow with the print dialog.
-      // The user asked for a file, so surface the reason and let them retry;
-      // "Print / Vector PDF" stays an explicit opt-in in the dropdown.
-      showToast(`Download failed — ${message}. Tap Download to retry.`, 'error');
+      console.warn('Server PDF export failed, attempting direct client-side fallback:', error);
+      try {
+        const activeTemplate = template || data.template || 'vanguard';
+        const dataWithTemplate: ResumeData = { ...data, template: activeTemplate };
+        await exportResumeToPdf(dataWithTemplate, activeTemplate);
+        showToast('Resume downloaded.', 'success');
+      } catch (fallbackError) {
+        const message = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
+        console.error('Client-side fallback also failed:', fallbackError);
+        showToast(`Download failed — ${message}. Tap Download to retry.`, 'error');
+      }
     } finally {
       setIsDownloading(false);
     }
   };
 
   const handleDocxDownload = async () => {
+    if (!isUserPro) {
+      onShowPaywall?.('docx');
+      return;
+    }
+
     if (!canAccessTemplate(userSubscription.planId, template)) {
       onShowPaywall?.('export');
       return;
@@ -361,6 +515,23 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
       onShowPaywall?.('export');
       return;
     }
+
+    const checkPdf = subscriptionManager.canUseFeature('pdf_export');
+    if (!checkPdf.allowed) {
+      onShowPaywall?.('pdf_limit');
+      return;
+    }
+
+    if (!isUserPro) {
+      subscriptionManager.deductCredit('pdf_export');
+      if (userSubscription.userId && userSubscription.userId !== 'guest') {
+        import('../services/subscriptionService').then(({ subscriptionService }) => {
+          subscriptionService.performAction(userSubscription.userId, 'pdf_export', 0)
+            .catch(e => console.warn('Failed to sync pdf_export usage:', e));
+        });
+      }
+    }
+
     printResumeToPdf();
   };
 
@@ -417,6 +588,8 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
       case 'elegant': return <ElegantTemplate data={data} />;
       case 'professional': return <ProfessionalTemplate data={data} />;
       case 'times': return <TimesTemplate data={data} />;
+      case 'jake': return <JakeTemplate data={data} />;
+      case 'gaurav': return <AnalystTemplate data={data} />;
       case 'regent': return <RegentTemplate data={data} />;
       case 'twocolumn': return <TwoColumnTemplate data={data} />;
       case 'sage': return <SageTemplate data={data} />;
@@ -448,7 +621,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
           {!embedded && (
             <button
               type="button"
-              onClick={onBack}
+              onClick={handleBackClick}
               className="p-1.5 hover:bg-neutral-100 rounded-lg transition-colors text-neutral-600 hover:text-neutral-900 cursor-pointer shrink-0"
               title="Go back"
             >
@@ -577,7 +750,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
             title="Save Resume (Ctrl+S)"
           >
             {saveStatus === 'saving' ? (
-              <Loader2 size={14} className="animate-spin text-brand-dark" />
+              <Loader size="xs" variant="default" />
             ) : saveStatus === 'saved' ? (
               <Check size={14} className="text-brand-dark stroke-[2.5]" />
             ) : (
@@ -587,12 +760,19 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
           </button>
 
           <button
-            onClick={() => navigate('/dashboard/cover-letter')}
+            onClick={() => {
+              if (!isUserPro) {
+                onShowPaywall?.('cover_letter');
+                return;
+              }
+              navigate('/dashboard/cover-letter');
+            }}
             className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 border border-brand-border rounded-lg text-xs font-semibold text-brand-dark hover:bg-brand-secondary transition-colors cursor-pointer"
             title="Create Cover Letter"
           >
             <FileTextIcon size={14} />
             <span>Cover Letter</span>
+            {!isUserPro && <span className="text-[9px] bg-amber-100 text-amber-800 font-bold px-1 rounded ml-0.5">PRO</span>}
           </button>
 
           {canAccessTemplate(userSubscription.planId, template) ? (
@@ -605,7 +785,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
               >
                 {isDownloading ? (
                   <>
-                    <Loader2 size={14} className="animate-spin" />
+                    <Loader size="xs" variant="default" />
                     <span className="hidden sm:inline">Downloading...</span>
                   </>
                 ) : (
@@ -680,7 +860,13 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
                     <div>
                       <div className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
                         Download Word (.docx)
-                        <span className="text-[10px] bg-blue-100 text-blue-800 font-semibold px-1.5 py-0.2 rounded">Word</span>
+                        {isUserPro ? (
+                          <span className="text-[10px] bg-blue-100 text-blue-800 font-semibold px-1.5 py-0.2 rounded">Word</span>
+                        ) : (
+                          <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.2 rounded flex items-center gap-0.5">
+                            PRO
+                          </span>
+                        )}
                       </div>
                       <div className="text-[11px] text-gray-500 font-normal">Editable ATS Word document</div>
                     </div>
@@ -743,7 +929,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
             data={data}
             onChange={handleChangeData}
             currentTemplate={template}
-            onTemplateChange={onTemplateChange}
+            onTemplateChange={handleTemplateChange}
             userSubscription={userSubscription}
             onAIAction={onAIAction}
             onShowPaywall={onShowPaywall}
@@ -773,7 +959,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
             data={data}
             onChangeData={handleChangeData}
             template={template}
-            onChangeTemplate={onTemplateChange}
+            onChangeTemplate={handleTemplateChange}
             zoom={zoom}
             onZoomIn={handleZoomIn}
             onZoomOut={handleZoomOut}
@@ -789,6 +975,11 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
             onRedo={handleRedo}
             hideToolbar={false}
             showSectionControls={false}
+            onActiveSectionChange={(sec) => {
+              if (sec && activeTab !== sec) {
+                setActiveTab(sec as EditorTab);
+              }
+            }}
           />
         </div>
 
@@ -901,6 +1092,17 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
         </div>,
         document.body
       )}
+
+      {/* Custom Unsaved Changes Modal */}
+      <UnsavedChangesModal
+        isOpen={showUnsavedModal}
+        onClose={handleCloseUnsavedModal}
+        onSaveAndExit={handleSaveAndExit}
+        onDiscardAndExit={handleDiscardAndExit}
+        isSaving={isSavingFromModal}
+        actionType={pendingNavigationAction}
+        resumeTitle={data.resumeTitle || data.currentTag || (data.fullName ? `${data.fullName}'s Resume` : 'Untitled Resume')}
+      />
 
     </div>
   );

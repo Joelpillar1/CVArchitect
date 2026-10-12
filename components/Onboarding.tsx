@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Upload, FileText, ArrowRight, Check, Briefcase, User, ArrowLeft, Loader2 } from 'lucide-react';
+import { Loader } from './ui/Loader';
 
 interface OnboardingProps {
     onComplete: (data: any) => void;
@@ -179,8 +180,8 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                                     <h3 className="text-xl font-bold text-brand-dark mb-1">{file.name}</h3>
                                     <p className="text-gray-500 text-sm mb-6">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                                     <div className="flex items-center gap-2 text-brand-green font-medium">
-                                        <Loader2 size={18} className="animate-spin" />
-                                        Analyzing content...
+                                        <Loader size="xs" variant="default" />
+                                        <span>Analyzing content...</span>
                                     </div>
                                 </div>
                             ) : (
@@ -261,9 +262,9 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
                 {/* Step 4: Processing */}
                 {step === 'processing' && (
-                    <div className="text-center animate-fadeIn py-12">
-                        <div className="w-20 h-20 bg-brand-green/10 text-brand-green rounded-full flex items-center justify-center mb-6 mx-auto animate-pulse">
-                            <Loader2 size={40} className="animate-spin" />
+                    <div className="text-center animate-fadeIn py-12 flex flex-col items-center justify-center">
+                        <div className="mb-6">
+                            <Loader size="xl" />
                         </div>
                         <h2 className="text-2xl font-bold text-brand-dark mb-2">Setting up your workspace...</h2>
                         <p className="text-gray-500">

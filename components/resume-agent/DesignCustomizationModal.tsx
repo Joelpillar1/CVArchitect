@@ -86,7 +86,7 @@ export default function DesignCustomizationModal({
                   key={id}
                   onClick={() => handleChange('sectionHeaderCase', id)}
                   className={`py-2 px-2.5 rounded-lg border text-[11px] font-bold transition-all ${
-                    (data.sectionHeaderCase || 'uppercase') === id
+                    (data.sectionHeaderCase || (data.template === 'regent' ? 'titlecase' : 'uppercase')) === id
                       ? 'bg-brand-dark text-white border-brand-dark'
                       : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
                   }`}

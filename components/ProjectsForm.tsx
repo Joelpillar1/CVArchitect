@@ -122,6 +122,16 @@ export default function ProjectsForm({ data, onChange }: ProjectsFormProps) {
                                             placeholder="github.com/project"
                                         />
                                     </div>
+                                    <div className="space-y-1">
+                                        <label className="text-xs font-medium text-gray-500 block">Date (optional)</label>
+                                        <input
+                                            type="text"
+                                            value={project.date || ''}
+                                            onChange={(e) => handleChange(project.id, 'date', e.target.value)}
+                                            className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
+                                            placeholder="July 2023"
+                                        />
+                                    </div>
                                 </div>
 
                                 <div className="space-y-2">

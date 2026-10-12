@@ -223,6 +223,39 @@ export const generateBulletPoints = async (
     }
 };
 
+export const enhanceCoursework = async (
+    rawText: string,
+    degree?: string,
+    school?: string
+): Promise<string[]> => {
+    try {
+        const prompt = `You are an expert academic advisor and resume consultant.
+Review and enhance the following academic coursework, honors, thesis, or academic highlights for a resume.
+
+Degree: ${degree || 'Degree'}
+Institution: ${school || 'Institution'}
+Current Coursework / Academic Notes:
+"${rawText}"
+
+CRITICAL INSTRUCTIONS:
+- Format into 2 to 4 clean, professional, concise bullet items.
+- Remove redundant labels like "Relevant Coursework:", "Coursework:", or bullet symbols.
+- Group related advanced courses or honors logically (e.g. "Core Computer Science: Data Structures, Algorithms, Distributed Systems", or "Honors Thesis: High-Performance Stream Processing Systems").
+- Return ONLY a JSON array of strings, e.g.:
+["Advanced Algorithms, Distributed Systems, Operating Systems", "Honors Thesis: High-Performance Stream Processing Systems"]
+Do NOT wrap in markdown ticks or include any other text.`;
+
+        const parsed = await callAIJSON(prompt, 'gpt-4o');
+        const bullets: string[] = Array.isArray(parsed) ? parsed : (parsed.bullets || parsed.coursework || []);
+        return bullets
+            .map(b => String(b).replace(/^[•\-\*]\s*/, '').replace(/^(?:Relevant\s+Coursework|Relevant\s+Courses?):\s*/i, '').trim())
+            .filter(Boolean);
+    } catch (error) {
+        console.error('Enhance coursework error:', error);
+        throw new Error('Failed to enhance coursework.');
+    }
+};
+
 export const tailorResumeToJob = async (
     resumeData: ResumeData,
     jobDescription: string

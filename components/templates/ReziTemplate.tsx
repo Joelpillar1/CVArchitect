@@ -16,15 +16,19 @@ import {
   formatContactText, formatLocationDisplay,
   formatLinkedInDisplay,
   getLinkedInHref,
+  formatGitHubDisplay,
+  getGitHubHref,
+  formatPortfolioDisplay,
+  getPortfolioHref,
   formatNameDisplay,
   formatSectionTitle,
   CONTACT_SEPARATOR,
   renderCourseworkBlockHelper,
 } from '../../utils/templateUtils';
-import { resolveSection, getResolvedSectionOrder } from '../../utils/sectionRegistry';
+import { resolveSection, getResolvedSectionOrder, isSectionHiddenByTemplateDefault } from '../../utils/sectionRegistry';
 import type { CustomSectionData } from '../../types/resumeSections';
 import { getTranslation, Language } from '../../i18n/translations';
-import { MapPin, Mail, Phone, Linkedin, Globe } from 'lucide-react';
+import { MapPin, Mail, Phone, Linkedin, Globe, Github } from 'lucide-react';
 
 const REZI_SLATE = '#2e3d50';
 const REZI_INK = '#000000';
@@ -37,6 +41,21 @@ const W_BOLD = 700;
 const formatMonthYear = (dateString: string | null | undefined) => {
   return formatMonthYearUtil(dateString, 'short');
 };
+
+const DEFAULT_HARVARD_LEADERSHIP: Experience[] = [
+  {
+    id: 'default_harvard_lead_1',
+    company: 'Organization',
+    role: 'Position Title',
+    location: 'City, State',
+    startDate: 'Month Year',
+    endDate: 'Month Year',
+    description: [
+      'This section can be formatted similarly to the Experience section, or you can omit descriptions for activities.',
+      'If this section is more relevant to the opportunity you are applying for, consider moving this above your Experience section.',
+    ],
+  },
+];
 
 export default function ReziTemplate({ data }: { data: ResumeData }) {
   const { fontSizes } = data;
@@ -96,18 +115,18 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
     );
   };
 
-  const renderExpertSkillsBlock = (title: string, items: ExpertSkillItem[] | string, basePath: string = 'expertSkills') => {
+  const renderSkillsBlock = (title: string, items: ExpertSkillItem[] | string, basePath: string = 'skills') => {
     const parsed = parseExpertSkillItems(items);
     if (parsed.length === 0) return null;
 
     return (
       <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
         {renderSectionHeader(title)}
-        <div className="flex flex-col gap-1 text-justify" style={{ fontSize: `${bodyPt}pt`, color: REZI_SLATE, fontWeight: W_BODY, lineHeight: bodyLineHeight }}>
+        <ul className="list-disc list-outside ml-5 space-y-0.5 text-justify" style={{ fontSize: `${bodyPt}pt`, color: REZI_SLATE, fontWeight: W_BODY, lineHeight: bodyLineHeight }}>
           {parsed.map((item, index) => {
             const hasCategory = Boolean(item.category?.trim());
             return (
-              <div key={item.id || index} className="leading-relaxed">
+              <li key={item.id || index} className="leading-relaxed mb-0.5">
                 {hasCategory ? (
                   <>
                     <span data-path={`${basePath}.${index}.category`} style={{ fontWeight: W_BOLD, color: REZI_INK }}>
@@ -123,10 +142,10 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
                     <RichText text={item.skills ?? ''} />
                   </span>
                 )}
-              </div>
+              </li>
             );
           })}
-        </div>
+        </ul>
       </section>
     );
   };
@@ -261,14 +280,28 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
                   )}
                 </div>
 
-                {edu.relevantCourses && (
-                  <div className="mt-0.5 text-justify" style={{ fontSize: `${metaPt}pt`, color: REZI_SLATE, fontWeight: W_BODY, lineHeight: bodyLineHeight }}>
-                    <span style={{ fontWeight: W_SEMIBOLD }}>Relevant Coursework: </span>
-                    <span data-path={`${basePath}.${index}.relevantCourses`}>
-                      <RichText text={edu.relevantCourses} />
-                    </span>
-                  </div>
-                )}
+                {(() => {
+                  const courseItems = (Array.isArray(edu.relevantCourses)
+                    ? edu.relevantCourses
+                    : typeof edu.relevantCourses === 'string'
+                      ? edu.relevantCourses.split('\n')
+                      : []
+                  )
+                    .map(c => c.replace(/^[•\-\*]\s*/, '').replace(/^(?:Relevant\s+Coursework|Relevant\s+Courses?):\s*/i, '').trim())
+                    .filter(Boolean);
+
+                  if (courseItems.length === 0) return null;
+
+                  return (
+                    <ul className="list-disc list-outside ml-5 mt-1" style={{ fontSize: `${metaPt}pt`, color: REZI_SLATE, fontWeight: W_BODY, lineHeight: bodyLineHeight }}>
+                      {courseItems.map((item, i) => (
+                        <li key={i} data-path={`${basePath}.${index}.relevantCourses.${i}`} className="mb-0.5">
+                          <RichText text={item} />
+                        </li>
+                      ))}
+                    </ul>
+                  );
+                })()}
               </div>
             );
           })}
@@ -446,23 +479,52 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
   };
 
   const renderSection = (id: string) => {
+    // Leadership & Activities is always present by default on Harvard unless explicitly hidden
+    if (id === 'leadership') {
+      if (data.sectionVisibility?.['leadership'] === false) return null;
+      const leadershipItems =
+        data.leadership && data.leadership.length > 0
+          ? data.leadership
+          : DEFAULT_HARVARD_LEADERSHIP;
+      const sectionTitle =
+        data.sectionTitles?.leadership && data.sectionTitles.leadership !== 'Leadership'
+          ? data.sectionTitles.leadership
+          : 'Leadership & Activities';
+      return renderExperienceBlock(sectionTitle, leadershipItems, 'leadership');
+    }
+
     const resolved = resolveSection(data, id);
     if (!resolved || !resolved.visible || !resolved.hasContent) return null;
 
+    // Sections not on the Harvard template (summary, projects, certifications,
+    // achievements, etc.) are hidden by default unless explicitly opted in
+    // via sectionVisibility[id] = true.
+    if (isSectionHiddenByTemplateDefault('rezi', resolved.id, data.sectionVisibility)) return null;
+
     let sectionTitle = resolved.title;
     if (resolved.type === 'summary') sectionTitle = t.professionalSummary || resolved.title;
-    if (resolved.type === 'skills') sectionTitle = data.sectionTitles?.skills || resolved.title || 'Skills';
-    if (resolved.type === 'expert_skills') sectionTitle = data.sectionTitles?.expert_skills || resolved.title || 'Expert-Level Skills';
-    if (resolved.type === 'experience') sectionTitle = t.experienceTitle || resolved.title;
-    if (resolved.type === 'education') sectionTitle = t.educationTitle || resolved.title;
+    if (resolved.type === 'skills') {
+      const customTitle = data.sectionTitles?.skills;
+      sectionTitle = customTitle && customTitle !== 'Skills' && customTitle !== 'Expert-Level Skills'
+        ? customTitle
+        : 'Skills & Interests';
+    }
+    if (resolved.type === 'experience') sectionTitle = data.sectionTitles?.experience || t.experienceTitle || resolved.title || 'Experience';
+    if (resolved.type === 'education') sectionTitle = data.sectionTitles?.education || t.educationTitle || resolved.title || 'Education';
+    if (resolved.type === 'leadership') {
+      sectionTitle = data.sectionTitles?.leadership && data.sectionTitles.leadership !== 'Leadership'
+        ? data.sectionTitles.leadership
+        : 'Leadership & Activities';
+    }
     if (resolved.type === 'certifications') sectionTitle = t.certifications || resolved.title;
 
     switch (resolved.rendererKind) {
       case 'text':
         return renderTextBlock(sectionTitle, resolved.content as string, resolved.id);
       case 'skills':
+        return renderSkillsBlock(sectionTitle, resolved.content as any, resolved.id);
       case 'expert_skills':
-        return renderExpertSkillsBlock(sectionTitle, resolved.content as any, resolved.id);
+        return null;
       case 'bullets':
         return renderBulletsBlock(sectionTitle, resolved.content as string[] | string, resolved.id);
       case 'experience':
@@ -540,6 +602,38 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
         </span>
       );
     }
+    if (data.github) {
+      contactItems.push(
+        <span key="github" className="flex flex-row items-center gap-1">
+          {showIcons && <Github size="0.9em" style={{ color: REZI_SLATE }} />}
+          <a
+            data-path="github"
+            href={getGitHubHref(data.github)}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ textDecoration: 'underline', color: 'inherit' }}
+          >
+            <RichText text={formatGitHubDisplay(data.github)} />
+          </a>
+        </span>
+      );
+    }
+    if (data.portfolio) {
+      contactItems.push(
+        <span key="portfolio" className="flex flex-row items-center gap-1">
+          {showIcons && <Globe size="0.9em" style={{ color: REZI_SLATE }} />}
+          <a
+            data-path="portfolio"
+            href={getPortfolioHref(data.portfolio)}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ textDecoration: 'underline', color: 'inherit' }}
+          >
+            <RichText text={formatPortfolioDisplay(data.portfolio)} />
+          </a>
+        </span>
+      );
+    }
     if (data.atHandle) {
       contactItems.push(
         <span key="atHandle" className="flex flex-row items-center gap-1">
@@ -585,6 +679,34 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
     );
   })();
 
+  /**
+   * The Harvard resume arranges sections in the exact order:
+   * Education → Experience → Leadership & Activities → Skills & Interests.
+   * Those four are pinned in that order by default; any other section
+   * that the user explicitly adds or opts into follows in its relative order,
+   * and sections hidden by default remain hidden unless opted into.
+   */
+  const getReziSectionOrder = (): string[] => {
+    const resolved = getResolvedSectionOrder(data);
+    const isLeadershipExplicitlyHidden = data.sectionVisibility?.['leadership'] === false;
+
+    // If the user has manually positioned leadership in sectionOrder, honor their sequence
+    if (Array.isArray(data.sectionOrder) && data.sectionOrder.includes('leadership')) {
+      return resolved.filter((id) => id !== 'leadership' || !isLeadershipExplicitlyHidden);
+    }
+
+    const native = ['education', 'experience', 'leadership', 'skills'];
+    const nativeSet = new Set(native);
+    const pinned = native.filter((id) => {
+      if (id === 'leadership') {
+        return !isLeadershipExplicitlyHidden;
+      }
+      return resolved.includes(id);
+    });
+    const rest = resolved.filter((id) => !nativeSet.has(id));
+    return [...pinned, ...rest];
+  };
+
   return (
     <div
       className="resume-content"
@@ -627,7 +749,7 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
       </header>
 
       {/* Dynamic Sections */}
-      {getResolvedSectionOrder(data).map(id => (
+      {getReziSectionOrder().map(id => (
         <React.Fragment key={id}>
           {renderSection(id)}
         </React.Fragment>

@@ -1,7 +1,7 @@
 import React from 'react';
 import RichText from '../RichText';
 import { ResumeData, Experience, Education, Project, Certification, LanguageItem, AdditionalInfoItem, CourseworkItem } from '../../types';
-import { Linkedin, Mail, MapPin, Phone, Send } from 'lucide-react';
+import { Linkedin, Mail, MapPin, Phone, Send, Github, Globe } from 'lucide-react';
 import { getTranslation, Language } from '../../i18n/translations';
 
 import {
@@ -18,6 +18,10 @@ import {
   formatContactText, formatLocationDisplay,
   formatLinkedInDisplay,
   getLinkedInHref,
+  formatGitHubDisplay,
+  getGitHubHref,
+  formatPortfolioDisplay,
+  getPortfolioHref,
   formatNameDisplay,
   formatJobTitleDisplay,
   formatSectionTitle,
@@ -244,6 +248,28 @@ export default function TimesTemplate({ data }: { data: ResumeData }) {
                   </span>
                 )}
               </div>
+              {(() => {
+                const courseItems = (Array.isArray(edu.relevantCourses)
+                  ? edu.relevantCourses
+                  : typeof edu.relevantCourses === 'string'
+                    ? edu.relevantCourses.split('\n')
+                    : []
+                )
+                  .map(c => c.replace(/^[•\-\*]\s*/, '').replace(/^(?:Relevant\s+Coursework|Relevant\s+Courses?):\s*/i, '').trim())
+                  .filter(Boolean);
+
+                if (courseItems.length === 0) return null;
+
+                return (
+                  <ul className="list-disc list-outside ml-5 mt-1">
+                    {courseItems.map((item, i) => (
+                      <li key={i} data-path={`${basePath}.${index}.relevantCourses.${i}`} className="mb-0.5">
+                        <RichText text={item} />
+                      </li>
+                    ))}
+                  </ul>
+                );
+              })()}
             </div>
           );
         })}
@@ -596,6 +622,50 @@ export default function TimesTemplate({ data }: { data: ResumeData }) {
                   style={{ textDecoration: 'none', color: 'inherit' }}
                 >
                   <RichText text={formatLinkedInDisplay(data.linkedin)} />
+                </a>
+              </span>
+            );
+          }
+
+          if (data.github) {
+            contactItems.push(
+              <span key="gh" className="inline-flex items-center gap-1.5 align-middle" style={{ verticalAlign: 'middle' }}>
+                {showIcons && (
+                  <span className="inline-flex items-center justify-center shrink-0" style={{ verticalAlign: 'middle' }}>
+                    <Github size={11} className="shrink-0" />
+                  </span>
+                )}
+                <a
+                  data-path="github"
+                  href={getGitHubHref(data.github)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block align-middle"
+                  style={{ textDecoration: 'underline', color: 'inherit' }}
+                >
+                  <RichText text={formatGitHubDisplay(data.github)} />
+                </a>
+              </span>
+            );
+          }
+
+          if (data.portfolio) {
+            contactItems.push(
+              <span key="port" className="inline-flex items-center gap-1.5 align-middle" style={{ verticalAlign: 'middle' }}>
+                {showIcons && (
+                  <span className="inline-flex items-center justify-center shrink-0" style={{ verticalAlign: 'middle' }}>
+                    <Globe size={11} className="shrink-0" />
+                  </span>
+                )}
+                <a
+                  data-path="portfolio"
+                  href={getPortfolioHref(data.portfolio)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block align-middle"
+                  style={{ textDecoration: 'underline', color: 'inherit' }}
+                >
+                  <RichText text={formatPortfolioDisplay(data.portfolio)} />
                 </a>
               </span>
             );

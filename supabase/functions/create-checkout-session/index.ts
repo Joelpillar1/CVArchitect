@@ -1,14 +1,13 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 import {
-  getDodoApiBaseUrl,
-  getDodoConfig,
+  getCreemApiBaseUrl,
+  getCreemConfig,
   getProductIdForPlan,
-  isDodoCheckoutConfigured,
-} from './_shared/dodoConfig.ts';
-import { normalizePlanId } from './_shared/subscriptionActivation.ts';
+  isCreemCheckoutConfigured,
+} from './_shared/creemConfig.ts';
+import { normalizePlanId } from './_shared/creemSubscriptionActivation.ts';
 import { resolveReturnOrigin } from './_shared/resolveReturnOrigin.ts';
-import { formatDodoCheckoutError } from './_shared/dodoCheckoutErrors.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -28,22 +27,7 @@ serve(async (req) => {
     });
   }
 
-  const config = getDodoConfig();
-
-  if (!isDodoCheckoutConfigured(config)) {
-    console.error('Dodo checkout not configured', {
-      hasApiKey: !!config.apiKey,
-      hasSprint: !!config.sprintProductId,
-      hasBuild: !!config.buildProductId,
-      hasBlueprint: !!config.blueprintProductId,
-      hasSupabaseUrl: !!config.supabaseUrl,
-      hasServiceRole: !!config.serviceRoleKey,
-    });
-    return new Response(JSON.stringify({ error: 'Payment provider is not configured.' }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  }
+  const config = getCreemConfig();
 
   const authHeader = req.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ')) {
@@ -74,14 +58,45 @@ serve(async (req) => {
     });
   }
 
-  const productId = getProductIdForPlan(planId, config);
-  if (!productId) {
-    return new Response(JSON.stringify({ error: 'Plan is not configured for checkout.' }), {
-      status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+  // Prevent Lifetime members from accidentally purchasing recurring Build plans
+  const { data: userSub } = await supabaseAdmin
+    .from('subscriptions')
+    .select('plan_id, is_active')
+    .eq('user_id', authData.user.id)
+    .single();
+
+  if (userSub?.is_active && userSub.plan_id === 'lifetime' && planId !== 'lifetime') {
+    return new Response(
+      JSON.stringify({
+        error: 'You already have active Lifetime access. A Build subscription is not needed.',
+      }),
+      {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
   }
 
+  if (!isCreemCheckoutConfigured(config, planId)) {
+    console.error('Creem checkout not fully configured:', {
+      hasApiKey: !!config.apiKey,
+      hasSupabaseUrl: !!config.supabaseUrl,
+      hasServiceRole: !!config.serviceRoleKey,
+      planId,
+      productId: getProductIdForPlan(planId, config),
+    });
+    return new Response(
+      JSON.stringify({
+        error: `Payment provider is not configured for plan "${planId}". Please ensure Creem API key and Product IDs are set in Supabase secrets.`,
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
+  }
+
+  const productId = getProductIdForPlan(planId, config);
   const user = authData.user;
   const userName =
     (user.user_metadata?.full_name as string | undefined) ||
@@ -93,25 +108,30 @@ serve(async (req) => {
   const returnUrl = `${origin}/dashboard?payment=success&plan=${planId}`;
 
   try {
-    const apiBase = getDodoApiBaseUrl(config.environment);
-    console.log('Creating Dodo checkout', { environment: config.environment, apiBase, planId });
+    const apiBase = getCreemApiBaseUrl(config.environment);
+    console.log('Creating Creem checkout session:', {
+      environment: config.environment,
+      planId,
+      productId,
+      userId: user.id,
+    });
 
     const response = await fetch(`${apiBase}/checkouts`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${config.apiKey}`,
+        'x-api-key': config.apiKey,
       },
       body: JSON.stringify({
-        product_cart: [{ product_id: productId, quantity: 1 }],
+        product_id: productId,
         customer: {
           email: user.email,
           name: userName,
         },
-        return_url: returnUrl,
+        success_url: returnUrl,
         metadata: {
-          user_id: user.id,
-          plan_id: planId,
+          userId: user.id,
+          planId: planId,
           email: user.email,
         },
       }),
@@ -120,26 +140,28 @@ serve(async (req) => {
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      console.error('Dodo checkout session error:', { status: response.status, data, planId, environment: config.environment });
-      const userMessage = formatDodoCheckoutError(data, config.environment);
+      console.error('Creem checkout creation failed:', {
+        status: response.status,
+        data,
+      });
+      const errorMsg =
+        data.message || data.error || `Creem API error (${response.status})`;
       return new Response(
-        JSON.stringify({
-          error: userMessage,
-          details: data,
-          environment: config.environment,
-        }),
+        JSON.stringify({ error: errorMsg, details: data }),
         {
-          status: response.status,
+          status: response.status >= 400 && response.status < 500 ? response.status : 502,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         }
       );
     }
 
-    if (!data.checkout_url) {
+    const checkoutUrl = data.checkout_url || data.checkoutUrl;
+    if (!checkoutUrl) {
+      console.error('Creem checkout response missing checkout_url:', data);
       return new Response(
-        JSON.stringify({ error: 'Checkout URL was not returned by payment provider.' }),
+        JSON.stringify({ error: 'Checkout URL was not returned by Creem.' }),
         {
-          status: 500,
+          status: 502,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         }
       );
@@ -147,8 +169,8 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({
-        checkoutUrl: data.checkout_url,
-        sessionId: data.session_id,
+        checkoutUrl,
+        sessionId: data.id,
         environment: config.environment,
       }),
       {
@@ -157,10 +179,15 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error('Checkout session creation failed:', error);
-    return new Response(JSON.stringify({ error: 'Failed to create checkout session.' }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    console.error('Unexpected error creating Creem checkout session:', error);
+    return new Response(
+      JSON.stringify({
+        error: error instanceof Error ? error.message : 'Internal Server Error',
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
   }
 });

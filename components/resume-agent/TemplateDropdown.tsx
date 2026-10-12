@@ -1,10 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Check, Layout, Sparkles, Crown, Eye } from 'lucide-react';
+import { ChevronDown, Check, Layout, Sparkles, Crown, Eye, Lock } from 'lucide-react';
 import { TemplateType } from '../../types';
+import { canAccessTemplate } from '../../utils/pricingConfig';
 
 interface TemplateDropdownProps {
   currentTemplate: TemplateType;
   onChangeTemplate: (t: TemplateType) => void;
+  userPlan?: string;
+  onShowPaywall?: (feature: 'templates') => void;
 }
 
 export interface TemplateOption {
@@ -17,12 +20,14 @@ export interface TemplateOption {
 
 export const TEMPLATE_OPTIONS: TemplateOption[] = [
   { id: 'vanguard', name: 'Vanguard Minimal', category: 'ATS Standard', badge: 'Popular', layoutType: 'clean' },
-  { id: 'rezi', name: 'Harvard', category: 'ATS Optimized', badge: 'Top Match', layoutType: 'clean' },
+  { id: 'rezi', name: 'Harvard', category: 'Student', badge: 'Top Match', layoutType: 'clean' },
   { id: 'modern', name: 'Modern Tech', category: 'Tech & Product', layoutType: 'two-column' },
   { id: 'prime', name: 'Prime Profile', category: 'Executive', layoutType: 'header-accent' },
   { id: 'impact', name: 'Impact Bold', category: 'Senior Roles', layoutType: 'compact' },
   { id: 'classic', name: 'Classic Serif', category: 'Academic & Law', layoutType: 'serif' },
   { id: 'times', name: 'Times Classic', category: 'ATS Serif', badge: 'New', layoutType: 'serif' },
+  { id: 'jake', name: 'Jake Template', category: 'ATS Serif', badge: 'New', layoutType: 'serif' },
+  { id: 'gaurav', name: 'Analyst', category: 'ATS Serif', badge: 'New', layoutType: 'serif' },
   { id: 'regent', name: 'Regent Serif', category: 'ATS Serif', badge: 'New', layoutType: 'serif' },
   { id: 'simplepro', name: 'Simple Pro', category: 'Clean Professional', layoutType: 'clean' },
   { id: 'sage', name: 'Sage Professional', category: 'Management', layoutType: 'clean' },
@@ -30,7 +35,12 @@ export const TEMPLATE_OPTIONS: TemplateOption[] = [
   { id: 'styled', name: 'Styled Professional', category: 'Creative Design', layoutType: 'header-accent' },
 ];
 
-export default function TemplateDropdown({ currentTemplate, onChangeTemplate }: TemplateDropdownProps) {
+export default function TemplateDropdown({
+  currentTemplate,
+  onChangeTemplate,
+  userPlan = 'free',
+  onShowPaywall,
+}: TemplateDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -75,16 +85,24 @@ export default function TemplateDropdown({ currentTemplate, onChangeTemplate }: 
           <div className="max-h-80 overflow-y-auto space-y-1 custom-scrollbar p-1">
             {TEMPLATE_OPTIONS.map((option) => {
               const isSelected = option.id === currentTemplate;
+              const isAccessible = Boolean(import.meta.env.DEV) || canAccessTemplate(userPlan, option.id);
               return (
                 <button
                   key={option.id}
                   onClick={() => {
+                    if (!isAccessible) {
+                      onShowPaywall?.('templates');
+                      setIsOpen(false);
+                      return;
+                    }
                     onChangeTemplate(option.id);
                     setIsOpen(false);
                   }}
                   className={`w-full p-2.5 rounded-xl text-left flex items-start gap-3 transition-all ${
                     isSelected
                       ? 'bg-brand-secondary border border-brand-green/50 shadow-2xs'
+                      : !isAccessible
+                      ? 'hover:bg-amber-50/50 border border-transparent'
                       : 'hover:bg-brand-secondary/60 border border-transparent'
                   }`}
                 >
@@ -115,16 +133,27 @@ export default function TemplateDropdown({ currentTemplate, onChangeTemplate }: 
                       <h4 className={`text-xs font-bold truncate ${isSelected ? 'text-brand-dark font-extrabold' : 'text-brand-dark/90'}`}>
                         {option.name}
                       </h4>
-                      {isSelected && <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />}
+                      {isSelected ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      ) : !isAccessible ? (
+                        <Lock className="w-3 h-3 text-amber-600 shrink-0" />
+                      ) : null}
                     </div>
 
                     <p className="text-[10px] text-brand-dark/60 mt-0.5">{option.category}</p>
 
-                    {option.badge && (
-                      <span className="inline-block mt-1 text-[9px] font-bold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                        {option.badge}
-                      </span>
-                    )}
+                    <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                      {!isAccessible && (
+                        <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                          <Lock className="w-2.5 h-2.5" /> PRO
+                        </span>
+                      )}
+                      {option.badge && (
+                        <span className="inline-block text-[9px] font-bold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                          {option.badge}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </button>
               );

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { User, CreditCard, Bell, Shield, Zap, Crown, TrendingUp, Calendar, Download, Trash2, Check, X, Eye, EyeOff, AlertTriangle } from 'lucide-react';
+import { User, CreditCard, Bell, Shield, Zap, Crown, TrendingUp, Calendar, Download, Trash2, Check, X, Eye, EyeOff, AlertTriangle, KeyRound } from 'lucide-react';
 import { UserSubscription, PlanId } from '../types/pricing';
 import { PLANS, CREDIT_PACKS, isPaidPlan, getPlanDisplayName } from '../utils/pricingConfig';
 import { profileService } from '../services/profileService';
@@ -9,8 +9,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { saveToStorage, loadFromStorage, debouncedSaveToStorage } from '../utils/statePersistence';
 import PaidPlanPicker from './PaidPlanPicker';
-import { cancelSubscription, openBillingPortal } from '../services/dodoPaymentsService';
+import { cancelSubscription, openBillingPortal } from '../services/creemPaymentsService';
 import { useToast } from '../contexts/ToastContext';
+import { Loader } from './ui/Loader';
 
 type SettingsTab = 'account' | 'plan' | 'subscription' | 'usage' | 'preferences';
 
@@ -25,7 +26,7 @@ interface SettingsProps {
 }
 
 export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUpdate, onSubscriptionRefresh, onNavigateToPrivacy, onNavigateToTerms }: SettingsProps) => {
-  const { user, signOut } = useAuth();
+  const { user, signOut, resetPassword } = useAuth();
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [searchParams] = useSearchParams();
@@ -103,6 +104,22 @@ export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUp
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState(false);
+  const [hasPasswordOverride, setHasPasswordOverride] = useState<boolean | null>(null);
+  const [isSendingReset, setIsSendingReset] = useState(false);
+
+  const hasPassword = React.useMemo(() => {
+    if (hasPasswordOverride !== null) return hasPasswordOverride;
+    const metaProviders = (user?.app_metadata?.providers as string[] | undefined) || [];
+    const singleProvider = user?.app_metadata?.provider as string | undefined;
+    const identityProviders = (user?.identities || []).map((id: any) => id.provider);
+    const allProviders = new Set<string>([
+      ...metaProviders,
+      ...(singleProvider ? [singleProvider] : []),
+      ...identityProviders,
+    ]);
+    return allProviders.has('email');
+  }, [user, hasPasswordOverride]);
+
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
   const [deleteAccountError, setDeleteAccountError] = useState('');
   const [showCancelSubscriptionModal, setShowCancelSubscriptionModal] = useState(false);
@@ -225,15 +242,21 @@ export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUp
     setPasswordError('');
     setPasswordSuccess(false);
 
-    // Validate inputs
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      setPasswordError('Please fill in all fields');
+    // If account has an existing password, current password is required
+    if (hasPassword && !currentPassword) {
+      setPasswordError('Please enter your current password');
       return;
     }
 
-    const passwordError = validatePassword(newPassword);
-    if (passwordError) {
-      setPasswordError(passwordError);
+    // Validate new password fields
+    if (!newPassword || !confirmPassword) {
+      setPasswordError('Please fill in both new password fields');
+      return;
+    }
+
+    const validationErr = validatePassword(newPassword);
+    if (validationErr) {
+      setPasswordError(validationErr);
       return;
     }
 
@@ -242,7 +265,7 @@ export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUp
       return;
     }
 
-    if (currentPassword === newPassword) {
+    if (hasPassword && currentPassword === newPassword) {
       setPasswordError('New password must be different from current password');
       return;
     }
@@ -250,19 +273,21 @@ export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUp
     setIsChangingPassword(true);
 
     try {
-      // First, verify current password by attempting to sign in
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: user.email!,
-        password: currentPassword,
-      });
+      if (hasPassword) {
+        // Verify current password by attempting to sign in
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: user.email!,
+          password: currentPassword,
+        });
 
-      if (signInError) {
-        setPasswordError('Current password is incorrect');
-        setIsChangingPassword(false);
-        return;
+        if (signInError) {
+          setPasswordError('Current password is incorrect');
+          setIsChangingPassword(false);
+          return;
+        }
       }
 
-      // If current password is correct, update to new password
+      // Update / set new password on Supabase user
       const { error: updateError } = await supabase.auth.updateUser({
         password: newPassword,
       });
@@ -271,20 +296,42 @@ export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUp
         throw updateError;
       }
 
+      setHasPasswordOverride(true);
       setPasswordSuccess(true);
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
 
-      // Close modal after 2 seconds
+      showToast(
+        hasPassword
+          ? 'Password updated successfully!'
+          : 'Password created! You can now sign in with email or Google.',
+        'success'
+      );
+
+      // Close modal after 1.5 seconds
       setTimeout(() => {
         setShowChangePassword(false);
         setPasswordSuccess(false);
-      }, 2000);
+      }, 1500);
     } catch (error: any) {
-      setPasswordError(error.message || 'Failed to change password. Please try again.');
+      setPasswordError(error.message || 'Failed to update password. Please try again.');
     } finally {
       setIsChangingPassword(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!user?.email || isSendingReset) return;
+    setIsSendingReset(true);
+    try {
+      const { error } = await resetPassword(user.email);
+      if (error) throw error;
+      showToast(`Password reset link sent to ${user.email}`, 'info');
+    } catch (error: any) {
+      showToast(error.message || 'Failed to send reset link', 'error');
+    } finally {
+      setIsSendingReset(false);
     }
   };
 
@@ -436,8 +483,8 @@ export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUp
                   >
                     {isSaving ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        Saving...
+                        <Loader size="xs" variant="light" />
+                        <span>Saving...</span>
                       </>
                     ) : (
                       <>
@@ -459,21 +506,37 @@ export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUp
 
             {/* Security Section */}
             <div className="bg-white shadow-soft rounded-2xl border border-brand-border overflow-hidden">
-              <div className="p-8 border-b border-brand-border">
+              <div className="p-6 sm:p-8 border-b border-brand-border">
                 <h3 className="text-xl font-bold text-brand-dark flex items-center gap-2">
                   <Shield size={20} />
                   Security
                 </h3>
-                <p className="text-sm text-gray-500 mt-1 font-medium">Manage your password and security settings.</p>
+                <p className="text-sm text-gray-500 mt-1 font-medium">
+                  {hasPassword
+                    ? 'Manage your password and security settings.'
+                    : 'You sign in with Google. Add a password to also sign in using your email.'}
+                </p>
               </div>
-              <div className="p-8 space-y-4">
-                <button
-                  onClick={() => setShowChangePassword(true)}
-                  className="w-full md:w-auto bg-brand-dark text-white px-6 py-3 rounded-xl font-semibold text-sm hover:bg-gray-800 transition-colors"
-                >
-                  Change Password
-                </button>
-                <div className="pt-4 border-t">
+              <div className="p-6 sm:p-8 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                  <button
+                    onClick={() => {
+                      setPasswordError('');
+                      setPasswordSuccess(false);
+                      setShowChangePassword(true);
+                    }}
+                    className="w-full sm:w-auto bg-brand-dark text-white px-5 py-2.5 rounded-lg font-semibold text-sm hover:bg-gray-800 transition-colors cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <KeyRound size={16} />
+                    <span>{hasPassword ? 'Change Password' : 'Set Password'}</span>
+                  </button>
+                  {!hasPassword && (
+                    <span className="text-xs text-gray-400 font-medium">
+                      Current login: Google Authentication
+                    </span>
+                  )}
+                </div>
+                <div className="pt-4 border-t border-brand-border">
                   <button
                     onClick={() => {
                       setDeleteAccountError('');
@@ -484,8 +547,8 @@ export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUp
                   >
                     {isSaving ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
-                        Deleting...
+                        <Loader size="xs" variant="default" />
+                        <span>Deleting...</span>
                       </>
                     ) : (
                       <>
@@ -500,67 +563,119 @@ export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUp
           </div>
         )}
 
-        {/* Change Password Modal */}
+        {/* Minimal Adaptive Password Modal */}
         {showChangePassword && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 relative">
-              <button
-                onClick={() => {
-                  setShowChangePassword(false);
-                  setCurrentPassword('');
-                  setNewPassword('');
-                  setConfirmPassword('');
-                  setPasswordError('');
-                  setPasswordSuccess(false);
-                }}
-                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <X size={24} />
-              </button>
-
-              <h3 className="text-2xl font-bold text-brand-dark mb-2">Change Password</h3>
-              <p className="text-sm text-gray-500 mb-6">Enter your current password and choose a new one.</p>
-
-              {passwordSuccess && (
-                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2 mb-4">
-                  <Check size={20} />
-                  <span>Password changed successfully!</span>
-                </div>
-              )}
-
-              {passwordError && (
-                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg flex items-center gap-2 mb-4">
-                  <X size={20} />
-                  <span>{passwordError}</span>
-                </div>
-              )}
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">
-                    Current Password
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showCurrentPassword ? 'text' : 'password'}
-                      value={currentPassword}
-                      onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="w-full rounded-xl border-gray-200 border bg-brand-bg/30 px-4 py-3 pr-12 text-brand-dark focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 outline-none transition-all"
-                      placeholder="Enter current password"
-                      disabled={isChangingPassword}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                      {showCurrentPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                    </button>
+          <div
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4 animate-fadeIn"
+            onClick={(e) => {
+              if (e.target === e.currentTarget && !isChangingPassword) {
+                setShowChangePassword(false);
+                setCurrentPassword('');
+                setNewPassword('');
+                setConfirmPassword('');
+                setPasswordError('');
+                setPasswordSuccess(false);
+              }
+            }}
+          >
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-[380px] overflow-hidden relative border border-brand-border animate-scaleIn my-auto">
+              {/* Header */}
+              <div className="flex items-start justify-between p-4 sm:p-5 pb-3 border-b border-brand-border/60">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-brand-bg flex items-center justify-center text-brand-dark border border-brand-border shrink-0">
+                    <KeyRound size={15} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm sm:text-base font-bold text-brand-dark leading-tight">
+                      {hasPassword ? 'Change Password' : 'Set Password'}
+                    </h3>
+                    <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5">
+                      {hasPassword
+                        ? 'Enter current and new password.'
+                        : 'Enable email sign-in alongside Google.'}
+                    </p>
                   </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowChangePassword(false);
+                    setCurrentPassword('');
+                    setNewPassword('');
+                    setConfirmPassword('');
+                    setPasswordError('');
+                    setPasswordSuccess(false);
+                  }}
+                  className="w-7 h-7 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 flex items-center justify-center transition-colors cursor-pointer shrink-0 ml-2"
+                  aria-label="Close"
+                >
+                  <X size={15} />
+                </button>
+              </div>
 
+              {/* Form Body */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleChangePassword();
+                }}
+                className="p-4 sm:p-5 space-y-3"
+              >
+                {passwordSuccess && (
+                  <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs px-3 py-2 rounded-lg flex items-center gap-2 font-medium">
+                    <Check size={14} className="text-emerald-600 shrink-0" strokeWidth={2.5} />
+                    <span>{hasPassword ? 'Password updated!' : 'Password set! You can now log in with email or Google.'}</span>
+                  </div>
+                )}
+
+                {passwordError && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 text-xs px-3 py-2 rounded-lg flex items-center gap-2 font-medium">
+                    <AlertTriangle size={14} className="text-red-500 shrink-0" />
+                    <span>{passwordError}</span>
+                  </div>
+                )}
+
+                {/* Current Password Field (Only shown if user already has a password) */}
+                {hasPassword && (
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs font-semibold text-gray-700">
+                        Current Password
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleForgotPassword}
+                        disabled={isSendingReset || isChangingPassword}
+                        className="text-[11px] text-gray-500 hover:text-brand-dark font-medium underline underline-offset-2 cursor-pointer disabled:opacity-50"
+                      >
+                        {isSendingReset ? 'Sending link...' : 'Forgot?'}
+                      </button>
+                    </div>
+                    <div className="relative">
+                      <input
+                        type={showCurrentPassword ? 'text' : 'password'}
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        className="w-full h-9 rounded-lg border-gray-200 border bg-white px-3 pr-9 text-xs text-brand-dark focus:border-brand-dark focus:ring-1 focus:ring-brand-dark/20 outline-none transition-all placeholder:text-gray-400 font-medium"
+                        placeholder="Enter current password"
+                        disabled={isChangingPassword}
+                        autoFocus
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
+                        tabIndex={-1}
+                      >
+                        {showCurrentPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* New Password Field */}
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">
                     New Password
                   </label>
                   <div className="relative">
@@ -568,65 +683,68 @@ export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUp
                       type={showNewPassword ? 'text' : 'password'}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full rounded-xl border-gray-200 border bg-brand-bg/30 px-4 py-3 pr-12 text-brand-dark focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 outline-none transition-all"
-                      placeholder="Enter new password"
+                      className="w-full h-9 rounded-lg border-gray-200 border bg-white px-3 pr-9 text-xs text-brand-dark focus:border-brand-dark focus:ring-1 focus:ring-brand-dark/20 outline-none transition-all placeholder:text-gray-400 font-medium"
+                      placeholder="Min 6 chars, uppercase & number"
                       disabled={isChangingPassword}
+                      autoFocus={!hasPassword}
                     />
                     <button
                       type="button"
                       onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
+                      tabIndex={-1}
                     >
-                      {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                      {showNewPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                     </button>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Must be at least 6 characters with uppercase, lowercase, and number
-                  </p>
                 </div>
 
+                {/* Confirm Password Field */}
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">
-                    Confirm New Password
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">
+                    Confirm Password
                   </label>
                   <div className="relative">
                     <input
                       type={showConfirmPassword ? 'text' : 'password'}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full rounded-xl border-gray-200 border bg-brand-bg/30 px-4 py-3 pr-12 text-brand-dark focus:border-brand-green focus:ring-2 focus:ring-brand-green/20 outline-none transition-all"
-                      placeholder="Confirm new password"
+                      className="w-full h-9 rounded-lg border-gray-200 border bg-white px-3 pr-9 text-xs text-brand-dark focus:border-brand-dark focus:ring-1 focus:ring-brand-dark/20 outline-none transition-all placeholder:text-gray-400 font-medium"
+                      placeholder="Re-enter new password"
                       disabled={isChangingPassword}
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
+                      tabIndex={-1}
                     >
-                      {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                      {showConfirmPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                     </button>
                   </div>
                 </div>
 
-                <div className="flex gap-3 pt-4">
+                {/* Actions */}
+                <div className="flex items-center gap-2 pt-2">
                   <button
-                    onClick={handleChangePassword}
+                    type="submit"
                     disabled={isChangingPassword}
-                    className="flex-1 bg-brand-dark text-white px-6 py-3 rounded-xl font-semibold text-sm hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="flex-1 h-9 bg-brand-dark hover:bg-gray-800 text-white px-4 rounded-lg font-semibold text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
                   >
                     {isChangingPassword ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        Changing...
+                        <Loader size="xs" variant="light" />
+                        <span>Saving...</span>
                       </>
                     ) : (
                       <>
-                        <Check size={16} />
-                        Change Password
+                        <Check size={14} />
+                        <span>{hasPassword ? 'Update Password' : 'Set Password'}</span>
                       </>
                     )}
                   </button>
                   <button
+                    type="button"
                     onClick={() => {
                       setShowChangePassword(false);
                       setCurrentPassword('');
@@ -636,12 +754,12 @@ export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUp
                       setPasswordSuccess(false);
                     }}
                     disabled={isChangingPassword}
-                    className="border border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-semibold text-sm hover:bg-gray-50 transition-colors disabled:opacity-50"
+                    className="h-9 border border-gray-200 text-gray-600 px-3.5 rounded-lg font-medium text-xs hover:bg-gray-50 transition-colors disabled:opacity-50 cursor-pointer"
                   >
                     Cancel
                   </button>
                 </div>
-              </div>
+              </form>
             </div>
           </div>
         )}
@@ -720,17 +838,17 @@ export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUp
                         console.error('Error refreshing subscription:', err);
                       }
                     }}
-                    className="border border-gray-300 text-gray-700 px-4 py-2 rounded-xl font-semibold text-sm hover:bg-gray-50 transition-colors"
+                    className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-50 transition-colors"
                     title="Refresh subscription status"
                   >
                     Refresh Status
                   </button>
 
-                  {isPaid && (userSubscription.dodoCustomerId || userSubscription.dodoSubscriptionId) && (
+                  {isPaid && (userSubscription.creemCustomerId || userSubscription.creemSubscriptionId || userSubscription.dodoCustomerId || userSubscription.dodoSubscriptionId) && (
                     <button
                       onClick={handleOpenBillingPortal}
                       disabled={isManagingSubscription}
-                      className="border border-gray-300 text-gray-700 px-4 py-2 rounded-xl font-semibold text-sm hover:bg-gray-50 transition-colors disabled:opacity-50"
+                      className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-50 transition-colors disabled:opacity-50"
                     >
                       Manage Billing
                     </button>
@@ -739,7 +857,7 @@ export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUp
                   {isFree && (
                     <button
                       onClick={() => setActiveTab('plan')}
-                      className="bg-brand-dark hover:bg-brand-dark/90 text-white px-6 py-3 rounded-xl font-bold text-sm transition-all"
+                      className="bg-brand-dark hover:bg-brand-dark/90 text-white px-6 py-3 rounded-lg font-bold text-sm transition-all"
                     >
                       Upgrade Plan
                     </button>
@@ -786,6 +904,7 @@ export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUp
               <div className="p-6 sm:p-8">
                 <PaidPlanPicker
                   currentPlanId={userSubscription.planId}
+                  creemSubscriptionId={userSubscription.creemSubscriptionId}
                   dodoSubscriptionId={userSubscription.dodoSubscriptionId}
                   onPlanChanged={onSubscriptionRefresh}
                 />
@@ -906,7 +1025,7 @@ export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUp
                 <p className="text-sm text-gray-500 mt-1 font-medium">Manage your data and privacy settings.</p>
               </div>
               <div className="p-8 space-y-4">
-                <button className="w-full md:w-auto flex items-center gap-2 border border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-semibold text-sm hover:bg-gray-50 transition-colors">
+                <button className="w-full md:w-auto flex items-center gap-2 border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold text-sm hover:bg-gray-50 transition-colors">
                   <Download size={16} />
                   Export My Data
                 </button>
@@ -916,7 +1035,7 @@ export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUp
                     setShowDeleteAccountModal(true);
                   }}
                   disabled={isSaving}
-                  className="w-full md:w-auto flex items-center gap-2 border border-red-300 text-red-600 px-6 py-3 rounded-xl font-semibold text-sm hover:bg-red-50 transition-colors disabled:opacity-50"
+                  className="w-full md:w-auto flex items-center gap-2 border border-red-300 text-red-600 px-6 py-3 rounded-lg font-semibold text-sm hover:bg-red-50 transition-colors disabled:opacity-50"
                 >
                   {isSaving ? (
                     <>
@@ -1016,19 +1135,19 @@ export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUp
                   }
                 }}
                 disabled={isSaving}
-                className="px-5 py-2.5 rounded-xl font-semibold text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors disabled:opacity-50"
+                className="px-5 py-2.5 rounded-lg font-semibold text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeleteAccount}
                 disabled={isSaving}
-                className="px-5 py-2.5 rounded-xl font-semibold text-sm text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="px-5 py-2.5 rounded-lg font-semibold text-sm text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isSaving ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-                    Deleting...
+                    <Loader size="xs" variant="light" />
+                    <span>Deleting...</span>
                   </>
                 ) : (
                   <>
@@ -1086,19 +1205,19 @@ export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUp
                   }
                 }}
                 disabled={isManagingSubscription}
-                className="px-5 py-2.5 rounded-xl font-semibold text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors disabled:opacity-50"
+                className="px-5 py-2.5 rounded-lg font-semibold text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors disabled:opacity-50"
               >
                 Keep subscription
               </button>
               <button
                 onClick={handleCancelSubscription}
                 disabled={isManagingSubscription}
-                className="px-5 py-2.5 rounded-xl font-semibold text-sm text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="px-5 py-2.5 rounded-lg font-semibold text-sm text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isManagingSubscription ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-                    Cancelling...
+                    <Loader size="xs" variant="light" />
+                    <span>Cancelling...</span>
                   </>
                 ) : (
                   'Yes, cancel at period end'

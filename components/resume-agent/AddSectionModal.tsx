@@ -63,7 +63,6 @@ export default function AddSectionModal({ isOpen, onClose, data, onAddSection }:
           { type: 'experience', title: 'Work Experience', description: 'Employment history, roles, and achievements' },
           { type: 'education', title: 'Education', description: 'Degrees, universities, honors, and graduation years' },
           { type: 'skills', title: 'Skills', description: 'Categorized or bulleted industry skills' },
-          { type: 'expert_skills', title: 'Expert-Level Skills', description: 'Categorized skills with bold labels and grouped competencies' },
           { type: 'projects', title: 'Projects', description: 'Key projects, links, tech stacks, and outcomes' },
         ],
       },

@@ -1,7 +1,7 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { MapPin, Phone, Mail, Linkedin, Send } from 'lucide-react';
-import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getItemGapIn, getMarginHorizontalIn, getMarginVerticalIn, formatContactText, formatLocationDisplay, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay, formatSectionTitle, splitSkillsList, CONTACT_SEPARATOR, renderExpertSkillsBlockHelper } from '../../utils/templateUtils';
+import { MapPin, Phone, Mail, Linkedin, Send, Github, Globe } from 'lucide-react';
+import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getItemGapIn, getMarginHorizontalIn, getMarginVerticalIn, formatContactText, formatLocationDisplay, formatLinkedInDisplay, getLinkedInHref, formatGitHubDisplay, getGitHubHref, formatPortfolioDisplay, getPortfolioHref, formatNameDisplay, formatJobTitleDisplay, formatSectionTitle, splitSkillsList, CONTACT_SEPARATOR, renderExpertSkillsBlockHelper } from '../../utils/templateUtils';
 import RichText from '../RichText';
 
 interface FreshGradCSTemplateProps {
@@ -110,6 +110,22 @@ const FreshGradCSTemplate: React.FC<FreshGradCSTemplateProps> = ({ data }) => {
               </a>
             </span>
           );
+          if (data.github) items.push(
+            <span key="gh" className="inline-flex items-center gap-1">
+              {showIcons && <Github size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
+              <a data-path="github" href={getGitHubHref(data.github)} target="_blank" rel="noopener noreferrer" className="text-inherit underline">
+                <RichText text={formatGitHubDisplay(data.github)} />
+              </a>
+            </span>
+          );
+          if (data.portfolio) items.push(
+            <span key="port" className="inline-flex items-center gap-1">
+              {showIcons && <Globe size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
+              <a data-path="portfolio" href={getPortfolioHref(data.portfolio)} target="_blank" rel="noopener noreferrer" className="text-inherit underline">
+                <RichText text={formatPortfolioDisplay(data.portfolio)} />
+              </a>
+            </span>
+          );
           if (data.atHandle) items.push(
             <span key="at" className="inline-flex items-center gap-1">
               {showIcons && <Send size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
@@ -188,31 +204,34 @@ const FreshGradCSTemplate: React.FC<FreshGradCSTemplateProps> = ({ data }) => {
                     <RichText text={edu.gpa} />
                   </div>
                 )}
-                {edu.relevantCourses && edu.relevantCourses.trim() && (
-                  <div className="mt-0.5 text-gray-900">
-                    <span className="font-semibold italic">
-                      Relevant Courses:
-                    </span>{' '}
-                    <RichText text={edu.relevantCourses} />
-                  </div>
-                )}
+                {(() => {
+                  const courseItems = (Array.isArray(edu.relevantCourses)
+                    ? edu.relevantCourses
+                    : typeof edu.relevantCourses === 'string'
+                      ? edu.relevantCourses.split('\n')
+                      : []
+                  )
+                    .map(c => c.replace(/^[•\-\*]\s*/, '').replace(/^(?:Relevant\s+Coursework|Relevant\s+Courses?):\s*/i, '').trim())
+                    .filter(Boolean);
+
+                  if (courseItems.length === 0) return null;
+
+                  return (
+                    <ul className="list-disc list-outside ml-5 mt-0.5 text-gray-900">
+                      {courseItems.map((course, i) => (
+                        <li key={i} data-path={`education.${index}.relevantCourses.${i}`} className="mb-0.5">
+                          <RichText text={course} />
+                        </li>
+                      ))}
+                    </ul>
+                  );
+                })()}
               </div>
             ))}
           </div>
         </section>
       )}
 
-      {/* EXPERT-LEVEL SKILLS */}
-      {data.expertSkills && (
-        renderExpertSkillsBlockHelper({
-          data,
-          title: (data.sectionTitles && data.sectionTitles['expert_skills']) || 'Expert-Level Skills',
-          items: data.expertSkills,
-          basePath: 'expertSkills',
-          renderSectionHeader,
-          bodyStyle,
-        })
-      )}
 
       {/* TECHNICAL SKILLS */}
       {data.skills && data.skills.trim() && (

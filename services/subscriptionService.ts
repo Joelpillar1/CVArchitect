@@ -60,18 +60,30 @@ export const subscriptionService = {
             const totalCreditsUsed = (statsResult.data || []).reduce((sum: number, log: any) => sum + (log.credits_cost || 0), 0);
             const totalActions = statsResult.count || 0;
 
+            const rawPlan = subscription.plan_id ? String(subscription.plan_id).trim().toLowerCase() : 'free';
+            const normalizedPlanId = (rawPlan === 'week_pass' || rawPlan === 'sprint' || rawPlan === 'pro_monthly' || rawPlan === 'blueprint')
+                ? 'build'
+                : (rawPlan as any);
+
+            const rawScheduled = subscription.scheduled_plan_id ? String(subscription.scheduled_plan_id).trim().toLowerCase() : undefined;
+            const normalizedScheduledPlanId = (rawScheduled === 'week_pass' || rawScheduled === 'sprint' || rawScheduled === 'pro_monthly' || rawScheduled === 'blueprint')
+                ? 'build'
+                : rawScheduled;
+
             return {
                 userId: subscription.user_id,
-                planId: subscription.plan_id,
+                planId: normalizedPlanId,
                 credits: subscription.credits,
                 billingCycle: subscription.billing_cycle,
                 subscriptionStart: subscription.subscription_start ? new Date(subscription.subscription_start) : undefined,
                 subscriptionEnd: subscription.subscription_end ? new Date(subscription.subscription_end) : undefined,
                 isActive: subscription.is_active,
-                dodoSubscriptionId: subscription.dodo_subscription_id || undefined,
-                dodoCustomerId: subscription.dodo_customer_id || undefined,
+                creemSubscriptionId: subscription.creem_subscription_id || undefined,
+                creemCustomerId: subscription.creem_customer_id || undefined,
+                dodoSubscriptionId: subscription.creem_subscription_id || subscription.dodo_subscription_id || undefined,
+                dodoCustomerId: subscription.creem_customer_id || subscription.dodo_customer_id || undefined,
                 cancelAtPeriodEnd: subscription.cancel_at_period_end || false,
-                scheduledPlanId: subscription.scheduled_plan_id || undefined,
+                scheduledPlanId: normalizedScheduledPlanId,
                 usageHistory,
                 usageStats: {
                     totalActions,

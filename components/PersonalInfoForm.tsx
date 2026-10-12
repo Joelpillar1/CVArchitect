@@ -83,6 +83,28 @@ export default function PersonalInfoForm({ data, onChange }: PersonalInfoFormPro
                             placeholder="linkedin.com/in/johndoe"
                         />
                     </div>
+
+                    <div className="space-y-1">
+                        <label className="text-xs font-medium text-gray-500 block">GitHub</label>
+                        <input
+                            type="text"
+                            value={data.github || ''}
+                            onChange={(e) => handleChange('github', e.target.value)}
+                            className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
+                            placeholder="github.com/johndoe"
+                        />
+                    </div>
+
+                    <div className="space-y-1">
+                        <label className="text-xs font-medium text-gray-500 block">Portfolio / Website</label>
+                        <input
+                            type="text"
+                            value={data.portfolio || ''}
+                            onChange={(e) => handleChange('portfolio', e.target.value)}
+                            className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
+                            placeholder="johndoe.com"
+                        />
+                    </div>
                 </div>
             </div>
         </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Zap, Download, Check, Sparkles } from 'lucide-react';
 import { CreditPack } from '../types/pricing';
 import { CREDIT_PACKS, EXPORT_CREDIT_PACKS } from '../utils/pricingConfig';
+import { Loader } from './ui/Loader';
 
 interface CreditPurchaseModalProps {
     onClose: () => void;
@@ -241,8 +242,8 @@ export default function CreditPurchaseModal({
                             >
                                 {isPurchasing ? (
                                     <>
-                                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                                        Processing...
+                                        <Loader size="xs" variant="light" />
+                                        <span>Processing...</span>
                                     </>
                                 ) : (
                                     <>

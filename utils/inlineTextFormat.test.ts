@@ -369,5 +369,53 @@ describe('legacy string descriptions (newline-separated bullets)', () => {
     expect(bullets[1]).toBe(expandedBullet);
     expect(bullets[2]).toBe('Mentored 4 engineers');
   });
+
+  it('buildTextCandidates produces candidates for education relevantCourses items', () => {
+    const data: ResumeData = {
+      ...fixture(),
+      education: [
+        {
+          id: 'ed1',
+          school: 'Harvard University',
+          degree: 'B.S. Computer Science',
+          year: '2024',
+          relevantCourses: ['Distributed Systems', 'Machine Learning'],
+        },
+      ],
+    };
+
+    const candidates = buildTextCandidates(data);
+    const paths = candidates.map(c => c.path);
+    expect(paths).toContain('education.0.relevantCourses');
+    expect(paths).toContain('education.0.relevantCourses.0');
+    expect(paths).toContain('education.0.relevantCourses.1');
+
+    const item0 = candidates.find(c => c.path === 'education.0.relevantCourses.0');
+    expect(item0?.stored).toBe('Distributed Systems');
+
+    const item1 = candidates.find(c => c.path === 'education.0.relevantCourses.1');
+    expect(item1?.stored).toBe('Machine Learning');
+  });
+
+  it('setTextAtPath updates targeted education relevantCourses bullet at specific index', () => {
+    const data: ResumeData = {
+      ...fixture(),
+      education: [
+        {
+          id: 'ed1',
+          school: 'Harvard University',
+          degree: 'B.S. Computer Science',
+          year: '2024',
+          relevantCourses: ['Distributed Systems', 'Machine Learning'],
+        },
+      ],
+    };
+
+    const updated = setTextAtPath(data, 'education.0.relevantCourses.1', (old) => old + ' & AI');
+    expect(Array.isArray(updated.education[0].relevantCourses)).toBe(true);
+    const courses = updated.education[0].relevantCourses as string[];
+    expect(courses[0]).toBe('Distributed Systems');
+    expect(courses[1]).toBe('Machine Learning & AI');
+  });
 });
 

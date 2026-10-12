@@ -1,14 +1,13 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
-import { normalizePlanId } from './_lib/subscriptionActivation';
+import { normalizePlanId } from './_lib/creemSubscriptionActivation';
 import {
-  getDodoApiBaseUrl,
-  getDodoConfig,
+  getCreemApiBaseUrl,
+  getCreemConfig,
   getProductIdForPlan,
-  isDodoCheckoutConfigured,
-} from './_lib/dodoConfig';
+  isCreemCheckoutConfigured,
+} from './_lib/creemConfig';
 import { resolveReturnOrigin } from './_lib/resolveReturnOrigin';
-import { formatDodoCheckoutError } from './_lib/dodoCheckoutErrors';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -18,13 +17,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
-  const config = getDodoConfig();
-
-  if (!isDodoCheckoutConfigured(config)) {
-    return res.status(500).json({ error: 'Payment provider is not configured.' });
-  }
-
-  const supabaseAdmin = createClient(config.supabaseUrl, config.serviceRoleKey);
+  const config = getCreemConfig();
 
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
@@ -32,6 +25,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const accessToken = authHeader.slice(7);
+  const supabaseAdmin = createClient(config.supabaseUrl, config.serviceRoleKey);
   const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(accessToken);
   if (authError || !authData.user) {
     return res.status(401).json({ error: 'Invalid or expired session.' });
@@ -43,11 +37,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Invalid plan selected.' });
   }
 
-  const productId = getProductIdForPlan(planId, config);
-  if (!productId) {
-    return res.status(400).json({ error: 'Plan is not configured for checkout.' });
+  // Prevent Lifetime members from accidentally purchasing recurring Build plans
+  const { data: userSub } = await supabaseAdmin
+    .from('subscriptions')
+    .select('plan_id, is_active')
+    .eq('user_id', authData.user.id)
+    .single();
+
+  if (userSub?.is_active && userSub.plan_id === 'lifetime' && planId !== 'lifetime') {
+    return res.status(400).json({
+      error: 'You already have active Lifetime access. A Build subscription is not needed.',
+    });
   }
 
+  if (!isCreemCheckoutConfigured(config, planId)) {
+    return res.status(500).json({ error: `Payment provider is not configured for plan "${planId}".` });
+  }
+
+  const productId = getProductIdForPlan(planId, config);
   const user = authData.user;
   const userName =
     (user.user_metadata?.full_name as string | undefined) ||
@@ -58,49 +65,56 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const host = req.headers['x-forwarded-host'] || req.headers.host;
   const proto = req.headers['x-forwarded-proto'] || 'https';
   const requestOrigin = host ? `${proto}://${host}` : config.appUrl.replace(/\/$/, '');
-  const origin = resolveReturnOrigin(returnOrigin || requestOrigin, config.appUrl);
+  const origin = resolveReturnOrigin(returnOrigin, requestOrigin);
   const returnUrl = `${origin}/dashboard?payment=success&plan=${planId}`;
 
   try {
-    const apiBase = getDodoApiBaseUrl(config.environment);
-    console.log('Creating Dodo checkout', { environment: config.environment, apiBase, planId });
-
+    const apiBase = getCreemApiBaseUrl(config.environment);
     const response = await fetch(`${apiBase}/checkouts`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${config.apiKey}`,
+        'x-api-key': config.apiKey,
       },
       body: JSON.stringify({
-        product_cart: [{ product_id: productId, quantity: 1 }],
-        customer: { email: user.email, name: userName },
-        return_url: returnUrl,
-        metadata: { user_id: user.id, plan_id: planId, email: user.email },
+        product_id: productId,
+        customer: {
+          email: user.email,
+          name: userName,
+        },
+        success_url: returnUrl,
+        metadata: {
+          userId: user.id,
+          planId: planId,
+          email: user.email,
+        },
       }),
     });
 
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      console.error('Dodo checkout session error:', { status: response.status, data, planId, environment: config.environment });
+      console.error('Creem checkout error:', data);
       return res.status(response.status).json({
-        error: formatDodoCheckoutError(data, config.environment),
+        error: data.message || data.error || 'Failed to create checkout session.',
         details: data,
-        environment: config.environment,
       });
     }
 
-    if (!data.checkout_url) {
-      return res.status(500).json({ error: 'Checkout URL was not returned by payment provider.' });
+    const checkoutUrl = data.checkout_url || data.checkoutUrl;
+    if (!checkoutUrl) {
+      return res.status(502).json({ error: 'Checkout URL was not returned by Creem.' });
     }
 
     return res.status(200).json({
-      checkoutUrl: data.checkout_url,
-      sessionId: data.session_id,
+      checkoutUrl,
+      sessionId: data.id,
       environment: config.environment,
     });
   } catch (error) {
-    console.error('Checkout session creation failed:', error);
-    return res.status(500).json({ error: 'Failed to create checkout session.' });
+    console.error('Unexpected error creating Creem checkout session:', error);
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : 'Internal Server Error',
+    });
   }
 }

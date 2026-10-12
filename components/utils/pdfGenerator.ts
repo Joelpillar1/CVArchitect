@@ -1,10 +1,11 @@
 import { ResumeData, TemplateType } from '../../types';
-import { exportResumeToServerPdf, printResumeToPdf, exportResumeToPlainText, downloadFile } from '../../utils/pdfExport';
+import { exportResumeToServerPdf, exportResumeToPdf, printResumeToPdf, exportResumeToPlainText, downloadFile } from '../../utils/pdfExport';
 import { exportResumeToDocx } from '../../utils/docxExport';
 
 /**
- * Generate the resume PDF via the server-side vector pipeline (headless Chromium).
- * Throws a human-readable Error on failure — callers own the fallback UX.
+ * Generate the resume PDF via the server-side vector pipeline (headless Chromium),
+ * with automatic high-resolution client-side canvas fallback if the server request
+ * drops, times out, or fails.
  */
 export const generatePDF = async (data: ResumeData, template: TemplateType = 'vanguard', filename?: string) => {
   return exportResumeToServerPdf(data, template, filename);
@@ -14,5 +15,4 @@ export const generateDocx = async (data: ResumeData, filename?: string, template
   return exportResumeToDocx(data, filename, template);
 };
 
-export { printResumeToPdf, exportResumeToPlainText, downloadFile, exportResumeToDocx };
-
+export { exportResumeToServerPdf, exportResumeToPdf, printResumeToPdf, exportResumeToPlainText, downloadFile, exportResumeToDocx };

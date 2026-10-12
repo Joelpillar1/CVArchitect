@@ -5,6 +5,7 @@ import { UserSubscription } from '../types/pricing';
 import { getPlanDisplayName } from '../utils/pricingConfig';
 import ResumePreview from './ResumePreview';
 import { getTemplateMetadata } from '../utils/templateConfig';
+import { TemplateCardSkeleton, TemplateCardPreviewCanvas } from './ui/TemplateSkeleton';
 
 interface OverviewProps {
   onCreateNew: () => void;
@@ -14,9 +15,10 @@ interface OverviewProps {
   onDuplicateTemplate?: (template: SavedTemplate) => void;
   userName?: string;
   userSubscription?: UserSubscription;
+  isLoading?: boolean;
 }
 
-export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, onDeleteTemplate, onDuplicateTemplate, userName, userSubscription }: OverviewProps) {
+export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, onDeleteTemplate, onDuplicateTemplate, userName, userSubscription, isLoading = false }: OverviewProps) {
   const [confirmDeleteId, setConfirmDeleteId] = React.useState<string | null>(null);
   const recentTemplates = savedTemplates.slice(0, 5);
   const templateToDelete = savedTemplates.find(t => t.id === confirmDeleteId);
@@ -47,7 +49,11 @@ export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, 
               {getGreeting()}, {userName || 'there'}.
             </h2>
             <p className="text-gray-500 text-lg font-light">
-              You have {savedTemplates.length} active resumes ready for deployment.
+              {isLoading ? (
+                <span className="inline-block h-5 w-48 rounded skeleton-shimmer align-middle" />
+              ) : (
+                `You have ${savedTemplates.length} active resume${savedTemplates.length === 1 ? '' : 's'} ready for deployment.`
+              )}
             </p>
           </div>
           <button
@@ -63,7 +69,7 @@ export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, 
           <StatCard
             icon={<FileText className="text-brand-dark" />}
             label="Active Resumes"
-            value={savedTemplates.length.toString()}
+            value={isLoading ? '...' : savedTemplates.length.toString()}
           />
           <StatCard
             icon={<Crown className="text-purple-600" />}
@@ -113,8 +119,17 @@ export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, 
             </div>
           </div>
 
+          {/* Skeleton Cards during initial loading */}
+          {isLoading && (
+            <>
+              <TemplateCardSkeleton />
+              <TemplateCardSkeleton />
+              <TemplateCardSkeleton />
+            </>
+          )}
+
           {/* Recent Templates Cards */}
-          {recentTemplates.map((template) => {
+          {!isLoading && recentTemplates.map((template) => {
             const metadata = getTemplateMetadata(template.baseTemplate);
             return (
               <div
@@ -152,25 +167,21 @@ export default function Overview({ onCreateNew, savedTemplates, onLoadTemplate, 
                   </div>
                 </div>
 
-                {/* Inner White Preview Canvas */}
-                <div className="relative w-full aspect-[4/3] bg-white rounded-xl border border-gray-200/70 overflow-hidden shadow-2xs flex items-center justify-center">
-                  {/* Scaled Resume Preview */}
-                  <div className="absolute inset-0 flex items-start justify-center pt-2 overflow-hidden pointer-events-none select-none">
-                    <div className="w-[210mm] origin-top transform scale-[0.27] sm:scale-[0.29] pointer-events-none select-none shadow-xs rounded-xs bg-white">
-                      <ResumePreview data={template.data} template={template.baseTemplate} />
+                {/* Inner White Preview Canvas with Skeleton fallback */}
+                <TemplateCardPreviewCanvas
+                  overlay={
+                    <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-brand-dark/25 backdrop-blur-[2px] p-3">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onLoadTemplate(template); }}
+                        className="bg-brand-green hover:bg-brand-greenHover text-brand-dark px-4 py-2 rounded-xl font-bold shadow-lg transition-all flex items-center justify-center gap-1.5 text-xs"
+                      >
+                        <Edit size={13} /> Resume Editing
+                      </button>
                     </div>
-                  </div>
-
-                  {/* Hover Overlay */}
-                  <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-brand-dark/25 backdrop-blur-[2px] p-3">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); onLoadTemplate(template); }}
-                      className="bg-brand-green hover:bg-brand-greenHover text-brand-dark px-4 py-2 rounded-xl font-bold shadow-lg transition-all flex items-center justify-center gap-1.5 text-xs"
-                    >
-                      <Edit size={13} /> Resume Editing
-                    </button>
-                  </div>
-                </div>
+                  }
+                >
+                  <ResumePreview data={template.data} template={template.baseTemplate} />
+                </TemplateCardPreviewCanvas>
 
                 {/* Bottom Subtitle Line */}
                 <div className="mt-2 px-1 flex items-center justify-between text-xs text-gray-500">

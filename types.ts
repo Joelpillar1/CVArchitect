@@ -10,6 +10,7 @@ export interface Experience {
   startDate: string;
   endDate: string;
   description: string | string[]; // Can be string (legacy) or array of bullet points
+  projects?: Project[]; // Optional "Key Projects" nested under this experience entry
 }
 
 export interface Education {
@@ -17,8 +18,9 @@ export interface Education {
   school: string;
   degree: string;
   year: string;
+  location?: string; // City, State shown right-aligned on the school line
   gpa?: string;
-  relevantCourses?: string;
+  relevantCourses?: string | string[];
 }
 
 export interface Certification {
@@ -36,6 +38,7 @@ export interface Project {
   description: string;
   link?: string;
   technologies?: string;
+  date?: string; // Display date shown right-aligned on the project line (e.g. "July 2023")
 }
 
 export interface AdditionalInfoItem {
@@ -71,6 +74,8 @@ export interface ResumeData {
   email?: string;
   phone?: string;
   linkedin?: string;
+  github?: string;
+  portfolio?: string;
   atHandle?: string;
   address?: string;
   location?: string;
@@ -191,6 +196,8 @@ export type TemplateType =
   | 'minimalist'
   | 'professional'
   | 'times'
+  | 'jake'
+  | 'gaurav'
   | 'regent'
   | 'twocolumn'
   | 'freshgrad1'
@@ -212,6 +219,8 @@ export const INITIAL_DATA: ResumeData = {
   phone: "+1 (555) 123-4567",
   atHandle: "",
   linkedin: "linkedin.com/in/yourprofile",
+  github: "",
+  portfolio: "",
   location: "City, Country",
   address: "",
   summary: "A brief professional summary highlighting your key strengths, experience, and career objectives. This should be 2-3 sentences that capture your professional identity and value proposition.",
@@ -331,6 +340,8 @@ export const createEmptyResume = (): ResumeData => ({
   phone: '',
   atHandle: '',
   linkedin: '',
+  github: '',
+  portfolio: '',
   location: '',
   address: '',
   summary: '',

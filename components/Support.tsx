@@ -471,7 +471,7 @@ export default function Support() {
                                         setActiveCategory(id);
                                         setOpenFAQ(null);
                                     }}
-                                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all border ${activeCategory === id
+                                    className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all border ${activeCategory === id
                                             ? 'bg-brand-green text-brand-dark border-brand-green shadow-sm'
                                             : 'bg-white text-gray-600 border-gray-200 hover:border-brand-green hover:text-brand-dark'
                                         }`}
@@ -503,7 +503,7 @@ export default function Support() {
                             </p>
                             <Link
                                 to="/contact"
-                                className="inline-flex items-center gap-2 bg-brand-green text-brand-dark px-6 py-3 rounded-full font-bold hover:opacity-90 transition-all"
+                                className="inline-flex items-center gap-2 bg-brand-green text-brand-dark px-6 py-3 rounded-lg font-bold hover:opacity-90 transition-all"
                             >
                                 <Mail size={16} />
                                 Contact Support
@@ -538,14 +538,14 @@ export default function Support() {
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <Link
                                 to="/contact"
-                                className="inline-flex items-center justify-center gap-2 bg-brand-green text-brand-dark px-8 py-3.5 rounded-full font-bold hover:opacity-90 transition-all shadow-lg"
+                                className="inline-flex items-center justify-center gap-2 bg-brand-green text-brand-dark px-8 py-3.5 rounded-lg font-bold hover:opacity-90 transition-all shadow-lg"
                             >
                                 <Mail size={18} />
                                 Contact Support
                             </Link>
                             <a
                                 href="mailto:support@cvarchitect.app"
-                                className="inline-flex items-center justify-center gap-2 bg-white/10 text-white px-8 py-3.5 rounded-full font-bold hover:bg-white/20 transition-all border border-white/20"
+                                className="inline-flex items-center justify-center gap-2 bg-white/10 text-white px-8 py-3.5 rounded-lg font-bold hover:bg-white/20 transition-all border border-white/20"
                             >
                                 <ExternalLink size={18} />
                                 support@cvarchitect.app

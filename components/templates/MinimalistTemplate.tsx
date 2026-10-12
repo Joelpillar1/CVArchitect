@@ -1,7 +1,7 @@
 import React from 'react';
 import RichText from '../RichText';
 import { ResumeData, Experience, Education, Project, Certification, LanguageItem, AdditionalInfoItem, CourseworkItem } from '../../types';
-import { MapPin, Phone, Mail, Linkedin, Send } from 'lucide-react';
+import { MapPin, Phone, Mail, Linkedin, Send, Github, Globe } from 'lucide-react';
 import {
   parseDescriptionBullets,
   parseAchievementBullets,
@@ -9,18 +9,19 @@ import {
   getSectionGapIn,
   getHeaderGapIn,
   getHeaderItemGapIn,
-  getHeaderContactGapIn,
   getItemGapIn,
   getMarginHorizontalIn,
   getMarginVerticalIn,
   formatContactText, formatLocationDisplay,
   formatLinkedInDisplay,
   getLinkedInHref,
+  formatGitHubDisplay,
+  getGitHubHref,
+  formatPortfolioDisplay,
+  getPortfolioHref,
   formatNameDisplay,
   CONTACT_SEPARATOR,
-  formatJobTitleDisplay,
   formatSectionTitle,
-  isTitleFirst,
   splitSkillsList,
   renderCourseworkBlockHelper,
   renderExpertSkillsBlockHelper,
@@ -40,25 +41,16 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
   const sectionGap = `${getSectionGapIn(data)}in`;
   const headerGap = `${getHeaderGapIn(data)}in`;
   const headerItemGap = `${getHeaderItemGapIn(data)}in`;
-  const headerContactGap = `${getHeaderContactGapIn(data)}in`;
 
   const bodyStyle = {
     fontSize: `${fontSizes?.body || 9}pt`,
     lineHeight: data.lineHeight || 1.5,
   };
 
-  const sectionHeaderAlignment = data.bodyHeaderAlignment || data.sectionHeaderAlignment || 'left';
-  const bodyAlignmentClass =
-    sectionHeaderAlignment === 'center'
-      ? 'text-center'
-      : sectionHeaderAlignment === 'right'
-      ? 'text-right'
-      : 'text-left';
-
   const renderSectionHeader = (title: string) => (
-    <div className={`w-full bg-[#F4F7FA] ${bodyAlignmentClass} py-1 mb-2 px-3 rounded-sm break-inside-avoid box-border`}>
+    <div className="w-full bg-[#F4F7FA] text-center py-1 mb-2 px-3 rounded-sm break-inside-avoid box-border">
       <h2
-        className="section-header tracking-[0.15em] font-normal leading-tight"
+        className="section-header tracking-[0.15em] font-normal leading-tight text-center"
         style={{
           color: accentColor,
           fontSize: `${fontSizes?.sectionTitle || 11}pt`,
@@ -496,29 +488,6 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
           <RichText text={formatNameDisplay(data.fullName, data.headerCase)} />
         </h1>
 
-        {/* Job Title (if Title First) */}
-        {isTitleFirst(data, false) && data.jobTitle && (
-          <p
-            data-path="jobTitle"
-            className={`tracking-wider text-gray-600 ${
-              data.jobTitleAlignment === 'left' ? 'text-left' :
-              data.jobTitleAlignment === 'right' ? 'text-right' :
-              data.jobTitleAlignment === 'center' ? 'text-center' :
-              data.headerAlignment === 'left' ? 'text-left' :
-              data.headerAlignment === 'right' ? 'text-right' :
-              'text-center'
-            }`}
-            style={{
-              fontSize: `${fontSizes?.jobTitle || 11}pt`,
-              color: accentColor,
-              marginBottom: headerContactGap,
-              lineHeight: 1.25,
-            }}
-          >
-            <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />
-          </p>
-        )}
-
         {/* Contact Information */}
         {(() => {
           const showIcons = data.showContactIcons ?? true;
@@ -578,6 +547,40 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
             );
           }
 
+          if (data.github) {
+            contactItems.push(
+              <span key="gh" className="inline-flex items-center gap-1">
+                {showIcons && <Github size={12} className="shrink-0" color={accentColor} />}
+                <a
+                  data-path="github"
+                  href={getGitHubHref(data.github)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: 'underline', color: 'inherit' }}
+                >
+                  <RichText text={formatGitHubDisplay(data.github)} />
+                </a>
+              </span>
+            );
+          }
+
+          if (data.portfolio) {
+            contactItems.push(
+              <span key="port" className="inline-flex items-center gap-1">
+                {showIcons && <Globe size={12} className="shrink-0" color={accentColor} />}
+                <a
+                  data-path="portfolio"
+                  href={getPortfolioHref(data.portfolio)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ textDecoration: 'underline', color: 'inherit' }}
+                >
+                  <RichText text={formatPortfolioDisplay(data.portfolio)} />
+                </a>
+              </span>
+            );
+          }
+
           if (data.atHandle) {
             contactItems.push(
               <span key="at" className="inline-flex items-center gap-1">
@@ -601,10 +604,7 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
                 data.headerAlignment === 'right' ? 'justify-end text-right' :
                 'justify-center text-center'
               }`}
-              style={{
-                ...bodyStyle,
-                marginBottom: !isTitleFirst(data, false) && data.jobTitle ? headerContactGap : undefined,
-              }}
+              style={bodyStyle}
             >
               {contactItems.map((item, idx) => (
                 <React.Fragment key={idx}>
@@ -617,28 +617,6 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
             </div>
           );
         })()}
-
-        {/* Job Title (if Contact First) */}
-        {!isTitleFirst(data, false) && data.jobTitle && (
-          <p
-            data-path="jobTitle"
-            className={`tracking-wider text-gray-600 ${
-              data.jobTitleAlignment === 'left' ? 'text-left' :
-              data.jobTitleAlignment === 'right' ? 'text-right' :
-              data.jobTitleAlignment === 'center' ? 'text-center' :
-              data.headerAlignment === 'left' ? 'text-left' :
-              data.headerAlignment === 'right' ? 'text-right' :
-              'text-center'
-            }`}
-            style={{
-              fontSize: `${fontSizes?.jobTitle || 11}pt`,
-              color: accentColor,
-              lineHeight: 1.25,
-            }}
-          >
-            <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />
-          </p>
-        )}
       </header>
 
       {/* Dynamic Sections */}

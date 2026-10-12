@@ -1,12 +1,12 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { Check, Star, X, Zap, Lock } from 'lucide-react';
+import { Check, Star, X, Zap, Lock, FileText, Download } from 'lucide-react';
 
 interface PaywallModalProps {
     isOpen: boolean;
     onClose: () => void;
     onUpgrade: () => void;
-    feature: 'templates' | 'job-match' | 'general' | 'credits' | 'export';
+    feature: 'templates' | 'job-match' | 'general' | 'credits' | 'export' | 'docx' | 'pdf_limit' | 'resumes_limit' | 'upload_limit' | 'cover_letter';
     currentPlan?: string;
 }
 
@@ -30,10 +30,38 @@ export default function PaywallModal({ isOpen, onClose, onUpgrade, feature, curr
             case 'credits':
                 return {
                     title: "Out of Credits",
-                    description: currentPlan === 'lifetime'
-                        ? "Purchase a credit pack to continue using AI features."
-                        : "Upgrade to a paid plan for unlimited AI rewrites or buy a credit pack.",
+                    description: "You've used all 10 free AI rewrites. Upgrade to Build or Lifetime for unlimited AI rewrites.",
                     icon: <Lock className="text-brand-dark" size={32} />,
+                };
+            case 'docx':
+                return {
+                    title: "Unlock Word (.DOCX) Export",
+                    description: "Download fully editable, recruiter-ready Microsoft Word documents. Included in Build and Lifetime plans.",
+                    icon: <FileText className="text-brand-dark" size={32} />,
+                };
+            case 'pdf_limit':
+                return {
+                    title: "PDF Export Limit Reached",
+                    description: "You've used all 3 free PDF downloads. Upgrade to Build for unlimited high-resolution PDF exports.",
+                    icon: <Download className="text-brand-dark" size={32} />,
+                };
+            case 'resumes_limit':
+                return {
+                    title: "Multiple Saved Resumes",
+                    description: "Free plan includes 1 active resume. Upgrade to Build to create and save multiple targeted resume versions.",
+                    icon: <Star className="text-brand-dark fill-brand-dark" size={32} />,
+                };
+            case 'upload_limit':
+                return {
+                    title: "Resume Upload Limit Reached",
+                    description: "Free plan includes 1 resume import. Upgrade to Build for unlimited resume uploads.",
+                    icon: <Lock className="text-brand-dark" size={32} />,
+                };
+            case 'cover_letter':
+                return {
+                    title: "Unlock Cover Letter Builder",
+                    description: "Generate tailored, recruiter-ready cover letters for each job application with AI.",
+                    icon: <FileText className="text-brand-dark" size={32} />,
                 };
             case 'export':
                 return {
@@ -104,7 +132,7 @@ export default function PaywallModal({ isOpen, onClose, onUpgrade, feature, curr
                         <div className="space-y-3">
                             <button
                                 onClick={onUpgrade}
-                                className="w-full py-4 bg-gradient-to-r from-brand-green to-emerald-500 hover:from-emerald-400 hover:to-emerald-600 text-brand-dark font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group"
+                                className="w-full py-4 bg-gradient-to-r from-brand-green to-emerald-500 hover:from-emerald-400 hover:to-emerald-600 text-brand-dark font-bold rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group cursor-pointer"
                             >
                                 <Zap size={20} className="group-hover:fill-current" />
                                 {feature === 'credits' && currentPlan === 'lifetime' ? 'Buy Credits' : 'View Pricing'}
@@ -113,7 +141,7 @@ export default function PaywallModal({ isOpen, onClose, onUpgrade, feature, curr
                             {/* Explicit cancel/close button for clarity, especially on mobile */}
                             <button
                                 onClick={onClose}
-                                className="w-full py-3 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors"
+                                className="w-full py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
                             >
                                 No thanks, continue with plan
                             </button>

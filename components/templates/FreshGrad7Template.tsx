@@ -1,7 +1,7 @@
 import React from 'react';
 import { ResumeData } from '../../types';
-import { MapPin, Phone, Mail, Linkedin, Send } from 'lucide-react';
-import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getItemGapIn, getMarginHorizontalIn, getMarginVerticalIn, formatContactText, formatLocationDisplay, formatLinkedInDisplay, getLinkedInHref, formatNameDisplay, formatJobTitleDisplay, formatSectionTitle, splitSkillsList, CONTACT_SEPARATOR, renderExpertSkillsBlockHelper } from '../../utils/templateUtils';
+import { MapPin, Phone, Mail, Linkedin, Send, Github, Globe } from 'lucide-react';
+import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getItemGapIn, getMarginHorizontalIn, getMarginVerticalIn, formatContactText, formatLocationDisplay, formatLinkedInDisplay, getLinkedInHref, formatGitHubDisplay, getGitHubHref, formatPortfolioDisplay, getPortfolioHref, formatNameDisplay, formatJobTitleDisplay, formatSectionTitle, splitSkillsList, CONTACT_SEPARATOR, renderExpertSkillsBlockHelper } from '../../utils/templateUtils';
 import RichText from '../RichText';
 
 interface FreshGrad7TemplateProps {
@@ -114,6 +114,22 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
                             </a>
                         </span>
                     );
+                    if (data.github) items.push(
+                        <span key="gh" className="inline-flex items-center gap-1">
+                            {showIcons && <Github size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
+                            <a data-path="github" href={getGitHubHref(data.github)} target="_blank" rel="noopener noreferrer" className="text-inherit underline">
+                                <RichText text={formatGitHubDisplay(data.github)} />
+                            </a>
+                        </span>
+                    );
+                    if (data.portfolio) items.push(
+                        <span key="port" className="inline-flex items-center gap-1">
+                            {showIcons && <Globe size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
+                            <a data-path="portfolio" href={getPortfolioHref(data.portfolio)} target="_blank" rel="noopener noreferrer" className="text-inherit underline">
+                                <RichText text={formatPortfolioDisplay(data.portfolio)} />
+                            </a>
+                        </span>
+                    );
                     if (data.atHandle) items.push(
                         <span key="at" className="inline-flex items-center gap-1">
                             {showIcons && <Send size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
@@ -180,11 +196,11 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
                     <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         {renderSectionHeader('Education')}
                         <div className="flex flex-col" style={{ gap: `${Math.max(0.14, getSectionGapIn(data))}in` }}>
-                            {data.education.map((edu) => (
+                            {data.education.map((edu, index) => (
                                 <div key={edu.id} className="break-inside-avoid" style={bodyStyle}>
                                     <div className="flex justify-between items-baseline text-gray-900">
                                         <div className="font-semibold">
-                                            <RichText text={edu.degree || 'Degree'} /> {edu.relevantCourses && <RichText text={`| ${edu.relevantCourses}`} />}
+                                            <RichText text={edu.degree || 'Degree'} />
                                         </div>
                                         <div>
                                             {edu.gpa && <RichText text={`・ ${edu.gpa}`} />} {edu.year && <RichText text={`・ ${edu.year}`} />}
@@ -193,6 +209,28 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
                                     <div className="text-gray-800">
                                         <RichText text={edu.school ?? ''} />
                                     </div>
+                                    {(() => {
+                                        const courseItems = (Array.isArray(edu.relevantCourses)
+                                            ? edu.relevantCourses
+                                            : typeof edu.relevantCourses === 'string'
+                                                ? edu.relevantCourses.split('\n')
+                                                : []
+                                        )
+                                            .map(c => c.replace(/^[•\-\*]\s*/, '').replace(/^(?:Relevant\s+Coursework|Relevant\s+Courses?):\s*/i, '').trim())
+                                            .filter(Boolean);
+
+                                        if (courseItems.length === 0) return null;
+
+                                        return (
+                                            <ul className="list-disc list-outside ml-5 mt-0.5 text-gray-800">
+                                                {courseItems.map((item, i) => (
+                                                    <li key={i} data-path={`education.${index}.relevantCourses.${i}`} className="mb-0.5">
+                                                        <RichText text={item} />
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        );
+                                    })()}
                                 </div>
                             ))}
                         </div>
@@ -270,17 +308,6 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
                     </section>
                 )}
 
-                {/* EXPERT-LEVEL SKILLS */}
-                {data.expertSkills && (
-                    renderExpertSkillsBlockHelper({
-                        data,
-                        title: (data.sectionTitles && data.sectionTitles['expert_skills']) || 'Expert-Level Skills',
-                        items: data.expertSkills,
-                        basePath: 'expertSkills',
-                        renderSectionHeader,
-                        bodyStyle,
-                    })
-                )}
 
                 {/* SKILLS & INTERESTS */}
                 {((data.additionalInfo && data.additionalInfo.length > 0) || data.skills) && (

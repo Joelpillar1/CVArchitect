@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Lock, Eye, EyeOff, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import AuthHeroShowcase from './AuthHeroShowcase';
+import { Loader } from './ui/Loader';
 
 interface ResetPasswordProps {
     onSuccess: () => void;
@@ -123,9 +124,9 @@ export default function ResetPassword({ onSuccess }: ResetPasswordProps) {
                 {/* Center Form Container */}
                 <div className="w-full max-w-[390px] mx-auto my-auto py-8">
                     {checkingToken ? (
-                        <div className="text-center py-12">
-                            <div className="animate-spin rounded-full h-10 w-10 border-2 border-brand-green border-t-transparent mx-auto mb-4"></div>
-                            <p className="text-sm font-medium text-gray-500">Verifying secure reset link...</p>
+                        <div className="text-center py-12 flex flex-col items-center justify-center">
+                            <Loader size="md" />
+                            <p className="text-sm font-medium text-gray-500 mt-4">Verifying secure reset link...</p>
                         </div>
                     ) : !isValidToken ? (
                         <div className="text-left animate-fadeIn">
@@ -257,7 +258,7 @@ export default function ResetPassword({ onSuccess }: ResetPasswordProps) {
                                 >
                                     {loading ? (
                                         <>
-                                            <div className="w-4 h-4 border-2 border-brand-dark/30 border-t-brand-dark rounded-full animate-spin"></div>
+                                            <Loader size="xs" variant="default" />
                                             <span>Updating password...</span>
                                         </>
                                     ) : (

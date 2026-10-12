@@ -1,44 +1,12 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
-import { getDodoConfig, getProductIdForPlan, isDodoCheckoutConfigured } from '../_shared/dodoConfig.ts';
-import {
-  activateSubscription,
-  finalizeDowngrade,
-  linkDodoSubscription,
-  markCancelAtPeriodEnd,
-  normalizePlanId,
-  schedulePlanChange,
-} from '../_shared/subscriptionActivation.ts';
-import {
-  cancelDodoSubscriptionAtPeriodEnd,
-  changeDodoSubscriptionPlan,
-  createDodoCustomerPortalSession,
-  fetchDodoSubscription,
-} from '../_shared/dodoSubscriptionApi.ts';
-import { resolveReturnOrigin } from '../create-checkout-session/_shared/resolveReturnOrigin.ts';
+import { getCreemApiBaseUrl, getCreemConfig } from '../_shared/creemConfig.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
-
-const PLAN_TIER_ORDER: Record<string, number> = {
-  free: 0,
-  sprint: 1,
-  week_pass: 1,
-  build: 2,
-  pro_monthly: 2,
-  blueprint: 3,
-};
-
-function comparePlanChange(fromPlanId: string, toPlanId: string): 'upgrade' | 'downgrade' | 'same' {
-  const fromTier = PLAN_TIER_ORDER[fromPlanId] ?? 0;
-  const toTier = PLAN_TIER_ORDER[toPlanId] ?? 0;
-  if (toTier > fromTier) return 'upgrade';
-  if (toTier < fromTier) return 'downgrade';
-  return 'same';
-}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -52,8 +20,8 @@ serve(async (req) => {
     });
   }
 
-  const config = getDodoConfig();
-  if (!isDodoCheckoutConfigured(config)) {
+  const config = getCreemConfig();
+  if (!config.apiKey) {
     return new Response(JSON.stringify({ error: 'Payment provider is not configured.' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -82,7 +50,7 @@ serve(async (req) => {
   const user = authData.user;
   const body = await req.json().catch(() => ({}));
   const action = body.action as string;
-  const returnOrigin = resolveReturnOrigin(body.returnOrigin, config.appUrl);
+  const apiBase = getCreemApiBaseUrl(config.environment);
 
   const { data: subscription, error: subError } = await supabaseAdmin
     .from('subscriptions')
@@ -98,35 +66,21 @@ serve(async (req) => {
   }
 
   if (action === 'link_subscription') {
-    const subscriptionId = body.subscriptionId as string | undefined;
-    if (!subscriptionId) {
-      return new Response(JSON.stringify({ error: 'subscriptionId is required.' }), {
+    const creemSubscriptionId = body.subscriptionId as string;
+    const creemCustomerId = body.customerId as string;
+
+    if (!creemSubscriptionId && !creemCustomerId) {
+      return new Response(JSON.stringify({ error: 'Missing subscription or customer ID' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const dodoSub = await fetchDodoSubscription(config, subscriptionId);
-    if (!dodoSub) {
-      return new Response(JSON.stringify({ error: 'Could not verify subscription with payment provider.' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+    const updates: Record<string, any> = { updated_at: new Date().toISOString() };
+    if (creemSubscriptionId) updates.creem_subscription_id = creemSubscriptionId;
+    if (creemCustomerId) updates.creem_customer_id = creemCustomerId;
 
-    const linkResult = await linkDodoSubscription(
-      supabaseAdmin,
-      user.id,
-      dodoSub.subscriptionId,
-      dodoSub.customerId
-    );
-
-    if (!linkResult.success) {
-      return new Response(JSON.stringify({ error: linkResult.error || 'Failed to link subscription.' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+    await supabaseAdmin.from('subscriptions').update(updates).eq('user_id', user.id);
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
@@ -135,170 +89,133 @@ serve(async (req) => {
   }
 
   if (action === 'portal') {
-    let customerId = subscription?.dodo_customer_id as string | undefined;
+    let customerId =
+      subscription?.creem_customer_id ||
+      subscription?.dodo_customer_id;
 
-    if (!customerId && subscription?.dodo_subscription_id) {
-      const dodoSub = await fetchDodoSubscription(config, subscription.dodo_subscription_id);
-      customerId = dodoSub?.customerId;
-      if (customerId) {
-        await linkDodoSubscription(supabaseAdmin, user.id, subscription.dodo_subscription_id, customerId);
+    // If customer ID is not saved in DB, query Creem by user email
+    if (!customerId && user.email) {
+      try {
+        const custRes = await fetch(`${apiBase}/customers?email=${encodeURIComponent(user.email)}`, {
+          headers: { 'x-api-key': config.apiKey },
+        });
+        if (custRes.ok) {
+          const custData = await custRes.json();
+          const items = custData?.items || custData?.result?.items || (Array.isArray(custData) ? custData : [custData]);
+          const found = items?.[0];
+          if (found?.id) {
+            customerId = found.id;
+            await supabaseAdmin
+              .from('subscriptions')
+              .update({ creem_customer_id: customerId, updated_at: new Date().toISOString() })
+              .eq('user_id', user.id);
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to query Creem customer by email:', e);
       }
     }
 
     if (!customerId) {
-      return new Response(JSON.stringify({ error: 'No billing profile found. Complete a checkout first.' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: 'No active billing customer found. Please subscribe first.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    const portal = await createDodoCustomerPortalSession(
-      config,
-      customerId,
-      `${returnOrigin}/dashboard/settings?tab=subscription`
-    );
+    try {
+      const portalRes = await fetch(`${apiBase}/customers/billing`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': config.apiKey,
+        },
+        body: JSON.stringify({ customer_id: customerId }),
+      });
 
-    if (!portal.success || !portal.link) {
-      return new Response(JSON.stringify({ error: portal.error || 'Failed to open billing portal.' }), {
-        status: 500,
+      const portalData = await portalRes.json().catch(() => ({}));
+      const portalUrl =
+        portalData.customer_portal_link ||
+        portalData.customerPortalLink ||
+        portalData.url;
+
+      if (!portalRes.ok || !portalUrl) {
+        console.error('Failed to generate Creem customer billing link:', portalData);
+        return new Response(
+          JSON.stringify({ error: portalData.message || 'Failed to generate billing portal link.' }),
+          { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      return new Response(JSON.stringify({ success: true, portalUrl }), {
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
+    } catch (err) {
+      console.error('Error generating billing portal link:', err);
+      return new Response(
+        JSON.stringify({ error: err instanceof Error ? err.message : 'Portal request failed' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
-
-    return new Response(JSON.stringify({ success: true, portalUrl: portal.link }), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
   }
 
   if (action === 'cancel') {
-    const dodoSubscriptionId = subscription?.dodo_subscription_id as string | undefined;
-    if (!dodoSubscriptionId) {
-      return new Response(JSON.stringify({ error: 'No active billing subscription found to cancel.' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+    const creemSubId =
+      subscription?.creem_subscription_id ||
+      subscription?.dodo_subscription_id;
 
-    const cancelResult = await cancelDodoSubscriptionAtPeriodEnd(config, dodoSubscriptionId);
-    if (!cancelResult.success) {
-      return new Response(JSON.stringify({ error: cancelResult.error || 'Failed to cancel subscription.' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const markResult = await markCancelAtPeriodEnd(supabaseAdmin, user.id);
-    if (!markResult.success) {
-      return new Response(JSON.stringify({ error: markResult.error || 'Failed to update subscription status.' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    return new Response(
-      JSON.stringify({
-        success: true,
-        message: 'Subscription will cancel at the end of your billing period.',
-      }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
-  }
-
-  if (action === 'change_plan') {
-    const planId = normalizePlanId(body.planId || '');
-    if (!planId) {
-      return new Response(JSON.stringify({ error: 'Invalid plan selected.' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const currentPlanId = (subscription?.plan_id as string) || 'free';
-    if (currentPlanId === planId) {
-      return new Response(JSON.stringify({ error: 'You are already on this plan.' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const dodoSubscriptionId = subscription?.dodo_subscription_id as string | undefined;
-    if (!dodoSubscriptionId) {
+    if (!creemSubId) {
       return new Response(
-        JSON.stringify({
-          error: 'No linked subscription found. Use checkout to subscribe first.',
-          requiresCheckout: true,
-        }),
-        {
-          status: 409,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
+        JSON.stringify({ error: 'No active subscription found to cancel.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const productId = getProductIdForPlan(planId, config);
-    const direction = comparePlanChange(currentPlanId, planId);
-    const changeResult = await changeDodoSubscriptionPlan(config, dodoSubscriptionId, productId, {
-      direction,
-      userId: user.id,
-      planId,
-    });
-
-    if (!changeResult.success) {
-      return new Response(JSON.stringify({ error: changeResult.error || 'Failed to change plan.' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    try {
+      const cancelRes = await fetch(`${apiBase}/subscriptions/${creemSubId}/cancel`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': config.apiKey,
+        },
+        body: JSON.stringify({ mode: 'scheduled' }),
       });
-    }
 
-    if (changeResult.scheduled) {
-      await schedulePlanChange(supabaseAdmin, user.id, planId);
+      if (!cancelRes.ok) {
+        const cancelData = await cancelRes.json().catch(() => ({}));
+        console.error('Creem subscription cancel failed:', cancelData);
+        return new Response(
+          JSON.stringify({ error: cancelData.message || 'Failed to cancel subscription with Creem.' }),
+          { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      await supabaseAdmin
+        .from('subscriptions')
+        .update({
+          cancel_at_period_end: true,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('user_id', user.id);
+
       return new Response(
         JSON.stringify({
           success: true,
-          scheduled: true,
-          message: 'Plan change scheduled for your next billing date.',
-          planId,
+          message: 'Subscription will cancel at the end of your billing period.',
         }),
-        {
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    } catch (err) {
+      console.error('Error canceling subscription:', err);
+      return new Response(
+        JSON.stringify({ error: err instanceof Error ? err.message : 'Cancel request failed' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    const activateResult = await activateSubscription(supabaseAdmin, user.id, planId, {
-      dodoSubscriptionId,
-      dodoCustomerId: subscription?.dodo_customer_id as string | undefined,
-      cancelAtPeriodEnd: false,
-      scheduledPlanId: null,
-    });
-
-    if (!activateResult.success) {
-      return new Response(JSON.stringify({ error: activateResult.error || 'Plan changed in billing but app update failed.' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    return new Response(
-      JSON.stringify({
-        success: true,
-        scheduled: false,
-        message: 'Plan updated successfully.',
-        planId,
-      }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
   }
 
-  return new Response(JSON.stringify({ error: 'Unknown action.' }), {
+  return new Response(JSON.stringify({ error: `Unknown action: ${action}` }), {
     status: 400,
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });

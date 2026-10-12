@@ -35,6 +35,7 @@ import MyCoverLetters from './components/MyCoverLetters';
 import { coverLetterService, SavedCoverLetter } from './services/coverLetterService';
 import CoverLetterModal from './components/CoverLetterModal';
 import { normalizeResumeData } from './pages/ResumeAgentPage';
+import { LoadingScreen } from './components/ui/Loader';
 
 export enum View {
   LANDING = 'LANDING',
@@ -938,15 +939,11 @@ export default function App() {
             }}
             template={selectedTemplate}
             onTemplateChange={setSelectedTemplate}
+            hasUnsavedChanges={hasUnsavedChanges}
+            onDiscardChanges={() => setHasUnsavedChanges(false)}
             onBack={() => {
-              if (hasUnsavedChanges) {
-                if (window.confirm('You have unsaved changes. Are you sure you want to leave without saving?')) {
-                  setHasUnsavedChanges(false);
-                  setCurrentView(View.TEMPLATES);
-                }
-              } else {
-                setCurrentView(View.TEMPLATES);
-              }
+              setHasUnsavedChanges(false);
+              setCurrentView(View.TEMPLATES);
             }}
             onSave={handleSave}
             onSaveAsTemplate={handleSaveAs}
@@ -1056,14 +1053,7 @@ export default function App() {
 
   // Show loading screen while checking auth
   if (authLoading) {
-    return (
-      <div className="min-h-screen w-full bg-brand-bg flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-brand-green mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   // Standalone pages (no dashboard layout) - Legacy View Handling

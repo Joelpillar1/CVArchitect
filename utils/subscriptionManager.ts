@@ -56,83 +56,81 @@ export class SubscriptionManager {
 
         switch (feature) {
             case 'resume_upload':
-                // Unlimited plans
-                if (plan.features.resumeUploads === 'unlimited') {
-                    // Pro plans don't use credits, so they're always allowed
-                    if (!plan.creditRules.usesCredits) {
-                        return { allowed: true };
-                    }
-                    // If plan uses credits (shouldn't happen for unlimited, but handle it)
-                    if (plan.creditRules.usesCredits && plan.creditRules.creditCosts.resumeUpload > 0) {
-                        if (this.subscription.credits < plan.creditRules.creditCosts.resumeUpload) {
-                            return { allowed: false, reason: 'Insufficient credits for AI Resume Parsing.' };
-                        }
-                        return { allowed: true };
-                    }
+                if (this.isPro() || plan.features.resumeUploads === 'unlimited') {
                     return { allowed: true };
                 }
-
-                // For Free plan - check credits first (costs 1 credit)
-                if (plan.creditRules.usesCredits && plan.creditRules.creditCosts.resumeUpload > 0) {
-                    if (this.subscription.credits < plan.creditRules.creditCosts.resumeUpload) {
-                        return { 
-                            allowed: false, 
-                            reason: 'Insufficient credits. Resume upload costs 1 credit. Upgrade for unlimited uploads.' 
-                        };
-                    }
-                }
-
-                // Also check upload count limit (for free plan, this is 1)
                 const uploadCount = this.getUsageCount('resume_upload');
-                if (uploadCount >= plan.features.resumeUploads) {
-                    return { allowed: false, reason: 'Upload limit reached. Upgrade to continue.' };
+                if (uploadCount >= (plan.features.resumeUploads as number)) {
+                    return { 
+                        allowed: false, 
+                        reason: 'You have used your 1 free resume import. Upgrade to Build for unlimited resume imports.' 
+                    };
                 }
                 return { allowed: true };
 
             case 'resume_analysis':
-                if (plan.features.resumeAnalyses === 'unlimited') return { allowed: true };
+                if (this.isPro() || plan.features.resumeAnalyses === 'unlimited') return { allowed: true };
                 const analysisCount = this.getUsageCount('resume_analysis');
-                if (analysisCount >= plan.features.resumeAnalyses) {
+                if (analysisCount >= (plan.features.resumeAnalyses as number)) {
                     return { allowed: false, reason: 'Analysis limit reached. Upgrade for unlimited analyses.' };
                 }
                 return { allowed: true };
 
             case 'job_match':
-                if (plan.features.jobMatches === 'unlimited') return { allowed: true };
+                if (this.isPro() || plan.features.jobMatches === 'unlimited') return { allowed: true };
                 const matchCount = this.getUsageCount('job_match');
-                if (matchCount >= plan.features.jobMatches) {
-                    return { allowed: false, reason: 'Job match limit reached. Upgrade to a paid plan for unlimited matching.' };
+                if (matchCount >= (plan.features.jobMatches as number)) {
+                    return { 
+                        allowed: false, 
+                        reason: 'You have used your 1 free job tailoring pass. Upgrade to Build for unlimited job matching.' 
+                    };
                 }
                 return { allowed: true };
 
+            case 'cover_letter':
+                if (this.isPro()) return { allowed: true };
+                return { 
+                    allowed: false, 
+                    reason: 'Cover letter generation is a Pro feature. Upgrade to Build or Lifetime.' 
+                };
+
             case 'ai_rewrite':
             case 'cv_regeneration':
-            case 'cover_letter':
             case 'bullet_optimization':
             case 'keywordEnhancement':
-                // Pro users have unlimited access
                 if (this.isPro()) return { allowed: true };
 
-                // Check if plan uses credits
-                if (!plan.creditRules.usesCredits) {
-                    return { allowed: false, reason: 'Upgrade to unlock AI rewriting features.' };
-                }
-
-                // Check credit balance
+                // Check credit balance (free tier gets 10 credits)
                 if (this.subscription.credits <= 0) {
                     return {
                         allowed: false,
-                        reason: 'Out of credits. Upgrade to Sprint, Build, or Blueprint for unlimited access.'
+                        reason: 'You have used your 10 free AI rewrites. Upgrade to Build or Lifetime for unlimited AI rewrites.'
                     };
                 }
 
                 return { allowed: true };
 
             case 'pdf_export':
+                if (this.isPro()) return { allowed: true };
                 if (!plan.features.pdfExport) {
                     return { allowed: false, reason: 'Upgrade to export your resume as PDF.' };
                 }
+                const pdfLimit = typeof plan.features.pdfExports === 'number' ? plan.features.pdfExports : 3;
+                const pdfCount = this.getUsageCount('pdf_export');
+                if (pdfCount >= pdfLimit) {
+                    return {
+                        allowed: false,
+                        reason: `You have used all ${pdfLimit} free PDF downloads. Upgrade to Build for unlimited downloads.`
+                    };
+                }
                 return { allowed: true };
+
+            case 'docx_export':
+                if (this.isPro()) return { allowed: true };
+                return {
+                    allowed: false,
+                    reason: 'Word (.DOCX) export is a Pro feature. Upgrade to Build or Lifetime to download editable Word documents.'
+                };
 
             case 'template_access':
                 // This is checked separately via canAccessTemplate
@@ -248,7 +246,7 @@ export class SubscriptionManager {
     /**
      * Get usage count for a specific action
      */
-    private getUsageCount(action: string): number {
+    getUsageCount(action: string): number {
         return this.subscription.usageHistory.filter(record => record.action === action).length;
     }
 
@@ -271,7 +269,7 @@ export const createDefaultSubscription = (userId: string): UserSubscription => {
     return {
         userId,
         planId: 'free',
-        credits: 1,
+        credits: 10,
         isActive: true,
         usageHistory: [],
     };
