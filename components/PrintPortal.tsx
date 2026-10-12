@@ -37,7 +37,7 @@ interface PrintPortalProps {
 }
 
 export function renderResumeTemplate(template?: TemplateType, data?: ResumeData) {
-  const activeTemplate = template || data?.template || 'vanguard';
+  const activeTemplate = data?.template || template || 'vanguard';
   const renderData = data || ({} as ResumeData);
   switch (activeTemplate) {
     case 'vanguard': return <VanguardTemplate data={data} />;

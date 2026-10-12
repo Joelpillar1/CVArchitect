@@ -839,7 +839,7 @@ export default function ResumePreview({ data, template, onChangeData, editable =
 
   const renderTemplate = (renderData: ResumeData = dataToRender) => {
     try {
-      const activeTemplate = template || renderData?.template || data?.template || 'vanguard';
+      const activeTemplate = renderData?.template || data?.template || template || 'vanguard';
       switch (activeTemplate) {
         case 'vanguard': return <VanguardTemplate data={renderData} />;
         case 'elevate': return <ElevateResume data={renderData} />;

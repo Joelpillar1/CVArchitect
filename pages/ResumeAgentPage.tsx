@@ -329,7 +329,7 @@ const getInitialStoredData = (): {
 
     const resolvedData = foundData ? normalizeResumeData(foundData) : INITIAL_DATA;
     const resolvedTitle = foundTitle || (resolvedData.fullName ? `${resolvedData.fullName}'s Resume` : 'Untitled Resume');
-    const resolvedTemplate = foundTemplate || resolvedData.template || 'classic';
+    const resolvedTemplate = resolvedData.template || foundTemplate || 'classic';
     const resolvedResumeId = foundResumeId || null;
 
     let foundHistory: {
@@ -1153,7 +1153,7 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
         }
       }
       cachedTitle = localStorage.getItem(titleKey) || cachedTitle || localStorage.getItem('cv_architect_agent_resume_title') || 'Untitled Resume';
-      cachedTemplate = localStorage.getItem(templateKey) || cachedTemplate || (localStorage.getItem('cv_app_template') as TemplateType) || workingData.template || 'classic';
+      cachedTemplate = workingData.template || localStorage.getItem(templateKey) || (localStorage.getItem('cv_app_template') as TemplateType) || cachedTemplate || 'classic';
       cachedResumeId = localStorage.getItem(resumeIdKey) || cachedResumeId || localStorage.getItem('cv_app_resume_id') || null;
     } catch (e) {
       console.warn('LocalStorage load error:', e);
@@ -1161,7 +1161,7 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
 
     (async () => {
       let resolvedTitle = cachedTitle || 'Untitled Resume';
-      let resolvedTemplate: TemplateType = (cachedTemplate as TemplateType) || workingData.template || 'classic';
+      let resolvedTemplate: TemplateType = workingData.template || (cachedTemplate as TemplateType) || 'classic';
 
       if (isUploadHandoff) {
         const uploadCachedData =
@@ -1231,6 +1231,8 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
             const supabaseData = normalizeResumeData(targetContent);
             if (targetContent?.template) {
               resolvedTemplate = targetContent.template;
+            } else if (workingData.template) {
+              resolvedTemplate = workingData.template;
             }
 
             const lsIsPopulated = isResumePopulated(workingData);
@@ -2100,7 +2102,7 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
     setIsExporting(true);
     try {
       const activeData = resumeDataRef.current || resumeData;
-      const activeTemplate = templateRef.current || template || activeData.template || 'classic';
+      const activeTemplate = activeData.template || templateRef.current || template || 'classic';
       const activeTitle = (resumeTitleRef.current || resumeTitle || activeData.fullName || 'Resume').trim();
       const dataWithTemplate: ResumeData = {
         ...activeData,
@@ -2126,7 +2128,7 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
       console.warn('Server PDF export failed, attempting direct client-side fallback:', e);
       try {
         const activeData = resumeDataRef.current || resumeData;
-        const activeTemplate = templateRef.current || template || activeData.template || 'classic';
+        const activeTemplate = activeData.template || templateRef.current || template || 'classic';
         const activeTitle = (resumeTitleRef.current || resumeTitle || activeData.fullName || 'Resume').trim();
         const dataWithTemplate: ResumeData = {
           ...activeData,
@@ -2160,7 +2162,7 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
     try {
       const activeData = resumeDataRef.current || resumeData;
       const activeTitle = (resumeTitleRef.current || resumeTitle || activeData.fullName || 'Resume').trim();
-      const activeTemplate = templateRef.current || template || activeData.template || 'classic';
+      const activeTemplate = activeData.template || templateRef.current || template || 'classic';
       const dataWithTemplate: ResumeData = {
         ...activeData,
         template: activeTemplate,

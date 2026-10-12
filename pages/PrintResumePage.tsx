@@ -97,7 +97,7 @@ export default function PrintResumePage() {
         return;
       }
       const parsed = JSON.parse(raw) as { data: ResumeData; template: TemplateType };
-      const resolvedTemplate = parsed.template || parsed.data?.template || 'vanguard';
+      const resolvedTemplate = parsed.data?.template || parsed.template || 'vanguard';
       const dataWithTemplate = parsed.data ? { ...parsed.data, template: resolvedTemplate } : null;
       setState({ data: dataWithTemplate, template: resolvedTemplate, error: null });
     } catch (e) {

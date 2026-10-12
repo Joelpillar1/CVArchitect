@@ -372,7 +372,7 @@ export async function exportResumeToServerPdf(
   template?: TemplateType,
   customFilename?: string
 ): Promise<{ filename: string; verified: boolean; pages: number | null }> {
-  const resolvedTemplate: TemplateType = template || data.template || 'vanguard';
+  const resolvedTemplate: TemplateType = data.template || template || 'vanguard';
   const dataWithTemplate: ResumeData = { ...data, template: resolvedTemplate };
   const filename = buildResumeFilename(dataWithTemplate, customFilename);
   const pageSize = (dataWithTemplate.pageSize || 'letter').toLowerCase() === 'a4' ? 'A4' : 'Letter';
@@ -466,7 +466,7 @@ export async function exportResumeToPdf(
   template?: TemplateType,
   customFilename?: string
 ): Promise<void> {
-  const resolvedTemplate: TemplateType = template || data.template || 'vanguard';
+  const resolvedTemplate: TemplateType = data.template || template || 'vanguard';
   const dataWithTemplate: ResumeData = { ...data, template: resolvedTemplate };
   const finalFilename = buildResumeFilename(dataWithTemplate, customFilename);
   const pageSize = (dataWithTemplate.pageSize || 'letter').toLowerCase();

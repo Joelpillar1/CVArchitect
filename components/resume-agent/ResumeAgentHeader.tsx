@@ -120,8 +120,8 @@ export default function ResumeAgentHeader({
         )}
       </div>
 
-      {/* Center: Template Selector Dropdown Pill Only */}
-      <div className="hidden md:flex items-center">
+      {/* Center: Template Selector Dropdown Pill */}
+      <div className="flex items-center">
         <TemplateDropdown
           currentTemplate={template}
           onChangeTemplate={onChangeTemplate}

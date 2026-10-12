@@ -438,7 +438,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
 
     setIsDownloading(true);
     try {
-      const activeTemplate = template || data.template || 'vanguard';
+      const activeTemplate = data.template || template || 'vanguard';
       const dataWithTemplate: ResumeData = { ...data, template: activeTemplate };
       let result;
       try {
@@ -474,7 +474,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
     } catch (error) {
       console.warn('Server PDF export failed, attempting direct client-side fallback:', error);
       try {
-        const activeTemplate = template || data.template || 'vanguard';
+        const activeTemplate = data.template || template || 'vanguard';
         const dataWithTemplate: ResumeData = { ...data, template: activeTemplate };
         await exportResumeToPdf(dataWithTemplate, activeTemplate);
         showToast('Resume downloaded.', 'success');
