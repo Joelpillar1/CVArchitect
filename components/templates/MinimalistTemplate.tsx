@@ -48,12 +48,18 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
   };
 
   const renderSectionHeader = (title: string) => (
-    <div className="w-full bg-[#F4F7FA] text-center py-1 mb-2 px-3 rounded-sm break-inside-avoid box-border">
+    <div
+      className="section-header-wrap w-full bg-[#F4F7FA] text-center py-1 mb-2 px-3 rounded-sm break-inside-avoid box-border"
+      style={{ display: 'block', width: '100%', boxSizing: 'border-box' }}
+    >
       <h2
-        className="section-header tracking-[0.15em] font-normal leading-tight text-center"
+        className="section-header m-0 p-0 tracking-[0.15em] font-normal leading-tight text-center"
         style={{
           color: accentColor,
           fontSize: `${fontSizes?.sectionTitle || 11}pt`,
+          margin: 0,
+          padding: 0,
+          lineHeight: 1.25,
         }}
       >
         {formatSectionTitle(title, data.sectionHeaderCase)}
@@ -496,9 +502,9 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
 
           if (data.location || data.address) {
             contactItems.push(
-              <span key="loc" className="inline-flex items-center gap-1">
-                {showIcons && <MapPin size={12} className="shrink-0" color={accentColor} />}
-                <span data-path="location">
+              <span key="loc" className="inline-flex items-center gap-1 align-middle" style={{ verticalAlign: 'middle' }}>
+                {showIcons && <MapPin size={12} className="shrink-0" color={accentColor} style={{ display: 'inline-block', verticalAlign: 'middle' }} />}
+                <span data-path="location" style={{ verticalAlign: 'middle' }}>
                   <RichText text={formatLocationDisplay(data.location || data.address || '')} />
                 </span>
               </span>
@@ -507,9 +513,9 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
 
           if (data.phone) {
             contactItems.push(
-              <span key="ph" className="inline-flex items-center gap-1">
-                {showIcons && <Phone size={12} className="shrink-0" color={accentColor} />}
-                <span data-path="phone">
+              <span key="ph" className="inline-flex items-center gap-1 align-middle" style={{ verticalAlign: 'middle' }}>
+                {showIcons && <Phone size={12} className="shrink-0" color={accentColor} style={{ display: 'inline-block', verticalAlign: 'middle' }} />}
+                <span data-path="phone" style={{ verticalAlign: 'middle' }}>
                   <RichText text={formatContactText(data.phone)} />
                 </span>
               </span>
@@ -518,12 +524,12 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
 
           if (data.email) {
             contactItems.push(
-              <span key="em" className="inline-flex items-center gap-1">
-                {showIcons && <Mail size={12} className="shrink-0" color={accentColor} />}
+              <span key="em" className="inline-flex items-center gap-1 align-middle" style={{ verticalAlign: 'middle' }}>
+                {showIcons && <Mail size={12} className="shrink-0" color={accentColor} style={{ display: 'inline-block', verticalAlign: 'middle' }} />}
                 <a
                   data-path="email"
                   href={`mailto:${formatContactText(data.email)}`}
-                  style={{ textDecoration: 'none', color: 'inherit' }}
+                  style={{ textDecoration: 'none', color: 'inherit', verticalAlign: 'middle' }}
                 >
                   <RichText text={formatContactText(data.email)} />
                 </a>
@@ -533,14 +539,14 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
 
           if (data.linkedin) {
             contactItems.push(
-              <span key="li" className="inline-flex items-center gap-1">
-                {showIcons && <Linkedin size={12} className="shrink-0" color={accentColor} />}
+              <span key="li" className="inline-flex items-center gap-1 align-middle" style={{ verticalAlign: 'middle' }}>
+                {showIcons && <Linkedin size={12} className="shrink-0" color={accentColor} style={{ display: 'inline-block', verticalAlign: 'middle' }} />}
                 <a
                   data-path="linkedin"
                   href={getLinkedInHref(data.linkedin)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ textDecoration: 'none', color: 'inherit' }}
+                  style={{ textDecoration: 'none', color: 'inherit', verticalAlign: 'middle' }}
                 >
                   <RichText text={formatLinkedInDisplay(data.linkedin)} />
                 </a>
@@ -550,14 +556,14 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
 
           if (data.github) {
             contactItems.push(
-              <span key="gh" className="inline-flex items-center gap-1">
-                {showIcons && <Github size={12} className="shrink-0" color={accentColor} />}
+              <span key="gh" className="inline-flex items-center gap-1 align-middle" style={{ verticalAlign: 'middle' }}>
+                {showIcons && <Github size={12} className="shrink-0" color={accentColor} style={{ display: 'inline-block', verticalAlign: 'middle' }} />}
                 <a
                   data-path="github"
                   href={getGitHubHref(data.github)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ textDecoration: 'underline', color: 'inherit' }}
+                  style={{ textDecoration: 'underline', color: 'inherit', verticalAlign: 'middle' }}
                 >
                   <RichText text={formatGitHubDisplay(data.github)} />
                 </a>
@@ -567,14 +573,14 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
 
           if (data.portfolio) {
             contactItems.push(
-              <span key="port" className="inline-flex items-center gap-1">
-                {showIcons && <Globe size={12} className="shrink-0" color={accentColor} />}
+              <span key="port" className="inline-flex items-center gap-1 align-middle" style={{ verticalAlign: 'middle' }}>
+                {showIcons && <Globe size={12} className="shrink-0" color={accentColor} style={{ display: 'inline-block', verticalAlign: 'middle' }} />}
                 <a
                   data-path="portfolio"
                   href={getPortfolioHref(data.portfolio)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ textDecoration: 'underline', color: 'inherit' }}
+                  style={{ textDecoration: 'underline', color: 'inherit', verticalAlign: 'middle' }}
                 >
                   <RichText text={formatPortfolioDisplay(data.portfolio)} />
                 </a>
@@ -584,9 +590,9 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
 
           if (data.atHandle) {
             contactItems.push(
-              <span key="at" className="inline-flex items-center gap-1">
-                {showIcons && <Send size={12} className="shrink-0" color={accentColor} />}
-                <span data-path="atHandle">
+              <span key="at" className="inline-flex items-center gap-1 align-middle" style={{ verticalAlign: 'middle' }}>
+                {showIcons && <Send size={12} className="shrink-0" color={accentColor} style={{ display: 'inline-block', verticalAlign: 'middle' }} />}
+                <span data-path="atHandle" style={{ verticalAlign: 'middle' }}>
                   <RichText text={data.atHandle} />
                 </span>
               </span>

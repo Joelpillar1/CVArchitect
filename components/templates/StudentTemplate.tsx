@@ -79,10 +79,12 @@ const StudentTemplate: React.FC<StudentTemplateProps> = ({ data }) => {
   const renderSectionHeader = (title: string) => (
     <div className={`section-header-wrap break-inside-avoid w-full mb-2 mt-2 ${getSectionHeaderAlignment()}`}>
       <h2
-        className="section-header font-bold leading-normal"
+        className="section-header font-bold leading-normal m-0 p-0"
         style={{
           color: accentColor,
           fontSize: `${fontSizes?.sectionTitle || 11}pt`,
+          margin: 0,
+          padding: 0,
           marginBottom: '2px',
         }}
       >

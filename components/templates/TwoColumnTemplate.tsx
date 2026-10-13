@@ -58,10 +58,12 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
   const renderSectionHeader = (title: string) => (
     <div className={`section-header-wrap break-inside-avoid w-full mb-2 ${getSectionHeaderAlignment()}`}>
       <h2
-        className="section-header font-bold tracking-wider leading-normal"
+        className="section-header font-bold tracking-wider leading-normal m-0 p-0"
         style={{
           fontSize: `${fontSizes?.sectionTitle || 11}pt`,
           color: accentColor,
+          margin: 0,
+          padding: 0,
           marginBottom: '2px',
         }}
       >

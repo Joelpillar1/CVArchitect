@@ -63,8 +63,8 @@ export default function ClassicTemplate({ data, fontSizes }: ClassicTemplateProp
   const renderSectionHeader = (title: string) => (
     <div className={`section-header-wrap break-inside-avoid w-full mb-2 ${getSectionHeaderAlignment()}`}>
       <h2
-        className="section-header text-lg font-bold leading-normal"
-        style={sectionHeaderStyle}
+        className="section-header text-lg font-bold leading-normal m-0 p-0"
+        style={{ ...sectionHeaderStyle, margin: 0, padding: 0 }}
       >
         {formatSectionTitle(title, data.sectionHeaderCase)}
       </h2>

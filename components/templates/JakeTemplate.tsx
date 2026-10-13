@@ -73,7 +73,7 @@ export default function JakeTemplate({ data }: { data: ResumeData }) {
   const renderSectionHeader = (title: string) => (
     <div className="section-header-wrap break-inside-avoid w-full mb-1.5">
       <h2
-        className="section-header leading-normal"
+        className="section-header leading-normal m-0 p-0"
         style={{
           fontFamily: data.font || '"Times New Roman", Times, Georgia, serif',
           fontSize: `${fontSizes?.sectionTitle || 11}pt`,
@@ -83,6 +83,8 @@ export default function JakeTemplate({ data }: { data: ResumeData }) {
           // legacy all-caps default — an explicit user casing setting wins.
           fontVariant: 'small-caps',
           color: accentColor,
+          margin: 0,
+          padding: 0,
           marginBottom: '2px',
         }}
       >

@@ -61,11 +61,11 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
   };
 
   const renderSectionHeader = (title: string) => (
-    <div className={`flex items-center gap-2 mb-2 break-inside-avoid ${getSectionHeaderAlignment()}`}>
+    <div className={`section-header-wrap flex items-center gap-2 mb-2 break-inside-avoid ${getSectionHeaderAlignment()}`}>
       <span className="w-1 h-4 rounded shrink-0" style={{ backgroundColor: accentColor }}></span>
       <h2
-        className="section-header font-bold"
-        style={sectionHeaderStyle}
+        className="section-header font-bold m-0 p-0"
+        style={{ ...sectionHeaderStyle, margin: 0, padding: 0 }}
       >
         {formatSectionTitle(title, data.sectionHeaderCase)}
       </h2>

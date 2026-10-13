@@ -62,8 +62,8 @@ const FreshGradTemplate: React.FC<FreshGradTemplateProps> = ({ data }) => {
   const renderSectionHeader = (title: string) => (
     <div className={`section-header-wrap break-inside-avoid w-full mb-2 ${getSectionHeaderAlignment()}`}>
       <h2
-        className="section-header font-bold tracking-[0.16em] leading-normal"
-        style={{ color: accentColor, fontSize: `${fontSizes?.sectionTitle || 11}pt`, marginBottom: '2px' }}
+        className="section-header font-bold tracking-[0.16em] leading-normal m-0 p-0"
+        style={{ color: accentColor, fontSize: `${fontSizes?.sectionTitle || 11}pt`, margin: 0, padding: 0, marginBottom: '2px' }}
       >
         {formatSectionTitle(title, data.sectionHeaderCase)}
       </h2>

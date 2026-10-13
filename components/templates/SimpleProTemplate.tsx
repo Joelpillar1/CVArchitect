@@ -57,10 +57,12 @@ export default function SimpleProTemplate({ data }: { data: ResumeData }) {
   const renderSectionHeader = (title: string) => (
     <div className={`section-header-wrap break-inside-avoid w-full mb-3 ${getSectionHeaderAlignment()}`}>
       <h2
-        className="section-header font-bold leading-normal"
+        className="section-header font-bold leading-normal m-0 p-0"
         style={{
           fontSize: `${fontSizes?.sectionTitle || 11}pt`,
           color: data.accentColor || '#000000',
+          margin: 0,
+          padding: 0,
           marginBottom: '2px',
         }}
       >

@@ -236,7 +236,7 @@ export async function captureElement(
   // Remove page-number badges, floating icons, and print-hidden elements
   clone.querySelectorAll('.print\\:hidden, [class*="print:hidden"], .absolute.bottom-3').forEach((c) => c.remove());
 
-  // Resolve SVG colors cleanly so html2canvas renders exact colors
+  // Resolve SVG colors cleanly and lock inline geometry so html2canvas renders exact colors and positions
   clone.querySelectorAll<SVGSVGElement>('svg').forEach((svg) => {
     try {
       const comp = window.getComputedStyle(svg);
@@ -253,8 +253,36 @@ export async function captureElement(
       }
       svg.querySelectorAll('[stroke="currentColor"]').forEach((c) => c.setAttribute('stroke', resolvedColor));
       svg.querySelectorAll('[fill="currentColor"]').forEach((c) => c.setAttribute('fill', resolvedColor));
+
+      // Lock SVG icon layout to prevent mobile displacement
+      svg.style.display = 'inline-block';
+      svg.style.verticalAlign = 'middle';
+      svg.style.flexShrink = '0';
+      svg.style.margin = '0';
+      svg.style.position = 'static';
+      svg.style.transform = 'none';
+
+      const parent = svg.parentElement;
+      if (parent) {
+        parent.style.display = 'inline-flex';
+        parent.style.alignItems = 'center';
+        parent.style.verticalAlign = 'middle';
+        parent.style.lineHeight = '1';
+      }
     } catch {
       // Fallback: ignore SVG color resolution errors
+    }
+  });
+
+  // Lock section headers, wrappers and dividers so text never separates from backgrounds or borders
+  clone.querySelectorAll<HTMLElement>('.section-header, h2, h3, .section-header-wrap').forEach((el) => {
+    el.style.marginTop = '0px';
+    el.style.boxSizing = 'border-box';
+    if (el.tagName.toLowerCase() === 'h2' || el.tagName.toLowerCase() === 'h3' || el.classList.contains('section-header')) {
+      el.style.paddingTop = '0px';
+      el.style.paddingBottom = '0px';
+      el.style.margin = '0px';
+      el.style.lineHeight = '1.25';
     }
   });
 
@@ -279,6 +307,10 @@ export async function captureElement(
     }
   });
 
+  // Prevent mobile text autosizing / font boosting
+  clone.style.webkitTextSizeAdjust = '100%';
+  (clone.style as any).textSizeAdjust = '100%';
+
   try {
     const canvasPromise = html2canvas(clone, {
       scale,
@@ -296,16 +328,58 @@ export async function captureElement(
       scrollY: 0,
       imageTimeout: 4000,
       onclone: (clonedDoc: Document) => {
+        if (clonedDoc.defaultView) {
+          try {
+            clonedDoc.defaultView.scrollTo(0, 0);
+          } catch {}
+        }
         if (clonedDoc.documentElement) {
+          clonedDoc.documentElement.scrollTop = 0;
+          clonedDoc.documentElement.scrollLeft = 0;
           clonedDoc.documentElement.style.backgroundColor = '#ffffff';
           clonedDoc.documentElement.style.color = '#18181b';
           clonedDoc.documentElement.style.visibility = 'visible';
+          clonedDoc.documentElement.style.webkitTextSizeAdjust = '100%';
+          (clonedDoc.documentElement.style as any).textSizeAdjust = '100%';
         }
         if (clonedDoc.body) {
+          clonedDoc.body.scrollTop = 0;
+          clonedDoc.body.scrollLeft = 0;
           clonedDoc.body.style.backgroundColor = '#ffffff';
           clonedDoc.body.style.color = '#18181b';
           clonedDoc.body.style.visibility = 'visible';
+          clonedDoc.body.style.webkitTextSizeAdjust = '100%';
+          (clonedDoc.body.style as any).textSizeAdjust = '100%';
         }
+
+        // Lock all SVGs inside cloned document
+        clonedDoc.querySelectorAll('svg').forEach((svg) => {
+          svg.style.display = 'inline-block';
+          svg.style.verticalAlign = 'middle';
+          svg.style.flexShrink = '0';
+          svg.style.margin = '0';
+          svg.style.transform = 'none';
+          const p = svg.parentElement;
+          if (p) {
+            p.style.display = 'inline-flex';
+            p.style.alignItems = 'center';
+            p.style.verticalAlign = 'middle';
+            p.style.lineHeight = '1';
+          }
+        });
+
+        // Lock all headings and section headers inside cloned document
+        clonedDoc.querySelectorAll('.section-header, h2, h3, .section-header-wrap').forEach((el) => {
+          (el as HTMLElement).style.marginTop = '0px';
+          (el as HTMLElement).style.boxSizing = 'border-box';
+          if (el.tagName.toLowerCase() === 'h2' || el.tagName.toLowerCase() === 'h3' || el.classList.contains('section-header')) {
+            (el as HTMLElement).style.paddingTop = '0px';
+            (el as HTMLElement).style.paddingBottom = '0px';
+            (el as HTMLElement).style.margin = '0px';
+            (el as HTMLElement).style.lineHeight = '1.25';
+          }
+        });
+
         // Sanitize any modern oklch/oklab in stylesheets within the iframe
         clonedDoc.querySelectorAll('style').forEach((styleEl) => {
           if (styleEl.textContent && /oklch|oklab|color\(display-p3/i.test(styleEl.textContent)) {

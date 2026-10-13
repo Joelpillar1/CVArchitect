@@ -32,10 +32,12 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
     const renderSectionHeader = (title: string) => (
         <div className={`section-header-wrap break-inside-avoid w-full mb-2 ${getSectionHeaderAlignment()}`}>
             <h2
-                className={`section-header text-gray-900 leading-normal font-bold ${getSectionHeaderAlignment()}`}
+                className={`section-header text-gray-900 leading-normal font-bold m-0 p-0 ${getSectionHeaderAlignment()}`}
                 style={{
                     fontSize: `${fontSizes?.sectionTitle || 11}pt`,
                     color: data.accentColor || "#000000",
+                    margin: 0,
+                    padding: 0,
                     marginBottom: '3px',
                 }}
             >
