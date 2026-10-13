@@ -65,6 +65,7 @@ interface EditorProps {
   rightSidebarWidthClass?: string;
   hasUnsavedChanges?: boolean;
   onDiscardChanges?: () => void;
+  initialLeftSidebarView?: 'create' | 'templates' | 'analytics';
 }
 
 export type EditorTab = 'personal' | 'summary' | 'education' | 'experience' | 'achievements' | 'skills' | 'certifications' | 'additionalInfo' | 'references' | 'projects' | 'leadership' | 'design' | 'job-match' | (string & {}) | '' | null;
@@ -78,7 +79,7 @@ import { exportResumeToServerPdf, exportResumeToPdf, exportCoverLetterToPdf, pri
 import { exportResumeToDocx } from '../utils/docxExport';
 import { useToast } from '../contexts/ToastContext';
 
-export default function Editor({ data, onChange, template, onTemplateChange, onBack, onSave, onSaveAsTemplate, currentResumeId, showWelcomeModal, onCloseWelcomeModal, auditResult, userSubscription, onAIAction, onShowPaywall, embedded = false, leftSidebarWidthClass, rightSidebarWidthClass, hasUnsavedChanges, onDiscardChanges }: EditorProps) {
+export default function Editor({ data, onChange, template, onTemplateChange, onBack, onSave, onSaveAsTemplate, currentResumeId, showWelcomeModal, onCloseWelcomeModal, auditResult, userSubscription, onAIAction, onShowPaywall, embedded = false, leftSidebarWidthClass, rightSidebarWidthClass, hasUnsavedChanges, onDiscardChanges, initialLeftSidebarView }: EditorProps) {
   const [internalDirty, setInternalDirty] = useState(false);
   const isDirty = hasUnsavedChanges !== undefined ? hasUnsavedChanges : internalDirty;
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
@@ -935,6 +936,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
             onShowPaywall={onShowPaywall}
             auditResult={auditResult}
             onToggleSidebar={() => setIsLeftSidebarOpen(false)}
+            initialView={initialLeftSidebarView}
           />
         </div>
 

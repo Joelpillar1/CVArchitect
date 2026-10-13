@@ -417,24 +417,24 @@ const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
   },
   student: {
     defaultFont: 'Garamond',
-    defaultAccent: '3B82F6',
+    defaultAccent: '000000',
     headingStyle: 'accent_line',
     defaultHeaderAlign: 'center',
-    defaultSectionOrder: ['summary', 'education', 'coursework', 'projects', 'experience', 'skills', 'certifications', 'leadership', 'additionalInfo'],
+    defaultSectionOrder: ['education', 'experience', 'projects', 'skills', 'certifications', 'leadership', 'additionalInfo', 'summary'],
   },
   freshgrad1: {
     defaultFont: 'Garamond',
-    defaultAccent: '059669',
+    defaultAccent: '000000',
     headingStyle: 'accent_line',
     defaultHeaderAlign: 'center',
-    defaultSectionOrder: ['summary', 'education', 'coursework', 'experience', 'projects', 'skills', 'certifications', 'leadership', 'additionalInfo'],
+    defaultSectionOrder: ['education', 'experience', 'projects', 'skills', 'certifications', 'leadership', 'additionalInfo', 'summary'],
   },
   freshgrad8: {
     defaultFont: 'Calibri',
-    defaultAccent: '4338CA',
+    defaultAccent: '000000',
     headingStyle: 'accent_line',
     defaultHeaderAlign: 'center',
-    defaultSectionOrder: ['summary', 'education', 'coursework', 'experience', 'projects', 'skills', 'certifications', 'leadership', 'additionalInfo'],
+    defaultSectionOrder: ['education', 'experience', 'projects', 'skills', 'certifications', 'leadership', 'additionalInfo', 'summary'],
   },
 };
 

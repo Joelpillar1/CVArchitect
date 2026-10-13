@@ -38,6 +38,8 @@ import { useStreamingPlaceholder } from '../utils/useStreamingPlaceholder';
 import { HighlightedText } from './MetricBulletsMarquee';
 import PricingPlans from './PricingPlans';
 import ToolsDropdown from './ToolsDropdown';
+import ProblemSection from './ProblemSection';
+import TemplateStudioDeck from './TemplateStudioDeck';
 
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 32, scale: 0.98 },
@@ -461,6 +463,66 @@ function ATSScorecardModule() {
   );
 }
 
+interface GroundedMarqueeItem {
+  icon: React.ComponentType<{ className?: string }>;
+  category: string;
+  title: string;
+  desc: string;
+}
+
+function GroundedCard({ item }: { item: GroundedMarqueeItem }) {
+  const Icon = item.icon;
+  return (
+    <div className="bg-white rounded-2xl border border-brand-border hover:border-brand-green/60 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all duration-300 group cursor-default">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-9 h-9 rounded-xl bg-brand-secondary/80 flex items-center justify-center text-brand-dark/70 group-hover:text-brand-green group-hover:bg-brand-green/10 transition-colors shrink-0">
+          <Icon className="w-4.5 h-4.5" />
+        </div>
+        <div className="min-w-0">
+          <span className="text-[10px] font-mono uppercase tracking-[0.16em] text-brand-dark/45 block truncate">
+            {item.category}
+          </span>
+          <h3 className="text-sm font-bold tracking-tight text-brand-dark group-hover:text-brand-green transition-colors truncate">
+            {item.title}
+          </h3>
+        </div>
+      </div>
+      <p className="text-xs sm:text-[13px] text-brand-dark/70 leading-relaxed group-hover:text-brand-dark/90 transition-colors">
+        <HighlightedText text={item.desc} />
+      </p>
+    </div>
+  );
+}
+
+function GroundedMarqueeColumn({
+  items,
+  animationClass,
+  columnKey,
+}: {
+  items: GroundedMarqueeItem[];
+  animationClass: string;
+  columnKey: string;
+}) {
+  return (
+    <div className="h-full overflow-hidden flex flex-col">
+      <div className={`${animationClass} flex flex-col will-change-transform`}>
+        {/* Set 1 */}
+        <div className="flex flex-col gap-4 pb-4">
+          {items.map((item, idx) => (
+            <GroundedCard key={`${columnKey}-1-${idx}`} item={item} />
+          ))}
+        </div>
+        {/* Set 2 (seamless clone for infinite loop) */}
+        <div className="flex flex-col gap-4 pb-4" aria-hidden="true">
+          {items.map((item, idx) => (
+            <GroundedCard key={`${columnKey}-2-${idx}`} item={item} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AgentLandingPage() {
   const navigate = useNavigate();
   const { user, signInWithGoogle } = useAuth();
@@ -733,95 +795,103 @@ export default function AgentLandingPage() {
     },
   ];
 
-  // Problem section  -  serro-style composition. Four large cards in a 2×2
-  // grid; each carries a number, an uppercase label, a headline, and a
-  // floating diagnostic panel that overlaps the card edge asymmetrically
-  // (the panel reads as a piece of a resume-analysis UI for that problem).
-  const problems = [
-    {
-      num: '01/',
-      label: 'The skills problem',
-      headline: "You're not showing\nthe skills employers\nare looking for.",
-      panel: 'skills',
-    },
-    {
-      num: '02/',
-      label: 'The impact problem',
-      headline: 'Your experience\ndescribes work.\nNot results.',
-      panel: 'impact',
-    },
-    {
-      num: '03/',
-      label: 'The job match problem',
-      headline: "Your resume\ndoesn't match\nthe job.",
-      panel: 'match',
-    },
-    {
-      num: '04/',
-      label: 'The positioning problem',
-      headline: 'Good experience\ncan still be\npoorly presented.',
-      panel: 'readiness',
-    },
-  ];
-
-  const groundedExamples = [
+  const groundedCol1: GroundedMarqueeItem[] = [
     {
       icon: TrendingUp,
+      category: 'Growth & Acquisition',
       title: 'Email growth',
       desc: 'Increased email newsletter subscriptions by 4,500 in 3 months through targeted campaigns and A/B testing.',
     },
     {
-      icon: GitBranch,
-      title: 'Product delivery',
-      desc: 'Managed a product backlog of 200+ tasks, coordinating with 5 engineers to release 3 major features on schedule.',
-    },
-    {
-      icon: Server,
-      title: 'Backend reliability',
-      desc: 'Developed 3 backend services handling 50,000+ requests per day with 99.9% uptime.',
-    },
-    {
       icon: PenTool,
+      category: 'Product Design',
       title: 'Design output',
       desc: 'Designed and delivered 45 pages of web and app interfaces in 10 weeks, ensuring brand consistency.',
     },
     {
+      icon: Zap,
+      category: 'Full-Stack Infra',
+      title: 'Query optimization',
+      desc: 'Optimized query performance, cutting API response time from 1.8s to 0.4s across 50 endpoints.',
+    },
+    {
+      icon: BarChart3,
+      category: 'Digital Reach',
+      title: 'Campaign scale',
+      desc: 'Launched 5 social media campaigns, generating 150,000 total impressions and 3,200 new leads.',
+    },
+  ];
+
+  const groundedCol2: GroundedMarqueeItem[] = [
+    {
+      icon: GitBranch,
+      category: 'Product Delivery',
+      title: 'Release velocity',
+      desc: 'Managed a product backlog of 200+ tasks, coordinating with 5 engineers to release 3 major features on schedule.',
+    },
+    {
       icon: Wallet,
+      category: 'Financial Operations',
       title: 'Budget control',
       desc: 'Managed a marketing budget of $75,000, achieving a 12% reduction in costs while maximizing ROI.',
     },
     {
+      icon: ShoppingCart,
+      category: 'Conversion Rate',
+      title: 'Checkout redesign',
+      desc: 'Redesigned the checkout flow, reducing cart abandonment by 18% across production users.',
+    },
+    {
+      icon: ShieldCheck,
+      category: 'Quality Assurance',
+      title: 'Automated testing',
+      desc: 'Built automated test framework, reducing regression testing time by 70% for 12 core modules.',
+    },
+  ];
+
+  const groundedCol3: GroundedMarqueeItem[] = [
+    {
+      icon: Server,
+      category: 'Infrastructure',
+      title: 'Backend reliability',
+      desc: 'Developed 3 backend services handling 50,000+ requests per day with 99.9% uptime.',
+    },
+    {
       icon: Users,
-      title: 'User research',
+      category: 'User Research',
+      title: 'Usability insights',
       desc: 'Conducted user testing with 60 participants, reducing onboarding time by 20% with actionable insights.',
     },
     {
-      icon: Zap,
-      title: 'Performance',
-      desc: 'Optimized query performance, cutting API response time from 1.8s to 0.4s across 50 endpoints.',
+      icon: Sparkles,
+      category: 'Organic Reach',
+      title: 'SEO strategy',
+      desc: 'Implemented technical SEO across 15 pages, growing organic traffic by 18,000 visitors in 4 months.',
     },
     {
-      icon: ShoppingCart,
-      title: 'Conversion',
-      desc: 'Redesigned the checkout flow, reducing cart abandonment by 18%.',
+      icon: FileCheck,
+      category: 'Mobile UX',
+      title: 'Interface adoption',
+      desc: 'Led UI/UX redesign for mobile app used by 25,000+ users, improving task completion time by 15%.',
     },
-    {
-      icon: BarChart3,
-      title: 'Organic reach',
-      desc: 'Implemented SEO across 15 pages, growing organic traffic by 18,000 visitors in 4 months.',
-    },
+  ];
+
+  const groundedMobile: GroundedMarqueeItem[] = [
+    groundedCol1[0],
+    groundedCol2[0],
+    groundedCol3[0],
+    groundedCol1[1],
+    groundedCol2[3],
+    groundedCol3[2],
+    groundedCol1[2],
+    groundedCol2[1],
+    groundedCol3[1],
+    groundedCol1[3],
+    groundedCol2[2],
+    groundedCol3[3],
   ];
 
   const marqueeWords = ['Tailor', 'Ground', 'Score', 'Export', 'Apply', 'Interview'];
-
-  // Resume template screenshots from /public/images/Agent Resume  -  the same
-  // templates offered in the Resume Agent workspace.
-  const templateImages = [
-    '/images/Agent Resume/Template.png',
-    '/images/Agent Resume/Template-1.png',
-    '/images/Agent Resume/Template-2.png',
-    '/images/Agent Resume/Template-3.png',
-  ];
 
   return (
     <div className="relative min-h-screen bg-brand-bg text-brand-dark flex flex-col font-sans selection:bg-brand-green selection:text-brand-dark overflow-x-clip">
@@ -1084,8 +1154,8 @@ export default function AgentLandingPage() {
         {/* Content column  -  wraps every section after the hero. */}
         <div className="relative">
 
-        {/* GROUNDED EXAMPLES  -  3×3 grid of metric-driven examples. */}
-        <section className="relative pt-16 md:pt-24 overflow-hidden">
+        {/* GROUNDED EXAMPLES  -  3-column infinite vertical scrolling marquee */}
+        <section className="relative pt-16 md:pt-24 pb-16 md:pb-24 overflow-hidden bg-brand-bg">
           <VerticalBoundLines />
 
           {/* Heading  -  top-left, padded to the content column */}
@@ -1101,203 +1171,59 @@ export default function AgentLandingPage() {
               Every rewrite lands on real numbers
             </h2>
             <p className="text-base text-brand-dark/60 mt-4 max-w-2xl">
-              The agent rephrases only what you have truly done. Here is what grounded, metric-first bullets look like.
+              The agent rephrases only what you have truly done. Left and right stream up, center streams down — all grounded in verified commercial metrics.
             </p>
           </motion.div>
 
-          {/* 3×3 grid  -  transparent cells separated by 1px hairline borders */}
-          <div className="relative z-10 w-[calc(100%-1.5rem)] sm:w-[calc(100%-3rem)] md:w-[calc(100%-100vw/3)] mx-auto">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: '-60px' }}
-              variants={staggerContainer}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 border-t border-brand-border"
-            >
-            {groundedExamples.map((ex, exIdx) => (
-              <motion.div
-                key={ex.title}
-                custom={exIdx}
-                variants={bentoCardVariants}
-                whileHover={{ y: -4, transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] } }}
-                className="group p-6 sm:p-8 lg:p-9 flex flex-col cursor-default transition-all duration-300 border-brand-border hover:bg-white hover:border-brand-green/40 hover:shadow-xs [&:not(:last-child)]:border-b sm:[&:nth-child(-n+7)]:border-b sm:[&:nth-child(8)]:border-b-0 sm:[&:nth-child(odd):nth-child(-n+7)]:border-r lg:[&:nth-child(-n+6)]:border-b lg:[&:nth-child(n+7)]:border-b-0 lg:[&:not(:nth-child(3n))]:border-r lg:[&:nth-child(3n):nth-child(-n+6)]:border-r-0"
-              >
-                <ex.icon className="w-7 h-7 text-brand-dark/60 mb-5 group-hover:text-brand-green group-hover:scale-110 transition-all duration-300" />
-                <h3 className="text-sm font-bold tracking-tight text-brand-dark mb-2 group-hover:text-brand-green transition-colors duration-300">{ex.title}</h3>
-                <p className="text-sm text-brand-dark/60 leading-relaxed group-hover:text-brand-dark/80 transition-colors duration-300">
-                  <HighlightedText text={ex.desc} />
-                </p>
-              </motion.div>
-            ))}
-            </motion.div>
+          {/* 3-Column Infinite Vertical Marquee Showcase */}
+          <div className="relative z-10 w-full max-w-[calc(100%-1.5rem)] sm:max-w-[calc(100%-3rem)] md:max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="relative h-[560px] sm:h-[620px] overflow-hidden">
+              {/* Top gradient fade mask */}
+              <div className="absolute top-0 left-0 right-0 h-24 sm:h-32 bg-gradient-to-b from-brand-bg via-brand-bg/90 to-transparent z-20 pointer-events-none" />
+              {/* Bottom gradient fade mask */}
+              <div className="absolute bottom-0 left-0 right-0 h-24 sm:h-32 bg-gradient-to-t from-brand-bg via-brand-bg/90 to-transparent z-20 pointer-events-none" />
+
+              {/* Mobile View (< md): 1 Column Scrolling Infinitely */}
+              <div className="block md:hidden h-full max-w-md mx-auto">
+                <GroundedMarqueeColumn
+                  items={groundedMobile}
+                  animationClass="animate-marquee-vertical-up-slow"
+                  columnKey="mobile"
+                />
+              </div>
+
+              {/* Desktop View (>= md): 3 Columns Grid */}
+              <div className="hidden md:grid md:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 h-full items-start">
+                {/* Column 1: Left - Scrolling UP */}
+                <GroundedMarqueeColumn
+                  items={groundedCol1}
+                  animationClass="animate-marquee-vertical-up"
+                  columnKey="left"
+                />
+
+                {/* Column 2: Middle - Scrolling DOWN */}
+                <GroundedMarqueeColumn
+                  items={groundedCol2}
+                  animationClass="animate-marquee-vertical-down"
+                  columnKey="center"
+                />
+
+                {/* Column 3: Right - Scrolling UP */}
+                <GroundedMarqueeColumn
+                  items={groundedCol3}
+                  animationClass="animate-marquee-vertical-up-slow"
+                  columnKey="right"
+                />
+              </div>
+            </div>
           </div>
 
           {/* Bottom full-width line */}
-          <div className="h-px w-full bg-brand-border" />
+          <div className="h-px w-full bg-brand-border mt-12 md:mt-16" />
         </section>
 
-        {/* THE PROBLEM  -  dark section with 2×2 grid */}
-        <section className="relative py-24 md:py-36 bg-brand-dark text-white overflow-hidden border-t border-brand-dark/20">
-          <div className="relative z-10 w-full max-w-[calc(100%-1.5rem)] sm:max-w-[calc(100%-3rem)] md:max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Header  -  left heading, right subtitle */}
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: '-60px' }}
-              variants={fadeInUp}
-              className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-end mb-16 lg:mb-20"
-            >
-              <div className="lg:col-span-8">
-                <SectionBadge chip="The problem">Why great candidates get skipped</SectionBadge>
-                <h2 className="text-[clamp(2.6rem,6vw,5rem)] font-bold tracking-[-0.03em] leading-[0.95] text-white mt-5 text-balance">
-                  The small mistakes
-                  <br />
-                  that cost you
-                  <br />
-                  the interview.
-                </h2>
-              </div>
-              <div className="lg:col-span-4 lg:pb-4">
-                <p className="text-base text-white/60 leading-relaxed">
-                  Your experience may be strong, but the way it's presented can make the difference between getting noticed and getting ignored.
-                </p>
-              </div>
-            </motion.div>
-
-            {/* Hairline divider */}
-            <div className="h-px w-full bg-white/10 mb-12 lg:mb-14" />
-
-            {/* 2×2 grid  -  four large problem cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-10 gap-y-16 lg:gap-y-20">
-              {problems.map((p, pIdx) => (
-                <motion.div
-                  key={p.num}
-                  custom={pIdx}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true, margin: '-60px' }}
-                  variants={bentoCardVariants}
-                  whileHover={{ y: -4, transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] } }}
-                  className="relative rounded-none bg-white/5 border border-white/10 overflow-visible transition-shadow hover:shadow-lg"
-                >
-
-                  {/* Text block  -  number, label, headline */}
-                  <div className="relative z-10 px-6 sm:px-10 pb-8 sm:pb-12 pt-72 sm:pt-80 lg:pt-10 lg:pl-72 lg:pr-6">
-                    <span className="block font-mono text-xs uppercase tracking-[0.2em] text-white/40">{p.label}</span>
-                    <h3 className="mt-6 text-[clamp(1.5rem,2.2vw,2rem)] font-bold tracking-[-0.03em] leading-[1.05] text-white whitespace-pre-line">
-                      {p.headline}
-                    </h3>
-                  </div>
-
-                  {/* Floating diagnostic panel */}
-                  <motion.div
-                    whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
-                    className="absolute -top-3 sm:-top-6 left-3 sm:-left-6 right-3 sm:right-auto sm:w-72 rounded-none bg-brand-dark border border-white/15 p-4 sm:p-5 shadow-xl"
-                  >
-                    {p.panel === 'skills' && (
-                      <>
-                        <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
-                          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/50">Skills analysis</span>
-                          <span className="text-[10px] font-bold text-red-400">Low match</span>
-                        </div>
-                        <p className="font-mono text-[10px] uppercase tracking-widest text-brand-green mb-2">✓ Present</p>
-                        <div className="space-y-2">
-                          {['Product Strategy', 'Figma', 'User Research'].map((s) => (
-                            <div key={s} className="flex items-center justify-between gap-3 text-sm text-white/85">
-                              <span>{s}</span>
-                              <span className="text-brand-green text-xs">✓</span>
-                            </div>
-                          ))}
-                        </div>
-                        <p className="font-mono text-[10px] uppercase tracking-widest text-red-400 mt-4 mb-2">× Missing</p>
-                        <div className="space-y-2">
-                          {['Design Systems', 'Prototyping', 'Stakeholder Management'].map((s) => (
-                            <div key={s} className="flex items-center justify-between gap-3 text-sm text-white/60">
-                              <span>{s}</span>
-                              <span className="text-red-400 text-xs">×</span>
-                            </div>
-                          ))}
-                        </div>
-                      </>
-                    )}
-                    {p.panel === 'impact' && (
-                      <>
-                        <div className="rounded-lg bg-white/5 border border-white/10 p-3.5">
-                          <p className="font-mono text-[10px] uppercase tracking-widest text-white/50 mb-1.5">Diagnosed bullet</p>
-                          <p className="text-sm text-white/70 leading-snug">"Designed mobile app screens."</p>
-                          <div className="mt-2.5 space-y-1">
-                            {['Measurable impact', 'Quantifiable results', 'Business outcome'].map((m) => (
-                              <div key={m} className="flex items-center gap-2 text-[11px] text-red-400">
-                                <span>×</span>
-                                <span>{m}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="flex justify-center py-2 text-white/40 text-xs">↓</div>
-                        <div className="rounded-lg bg-brand-green/10 border border-brand-green/30 p-3.5">
-                          <p className="font-mono text-[10px] uppercase tracking-widest text-brand-green mb-1.5">Rewritten</p>
-                          <p className="text-sm text-white/90 leading-snug">"Managed a marketing budget of $75,000, achieving a 12% reduction in costs while maximizing ROI."</p>
-                        </div>
-                      </>
-                    )}
-                    {p.panel === 'match' && (
-                      <>
-                        <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
-                          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/50">Job requirements</span>
-                        </div>
-                        <div className="space-y-2">
-                          {[
-                            { label: 'Product Design', ok: true },
-                            { label: 'User Research', ok: true },
-                            { label: 'Design Systems', ok: false },
-                            { label: 'Prototyping', ok: false },
-                            { label: 'SaaS Experience', ok: false },
-                          ].map((r) => (
-                            <div key={r.label} className="flex items-center justify-between gap-3 text-sm">
-                              <span className={r.ok ? 'text-white/85' : 'text-white/55'}>{r.label}</span>
-                              <span className={r.ok ? 'text-brand-green text-xs' : 'text-red-400 text-xs'}>{r.ok ? '✓' : '×'}</span>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="mt-4 pt-3.5 border-t border-white/10 flex items-end justify-between">
-                          <span className="font-mono text-[10px] uppercase tracking-widest text-white/50">Resume match</span>
-                          <span className="text-2xl font-bold tracking-tight text-red-400 leading-none">62%</span>
-                        </div>
-                        <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden mt-2.5">
-                          <div className="h-full w-[62%] bg-red-400/80 rounded-full" />
-                        </div>
-                      </>
-                    )}
-                    {p.panel === 'readiness' && (
-                      <>
-                        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/50 mb-4">Resume readiness</p>
-                        <div className="space-y-3.5">
-                          {[
-                            { label: 'Resume Clarity', pct: 58, tone: 'bg-white/60' },
-                            { label: 'Impact', pct: 42, tone: 'bg-red-400/80' },
-                            { label: 'Keyword Match', pct: 64, tone: 'bg-brand-green' },
-                            { label: 'ATS Readiness', pct: 71, tone: 'bg-white/60' },
-                          ].map((b) => (
-                            <div key={b.label}>
-                              <div className="flex items-center justify-between mb-1.5">
-                                <span className="text-xs text-white/70">{b.label}</span>
-                                <span className="text-xs font-mono text-white/50">{b.pct}%</span>
-                              </div>
-                              <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
-                                <div className={`h-full ${b.tone} rounded-full`} style={{ width: `${b.pct}%` }} />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </>
-                    )}
-                  </motion.div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
+        {/* THE PROBLEM  -  The 4 screening barriers bento grid */}
+        <ProblemSection onExploreSolutions={scrollToFeatures} />
 
         {/* CORE FEATURES  -  bento grid of the four systems */}
         <section id="features" className="relative py-24 md:py-36 bg-brand-bg border-t border-brand-border">
@@ -1456,55 +1382,28 @@ export default function AgentLandingPage() {
           </div>
         </section>
 
-        {/* RESUME TEMPLATE  -  the exact resume template used in the
-            /resume-agent workspace (Vanguard, the agent's default template),
-            rendered from the same data the agent starts with. */}
-        <section id="template" className="relative py-24 md:py-36 bg-brand-bg border-t border-brand-border">
+        {/* RESUME TEMPLATES  -  Interactive Studio Deck matching dashboard templates with live ATS scan */}
+        <section id="template" className="relative py-12 md:py-16 bg-brand-bg border-t border-brand-border overflow-hidden">
           <VerticalBoundLines />
-          <div className="relative z-10 w-full max-w-[calc(100%-1.5rem)] sm:max-w-[calc(100%-3rem)] md:max-w-[min(80rem,calc(100vw*(2/3)))] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative z-10 w-full max-w-[calc(100%-1.5rem)] sm:max-w-[calc(100%-3rem)] md:max-w-[min(80rem,calc(100vw*(3/4)))] mx-auto px-2 sm:px-6 lg:px-8">
             <motion.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: '-60px' }}
               variants={fadeInUp}
-              className="text-center mb-20"
+              className="text-center mb-6 sm:mb-8"
             >
-              <SectionBadge chip="Your template">The template the agent works from</SectionBadge>
-              <h2 className="text-[clamp(2.2rem,5vw,4rem)] font-bold tracking-[-0.03em] leading-[1.02] text-brand-dark mt-5 text-balance">
-                One clean resume. Tailored for every job.
+              <SectionBadge chip="ATS Templates">100% Verified Layouts</SectionBadge>
+              <h2 className="text-[clamp(1.9rem,3.5vw,3rem)] font-bold tracking-[-0.03em] leading-[1.05] text-brand-dark mt-3 text-balance">
+                Architectural Resume Templates
               </h2>
-              <p className="text-base text-brand-dark/60 mt-5">
-                The resume templates you'll find in the Resume Agent workspace, each one ATS-tuned and ready to tailor.
+              <p className="text-sm sm:text-base text-brand-dark/60 mt-2 max-w-2xl mx-auto">
+                Explore our studio collection. Every layout is calibrated for 100% parser compatibility across Workday, Taleo, Greenhouse, and Lever.
               </p>
             </motion.div>
 
-            {/* Template marquee  -  resume templates scrolling infinitely */}
-            <div className="relative w-full overflow-hidden">
-              {/* Edge fades */}
-              <div className="absolute left-0 top-0 bottom-0 w-24 sm:w-40 bg-gradient-to-r from-brand-bg via-brand-bg/80 to-transparent z-10 pointer-events-none" />
-              <div className="absolute right-0 top-0 bottom-0 w-24 sm:w-40 bg-gradient-to-l from-brand-bg via-brand-bg/80 to-transparent z-10 pointer-events-none" />
-
-              <div className="flex animate-marquee w-max" style={{ animationDuration: '80s' }}>
-                {[0, 1].map((dup) => (
-                  <div key={dup} className="flex shrink-0">
-                    {templateImages.map((src, i) => (
-                      <motion.div
-                        key={`${dup}-${i}`}
-                        whileHover={{ scale: 1.03, y: -4, transition: { duration: 0.25 } }}
-                        className="w-[300px] sm:w-[400px] lg:w-[480px] shrink-0 mx-3 cursor-pointer"
-                      >
-                        <img
-                          src={src}
-                          alt={`CVArchitect resume template ${i + 1}`}
-                          className="w-full h-auto rounded-lg border border-brand-border bg-white shadow-lg"
-                          loading="lazy"
-                        />
-                      </motion.div>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            </div>
+            {/* Interactive Template Studio Deck */}
+            <TemplateStudioDeck />
           </div>
         </section>
 
@@ -1691,7 +1590,7 @@ export default function AgentLandingPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-10">
               {[
                 { value: 4, decimals: 0, suffix: '', label: 'ATS engines scored' },
-                { value: 10, decimals: 0, suffix: ' min', label: 'per tailored resume' },
+                { value: 50, decimals: 0, suffix: ' sec', label: 'per tailored resume' },
                 { value: 20, decimals: 0, suffix: '+', label: 'ATS-tuned templates' },
               ].map((stat, i) => (
                 <motion.div

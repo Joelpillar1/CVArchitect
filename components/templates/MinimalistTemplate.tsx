@@ -110,7 +110,7 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
         >
           {skillsList.map((skill, i) => (
             <li key={i} data-skill-cell className="flex items-baseline gap-1.5 min-w-0">
-              <span data-bullet aria-hidden="true" className="shrink-0 select-none pointer-events-none leading-none">•</span>
+              <span data-bullet aria-hidden="true" className="shrink-0 select-none pointer-events-none text-[1.15em] font-bold leading-none text-gray-700">•</span>
               <span className="flex-1" style={{ lineHeight: 'inherit' }}><RichText text={skill} /></span>
             </li>
           ))}

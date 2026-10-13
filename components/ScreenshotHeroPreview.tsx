@@ -86,6 +86,7 @@ export default function ScreenshotHeroPreview() {
           embedded={true}
           leftSidebarWidthClass="w-80"
           rightSidebarWidthClass="w-96"
+          initialLeftSidebarView="analytics"
         />
       </div>
     </div>

@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700&display=swap');
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
@@ -586,6 +587,8 @@ body {
    ============================================================================= */
 
 /* ── 1. Shared <ul> base: strip native disc, set consistent indent ── */
+[data-skills-grid],
+ul[data-skills-grid],
 .resume-preview-root ul.list-disc,
 .resume-preview-root ul.list-outside,
 .resume-page-sheet ul.list-disc,
@@ -622,6 +625,8 @@ body {
 }
 
 /* ── 2. Unified <li> geometry for all bullet list items (standard and skills grid) ── */
+[data-skills-grid] > li,
+li[data-skill-cell],
 .resume-preview-root ul.list-disc > li,
 .resume-preview-root ul.list-outside > li,
 .resume-preview-root [data-skills-grid] > li,
@@ -650,6 +655,8 @@ body {
 }
 
 /* ── 3. Default disc (•) bullet via ::before on all <li> ── */
+[data-skills-grid] > li::before,
+li[data-skill-cell]::before,
 .resume-preview-root ul.list-disc > li::before,
 .resume-preview-root ul.list-outside > li::before,
 .resume-preview-root [data-skills-grid] > li::before,
@@ -1329,5 +1336,62 @@ button[class*="rounded-r-"] {
   border-bottom-right-radius: 8px !important;
 }
 
+/* ==========================================================================
+   VERTICAL MARQUEE ANIMATIONS (GROUNDED EXAMPLES 3-COLUMN SHOWCASE)
+   Smooth infinite vertical scrolling with hardware acceleration
+   ========================================================================== */
 
+@keyframes marqueeVerticalUp {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes marqueeVerticalDown {
+  0% {
+    transform: translateY(-50%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.animate-marquee-vertical-up {
+  animation: marqueeVerticalUp 28s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-vertical-up-slow {
+  animation: marqueeVerticalUp 32s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-vertical-down {
+  animation: marqueeVerticalDown 26s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-vertical-up:hover,
+.animate-marquee-vertical-up-slow:hover,
+.animate-marquee-vertical-down:hover {
+  animation-play-state: paused;
+}
+
+/* Sleek custom scrollbar utility */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(17, 24, 39, 0.15);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(17, 24, 39, 0.3);
+}
 

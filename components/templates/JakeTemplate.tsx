@@ -126,9 +126,9 @@ export default function JakeTemplate({ data }: { data: ResumeData }) {
     return (
       <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
         {renderSectionHeader(title)}
-        <div data-path="skills" className="space-y-0.5 text-gray-900" style={{ ...bodyStyle, ...ENTRY_INDENT }}>
+        <ul data-path="skills" className="list-disc list-outside ml-5 space-y-0.5 text-gray-900" style={bodyStyle}>
           {items.map((item, index) => (
-            <div key={item.id || index} className="leading-snug">
+            <li key={item.id || index} className="leading-snug">
               {item.category ? (
                 <>
                   <span className="font-bold">
@@ -143,9 +143,9 @@ export default function JakeTemplate({ data }: { data: ResumeData }) {
                   <RichText text={item.skills ?? ''} />
                 </span>
               )}
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
     );
   };

@@ -335,6 +335,7 @@ export default function EditorHeroPreview() {
             embedded={true}
             leftSidebarWidthClass="w-80"
             rightSidebarWidthClass="w-96"
+            initialLeftSidebarView="analytics"
           />
         </div>
       </div>

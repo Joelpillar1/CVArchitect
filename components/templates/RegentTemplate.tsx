@@ -217,35 +217,33 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
     }
 
     return (
-      <div
-        className="grid text-gray-900"
-        style={{
-          ...bodyStyle,
-          display: 'grid',
-          gridTemplateColumns: 'max-content 1fr',
-          columnGap: '1.25rem',
-          rowGap: '2px',
-          alignItems: 'baseline',
-        }}
+      <ul
+        className="list-disc list-outside ml-5 space-y-0.5 text-gray-900"
+        style={bodyStyle}
       >
         {valid.map((row, idx) => (
-          <React.Fragment key={idx}>
-            <div
-              className="font-bold text-gray-900 select-none"
-              style={{ whiteSpace: 'nowrap' }}
-              data-path={`${basePath}.${idx}.category`}
-            >
-              <RichText text={row.category} />
-            </div>
-            <div
-              className="text-gray-900 leading-normal text-left"
-              data-path={`${basePath}.${idx}.skills`}
-            >
-              <RichText text={row.skills} />
-            </div>
-          </React.Fragment>
+          <li key={idx} className="leading-normal text-left">
+            {row.category ? (
+              <>
+                <span
+                  className="font-bold text-gray-900"
+                  data-path={`${basePath}.${idx}.category`}
+                >
+                  <RichText text={row.category} />
+                  {row.category.trim().endsWith(':') ? ' ' : ': '}
+                </span>
+                <span data-path={`${basePath}.${idx}.skills`}>
+                  <RichText text={row.skills} />
+                </span>
+              </>
+            ) : (
+              <span data-path={`${basePath}.${idx}.skills`}>
+                <RichText text={row.skills} />
+              </span>
+            )}
+          </li>
         ))}
-      </div>
+      </ul>
     );
   };
 

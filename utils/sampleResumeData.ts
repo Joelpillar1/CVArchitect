@@ -19,10 +19,10 @@ export const SAMPLE_RESUME_DATA: ResumeData = {
             startDate: '2021-03',
             endDate: 'Present',
             description: [
-                'Spearheaded the development and launch of an AI-powered analytics dashboard, increasing user retention by 35% within the first two quarters.',
-                'Led a cross-functional team of 14 engineers, designers, and marketers in an Agile environment to deliver product updates on a bi-weekly cadence.',
-                'Grew annual recurring revenue (ARR) for the primary SaaS product line by $4.2M through strategic pricing optimization and feature expansion.',
-                'Conducted over 100+ user interviews to identify pain points, resulting in a roadmap pivot that reduced customer churn by 18%.'
+                'Spearheaded the design and deployment of an enterprise AI-powered analytics dashboard, increasing quarterly user retention by 35% and cutting report generation latency by 4.2x across 12,000 active daily users.',
+                'Directed a cross-functional agile squad of 14 senior engineers and product designers, establishing continuous delivery pipelines to roll out mission-critical platform enhancements on a bi-weekly release cadence.',
+                'Accelerated annual recurring revenue (ARR) for the primary enterprise SaaS suite by $4.2M through multi-tier pricing restructuring, automated upsell flows, and strategic enterprise API integrations.',
+                'Conducted over 120 qualitative customer interviews and quantitative telemetry cohort analyses, championing roadmap enhancements that reduced enterprise account logo churn from 4.8% to 1.6% YoY.'
             ]
         },
         {
@@ -33,10 +33,10 @@ export const SAMPLE_RESUME_DATA: ResumeData = {
             startDate: '2017-06',
             endDate: '2021-02',
             description: [
-                'Managed the end-to-end product lifecycle for a secure data migration tool used by Fortune 500 clients, generating $2.1M in first-year revenue.',
-                'Collaborated with sales and customer success teams to create targeted messaging, improving trial-to-paid conversion rates by 22%.',
-                'Prioritized the product backlog and authored detailed technical specifications, reducing development time by 15% across sprints.',
-                'Implemented rigorous A/B testing protocols for onboarding flows, lifting successful user activations by 40%.'
+                'Orchestrated the end-to-end product architecture and migration roadmap for a secure data pipeline tool serving Fortune 500 clients, generating $2.1M in first-year ARR with zero data compliance breaches.',
+                'Partnered with enterprise sales and customer engineering to architect bespoke demonstration sandboxes, lifting enterprise prospective contract conversion rates from 22% to 41% across Global 2000 prospects.',
+                'Authored comprehensive technical requirements and sprint epics for automated schema migration tools, reducing average customer engineering turnaround times by 28% across 14 consecutive agile sprint cycles.',
+                'Designed and executed multi-variate A/B onboarding experiments across 85,000 trial accounts, boosting 14-day product activation rates by 42% and generating over $680K in self-serve expansion pipeline.'
             ]
         }
     ],
@@ -99,7 +99,7 @@ export const SAMPLE_RESUME_DATA: ResumeData = {
     },
     currentTag: 'blog-sample',
     language: 'en',
-    accentColor: '#0f172a',
+    accentColor: '#000000',
     headerAlignment: 'center',
     bodyHeaderAlignment: 'left',
     contentAlignment: 'left',
@@ -165,6 +165,7 @@ export const TEMPLATE_GALLERY_PREVIEW_DATA: ResumeData = {
 
 const STUDENT_TEMPLATE_IDS: TemplateType[] = [
     'student',
+    'free',
     'freshgrad1',
     'freshgrad2',
     'freshgrad3',
@@ -535,106 +536,99 @@ export const STUDENT_RESUME_DATA: ResumeData = {
     },
     currentTag: 'student-blog-sample',
     language: 'en',
-    accentColor: '#1e3a8a',
+    accentColor: '#000000',
     headerAlignment: 'center',
     bodyHeaderAlignment: 'left',
     contentAlignment: 'left',
     skillsColumnCount: 3,
     sectionOrder: [
-        'summary',
         'education',
         'experience',
-        'skills',
         'projects',
+        'skills',
         'leadership',
-        'certifications'
+        'certifications',
+        'summary'
     ],
     source: 'scratch',
     hasJobMatchRun: false,
 };
 
 export const HARVARD_RESUME_DATA: ResumeData = {
-    fullName: "FirstName LastName",
-    jobTitle: "",
-    email: "youremail@college.harvard.edu",
-    phone: "phone number",
+    fullName: "ALEXANDER WRIGHT",
+    jobTitle: "STRATEGIC FINANCE & PRIVATE EQUITY ANALYST",
+    email: "a.wright@alumni.harvard.edu",
+    phone: "+1 (617) 555-0142",
     atHandle: "",
-    linkedin: "",
-    location: "City, State Zip",
-    address: "Home or Campus Street Address",
-    summary: "",
+    linkedin: "linkedin.com/in/alexander-wright",
+    location: "Boston, MA",
+    address: "Boston, MA 02138",
+    summary: "Strategic Finance and Private Equity Analyst with expertise in LBO modeling, transaction diligence, and cross-border M&A valuation. Demonstrated track record stress-testing $450M+ in aggregate middle-market deal volume across enterprise technology and healthcare software verticals.",
     education: [
         {
             id: '1',
             school: 'Harvard University',
-            degree: 'Degree, Concentration. GPA [Note: GPA is Optional]',
+            degree: 'A.B. in Economics, Secondary in Computer Science. Magna Cum Laude, GPA: 3.92 / 4.00',
             location: 'Cambridge, MA',
-            year: 'Graduation Date',
+            year: 'May 2023',
             relevantCourses: [
-                'Thesis [Note: Optional]',
-                '[Note: Optional. Awards and honors can also be listed here.]'
+                'Thesis: Private Credit Spreads and Capital Structure Optimization in Middle-Market Leveraged Buyouts',
+                'Honors & Awards: Phi Beta Kappa, John Harvard Scholar (top 5% of class), Detur Book Prize Winner'
             ],
         },
         {
             id: '2',
-            school: 'Study Abroad [Note: If Applicable]',
-            degree: 'Study abroad coursework in [fill in the blank].',
-            location: 'City, Country',
-            year: 'Month Year – Month Year',
-        },
-        {
-            id: '3',
-            school: 'High School Name',
-            degree: '[Note: May include GPA, SAT/ACT scores, or academic honors an employer may want to know]',
-            location: 'City, State',
-            year: 'Graduation Date',
+            school: 'The London School of Economics and Political Science',
+            degree: 'General Course in International Finance & Econometrics (First Class Honours)',
+            location: 'London, UK',
+            year: '2021 – 2022',
         },
     ],
     experience: [
         {
             id: '1',
-            company: 'Organization',
-            role: 'Position Title',
-            location: 'City, State (or remote)',
-            startDate: 'Month Year',
-            endDate: 'Month Year',
+            company: 'Bain Capital Private Equity',
+            role: 'Private Equity Analyst (Technology & Healthcare Verticals)',
+            location: 'Boston, MA',
+            startDate: '2023-07',
+            endDate: 'Present',
             description: [
-                'Beginning with most recent position, describe your experience, skills, and resulting outcomes in bullet form.',
-                'Begin each line with an action verb and include details that will help the reader understand your accomplishments, skills, knowledge, abilities, or achievements.',
-                'Quantify where possible.',
-                'Do not use personal pronouns; each line should be a phrase rather than a full sentence.',
+                'Built dynamic three-statement operating models and leveraged buyout (LBO) frameworks for 6 platform targets, evaluating capital structure returns and debt repayment schedules across downside cases.',
+                'Led commercial due diligence and operational value-creation workstreams for a $380M enterprise SaaS carve-out, analyzing customer retention cohorts and pricing power to identify $18M in margin upside.',
+                'Authored comprehensive 40-page investment committee memorandums and presented thesis points directly to managing directors, supporting successful capital deployment for 2 completed platform buyouts.',
+                'Partnered with portfolio company executive teams to institute automated working-capital optimization dashboards, releasing $12.4M in idle balance-sheet cash to accelerate strategic M&A integration.'
             ],
         },
         {
             id: '2',
-            company: 'Organization',
-            role: 'Position Title',
-            location: 'City, State (or remote)',
-            startDate: 'Month Year',
-            endDate: 'Month Year',
+            company: 'Goldman Sachs',
+            role: 'Investment Banking Summer Analyst (Technology, Media & Telecom)',
+            location: 'New York, NY',
+            startDate: '2022-06',
+            endDate: '2022-08',
             description: [
-                'With next-most recent position, describe your experience, skills, and resulting outcomes in bullet form.',
-                'Begin each line with an action verb and include details that will help the reader understand your accomplishments, skills, knowledge, abilities, or achievements.',
-                'Quantify where possible.',
-                'Do not use personal pronouns; each line should be a phrase rather than a full sentence.',
+                'Engineered detailed discounted cash flow (DCF), trading comparables, and precedent transaction valuation frameworks for technology M&A mandates exceeding $2.4B in aggregate enterprise consideration.',
+                'Developed dynamic debt-capacity and credit-amortization schedules in Excel, reducing pitchbook compilation turnaround times by 35% across the technology, media, and telecom coverage division.',
+                'Conducted extensive target screening across 65 prospective software targets in North America, analyzing ARR growth velocity, gross margins, and customer acquisition payback to advise senior bankers.',
+                'Managed virtual data room (VDR) logistics and confirmatory diligence requests across legal, accounting, and tax advisory teams during intensive execution for a $720M cross-border corporate divestiture.'
             ],
         },
     ],
     leadership: [
         {
             id: '1',
-            company: 'Organization',
-            role: 'Position Title',
-            location: 'City, State',
-            startDate: 'Month Year',
-            endDate: 'Month Year',
+            company: 'Harvard Financial Analysts Club',
+            role: 'Portfolio Director & Head of Quantitative Research',
+            location: 'Cambridge, MA',
+            startDate: '2021-09',
+            endDate: '2023-05',
             description: [
-                'This section can be formatted similarly to the Experience section, or you can omit descriptions for activities.',
-                'If this section is more relevant to the opportunity you are applying for, consider moving this above your Experience section.',
+                'Directed a 35-analyst quantitative research cohort managing a $120K student-run endowment portfolio, outperforming benchmark S&P 500 returns by 480 basis points over a trailing 24-month horizon.',
+                'Designed and taught weekly modeling workshops on three-statement accounting, LBO mechanics, and corporate valuation for 120+ undergraduate candidates preparing for top-tier Wall Street recruitment.'
             ],
         },
     ],
-    skills: "Technical: List computer software and programming languages and your level of fluency\nLanguage: First foreign languages and your level of fluency\nLaboratory: List scientific / research lab techniques or tools [If Applicable]\nInterests: List activities you enjoy that may spark interview conversation",
+    skills: "Financial Modeling: Advanced LBO Modeling, Three-Statement Projections, DCF Valuation, M&A Consequence Analysis, Sensitivity Tables\nAnalytical Software: Capital IQ, FactSet, Bloomberg Terminal, Advanced Excel (VBA), PitchBook, Python (Pandas), SQL\nDomain Expertise: Leveraged Buyouts, Commercial Diligence, Capital Structure Optimization, Unit Economics Diagnostics\nCertifications & Honors: Wall Street Prep Certified in Financial Modeling, Series 79 & 63 Exam Ready, CFA Level 1 Candidate",
     projects: [],
     certifications: [],
     additionalInfo: [],

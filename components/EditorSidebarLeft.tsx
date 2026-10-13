@@ -40,10 +40,11 @@ interface EditorSidebarLeftProps {
     onShowPaywall?: (feature: 'templates' | 'job-match' | 'general' | 'credits' | 'export') => void;
     auditResult?: { score: number; keywords: string[]; issues: string[] } | null;
     onToggleSidebar?: () => void;
+    initialView?: 'create' | 'templates' | 'analytics';
 }
 
-export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onChange, currentTemplate, onTemplateChange, userSubscription, onAIAction, onShowPaywall, auditResult, onToggleSidebar }: EditorSidebarLeftProps) {
-    const [view, setView] = useState<'create' | 'templates' | 'analytics'>('create');
+export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onChange, currentTemplate, onTemplateChange, userSubscription, onAIAction, onShowPaywall, auditResult, onToggleSidebar, initialView = 'create' }: EditorSidebarLeftProps) {
+    const [view, setView] = useState<'create' | 'templates' | 'analytics'>(initialView);
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [draggedSection, setDraggedSection] = useState<string | null>(null);
     const [isAddSectionModalOpen, setIsAddSectionModalOpen] = useState(false);
