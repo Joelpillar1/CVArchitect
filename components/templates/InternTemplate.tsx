@@ -692,7 +692,7 @@ export default function InternTemplate({ data }: InternTemplateProps) {
             contactItems.push(
               <span key="email" className="inline-flex items-center gap-1">
                 <Mail size={12} className="shrink-0 text-gray-700" />
-                <a href={`mailto:${data.email}`} data-path="email" className="hover:underline text-gray-800">
+                <a href={`mailto:${data.email}`} data-path="email" className="no-underline text-gray-800">
                   <RichText text={data.email} />
                 </a>
               </span>
@@ -719,7 +719,7 @@ export default function InternTemplate({ data }: InternTemplateProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                   data-path="linkedin"
-                  className="hover:underline text-gray-800"
+                  className="underline text-gray-800"
                 >
                   <RichText text={formatLinkedInDisplay(data.linkedin)} />
                 </a>
@@ -736,7 +736,7 @@ export default function InternTemplate({ data }: InternTemplateProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                   data-path="github"
-                  className="hover:underline text-gray-800"
+                  className="underline text-gray-800"
                 >
                   <RichText text={formatGitHubDisplay(data.github)} />
                 </a>
@@ -753,7 +753,7 @@ export default function InternTemplate({ data }: InternTemplateProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                   data-path="portfolio"
-                  className="hover:underline text-gray-800"
+                  className="underline text-gray-800"
                 >
                   <RichText text={formatPortfolioDisplay(data.portfolio)} />
                 </a>

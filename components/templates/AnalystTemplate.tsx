@@ -15,6 +15,9 @@ import {
   formatNameDisplay,
   formatSectionTitle,
   normalizeUrl,
+  getLinkedInHref,
+  getGitHubHref,
+  getPortfolioHref,
   renderCourseworkBlockHelper,
   renderExpertSkillsBlockHelper,
 } from '../../utils/templateUtils';
@@ -691,9 +694,9 @@ export default function AnalystTemplate({ data }: { data: ResumeData }) {
 
   if (data.email) {
     contactItems.push(
-      <span key="em" data-path="email">
+      <a key="em" data-path="email" href={`mailto:${formatContactText(data.email)}`} style={{ textDecoration: 'none', color: 'inherit' }}>
         <RichText text={formatContactText(data.email)} />
-      </span>
+      </a>
     );
   }
 
@@ -702,7 +705,7 @@ export default function AnalystTemplate({ data }: { data: ResumeData }) {
       <a
         key="li"
         data-path="linkedin"
-        href={normalizeUrl(data.linkedin)}
+        href={getLinkedInHref(data.linkedin)}
         target="_blank"
         rel="noopener noreferrer"
         style={{ color: 'inherit', textDecoration: 'underline' }}
@@ -717,7 +720,7 @@ export default function AnalystTemplate({ data }: { data: ResumeData }) {
       <a
         key="gh"
         data-path="github"
-        href={normalizeUrl(data.github)}
+        href={getGitHubHref(data.github)}
         target="_blank"
         rel="noopener noreferrer"
         style={{ color: 'inherit', textDecoration: 'underline' }}
@@ -732,7 +735,7 @@ export default function AnalystTemplate({ data }: { data: ResumeData }) {
       <a
         key="port"
         data-path="portfolio"
-        href={normalizeUrl(data.portfolio)}
+        href={getPortfolioHref(data.portfolio)}
         target="_blank"
         rel="noopener noreferrer"
         style={{ color: 'inherit', textDecoration: 'underline' }}

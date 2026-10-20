@@ -556,7 +556,7 @@ export default function ElevateResume({ data }: { data: ResumeData }) {
                   href={getLinkedInHref(data.linkedin)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ textDecoration: 'none', color: 'inherit' }}
+                  style={{ textDecoration: 'underline', color: 'inherit' }}
                 >
                   <RichText text={formatLinkedInDisplay(data.linkedin)} />
                 </a>

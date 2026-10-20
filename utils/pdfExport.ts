@@ -207,10 +207,310 @@ function lockHeadingGeometry(root: ParentNode): void {
   });
 }
 
+// ---------------------------------------------------------------------------
+// SVG foreignObject capture (primary path)
+// ---------------------------------------------------------------------------
+//
+// html2canvas 1.4.1 paints text, borders and flex children at positions that
+// differ from the browser (names shifted into contact rows, section rules
+// cutting through headings, ...). The foreignObject path serializes the element
+// plus the page's CSS into an SVG image and lets Chrome rasterize it — same
+// layout engine, same paint as the live preview.
+//
+// SVG-image context quirks handled below:
+//  - there is no <html> element, so `:root` custom-property rules are
+//    re-pointed at the wrapper div (`#fo-root`);
+//  - every element IS a descendant of <svg>, so `:not(svg *)` would exclude
+//    everything and silently disable its rule — the exclusion is stripped;
+//  - @media queries evaluate against the SVG viewport, which is sized to the
+//    real window so responsive rules match the preview;
+//  - HTML named entities (`&nbsp;`) are invalid XML — they are translated to
+//    numeric character references;
+//  - external resources (@font-face url()s, background images, <img> src) are
+//    inlined as data URLs because SVG images may not fetch anything.
+
+const XML_BASIC_ENTITIES = new Set(['amp', 'lt', 'gt', 'quot', 'apos']);
+
+/** Translate HTML named entities (e.g. `&nbsp;`) to numeric references XML understands. */
+function translateNamedEntitiesForXml(html: string): string {
+  const cache: Record<string, string> = {};
+  return html.replace(/&([a-zA-Z][a-zA-Z0-9]*);/g, (match, name: string) => {
+    if (XML_BASIC_ENTITIES.has(name)) return match;
+    if (!(name in cache)) {
+      try {
+        const probe = document.createElement('span');
+        probe.innerHTML = match;
+        const text = probe.textContent;
+        const code = text && text !== match ? text.codePointAt(0) : undefined;
+        cache[name] = code !== undefined ? `&#${code};` : match;
+      } catch {
+        cache[name] = match;
+      }
+    }
+    return cache[name];
+  });
+}
+
+/** Escape raw text (`&`, `<`, `>`) for use inside XML. Decodes back on parse. */
+function escapeXmlRawText(text: string): string {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+/** Fetch a URL and return it as a data URL, or null on any failure. */
+async function fetchDataUrl(url: string, timeoutMs: number): Promise<string | null> {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timer);
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    return await new Promise<string | null>((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : null);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
+}
+
+let foreignObjectCssCache: { key: string; css: string } | null = null;
+
 /**
- * Capture a resume page DOM element using html2canvas at high DPI.
+ * Build the stylesheet bundle for a foreignObject capture: every inline
+ * `<style>` tag plus fetched `<link>` stylesheets, with the `@font-face`
+ * url()s of fonts the element actually uses inlined as data URLs (fonts that
+ * fail to embed abort the attempt so the html2canvas fallback can run), the
+ * SVG-image selector fixes, and a cache keyed on stylesheet identity.
+ */
+async function buildForeignObjectCss(el: HTMLElement): Promise<string> {
+  const usedFamilies = new Set<string>();
+  const nodes: Element[] = [el];
+  nodes.push(...Array.from(el.querySelectorAll('*')));
+  for (const node of nodes) {
+    try {
+      const family = window.getComputedStyle(node).fontFamily || '';
+      family.split(',').forEach((part) => {
+        const name = part.trim().replace(/^['"]|['"]$/g, '').toLowerCase();
+        if (name) usedFamilies.add(name);
+      });
+    } catch {
+      // Skip elements we cannot read
+    }
+  }
+
+  const styleTexts: string[] = [];
+  document.querySelectorAll('style').forEach((s) => styleTexts.push(s.textContent || ''));
+  const linkHrefs: string[] = [];
+  document.querySelectorAll('link[rel="stylesheet"]').forEach((l) => {
+    const href = (l as HTMLLinkElement).href;
+    if (href) linkHrefs.push(href);
+  });
+
+  const cacheKey = JSON.stringify({
+    s: styleTexts.map((t) => t.length),
+    l: linkHrefs,
+    f: Array.from(usedFamilies).sort(),
+  });
+  if (foreignObjectCssCache && foreignObjectCssCache.key === cacheKey) {
+    return foreignObjectCssCache.css;
+  }
+
+  const parts = [...styleTexts];
+  await Promise.all(
+    linkHrefs.map(async (href) => {
+      try {
+        const res = await fetch(href, { mode: 'cors' });
+        if (res.ok) parts.push(await res.text());
+      } catch {
+        // Stylesheet unavailable; missing @font-face blocks trigger the
+        // html2canvas fallback if a used font ends up unresolvable.
+      }
+    })
+  );
+  let css = parts.join('\n');
+
+  // @font-face blocks whose family this element uses → embed their files.
+  const fontFaceRe = /@font-face\s*\{[^}]*\}/g;
+  const urlRe = /url\(([^)]+)\)/g;
+  const usedFontUrls: string[] = [];
+  for (const block of css.match(fontFaceRe) || []) {
+    const famMatch = /font-family\s*:\s*([^;]+);/i.exec(block);
+    const family = famMatch ? famMatch[1].trim().replace(/^['"]|['"]$/g, '').toLowerCase() : '';
+    if (!usedFamilies.has(family)) continue;
+    urlRe.lastIndex = 0;
+    let m: RegExpExecArray | null;
+    while ((m = urlRe.exec(block))) {
+      const url = m[1].trim().replace(/^['"]|['"]$/g, '');
+      if (!url.startsWith('data:')) usedFontUrls.push(url);
+    }
+  }
+  // Non-font resources (background images) referenced anywhere in the CSS.
+  const assetUrls: string[] = [];
+  const withoutFaces = css.replace(fontFaceRe, '');
+  urlRe.lastIndex = 0;
+  let am: RegExpExecArray | null;
+  while ((am = urlRe.exec(withoutFaces))) {
+    const url = am[1].trim().replace(/^['"]|['"]$/g, '');
+    if (!url.startsWith('data:')) assetUrls.push(url);
+  }
+
+  for (const url of Array.from(new Set(usedFontUrls))) {
+    const dataUrl = await fetchDataUrl(url, 8000);
+    // Fonts are mandatory — without them the render would silently fall back
+    // to a system font and diverge from the preview.
+    if (!dataUrl) throw new Error(`Unable to embed font for foreignObject capture: ${url}`);
+    css = css.split(url).join(dataUrl);
+  }
+  await Promise.all(
+    Array.from(new Set(assetUrls)).map(async (url) => {
+      const dataUrl = await fetchDataUrl(url, 4000);
+      if (dataUrl) css = css.split(url).join(dataUrl);
+    })
+  );
+  // Anything still external is blanked so the SVG never attempts a fetch.
+  css = css.replace(/url\((?!data:)[^)]+\)/g, 'url()');
+
+  // SVG-image context selector fixes (see block comment above).
+  css = css.split(':root').join('#fo-root');
+  css = css.split(':not(svg *)').join('');
+
+  foreignObjectCssCache = { key: cacheKey, css };
+  return css;
+}
+
+/**
+ * Capture a DOM element by serializing it into an SVG `foreignObject` image
+ * and rasterizing it with Chrome's own renderer — pixel-identical to how the
+ * same markup lays out and paints in the page. Throws on any failure so the
+ * caller can fall back to html2canvas.
+ */
+async function captureElementForeignObject(
+  el: HTMLElement,
+  w: number,
+  h: number,
+  scale: number
+): Promise<HTMLCanvasElement> {
+  const css = await buildForeignObjectCss(el);
+
+  // Clone with the same paper-box forces and strips as the html2canvas path —
+  // but none of its layout hacks: Chrome renders flex/gap/borders natively.
+  const clone = el.cloneNode(true) as HTMLElement;
+  clone.removeAttribute('contenteditable');
+  clone.querySelectorAll('[contenteditable]').forEach((c) => c.removeAttribute('contenteditable'));
+  clone.querySelectorAll('.print\\:hidden, [class*="print:hidden"], .absolute.bottom-3').forEach((c) => c.remove());
+  clone.style.transform = 'none';
+  clone.style.position = 'static';
+  clone.style.margin = '0';
+  clone.style.width = `${w}px`;
+  clone.style.minWidth = `${w}px`;
+  clone.style.maxWidth = `${w}px`;
+  clone.style.height = `${h}px`;
+  clone.style.minHeight = `${h}px`;
+  clone.style.boxSizing = 'border-box';
+  clone.style.overflow = 'hidden';
+  clone.style.backgroundColor = '#ffffff';
+  clone.style.visibility = 'visible';
+  clone.style.opacity = '1';
+  clone.style.display = 'block';
+
+  // Inline <img> resources as data URLs (SVG images cannot fetch).
+  await Promise.all(
+    Array.from(clone.querySelectorAll('img')).map(async (img) => {
+      const src = img.getAttribute('src') || '';
+      if (!src || src.startsWith('data:')) return;
+      const dataUrl = await fetchDataUrl(src, 6000);
+      if (dataUrl) img.setAttribute('src', dataUrl);
+    })
+  );
+
+  // Recreate the `.resume-preview-root` context: heading/line-height rules and
+  // the `--resume-*` custom properties live on that ancestor, not the sheet.
+  let serialized: string;
+  const ctx = el.closest('.resume-preview-root');
+  if (ctx) {
+    const wrap = ctx.cloneNode(false) as HTMLElement;
+    wrap.appendChild(clone);
+    serialized = wrap.outerHTML;
+  } else {
+    serialized = clone.outerHTML;
+  }
+
+  // Nested <style> blocks serialize as raw text; they must be escaped for XML
+  // *before* the entity pass so nothing gets double-escaped.
+  serialized = serialized.replace(
+    /<style(\s[^>]*)?>([\s\S]*?)<\/style>/g,
+    (_m: string, attrs: string, text: string) => `<style${attrs || ''}>${escapeXmlRawText(text)}</style>`
+  );
+  serialized = translateNamedEntitiesForXml(serialized);
+  // Escape any remaining bare '&' (e.g. in text or attributes) for XML.
+  serialized = serialized.replace(/&(?!(?:[a-zA-Z][a-zA-Z0-9]*|#\d+|#x[0-9a-fA-F]+);)/g, '&amp;');
+
+  // HTML void elements serialize without a closing tag (`<hr>`, `<img>`, `<br>`),
+  // which is invalid XML — self-close them so templates using <hr> rules or
+  // <img> photos don't fail the SVG decode and fall back to html2canvas.
+  serialized = serialized.replace(
+    /<(area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)((?:\s+[^<>]*?)?)\s*\/?>/gi,
+    '<$1$2 />'
+  );
+
+  const bodyStyle = window.getComputedStyle(document.body);
+  const rootStyle = [
+    `width:${w}px`,
+    `height:${h}px`,
+    'overflow:hidden',
+    'background:#ffffff',
+    'margin:0',
+    'padding:0',
+    'font-size:16px',
+    'line-height:24px',
+    `font-family:${(bodyStyle.fontFamily || 'sans-serif').replace(/"/g, "'")}`,
+    `color:${bodyStyle.color || '#111111'}`,
+    '-webkit-text-size-adjust:100%',
+    'text-size-adjust:100%',
+  ].join(';');
+
+  // Size the SVG viewport like the real window so @media queries behave as
+  // they do in the preview; the paper box stays `w`-wide at the left edge and
+  // is cropped back out when drawing.
+  const viewportW = Math.max(w, document.documentElement.clientWidth || window.innerWidth || w);
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${viewportW}" height="${h}">` +
+    `<foreignObject x="0" y="0" width="100%" height="100%">` +
+    `<div xmlns="http://www.w3.org/1999/xhtml" id="fo-root" style="${rootStyle}">` +
+    `<style>${escapeXmlRawText(css)}</style>${serialized}</div></foreignObject></svg>`;
+
+  const src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  const img = new Image();
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = () => reject(new Error('foreignObject SVG failed to decode'));
+    img.src = src;
+  });
+
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(w * scale);
+  canvas.height = Math.round(h * scale);
+  const ctx2d = canvas.getContext('2d');
+  if (!ctx2d) throw new Error('2d canvas context unavailable');
+  ctx2d.fillStyle = '#ffffff';
+  ctx2d.fillRect(0, 0, canvas.width, canvas.height);
+  // Crop the paper box out of the window-wide viewport and scale to target.
+  ctx2d.drawImage(img, 0, 0, w, h, 0, 0, canvas.width, canvas.height);
+  return canvas;
+}
+
+/**
+ * Capture a resume page DOM element to a canvas at high DPI.
  *
- * Key fixes applied before capture:
+ * Primary path: SVG foreignObject — Chrome rasterizes the serialized element
+ * with its own layout/paint engine, so the output matches the preview
+ * exactly. If that fails for any reason (fonts, decoding, CORS), this falls
+ * back to html2canvas with the fixes it needs:
+ *
+ * Key fixes applied before html2canvas capture:
  *  - double-rAF after DOM mount so browser finishes layout computation
  *  - SVG flex gap → explicit margin-right (html2canvas 1.4.1 gap inconsistency)
  *  - bordered section headers → transparent borders + explicit background bars
@@ -245,6 +545,19 @@ export async function captureElement(
   // Always use exact paper width (816 for Letter, 794 for A4) to prevent right-edge clipping
   const w = defaultW;
   const h = rawH > defaultH ? rawH : defaultH;
+
+  // Primary path: serialize into an SVG foreignObject and let Chrome rasterize
+  // it — pixel-identical to the preview. Any failure falls through to the
+  // html2canvas path below (which carries its own layout fixes).
+  try {
+    return await captureElementForeignObject(el, w, h, scale);
+  } catch (foError) {
+    try {
+      console.warn('[cv] foreignObject capture failed; falling back to html2canvas', foError);
+    } catch {
+      // console unavailable
+    }
+  }
 
   const host = document.createElement('div');
   host.style.cssText = [
@@ -935,6 +1248,46 @@ export async function exportResumeToPdf(
 
     const SCALE = Math.max(1, scale);
 
+    // The raster page is a flat image, so anchors can't stay live on their
+    // own — carry their rectangles over as PDF link annotations so contact
+    // links (email, LinkedIn, GitHub, portfolio) stay clickable in exports.
+    const collectLinkRects = (sheet: HTMLElement) => {
+      const links: Array<{ x: number; y: number; w: number; h: number; url: string }> = [];
+      const sheetBox = sheet.getBoundingClientRect();
+      const layoutW = sheet.offsetWidth || sheetBox.width || paperW;
+      const layoutH = sheet.offsetHeight || sheetBox.height;
+      // The sheet may carry a preview transform; divide it back out so the
+      // measured rects land in the same coordinate space as the capture.
+      const zx = sheetBox.width ? sheetBox.width / layoutW : 1;
+      const zy = sheetBox.height ? sheetBox.height / layoutH : 1;
+      const pxToMm = pageWidthMm / layoutW;
+      sheet.querySelectorAll('a[href]').forEach((a) => {
+        const href = a.getAttribute('href') || '';
+        if (!href || href.startsWith('#') || href.length > 2048) return;
+        const rects = Array.from(a.getClientRects());
+        const box = rects.length
+          ? rects.reduce(
+              (acc, r) => ({
+                left: Math.min(acc.left, r.left),
+                top: Math.min(acc.top, r.top),
+                right: Math.max(acc.right, r.right),
+                bottom: Math.max(acc.bottom, r.bottom),
+              }),
+              { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity }
+            )
+          : a.getBoundingClientRect();
+        if (!isFinite(box.left) || box.right <= box.left || box.bottom <= box.top) return;
+        links.push({
+          x: ((box.left - sheetBox.left) / zx) * pxToMm,
+          y: ((box.top - sheetBox.top) / zy) * pxToMm,
+          w: ((box.right - box.left) / zx) * pxToMm,
+          h: ((box.bottom - box.top) / zy) * pxToMm,
+          url: href,
+        });
+      });
+      return links;
+    };
+
     for (let i = 0; i < sheets.length; i++) {
       const sheet = sheets[i];
 
@@ -962,6 +1315,10 @@ export async function exportResumeToPdf(
         undefined,
         'FAST'
       );
+
+      for (const link of collectLinkRects(sheet)) {
+        pdf.link(link.x, link.y, link.w, link.h, { url: link.url });
+      }
     }
 
     const pdfBlob = pdf.output('blob');

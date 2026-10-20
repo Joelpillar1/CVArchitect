@@ -628,7 +628,7 @@ export default function TimesTemplate({ data }: { data: ResumeData }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-block align-middle"
-                  style={{ textDecoration: 'none', color: 'inherit' }}
+                  style={{ textDecoration: 'underline', color: 'inherit' }}
                 >
                   <RichText text={formatLinkedInDisplay(data.linkedin)} />
                 </a>

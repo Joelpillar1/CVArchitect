@@ -1139,8 +1139,10 @@ export const normalizeUrl = (url: string | null | undefined): string => {
         return `https://${trimmed}`;
     }
     
-    // Otherwise, assume it's a relative URL or invalid, return as is
-    return trimmed;
+    // Not a URL at all (e.g. a label like "Portfolio" or a bare handle).
+    // Returning it as-is would create a relative href that resolves against
+    // the app origin — a dead link in exports. No href instead.
+    return '';
 };
 
 /**

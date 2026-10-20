@@ -597,7 +597,7 @@ export default function JakeTemplate({ data }: { data: ResumeData }) {
         key="em"
         data-path="email"
         href={`mailto:${formatContactText(data.email)}`}
-        style={{ color: 'inherit', textDecoration: 'underline' }}
+        style={{ color: 'inherit', textDecoration: 'none' }}
       >
         <RichText text={formatContactText(data.email)} />
       </a>
