@@ -524,7 +524,7 @@ export const CONTACT_SEPARATOR = React.createElement('span', {
 
 export function getHeaderContactGapIn(data: ResumeData): number {
     const raw = data.headerContactGap ?? TEMPLATE_SPACING.headerContactGap;
-    return Math.max(0.03, raw);
+    return Math.max(0.06, raw);
 }
 
 /**

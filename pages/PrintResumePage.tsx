@@ -128,7 +128,7 @@ export default function PrintResumePage() {
     }
 
     // 3. Explicitly load font family and weights before layout measurement
-    const fontName = state.data.font ? state.data.font.split(',')[0].replace(/['"]/g, '').trim() : 'Inter';
+    const fontName = state.data.font ? state.data.font.split(',')[0].replace(/['"]/g, '').trim() : 'Merriweather';
     const loadFont = async () => {
       try {
         if (typeof document !== 'undefined' && document.fonts?.load) {

@@ -687,6 +687,7 @@ export default function StyledTemplate({ data }: StyledTemplateProps) {
             style={{
               fontSize: `${fontSizes?.jobTitle || 11}pt`,
               color: accentColor,
+              marginTop: headerContactGap,
               lineHeight: 1.25,
               width: '100%',
             }}

@@ -199,9 +199,8 @@ function lockHeadingGeometry(root: ParentNode): void {
       };
       addBar(-borderT, borderT, colorT);
       addBar(boxH - borderT - borderB, borderB, colorB);
+      // Keep existing padding intact so text is not squished against the rule bars
       el.style.marginTop = '0px';
-      el.style.paddingTop = '0px';
-      el.style.paddingBottom = '0px';
       el.style.margin = '0px';
       el.style.lineHeight = '1.25';
     }
@@ -316,28 +315,27 @@ export async function captureElement(
         svg.querySelectorAll('[stroke="currentColor"]').forEach((c) => c.setAttribute('stroke', resolvedColor));
         svg.querySelectorAll('[fill="currentColor"]').forEach((c) => c.setAttribute('fill', resolvedColor));
 
-        // Lock SVG icon layout to prevent mobile displacement and overlap
+        // In html2canvas, vertical-align: -0.15em aligns the SVG icon's optical center
+        // with the text cap/x-height baseline, completely eliminating upward floating icons.
         svg.style.display = 'inline-block';
-        svg.style.verticalAlign = 'middle';
+        svg.style.verticalAlign = '-0.15em';
         svg.style.flexShrink = '0';
-        svg.style.position = 'static';
+        svg.style.position = 'relative';
         svg.style.transform = 'none';
 
         const parent = svg.parentElement;
         if (parent) {
-          parent.style.display = 'inline-flex';
-          parent.style.alignItems = 'center';
-          parent.style.verticalAlign = 'middle';
-          parent.style.lineHeight = '1';
+          parent.style.display = 'inline-block';
+          parent.style.verticalAlign = 'baseline';
         }
 
         // html2canvas ignores flex 'gap'. Set explicit margin-right if followed by text or sibling
         const nextSibling = svg.nextElementSibling as HTMLElement | null;
         if (nextSibling || (parent && parent.textContent && parent.textContent.trim().length > 0)) {
-          svg.style.margin = '0 6px 0 0';
+          svg.style.margin = '0 5px 0 0';
           if (nextSibling) {
             nextSibling.style.display = 'inline-block';
-            nextSibling.style.verticalAlign = 'middle';
+            nextSibling.style.verticalAlign = 'baseline';
           }
         } else {
           svg.style.margin = '0';
@@ -348,7 +346,85 @@ export async function captureElement(
     });
   };
 
+  // Emulate flex gaps with explicit margins for html2canvas (which ignores gap/gap-x/gap-y)
+  const emulateFlexGaps = (root: ParentNode) => {
+    root.querySelectorAll<HTMLElement>('.flex, [class*="gap-"]').forEach((container) => {
+      let colGap = 0;
+      let rowGap = 0;
+      const classNames = container.className || '';
+
+      if (classNames.includes('gap-x-1.5')) colGap = 6;
+      else if (classNames.includes('gap-x-1')) colGap = 4;
+      else if (classNames.includes('gap-x-2')) colGap = 8;
+      else if (classNames.includes('gap-x-3')) colGap = 12;
+      else if (classNames.includes('gap-x-4')) colGap = 16;
+      else if (classNames.includes('gap-x-6')) colGap = 24;
+
+      if (classNames.includes('gap-y-1.5')) rowGap = 6;
+      else if (classNames.includes('gap-y-1')) rowGap = 4;
+      else if (classNames.includes('gap-y-2')) rowGap = 8;
+      else if (classNames.includes('gap-y-3')) rowGap = 12;
+      else if (classNames.includes('gap-y-4')) rowGap = 16;
+
+      if (classNames.includes('gap-1')) { colGap = colGap || 4; rowGap = rowGap || 4; }
+      else if (classNames.includes('gap-2')) { colGap = colGap || 8; rowGap = rowGap || 8; }
+      else if (classNames.includes('gap-3')) { colGap = colGap || 12; rowGap = rowGap || 12; }
+      else if (classNames.includes('gap-4')) { colGap = colGap || 16; rowGap = rowGap || 16; }
+
+      try {
+        const cs = window.getComputedStyle(container);
+        const compCol = parseFloat(cs.columnGap);
+        const compRow = parseFloat(cs.rowGap);
+        if (!isNaN(compCol) && compCol > 0) colGap = compCol;
+        if (!isNaN(compRow) && compRow > 0) rowGap = compRow;
+      } catch {}
+
+      if (colGap > 0 || rowGap > 0) {
+        const children = Array.from(container.children) as HTMLElement[];
+        children.forEach((child, idx) => {
+          if (colGap > 0 && idx < children.length - 1) {
+            const currentR = parseFloat(child.style.marginRight) || 0;
+            if (currentR < colGap) {
+              child.style.marginRight = `${colGap}px`;
+            }
+          }
+          if (rowGap > 0) {
+            const currentB = parseFloat(child.style.marginBottom) || 0;
+            if (currentB < rowGap) {
+              child.style.marginBottom = `${rowGap}px`;
+            }
+          }
+        });
+      }
+    });
+  };
+
+  // Emulate grid columns with percentage widths for html2canvas (which ignores display: grid)
+  const emulateGridColumns = (root: ParentNode) => {
+    root.querySelectorAll<HTMLElement>('.grid, [data-skills-grid]').forEach((gridEl) => {
+      const cls = gridEl.className || '';
+      const cols = cls.includes('grid-cols-4') ? 4 : cls.includes('grid-cols-3') ? 3 : cls.includes('grid-cols-2') ? 2 : 0;
+      if (cols > 1) {
+        gridEl.style.display = 'block';
+        gridEl.style.width = '100%';
+        gridEl.style.boxSizing = 'border-box';
+        const items = Array.from(gridEl.children) as HTMLElement[];
+        const pct = (100 / cols);
+        items.forEach((item) => {
+          item.style.display = 'inline-block';
+          item.style.verticalAlign = 'top';
+          item.style.width = `${pct}%`;
+          item.style.boxSizing = 'border-box';
+          item.style.paddingRight = '8px';
+          item.style.paddingBottom = '3px';
+        });
+      }
+    });
+  };
+
   formatSvgIcons(clone);
+  emulateFlexGaps(clone);
+  emulateGridColumns(clone);
 
   // Lock section headers, wrappers and dividers so text never separates from
   // backgrounds or borders (bordered headers get the bar treatment — see
@@ -464,6 +540,10 @@ export async function captureElement(
 
         // Lock all SVGs inside cloned document with explicit margin
         formatSvgIcons(clonedDoc);
+
+        // Emulate flex gaps and grid tracks inside cloned document
+        emulateFlexGaps(clonedDoc);
+        emulateGridColumns(clonedDoc);
 
         // Lock all headings and section headers inside cloned document
         lockHeadingGeometry(clonedDoc);
