@@ -31,8 +31,10 @@ dist-ssr
 .env*.local
 
 # Scratch and temporary scripts
-scratch/
-scratch*
+/scratch/
+/scratch*
+/scripts/scratch*
+!utils/scratchResume.ts
 # Intermediate artifacts from the job-source recon/fetch scripts (recon-results.json etc.)
 .tmp/
 *.mjs
