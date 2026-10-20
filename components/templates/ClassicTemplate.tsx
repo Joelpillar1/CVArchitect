@@ -29,6 +29,7 @@ import {
   formatSectionTitle,
   isTitleFirst,
   splitSkillsList,
+  parseExpertSkillItems,
   renderCourseworkBlockHelper,
   renderExpertSkillsBlockHelper,
 } from '../../utils/templateUtils';
@@ -93,35 +94,75 @@ export default function ClassicTemplate({ data, fontSizes }: ClassicTemplateProp
     );
   };
 
-  const renderSkillsBlock = (title: string, skillsStr: string) => {
-    if (!skillsStr || !skillsStr.trim()) return null;
-    const skillsList = splitSkillsList(skillsStr);
-    if (skillsList.length === 0) return null;
+  const renderSkillsBlock = (title: string, items: any, basePath: string = 'skills') => {
+    const parsed = parseExpertSkillItems(items);
+    if (parsed.length === 0) return null;
+
+    const hasAnyCategory = parsed.some((item) => Boolean(item.category?.trim()));
+
+    if (!hasAnyCategory && data.skillsColumnCount && data.skillsColumnCount > 1) {
+      const rawText = typeof items === 'string' ? items : '';
+      const skillsList = splitSkillsList(rawText);
+      if (skillsList.length > 0) {
+        return (
+          <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
+            {renderSectionHeader(title)}
+            <ul
+              data-skills-grid
+              className={`text-gray-800 list-none pl-2.5 grid gap-x-8 gap-y-1 ${
+                data.skillsColumnCount === 2
+                  ? 'grid-cols-2'
+                  : data.skillsColumnCount === 4
+                  ? 'grid-cols-4'
+                  : 'grid-cols-3'
+              }`}
+              style={bodyStyle}
+            >
+              {skillsList.map((skill, i) => (
+                <li key={i} data-skill-cell className="flex items-baseline gap-1.5 min-w-0">
+                  <span data-bullet aria-hidden="true" className="shrink-0 select-none pointer-events-none leading-none">
+                    •
+                  </span>
+                  <span className="flex-1" style={{ lineHeight: 'inherit' }}>
+                    <RichText text={skill} />
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      }
+    }
+
     return (
       <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
         {renderSectionHeader(title)}
-        <ul
-          data-skills-grid
-          className={`text-gray-800 list-none pl-2.5 grid gap-x-8 gap-y-1 ${
-            data.skillsColumnCount === 2
-              ? 'grid-cols-2'
-              : data.skillsColumnCount === 4
-              ? 'grid-cols-4'
-              : 'grid-cols-3'
-          }`}
-          style={bodyStyle}
-        >
-          {skillsList.map((skill, i) => (
-            <li key={i} data-skill-cell className="flex items-baseline gap-1.5 min-w-0">
-              <span data-bullet aria-hidden="true" className="shrink-0 select-none pointer-events-none leading-none">
-                •
-              </span>
-              <span className="flex-1" style={{ lineHeight: 'inherit' }}>
-                <RichText text={skill} />
-              </span>
-            </li>
-          ))}
-        </ul>
+        <div className="space-y-1 text-gray-800" style={bodyStyle}>
+          {parsed.map((item, index) => {
+            const hasCategory = Boolean(item.category?.trim());
+            const catText = item.category?.trim() || '';
+            const catClean = catText.endsWith(':') ? catText : `${catText}:`;
+            return (
+              <p key={item.id || index} className="leading-snug m-0">
+                {hasCategory ? (
+                  <>
+                    <span data-path={`${basePath}.${index}.category`} className="font-bold text-gray-900">
+                      <RichText text={catClean} />
+                      {' '}
+                    </span>
+                    <span data-path={`${basePath}.${index}.skills`} className="text-gray-800">
+                      <RichText text={item.skills ?? ''} />
+                    </span>
+                  </>
+                ) : (
+                  <span data-path={`${basePath}.${index}.skills`} className="text-gray-800">
+                    <RichText text={item.skills ?? ''} />
+                  </span>
+                )}
+              </p>
+            );
+          })}
+        </div>
       </section>
     );
   };
@@ -224,6 +265,9 @@ export default function ClassicTemplate({ data, fontSizes }: ClassicTemplateProp
           const dateStr = formatMonthYear(edu.year);
           if (!edu.school && !edu.degree && !dateStr) return null;
 
+          const primaryTitle = edu.degree || edu.school;
+          const subtitle = edu.degree && edu.school ? edu.school : '';
+
           return (
             <div
               key={edu.id}
@@ -234,14 +278,27 @@ export default function ClassicTemplate({ data, fontSizes }: ClassicTemplateProp
               }}
             >
               <div>
-                {edu.school && (
-                  <span data-path={`${basePath}.${index}.school`} className="font-bold block text-gray-900">
-                    <RichText text={edu.school ?? ''} />
+                {primaryTitle && (
+                  <span
+                    data-path={edu.degree ? `${basePath}.${index}.degree` : `${basePath}.${index}.school`}
+                    className="font-bold block text-gray-900"
+                  >
+                    <RichText text={primaryTitle} />
                   </span>
                 )}
-                {edu.degree && (
-                  <span data-path={`${basePath}.${index}.degree`} className="italic text-gray-700">
-                    <RichText text={edu.degree ?? ''} />
+                {(subtitle || dateStr) && (
+                  <span className="italic text-gray-700">
+                    {subtitle && (
+                      <span data-path={`${basePath}.${index}.school`}>
+                        <RichText text={subtitle} />
+                      </span>
+                    )}
+                    {subtitle && dateStr && ' • '}
+                    {dateStr && (
+                      <span data-path={`${basePath}.${index}.year`}>
+                        <RichText text={dateStr} />
+                      </span>
+                    )}
                   </span>
                 )}
                 {(() => {
@@ -267,11 +324,6 @@ export default function ClassicTemplate({ data, fontSizes }: ClassicTemplateProp
                   );
                 })()}
               </div>
-              {dateStr && (
-                <span data-path={`${basePath}.${index}.year`} className="font-bold text-gray-600 shrink-0 ml-4">
-                  <RichText text={dateStr} />
-                </span>
-              )}
             </div>
           );
         })}
@@ -353,17 +405,22 @@ export default function ClassicTemplate({ data, fontSizes }: ClassicTemplateProp
                 <span data-path={`${basePath}.${index}.name`} className="font-bold block text-gray-900">
                   <RichText text={cert.name ?? ''} />
                 </span>
-                {cert.issuer && (
-                  <span data-path={`${basePath}.${index}.issuer`} className="italic text-gray-700">
-                    <RichText text={cert.issuer ?? ''} />
+                {(cert.issuer || cert.date) && (
+                  <span className="italic text-gray-700">
+                    {cert.issuer && (
+                      <span data-path={`${basePath}.${index}.issuer`}>
+                        <RichText text={cert.issuer ?? ''} />
+                      </span>
+                    )}
+                    {cert.issuer && cert.date && ' • '}
+                    {cert.date && (
+                      <span data-path={`${basePath}.${index}.date`}>
+                        <RichText text={cert.date} />
+                      </span>
+                    )}
                   </span>
                 )}
               </div>
-              {cert.date && (
-                <span data-path={`${basePath}.${index}.date`} className="font-bold text-gray-600 shrink-0 ml-4">
-                  <RichText text={cert.date} />
-                </span>
-              )}
             </div>
           ))}
         </div>
@@ -438,28 +495,22 @@ export default function ClassicTemplate({ data, fontSizes }: ClassicTemplateProp
     const resolved = resolveSection(data, id);
     if (!resolved || !resolved.visible || !resolved.hasContent) return null;
 
-    // Use translation if default title matches standard key, or resolved.title
-    let sectionTitle = resolved.title;
-    if (resolved.type === 'summary') sectionTitle = t.professionalSummary || resolved.title;
-    if (resolved.type === 'skills') sectionTitle = t.technicalSkills || resolved.title;
-    if (resolved.type === 'experience') sectionTitle = t.experienceTitle || resolved.title;
-    if (resolved.type === 'education') sectionTitle = t.educationTitle || resolved.title;
-    if (resolved.type === 'certifications') sectionTitle = t.certifications || resolved.title;
+    // Use explicit section title override if provided, else translation if default title matches standard key, or resolved.title
+    let sectionTitle = (data.sectionTitles && (data.sectionTitles[resolved.id] || data.sectionTitles[resolved.type])) || resolved.title;
+    if (!data.sectionTitles?.[resolved.id] && !data.sectionTitles?.[resolved.type]) {
+      if (resolved.type === 'summary') sectionTitle = t.professionalSummary || resolved.title;
+      if (resolved.type === 'skills') sectionTitle = t.technicalSkills || resolved.title;
+      if (resolved.type === 'experience') sectionTitle = t.experienceTitle || resolved.title;
+      if (resolved.type === 'education') sectionTitle = t.educationTitle || resolved.title;
+      if (resolved.type === 'certifications') sectionTitle = t.certifications || resolved.title;
+    }
 
     switch (resolved.rendererKind) {
       case 'text':
         return renderTextBlock(sectionTitle, resolved.content as string, resolved.id);
       case 'skills':
-        return renderSkillsBlock(sectionTitle, resolved.content as string);
       case 'expert_skills':
-        return renderExpertSkillsBlockHelper({
-          data,
-          title: sectionTitle,
-          items: resolved.content as any,
-          basePath: resolved.id,
-          renderSectionHeader,
-          bodyStyle,
-        });
+        return renderSkillsBlock(sectionTitle, resolved.content as any, resolved.id);
       case 'bullets':
         return renderBulletsBlock(sectionTitle, resolved.content as string[] | string, resolved.id);
       case 'experience':
@@ -555,7 +606,7 @@ export default function ClassicTemplate({ data, fontSizes }: ClassicTemplateProp
           href={getLinkedInHref(data.linkedin)}
           target="_blank"
           rel="noopener noreferrer"
-          style={{ textDecoration: 'none', color: 'inherit' }}
+          style={{ textDecoration: 'underline', color: 'inherit' }}
           className="text-gray-600"
         >
           <RichText text={formatLinkedInDisplay(data.linkedin)} />

@@ -22,6 +22,8 @@ import { readSkillsGrid, placeCaretInSkillCell, appendEmptySkillCell } from '../
 import { rewriteTextInline, explainTextInline } from '../../services/resumeAgentService';
 import { ResumeSectionType } from '../../types/resumeSections';
 import { SECTION_REGISTRY, createDefaultSectionOrder } from '../../utils/sectionRegistry';
+import { findSectionsHiddenByDefaults, type HiddenContentSection } from '../../utils/templateSectionDefaults';
+import { applySectionStarterContent } from '../../utils/sectionStarterContent';
 import AddSectionModal from './AddSectionModal';
 import ReorderSectionsModal from './ReorderSectionsModal';
 import ResumeAgentToolbar from './ResumeAgentToolbar';
@@ -386,10 +388,44 @@ export default function ResumeWorkspace({
         ...updatedData,
         sectionVisibility: newVisibility,
         sectionOrder: newSectionOrder,
+        // Explicit user addition — kept across template switches.
+        userAddedSections: Array.from(
+          new Set([...(updatedData.userAddedSections || []), sectionType])
+        ),
       };
+      // Populate starter content while the field is empty so the section
+      // renders in the preview immediately (mirrors the sidebar's add flow).
+      updatedData = applySectionStarterContent(updatedData, sectionType);
       handleInternalChangeData(updatedData);
     }
   }, [onAddSection, data, handleInternalChangeData]);
+
+  // One-time notice: sections that hold saved content but sit outside
+  // sectionOrder — stored (never lost) yet not shown on this template.
+  // Dismissals persist for this workspace session; adding a section removes it
+  // from the list naturally.
+  const hiddenContentSections = React.useMemo(() => findSectionsHiddenByDefaults(data), [data]);
+  const [dismissedHiddenIds, setDismissedHiddenIds] = useState<string[]>([]);
+  const visibleHiddenSections = hiddenContentSections.filter((s) => !dismissedHiddenIds.includes(s.id));
+
+  const handleNoticeAddSection = useCallback((section: HiddenContentSection) => {
+    if (section.isCustom) {
+      // Custom sections exist only because the user made them — re-attach the
+      // existing one to the order instead of creating a new one.
+      const currentOrder = Array.isArray(data.sectionOrder) && data.sectionOrder.length > 0
+        ? data.sectionOrder
+        : createDefaultSectionOrder();
+      if (!currentOrder.includes(section.id)) {
+        handleInternalChangeData({
+          ...data,
+          sectionOrder: [...currentOrder, section.id],
+          sectionVisibility: { ...(data.sectionVisibility || {}), [section.id]: true },
+        });
+      }
+    } else {
+      handleInternalAddSection(section.id as ResumeSectionType);
+    }
+  }, [data, handleInternalChangeData, handleInternalAddSection]);
 
   const effectiveCanUndo = onUndo ? canUndo : internalUndoStack.length > 0;
   const effectiveCanRedo = onRedo ? canRedo : internalRedoStack.length > 0;
@@ -743,6 +779,10 @@ export default function ResumeWorkspace({
       rebuildFieldMap();
       const snap = caretSnapshotRef.current;
       if (!snap) return;
+      // Do NOT steal focus or move caret if the user is typing in a form input or textarea outside the canvas
+      if (document.activeElement && (!paperRef.current?.contains(document.activeElement) || document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
+        return;
+      }
       if (isCaretInSnapshotTarget(snap)) return; // already where it belongs
       restoreCaret(snap, editableFieldMapRef.current, paperRef.current);
     };
@@ -906,6 +946,9 @@ export default function ResumeWorkspace({
     // typing. The [data] effect's retried restore remains as a fallback.
     const snap = caretSnapshotRef.current;
     if (!snap) return;
+    if (document.activeElement && (!paperRef.current?.contains(document.activeElement) || document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
+      return;
+    }
     if (isCaretInSnapshotTarget(snap)) return;
     restoreCaret(snap, editableFieldMapRef.current, paperRef.current);
   }, [rebuildFieldMap]);
@@ -950,6 +993,20 @@ export default function ResumeWorkspace({
       const cleanOld = stripInlineTags(entry.span).replace(/\u00a0/g, ' ').replace(/\n+$/, '');
       if (cleanOld === cleanNew) continue;
       changed.push({ node, entry, newText: cleanNew });
+    }
+
+    // Also capture any element with [data-path] in this sheet not in editableFieldMapRef
+    const unmappedWithDataPath = Array.from(sheet.querySelectorAll('[data-path]')) as HTMLElement[];
+    for (const el of unmappedWithDataPath) {
+      if (editableFieldMapRef.current.has(el)) continue;
+      if (el.closest('[data-skills-grid]')) continue;
+      const path = el.getAttribute('data-path');
+      if (!path) continue;
+      const cleanNew = readNodeText(el).replace(/\u00a0/g, ' ').replace(/\n+$/, '');
+      if (!cleanNew) continue;
+      const entry: EditableFieldEntry = { path, span: '', via: 'stored' };
+      editableFieldMapRef.current.set(el, entry);
+      changed.push({ node: el, entry, newText: cleanNew });
     }
 
     // Only the OUTERMOST changed node per path may write. A whole-field element
@@ -1082,6 +1139,9 @@ export default function ResumeWorkspace({
         }
         return out;
       });
+    }
+    for (const c of changed) {
+      c.entry.span = c.newText;
     }
     if (next === data) return null;
     lastInternalWrittenDataRef.current = next;
@@ -1239,10 +1299,17 @@ export default function ResumeWorkspace({
         cur = cur.parentElement;
       }
     }
+    if (!entry) {
+      const dp = li.getAttribute('data-path') || li.querySelector('[data-path]')?.getAttribute('data-path');
+      if (dp) {
+        entry = { path: dp, span: '', via: 'stored' };
+      }
+    }
     if (!entry) return;
 
     // Commit any pending in-sheet typing first.
     const base = flushPendingInput() ?? data;
+    const liveDomText = readNodeText(li).replace(/\u00a0/g, ' ').replace(/\n+$/, '');
 
     // Character offset of the caret within the <li>'s plain text.
     const caretOffset = charOffsetIn(anchor, sel.anchorOffset, li);
@@ -1260,25 +1327,6 @@ export default function ResumeWorkspace({
     const parentPath = bulletIndex >= 0 ? parts.slice(0, -1).join('.') : null;
 
     if (parentPath && bulletIndex >= 0) {
-      // Read the current stored text (may contain inline tags).
-      const stored = String(entry.span ?? '');
-      // The caret offset is measured against the DOM text, which for a
-      // marker-stripped match (via 'rendered') drops a leading bullet glyph —
-      // shift the split by the stripped prefix so the cut lands exactly where
-      // the user pressed Enter.
-      const strippedStored = stored.replace(/^[•·\-*]\s*/, '');
-      const prefixShift =
-        entry.via === 'rendered' && strippedStored !== stored
-          ? stored.length - strippedStored.length
-          : 0;
-      // Map the plain-text caret offset into the tagged text.
-      const { toRaw } = plainTextWithOffsets(stored);
-      const rawOffset = toRaw(caretOffset + prefixShift);
-
-      // Close any open tags at the split point so both halves are valid HTML.
-      const beforeTagged = stored.slice(0, rawOffset);
-      const afterTagged  = stored.slice(rawOffset);
-
       // Navigate to the description array and splice.
       let next = { ...base } as any;
       const arrParts = parentPath.split('.');
@@ -1303,10 +1351,40 @@ export default function ResumeWorkspace({
         : typeof container === 'string'
           ? container.split('\n').map((l) => l.replace(/^[•·\-*]\s*/, ''))
           : null;
-      if (lines && bulletIndex < lines.length) {
+
+      // Determine the base stored string to split:
+      // If lines[bulletIndex] has content matching the DOM text (possibly with tags), use it;
+      // otherwise, if the user typed text directly in the DOM (e.g. into an empty bullet), use liveDomText!
+      const currentStored = lines && bulletIndex < lines.length ? String(lines[bulletIndex] ?? '') : '';
+      const stored = (currentStored && stripInlineTags(currentStored).trim() === liveDomText.trim())
+        ? currentStored
+        : (liveDomText.trim() ? liveDomText : (currentStored || String(entry.span ?? '')));
+
+      // The caret offset is measured against the DOM text, which for a
+      // marker-stripped match (via 'rendered') drops a leading bullet glyph —
+      // shift the split by the stripped prefix so the cut lands exactly where
+      // the user pressed Enter.
+      const strippedStored = stored.replace(/^[•·\-*]\s*/, '');
+      const prefixShift =
+        entry.via === 'rendered' && strippedStored !== stored
+          ? stored.length - strippedStored.length
+          : 0;
+      // Map the plain-text caret offset into the tagged text.
+      const { toRaw } = plainTextWithOffsets(stored);
+      const rawOffset = toRaw(caretOffset + prefixShift);
+
+      // Close any open tags at the split point so both halves are valid HTML.
+      const beforeTagged = stored.slice(0, rawOffset);
+      const afterTagged  = stored.slice(rawOffset);
+
+      if (lines) {
         const cleanBefore = (prefixShift > 0 ? beforeTagged.replace(/^[•·\-*]\s*/, '') : beforeTagged).trim();
         const cleanAfter  = afterTagged.trim();
-        lines.splice(bulletIndex, 1, cleanBefore, cleanAfter);
+        if (bulletIndex < lines.length) {
+          lines.splice(bulletIndex, 1, cleanBefore, cleanAfter);
+        } else {
+          lines.push(cleanBefore, cleanAfter);
+        }
 
         // Walk back up and write the (possibly upgraded) array.
         let setter = next as any;
@@ -1325,7 +1403,10 @@ export default function ResumeWorkspace({
     }
 
     // ── Single-string field (summary, project.description): insert \n ───
-    const stored = String(entry.span ?? '');
+    const currentStored = String(entry.span ?? '');
+    const stored = (currentStored && stripInlineTags(currentStored).trim() === liveDomText.trim())
+      ? currentStored
+      : (liveDomText.trim() ? liveDomText : currentStored);
     const { toRaw } = plainTextWithOffsets(stored);
     const rawOffset = toRaw(caretOffset);
     const newStored = stored.slice(0, rawOffset) + '\n' + stored.slice(rawOffset);
@@ -2092,6 +2173,42 @@ export default function ResumeWorkspace({
           onRedo={handleInternalRedo}
           embedded={embedded}
         />
+      )}
+
+      {/* One-time notice: sections saved with content but not shown on this template */}
+      {visibleHiddenSections.length > 0 && (
+        <div className="shrink-0 px-3 pt-3 pr-32 md:pr-4">
+          <div className="mx-auto max-w-4xl flex flex-wrap items-center gap-x-2 gap-y-1.5 rounded-lg border border-brand-border bg-brand-secondary px-3 py-2 shadow-xs">
+            <span className="text-[11px] font-semibold text-brand-dark">
+              Saved from your resume but not shown on this template:
+            </span>
+            {visibleHiddenSections.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => handleNoticeAddSection(s)}
+                className="inline-flex items-center gap-1 rounded-md bg-brand-green px-2.5 py-1 text-[11px] font-bold text-brand-dark hover:bg-brand-greenHover transition-colors cursor-pointer shadow-xs"
+                title={`Add "${s.title}" to this resume`}
+              >
+                <Plus className="w-3 h-3 stroke-[2.5]" />
+                {s.title}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() =>
+                setDismissedHiddenIds((prev) =>
+                  Array.from(new Set([...prev, ...visibleHiddenSections.map((s) => s.id)]))
+                )
+              }
+              className="ml-auto p-1 rounded-md text-neutral-500 hover:bg-neutral-200 hover:text-brand-dark transition-colors cursor-pointer"
+              title="Dismiss"
+              aria-label="Dismiss"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Main Canvas: Always render the live visual resume preview */}

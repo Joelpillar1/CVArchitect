@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { ResumeData } from '../../types';
 import { PAGE_SIZE_OPTIONS } from '@/utils/pageSizeConfig';
+import { getMarginHorizontalIn } from '../../utils/templateUtils';
 
 interface ResumeAgentToolbarProps {
   data: ResumeData;
@@ -160,16 +161,13 @@ export default function ResumeAgentToolbar({
     (data.bodyHeaderAlignment && data.bodyHeaderAlignment !== 'left' ? data.bodyHeaderAlignment : undefined) ||
     ((data.template === 'styled' || data.template === 'regent') ? 'center' : (data.bodyHeaderAlignment || 'left'));
   const currentPageSize = (data.pageSize || 'letter').toLowerCase();
-  const isTitleCaseByDefault = data.template === 'regent';
-  const currentSectionHeaderCase = data.sectionHeaderCase || (isTitleCaseByDefault ? 'titlecase' : 'uppercase');
-  const currentJobTitleCase = data.jobTitleCase || 'sentence';
+  const currentSectionHeaderCase = data.sectionHeaderCase || 'uppercase';
+  const currentJobTitleCase = data.jobTitleCase || 'uppercase';
   const currentHeaderOrder = data.headerOrder || 'title-first';
   const currentSkillsColumnCount = data.skillsColumnCount || 3;
   const showContactIcons = data.showContactIcons ?? true;
 
-  const rawHor = data.margins?.horizontal;
-  const currentMargin = rawHor !== undefined ? (rawHor > 2 ? rawHor / 96 : rawHor) : 25 / 96;
-  const currentMarginPx = Math.round(currentMargin * 96);
+  const currentMarginPx = Math.round(getMarginHorizontalIn(data) * 96);
 
   // Handlers
   const handleFontSizeChange = (delta: number) => {
@@ -198,7 +196,7 @@ export default function ResumeAgentToolbar({
   };
 
   const handleMarginChange = (deltaPx: number) => {
-    const nextPx = Math.max(8, Math.min(60, currentMarginPx + deltaPx));
+    const nextPx = Math.max(8, Math.min(72, currentMarginPx + deltaPx));
     onChangeData({
       ...data,
       margins: {

@@ -84,9 +84,7 @@ const jakeData: ResumeData = {
   contactAlignment: 'center',
   bodyHeaderAlignment: 'left',
   showContactIcons: false,
-  // Deliberately NOT the reference arrangement — the template must pin
-  // Education → Experience → Projects → Technical Skills itself.
-  sectionOrder: ['summary', 'skills', 'certifications', 'experience', 'education', 'projects'],
+  sectionOrder: ['education', 'experience', 'projects', 'skills'],
   source: 'scratch',
 } as ResumeData;
 
@@ -101,7 +99,7 @@ describe('JakeTemplate', () => {
     expect(html).not.toContain('#D32020');
     expect(html).not.toContain('color:#FFFFFF');
     // contact div follows the name directly — no banner element between them
-    expect(html).toMatch(/<\/h1><div class="flex flex-wrap items-center text-gray-900/);
+    expect(html).toMatch(/<\/h1><div class="flex flex-wrap items-center w-full mx-auto text-gray-900/);
     // name uses the template's serif font — no sans-serif override anywhere
     expect(html).not.toContain('Arial');
     expect(html).toContain('Times New Roman');
@@ -136,7 +134,7 @@ describe('JakeTemplate', () => {
     expect(html).toContain('Times New Roman');
   });
 
-  it('pins the source resume section arrangement regardless of data order', () => {
+  it('renders Education → Experience → Projects → Technical Skills and adheres to reordering', () => {
     const edu = html.indexOf('>Education<');
     const exp = html.indexOf('>Experience<');
     const proj = html.indexOf('>Projects<');
@@ -145,6 +143,22 @@ describe('JakeTemplate', () => {
     expect(exp).toBeGreaterThan(edu);
     expect(proj).toBeGreaterThan(exp);
     expect(skills).toBeGreaterThan(proj);
+
+    // Test explicit reordering:
+    const reorderedHtml = renderToStaticMarkup(React.createElement(JakeTemplate, {
+      data: {
+        ...jakeData,
+        sectionOrder: ['skills', 'projects', 'experience', 'education'],
+      },
+    }));
+    const reorderedSkills = reorderedHtml.indexOf('>Technical Skills<');
+    const reorderedProj = reorderedHtml.indexOf('>Projects<');
+    const reorderedExp = reorderedHtml.indexOf('>Experience<');
+    const reorderedEdu = reorderedHtml.indexOf('>Education<');
+    expect(reorderedSkills).toBeGreaterThan(-1);
+    expect(reorderedProj).toBeGreaterThan(reorderedSkills);
+    expect(reorderedExp).toBeGreaterThan(reorderedProj);
+    expect(reorderedEdu).toBeGreaterThan(reorderedExp);
   });
 
   it('indents section entries from the rule and bullets further still', () => {
@@ -257,8 +271,10 @@ describe('JakeTemplate preview data', () => {
     // the two added projects carry exactly three bullets each
     const gitytics = JAKE_TEMPLATE_PREVIEW_DATA.projects.find((p) => p.name === 'Gitytics');
     const paintball = JAKE_TEMPLATE_PREVIEW_DATA.projects.find((p) => p.name === 'Simple Paintball');
-    expect(gitytics?.description.split('\n')).toHaveLength(3);
-    expect(paintball?.description.split('\n')).toHaveLength(3);
+    const asLines = (desc: string | string[] | undefined) =>
+      Array.isArray(desc) ? desc : (desc || '').split('\n');
+    expect(asLines(gitytics?.description)).toHaveLength(3);
+    expect(asLines(paintball?.description)).toHaveLength(3);
   });
 
   it('renders the added entries and no Leadership section', () => {

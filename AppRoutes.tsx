@@ -98,6 +98,28 @@ function PublicRoute({ children, redirectIfAuthenticated = true }: PublicRoutePr
     return <>{children}</>;
 }
 
+// Localhost / Development Only Route Component
+function isLocalhostEnvironment(): boolean {
+    if (typeof window === 'undefined') return Boolean(import.meta.env.DEV);
+    const host = window.location.hostname;
+    return (
+        Boolean(import.meta.env.DEV) ||
+        host === 'localhost' ||
+        host === '127.0.0.1' ||
+        host === '[::1]' ||
+        host.startsWith('192.168.') ||
+        host.startsWith('10.') ||
+        host.endsWith('.local')
+    );
+}
+
+function DevOnlyRoute({ children }: { children: React.ReactNode }) {
+    if (!isLocalhostEnvironment()) {
+        return <Navigate to="/" replace />;
+    }
+    return <>{children}</>;
+}
+
 // Auth Callback Component
 function AuthCallback() {
     const { user, loading } = useAuth();
@@ -189,10 +211,10 @@ export default function AppRoutes() {
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
 
-            {/* TEMP DEV HARNESS ROUTE — remove before shipping */}
-            <Route path="/dev-agent-test" element={<AgentToolbarTestPage />} />
-            <Route path="/dev-templates" element={<TemplatesComparePage />} />
-            <Route path="/dev-regent" element={<RegentReferenceCheck />} />
+            {/* DEV HARNESS & SCREENSHOT ROUTES — only active on localhost / dev environments */}
+            <Route path="/dev-agent-test" element={<DevOnlyRoute><AgentToolbarTestPage /></DevOnlyRoute>} />
+            <Route path="/dev-templates" element={<DevOnlyRoute><TemplatesComparePage /></DevOnlyRoute>} />
+            <Route path="/dev-regent" element={<DevOnlyRoute><RegentReferenceCheck /></DevOnlyRoute>} />
 
             {/* Protected Route - Resume Agent */}
             <Route path="/resume-agent" element={<ProtectedRoute><ResumeAgentPage /></ProtectedRoute>} />
@@ -200,8 +222,8 @@ export default function AppRoutes() {
             {/* Protected Route - Dashboard with nested routes */}
             <Route path="/dashboard/*" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
-            {/* Screenshot route for editor captures */}
-            <Route path="/screenshot" element={<ScreenshotEditorPage />} />
+            {/* Screenshot route for editor captures — localhost only */}
+            <Route path="/screenshot" element={<DevOnlyRoute><ScreenshotEditorPage /></DevOnlyRoute>} />
 
             {/* Print/PDF capture route — used by Puppeteer, no auth needed */}
             <Route path="/print-resume" element={<PrintResumePage />} />

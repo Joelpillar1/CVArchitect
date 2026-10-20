@@ -2,7 +2,9 @@ import React from 'react';
 import { ResumeData } from '../../types';
 import { MapPin, Phone, Mail, Linkedin, Send, Github, Globe } from 'lucide-react';
 import { parseDescriptionBullets, formatMonthYear as formatMonthYearUtil, getSectionGapIn, getHeaderGapIn, getHeaderItemGapIn, getHeaderContactGapIn, getItemGapIn, getMarginHorizontalIn, getMarginVerticalIn, formatContactText, formatLocationDisplay, formatLinkedInDisplay, getLinkedInHref, formatGitHubDisplay, getGitHubHref, formatPortfolioDisplay, getPortfolioHref, formatNameDisplay, formatJobTitleDisplay, formatSectionTitle, splitSkillsList, CONTACT_SEPARATOR, renderExpertSkillsBlockHelper } from '../../utils/templateUtils';
+import { isSectionVisible } from '../../utils/sectionRegistry';
 import RichText from '../RichText';
+import ExtraSections from './ExtraSections';
 
 interface FreshGradFinanceTemplateProps {
   data: ResumeData;
@@ -13,6 +15,8 @@ const formatMonthYear = (dateString: string | null | undefined) => {
 };
 
 const FreshGradFinanceTemplate: React.FC<FreshGradFinanceTemplateProps> = ({ data }) => {
+  const isAdditionalInfoVisible = isSectionVisible(data, 'additional_information');
+  const isReferencesVisible = isSectionVisible(data, 'references');
   const { fontSizes } = data;
   const getSectionHeaderAlignment = () => {
     const align = data.bodyHeaderAlignment || data.sectionHeaderAlignment || 'left';
@@ -107,7 +111,7 @@ const FreshGradFinanceTemplate: React.FC<FreshGradFinanceTemplateProps> = ({ dat
           if (data.linkedin) items.push(
             <span key="li" className="inline-flex items-center gap-1">
               {showIcons && <Linkedin size={12} className="shrink-0" color={data.accentColor || '#000000'} />}
-              <a data-path="linkedin" href={getLinkedInHref(data.linkedin)} target="_blank" rel="noopener noreferrer" className="text-inherit no-underline">
+              <a data-path="linkedin" href={getLinkedInHref(data.linkedin)} target="_blank" rel="noopener noreferrer" className="text-inherit underline">
                 <RichText text={formatLinkedInDisplay(data.linkedin)} />
               </a>
             </span>
@@ -346,7 +350,7 @@ const FreshGradFinanceTemplate: React.FC<FreshGradFinanceTemplateProps> = ({ dat
               </ul>
             );
           })()}
-          {data.additionalInfo && data.additionalInfo.length > 0 && (
+          {isAdditionalInfoVisible && data.additionalInfo && data.additionalInfo.length > 0 && (
             <ul
               className="list-disc list-outside ml-5 space-y-1 text-gray-900"
               style={bodyStyle}
@@ -370,7 +374,7 @@ const FreshGradFinanceTemplate: React.FC<FreshGradFinanceTemplateProps> = ({ dat
       )}
 
       {/* REFERENCES */}
-      {data.referee && data.referee.trim() && (
+      {isReferencesVisible && data.referee && data.referee.trim() && (
         <section className="break-inside-avoid" style={{ marginBottom: sectionGap }}>
           {renderSectionHeader('References')}
           <p className="italic text-gray-800 whitespace-pre-line" style={bodyStyle}>
@@ -378,6 +382,16 @@ const FreshGradFinanceTemplate: React.FC<FreshGradFinanceTemplateProps> = ({ dat
           </p>
         </section>
       )}
+
+      {/* Sections added by the user that this fixed layout doesn't render natively */}
+      <ExtraSections
+        data={data}
+        exclude={['education', 'experience', 'leadership', 'skills', 'additional_information', 'references']}
+        renderHeader={renderSectionHeader}
+        bodyStyle={bodyStyle}
+        sectionGap={sectionGap}
+        itemGap={`${getItemGapIn(data)}in`}
+      />
     </div>
   );
 };

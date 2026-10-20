@@ -961,7 +961,9 @@ export function resumeDataToStructured(data: ResumeData): ResumeContract {
   const projects: Project[] = (data.projects || []).map((proj, idx) => ({
     id: proj.id || `proj_${idx + 1}`,
     name: proj.name || 'Project',
-    description: proj.description || '',
+    description: Array.isArray(proj.description)
+      ? proj.description.join('\n')
+      : proj.description || '',
     bullets: [],
     technologies: proj.technologies,
     link: proj.link,

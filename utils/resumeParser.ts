@@ -1,15 +1,20 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import mammoth from 'mammoth';
 import Tesseract from 'tesseract.js';
-import { ResumeData } from '../types';
+import { ResumeData, TemplateType } from '../types';
 import { callAIJSON } from '../services/aiService';
 import { getSkillExtractionService } from '../services/skillExtractionService';
 import { formatAllResumeBullets, ensureBulletEndsWithPeriod } from './templateUtils';
+import { separateMergedPositions, mapResumeToTemplate } from './templateResumeMapper';
 
 // Initialize PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
-export const parseResume = async (file: File, onProgress?: (progress: number) => void): Promise<Partial<ResumeData>> => {
+export const parseResume = async (
+    file: File,
+    onProgress?: (progress: number) => void,
+    targetTemplate?: TemplateType
+): Promise<Partial<ResumeData>> => {
     let text = '';
     const extractStart = performance.now();
     console.log('Starting resume parsing for file:', file.name, file.type, 'Size:', file.size);
@@ -53,14 +58,26 @@ export const parseResume = async (file: File, onProgress?: (progress: number) =>
             console.log('Attempting AI-powered resume parsing...');
             const aiData = await parseWithAI(text);
             console.log('AI parsing succeeded!');
+            if (Array.isArray(aiData.experience)) {
+                aiData.experience = separateMergedPositions(aiData.experience);
+            }
             onProgress?.(100);
+            if (targetTemplate) {
+                return mapResumeToTemplate(aiData, targetTemplate);
+            }
             return formatAllResumeBullets(aiData);
         } catch (aiError) {
             console.warn('AI parsing failed, falling back to regex parser:', aiError);
             onProgress?.(90);
             // Fallback to regex-based parser
             const fallbackData = parseTextToResumeData(text);
+            if (Array.isArray(fallbackData.experience)) {
+                fallbackData.experience = separateMergedPositions(fallbackData.experience);
+            }
             onProgress?.(100);
+            if (targetTemplate) {
+                return mapResumeToTemplate(fallbackData, targetTemplate);
+            }
             return formatAllResumeBullets(fallbackData);
         }
     } catch (error) {
@@ -267,6 +284,11 @@ Extract the following information and return ONLY valid JSON (no markdown, no co
 CRITICAL RULES:
 - ONLY extract information that is EXPLICITLY present in the resume text. Do NOT hallucinate, invent, or add default/placeholder information.
 - If a section or field is not present in the resume, return an empty string "" or empty array [].
+- STRICT ROLE & COMPANY BOUNDARIES:
+  * NEVER merge distinct roles, jobs, promotions, or companies into a single entry in "experience".
+  * Every distinct job title, employment period, or company MUST be its own separate entry in the "experience" array.
+  * If a candidate worked at Company A and later Company B, they are completely separate companies and MUST each have their own independent entry with its own role, company name, dates, and bullets.
+  * NEVER append a subsequent company name, position, or dates into the description or bullets of a prior position.
 - ALWAYS extract 'Career Highlights', 'Career Highlight', 'Highlights', 'Key Achievements', 'Accomplishments' into 'keyAchievements'. Do NOT drop this section!
 - Extract discrete skill entities only (e.g., 'Web3', 'DeFi', 'Solana', 'Figma', 'TypeScript').
 - DO NOT extract full sentences, paragraphs, or responsibilities as skills.
@@ -685,7 +707,17 @@ const parseTextToResumeData = (text: string): Partial<ResumeData> => {
                     company: '',
                 };
 
-                if (i > expStart + 1) {
+                const lineWithoutDates = line.replace(dateMatch[0], '').replace(/^[|\-–—(),\s]+|[|\-–—(),\s]+$/g, '').trim();
+                if (lineWithoutDates.length > 2) {
+                    const parts = lineWithoutDates.split(/ at | - |,|\|/);
+                    if (parts.length > 1) {
+                        currentExp.role = parts[0].trim();
+                        currentExp.company = parts[1].trim();
+                    } else {
+                        currentExp.role = lineWithoutDates.trim();
+                        currentExp.company = 'Company';
+                    }
+                } else if (i > expStart + 1) {
                     const prevLine = lines[i - 1];
                     if (prevLine && !isSectionHeader(prevLine)) {
                         const parts = prevLine.split(/ at | - |,|\|/);
@@ -710,6 +742,7 @@ const parseTextToResumeData = (text: string): Partial<ResumeData> => {
             currentExp.id = `exp_${Date.now()}_${data.experience.length}`;
             data.experience.push(currentExp);
         }
+        data.experience = separateMergedPositions(data.experience);
     }
 
     // Extract Education

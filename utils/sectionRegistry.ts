@@ -198,6 +198,17 @@ export const SECTION_REGISTRY: Record<ResumeSectionType, SectionDefinition> = {
     rendererKind: 'experience',
     dataField: 'volunteering',
   },
+  involvement: {
+    type: 'involvement',
+    defaultTitle: 'Involvement',
+    defaultVisible: false,
+    isRequired: false,
+    canHide: true,
+    canRename: true,
+    canReorder: true,
+    rendererKind: 'experience',
+    dataField: 'involvement',
+  },
   memberships: {
     type: 'memberships',
     defaultTitle: 'Memberships',
@@ -482,8 +493,6 @@ export function createDefaultSectionOrder(): string[] {
     'education',
     'projects',
     'certifications',
-    'additional_information',
-    'references',
   ];
 }
 
@@ -540,6 +549,8 @@ export function getSectionContent(data: ResumeData, type: ResumeSectionType, cus
       return data.leadership;
     case 'volunteering':
       return data.volunteering;
+    case 'involvement':
+      return data.involvement;
     case 'memberships':
       return data.memberships;
     case 'publications':
@@ -641,6 +652,7 @@ export function hasSectionContent(data: ResumeData, type: ResumeSectionType, cus
     }
     case 'experience':
     case 'leadership':
+    case 'involvement':
     case 'volunteering':
     case 'research':
     case 'teaching':
@@ -738,14 +750,20 @@ export function isSectionVisible(data: ResumeData, id: string): boolean {
     return Boolean(data.sectionVisibility[type]);
   }
 
-  // 2. If present in sectionOrder, it is visible
+  // 2. Sections hidden by template default (e.g. additional_information and references)
+  // are hidden unless explicitly opted in via sectionVisibility above
+  if (isSectionHiddenByTemplateDefault(data.template, id, data.sectionVisibility)) {
+    return false;
+  }
+
+  // 3. If present in sectionOrder, it is visible
   if (Array.isArray(data.sectionOrder) && data.sectionOrder.length > 0) {
     if (data.sectionOrder.some((s) => s === id || normalizeSectionType(s) === type)) {
       return true;
     }
   }
 
-  // 3. If section contains non-empty user content and hasn't been explicitly hidden, treat as visible
+  // 4. If section contains non-empty user content and hasn't been explicitly hidden, treat as visible
   if (hasSectionContent(data, type, isCustom ? id : undefined)) {
     return true;
   }
@@ -760,10 +778,19 @@ export function isSectionVisible(data: ResumeData, id: string): boolean {
  */
 export const TEMPLATE_HIDDEN_SECTION_TYPES: Record<string, string[]> = {
   jake: ['summary', 'achievements', 'certifications', 'additional_information', 'references', 'leadership'],
+  // The Scholar source resume shows Education / Skills / Projects / Experience /
+  // Certifications only — no summary or leadership-style sections.
+  scholar: ['summary', 'achievements', 'additional_information', 'references', 'leadership'],
   // The Gaurav source resume shows Summary / Core Skills / Experience /
   // Education / Certification only — its project entries live nested under
   // experience, so the top-level Projects section stays hidden by default too.
   gaurav: ['achievements', 'leadership', 'projects', 'additional_information', 'references'],
+  sage: ['leadership', 'projects', 'additional_information', 'references'],
+  times: ['leadership', 'projects', 'additional_information', 'references'],
+  regent: ['leadership', 'projects', 'additional_information', 'references'],
+  professional: ['leadership', 'projects', 'additional_information', 'references'],
+  styled: ['leadership', 'projects', 'additional_information', 'references'],
+  modern: ['projects', 'leadership', 'additional_information', 'references', 'certifications', 'achievements'],
   rezi: [
     'summary',
     'projects',
@@ -777,61 +804,128 @@ export const TEMPLATE_HIDDEN_SECTION_TYPES: Record<string, string[]> = {
     'awards',
     'publications',
   ],
+  student: ['summary', 'achievements', 'references', 'additional_information'],
+  free: ['summary', 'achievements', 'references', 'additional_information'],
+  freshgrad1: ['summary', 'achievements', 'references', 'additional_information'],
+  freshgrad2: ['summary', 'achievements', 'references', 'additional_information'],
+  freshgrad3: ['summary', 'achievements', 'references', 'additional_information'],
+  freshgrad4: ['summary', 'achievements', 'references', 'additional_information'],
+  freshgrad5: ['summary', 'achievements', 'references', 'additional_information'],
+  freshgrad6: ['summary', 'achievements', 'references', 'additional_information'],
+  freshgrad7: ['summary', 'achievements', 'references', 'additional_information'],
+  freshgrad8: ['achievements', 'references', 'leadership', 'additional_information'],
 };
 
 /**
  * Whether `sectionKey` is hidden by default on `templateId` and has not been
  * explicitly opted in via sectionVisibility (checks both the raw key and its
  * canonical type, mirroring isSectionVisible's precedence rules).
+ *
+ * Additional Information and References are hidden by default across all templates
+ * unless the user explicitly adds them via the editor (sectionVisibility[id] = true).
  */
 export function isSectionHiddenByTemplateDefault(
   templateId: string | undefined,
   sectionKey: string,
   sectionVisibility?: Record<string, boolean>
 ): boolean {
-  if (!templateId || !sectionKey) return false;
-  const hidden = TEMPLATE_HIDDEN_SECTION_TYPES[templateId];
-  if (!hidden) return false;
+  if (!sectionKey) return false;
   const type = normalizeSectionType(sectionKey) || sectionKey;
-  if (!hidden.includes(type)) return false;
   if (sectionVisibility && sectionVisibility[sectionKey] === true) return false;
   if (sectionVisibility && sectionVisibility[type] === true) return false;
-  return true;
+  if (sectionVisibility && sectionVisibility[sectionKey] === false) return true;
+  if (sectionVisibility && sectionVisibility[type] === false) return true;
+
+  // Additional Information and References are removed by default across all templates
+  // unless explicitly added by the user via the editor (sectionVisibility = true).
+  if (type === 'additional_information' || type === 'references') {
+    return true;
+  }
+
+  if (!templateId) return false;
+  const hidden = TEMPLATE_HIDDEN_SECTION_TYPES[templateId];
+  if (!hidden) return false;
+  return hidden.includes(type);
+}
+
+/**
+ * True when the user explicitly added this section — via the sidebar's
+ * "Add Section", the canvas + dock, or the hidden-content notice banner after
+ * an upload. Every add path sets `sectionVisibility[id] === true` and records
+ * the canonical type in `userAddedSections`.
+ *
+ * Template-level "this section isn't part of this design" blocks must yield to
+ * an explicit add: content is never silently dropped from the preview after
+ * the user asked for it. Default rendering is unaffected (no flag, not
+ * user-added → the block applies exactly as before).
+ */
+export function isSectionExplicitlyAdded(
+  data: Pick<ResumeData, 'sectionVisibility' | 'userAddedSections'> | null | undefined,
+  sectionKey: string
+): boolean {
+  if (!data || !sectionKey) return false;
+  const type = normalizeSectionType(sectionKey) || sectionKey;
+  const visibility = data.sectionVisibility;
+  if (visibility) {
+    if (visibility[sectionKey] === true) return true;
+    if (visibility[type] === true) return true;
+  }
+  const userAdded = data.userAddedSections;
+  if (Array.isArray(userAdded)) {
+    return userAdded.some(
+      (s) => s === sectionKey || s === type || normalizeSectionType(s) === type
+    );
+  }
+  return false;
 }
 
 /**
  * Resolves the complete, ordered list of section IDs to render for a given document.
- * Preserves the exact user-specified sequence in `sectionOrder`, and dynamically
- * includes any populated sections that have not been explicitly hidden.
+ * Preserves the exact user-specified sequence in `sectionOrder`.
+ *
+ * When the document has an explicit order (every saved/created resume after
+ * sanitizeResumeData), standard sections render strictly from that order —
+ * content alone never creates a section, so each resume shows exactly its
+ * template's default sections plus whatever the user added. Without an explicit
+ * order (raw/partial payloads), populated sections are still discovered so no
+ * content is dropped. Custom sections are always kept: they exist only because
+ * the user created them.
  */
 export function getResolvedSectionOrder(data: ResumeData): string[] {
   if (!data) return createDefaultSectionOrder();
 
-  const baseOrder = Array.isArray(data.sectionOrder) && data.sectionOrder.length > 0
-    ? data.sectionOrder
-    : createDefaultSectionOrder();
+  const hasExplicitOrder = Array.isArray(data.sectionOrder) && data.sectionOrder.length > 0;
+  const baseOrder = hasExplicitOrder ? data.sectionOrder! : createDefaultSectionOrder();
 
   const normalizedBase = Array.from(new Set(baseOrder.map((s) => normalizeSectionType(s) || s)))
     .filter((s) => s !== 'expert_skills' && s !== 'expertSkills');
 
-  // Discover any non-core or optional sections in data that contain content
-  const allRegisteredTypes = Object.keys(SECTION_REGISTRY) as ResumeSectionType[];
   const extraPopulated: string[] = [];
 
-  for (const t of allRegisteredTypes) {
-    if (t === 'contact' || t === 'custom') continue;
-    if (normalizedBase.includes(t)) continue;
-    if (isSectionVisible(data, t) && hasSectionContent(data, t)) {
-      extraPopulated.push(t);
-    }
-  }
-
-  // Include populated custom sections
+  // Include populated custom sections (always — user-created by definition).
   if (data.customSections) {
     for (const customId of Object.keys(data.customSections)) {
       if (!normalizedBase.includes(customId) && isSectionVisible(data, customId) && hasSectionContent(data, 'custom', customId)) {
         extraPopulated.push(customId);
       }
+    }
+  }
+
+  // Standard sections: discovered for documents without an explicit order,
+  // or when explicitly enabled by the user via sectionVisibility[t] = true.
+  const allRegisteredTypes = Object.keys(SECTION_REGISTRY) as ResumeSectionType[];
+  for (const t of allRegisteredTypes) {
+    if (t === 'contact' || t === 'custom') continue;
+    if (normalizedBase.includes(t)) continue;
+    if (extraPopulated.includes(t)) continue;
+    const explicitlyEnabled = Boolean(
+      data.sectionVisibility && (
+        data.sectionVisibility[t] === true ||
+        (SECTION_REGISTRY[t]?.dataField && data.sectionVisibility[SECTION_REGISTRY[t].dataField] === true)
+      )
+    );
+    if ((!hasExplicitOrder || explicitlyEnabled) && isSectionVisible(data, t) && hasSectionContent(data, t)) {
+      extraPopulated.push(t);
     }
   }
 

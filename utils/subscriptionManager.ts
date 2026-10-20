@@ -240,6 +240,11 @@ export class SubscriptionManager {
             creditsCost,
             remainingCredits: this.subscription.credits,
         };
+        // Stored/legacy subscription objects may lack usageHistory — initialize
+        // lazily instead of throwing mid-flow (e.g. right after a PDF export).
+        if (!Array.isArray(this.subscription.usageHistory)) {
+            this.subscription.usageHistory = [];
+        }
         this.subscription.usageHistory.unshift(record);
     }
 
@@ -247,7 +252,8 @@ export class SubscriptionManager {
      * Get usage count for a specific action
      */
     getUsageCount(action: string): number {
-        return this.subscription.usageHistory.filter(record => record.action === action).length;
+        const history = this.subscription?.usageHistory;
+        return Array.isArray(history) ? history.filter(record => record.action === action).length : 0;
     }
 
     /**

@@ -30,7 +30,7 @@ import {
   renderCourseworkBlockHelper,
   renderExpertSkillsBlockHelper,
 } from '../../utils/templateUtils';
-import { resolveSection, getResolvedSectionOrder } from '../../utils/sectionRegistry';
+import { resolveSection, getResolvedSectionOrder, isSectionHiddenByTemplateDefault } from '../../utils/sectionRegistry';
 import type { CustomSectionData } from '../../types/resumeSections';
 
 /**
@@ -69,6 +69,7 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
 
   const HEADING_MARGIN_BOTTOM = '0.09in';
   const ENTRY_GAP = `${getItemGapIn(data, 0.16)}in`;
+  const COMPACT_ENTRY_GAP = `${Math.max(0.04, Math.min(0.06, getSectionGapIn(data) * 0.35))}in`;
   // Header→contact and contact→rule gaps: honor explicit user settings, else
   // this template's measured design values.
   const NAME_TO_CONTACT = `${getHeaderItemGapIn(data)}in`;
@@ -102,12 +103,12 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
           color: accentColor,
           borderTop: `1px solid ${accentColor}`,
           borderBottom: `1px solid ${accentColor}`,
-          paddingTop: '0.04in',
-          paddingBottom: '0.04in',
+          paddingTop: '0.08in',
+          paddingBottom: '0.08in',
           margin: 0,
         }}
       >
-        {formatSectionTitle(title, data.sectionHeaderCase || 'titlecase')}
+        {formatSectionTitle(title, data.sectionHeaderCase || 'uppercase')}
       </h2>
     </div>
   );
@@ -518,11 +519,12 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
             .map(c => c.replace(/^[•\-\*]\s*/, '').replace(/^(?:Relevant\s+Coursework|Relevant\s+Courses?):\s*/i, '').trim())
             .filter(Boolean);
           const bullets = parseDescriptionBullets(edu.description);
+          const hasDetails = courseItems.length > 0 || bullets.length > 0;
           return (
             <div
               key={edu.id || index}
               className="break-inside-avoid text-gray-900"
-              style={{ ...bodyStyle, marginBottom: index === items.length - 1 ? 0 : ENTRY_GAP }}
+              style={{ ...bodyStyle, marginBottom: index === items.length - 1 ? 0 : (hasDetails ? '0.08in' : COMPACT_ENTRY_GAP) }}
             >
               <div>
                 {edu.school && (
@@ -651,7 +653,7 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
               <div
                 key={cert.id || index}
                 className="flex justify-between items-baseline text-gray-900 gap-4"
-                style={{ marginBottom: index === validItems.length - 1 ? 0 : ENTRY_GAP }}
+                style={{ marginBottom: index === validItems.length - 1 ? 0 : COMPACT_ENTRY_GAP }}
               >
                 <div>
                   <span className="font-bold" data-path={`${basePath}.${index}.name`}>
@@ -689,7 +691,7 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
             <div
               key={lang.id || index}
               className="text-gray-900"
-              style={{ marginBottom: index === validItems.length - 1 ? 0 : ENTRY_GAP }}
+              style={{ marginBottom: index === validItems.length - 1 ? 0 : COMPACT_ENTRY_GAP }}
             >
               <span className="font-bold" data-path={`${basePath}.${index}.language`}>
                 <RichText text={lang.language} />
@@ -737,6 +739,15 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
   const renderSection = (id: string) => {
     const resolved = resolveSection(data, id);
     if (!resolved || !resolved.visible || !resolved.hasContent) return null;
+
+    // Leadership, Projects, Additional Information, and References are hidden
+    // by default on Regent Serif unless explicitly opted in via sectionVisibility[id] = true.
+    if (
+      isSectionHiddenByTemplateDefault('regent', resolved.id, data.sectionVisibility) ||
+      isSectionHiddenByTemplateDefault('regent', resolved.type, data.sectionVisibility)
+    ) {
+      return null;
+    }
 
     let sectionTitle = resolved.title;
     if (resolved.type === 'summary') sectionTitle = t.professionalSummary || resolved.title;
@@ -791,11 +802,6 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
     }
   };
 
-  // The reference renders the job title as the heading above the summary, so
-  // `summary` is handled in the header block instead of the section loop.
-  const summaryResolved = resolveSection(data, 'summary');
-  const showSummary = Boolean(summaryResolved && summaryResolved.visible && summaryResolved.hasContent);
-  const showTitleBlock = Boolean(data.jobTitle) || showSummary;
 
   return (
     <div
@@ -858,7 +864,7 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
             // Left unstyled on purpose: the reference shows the profile link in
             // the browser's link color while everything else stays black.
             contactItems.push(
-              <a key="li" data-path="linkedin" href={getLinkedInHref(data.linkedin)} target="_blank" rel="noopener noreferrer">
+              <a key="li" data-path="linkedin" href={getLinkedInHref(data.linkedin)} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>
                 <RichText text={formatLinkedInDisplay(data.linkedin)} />
               </a>
             );
@@ -935,39 +941,30 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
         />
       </header>
 
-      {/* ── Job title heading (no underline) + justified summary ── */}
-      {showTitleBlock && (
-        <section
-          className="break-inside-avoid w-full"
+      {/* ── Job title heading (no underline) ── */}
+      {data.jobTitle && (
+        <div
+          className="break-inside-avoid w-full text-center"
           style={{ marginBottom: `${getSectionGapIn(data)}in`, width: '100%' }}
         >
-          {data.jobTitle ? (
-            <h2
-              data-path="jobTitle"
-              className={`font-bold leading-normal text-center w-full ${getSectionHeaderAlignment()}`}
-              style={{
-                fontSize: `${fontSizes?.sectionTitle || 11}pt`,
-                color: accentColor,
-                marginBottom: '0.08in',
-                width: '100%',
-              }}
-            >
-              <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />
-            </h2>
-          ) : (
-            renderSectionHeader(t.professionalSummary || summaryResolved?.title || 'Professional Summary')
-          )}
-          {showSummary && (
-            <p data-path="summary" className="text-justify whitespace-pre-line text-gray-900" style={bodyStyle}>
-              <RichText text={(summaryResolved?.content as string) ?? ''} />
-            </p>
-          )}
-        </section>
+          <h2
+            data-path="jobTitle"
+            className={`font-bold leading-normal text-center w-full ${getSectionHeaderAlignment()}`}
+            style={{
+              fontSize: `${fontSizes?.sectionTitle || 11}pt`,
+              color: accentColor,
+              marginBottom: '0.08in',
+              width: '100%',
+            }}
+          >
+            <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase || 'uppercase')} />
+          </h2>
+        </div>
       )}
 
-      {/* ── Dynamic sections (summary handled above) ── */}
+      {/* ── Dynamic sections ── */}
       {getResolvedSectionOrder(data)
-        .filter((id) => id !== 'summary' && id !== 'contact')
+        .filter((id) => id !== 'contact')
         .map((id) => (
           <React.Fragment key={id}>{renderSection(id)}</React.Fragment>
         ))}

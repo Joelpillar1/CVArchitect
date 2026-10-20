@@ -23,11 +23,12 @@ import {
   formatSectionTitle,
   isTitleFirst,
   splitSkillsList,
+  parseExpertSkillItems,
   CONTACT_SEPARATOR,
   renderCourseworkBlockHelper,
   renderExpertSkillsBlockHelper,
 } from '../../utils/templateUtils';
-import { resolveSection, getResolvedSectionOrder } from '../../utils/sectionRegistry';
+import { resolveSection, getResolvedSectionOrder, isSectionHiddenByTemplateDefault, isSectionExplicitlyAdded } from '../../utils/sectionRegistry';
 import type { CustomSectionData } from '../../types/resumeSections';
 import { getTranslation, Language } from '../../i18n/translations';
 import RichText from '../RichText';
@@ -97,25 +98,35 @@ const FreshGrad8Template: React.FC<FreshGrad8TemplateProps> = ({ data }) => {
     );
   };
 
-  const renderSkillsBlock = (title: string, skillsStr: string) => {
-    if (!skillsStr || !skillsStr.trim()) return null;
-    const skillsList = splitSkillsList(skillsStr);
-    if (skillsList.length === 0) return null;
+  const renderSkillsBlock = (title: string, items: any, basePath: string = 'skills') => {
+    const parsed = parseExpertSkillItems(items);
+    if (parsed.length === 0) return null;
+
     return (
       <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
         {renderSectionHeader(title)}
-        <ul
-          data-skills-grid
-          className={`list-none pl-2.5 grid gap-x-8 gap-y-1 text-gray-800 ${data.skillsColumnCount === 2 ? 'grid-cols-2' : (data.skillsColumnCount === 4 ? 'grid-cols-4' : 'grid-cols-3')}`}
-          style={bodyStyle}
-        >
-          {skillsList.map((skill, i) => (
-            <li key={i} data-skill-cell className="flex items-baseline gap-1.5 min-w-0">
-              <span data-bullet aria-hidden="true" className="shrink-0 select-none pointer-events-none leading-none">•</span>
-              <span className="flex-1" style={{ lineHeight: 'inherit' }}><RichText text={skill} /></span>
-            </li>
-          ))}
-        </ul>
+        <div className="text-gray-800 text-justify" style={bodyStyle}>
+          {parsed.map((item, index) => {
+            const hasCategory = Boolean(item.category?.trim());
+            const isLast = index === parsed.length - 1;
+            return (
+              <p key={item.id || index} className="leading-relaxed">
+                {hasCategory && (
+                  <>
+                    <span data-path={`${basePath}.${index}.category`} className="text-gray-900">
+                      <RichText text={item.category.trim()} />
+                      {item.category.trim().endsWith(':') ? ' ' : ': '}
+                    </span>
+                  </>
+                )}
+                <span data-path={`${basePath}.${index}.skills`} className="text-gray-800">
+                  <RichText text={item.skills ?? ''} />
+                </span>
+                {!isLast && <span> </span>}
+              </p>
+            );
+          })}
+        </div>
       </section>
     );
   };
@@ -127,14 +138,26 @@ const FreshGrad8Template: React.FC<FreshGrad8TemplateProps> = ({ data }) => {
     return (
       <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
         {renderSectionHeader(title)}
-        <ul className="list-disc list-outside ml-5 space-y-1 text-gray-800 text-justify" style={bodyStyle}>
-          {achievements.map((line, i) => (
-            <li key={i} data-path={`${basePath}.${i}`}>
-              <RichText text={line ? line.replace(/^[•-]\s*/, '') : ''} />
-            </li>
-          ))}
-        </ul>
+        {renderDotBullets(achievements, basePath)}
       </section>
+    );
+  };
+
+  // Bullet list using standard list-disc matching the application bullet system
+  const renderDotBullets = (
+    bullets: string[],
+    basePath: string,
+    opts: { indent?: string } = {},
+  ) => {
+    if (bullets.length === 0) return null;
+    return (
+      <ul className="list-disc list-outside ml-5 space-y-1 text-gray-800 text-justify" style={bodyStyle}>
+        {bullets.map((bullet, i) => (
+          <li key={i} data-path={`${basePath}.${i}`}>
+            <RichText text={bullet ? bullet.replace(/^([•·-]\s*)+/, '') : ''} />
+          </li>
+        ))}
+      </ul>
     );
   };
 
@@ -145,9 +168,10 @@ const FreshGrad8Template: React.FC<FreshGrad8TemplateProps> = ({ data }) => {
       <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
         {renderSectionHeader(title)}
         {items.map((exp, index) => {
-          const dateRange = [formatMonthYear(exp.startDate), formatMonthYear(exp.endDate)].filter(Boolean).join(' - ');
+          const dateRange = [formatMonthYear(exp.startDate), formatMonthYear(exp.endDate)].filter(Boolean).join(' – ');
+          const rightMeta = [dateRange, exp.location].filter(Boolean).join(', ');
           const bullets = parseDescriptionBullets(exp.description);
-          if (!exp.role && !exp.company && !dateRange && bullets.length === 0) return null;
+          if (!exp.role && !exp.company && !rightMeta && bullets.length === 0) return null;
 
           return (
             <div
@@ -155,46 +179,43 @@ const FreshGrad8Template: React.FC<FreshGrad8TemplateProps> = ({ data }) => {
               className="break-inside-avoid"
               style={{ marginBottom: index === items.length - 1 ? 0 : itemGap }}
             >
-              <div className="flex justify-between items-baseline mb-0.5">
-                <div>
-                  <h3 className="font-bold text-gray-900" style={bodyStyle}>
-                    {exp.role && (
-                      <span data-path={`${basePath}.${index}.role`}>
-                        <RichText text={exp.role} />
-                      </span>
-                    )}
+              {/* Line 1: Role title */}
+              {exp.role && (
+                <h3 className="font-bold text-gray-900 m-0" style={bodyStyle}>
+                  <span data-path={`${basePath}.${index}.role`}>
+                    <RichText text={exp.role} />
+                  </span>
+                </h3>
+              )}
+
+              {/* Line 2: Company (left) + dates & location (right) */}
+              {(exp.company || rightMeta) && (
+                <div className="flex justify-between items-baseline gap-3">
+                  <div className="font-bold text-gray-900 min-w-0">
                     {exp.company && (
-                      <span className="font-normal italic text-gray-700">
-                        {exp.role ? ' - ' : ''}
-                        <span data-path={`${basePath}.${index}.company`}>
-                          <RichText text={exp.company} />
-                        </span>
+                      <span data-path={`${basePath}.${index}.company`}>
+                        <RichText text={exp.company} />
                       </span>
                     )}
-                    {exp.location && (
-                      <span className="font-normal italic text-gray-600">
-                        {', '}
+                  </div>
+                  {rightMeta && (
+                    <span className="text-gray-800 shrink-0 text-right" style={bodyStyle}>
+                      {dateRange && <RichText text={dateRange} />}
+                      {exp.location && (
                         <span data-path={`${basePath}.${index}.location`}>
+                          {dateRange ? ', ' : ''}
                           <RichText text={exp.location} />
                         </span>
-                      </span>
-                    )}
-                  </h3>
+                      )}
+                    </span>
+                  )}
                 </div>
-                {dateRange && (
-                  <span className="text-gray-600 font-medium italic shrink-0 ml-4" style={bodyStyle}>
-                    <RichText text={dateRange} />
-                  </span>
-                )}
-              </div>
+              )}
+
               {bullets.length > 0 && (
-                <ul className="list-disc list-outside ml-5 space-y-1 text-gray-800 text-justify" style={bodyStyle}>
-                  {bullets.map((bullet, i) => (
-                    <li key={i} data-path={`${basePath}.${index}.description.${i}`}>
-                      <RichText text={bullet ? bullet.replace(/^[•-]\s*/, '') : ''} />
-                    </li>
-                  ))}
-                </ul>
+                <div style={{ marginTop: '0.04in' }}>
+                  {renderDotBullets(bullets, `${basePath}.${index}.description`)}
+                </div>
               )}
             </div>
           );
@@ -211,6 +232,30 @@ const FreshGrad8Template: React.FC<FreshGrad8TemplateProps> = ({ data }) => {
         {renderSectionHeader(title)}
         {items.map((edu, index) => {
           if (!edu.school && !edu.degree && !edu.year) return null;
+          // Line 2: School • Location • Year (dot-separated, all on one line)
+          const metaParts: React.ReactNode[] = [];
+          if (edu.school) {
+            metaParts.push(
+              <span key="school" data-path={`${basePath}.${index}.school`}>
+                <RichText text={edu.school} />
+              </span>
+            );
+          }
+          if (edu.location) {
+            metaParts.push(
+              <span key="loc" data-path={`${basePath}.${index}.location`}>
+                <RichText text={edu.location} />
+              </span>
+            );
+          }
+          if (edu.year) {
+            metaParts.push(
+              <span key="year" data-path={`${basePath}.${index}.year`}>
+                <RichText text={edu.year} />
+              </span>
+            );
+          }
+
           return (
             <div
               key={edu.id}
@@ -220,34 +265,28 @@ const FreshGrad8Template: React.FC<FreshGrad8TemplateProps> = ({ data }) => {
                 marginBottom: index === items.length - 1 ? 0 : itemGap,
               }}
             >
-              <div className="flex justify-between items-baseline">
-                <div>
-                  {edu.degree && (
-                    <h3 className="font-bold text-gray-900">
-                      <span data-path={`${basePath}.${index}.degree`}>
-                        <RichText text={edu.degree} />
-                      </span>
-                    </h3>
-                  )}
-                  {edu.school && (
-                    <p className="italic text-gray-700">
-                      <span data-path={`${basePath}.${index}.school`}>
-                        <RichText text={edu.school} />
-                      </span>
-                    </p>
-                  )}
-                  {edu.gpa && (
-                    <p className="text-gray-600">
-                      GPA: <RichText text={edu.gpa} />
-                    </p>
-                  )}
-                </div>
-                {edu.year && (
-                  <span data-path={`${basePath}.${index}.year`} className="text-gray-600 font-medium shrink-0 ml-4">
-                    <RichText text={edu.year} />
+              {edu.degree && (
+                <h3 className="font-bold text-gray-900 m-0" style={bodyStyle}>
+                  <span data-path={`${basePath}.${index}.degree`}>
+                    <RichText text={edu.degree} />
                   </span>
-                )}
-              </div>
+                </h3>
+              )}
+              {metaParts.length > 0 && (
+                <p className="text-gray-900 m-0" style={bodyStyle}>
+                  {metaParts.map((part, i) => (
+                    <React.Fragment key={i}>
+                      {i > 0 && <span style={{ margin: '0 0.35em' }}>•</span>}
+                      {part}
+                    </React.Fragment>
+                  ))}
+                </p>
+              )}
+              {edu.gpa && (
+                <p className="text-gray-700 m-0" style={bodyStyle}>
+                  GPA: <RichText text={edu.gpa} />
+                </p>
+              )}
             </div>
           );
         })}
@@ -271,36 +310,33 @@ const FreshGrad8Template: React.FC<FreshGrad8TemplateProps> = ({ data }) => {
               className="break-inside-avoid"
               style={{ marginBottom: index === items.length - 1 ? 0 : itemGap }}
             >
-              <div className="flex justify-between items-baseline mb-0.5">
-                <div className="font-bold text-gray-900" style={bodyStyle}>
-                  <span data-path={`${basePath}.${index}.name`}>
-                    <RichText text={project.name} />
-                  </span>
-                  {project.link && (
-                    <a
-                      href={project.link.startsWith('http') ? project.link : `https://${project.link}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="ml-2 font-normal italic text-gray-600 hover:underline"
-                    >
-                      Link
-                    </a>
-                  )}
-                </div>
+              {/* Line 1: Project name (+ optional link) */}
+              <div className="font-bold text-gray-900 m-0" style={bodyStyle}>
+                <span data-path={`${basePath}.${index}.name`}>
+                  <RichText text={project.name} />
+                </span>
+                {project.link && (
+                  <a
+                    href={project.link.startsWith('http') ? project.link : `https://${project.link}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-2 font-normal italic text-gray-600 hover:underline"
+                  >
+                    Link
+                  </a>
+                )}
               </div>
+
               {project.technologies && (
-                <div data-path={`${basePath}.${index}.technologies`} className="italic text-gray-600 mb-1" style={bodyStyle}>
+                <div data-path={`${basePath}.${index}.technologies`} className="italic text-gray-700" style={bodyStyle}>
                   <RichText text={project.technologies} />
                 </div>
               )}
+
               {bullets.length > 0 && (
-                <ul className="list-disc list-outside ml-5 space-y-1 text-gray-800 text-justify" style={bodyStyle}>
-                  {bullets.map((bullet, i) => (
-                    <li key={i} data-path={`${basePath}.${index}.description.${i}`}>
-                      <RichText text={bullet ? bullet.replace(/^[•-]\s*/, '') : ''} />
-                    </li>
-                  ))}
-                </ul>
+                <div style={{ marginTop: '0.02in' }}>
+                  {renderDotBullets(bullets, `${basePath}.${index}.description`)}
+                </div>
               )}
             </div>
           );
@@ -413,9 +449,33 @@ const FreshGrad8Template: React.FC<FreshGrad8TemplateProps> = ({ data }) => {
     const resolved = resolveSection(data, id);
     if (!resolved || !resolved.visible || !resolved.hasContent) return null;
 
+    // Hide sections that aren't part of this template's source document
+    // (e.g. Leadership) unless the user explicitly re-adds them via Add Section.
+    if (isSectionHiddenByTemplateDefault('freshgrad8', resolved.id, data.sectionVisibility)) return null;
+
+    // Student templates do not have key achievements by default — but an
+    // explicit user add (sidebar, canvas + dock, or the hidden-content notice
+    // banner) still wins and renders the section.
+    if (
+      (resolved.type === 'achievements' ||
+        id === 'keyAchievements' ||
+        id === 'achievements') &&
+      !isSectionExplicitlyAdded(data, id)
+    ) {
+      return null;
+    }
+
     let sectionTitle = resolved.title;
-    if (resolved.type === 'summary') sectionTitle = t.professionalSummary || resolved.title;
-    if (resolved.type === 'skills') sectionTitle = t.technicalSkills || resolved.title;
+    if (resolved.type === 'summary') {
+      const customTitle = data.sectionTitles?.summary;
+      sectionTitle = customTitle && customTitle !== 'Summary' ? customTitle : 'Summary';
+    }
+    if (resolved.type === 'skills') {
+      const customTitle = data.sectionTitles?.skills;
+      sectionTitle = customTitle && customTitle !== 'Skills' && customTitle !== 'Expert-Level Skills'
+        ? customTitle
+        : 'Skills & Interests';
+    }
     if (resolved.type === 'experience') sectionTitle = t.experienceTitle || resolved.title;
     if (resolved.type === 'education') sectionTitle = t.educationTitle || resolved.title;
     if (resolved.type === 'certifications') sectionTitle = t.certifications || resolved.title;
@@ -424,16 +484,8 @@ const FreshGrad8Template: React.FC<FreshGrad8TemplateProps> = ({ data }) => {
       case 'text':
         return renderTextBlock(sectionTitle, resolved.content as string, resolved.id);
       case 'skills':
-        return renderSkillsBlock(sectionTitle, resolved.content as string);
       case 'expert_skills':
-        return renderExpertSkillsBlockHelper({
-          data,
-          title: sectionTitle,
-          items: resolved.content as any,
-          basePath: resolved.id,
-          renderSectionHeader,
-          bodyStyle: { fontSize: `${fontSizes?.body || 9}pt`, lineHeight: data.lineHeight || 1.5 },
-        });
+        return renderSkillsBlock(sectionTitle, resolved.content as any, resolved.id);
       case 'bullets':
         return renderBulletsBlock(sectionTitle, resolved.content as string[] | string, resolved.id);
       case 'experience':

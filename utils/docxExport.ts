@@ -41,7 +41,6 @@ import {
 import {
   ResumeData,
   TemplateType,
-  Experience,
   Education,
   Project,
   Certification,
@@ -50,8 +49,16 @@ import {
   CourseworkItem,
 } from '../types';
 import { downloadFile, sanitizeFilename } from './pdfExport';
-import { parseExpertSkillItems } from './templateUtils';
-import { isSectionHiddenByTemplateDefault } from './sectionRegistry';
+import {
+  parseExpertSkillItems,
+  parseDescriptionBullets,
+  parseAchievementBullets,
+  getMarginHorizontalIn,
+  getMarginVerticalIn,
+  isTitleFirst,
+  formatJobTitleDisplay,
+} from './templateUtils';
+import { isSectionHiddenByTemplateDefault, getResolvedSectionOrder } from './sectionRegistry';
 
 // --- Color & Unit Helpers ---
 
@@ -77,6 +84,13 @@ function ptToHalfPt(pt: number): number {
 /** Convert pt spacing to twips (1pt = 20 twips). */
 function ptToTwips(pt: number): number {
   return Math.round(pt * 20);
+}
+
+/** Clean font family string into a single font name for Word compatibility (strips CSS fallbacks) */
+function cleanDocxFont(fontStr?: string, fallback = 'Calibri'): string {
+  if (!fontStr) return fallback;
+  const first = fontStr.split(',')[0].replace(/['"]/g, '').trim();
+  return first || fallback;
 }
 
 /** Safe URL validation for Word hyperlinks */
@@ -274,6 +288,13 @@ const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
     defaultHeaderAlign: 'center',
     defaultSectionOrder: ['education', 'experience', 'projects', 'skills', 'summary', 'certifications', 'leadership', 'additionalInfo'],
   },
+  scholar: {
+    defaultFont: 'Merriweather',
+    defaultAccent: '1F3864',
+    headingStyle: 'accent_line',
+    defaultHeaderAlign: 'center',
+    defaultSectionOrder: ['education', 'skills', 'projects', 'experience', 'certifications', 'summary', 'leadership', 'additionalInfo'],
+  },
   gaurav: {
     defaultFont: 'Times New Roman',
     defaultAccent: '000000',
@@ -436,13 +457,49 @@ const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
     defaultHeaderAlign: 'center',
     defaultSectionOrder: ['education', 'experience', 'projects', 'skills', 'certifications', 'leadership', 'additionalInfo', 'summary'],
   },
+  intern: {
+    defaultFont: 'Merriweather',
+    defaultAccent: '000000',
+    headingStyle: 'accent_line',
+    defaultHeaderAlign: 'center',
+    defaultSectionOrder: ['summary', 'experience', 'projects', 'education', 'coursework', 'skills'],
+  },
 };
 
 function getTemplateProfile(templateId?: TemplateType): TemplateProfile {
   if (templateId && TEMPLATE_PROFILES[templateId]) {
     return TEMPLATE_PROFILES[templateId];
   }
-  // If template is freshgrad2-7, return freshgrad profile
+  // Freshgrad serif family (freshgrad1, 2, 4, 5, 6)
+  if (
+    templateId === 'freshgrad1' ||
+    templateId === 'freshgrad2' ||
+    templateId === 'freshgrad4' ||
+    templateId === 'freshgrad5' ||
+    templateId === 'freshgrad6'
+  ) {
+    return {
+      defaultFont: 'Georgia',
+      defaultAccent: '000000',
+      headingStyle: 'accent_line',
+      defaultHeaderAlign: 'center',
+      defaultSectionOrder: ['education', 'experience', 'projects', 'skills', 'certifications', 'leadership', 'additionalInfo', 'summary'],
+    };
+  }
+  // Freshgrad modern family (freshgrad3, 7, 8)
+  if (
+    templateId === 'freshgrad3' ||
+    templateId === 'freshgrad7' ||
+    templateId === 'freshgrad8'
+  ) {
+    return {
+      defaultFont: 'Calibri',
+      defaultAccent: '000000',
+      headingStyle: 'accent_line',
+      defaultHeaderAlign: 'center',
+      defaultSectionOrder: ['education', 'experience', 'projects', 'skills', 'certifications', 'leadership', 'additionalInfo', 'summary'],
+    };
+  }
   if (templateId && templateId.startsWith('freshgrad')) {
     return TEMPLATE_PROFILES.freshgrad1;
   }
@@ -655,7 +712,8 @@ function generateSectionParagraphs(
   accentColor: string,
   bodyLineSpacing: number,
   baseBodyStyle: InlineRunStyle,
-  headingStyle: HeadingDividerStyle
+  headingStyle: HeadingDividerStyle,
+  rightTabTwips: number = 10080
 ): Paragraph[] {
   const paras: Paragraph[] = [];
 
@@ -697,6 +755,28 @@ function generateSectionParagraphs(
     );
   }
 
+  // 1b. KEY ACHIEVEMENTS
+  if ((sectionKey === 'keyAchievements' || sectionKey === 'achievements') && data.keyAchievements) {
+    const title = data.sectionTitles?.keyAchievements || data.sectionTitles?.achievements || 'Key Achievements';
+    paras.push(createSectionHeading(title, fontFamily, sectionTitleSize, accentColor, headingStyle, data.sectionHeaderCase, align));
+
+    const rawAchievements = Array.isArray(data.keyAchievements)
+      ? data.keyAchievements
+      : parseAchievementBullets(data.keyAchievements || '');
+    const bullets = rawAchievements.map((line) => (typeof line === 'string' ? line : '')).filter(Boolean);
+
+    for (const bullet of bullets) {
+      const clean = bullet.replace(/^[•\-*]\s*/, '');
+      paras.push(
+        new Paragraph({
+          bullet: { level: 0 },
+          spacing: { after: 30, line: bodyLineSpacing },
+          children: parseHtmlToDocxRuns(clean, baseBodyStyle, accentColor),
+        })
+      );
+    }
+  }
+
   // 2. WORK EXPERIENCE
   if (sectionKey === 'experience' && data.experience && data.experience.length > 0) {
     const title = data.sectionTitles?.experience || 'Work Experience';
@@ -708,7 +788,7 @@ function generateSectionParagraphs(
       // Role + Date
       paras.push(
         new Paragraph({
-          tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }],
+          tabStops: [{ type: TabStopType.RIGHT, position: rightTabTwips }],
           spacing: { before: 80, after: 20 },
           children: [
             new TextRun({
@@ -761,7 +841,7 @@ function generateSectionParagraphs(
       if (companyParts.length > 0) {
         paras.push(
           new Paragraph({
-            tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }],
+            tabStops: [{ type: TabStopType.RIGHT, position: rightTabTwips }],
             spacing: { after: 40 },
             children: companyParts,
           })
@@ -804,7 +884,7 @@ function generateSectionParagraphs(
     for (const edu of data.education) {
       paras.push(
         new Paragraph({
-          tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }],
+          tabStops: [{ type: TabStopType.RIGHT, position: rightTabTwips }],
           spacing: { before: 80, after: 20 },
           children: [
             new TextRun({
@@ -888,17 +968,45 @@ function generateSectionParagraphs(
   }
 
   // 4. SKILLS
-  if (sectionKey === 'skills' && (data.skills || data.technicalSkills || data.coreCompetencies)) {
+  if ((sectionKey === 'skills' || sectionKey === 'technicalSkills' || sectionKey === 'coreCompetencies') && (data.skills || data.technicalSkills || data.coreCompetencies)) {
     const title = data.sectionTitles?.skills || 'Skills';
     paras.push(createSectionHeading(title, fontFamily, sectionTitleSize, accentColor, headingStyle, data.sectionHeaderCase, align));
 
     if (data.skills) {
-      paras.push(
-        new Paragraph({
-          spacing: { before: 40, after: 50, line: bodyLineSpacing },
-          children: parseHtmlToDocxRuns(data.skills, baseBodyStyle, accentColor),
-        })
-      );
+      const parsedExpert = parseExpertSkillItems(data.skills);
+      const hasCategories = parsedExpert.some((item) => Boolean(item.category?.trim()));
+      if (hasCategories) {
+        for (const item of parsedExpert) {
+          paras.push(
+            new Paragraph({
+              bullet: { level: 0 },
+              spacing: { after: 30, line: bodyLineSpacing },
+              children: [
+                new TextRun({
+                  text: item.category ? `${item.category.trim().replace(/:$/, '')}: ` : '',
+                  bold: true,
+                  font: fontFamily,
+                  size: bodySize,
+                  color: textColor,
+                }),
+                new TextRun({
+                  text: item.skills || '',
+                  font: fontFamily,
+                  size: bodySize,
+                  color: textColor,
+                }),
+              ],
+            })
+          );
+        }
+      } else {
+        paras.push(
+          new Paragraph({
+            spacing: { before: 40, after: 50, line: bodyLineSpacing },
+            children: parseHtmlToDocxRuns(data.skills, baseBodyStyle, accentColor),
+          })
+        );
+      }
     }
 
     if (data.technicalSkills) {
@@ -989,7 +1097,7 @@ function generateSectionParagraphs(
       }
 
       if (proj.description) {
-        const bullets = proj.description.split('\n').filter((l) => l.trim().length > 0);
+        const bullets = parseDescriptionBullets(proj.description).filter((l) => l.trim().length > 0);
         for (const b of bullets) {
           const clean = b.replace(/^[•\-*]\s*/, '');
           paras.push(
@@ -1012,7 +1120,7 @@ function generateSectionParagraphs(
     for (const cert of data.certifications) {
       paras.push(
         new Paragraph({
-          tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }],
+          tabStops: [{ type: TabStopType.RIGHT, position: rightTabTwips }],
           spacing: { before: 50, after: 20 },
           children: [
             new TextRun({
@@ -1055,28 +1163,9 @@ function generateSectionParagraphs(
     }
   }
 
-  // 8. LEADERSHIP & ACTIVITIES
-  const DEFAULT_HARVARD_LEADERSHIP: Experience[] = [
-    {
-      id: 'default_harvard_lead_1',
-      company: 'Organization',
-      role: 'Position Title',
-      location: 'City, State',
-      startDate: 'Month Year',
-      endDate: 'Month Year',
-      description: [
-        'This section can be formatted similarly to the Experience section, or you can omit descriptions for activities.',
-        'If this section is more relevant to the opportunity you are applying for, consider moving this above your Experience section.',
-      ],
-    },
-  ];
-
-  const leadershipItems =
-    data.leadership && data.leadership.length > 0
-      ? data.leadership
-      : data.template === 'rezi' && data.sectionVisibility?.['leadership'] !== false
-      ? DEFAULT_HARVARD_LEADERSHIP
-      : [];
+  // 8. LEADERSHIP & ACTIVITIES — mirrors the preview: only real user entries
+  // render; once removed, the section must not fall back to sample content.
+  const leadershipItems = data.leadership && data.leadership.length > 0 ? data.leadership : [];
 
   if (sectionKey === 'leadership' && leadershipItems.length > 0) {
     const title = data.sectionTitles?.leadership || 'Leadership & Activities';
@@ -1086,7 +1175,7 @@ function generateSectionParagraphs(
       const dateRange = [lead.startDate, lead.endDate].filter(Boolean).join(' - ');
       paras.push(
         new Paragraph({
-          tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }],
+          tabStops: [{ type: TabStopType.RIGHT, position: rightTabTwips }],
           spacing: { before: 70, after: 20 },
           children: [
             new TextRun({
@@ -1156,7 +1245,7 @@ function generateSectionParagraphs(
       const dateRange = [vol.startDate, vol.endDate].filter(Boolean).join(' - ');
       paras.push(
         new Paragraph({
-          tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }],
+          tabStops: [{ type: TabStopType.RIGHT, position: rightTabTwips }],
           spacing: { before: 60, after: 20 },
           children: [
             new TextRun({
@@ -1312,13 +1401,58 @@ function generateSectionParagraphs(
       const title = data.sectionTitles?.[sectionKey] || custom.title || sectionKey;
       paras.push(createSectionHeading(title, fontFamily, sectionTitleSize, accentColor, headingStyle, data.sectionHeaderCase, align));
 
-      if (custom.items && custom.items.length > 0) {
+      if (custom.contentType === 'text' && custom.content) {
+        paras.push(
+          new Paragraph({
+            spacing: { after: 60, line: bodyLineSpacing },
+            children: parseHtmlToDocxRuns(String(custom.content), baseBodyStyle, accentColor),
+          })
+        );
+      } else if (custom.contentType === 'bullets' && custom.content) {
+        const rawBullets = Array.isArray(custom.content)
+          ? custom.content
+          : String(custom.content).split('\n').filter((l) => l.trim().length > 0);
+        for (const b of rawBullets) {
+          const clean = String(b).replace(/^[•\-*]\s*/, '');
+          paras.push(
+            new Paragraph({
+              bullet: { level: 0 },
+              spacing: { after: 30, line: bodyLineSpacing },
+              children: parseHtmlToDocxRuns(clean, baseBodyStyle, accentColor),
+            })
+          );
+        }
+      } else if (custom.contentType === 'key_value' && custom.content) {
+        const kvItems = Array.isArray(custom.content) ? (custom.content as AdditionalInfoItem[]) : [];
+        for (const item of kvItems) {
+          paras.push(
+            new Paragraph({
+              spacing: { after: 30, line: bodyLineSpacing },
+              children: [
+                new TextRun({
+                  text: `${item.label}: `,
+                  bold: true,
+                  font: fontFamily,
+                  size: bodySize,
+                  color: textColor,
+                }),
+                new TextRun({
+                  text: item.value,
+                  font: fontFamily,
+                  size: bodySize,
+                  color: textColor,
+                }),
+              ],
+            })
+          );
+        }
+      } else if (custom.items && custom.items.length > 0) {
         for (const it of custom.items) {
           const dateRange = [it.startDate, it.endDate].filter(Boolean).join(' - ');
           if (it.title || dateRange) {
             paras.push(
               new Paragraph({
-                tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }],
+                tabStops: [{ type: TabStopType.RIGHT, position: rightTabTwips }],
                 spacing: { before: 60, after: 20 },
                 children: [
                   ...(it.title
@@ -1378,6 +1512,14 @@ function generateSectionParagraphs(
             }
           }
         }
+      } else if (custom.content) {
+        // Fallback for simple content string
+        paras.push(
+          new Paragraph({
+            spacing: { after: 60, line: bodyLineSpacing },
+            children: parseHtmlToDocxRuns(String(custom.content), baseBodyStyle, accentColor),
+          })
+        );
       }
     }
   }
@@ -1394,7 +1536,8 @@ export function buildResumeDocxDocument(data: ResumeData, templateOverride?: Tem
   const accentColor = cleanHexColor(data.accentColor || profile.defaultAccent, profile.defaultAccent);
   const textColor = '1A202C'; // Clean deep neutral dark
   const subtextColor = '4A5568';
-  const fontFamily = data.font || profile.defaultFont;
+  const rawFont = data.font || profile.defaultFont;
+  const fontFamily = cleanDocxFont(rawFont, profile.defaultFont);
 
   // Typography metrics
   const nameSize = ptToHalfPt((data.fontSizes?.header || 20) * 1.25);
@@ -1404,6 +1547,15 @@ export function buildResumeDocxDocument(data: ResumeData, templateOverride?: Tem
   const smallSize = Math.max(14, bodySize - 2);
 
   const bodyLineSpacing = Math.round((data.lineHeight || 1.3) * 240);
+
+  // Calculate Page Dimensions and Margins (converted accurately from inches to twips: 1 in = 1440 twips)
+  const isA4 = (data.pageSize || 'letter').toLowerCase() === 'a4';
+  const hMarginIn = getMarginHorizontalIn(data);
+  const vMarginIn = getMarginVerticalIn(data);
+  const pageMarginTwips = convertInchesToTwip(hMarginIn);
+  const pageMarginVTwips = convertInchesToTwip(vMarginIn);
+  const pageWidthTwips = isA4 ? convertMillimetersToTwip(210) : convertInchesToTwip(8.5);
+  const rightTabPositionTwips = Math.max(1000, pageWidthTwips - (pageMarginTwips * 2));
 
   const baseBodyStyle: InlineRunStyle = {
     font: fontFamily,
@@ -1470,27 +1622,25 @@ export function buildResumeDocxDocument(data: ResumeData, templateOverride?: Tem
     );
   }
 
-  // 2. Header: Professional Job Title (if Title is before contact)
+  // 2. Header: Professional Job Title
+  let jobTitleParagraph: Paragraph | null = null;
   if (data.jobTitle && resolvedTemplate !== 'minimalist') {
-    let jobTitleText = data.jobTitle;
-    if (data.jobTitleCase === 'uppercase') jobTitleText = jobTitleText.toUpperCase();
+    const jobTitleText = formatJobTitleDisplay(data.jobTitle, data.jobTitleCase);
 
-    children.push(
-      new Paragraph({
-        alignment: jobTitleAlign,
-        spacing: { after: 50 },
-        children: [
-          new TextRun({
-            text: jobTitleText,
-            bold: true,
-            italics: resolvedTemplate === 'times',
-            font: fontFamily,
-            size: titleSize,
-            color: subtextColor,
-          }),
-        ],
-      })
-    );
+    jobTitleParagraph = new Paragraph({
+      alignment: jobTitleAlign,
+      spacing: { after: 40 },
+      children: [
+        new TextRun({
+          text: jobTitleText,
+          bold: true,
+          italics: resolvedTemplate === 'times',
+          font: fontFamily,
+          size: titleSize,
+          color: subtextColor,
+        }),
+      ],
+    });
   }
 
   // 3. Header: Contact Details Row
@@ -1641,45 +1791,75 @@ export function buildResumeDocxDocument(data: ResumeData, templateOverride?: Tem
     }
   }
 
+  let contactParagraph: Paragraph | null = null;
   if (contactParts.length > 0) {
-    children.push(
-      new Paragraph({
-        alignment: contactAlign,
-        spacing: { after: 120 },
-        border:
-          resolvedTemplate === 'regent'
-            ? {
-                bottom: {
-                  style: BorderStyle.SINGLE,
-                  size: 24, // 3pt thick black rule
-                  color: '111827',
-                },
-              }
-            : resolvedTemplate === 'rezi'
-            ? {
-                bottom: {
-                  style: BorderStyle.SINGLE,
-                  size: 8,
-                  color: '111827',
-                },
-              }
-            : undefined,
-        children: contactParts,
-      })
-    );
+    contactParagraph = new Paragraph({
+      alignment: contactAlign,
+      spacing: { after: 120 },
+      border:
+        resolvedTemplate === 'regent'
+          ? {
+              bottom: {
+                style: BorderStyle.SINGLE,
+                size: 24, // 3pt thick black rule
+                color: '111827',
+              },
+            }
+          : resolvedTemplate === 'rezi'
+          ? {
+              bottom: {
+                style: BorderStyle.SINGLE,
+                size: 8,
+                color: '111827',
+              },
+            }
+          : undefined,
+      children: contactParts,
+    });
   }
 
-  // Section Order Resolution
+  // Header Ordering: Respect template convention or explicit title-first / contact-first setting
+  const titleFirst = isTitleFirst(data, profile.defaultHeaderAlign !== 'center');
+  if (titleFirst) {
+    if (jobTitleParagraph) {
+      children.push(jobTitleParagraph);
+    }
+    if (contactParagraph) {
+      children.push(contactParagraph);
+    }
+  } else {
+    if (contactParagraph) {
+      // Adjust spacing if job title follows contact
+      if (jobTitleParagraph) {
+        contactParagraph = new Paragraph({
+          alignment: contactAlign,
+          spacing: { after: 30 },
+          children: contactParts,
+        });
+      }
+      children.push(contactParagraph);
+    }
+    if (jobTitleParagraph) {
+      children.push(jobTitleParagraph);
+    }
+  }
+
+  // Section Order Resolution: Use getResolvedSectionOrder to mirror preview exactly
+  const resolvedOrder = getResolvedSectionOrder(data);
   const sectionOrder =
-    data.sectionOrder && data.sectionOrder.length > 0 ? data.sectionOrder : profile.defaultSectionOrder;
+    resolvedOrder && resolvedOrder.length > 0 ? resolvedOrder : profile.defaultSectionOrder;
 
   // Check for Two-Column Layout (TwoColumnTemplate)
   if (profile.isTwoColumn) {
     const sidebarKeys = new Set(['skills', 'education', 'certifications', 'languages', 'additionalInfo']);
     const sidebarParagraphs: Paragraph[] = [];
     const mainParagraphs: Paragraph[] = [];
+    const twoColRightTabTwips = Math.max(1000, Math.round(rightTabPositionTwips * 0.68) - 140);
+    const twoColSidebarTabTwips = Math.max(1000, Math.round(rightTabPositionTwips * 0.32) - 140);
 
     for (const sectionKey of sectionOrder) {
+      const isSidebar = sidebarKeys.has(sectionKey);
+      const tabTwips = isSidebar ? twoColSidebarTabTwips : twoColRightTabTwips;
       const sectionParas = generateSectionParagraphs(
         sectionKey,
         data,
@@ -1692,10 +1872,11 @@ export function buildResumeDocxDocument(data: ResumeData, templateOverride?: Tem
         accentColor,
         bodyLineSpacing,
         baseBodyStyle,
-        profile.headingStyle
+        profile.headingStyle,
+        tabTwips
       );
 
-      if (sidebarKeys.has(sectionKey)) {
+      if (isSidebar) {
         sidebarParagraphs.push(...sectionParas);
       } else {
         mainParagraphs.push(...sectionParas);
@@ -1758,16 +1939,12 @@ export function buildResumeDocxDocument(data: ResumeData, templateOverride?: Tem
         accentColor,
         bodyLineSpacing,
         baseBodyStyle,
-        profile.headingStyle
+        profile.headingStyle,
+        rightTabPositionTwips
       );
       children.push(...sectionParas);
     }
   }
-
-  // Calculate Page Dimensions and Margins
-  const isA4 = data.pageSize === 'a4';
-  const pageMarginTwips = ptToTwips(data.margins?.horizontal || 36);
-  const pageMarginVTwips = ptToTwips(data.margins?.vertical || 36);
 
   return new Document({
     styles: {

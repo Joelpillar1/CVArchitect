@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { ResumeData, Project } from '../types';
-import { Plus, Trash2, ChevronUp, ChevronDown, Sparkles } from 'lucide-react';
+import { Plus, Trash2, ChevronUp, ChevronDown, Sparkles, X } from 'lucide-react';
 import { enhanceDescription } from './utils/aiEnhancer';
+import { parseDescriptionBullets } from '../utils/templateUtils';
 
 interface ProjectsFormProps {
     data: ResumeData;
@@ -15,7 +16,7 @@ export default function ProjectsForm({ data, onChange }: ProjectsFormProps) {
         const newProject: Project = {
             id: Date.now().toString(),
             name: '',
-            description: '',
+            description: [''],
             technologies: '',
             link: ''
         };
@@ -26,13 +27,38 @@ export default function ProjectsForm({ data, onChange }: ProjectsFormProps) {
         onChange({ ...data, projects: (data.projects || []).filter(p => p.id !== id) });
     };
 
-    const handleChange = (id: string, field: keyof Project, value: string) => {
+    const handleChange = (id: string, field: keyof Project, value: string | string[]) => {
         onChange({
             ...data,
             projects: (data.projects || []).map(p =>
                 p.id === id ? { ...p, [field]: value } : p
             )
         });
+    };
+
+    const getDescBullets = (project: Project): string[] =>
+        Array.isArray(project.description)
+            ? project.description
+            : parseDescriptionBullets(project.description || '');
+
+    const handleBulletChange = (projectId: string, bulletIdx: number, val: string) => {
+        const project = (data.projects || []).find(p => p.id === projectId);
+        if (!project) return;
+        const bullets = [...getDescBullets(project)];
+        bullets[bulletIdx] = val;
+        handleChange(projectId, 'description', bullets);
+    };
+
+    const handleAddBullet = (projectId: string) => {
+        const project = (data.projects || []).find(p => p.id === projectId);
+        if (!project) return;
+        handleChange(projectId, 'description', [...getDescBullets(project), '']);
+    };
+
+    const handleRemoveBullet = (projectId: string, bulletIdx: number) => {
+        const project = (data.projects || []).find(p => p.id === projectId);
+        if (!project) return;
+        handleChange(projectId, 'description', getDescBullets(project).filter((_, idx) => idx !== bulletIdx));
     };
 
     const moveProject = (index: number, direction: 'up' | 'down') => {
@@ -56,6 +82,7 @@ export default function ProjectsForm({ data, onChange }: ProjectsFormProps) {
             <div className="space-y-6">
                 {(data.projects || []).map((project, index) => {
                     const descString = normalizeDesc(project.description);
+                    const bullets = getDescBullets(project);
                     return (
                         <div
                             key={project.id}
@@ -136,14 +163,33 @@ export default function ProjectsForm({ data, onChange }: ProjectsFormProps) {
 
                                 <div className="space-y-2">
                                     <label className="text-xs font-medium text-gray-500">Description</label>
-                                    <textarea
-                                        value={descString}
-                                        onChange={(e) => handleChange(project.id, 'description', e.target.value)}
-                                        rows={3}
-                                        className="w-full p-3 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all resize-none leading-relaxed"
-                                        placeholder="Describe the project and your role..."
-                                    />
-                                    <div className="flex justify-end">
+                                    {bullets.map((b, bIdx) => (
+                                        <div key={bIdx} className="group/bullet relative flex items-center gap-2.5">
+                                            <span className="w-2 h-2 rounded-full bg-brand-green shrink-0" />
+                                            <input
+                                                type="text"
+                                                value={b}
+                                                onChange={(e) => handleBulletChange(project.id, bIdx, e.target.value)}
+                                                placeholder="Describe features, metrics, and outcomes..."
+                                                className="flex-1 min-w-0 px-3.5 py-2.5 text-xs border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green outline-none transition-all"
+                                            />
+                                            <button
+                                                onClick={() => handleRemoveBullet(project.id, bIdx)}
+                                                className="absolute right-1.5 p-1 text-gray-400 hover:text-red-500 rounded-md bg-white/90 opacity-0 group-hover/bullet:opacity-100 focus:opacity-100 transition-opacity"
+                                                title="Remove bullet"
+                                            >
+                                                <X size={13} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    <button
+                                        onClick={() => handleAddBullet(project.id)}
+                                        className="w-full flex items-center justify-center gap-1.5 py-2.5 mt-1 rounded-xl bg-brand-green/10 hover:bg-brand-green/20 border border-brand-green/20 text-brand-dark text-xs font-semibold transition-colors cursor-pointer"
+                                    >
+                                        <Plus size={14} />
+                                        <span>Add More</span>
+                                    </button>
+                                    <div className="flex justify-end pt-1">
                                         <button
                                             onClick={async () => {
                                                 if (!descString.trim()) {
@@ -153,7 +199,7 @@ export default function ProjectsForm({ data, onChange }: ProjectsFormProps) {
                                                 setEnhancingId(project.id);
                                                 try {
                                                     const enhanced = await enhanceDescription(descString, 'Project', project.name);
-                                                    handleChange(project.id, 'description', enhanced);
+                                                    handleChange(project.id, 'description', parseDescriptionBullets(enhanced));
                                                 } catch (error) {
                                                     alert('Failed to enhance. Check your API key.');
                                                     console.error(error);

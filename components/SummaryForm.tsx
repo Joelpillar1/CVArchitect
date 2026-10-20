@@ -16,8 +16,10 @@ export default function SummaryForm({ data, onChange, onAIAction }: SummaryFormP
         onChange({ ...data, summary: value });
     };
 
+    const summaryText = typeof data.summary === 'string' ? data.summary : '';
+
     const handleEnhanceSummary = async () => {
-        if (!data.summary.trim()) {
+        if (!summaryText.trim()) {
             alert('Please write a summary first before enhancing it.');
             return;
         }
@@ -31,7 +33,7 @@ export default function SummaryForm({ data, onChange, onAIAction }: SummaryFormP
         setIsEnhancingSummary(true);
         try {
             const enhanced = await enhanceSummary(
-                data.summary,
+                summaryText,
                 data.jobTitle || 'Professional'
             );
             handleChange(enhanced);
@@ -47,7 +49,7 @@ export default function SummaryForm({ data, onChange, onAIAction }: SummaryFormP
         <div className="space-y-4 animate-fadeIn">
             <div className="space-y-2">
                 <textarea
-                    value={data.summary}
+                    value={summaryText}
                     onChange={(e) => handleChange(e.target.value)}
                     rows={8}
                     className="w-full p-3 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all resize-none leading-relaxed"
@@ -60,7 +62,7 @@ export default function SummaryForm({ data, onChange, onAIAction }: SummaryFormP
                     </p>
                     <button
                         onClick={handleEnhanceSummary}
-                        disabled={isEnhancingSummary || !data.summary.trim()}
+                        disabled={isEnhancingSummary || !summaryText.trim()}
                         className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-brand-dark bg-brand-green hover:bg-brand-greenHover rounded-md transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
                         title="Enhance with AI (1 credit)"
                     >

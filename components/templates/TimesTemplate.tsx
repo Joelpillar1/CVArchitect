@@ -33,7 +33,7 @@ import {
   renderCourseworkBlockHelper,
   renderExpertSkillsBlockHelper,
 } from '../../utils/templateUtils';
-import { resolveSection, getResolvedSectionOrder } from '../../utils/sectionRegistry';
+import { resolveSection, getResolvedSectionOrder, isSectionHiddenByTemplateDefault } from '../../utils/sectionRegistry';
 import type { CustomSectionData } from '../../types/resumeSections';
 
 export default function TimesTemplate({ data }: { data: ResumeData }) {
@@ -48,6 +48,9 @@ export default function TimesTemplate({ data }: { data: ResumeData }) {
     fontSize: `${bodyPt}pt`,
     lineHeight: data.lineHeight || 1.45,
   };
+
+  const itemGap = `${getItemGapIn(data)}in`;
+  const compactItemGap = `${Math.max(0.04, Math.min(0.06, getSectionGapIn(data) * 0.35))}in`;
 
   const getSectionHeaderAlignment = () => {
     const align = data.sectionHeaderAlignment || data.bodyHeaderAlignment;
@@ -207,20 +210,29 @@ export default function TimesTemplate({ data }: { data: ResumeData }) {
 
   const renderEducationBlock = (title: string, items: Education[], basePath: string = 'education') => {
     if (!items || items.length === 0) return null;
-    const itemGap = `${getItemGapIn(data)}in`;
     return (
       <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
         {renderSectionHeader(title)}
         {items.map((edu, index) => {
           if (!edu.school && !edu.degree && !edu.year) return null;
           const formattedYear = formatDate(edu.year) || edu.year;
+          const courseItems = (Array.isArray(edu.relevantCourses)
+            ? edu.relevantCourses
+            : typeof edu.relevantCourses === 'string'
+              ? edu.relevantCourses.split('\n')
+              : []
+          )
+            .map(c => c.replace(/^[•\-\*]\s*/, '').replace(/^(?:Relevant\s+Coursework|Relevant\s+Courses?):\s*/i, '').trim())
+            .filter(Boolean);
+          const hasDetails = courseItems.length > 0;
+
           return (
             <div
               key={edu.id || index}
               className="break-inside-avoid text-gray-900"
               style={{
                 ...bodyStyle,
-                marginBottom: index === items.length - 1 ? 0 : itemGap,
+                marginBottom: index === items.length - 1 ? 0 : (hasDetails ? '0.08in' : compactItemGap),
               }}
             >
               <div className="flex justify-between items-baseline">
@@ -250,28 +262,15 @@ export default function TimesTemplate({ data }: { data: ResumeData }) {
                   </span>
                 )}
               </div>
-              {(() => {
-                const courseItems = (Array.isArray(edu.relevantCourses)
-                  ? edu.relevantCourses
-                  : typeof edu.relevantCourses === 'string'
-                    ? edu.relevantCourses.split('\n')
-                    : []
-                )
-                  .map(c => c.replace(/^[•\-\*]\s*/, '').replace(/^(?:Relevant\s+Coursework|Relevant\s+Courses?):\s*/i, '').trim())
-                  .filter(Boolean);
-
-                if (courseItems.length === 0) return null;
-
-                return (
-                  <ul className="list-disc list-outside ml-5 mt-1">
-                    {courseItems.map((item, i) => (
-                      <li key={i} data-path={`${basePath}.${index}.relevantCourses.${i}`} className="mb-0.5">
-                        <RichText text={item} />
-                      </li>
-                    ))}
-                  </ul>
-                );
-              })()}
+              {hasDetails && (
+                <ul className="list-disc list-outside ml-5 mt-1">
+                  {courseItems.map((item, i) => (
+                    <li key={i} data-path={`${basePath}.${index}.relevantCourses.${i}`} className="mb-0.5">
+                      <RichText text={item} />
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           );
         })}
@@ -337,7 +336,6 @@ export default function TimesTemplate({ data }: { data: ResumeData }) {
     if (!items || items.length === 0) return null;
     const validItems = items.filter((c) => c?.name?.trim() || c?.issuer?.trim() || c?.date?.trim());
     if (validItems.length === 0) return null;
-    const itemGap = `${getItemGapIn(data)}in`;
 
     return (
       <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
@@ -349,7 +347,7 @@ export default function TimesTemplate({ data }: { data: ResumeData }) {
               <div
                 key={cert.id || index}
                 className="flex justify-between items-baseline text-gray-900"
-                style={{ marginBottom: index === validItems.length - 1 ? 0 : itemGap }}
+                style={{ marginBottom: index === validItems.length - 1 ? 0 : compactItemGap }}
               >
                 <div>
                   <span data-path={`${basePath}.${index}.name`} className="font-bold">
@@ -381,7 +379,6 @@ export default function TimesTemplate({ data }: { data: ResumeData }) {
     if (!items || items.length === 0) return null;
     const validItems = items.filter((l) => l?.language?.trim());
     if (validItems.length === 0) return null;
-    const itemGap = `${getItemGapIn(data)}in`;
 
     return (
       <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
@@ -391,7 +388,7 @@ export default function TimesTemplate({ data }: { data: ResumeData }) {
             <div
               key={lang.id || index}
               className="text-gray-900"
-              style={{ marginBottom: index === validItems.length - 1 ? 0 : itemGap }}
+              style={{ marginBottom: index === validItems.length - 1 ? 0 : compactItemGap }}
             >
               <span data-path={`${basePath}.${index}.language`} className="font-bold">
                 <RichText text={lang.language} />
@@ -411,7 +408,6 @@ export default function TimesTemplate({ data }: { data: ResumeData }) {
   const renderKeyValueBlock = (title: string, items: AdditionalInfoItem[], basePath: string = 'additionalInfo') => {
     const validItems = (items || []).filter((item) => item?.label?.trim() && item?.value?.trim());
     if (validItems.length === 0) return null;
-    const itemGap = `${getItemGapIn(data)}in`;
 
     return (
       <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
@@ -421,7 +417,7 @@ export default function TimesTemplate({ data }: { data: ResumeData }) {
             <div
               key={item.id || index}
               className="text-gray-900"
-              style={{ marginBottom: index === validItems.length - 1 ? 0 : itemGap }}
+              style={{ marginBottom: index === validItems.length - 1 ? 0 : compactItemGap }}
             >
               <span data-path={`${basePath}.${index}.label`} className="font-bold">
                 <RichText text={item.label} />:
@@ -454,6 +450,15 @@ export default function TimesTemplate({ data }: { data: ResumeData }) {
   const renderSection = (id: string) => {
     const resolved = resolveSection(data, id);
     if (!resolved || !resolved.visible || !resolved.hasContent) return null;
+
+    // Leadership, Projects, Additional Information, and References are hidden
+    // by default on Times Classic unless explicitly opted in via sectionVisibility[id] = true.
+    if (
+      isSectionHiddenByTemplateDefault('times', resolved.id, data.sectionVisibility) ||
+      isSectionHiddenByTemplateDefault('times', resolved.type, data.sectionVisibility)
+    ) {
+      return null;
+    }
 
     let sectionTitle = resolved.title;
     if (resolved.type === 'summary') sectionTitle = t.professionalSummary || resolved.title;

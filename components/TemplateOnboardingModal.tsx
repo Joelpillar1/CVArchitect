@@ -6,6 +6,8 @@ import {
     Loader2,
     Briefcase,
     User,
+    Mail,
+    TrendingUp,
     ArrowLeft,
     CheckCircle2,
     AlertCircle,
@@ -14,14 +16,16 @@ import {
 } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { parseResume } from '../utils/resumeParser';
-import { ResumeData } from '../types';
+import { ResumeData, TemplateType } from '../types';
 import { Loader } from './ui/Loader';
+import { mapResumeToTemplate } from '../utils/templateResumeMapper';
 
 interface TemplateOnboardingModalProps {
     isOpen: boolean;
     onClose: () => void;
     onComplete: (data: any) => void;
     onCheckUploadPermission?: () => boolean;
+    selectedTemplate?: TemplateType;
 }
 
 type Step = 'selection' | 'details' | 'processing';
@@ -45,12 +49,15 @@ export default function TemplateOnboardingModal({
     isOpen,
     onClose,
     onComplete,
-    onCheckUploadPermission
+    onCheckUploadPermission,
+    selectedTemplate
 }: TemplateOnboardingModalProps) {
     const [step, setStep] = useState<Step>('selection');
     const [method, setMethod] = useState<'upload' | 'scratch' | null>(null);
     const [file, setFile] = useState<File | null>(null);
+    const [name, setName] = useState('');
     const [role, setRole] = useState('');
+    const [contact, setContact] = useState('');
     const [experience, setExperience] = useState('');
     const [progress, setProgress] = useState(0);
     const [activeStage, setActiveStage] = useState(0);
@@ -66,7 +73,9 @@ export default function TemplateOnboardingModal({
             setStep('selection');
             setMethod(null);
             setFile(null);
+            setName('');
             setRole('');
+            setContact('');
             setExperience('');
             setProgress(0);
             setActiveStage(0);
@@ -115,16 +124,23 @@ export default function TemplateOnboardingModal({
         }, 220);
 
         try {
-            const parsedData = await parseResume(selectedFile, (parserProgress) => {
-                if (parserProgress >= 75) {
-                    setActiveStage(2);
-                    setProcessingStatus('Analyzing experience & skills with AI...');
-                }
-                if (parserProgress > currentProg) {
-                    currentProg = Math.min(parserProgress, 92);
-                    setProgress(currentProg);
-                }
-            });
+            const parsedData = await parseResume(
+                selectedFile,
+                (parserProgress) => {
+                    if (parserProgress >= 75) {
+                        setActiveStage(2);
+                        setProcessingStatus('Analyzing experience & skills with AI...');
+                    }
+                    if (parserProgress > currentProg) {
+                        currentProg = Math.min(parserProgress, 92);
+                        setProgress(currentProg);
+                    }
+                },
+                selectedTemplate
+            );
+
+            // Compare and map the parsed content to the chosen template structure
+            const mappedResumeData = mapResumeToTemplate(parsedData, selectedTemplate);
 
             if (progressIntervalRef.current) {
                 clearInterval(progressIntervalRef.current);
@@ -136,8 +152,8 @@ export default function TemplateOnboardingModal({
             setProcessingStatus('Finalizing template...');
 
             const extractedTitle =
-                (parsedData.jobTitle as string) ||
-                (parsedData.experience && parsedData.experience[0]?.title) ||
+                (mappedResumeData.jobTitle as string) ||
+                (mappedResumeData.experience && mappedResumeData.experience[0]?.role) ||
                 '';
 
             const elapsedTime = Date.now() - startTime;
@@ -149,7 +165,7 @@ export default function TemplateOnboardingModal({
                     file: selectedFile,
                     role: extractedTitle,
                     experience: '',
-                    parsedData
+                    parsedData: mappedResumeData
                 });
             }, remainingTime);
         } catch (err: any) {
@@ -212,7 +228,9 @@ export default function TemplateOnboardingModal({
                 onComplete({
                     method: 'scratch',
                     file: null,
+                    name,
                     role,
+                    contact,
                     experience,
                     parsedData: {}
                 });
@@ -321,10 +339,27 @@ export default function TemplateOnboardingModal({
 
                             <div className="text-center mb-6">
                                 <h2 className="text-2xl font-bold text-brand-dark mb-1">Quick Details</h2>
-                                <p className="text-gray-500 text-sm">Help us tailor the starter content for your role.</p>
+                                <p className="text-gray-500 text-sm">Tell us about yourself and we'll set up your template.</p>
                             </div>
 
                             <form onSubmit={handleDetailsSubmit} className="space-y-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
+                                        Full Name
+                                    </label>
+                                    <div className="relative">
+                                        <User className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                                        <input
+                                            type="text"
+                                            required
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
+                                            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-green/20 focus:border-brand-green outline-none text-sm text-gray-900 transition-all"
+                                            placeholder="e.g. John Smith"
+                                        />
+                                    </div>
+                                </div>
+
                                 <div>
                                     <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                                         Target Role
@@ -344,10 +379,29 @@ export default function TemplateOnboardingModal({
 
                                 <div>
                                     <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
+                                        Contact
+                                    </label>
+                                    <div className="relative">
+                                        <Mail className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                                        <input
+                                            type="text"
+                                            value={contact}
+                                            onChange={(e) => setContact(e.target.value)}
+                                            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-green/20 focus:border-brand-green outline-none text-sm text-gray-900 transition-all"
+                                            placeholder="e.g. john@example.com, +1 555 123 4567, linkedin.com/in/john"
+                                        />
+                                    </div>
+                                    <p className="text-[11px] text-gray-400 mt-1.5">
+                                        Separate with commas — email, phone, LinkedIn, GitHub, website, or city.
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">
                                         Experience Level
                                     </label>
                                     <div className="relative">
-                                        <User className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                                        <TrendingUp className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                                         <select
                                             required
                                             value={experience}

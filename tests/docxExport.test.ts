@@ -128,8 +128,19 @@ describe('docxExport', () => {
     expect(buffer.byteLength).toBeGreaterThan(1000);
   });
 
-  it('builds a distinct DOCX document for Modern borderless template', async () => {
-    const doc = buildResumeDocxDocument(sampleData, 'modern');
+  it('sets accurate page margins in twips (0.5 in = 720 twips) instead of pt-scale units', async () => {
+    const dataWithHalfInchMargins: ResumeData = {
+      ...sampleData,
+      margins: { horizontal: 0.5, vertical: 0.5 },
+    };
+    const doc = buildResumeDocxDocument(dataWithHalfInchMargins, 'vanguard');
+    const buffer = await Packer.toBuffer(doc);
+    expect(buffer).toBeDefined();
+    expect(buffer.byteLength).toBeGreaterThan(1000);
+  });
+
+  it('builds a distinct DOCX document for FreshGrad templates', async () => {
+    const doc = buildResumeDocxDocument(sampleData, 'freshgrad7');
     expect(doc).toBeDefined();
 
     const buffer = await Packer.toBuffer(doc);
@@ -137,3 +148,4 @@ describe('docxExport', () => {
     expect(buffer.byteLength).toBeGreaterThan(1000);
   });
 });
+

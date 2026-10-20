@@ -32,6 +32,7 @@ import AgentPanel from '../components/resume-agent/AgentPanel';
 import AgentSidebar from '../components/resume-agent/AgentSidebar';
 import JobContextDrawer from '../components/resume-agent/JobContextDrawer';
 import { parseResume } from '../utils/resumeParser';
+import { mapResumeToTemplate } from '../utils/templateResumeMapper';
 import {
   getResumeAgentMemory,
   saveResumeAgentMemory,
@@ -545,7 +546,7 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
 
   useEffect(() => {
     if (user?.id) {
-      subscriptionService.getUserSubscription(user.id)
+      subscriptionService.getSubscription(user.id)
         .then((sub) => setUserSubscription(sub))
         .catch((err) => console.warn('Failed to load subscription in agent page:', err));
     }
@@ -619,7 +620,7 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
 
       const isRealHistory = (msgs?: AgentMessage[] | null) => {
         if (!msgs || !Array.isArray(msgs) || msgs.length === 0) return false;
-        if (msgs.length === 1 && (msgs[0].id.startsWith('welcome_msg') || ms[0].id === 'welcome_msg')) {
+        if (msgs.length === 1 && (msgs[0].id.startsWith('welcome_msg') || msgs[0].id === 'welcome_msg')) {
           return false;
         }
         return true;
@@ -984,7 +985,8 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
     }
     templateRef.current = newTemplate;
     setTemplate(newTemplate);
-    const updatedData = { ...(resumeDataRef.current || resumeData), template: newTemplate };
+    const base = resumeDataRef.current || resumeData;
+    const updatedData = mapResumeToTemplate(base, newTemplate);
     resumeDataRef.current = updatedData;
     setResumeData(updatedData);
     setHasUnsavedChanges(true);
@@ -1140,7 +1142,7 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
       const cachedDataRaw = localStorage.getItem(dataKey);
       if (cachedDataRaw) {
         workingData = JSON.parse(cachedDataRaw);
-      } else if (!workingData || !workingData.fullName || workingData.fullName === 'YOUR NAME') {
+      } else if (!workingData || !workingData.fullName || workingData.fullName === INITIAL_DATA.fullName) {
         const anonDataRaw = localStorage.getItem(getAgentDataKey(null));
         const appDataRaw = localStorage.getItem('cv_app_data');
         const legacyDataRaw = localStorage.getItem('cv_architect_agent_resume_data');
@@ -2239,28 +2241,35 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
     ]);
 
     try {
-      const parsedPartial = await parseResume(file, (progress) => {
-        let stepText = '';
-        if (progress <= 30) {
-          stepText = `📄 Reading and extracting text (${progress}%)...`;
-        } else if (progress <= 60) {
-          stepText = `🔍 OCR text extraction & cleaning (${progress}%)...`;
-        } else if (progress <= 90) {
-          stepText = `🤖 Structuring resume content with AI (${progress}%)...`;
-        } else {
-          stepText = `📊 Analyzing resume background and experience (${progress}%)...`;
-        }
-        setStatus(stepText);
-      });
+      const targetTemplate = currentResumeData.template;
+      const parsedPartial = await parseResume(
+        file,
+        (progress) => {
+          let stepText = '';
+          if (progress <= 30) {
+            stepText = `📄 Reading and extracting text (${progress}%)...`;
+          } else if (progress <= 60) {
+            stepText = `🔍 OCR text extraction & cleaning (${progress}%)...`;
+          } else if (progress <= 90) {
+            stepText = `🤖 Structuring resume content with AI (${progress}%)...`;
+          } else {
+            stepText = `📊 Analyzing resume background and experience (${progress}%)...`;
+          }
+          setStatus(stepText);
+        },
+        targetTemplate
+      );
 
+      const mappedData = mapResumeToTemplate(parsedPartial, targetTemplate);
       const mergedData = normalizeResumeData({
-        ...parsedPartial,
-        fullName: parsedPartial.fullName || '',
-        jobTitle: parsedPartial.jobTitle || '',
-        summary: parsedPartial.summary || '',
-        experience: Array.isArray(parsedPartial.experience) ? parsedPartial.experience : [],
-        skills: parsedPartial.skills || '',
-        education: Array.isArray(parsedPartial.education) ? parsedPartial.education : [],
+        ...mappedData,
+        template: targetTemplate,
+        fullName: mappedData.fullName || '',
+        jobTitle: mappedData.jobTitle || '',
+        summary: mappedData.summary || '',
+        experience: Array.isArray(mappedData.experience) ? mappedData.experience : [],
+        skills: mappedData.skills || '',
+        education: Array.isArray(mappedData.education) ? mappedData.education : [],
       });
 
       const expCount = mergedData.experience?.length || 0;
@@ -2468,6 +2477,10 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
         ...updatedData,
         sectionVisibility: newVisibility,
         sectionOrder: newSectionOrder,
+        // Explicit user addition — kept across template switches.
+        userAddedSections: Array.from(
+          new Set([...(updatedData.userAddedSections || []), sectionType])
+        ),
       };
 
       // Populate starter content if the field is empty so it renders immediately
@@ -2538,6 +2551,19 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
             (updatedData as any)[field] = [
               { id: '1', label: 'Availability', value: 'Immediate' },
               { id: '2', label: 'Work Authorization', value: 'Authorized to work' },
+            ];
+            break;
+
+          case 'coursework':
+            (updatedData as any)[field] = [
+              {
+                id: Date.now().toString(),
+                courseName: 'Data Structures, Distributed Systems & Machine Learning',
+                institution: '',
+                year: '',
+                skills: '',
+                description: [''],
+              },
             ];
             break;
 

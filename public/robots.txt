@@ -28,6 +28,8 @@ Disallow: /dashboard
 Disallow: /dashboard/*
 Disallow: /reset-password
 Disallow: /forgot-password
+Disallow: /screenshot
+Disallow: /dev-*
 
 # Block backend API routes
 Disallow: /api/

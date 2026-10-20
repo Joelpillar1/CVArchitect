@@ -8,7 +8,6 @@ import {
   getSectionGapIn,
   getHeaderGapIn,
   getHeaderItemGapIn,
-  getHeaderContactGapIn,
   getItemGapIn,
   getMarginHorizontalIn,
   getMarginVerticalIn,
@@ -20,15 +19,13 @@ import {
   formatPortfolioDisplay,
   getPortfolioHref,
   formatNameDisplay,
-  formatJobTitleDisplay,
   formatSectionTitle,
-  isTitleFirst,
-  splitSkillsList,
   CONTACT_SEPARATOR,
   renderCourseworkBlockHelper,
   renderExpertSkillsBlockHelper,
 } from '../../utils/templateUtils';
 import { resolveSection, getResolvedSectionOrder } from '../../utils/sectionRegistry';
+import { parseSkillCategories } from '../../utils/skillCategorization';
 import type { CustomSectionData } from '../../types/resumeSections';
 import { Mail, Phone, Linkedin, MapPin, Send, Github, Globe } from 'lucide-react';
 import { getTranslation, Language } from '../../i18n/translations';
@@ -61,8 +58,10 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
   };
 
   const renderSectionHeader = (title: string) => (
-    <div className={`section-header-wrap flex items-center gap-2 mb-2 break-inside-avoid ${getSectionHeaderAlignment()}`}>
-      <span className="w-1 h-4 rounded shrink-0" style={{ backgroundColor: accentColor }}></span>
+    <div
+      className={`section-header-wrap break-inside-avoid ${getSectionHeaderAlignment()}`}
+      style={{ marginBottom: '0.06in', paddingBottom: '0.025in', borderBottom: `1px solid ${accentColor}` }}
+    >
       <h2
         className="section-header font-bold m-0 p-0"
         style={{ ...sectionHeaderStyle, margin: 0, padding: 0 }}
@@ -86,23 +85,34 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
 
   const renderSkillsBlock = (title: string, skillsStr: string) => {
     if (!skillsStr || !skillsStr.trim()) return null;
-    const skillsList = splitSkillsList(skillsStr);
-    if (skillsList.length === 0) return null;
+    // Category rows: labeled input ("Languages: Java, …") is kept as-is and a
+    // plain comma list is bucketed automatically, so skills always render in
+    // category form ("Category: skill1, skill2") like the rest of the app.
+    const items = parseSkillCategories(skillsStr);
+    if (items.length === 0) return null;
     return (
       <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
         {renderSectionHeader(title)}
-        <ul
-          data-skills-grid
-          className={`list-none pl-2.5 grid gap-x-8 gap-y-1 text-gray-700 ${data.skillsColumnCount === 2 ? 'grid-cols-2' : (data.skillsColumnCount === 4 ? 'grid-cols-4' : 'grid-cols-3')}`}
-          style={bodyStyle}
-        >
-          {skillsList.map((skill, i) => (
-            <li key={i} data-skill-cell className="flex items-baseline gap-1.5 min-w-0">
-              <span data-bullet aria-hidden="true" className="shrink-0 select-none pointer-events-none leading-none">•</span>
-              <span className="flex-1" style={{ lineHeight: 'inherit' }}><RichText text={skill} /></span>
-            </li>
+        <div data-path="skills" className="space-y-1 text-gray-700" style={bodyStyle}>
+          {items.map((item, index) => (
+            <div key={item.id || index} className="leading-snug">
+              {item.category ? (
+                <>
+                  <span className="font-bold text-gray-900">
+                    <RichText text={item.category.trim()} />:
+                  </span>{' '}
+                  <span>
+                    <RichText text={item.skills ?? ''} />
+                  </span>
+                </>
+              ) : (
+                <span>
+                  <RichText text={item.skills ?? ''} />
+                </span>
+              )}
+            </div>
           ))}
-        </ul>
+        </div>
       </section>
     );
   };
@@ -149,25 +159,25 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
                       <RichText text={exp.role} />
                     </span>
                   )}
-                  {exp.company && (
-                    <span className="font-normal italic text-gray-700">
-                      {exp.role ? ' - ' : ''}
-                      <span data-path={`${basePath}.${index}.company`}>
-                        <RichText text={exp.company} />
-                      </span>
+                </div>
+                {exp.location && (
+                  <span className="text-gray-700 shrink-0 ml-4" style={bodyStyle}>
+                    <span data-path={`${basePath}.${index}.location`}>
+                      <RichText text={exp.location} />
                     </span>
-                  )}
-                  {exp.location && (
-                    <span className="font-normal italic text-gray-600">
-                      {', '}
-                      <span data-path={`${basePath}.${index}.location`}>
-                        <RichText text={exp.location} />
-                      </span>
+                  </span>
+                )}
+              </div>
+              <div className="flex justify-between items-baseline">
+                <div className="font-normal text-gray-900" style={bodyStyle}>
+                  {exp.company && (
+                    <span data-path={`${basePath}.${index}.company`}>
+                      <RichText text={exp.company} />
                     </span>
                   )}
                 </div>
                 {dateRange && (
-                  <span className="text-gray-500 font-medium italic shrink-0 ml-4" style={bodyStyle}>
+                  <span className="text-gray-700 shrink-0 ml-4" style={bodyStyle}>
                     <RichText text={dateRange} />
                   </span>
                 )}
@@ -399,11 +409,11 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
     if (!resolved || !resolved.visible || !resolved.hasContent) return null;
 
     let sectionTitle = resolved.title;
-    if (resolved.type === 'summary') sectionTitle = t.professionalSummary || resolved.title;
-    if (resolved.type === 'skills') sectionTitle = t.technicalSkills || resolved.title;
-    if (resolved.type === 'experience') sectionTitle = t.experienceTitle || resolved.title;
-    if (resolved.type === 'education') sectionTitle = t.educationTitle || resolved.title;
-    if (resolved.type === 'certifications') sectionTitle = t.certifications || resolved.title;
+    if (resolved.type === 'summary') sectionTitle = data.sectionTitles?.summary || t.professionalSummary || resolved.title;
+    if (resolved.type === 'skills') sectionTitle = data.sectionTitles?.skills || t.technicalSkills || resolved.title;
+    if (resolved.type === 'experience') sectionTitle = data.sectionTitles?.experience || t.experienceTitle || resolved.title;
+    if (resolved.type === 'education') sectionTitle = data.sectionTitles?.education || t.educationTitle || resolved.title;
+    if (resolved.type === 'certifications') sectionTitle = data.sectionTitles?.certifications || t.certifications || resolved.title;
 
     switch (resolved.rendererKind) {
       case 'text':
@@ -484,30 +494,6 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase)} />
         </h1>
-
-        {/* Job Title (if Title First) */}
-        {isTitleFirst(data, false) && data.jobTitle && (
-          <p
-            data-path="jobTitle"
-            className={`tracking-wider font-semibold text-gray-700 w-full ${
-              data.jobTitleAlignment === 'left' ? 'text-left' :
-              data.jobTitleAlignment === 'right' ? 'text-right' :
-              data.jobTitleAlignment === 'center' ? 'text-center' :
-              data.headerAlignment === 'left' ? 'text-left' :
-              data.headerAlignment === 'right' ? 'text-right' :
-              'text-center'
-            }`}
-            style={{
-              fontSize: `${fontSizes?.jobTitle || 11}pt`,
-              color: accentColor,
-              marginBottom: `${getHeaderContactGapIn(data)}in`,
-              lineHeight: 1.25,
-              width: '100%',
-            }}
-          >
-            <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />
-          </p>
-        )}
 
         {/* Contact Information */}
         {(() => {
@@ -618,7 +604,6 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
               style={{
                 ...bodyStyle,
                 width: '100%',
-                marginBottom: !isTitleFirst(data, false) && data.jobTitle ? `${getHeaderContactGapIn(data)}in` : undefined,
               }}
             >
               {contactItems.map((item, idx) => (
@@ -632,29 +617,6 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
             </div>
           );
         })()}
-
-        {/* Job Title (if Contact First) */}
-        {!isTitleFirst(data, false) && data.jobTitle && (
-          <p
-            data-path="jobTitle"
-            className={`tracking-wider font-semibold text-gray-700 w-full ${
-              data.jobTitleAlignment === 'left' ? 'text-left' :
-              data.jobTitleAlignment === 'right' ? 'text-right' :
-              data.jobTitleAlignment === 'center' ? 'text-center' :
-              data.headerAlignment === 'left' ? 'text-left' :
-              data.headerAlignment === 'right' ? 'text-right' :
-              'text-center'
-            }`}
-            style={{
-              fontSize: `${fontSizes?.jobTitle || 11}pt`,
-              color: accentColor,
-              lineHeight: 1.25,
-              width: '100%',
-            }}
-          >
-            <RichText text={formatJobTitleDisplay(data.jobTitle, data.jobTitleCase)} />
-          </p>
-        )}
       </header>
 
       {/* Dynamic Sections */}

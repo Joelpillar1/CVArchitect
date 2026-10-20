@@ -14,7 +14,8 @@ import {
   getItemGapIn,
   getMarginHorizontalIn,
   getMarginVerticalIn,
-  formatContactText, formatLocationDisplay,
+  formatContactText,
+  formatLocationDisplay,
   formatLinkedInDisplay,
   getLinkedInHref,
   formatGitHubDisplay,
@@ -25,30 +26,27 @@ import {
   formatJobTitleDisplay,
   formatSectionTitle,
   isTitleFirst,
-  splitSkillsList,
+  parseExpertSkillItems,
   CONTACT_SEPARATOR,
   renderCourseworkBlockHelper,
-  renderExpertSkillsBlockHelper,
 } from '../../utils/templateUtils';
-import { resolveSection, getResolvedSectionOrder } from '../../utils/sectionRegistry';
+import { resolveSection, getResolvedSectionOrder, isSectionExplicitlyAdded } from '../../utils/sectionRegistry';
 import type { CustomSectionData } from '../../types/resumeSections';
 
 export default function FreeTemplate({ data }: { data: ResumeData }) {
   const { fontSizes } = data;
-  const t = getTranslation(data.language as Language || 'en');
+  const t = getTranslation((data.language as Language) || 'en');
   const accentColor = data.accentColor || '#000000';
 
   const formatMonthYear = (dateString: string | null | undefined) => {
-    return formatMonthYearUtil(dateString, 'short');
+    return formatMonthYearUtil(dateString, 'long');
   };
 
-  const bodySize = fontSizes?.body || 9;
-  const bodyStyle = {
+  const bodySize = fontSizes?.body || 8.5;
+  const bodyStyle: React.CSSProperties = {
     fontSize: `${bodySize}pt`,
-    lineHeight: data.lineHeight || 1.5,
+    lineHeight: data.lineHeight || 1.32,
   };
-
-  const columnCount = data.skillsColumnCount || 3;
 
   const getSectionHeaderAlignment = () => {
     const align = data.bodyHeaderAlignment || data.sectionHeaderAlignment || 'left';
@@ -58,15 +56,24 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
   };
 
   const renderSectionHeader = (title: string) => (
-    <h2
-      className={`section-header font-bold mb-2 leading-tight ${getSectionHeaderAlignment()}`}
-      style={{
-        fontSize: `${fontSizes?.sectionTitle || 11}pt`,
-        color: data.accentColor || '#000000',
-      }}
-    >
-      {formatSectionTitle(title, data.sectionHeaderCase)}
-    </h2>
+    <div className={`section-header-wrap break-inside-avoid w-full mb-1.5 ${getSectionHeaderAlignment()}`}>
+      <h2
+        className="section-header font-bold uppercase tracking-wider text-gray-900 m-0 p-0"
+        style={{
+          fontSize: `${fontSizes?.sectionTitle || 11}pt`,
+          color: accentColor,
+          margin: 0,
+          padding: 0,
+          marginBottom: '2px',
+        }}
+      >
+        {formatSectionTitle(title, data.sectionHeaderCase || 'uppercase')}
+      </h2>
+      <div
+        className="section-divider w-full h-[1.5px]"
+        style={{ backgroundColor: accentColor }}
+      />
+    </div>
   );
 
   const renderTextBlock = (title: string, text: string, path: string = 'summary') => {
@@ -74,32 +81,60 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
     return (
       <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
         {renderSectionHeader(title)}
-        <p data-path={path} className="text-gray-700 text-justify whitespace-pre-line" style={bodyStyle}>
+        <p data-path={path} className="text-gray-800 text-justify whitespace-pre-line leading-snug" style={bodyStyle}>
           <RichText text={text ?? ''} />
         </p>
       </section>
     );
   };
 
-  const renderSkillsBlock = (title: string, skillsStr: string) => {
-    if (!skillsStr || !skillsStr.trim()) return null;
-    const skillsList = splitSkillsList(skillsStr);
-    if (skillsList.length === 0) return null;
+  // Bullet list using standard list-disc matching the application bullet system
+  const renderDotBullets = (bullets: string[], basePath: string) => {
+    if (bullets.length === 0) return null;
+    return (
+      <ul className="list-disc list-outside ml-5 space-y-1 text-gray-800 text-justify" style={bodyStyle}>
+        {bullets.map((bullet, i) => (
+          <li key={i} data-path={`${basePath}.${i}`}>
+            <RichText text={bullet ? bullet.replace(/^([•·-]\s*)+/, '') : ''} />
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
+  const renderSkillsBlock = (title: string, items: any, basePath: string = 'skills') => {
+    const parsed = parseExpertSkillItems(items);
+    if (parsed.length === 0) return null;
+
     return (
       <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
         {renderSectionHeader(title)}
-        <ul
-          data-skills-grid
-          className={`list-none pl-2.5 grid gap-x-8 gap-y-1 text-gray-700 ${columnCount === 2 ? 'grid-cols-2' : (columnCount === 4 ? 'grid-cols-4' : 'grid-cols-3')}`}
-          style={bodyStyle}
-        >
-          {skillsList.map((skill, i) => (
-            <li key={i} data-skill-cell className="flex items-baseline gap-1.5 min-w-0">
-              <span data-bullet aria-hidden="true" className="shrink-0 select-none pointer-events-none leading-none">•</span>
-              <span className="flex-1" style={{ lineHeight: 'inherit' }}><RichText text={skill} /></span>
-            </li>
-          ))}
-        </ul>
+        <div className="space-y-1 text-gray-800" style={bodyStyle}>
+          {parsed.map((item, index) => {
+            const hasCategory = Boolean(item.category?.trim());
+            const catText = item.category?.trim() || '';
+            const catClean = catText.endsWith(':') ? catText : `${catText}:`;
+            return (
+              <p key={item.id || index} className="leading-snug m-0">
+                {hasCategory ? (
+                  <>
+                    <span data-path={`${basePath}.${index}.category`} className="font-normal text-gray-900">
+                      <RichText text={catClean} />
+                      {' '}
+                    </span>
+                    <span data-path={`${basePath}.${index}.skills`} className="text-gray-800">
+                      <RichText text={item.skills ?? ''} />
+                    </span>
+                  </>
+                ) : (
+                  <span data-path={`${basePath}.${index}.skills`} className="text-gray-800">
+                    <RichText text={item.skills ?? ''} />
+                  </span>
+                )}
+              </p>
+            );
+          })}
+        </div>
       </section>
     );
   };
@@ -111,184 +146,255 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
     return (
       <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
         {renderSectionHeader(title)}
-        <ul className="list-disc list-outside ml-5 space-y-1 text-gray-700 text-justify" style={bodyStyle}>
-          {achievements.map((line, i) => (
-            <li key={i} data-path={`${basePath}.${i}`}>
-              <RichText text={line ? line.replace(/^[•-]\s*/, '') : ''} />
-            </li>
-          ))}
-        </ul>
-      </section>
-    );
-  };
-
-  const renderExperienceBlock = (title: string, items: Experience[], basePath: string = 'experience') => {
-    if (!items || items.length === 0) return null;
-    const itemGap = `${getItemGapIn(data)}in`;
-    return (
-      <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
-        {renderSectionHeader(title)}
-        {items.map((exp, index) => {
-          const dateRange = [formatMonthYear(exp.startDate), formatMonthYear(exp.endDate)].filter(Boolean).join(' - ');
-          const bullets = parseDescriptionBullets(exp.description);
-          if (!exp.role && !exp.company && !dateRange && bullets.length === 0) return null;
-
-          return (
-            <div
-              key={exp.id}
-              className="break-inside-avoid"
-              style={{ marginBottom: index === items.length - 1 ? 0 : itemGap }}
-            >
-              <div className="flex justify-between items-baseline mb-1">
-                <div>
-                  <h3 className="font-bold text-gray-900" style={bodyStyle}>
-                    {exp.role && (
-                      <span data-path={`${basePath}.${index}.role`}>
-                        <RichText text={exp.role} />
-                      </span>
-                    )}
-                    {exp.company && (
-                      <span className="font-normal italic text-gray-700">
-                        {exp.role ? ' - ' : ''}
-                        <span data-path={`${basePath}.${index}.company`}>
-                          <RichText text={exp.company} />
-                        </span>
-                      </span>
-                    )}
-                    {exp.location && (
-                      <span className="font-normal italic text-gray-600">
-                        {', '}
-                        <span data-path={`${basePath}.${index}.location`}>
-                          <RichText text={exp.location} />
-                        </span>
-                      </span>
-                    )}
-                  </h3>
-                </div>
-                {dateRange && (
-                  <span className="text-gray-500 font-medium italic shrink-0 ml-4" style={bodyStyle}>
-                    <RichText text={dateRange} />
-                  </span>
-                )}
-              </div>
-              {bullets.length > 0 && (
-                <ul className="list-disc list-outside ml-5 space-y-1 text-gray-700 text-justify" style={bodyStyle}>
-                  {bullets.map((bullet, i) => (
-                    <li key={i} data-path={`${basePath}.${index}.description.${i}`}>
-                      <RichText text={bullet ? bullet.replace(/^[•-]\s*/, '') : ''} />
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          );
-        })}
+        {renderDotBullets(achievements, basePath)}
       </section>
     );
   };
 
   const renderEducationBlock = (title: string, items: Education[], basePath: string = 'education') => {
     if (!items || items.length === 0) return null;
-    const itemGap = `${Math.max(0.14, getSectionGapIn(data))}in`;
+    const sectionGapIn = getSectionGapIn(data);
+    const itemGap = `${getItemGapIn(data)}in`;
     return (
-      <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
+      <section className="break-inside-avoid" style={{ marginBottom: `${sectionGapIn}in` }}>
         {renderSectionHeader(title)}
-        {items.map((edu, index) => {
-          if (!edu.school && !edu.degree && !edu.year) return null;
-          return (
-            <div
-              key={edu.id}
-              className="break-inside-avoid"
-              style={{
-                ...bodyStyle,
-                marginBottom: index === items.length - 1 ? 0 : itemGap,
-              }}
-            >
-              <div className="flex justify-between items-baseline">
-                <div>
-                  {edu.degree && (
-                    <h3 className="font-bold text-gray-900">
-                      <span data-path={`${basePath}.${index}.degree`}>
-                        <RichText text={edu.degree} />
+        <div className="flex flex-col">
+          {items.map((edu, index) => {
+            if (!edu.school && !edu.degree && !edu.year) return null;
+            const details = [edu.school, edu.location, edu.year].filter(Boolean);
+            const bullets = parseDescriptionBullets(edu.description);
+            return (
+              <div
+                key={edu.id || index}
+                className="break-inside-avoid leading-snug"
+                style={{ marginBottom: index === items.length - 1 ? 0 : itemGap }}
+              >
+                {edu.degree && (
+                  <h3 className="font-bold text-gray-900 leading-snug" style={bodyStyle}>
+                    <span data-path={`${basePath}.${index}.degree`}>
+                      <RichText text={edu.degree} />
+                    </span>
+                  </h3>
+                )}
+                {details.length > 0 && (
+                  <div className="text-gray-800 leading-snug" style={bodyStyle}>
+                    {details.map((part, pIdx) => (
+                      <React.Fragment key={pIdx}>
+                        {pIdx > 0 && <span className="mx-2 text-gray-500 font-normal">•</span>}
+                        <span
+                          data-path={
+                            pIdx === 0 && edu.school
+                              ? `${basePath}.${index}.school`
+                              : pIdx === 1 && edu.location
+                              ? `${basePath}.${index}.location`
+                              : `${basePath}.${index}.year`
+                          }
+                        >
+                          <RichText text={part} />
+                        </span>
+                      </React.Fragment>
+                    ))}
+                    {edu.gpa && (
+                      <span className="ml-2 text-gray-600">
+                        (GPA: <span data-path={`${basePath}.${index}.gpa`}><RichText text={edu.gpa} /></span>)
                       </span>
-                    </h3>
-                  )}
-                  {edu.school && (
-                    <p className="italic text-gray-600">
-                      <span data-path={`${basePath}.${index}.school`}>
-                        <RichText text={edu.school} />
-                      </span>
-                    </p>
-                  )}
-                  {edu.gpa && (
-                    <p className="text-gray-600">
-                      GPA: <RichText text={edu.gpa} />
-                    </p>
-                  )}
-                </div>
-                {edu.year && (
-                  <span data-path={`${basePath}.${index}.year`} className="text-gray-500 font-medium shrink-0 ml-4">
-                    <RichText text={edu.year} />
-                  </span>
+                    )}
+                  </div>
+                )}
+                {bullets.length > 0 && (
+                  <div style={{ marginTop: '0.02in' }}>
+                    {renderDotBullets(bullets, `${basePath}.${index}.description`)}
+                  </div>
                 )}
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
+      </section>
+    );
+  };
+
+  const renderExperienceBlock = (title: string, items: Experience[], basePath: string = 'experience') => {
+    if (!items || items.length === 0) return null;
+    const sectionGapIn = getSectionGapIn(data);
+    const itemGap = `${getItemGapIn(data)}in`;
+    return (
+      <section style={{ marginBottom: `${sectionGapIn}in` }}>
+        {renderSectionHeader(title)}
+        <div className="flex flex-col">
+          {items.map((exp, index) => {
+            const dateRange = [formatMonthYear(exp.startDate), formatMonthYear(exp.endDate)].filter(Boolean).join(' – ');
+            const bullets = parseDescriptionBullets(exp.description);
+            if (!exp.role && !exp.company && !dateRange && bullets.length === 0) return null;
+
+            return (
+              <div
+                key={exp.id || index}
+                className="break-inside-avoid"
+                style={{ marginBottom: index === items.length - 1 ? 0 : itemGap }}
+              >
+                {/* Line 1: Role (bold) */}
+                {exp.role && (
+                  <h3 className="font-bold text-gray-900 leading-snug m-0 p-0" style={bodyStyle}>
+                    <span data-path={`${basePath}.${index}.role`}>
+                      <RichText text={exp.role} />
+                    </span>
+                  </h3>
+                )}
+                {/* Line 2: Company (left) | Dates + Location (right) */}
+                {(exp.company || dateRange || exp.location) && (
+                  <div className="flex justify-between items-baseline leading-snug mb-0.5 gap-3" style={bodyStyle}>
+                    <span className="text-gray-800 min-w-0" data-path={`${basePath}.${index}.company`}>
+                      <RichText text={exp.company ?? ''} />
+                    </span>
+                    {(dateRange || exp.location) && (
+                      <span className="text-gray-800 shrink-0 font-normal text-right">
+                        {dateRange && <RichText text={dateRange} />}
+                        {exp.location && (
+                          <span data-path={`${basePath}.${index}.location`}>
+                            {dateRange ? ', ' : ''}
+                            <RichText text={exp.location} />
+                          </span>
+                        )}
+                      </span>
+                    )}
+                  </div>
+                )}
+                {bullets.length > 0 && (
+                  <div style={{ marginTop: '0.02in' }}>
+                    {renderDotBullets(bullets, `${basePath}.${index}.description`)}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    );
+  };
+
+  const renderLeadershipBlock = (title: string, items: Experience[], basePath: string = 'involvement') => {
+    if (!items || items.length === 0) return null;
+    const sectionGapIn = getSectionGapIn(data);
+    const itemGap = `${getItemGapIn(data)}in`;
+    return (
+      <section style={{ marginBottom: `${sectionGapIn}in` }}>
+        {renderSectionHeader(title)}
+        <div className="flex flex-col">
+          {items.map((lead, index) => {
+            const dateRange = [formatMonthYear(lead.startDate), formatMonthYear(lead.endDate)].filter(Boolean).join(' – ');
+            // Involvement line 2: School/Org • Club/Company • Dates
+            const schoolOrg = lead.location || lead.organization || '';
+            const clubName = lead.company || '';
+            const bullets = parseDescriptionBullets(lead.description);
+            if (!lead.role && !schoolOrg && !clubName && !dateRange && bullets.length === 0) return null;
+
+            const metaParts = [schoolOrg, clubName, dateRange].filter(
+              (part, idx, arr) => part && arr.indexOf(part) === idx
+            );
+
+            return (
+              <div
+                key={lead.id || index}
+                className="break-inside-avoid"
+                style={{ marginBottom: index === items.length - 1 ? 0 : itemGap }}
+              >
+                {/* Line 1: Role (bold) */}
+                {lead.role && (
+                  <h3 className="font-bold text-gray-900 leading-snug m-0 p-0" style={bodyStyle}>
+                    <span data-path={`${basePath}.${index}.role`}>
+                      <RichText text={lead.role} />
+                    </span>
+                  </h3>
+                )}
+                {/* Line 2: School/Org • Club/Company • Dates */}
+                {metaParts.length > 0 && (
+                  <div className="text-gray-800 leading-snug mb-0.5" style={bodyStyle}>
+                    {metaParts.map((part, mIdx) => (
+                      <React.Fragment key={mIdx}>
+                        {mIdx > 0 && <span className="mx-2 text-gray-500 font-normal">•</span>}
+                        {part === schoolOrg ? (
+                          <span data-path={`${basePath}.${index}.location`}>
+                            <RichText text={part} />
+                          </span>
+                        ) : part === clubName ? (
+                          <span data-path={`${basePath}.${index}.company`}>
+                            <RichText text={part} />
+                          </span>
+                        ) : (
+                          <RichText text={part} />
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                )}
+                {bullets.length > 0 && (
+                  <div style={{ marginTop: '0.02in' }}>
+                    {renderDotBullets(bullets, `${basePath}.${index}.description`)}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </section>
     );
   };
 
   const renderProjectsBlock = (title: string, items: Project[], basePath: string = 'projects') => {
     if (!items || items.length === 0) return null;
+    const sectionGapIn = getSectionGapIn(data);
     const itemGap = `${getItemGapIn(data)}in`;
     return (
-      <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
+      <section style={{ marginBottom: `${sectionGapIn}in` }}>
         {renderSectionHeader(title)}
-        {items.map((project, index) => {
-          const bullets = parseDescriptionBullets(project.description);
-          if (!project.name && !project.technologies && bullets.length === 0) return null;
+        <div className="flex flex-col">
+          {items.map((project, index) => {
+            const bullets = parseDescriptionBullets(project.description);
+            if (!project.name && !project.technologies && bullets.length === 0) return null;
 
-          return (
-            <div
-              key={project.id}
-              className="break-inside-avoid"
-              style={{ marginBottom: index === items.length - 1 ? 0 : itemGap }}
-            >
-              <div className="flex justify-between items-baseline mb-1">
-                <div className="font-bold text-gray-900" style={bodyStyle}>
-                  <span data-path={`${basePath}.${index}.name`}>
-                    <RichText text={project.name} />
-                  </span>
-                  {project.link && (
-                    <a
-                      href={project.link.startsWith('http') ? project.link : `https://${project.link}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="ml-2 font-normal italic text-gray-600 hover:underline"
-                    >
-                      Link
-                    </a>
+            return (
+              <div
+                key={project.id || index}
+                className="break-inside-avoid"
+                style={{ marginBottom: index === items.length - 1 ? 0 : itemGap }}
+              >
+                <div className="flex justify-between items-baseline mb-0.5">
+                  <div className="font-bold text-gray-900 leading-snug" style={bodyStyle}>
+                    <span data-path={`${basePath}.${index}.name`}>
+                      <RichText text={project.name} />
+                    </span>
+                    {project.link && (
+                      <a
+                        href={project.link.startsWith('http') ? project.link : `https://${project.link}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="ml-2 font-normal italic text-gray-600 hover:underline"
+                      >
+                        Link
+                      </a>
+                    )}
+                  </div>
+                  {project.date && (
+                    <span className="text-gray-800 shrink-0 ml-4 font-normal" style={bodyStyle}>
+                      <RichText text={project.date} />
+                    </span>
                   )}
                 </div>
+                {project.technologies && (
+                  <div data-path={`${basePath}.${index}.technologies`} className="italic text-gray-600" style={bodyStyle}>
+                    <RichText text={project.technologies} />
+                  </div>
+                )}
+                {bullets.length > 0 && (
+                  <div style={{ marginTop: '0.02in' }}>
+                    {renderDotBullets(bullets, `${basePath}.${index}.description`)}
+                  </div>
+                )}
               </div>
-              {project.technologies && (
-                <div data-path={`${basePath}.${index}.technologies`} className="italic text-gray-600 mb-1" style={bodyStyle}>
-                  <RichText text={project.technologies} />
-                </div>
-              )}
-              {bullets.length > 0 && (
-                <ul className="list-disc list-outside ml-5 space-y-1 text-gray-700 text-justify" style={bodyStyle}>
-                  {bullets.map((bullet, i) => (
-                    <li key={i} data-path={`${basePath}.${index}.description.${i}`}>
-                      <RichText text={bullet ? bullet.replace(/^[•-]\s*/, '') : ''} />
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </section>
     );
   };
@@ -301,16 +407,16 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
     return (
       <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
         {renderSectionHeader(title)}
-        <div className="space-y-2 text-gray-700" style={bodyStyle}>
+        <div className="space-y-1.5 text-gray-800" style={bodyStyle}>
           {validItems.map((cert, index) => (
-            <div key={cert.id} className="flex justify-between items-baseline">
+            <div key={cert.id || index} className="flex justify-between items-baseline leading-snug">
               <div>
-                <span data-path={`${basePath}.${index}.name`} className="font-bold">
+                <span data-path={`${basePath}.${index}.name`} className="font-bold text-gray-900">
                   <RichText text={cert.name ?? ''} />
                 </span>
                 {cert.issuer && (
-                  <span className="italic text-gray-600">
-                    {' - '}
+                  <span className="text-gray-700 ml-2">
+                    {' • '}
                     <span data-path={`${basePath}.${index}.issuer`}>
                       <RichText text={cert.issuer} />
                     </span>
@@ -318,7 +424,7 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
                 )}
               </div>
               {cert.date && (
-                <span data-path={`${basePath}.${index}.date`} className="text-gray-500 font-medium shrink-0 ml-4">
+                <span data-path={`${basePath}.${index}.date`} className="text-gray-800 shrink-0 ml-4 font-normal">
                   <RichText text={cert.date} />
                 </span>
               )}
@@ -337,10 +443,10 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
     return (
       <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
         {renderSectionHeader(title)}
-        <div className="space-y-2 text-gray-700" style={bodyStyle}>
+        <div className="space-y-1 text-gray-800" style={bodyStyle}>
           {validItems.map((lang, index) => (
-            <div key={lang.id}>
-              <span data-path={`${basePath}.${index}.language`} className="font-bold">
+            <div key={lang.id || index} className="leading-snug">
+              <span data-path={`${basePath}.${index}.language`} className="font-bold text-gray-900">
                 <RichText text={lang.language} />
               </span>
               {lang.proficiency && (
@@ -362,10 +468,10 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
     return (
       <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
         {renderSectionHeader(title)}
-        <div className="space-y-2 text-gray-700" style={bodyStyle}>
+        <div className="space-y-1 text-gray-800" style={bodyStyle}>
           {validItems.map((item, index) => (
-            <div key={item.id}>
-              <span data-path={`${basePath}.${index}.label`} className="font-bold">
+            <div key={item.id || index} className="leading-snug">
+              <span data-path={`${basePath}.${index}.label`} className="font-bold text-gray-900">
                 <RichText text={item.label} />:
               </span>
               <span data-path={`${basePath}.${index}.value`} className="ml-2">
@@ -397,30 +503,49 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
     const resolved = resolveSection(data, id);
     if (!resolved || !resolved.visible || !resolved.hasContent) return null;
 
+    // CareerCraft is an entry-level / student template: no professional summary
+    // or achievements by default — but an explicit user add (sidebar, canvas +
+    // dock, or the hidden-content notice banner) still wins and renders them.
+    if (
+      (resolved.type === 'summary' ||
+        resolved.type === 'achievements' ||
+        id === 'summary' ||
+        id === 'keyAchievements' ||
+        id === 'achievements') &&
+      !isSectionExplicitlyAdded(data, id)
+    ) {
+      return null;
+    }
+
     let sectionTitle = resolved.title;
-    if (resolved.type === 'summary') sectionTitle = t.professionalSummary || resolved.title;
-    if (resolved.type === 'skills') sectionTitle = t.technicalSkills || resolved.title;
-    if (resolved.type === 'experience') sectionTitle = t.experienceTitle || resolved.title;
-    if (resolved.type === 'education') sectionTitle = t.educationTitle || resolved.title;
-    if (resolved.type === 'certifications') sectionTitle = t.certifications || resolved.title;
+    if (resolved.type === 'involvement' || resolved.id === 'involvement') {
+      const customTitle = data.sectionTitles?.involvement;
+      sectionTitle = customTitle && customTitle !== 'Involvement' ? customTitle : 'INVOLVEMENT';
+    } else if (resolved.type === 'skills') {
+      const customTitle = data.sectionTitles?.skills;
+      sectionTitle = customTitle && customTitle !== 'Skills & Interests' && customTitle !== 'Expert-Level Skills'
+        ? customTitle
+        : 'SKILLS';
+    } else if (resolved.type === 'education') {
+      const customTitle = data.sectionTitles?.education;
+      sectionTitle = customTitle || 'EDUCATION';
+    } else if (resolved.type === 'experience') {
+      const customTitle = data.sectionTitles?.experience;
+      sectionTitle = customTitle || 'EXPERIENCE';
+    }
 
     switch (resolved.rendererKind) {
       case 'text':
         return renderTextBlock(sectionTitle, resolved.content as string, resolved.id);
       case 'skills':
-        return renderSkillsBlock(sectionTitle, resolved.content as string);
       case 'expert_skills':
-        return renderExpertSkillsBlockHelper({
-          data,
-          title: sectionTitle,
-          items: resolved.content as any,
-          basePath: resolved.id,
-          renderSectionHeader,
-          bodyStyle: { fontSize: `${bodySize}pt`, lineHeight: data.lineHeight || 1.5 },
-        });
+        return renderSkillsBlock(sectionTitle, resolved.content as any, resolved.id);
       case 'bullets':
         return renderBulletsBlock(sectionTitle, resolved.content as string[] | string, resolved.id);
       case 'experience':
+        if (resolved.id === 'involvement' || resolved.type === 'involvement') {
+          return renderLeadershipBlock(sectionTitle, resolved.content as Experience[], resolved.id);
+        }
         return renderExperienceBlock(sectionTitle, resolved.content as Experience[], resolved.id);
       case 'education':
         return renderEducationBlock(sectionTitle, resolved.content as Education[], resolved.id);
@@ -440,7 +565,7 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
           basePath: resolved.id,
           renderSectionHeader,
           renderTextBlock,
-          bodyStyle: { fontSize: `${bodySize}pt`, lineHeight: data.lineHeight || 1.5 },
+          bodyStyle: { fontSize: `${bodySize}pt`, lineHeight: data.lineHeight || 1.32 },
         });
       case 'custom':
         return renderCustomBlock(sectionTitle, resolved.content as CustomSectionData, resolved.id);
@@ -449,16 +574,21 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
     }
   };
 
+  const getCareerCraftSectionOrder = (): string[] => {
+    return getResolvedSectionOrder(data);
+  };
+
   return (
     <div
       className="resume-content text-gray-900"
       style={{
-        lineHeight: data.lineHeight || 1.5,
+        lineHeight: data.lineHeight || 1.32,
         fontSize: `${bodySize}pt`,
         paddingLeft: `${getMarginHorizontalIn(data)}in`,
         paddingRight: `${getMarginHorizontalIn(data)}in`,
         paddingTop: `${getMarginVerticalIn(data)}in`,
         paddingBottom: `${getMarginVerticalIn(data)}in`,
+        fontFamily: data.font || 'Merriweather, serif',
       }}
     >
       {/* Header */}
@@ -468,14 +598,16 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
       >
         <h1
           data-path="fullName"
-          className={`font-bold tracking-tight uppercase w-full ${
-            data.headerAlignment === 'left' ? 'text-left' :
-            data.headerAlignment === 'right' ? 'text-right' :
-            'text-center'
+          className={`font-bold tracking-normal uppercase w-full ${
+            data.headerAlignment === 'left'
+              ? 'text-left'
+              : data.headerAlignment === 'right'
+              ? 'text-right'
+              : 'text-center'
           }`}
           style={{
             width: '100%',
-            fontSize: `${fontSizes?.header || 20}pt`,
+            fontSize: `${fontSizes?.header || 18}pt`,
             marginBottom: `${getHeaderItemGapIn(data)}in`,
             lineHeight: 1.2,
           }}
@@ -488,17 +620,22 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
           <p
             data-path="jobTitle"
             className={`tracking-wider text-gray-700 w-full ${
-              data.jobTitleAlignment === 'left' ? 'text-left' :
-              data.jobTitleAlignment === 'right' ? 'text-right' :
-              data.jobTitleAlignment === 'center' ? 'text-center' :
-              data.headerAlignment === 'left' ? 'text-left' :
-              data.headerAlignment === 'right' ? 'text-right' :
-              'text-center'
+              data.jobTitleAlignment === 'left'
+                ? 'text-left'
+                : data.jobTitleAlignment === 'right'
+                ? 'text-right'
+                : data.jobTitleAlignment === 'center'
+                ? 'text-center'
+                : data.headerAlignment === 'left'
+                ? 'text-left'
+                : data.headerAlignment === 'right'
+                ? 'text-right'
+                : 'text-center'
             }`}
             style={{
               width: '100%',
-              fontSize: `${fontSizes?.jobTitle || 11}pt`,
-              color: data.accentColor || '#000000',
+              fontSize: `${fontSizes?.jobTitle || 10.5}pt`,
+              color: accentColor,
               marginBottom: `${getHeaderContactGapIn(data)}in`,
               lineHeight: 1.25,
             }}
@@ -509,13 +646,13 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
 
         {/* Contact Information */}
         {(() => {
-          const showIcons = data.showContactIcons ?? true;
+          const showIcons = data.showContactIcons ?? false;
           const contactItems: React.ReactNode[] = [];
 
           if (data.location || data.address) {
             contactItems.push(
               <span key="loc" className="inline-flex items-center gap-1">
-                {showIcons && <MapPin size={12} className="shrink-0" color={accentColor} />}
+                {showIcons && <MapPin size={11} className="shrink-0" color={accentColor} />}
                 <span data-path="location">
                   <RichText text={formatLocationDisplay(data.location || data.address || '')} />
                 </span>
@@ -526,7 +663,7 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
           if (data.phone) {
             contactItems.push(
               <span key="ph" className="inline-flex items-center gap-1">
-                {showIcons && <Phone size={12} className="shrink-0" color={accentColor} />}
+                {showIcons && <Phone size={11} className="shrink-0" color={accentColor} />}
                 <span data-path="phone">
                   <RichText text={formatContactText(data.phone)} />
                 </span>
@@ -537,7 +674,7 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
           if (data.email) {
             contactItems.push(
               <span key="em" className="inline-flex items-center gap-1">
-                {showIcons && <Mail size={12} className="shrink-0" color={accentColor} />}
+                {showIcons && <Mail size={11} className="shrink-0" color={accentColor} />}
                 <a
                   data-path="email"
                   href={`mailto:${formatContactText(data.email)}`}
@@ -552,7 +689,7 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
           if (data.linkedin) {
             contactItems.push(
               <span key="li" className="inline-flex items-center gap-1">
-                {showIcons && <Linkedin size={12} className="shrink-0" color={accentColor} />}
+                {showIcons && <Linkedin size={11} className="shrink-0" color={accentColor} />}
                 <a
                   data-path="linkedin"
                   href={getLinkedInHref(data.linkedin)}
@@ -569,7 +706,7 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
           if (data.github) {
             contactItems.push(
               <span key="gh" className="inline-flex items-center gap-1">
-                {showIcons && <Github size={12} className="shrink-0" color={accentColor} />}
+                {showIcons && <Github size={11} className="shrink-0" color={accentColor} />}
                 <a
                   data-path="github"
                   href={getGitHubHref(data.github)}
@@ -586,7 +723,7 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
           if (data.portfolio) {
             contactItems.push(
               <span key="port" className="inline-flex items-center gap-1">
-                {showIcons && <Globe size={12} className="shrink-0" color={accentColor} />}
+                {showIcons && <Globe size={11} className="shrink-0" color={accentColor} />}
                 <a
                   data-path="portfolio"
                   href={getPortfolioHref(data.portfolio)}
@@ -603,7 +740,7 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
           if (data.atHandle) {
             contactItems.push(
               <span key="at" className="inline-flex items-center gap-1">
-                {showIcons && <Send size={12} className="shrink-0" color={accentColor} />}
+                {showIcons && <Send size={11} className="shrink-0" color={accentColor} />}
                 <span data-path="atHandle">
                   <RichText text={data.atHandle} />
                 </span>
@@ -615,25 +752,33 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
 
           return (
             <div
-              className={`flex flex-wrap items-center w-full mx-auto ${showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-1.5 gap-y-1'} text-gray-600 ${
-                data.contactAlignment === 'left' ? 'justify-start text-left' :
-                data.contactAlignment === 'right' ? 'justify-end text-right' :
-                data.contactAlignment === 'center' ? 'justify-center text-center' :
-                data.headerAlignment === 'left' ? 'justify-start text-left' :
-                data.headerAlignment === 'right' ? 'justify-end text-right' :
-                'justify-center text-center'
+              className={`flex flex-wrap items-center w-full mx-auto ${
+                showIcons ? 'gap-x-3 gap-y-1' : 'gap-x-2 gap-y-1'
+              } text-gray-700 ${
+                data.contactAlignment === 'left'
+                  ? 'justify-start text-left'
+                  : data.contactAlignment === 'right'
+                  ? 'justify-end text-right'
+                  : data.contactAlignment === 'center'
+                  ? 'justify-center text-center'
+                  : data.headerAlignment === 'left'
+                  ? 'justify-start text-left'
+                  : data.headerAlignment === 'right'
+                  ? 'justify-end text-right'
+                  : 'justify-center text-center'
               }`}
               style={{
                 ...bodyStyle,
                 width: '100%',
-                marginBottom: !isTitleFirst(data, false) && data.jobTitle ? `${getHeaderContactGapIn(data)}in` : undefined,
+                marginBottom:
+                  !isTitleFirst(data, false) && data.jobTitle ? `${getHeaderContactGapIn(data)}in` : undefined,
               }}
             >
               {contactItems.map((item, idx) => (
                 <React.Fragment key={idx}>
                   {item}
                   {!showIcons && idx < contactItems.length - 1 && (
-                    <span className="mx-1 text-gray-400 select-none">{CONTACT_SEPARATOR}</span>
+                    <span className="mx-1 text-gray-500 font-normal select-none">•</span>
                   )}
                 </React.Fragment>
               ))}
@@ -646,17 +791,22 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
           <p
             data-path="jobTitle"
             className={`tracking-wider text-gray-700 w-full ${
-              data.jobTitleAlignment === 'left' ? 'text-left' :
-              data.jobTitleAlignment === 'right' ? 'text-right' :
-              data.jobTitleAlignment === 'center' ? 'text-center' :
-              data.headerAlignment === 'left' ? 'text-left' :
-              data.headerAlignment === 'right' ? 'text-right' :
-              'text-center'
+              data.jobTitleAlignment === 'left'
+                ? 'text-left'
+                : data.jobTitleAlignment === 'right'
+                ? 'text-right'
+                : data.jobTitleAlignment === 'center'
+                ? 'text-center'
+                : data.headerAlignment === 'left'
+                ? 'text-left'
+                : data.headerAlignment === 'right'
+                ? 'text-right'
+                : 'text-center'
             }`}
             style={{
               width: '100%',
-              fontSize: `${fontSizes?.jobTitle || 11}pt`,
-              color: data.accentColor || '#000000',
+              fontSize: `${fontSizes?.jobTitle || 10.5}pt`,
+              color: accentColor,
               lineHeight: 1.25,
             }}
           >
@@ -666,7 +816,7 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
       </header>
 
       {/* Dynamic Sections */}
-      {getResolvedSectionOrder(data).map((id) => (
+      {getCareerCraftSectionOrder().map((id) => (
         <React.Fragment key={id}>{renderSection(id)}</React.Fragment>
       ))}
     </div>

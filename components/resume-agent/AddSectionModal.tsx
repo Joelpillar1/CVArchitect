@@ -72,6 +72,7 @@ export default function AddSectionModal({ isOpen, onClose, data, onAddSection }:
         icon: <Award className="w-4 h-4" />,
         sections: [
           { type: 'leadership', title: 'Leadership', description: 'Leadership roles, team management, and initiatives' },
+          { type: 'involvement', title: 'Involvement', description: 'Clubs, societies, and extracurricular involvement' },
           { type: 'achievements', title: 'Key Achievements', description: 'Quantifiable milestones and notable wins' },
           { type: 'certifications', title: 'Certifications', description: 'Professional accreditations and credentials' },
           { type: 'licenses', title: 'Licenses', description: 'Official occupational licenses and permits' },
@@ -182,7 +183,7 @@ export default function AddSectionModal({ isOpen, onClose, data, onAddSection }:
             <div>
               <h2 className="text-base font-bold text-brand-dark tracking-tight">Add Section to Resume</h2>
               <p className="text-xs text-brand-dark/60">
-                Choose from 36 section types or create a custom section
+                Choose from 37 section types or create a custom section
               </p>
             </div>
           </div>

@@ -28,7 +28,7 @@ import {
   formatJobTitleDisplay,
   formatSectionTitle,
   isTitleFirst,
-  splitSkillsList,
+  parseExpertSkillItems,
   renderCourseworkBlockHelper,
   renderExpertSkillsBlockHelper,
 } from '../../utils/templateUtils';
@@ -64,13 +64,31 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
     color: data.accentColor || '#000000',
   };
 
+  // Section title with a full-width rule beneath it (reference design).
+  // No light-grey separator rule above the section, by request.
   const renderSectionHeader = (title: string) => (
-    <h2
-      className={`section-header font-bold tracking-wide mb-2 ${getSectionHeaderAlignment()}`}
-      style={sectionHeaderStyle}
-    >
-      {formatSectionTitle(title, data.sectionHeaderCase)}
-    </h2>
+    <div className={`section-header-wrap break-inside-avoid w-full mb-2 ${getSectionHeaderAlignment()}`}>
+      <h2
+        className="section-header font-bold tracking-wide m-0 p-0"
+        style={{
+          ...sectionHeaderStyle,
+          margin: 0,
+          padding: 0,
+          marginBottom: '3px',
+        }}
+      >
+        {formatSectionTitle(title, data.sectionHeaderCase)}
+      </h2>
+      <div
+        className="section-divider"
+        style={{
+          width: '100%',
+          height: '1.5px',
+          backgroundColor: data.accentColor || '#000000',
+          marginTop: '2px',
+        }}
+      />
+    </div>
   );
 
   const renderTextBlock = (title: string, text: string, path: string = 'summary') => {
@@ -85,26 +103,52 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
     );
   };
 
-  const renderSkillsBlock = (title: string, skillsStr: string) => {
-    if (!skillsStr || !skillsStr.trim()) return null;
-    const skillsList = splitSkillsList(skillsStr);
-    if (skillsList.length === 0) return null;
+  // Reference layout renders skills as plain paragraphs (Category: skills ...),
+  // not as a bulleted multi-column grid.
+  const renderSkillsBlock = (title: string, items: any, basePath: string = 'skills') => {
+    const parsed = parseExpertSkillItems(items);
+    if (parsed.length === 0) return null;
+
     return (
       <section className="break-inside-avoid" style={{ marginBottom: `${sectionGap}in` }}>
         {renderSectionHeader(title)}
-        <ul
-          data-skills-grid
-          className={`list-none pl-2.5 grid gap-x-8 gap-y-1 text-gray-700 ${data.skillsColumnCount === 2 ? 'grid-cols-2' : (data.skillsColumnCount === 4 ? 'grid-cols-4' : 'grid-cols-3')}`}
-          style={bodyStyle}
-        >
-          {skillsList.map((skill, i) => (
-            <li key={i} data-skill-cell className="flex items-baseline gap-1.5 min-w-0">
-              <span data-bullet aria-hidden="true" className="shrink-0 select-none pointer-events-none leading-none">•</span>
-              <span className="flex-1" style={{ lineHeight: 'inherit' }}><RichText text={skill} /></span>
-            </li>
-          ))}
-        </ul>
+        <div className="text-gray-800" style={bodyStyle}>
+          {parsed.map((item, index) => {
+            const hasCategory = Boolean(item.category?.trim());
+            return (
+              <p key={item.id || index} className="leading-relaxed m-0">
+                {hasCategory && (
+                  <span data-path={`${basePath}.${index}.category`} className="text-gray-900 font-semibold">
+                    <RichText text={item.category!.trim()} />
+                    {item.category!.trim().endsWith(':') ? ' ' : ': '}
+                  </span>
+                )}
+                <span data-path={`${basePath}.${index}.skills`} className="text-gray-800">
+                  <RichText text={item.skills ?? ''} />
+                </span>
+              </p>
+            );
+          })}
+        </div>
       </section>
+    );
+  };
+
+  // Bullet list using standard list-disc matching the application bullet system
+  const renderDotBullets = (
+    bullets: string[],
+    basePath: string,
+    opts: { indent?: string } = {},
+  ) => {
+    if (bullets.length === 0) return null;
+    return (
+      <ul className="list-disc list-outside ml-5 space-y-1 text-gray-800 text-justify" style={bodyStyle}>
+        {bullets.map((bullet, i) => (
+          <li key={i} data-path={`${basePath}.${i}`}>
+            <RichText text={bullet ? bullet.replace(/^([•·-]\s*)+/, '') : ''} />
+          </li>
+        ))}
+      </ul>
     );
   };
 
@@ -115,13 +159,7 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
     return (
       <section className="break-inside-avoid" style={{ marginBottom: `${sectionGap}in` }}>
         {renderSectionHeader(title)}
-        <ul className="list-disc list-outside ml-5 space-y-1 text-gray-700 text-justify" style={bodyStyle}>
-          {achievements.map((line, i) => (
-            <li key={i} data-path={`${basePath}.${i}`}>
-              <RichText text={line ? line.replace(/^[•-]\s*/, '') : ''} />
-            </li>
-          ))}
-        </ul>
+        {renderDotBullets(achievements, basePath)}
       </section>
     );
   };
@@ -133,9 +171,10 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
       <section style={{ marginBottom: `${sectionGap}in` }}>
         {renderSectionHeader(title)}
         {items.map((exp, index) => {
-          const dateRange = [formatMonthYear(exp.startDate), formatMonthYear(exp.endDate)].filter(Boolean).join(' - ');
+          const dateRange = [formatMonthYear(exp.startDate), formatMonthYear(exp.endDate)].filter(Boolean).join(' – ');
+          const rightMeta = [dateRange, exp.location].filter(Boolean).join(', ');
           const bullets = parseDescriptionBullets(exp.description);
-          if (!exp.role && !exp.company && !dateRange && bullets.length === 0) return null;
+          if (!exp.role && !exp.company && !rightMeta && bullets.length === 0) return null;
 
           return (
             <div
@@ -143,44 +182,43 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
               className="break-inside-avoid"
               style={{ marginBottom: index === items.length - 1 ? 0 : itemGap }}
             >
-              <div className="flex justify-between items-baseline mb-1">
-                <h3 className="font-bold text-gray-900" style={bodyStyle}>
-                  {exp.role && (
-                    <span data-path={`${basePath}.${index}.role`}>
-                      <RichText text={exp.role} />
-                    </span>
-                  )}
-                  {exp.company && (
-                    <span className="font-normal italic text-gray-700">
-                      {exp.role ? ' - ' : ''}
+              {/* Line 1: Role */}
+              {exp.role && (
+                <h3 className="font-bold text-gray-900 m-0" style={bodyStyle}>
+                  <span data-path={`${basePath}.${index}.role`}>
+                    <RichText text={exp.role} />
+                  </span>
+                </h3>
+              )}
+
+              {/* Line 2: Company (left, bold) + dates/location (right) */}
+              {(exp.company || rightMeta) && (
+                <div className="flex justify-between items-baseline gap-3">
+                  <div className="font-bold text-gray-900 min-w-0">
+                    {exp.company && (
                       <span data-path={`${basePath}.${index}.company`}>
                         <RichText text={exp.company} />
                       </span>
+                    )}
+                  </div>
+                  {rightMeta && (
+                    <span className="text-gray-800 shrink-0 text-right" style={bodyStyle}>
+                      {dateRange && <RichText text={dateRange} />}
+                      {exp.location && (
+                        <span data-path={`${basePath}.${index}.location`}>
+                          {dateRange ? ', ' : ''}
+                          <RichText text={exp.location} />
+                        </span>
+                      )}
                     </span>
                   )}
-                  {exp.location && (
-                    <span className="font-normal italic text-gray-600">
-                      {', '}
-                      <span data-path={`${basePath}.${index}.location`}>
-                        <RichText text={exp.location} />
-                      </span>
-                    </span>
-                  )}
-                </h3>
-                {dateRange && (
-                  <span className="text-gray-500 font-medium italic shrink-0 ml-4" style={bodyStyle}>
-                    <RichText text={dateRange} />
-                  </span>
-                )}
-              </div>
+                </div>
+              )}
+
               {bullets.length > 0 && (
-                <ul className="list-disc list-outside ml-5 space-y-1 text-gray-700 text-justify" style={bodyStyle}>
-                  {bullets.map((bullet, i) => (
-                    <li key={i} data-path={`${basePath}.${index}.description.${i}`}>
-                      <RichText text={bullet ? bullet.replace(/^[•-]\s*/, '') : ''} />
-                    </li>
-                  ))}
-                </ul>
+                <div style={{ marginTop: '0.04in' }}>
+                  {renderDotBullets(bullets, `${basePath}.${index}.description`)}
+                </div>
               )}
             </div>
           );
@@ -191,7 +229,7 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
 
   const renderEducationBlock = (title: string, items: Education[], basePath: string = 'education') => {
     if (!items || items.length === 0) return null;
-    const itemGap = `${Math.max(0.14, getSectionGapIn(data))}in`;
+    const itemGap = `${getItemGapIn(data)}in`;
     return (
       <section className="break-inside-avoid" style={{ marginBottom: `${sectionGap}in` }}>
         {renderSectionHeader(title)}
@@ -257,36 +295,32 @@ export default function ImpactTemplate({ data }: { data: ResumeData }) {
               className="break-inside-avoid"
               style={{ marginBottom: index === items.length - 1 ? 0 : itemGap }}
             >
-              <div className="flex justify-between items-baseline mb-1">
-                <div className="font-bold text-gray-900" style={bodyStyle}>
-                  <span data-path={`${basePath}.${index}.name`}>
-                    <RichText text={project.name} />
-                  </span>
-                  {project.link && (
-                    <a
-                      href={project.link.startsWith('http') ? project.link : `https://${project.link}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="ml-2 font-normal italic text-gray-600 hover:underline"
-                    >
-                      Link
-                    </a>
-                  )}
-                </div>
+              {/* Line 1: Project name (bold) + optional link */}
+              <div className="font-bold text-gray-900 m-0" style={bodyStyle}>
+                <span data-path={`${basePath}.${index}.name`}>
+                  <RichText text={project.name} />
+                </span>
+                {project.link && (
+                  <a
+                    href={project.link.startsWith('http') ? project.link : `https://${project.link}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-2 font-normal text-gray-600 hover:underline"
+                  >
+                    Link
+                  </a>
+                )}
               </div>
+              {/* Line 2: Technologies / subtitle (plain) */}
               {project.technologies && (
-                <div data-path={`${basePath}.${index}.technologies`} className="italic text-gray-600 mb-1" style={bodyStyle}>
+                <div data-path={`${basePath}.${index}.technologies`} className="text-gray-800" style={bodyStyle}>
                   <RichText text={project.technologies} />
                 </div>
               )}
               {bullets.length > 0 && (
-                <ul className="list-disc list-outside ml-5 space-y-1 text-gray-700 text-justify" style={bodyStyle}>
-                  {bullets.map((bullet, i) => (
-                    <li key={i} data-path={`${basePath}.${index}.description.${i}`}>
-                      <RichText text={bullet ? bullet.replace(/^[•-]\s*/, '') : ''} />
-                    </li>
-                  ))}
-                </ul>
+                <div style={{ marginTop: '0.04in' }}>
+                  {renderDotBullets(bullets, `${basePath}.${index}.description`)}
+                </div>
               )}
             </div>
           );

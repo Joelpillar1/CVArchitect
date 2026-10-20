@@ -1051,6 +1051,28 @@ body.print-resume-mode #print-resume-root {
     font-weight: normal !important;
   }
 
+  /* Contact links: always underline linkedin, portfolio, and github across all templates */
+  a[data-path="linkedin"],
+  a[data-path="portfolio"],
+  a[data-path="github"],
+  .resume-preview-root a[data-path="linkedin"],
+  .resume-preview-root a[data-path="portfolio"],
+  .resume-preview-root a[data-path="github"],
+  .resume-page-sheet a[data-path="linkedin"],
+  .resume-page-sheet a[data-path="portfolio"],
+  .resume-page-sheet a[data-path="github"],
+  .resume-page a[data-path="linkedin"],
+  .resume-page a[data-path="portfolio"],
+  .resume-page a[data-path="github"],
+  [data-resume-paper] a[data-path="linkedin"],
+  [data-resume-paper] a[data-path="portfolio"],
+  [data-resume-paper] a[data-path="github"],
+  .print-resume a[data-path="linkedin"],
+  .print-resume a[data-path="portfolio"],
+  .print-resume a[data-path="github"] {
+    text-decoration: underline !important;
+  }
+
   /* Isolate and display resume pages cleanly when printing outside the portal */
   body:not(:has(.print-root)) #root,
   .resume-preview-root,

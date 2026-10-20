@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ResumeData, Experience, Project } from '../types';
+import { ResumeData, Experience } from '../types';
 import { Plus, Trash2, ChevronUp, ChevronDown, Sparkles, X } from 'lucide-react';
 import { enhanceDescription } from './utils/aiEnhancer';
 import { parseDescriptionBullets } from '../utils/templateUtils';
@@ -23,9 +23,11 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
             const bullets = parseDescriptionBullets(description);
             if (bullets.length > 0) return bullets;
         }
-        // Default empty state: 4 editable bullet boxes
-        return ['', '', '', ''];
+        // Default empty state: 1 editable bullet box
+        return [''];
     };
+
+    const experienceList = Array.isArray(data.experience) ? data.experience : [];
 
     const handleAdd = () => {
         const newExperience: Experience = {
@@ -35,26 +37,26 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
             location: '',
             startDate: '',
             endDate: '',
-            description: ['', '', '', ''] // Default 4 bullet points
+            description: [''] // Default 1 bullet point
         };
-        onChange({ ...data, experience: [...data.experience, newExperience] });
+        onChange({ ...data, experience: [...experienceList, newExperience] });
     };
 
     const handleRemove = (id: string) => {
-        onChange({ ...data, experience: data.experience.filter(exp => exp.id !== id) });
+        onChange({ ...data, experience: experienceList.filter(exp => exp.id !== id) });
     };
 
     const handleChange = (id: string, field: keyof Experience, value: string | string[]) => {
         onChange({
             ...data,
-            experience: data.experience.map(exp =>
+            experience: experienceList.map(exp =>
                 exp.id === id ? { ...exp, [field]: value } : exp
             )
         });
     };
 
     const handleBulletChange = (expId: string, bulletIndex: number, value: string) => {
-        const exp = data.experience.find(e => e.id === expId);
+        const exp = experienceList.find(e => e.id === expId);
         if (!exp) return;
 
         const bullets = getDescriptionArray(exp.description);
@@ -65,7 +67,7 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
     };
 
     const handleAddBullet = (expId: string) => {
-        const exp = data.experience.find(e => e.id === expId);
+        const exp = experienceList.find(e => e.id === expId);
         if (!exp) return;
 
         const bullets = getDescriptionArray(exp.description);
@@ -74,7 +76,7 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
     };
 
     const handleRemoveBullet = (expId: string, bulletIndex: number) => {
-        const exp = data.experience.find(e => e.id === expId);
+        const exp = experienceList.find(e => e.id === expId);
         if (!exp) return;
 
         const bullets = getDescriptionArray(exp.description);
@@ -132,61 +134,15 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
     const handleCurrentPositionToggle = (id: string, isChecked: boolean) => {
         onChange({
             ...data,
-            experience: data.experience.map(exp =>
+            experience: experienceList.map(exp =>
                 exp.id === id ? { ...exp, endDate: isChecked ? 'Present' : '' } : exp
             )
         });
     };
 
-    // --- Nested "Key Projects" (per-experience sub-entries) ---------------
-
-    const getProjectsArray = (exp: Experience): Project[] => Array.isArray(exp.projects) ? exp.projects : [];
-
-    const handleAddProject = (expId: string) => {
-        const exp = data.experience.find(e => e.id === expId);
-        if (!exp) return;
-        const newProject: Project = {
-            id: `${Date.now().toString()}-${Math.random().toString(36).slice(2, 7)}`,
-            name: '',
-            description: '',
-            technologies: '',
-            link: '',
-        };
-        onChange({
-            ...data,
-            experience: data.experience.map(e =>
-                e.id === expId ? { ...e, projects: [...getProjectsArray(e), newProject] } : e
-            )
-        });
-    };
-
-    const handleRemoveProject = (expId: string, projectId: string) => {
-        onChange({
-            ...data,
-            experience: data.experience.map(e =>
-                e.id === expId ? { ...e, projects: getProjectsArray(e).filter(p => p.id !== projectId) } : e
-            )
-        });
-    };
-
-    const handleProjectChange = (expId: string, projectId: string, field: keyof Project, value: string) => {
-        onChange({
-            ...data,
-            experience: data.experience.map(e =>
-                e.id === expId
-                    ? {
-                        ...e,
-                        projects: getProjectsArray(e).map(p =>
-                            p.id === projectId ? { ...p, [field]: value } : p
-                        )
-                    }
-                    : e
-            )
-        });
-    };
 
     const moveExperience = (index: number, direction: 'up' | 'down') => {
-        const newExperience = [...data.experience];
+        const newExperience = [...experienceList];
         const targetIndex = direction === 'up' ? index - 1 : index + 1;
 
         if (targetIndex < 0 || targetIndex >= newExperience.length) return;
@@ -234,7 +190,7 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
     return (
         <div className="space-y-6 animate-fadeIn">
             <div className="space-y-6">
-                {data.experience.map((exp, index) => {
+                {experienceList.map((exp, index) => {
                     const isCurrentPosition = exp.endDate?.toLowerCase() === 'present';
                     const bullets = getDescriptionArray(exp.description);
 
@@ -256,7 +212,7 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
                                     </button>
                                     <button
                                         onClick={() => moveExperience(index, 'down')}
-                                        disabled={index === data.experience.length - 1}
+                                        disabled={index === experienceList.length - 1}
                                         className="text-gray-400 hover:text-brand-green transition-colors p-1 disabled:opacity-30 disabled:cursor-not-allowed"
                                         title="Move down"
                                     >
@@ -277,7 +233,7 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
                                     <label className="text-xs font-medium text-gray-500 block">Job Title</label>
                                     <input
                                         type="text"
-                                        value={exp.role}
+                                        value={exp.role || ''}
                                         onChange={(e) => handleChange(exp.id, 'role', e.target.value)}
                                         className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
                                         placeholder="Senior Developer"
@@ -288,7 +244,7 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
                                     <label className="text-xs font-medium text-gray-500 block">Company</label>
                                     <input
                                         type="text"
-                                        value={exp.company}
+                                        value={exp.company || ''}
                                         onChange={(e) => handleChange(exp.id, 'company', e.target.value)}
                                         className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
                                         placeholder="Tech Corp Inc."
@@ -382,72 +338,6 @@ export default function ExperienceForm({ data, onChange, onAIAction }: Experienc
                                 >
                                     <Plus size={14} /> Add More
                                 </button>
-                            </div>
-
-                            {/* Nested Key Projects — rendered under this
-                                experience by templates that support them
-                                (e.g. Gaurav Template). */}
-                            <div className="space-y-2">
-                                <div className="flex items-center justify-between">
-                                    <label className="text-xs font-medium text-gray-500">Key Projects (optional)</label>
-                                    <button
-                                        onClick={() => handleAddProject(exp.id)}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-brand-dark bg-brand-green/10 hover:bg-brand-green/20 border border-brand-green/20 rounded-md transition-all"
-                                    >
-                                        <Plus size={12} /> Add Project
-                                    </button>
-                                </div>
-
-                                {getProjectsArray(exp).map((project, projectIndex) => (
-                                    <div
-                                        key={project.id}
-                                        className="bg-gray-50 p-3 rounded-lg border border-gray-200 space-y-2 group/project"
-                                    >
-                                        <div className="flex items-center justify-between">
-                                            <div className="text-[10px] font-medium text-gray-400">Project {projectIndex + 1}</div>
-                                            <button
-                                                onClick={() => handleRemoveProject(exp.id, project.id)}
-                                                className="text-gray-300 hover:text-red-500 transition-colors p-1"
-                                                title="Remove project"
-                                            >
-                                                <X size={14} />
-                                            </button>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                            <input
-                                                type="text"
-                                                value={project.name}
-                                                onChange={(e) => handleProjectChange(exp.id, project.id, 'name', e.target.value)}
-                                                className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
-                                                placeholder="Project name"
-                                            />
-                                            <input
-                                                type="text"
-                                                value={project.technologies || ''}
-                                                onChange={(e) => handleProjectChange(exp.id, project.id, 'technologies', e.target.value)}
-                                                className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
-                                                placeholder="Technologies (e.g. Power BI, DAX, SQL)"
-                                            />
-                                        </div>
-
-                                        <input
-                                            type="text"
-                                            value={project.link || ''}
-                                            onChange={(e) => handleProjectChange(exp.id, project.id, 'link', e.target.value)}
-                                            className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
-                                            placeholder="Link (optional) — shows as LINK on the right"
-                                        />
-
-                                        <textarea
-                                            value={Array.isArray(project.description) ? project.description.join('\n') : (project.description || '')}
-                                            onChange={(e) => handleProjectChange(exp.id, project.id, 'description', e.target.value)}
-                                            rows={2}
-                                            className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
-                                            placeholder={'Project bullet 1\nProject bullet 2'}
-                                        />
-                                    </div>
-                                ))}
                             </div>
                         </div>
                     );

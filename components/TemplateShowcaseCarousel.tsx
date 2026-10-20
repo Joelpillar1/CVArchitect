@@ -31,6 +31,7 @@ import MinimalistTemplate from './templates/MinimalistTemplate';
 import ProfessionalTemplate from './templates/ProfessionalTemplate';
 import TimesTemplate from './templates/TimesTemplate';
 import JakeTemplate from './templates/JakeTemplate';
+import ScholarTemplate from './templates/ScholarTemplate';
 import AnalystTemplate from './templates/AnalystTemplate';
 import RegentTemplate from './templates/RegentTemplate';
 import TwoColumnTemplate from './templates/TwoColumnTemplate';
@@ -39,6 +40,7 @@ import FreshGrad8Template from './templates/FreshGrad8Template';
 import SageTemplate from './templates/SageTemplate';
 import ReziTemplate from './templates/ReziTemplate';
 import StudentTemplate from './templates/StudentTemplate';
+import InternTemplate from './templates/InternTemplate';
 
 /* ATS logos / icons simulation */
 const ATS_LOGOS = [
@@ -81,6 +83,7 @@ const DirectTemplateSheet = React.memo(function DirectTemplateSheet({ templateId
       case 'professional': return <ProfessionalTemplate data={data} />;
       case 'times': return <TimesTemplate data={data} />;
       case 'jake': return <JakeTemplate data={data} />;
+      case 'scholar': return <ScholarTemplate data={data} />;
       case 'gaurav': return <AnalystTemplate data={data} />;
       case 'regent': return <RegentTemplate data={data} />;
       case 'twocolumn': return <TwoColumnTemplate data={data} />;
@@ -97,6 +100,7 @@ const DirectTemplateSheet = React.memo(function DirectTemplateSheet({ templateId
       case 'sage': return <SageTemplate data={data} />;
       case 'rezi': return <ReziTemplate data={data} />;
       case 'student': return <StudentTemplate data={data} />;
+      case 'intern': return <InternTemplate data={data} />;
       default: return <ClassicTemplate data={data} />;
     }
   };
@@ -120,8 +124,8 @@ export default function TemplateShowcaseCarousel() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  // Find classic/standard as default initial template
-  const initialIndex = TEMPLATE_CONFIG.findIndex(t => t.id === 'classic' || t.id === 'standard');
+  // Find classic as default initial template
+  const initialIndex = TEMPLATE_CONFIG.findIndex(t => t.id === 'classic');
   const [activeIndex, setActiveIndex] = useState(initialIndex !== -1 ? initialIndex : 0);
 
   // ATS score loading animation state

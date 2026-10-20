@@ -19,6 +19,7 @@ import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
 import Onboarding from './components/Onboarding';
 import TemplateOnboardingModal from './components/TemplateOnboardingModal';
+import { mapResumeToTemplate } from './utils/templateResumeMapper';
 import PaywallModal from './components/PaywallModal';
 import PricingPage from './components/PricingPage';
 import { UserSubscription, PlanId } from './types/pricing';
@@ -938,7 +939,11 @@ export default function App() {
               setHasUnsavedChanges(true);
             }}
             template={selectedTemplate}
-            onTemplateChange={setSelectedTemplate}
+            onTemplateChange={(tmpl) => {
+              setSelectedTemplate(tmpl);
+              const mapped = mapResumeToTemplate(resumeData, tmpl);
+              setResumeData(mapped);
+            }}
             hasUnsavedChanges={hasUnsavedChanges}
             onDiscardChanges={() => setHasUnsavedChanges(false)}
             onBack={() => {
@@ -1188,6 +1193,7 @@ export default function App() {
 
       <TemplateOnboardingModal
         isOpen={showOnboardingModal}
+        selectedTemplate={selectedTemplate}
         onClose={() => setShowOnboardingModal(false)}
         onCheckUploadPermission={() => {
           const check = subscriptionManager.canUseFeature('resume_upload');
@@ -1233,11 +1239,13 @@ export default function App() {
               }
             }
 
-            // Use parsed data from the uploaded resume
+            // Use parsed data from the uploaded resume, cleanly mapped to the chosen template
             const rawParsed = data.parsedData || {};
+            const mapped = mapResumeToTemplate(rawParsed, selectedTemplate);
             let newResumeData: ResumeData = normalizeResumeData({
-              ...rawParsed,
-              jobTitle: rawParsed.jobTitle || data.role || "",
+              ...mapped,
+              template: selectedTemplate,
+              jobTitle: mapped.jobTitle || rawParsed.jobTitle || data.role || "",
               source: 'upload',
             });
 

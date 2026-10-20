@@ -18,10 +18,10 @@ export default function CourseworkForm({ data, onChange }: CourseworkFormProps) 
         ...item,
         id: item.id || `coursework-${idx}`,
         description: Array.isArray(item.description)
-          ? (item.description.length > 0 ? item.description : ['', ''])
+          ? (item.description.length > 0 ? item.description : [''])
           : (typeof item.description === 'string' && item.description.trim()
             ? parseDescriptionBullets(item.description)
-            : ['', '']),
+            : ['']),
       }));
     }
     if (typeof rawCoursework === 'string' && rawCoursework.trim()) {
@@ -32,7 +32,7 @@ export default function CourseworkForm({ data, onChange }: CourseworkFormProps) 
           institution: '',
           year: '',
           skills: '',
-          description: ['', ''],
+          description: [''],
         },
       ];
     }
@@ -43,7 +43,7 @@ export default function CourseworkForm({ data, onChange }: CourseworkFormProps) 
         institution: '',
         year: '',
         skills: '',
-        description: ['', ''],
+        description: [''],
       },
     ];
   }, [rawCoursework]);
@@ -62,7 +62,7 @@ export default function CourseworkForm({ data, onChange }: CourseworkFormProps) 
       institution: '',
       year: '',
       skills: '',
-      description: ['', ''],
+      description: [''],
     };
     updateItems([...items, newItem]);
   };
@@ -77,7 +77,7 @@ export default function CourseworkForm({ data, onChange }: CourseworkFormProps) 
           institution: '',
           year: '',
           skills: '',
-          description: ['', ''],
+          description: [''],
         },
       ]);
       return;
@@ -103,7 +103,7 @@ export default function CourseworkForm({ data, onChange }: CourseworkFormProps) 
     if (!item) return;
     const bullets = Array.isArray(item.description)
       ? [...item.description]
-      : (typeof item.description === 'string' && item.description.trim() ? parseDescriptionBullets(item.description) : ['', '']);
+      : (typeof item.description === 'string' && item.description.trim() ? parseDescriptionBullets(item.description) : ['']);
     bullets[bulletIdx] = val;
     handleChange(itemIndex, 'description', bullets);
   };
@@ -113,7 +113,7 @@ export default function CourseworkForm({ data, onChange }: CourseworkFormProps) 
     if (!item) return;
     const bullets = Array.isArray(item.description)
       ? [...item.description]
-      : (typeof item.description === 'string' && item.description.trim() ? parseDescriptionBullets(item.description) : ['', '']);
+      : (typeof item.description === 'string' && item.description.trim() ? parseDescriptionBullets(item.description) : ['']);
     bullets.push('');
     handleChange(itemIndex, 'description', bullets);
   };
@@ -123,7 +123,7 @@ export default function CourseworkForm({ data, onChange }: CourseworkFormProps) 
     if (!item) return;
     const rawBullets = Array.isArray(item.description)
       ? item.description
-      : (typeof item.description === 'string' && item.description.trim() ? parseDescriptionBullets(item.description) : ['', '']);
+      : (typeof item.description === 'string' && item.description.trim() ? parseDescriptionBullets(item.description) : ['']);
     const bullets = rawBullets.filter((_, idx) => idx !== bulletIdx);
     handleChange(itemIndex, 'description', bullets.length > 0 ? bullets : ['']);
   };

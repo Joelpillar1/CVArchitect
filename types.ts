@@ -36,7 +36,7 @@ export interface Project {
   id: string;
   name: string;
   role?: string; // Contributor/lead role on the project
-  description: string;
+  description: string | string[]; // Free text or bullet points (sidebar edits as bullets, like Experience)
   link?: string;
   technologies?: string;
   date?: string; // Display date shown right-aligned on the project line (e.g. "July 2023")
@@ -146,6 +146,7 @@ export interface ResumeData {
   licenses?: Certification[];
   awards?: string[] | string;
   volunteering?: Experience[];
+  involvement?: Experience[];
   memberships?: Certification[];
   publications?: string[] | string;
   conferencesSpeaking?: string[] | string;
@@ -165,6 +166,13 @@ export interface ResumeData {
   customSections?: Record<string, import('./types/resumeSections').CustomSectionData>;
   sectionVisibility?: Record<string, boolean>;
   sectionTitles?: Record<string, string>;
+  /**
+   * Section ids the user explicitly added (Add Section modal or a visibility
+   * opt-in) — recorded so template switches can keep them after snapping to
+   * the new template's default sections, instead of mistaking them for
+   * template-owned sections.
+   */
+  userAddedSections?: string[];
 }
 
 export interface SavedTemplate {
@@ -197,6 +205,7 @@ export type TemplateType =
   | 'professional'
   | 'times'
   | 'jake'
+  | 'scholar'
   | 'gaurav'
   | 'regent'
   | 'twocolumn'
@@ -210,15 +219,16 @@ export type TemplateType =
   | 'freshgrad8'
   | 'sage'
   | 'rezi'
-  | 'student';
+  | 'student'
+  | 'intern';
 
 export const INITIAL_DATA: ResumeData = {
-  fullName: "YOUR NAME",
+  fullName: "Alexander Williams",
   jobTitle: "PROFESSIONAL ROLE",
-  email: "your.email@example.com",
+  email: "alexander.williams@example.com",
   phone: "+1 (555) 123-4567",
   atHandle: "",
-  linkedin: "linkedin.com/in/yourprofile",
+  linkedin: "linkedin.com/in/alexander-williams",
   github: "",
   portfolio: "",
   location: "City, Country",
@@ -268,25 +278,14 @@ export const INITIAL_DATA: ResumeData = {
     }
   ],
   leadership: [],
-  additionalInfo: [
-    {
-      id: '1',
-      label: 'Languages',
-      value: 'English (Native), Spanish (Fluent)'
-    },
-    {
-      id: '2',
-      label: 'Interests',
-      value: 'Open Source Contributing, Tech Blogging, Hiking'
-    }
-  ],
+  additionalInfo: [],
   keyAchievements: [
     "Major achievement or award",
     "Significant project or milestone",
     "Recognition or accomplishment"
   ],
   jobDescription: "",
-  referee: "Available upon request",
+  referee: "",
   font: 'Merriweather, serif',
   fontSizes: {
     header: 18,       // Header / Name
@@ -302,8 +301,8 @@ export const INITIAL_DATA: ResumeData = {
   headerItemGap: 0.04,
   headerContactGap: 0.04,
   margins: {
-    horizontal: 25 / 96,
-    vertical: 25 / 96,
+    horizontal: 0.5,
+    vertical: 0.5,
   },
   currentTag: '',
   language: 'en',
@@ -322,9 +321,7 @@ export const INITIAL_DATA: ResumeData = {
     'education',       // Education
     'certifications',  // Certifications
     // Other sections follow after the core blocks
-    'projects',
-    'additionalInfo',
-    'references'
+    'projects'
   ],
   source: 'scratch',
   hasJobMatchRun: false,
@@ -370,8 +367,8 @@ export const createEmptyResume = (): ResumeData => ({
   headerItemGap: 0.04,
   headerContactGap: 0.04,
   margins: {
-    horizontal: 25 / 96,
-    vertical: 25 / 96,
+    horizontal: 0.5,
+    vertical: 0.5,
   },
   currentTag: '',
   language: 'en',

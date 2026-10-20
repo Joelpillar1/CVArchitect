@@ -1,9 +1,10 @@
 import React, { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import Editor from '../components/Editor';
 import { ResumeData, TemplateType } from '../types';
 import { UserSubscription } from '../types/pricing';
 import { useToast } from '../contexts/ToastContext';
+import { mapResumeToTemplate } from '../utils/templateResumeMapper';
 
 export const JPN_SARAH_JENKINS_DATA: ResumeData = {
     fullName: "Sarah Jenkins",
@@ -163,6 +164,21 @@ export default function ScreenshotEditorPage() {
     const navigate = useNavigate();
     const { showToast } = useToast();
 
+    // Only allow access on localhost / local development environments
+    const isLocalhost =
+        Boolean(import.meta.env.DEV) ||
+        (typeof window !== 'undefined' &&
+         (window.location.hostname === 'localhost' ||
+          window.location.hostname === '127.0.0.1' ||
+          window.location.hostname === '[::1]' ||
+          window.location.hostname.startsWith('192.168.') ||
+          window.location.hostname.startsWith('10.') ||
+          window.location.hostname.endsWith('.local')));
+
+    if (!isLocalhost) {
+        return <Navigate to="/" replace />;
+    }
+
     // Load Sarah Jenkins JPN Resume data directly
     const [resumeData, setResumeDataState] = useState<ResumeData>(JPN_SARAH_JENKINS_DATA);
 
@@ -203,9 +219,10 @@ export default function ScreenshotEditorPage() {
                 template={selectedTemplate}
                 onTemplateChange={(template) => {
                     setSelectedTemplate(template);
-                    const updatedData = { ...resumeData, template };
+                    const updatedData = mapResumeToTemplate(resumeData, template);
                     setResumeData(updatedData);
                 }}
+                sampleImageExport
                 onBack={() => {
                     navigate('/');
                 }}

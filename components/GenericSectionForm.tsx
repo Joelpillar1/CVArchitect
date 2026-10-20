@@ -43,7 +43,7 @@ export default function GenericSectionForm({
         location: '',
         startDate: '',
         endDate: '',
-        description: ['', ''],
+        description: [''],
       };
       updateField([...items, newItem]);
     };
@@ -162,19 +162,19 @@ export default function GenericSectionForm({
               <div className="space-y-1.5 pt-1">
                 <label className="block text-[11px] font-semibold text-gray-600">Bullet Points</label>
                 {bullets.map((b, bIdx) => (
-                  <div key={bIdx} className="flex items-start gap-1.5">
-                    <span className="text-gray-400 mt-1.5 text-xs select-none">•</span>
-                    <textarea
-                      rows={2}
+                  <div key={bIdx} className="group/bullet relative flex items-center gap-2.5">
+                    <span className="w-2 h-2 rounded-full bg-brand-green shrink-0" />
+                    <input
+                      type="text"
                       value={b}
                       onChange={(e) => handleBulletChange(item.id, bIdx, e.target.value)}
                       placeholder="Describe key responsibilities and measurable impact..."
-                      className="flex-1 px-2.5 py-1.5 text-xs border border-brand-border rounded-md bg-white focus:ring-1 focus:ring-brand-green outline-none resize-none"
+                      className="flex-1 min-w-0 px-3.5 py-2.5 text-xs border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green outline-none transition-all"
                     />
                     <button
                       type="button"
                       onClick={() => handleRemoveBullet(item.id, bIdx)}
-                      className="p-1 text-gray-400 hover:text-red-500 rounded mt-1"
+                      className="absolute right-1.5 p-1 text-gray-400 hover:text-red-500 rounded-md bg-white/90 opacity-0 group-hover/bullet:opacity-100 focus:opacity-100 transition-opacity"
                       title="Remove bullet"
                     >
                       <X size={13} />
@@ -184,10 +184,10 @@ export default function GenericSectionForm({
                 <button
                   type="button"
                   onClick={() => handleAddBullet(item.id)}
-                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-green hover:text-brand-greenHover mt-1 cursor-pointer"
+                  className="w-full flex items-center justify-center gap-1.5 py-2.5 mt-1 rounded-xl bg-brand-green/10 hover:bg-brand-green/20 border border-brand-green/20 text-brand-dark text-[11px] font-semibold transition-colors cursor-pointer"
                 >
-                  <Plus size={12} />
-                  <span>Add Bullet</span>
+                  <Plus size={13} />
+                  <span>Add More</span>
                 </button>
               </div>
             </div>
@@ -214,7 +214,7 @@ export default function GenericSectionForm({
       const newItem: Project = {
         id: Date.now().toString(),
         name: '',
-        description: '',
+        description: [''],
         technologies: '',
         link: '',
       };
@@ -225,15 +225,45 @@ export default function GenericSectionForm({
       updateField(items.filter((item) => item.id !== id));
     };
 
-    const handleChange = (id: string, field: keyof Project, val: string) => {
+    const handleChange = (id: string, field: keyof Project, val: string | string[]) => {
       updateField(
         items.map((item) => (item.id === id ? { ...item, [field]: val } : item))
       );
     };
 
+    const getItemBullets = (item: Project): string[] =>
+      Array.isArray(item.description)
+        ? item.description
+        : parseDescriptionBullets(item.description || '');
+
+    const handleBulletChange = (itemId: string, bulletIdx: number, val: string) => {
+      const item = items.find((i) => i.id === itemId);
+      if (!item) return;
+      const bullets = [...getItemBullets(item)];
+      bullets[bulletIdx] = val;
+      handleChange(itemId, 'description', bullets);
+    };
+
+    const handleAddBullet = (itemId: string) => {
+      const item = items.find((i) => i.id === itemId);
+      if (!item) return;
+      const bullets = [...getItemBullets(item)];
+      bullets.push('');
+      handleChange(itemId, 'description', bullets);
+    };
+
+    const handleRemoveBullet = (itemId: string, bulletIdx: number) => {
+      const item = items.find((i) => i.id === itemId);
+      if (!item) return;
+      const bullets = getItemBullets(item).filter((_, idx) => idx !== bulletIdx);
+      handleChange(itemId, 'description', bullets);
+    };
+
     return (
       <div className="space-y-4 pt-1">
-        {items.map((item, index) => (
+        {items.map((item, index) => {
+          const bullets = getItemBullets(item);
+          return (
           <div
             key={item.id || index}
             className="p-3.5 bg-gray-50/80 rounded-xl border border-brand-border space-y-3"
@@ -285,18 +315,40 @@ export default function GenericSectionForm({
               />
             </div>
 
-            <div>
-              <label className="block text-[11px] font-semibold text-gray-600 mb-0.5">Description</label>
-              <textarea
-                rows={3}
-                value={item.description || ''}
-                onChange={(e) => handleChange(item.id, 'description', e.target.value)}
-                placeholder="Describe features, metrics, and outcomes..."
-                className="w-full px-2.5 py-1.5 text-xs border border-brand-border rounded-md bg-white focus:ring-1 focus:ring-brand-green outline-none resize-none"
-              />
+            <div className="space-y-1.5 pt-1">
+              <label className="block text-[11px] font-semibold text-gray-600">Description</label>
+              {bullets.map((b, bIdx) => (
+                <div key={bIdx} className="group/bullet relative flex items-center gap-2.5">
+                  <span className="w-2 h-2 rounded-full bg-brand-green shrink-0" />
+                  <input
+                    type="text"
+                    value={b}
+                    onChange={(e) => handleBulletChange(item.id, bIdx, e.target.value)}
+                    placeholder="Describe features, metrics, and outcomes..."
+                    className="flex-1 min-w-0 px-3.5 py-2.5 text-xs border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green outline-none transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveBullet(item.id, bIdx)}
+                    className="absolute right-1.5 p-1 text-gray-400 hover:text-red-500 rounded-md bg-white/90 opacity-0 group-hover/bullet:opacity-100 focus:opacity-100 transition-opacity"
+                    title="Remove bullet"
+                  >
+                    <X size={13} />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => handleAddBullet(item.id)}
+                className="w-full flex items-center justify-center gap-1.5 py-2.5 mt-1 rounded-xl bg-brand-green/10 hover:bg-brand-green/20 border border-brand-green/20 text-brand-dark text-[11px] font-semibold transition-colors cursor-pointer"
+              >
+                <Plus size={13} />
+                <span>Add More</span>
+              </button>
             </div>
           </div>
-        ))}
+          );
+        })}
 
         <button
           type="button"

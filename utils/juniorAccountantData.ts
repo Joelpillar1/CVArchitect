@@ -70,7 +70,7 @@ export const JUNIOR_ACCOUNTANT_RESUME_DATA: ResumeData = {
     additionalInfo: [],
     keyAchievements: [],
     jobDescription: "",
-    referee: "Available upon request",
+    referee: "",
     font: 'Inter, sans-serif',
     fontSizes: {
         header: 18,
@@ -83,8 +83,8 @@ export const JUNIOR_ACCOUNTANT_RESUME_DATA: ResumeData = {
     headerGap: 0.20,
     headerItemGap: 0.10,
     margins: {
-        horizontal: 25 / 96,
-        vertical: 25 / 96,
+        horizontal: 0.5,
+        vertical: 0.5,
     },
     currentTag: 'accountant-sample',
     language: 'en',

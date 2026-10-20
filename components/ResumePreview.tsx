@@ -20,6 +20,7 @@ import MinimalistTemplate from './templates/MinimalistTemplate';
 import ProfessionalTemplate from './templates/ProfessionalTemplate';
 import TimesTemplate from './templates/TimesTemplate';
 import JakeTemplate from './templates/JakeTemplate';
+import ScholarTemplate from './templates/ScholarTemplate';
 import AnalystTemplate from './templates/AnalystTemplate';
 import RegentTemplate from './templates/RegentTemplate';
 import TwoColumnTemplate from './templates/TwoColumnTemplate';
@@ -28,6 +29,7 @@ import FreshGrad8Template from './templates/FreshGrad8Template';
 import SageTemplate from './templates/SageTemplate';
 import ReziTemplate from './templates/ReziTemplate';
 import StudentTemplate from './templates/StudentTemplate';
+import InternTemplate from './templates/InternTemplate';
 
 // The sheets' content is injected via dangerouslySetInnerHTML. React diffs that
 // prop by OBJECT IDENTITY, so passing a fresh `{ __html }` literal on every
@@ -87,6 +89,10 @@ interface ResumePreviewProps {
    */
   onBulletEnter?: (sheet: HTMLElement) => void;
   /**
+   * Called when Backspace is pressed inside an empty bullet <li>.
+   */
+  onBulletBackspace?: (sheet: HTMLElement) => void;
+  /**
    * Called when Backspace is pressed at the start of a non-skills bullet <li>.
    * The workspace merges or deletes the bullet in ResumeData.
    */
@@ -138,7 +144,7 @@ export default function ResumePreview({ data, template, onChangeData, editable =
   // actually contains \n (normal whitespace collapsing is untouched), so it never
   // disturbs templates that rely on default spacing.
   const containerStyle = {
-    fontFamily: data.font || 'Inter, sans-serif',
+    fontFamily: data.font || 'Merriweather, serif',
     fontSize: `${data.fontSizes?.body || 9.5}pt`,
     lineHeight: data.lineHeight || 1.5,
     whiteSpace: 'pre-line' as const,
@@ -156,7 +162,7 @@ export default function ResumePreview({ data, template, onChangeData, editable =
     if (typeof (window as any).loadTemplateFonts === 'function') {
       (window as any).loadTemplateFonts();
     }
-    const fontName = data.font ? data.font.split(',')[0].replace(/['"]/g, '').trim() : 'Inter';
+    const fontName = data.font ? data.font.split(',')[0].replace(/['"]/g, '').trim() : 'Merriweather';
     if (document.fonts?.load) {
       Promise.allSettled([
         document.fonts.load(`12pt "${fontName}"`),
@@ -240,14 +246,42 @@ export default function ResumePreview({ data, template, onChangeData, editable =
       // ignore tagging errors
     }
 
-    // Helper functions to get accurate margins and outer heights of elements
-    const getVerticalMargin = (el: HTMLElement | null): number => {
+    // Helper functions to get accurate margins, spans and outer heights of elements.
+    // The editor scales the sheet container with `transform: scale(...)`, which
+    // inflates getBoundingClientRect() but leaves offsetHeight in CSS layout px.
+    // Normalize rect spans by this ratio so every block height is in layout px,
+    // consistent with pageHeightPx.
+    const rectScale = (() => {
+      const rectWidth = root.getBoundingClientRect().width;
+      return root.offsetWidth > 0 && rectWidth > 0 ? rectWidth / root.offsetWidth : 1;
+    })();
+
+    const marginTopOf = (el: HTMLElement | null): number => {
       if (!el) return 0;
       try {
-        const style = window.getComputedStyle(el);
-        const mt = parseFloat(style.marginTop) || 0;
-        const mb = parseFloat(style.marginBottom) || 0;
-        return mt + mb;
+        return parseFloat(window.getComputedStyle(el).marginTop) || 0;
+      } catch (e) {
+        return 0;
+      }
+    };
+
+    const marginBottomOf = (el: HTMLElement | null): number => {
+      if (!el) return 0;
+      try {
+        return parseFloat(window.getComputedStyle(el).marginBottom) || 0;
+      } catch (e) {
+        return 0;
+      }
+    };
+
+    // Rendered span from `from`'s top border edge to `to`'s bottom border edge —
+    // includes every gap and collapsed margin between them exactly as laid out.
+    const rectSpan = (from: HTMLElement | null, to: HTMLElement | null): number => {
+      if (!from || !to) return 0;
+      try {
+        const top = from.getBoundingClientRect().top;
+        const bottom = to.getBoundingClientRect().bottom;
+        return Math.max(0, (bottom - top) / rectScale);
       } catch (e) {
         return 0;
       }
@@ -272,8 +306,10 @@ export default function ResumePreview({ data, template, onChangeData, editable =
     // at the bottom (and top) before the next block moves to the next page.
     const PAGE_VERTICAL_PAD = vMarginPx;
     const vertPaddingPx = PAGE_VERTICAL_PAD * 2; // Top + Bottom padding
-    // Safety buffer (65px) to prevent sub-pixel font measurement overflow slicing
-    const maxPageContentPx = Math.max(200, pageHeightPx - vertPaddingPx - 65);
+    // Token rounding buffer: block heights are measured from live layout and can
+    // drift a couple px from the reconstructed page (font raster rounding), so
+    // keep a minimal margin instead of a large safety void at every page end.
+    const maxPageContentPx = Math.max(200, pageHeightPx - vertPaddingPx - 4);
 
     interface AtomicBlock {
       sectionClass: string;
@@ -287,6 +323,10 @@ export default function ResumePreview({ data, template, onChangeData, editable =
       ulStyle?: string;
       html: string;
       height: number;
+      /** Leading CSS margin above this block (charged via margin collapse in the fold pass). */
+      ownLead?: number;
+      /** Trailing CSS margin below this block (collapses with the next block's lead). */
+      trailMargin?: number;
       isBullet?: boolean;
       isHeader?: boolean;
     }
@@ -368,7 +408,12 @@ export default function ResumePreview({ data, template, onChangeData, editable =
 
           items.forEach((item, itemIdx) => {
             const ul = item.querySelector('ul, ol');
-            const nonUlChildren = ul ? (Array.from(item.children).filter((c) => c !== ul) as HTMLElement[]) : [];
+            // Exclude any child that CONTAINS the list (not just the <ul> element itself):
+            // templates that wrap bullets in an inner <div> (e.g. a marginTop spacer) would
+            // otherwise be treated as header content, carrying the original <ul> into
+            // entryHeaderHtml while the slicer also rebuilds the <ul> from bullet blocks —
+            // rendering every bullet list twice on the page.
+            const nonUlChildren = ul ? (Array.from(item.children).filter((c) => !c.contains(ul)) as HTMLElement[]) : [];
             const bullets = ul ? (Array.from(ul.children) as HTMLElement[]) : [];
 
             if (nonUlChildren.length > 0 && bullets.length > 0) {
@@ -385,17 +430,27 @@ export default function ResumePreview({ data, template, onChangeData, editable =
                 ? headerElement.outerHTML + combinedHeaderHtml
                 : combinedHeaderHtml;
 
-              const secMargin = getVerticalMargin(sec);
-              const entryMargin = getVerticalMargin(item);
+              // Composed keep-together unit: section header (first item only) →
+              // entry header rows → this first bullet, measured as ONE rendered
+              // span so the margins between those pieces collapse exactly as in
+              // layout. Summing each piece's outer height double-counted every
+              // collapsed margin pair and overstated each entry boundary by
+              // tens of pixels, evicting whole entries early and leaving
+              // 150-250px holes at page breaks.
+              const firstRowEl = nonUlChildren[0] || null;
+              const firstBulletEl = bullets[0] || null;
+              const unitStartEl = isFirstItemInSection && headerElement ? headerElement : (firstRowEl || firstBulletEl);
+              const composedUnitHeight = rectSpan(unitStartEl, firstBulletEl);
+              const leadingMargin = isFirstItemInSection
+                ? Math.max(marginTopOf(sec), marginTopOf(headerElement))
+                : Math.max(marginTopOf(item), marginTopOf(firstRowEl));
 
               bullets.forEach((bullet, b) => {
                 const isFirstBulletInEntry = b === 0;
                 const bulletHeight = getOuterHeight(bullet) || 25;
                 const totalHeight = isFirstBulletInEntry
-                  ? (isFirstItemInSection ? getOuterHeight(headerElement) + secMargin : 0) +
-                    totalHeaderHeight +
-                    entryMargin +
-                    bulletHeight
+                  ? composedUnitHeight ||
+                    (isFirstItemInSection ? getOuterHeight(headerElement) : 0) + totalHeaderHeight + bulletHeight
                   : bulletHeight;
 
                 blocks.push({
@@ -410,26 +465,37 @@ export default function ResumePreview({ data, template, onChangeData, editable =
                   ulStyle: ulStyle,
                   html: bullet.outerHTML,
                   height: totalHeight,
+                  ownLead: isFirstBulletInEntry ? leadingMargin : 0,
+                  // The entry's trailing margin — and, on the entry's last bullet,
+                  // the section's trailing margin — ride the collapse chain so each
+                  // inter-entry / inter-section gap is counted exactly once.
+                  trailMargin: b === bullets.length - 1
+                    ? marginBottomOf(item) + (itemIdx === items.length - 1 ? marginBottomOf(sec) : 0)
+                    : 0,
                   isBullet: true,
                 });
               });
 
               isFirstItemInSection = false;
             } else {
-              // Non-bullet entry
+              // Non-bullet entry — same composed-span measurement as the bullet
+              // branch: one rendered span from the unit top to the item bottom.
               const itemHtml = item.outerHTML;
               const combinedHtml = isFirstItemInSection ? headerElement.outerHTML + itemHtml : itemHtml;
-              const secMargin = getVerticalMargin(sec);
-              const combinedHeight = isFirstItemInSection
-                ? getOuterHeight(headerElement) + getOuterHeight(item) + secMargin
-                : getOuterHeight(item);
+              const unitStartEl = isFirstItemInSection && headerElement ? headerElement : item;
+              const composedHeight = rectSpan(unitStartEl, item) || getOuterHeight(item);
+              const leadingMargin = isFirstItemInSection
+                ? Math.max(marginTopOf(sec), marginTopOf(headerElement))
+                : marginTopOf(item);
 
               blocks.push({
                 sectionClass: secClass,
                 sectionStyle: secStyle,
                 sectionKey: secKey,
                 html: combinedHtml,
-                height: combinedHeight,
+                height: composedHeight,
+                ownLead: leadingMargin,
+                trailMargin: marginBottomOf(item) + (itemIdx === items.length - 1 ? marginBottomOf(sec) : 0),
                 isBullet: false,
               });
 
@@ -437,13 +503,16 @@ export default function ResumePreview({ data, template, onChangeData, editable =
             }
           });
         } else {
-          // Single atomic section (Summary, Skills, etc.)
+          // Single atomic section (Summary, Skills, etc.) — moves whole; its own
+          // margins ride the collapse chain instead of being baked into the height.
           blocks.push({
             sectionClass: '',
             sectionStyle: '',
             sectionKey: '',
             html: sec.outerHTML,
-            height: getOuterHeight(sec) || 60,
+            height: sec.offsetHeight ? sec.offsetHeight : 60,
+            ownLead: marginTopOf(sec),
+            trailMargin: marginBottomOf(sec),
             isBullet: false,
           });
         }
@@ -462,6 +531,15 @@ export default function ResumePreview({ data, template, onChangeData, editable =
       });
     }
 
+    // CSS margin collapse between vertically adjacent blocks: the gap that
+    // actually renders between block N-1 and N is max(N-1's trailing margin,
+    // N's leading margin). Charge each gap exactly once to the later block so
+    // no margin is double-counted or lost.
+    blocks.forEach((block, i) => {
+      const prevTrail = i > 0 ? blocks[i - 1].trailMargin || 0 : 0;
+      block.height += Math.max(prevTrail, block.ownLead || 0);
+    });
+
     // Bucket blocks into pages
     interface PageBucket {
       blocks: AtomicBlock[];
@@ -472,14 +550,12 @@ export default function ResumePreview({ data, template, onChangeData, editable =
     let currentHeight = 0;
 
     blocks.forEach((block) => {
-      const isNewEntry = !!block.entryHeaderHtml;
-      // If adding this block exceeds page height, or if this block starts a new entry (role/company)
-      // and remaining height is too tight (< 80px safety buffer), move cleanly to next page so
-      // job titles are never chopped or orphaned at the bottom margin.
-      const shouldBreak = currentHeight > 0 && (
-        currentHeight + block.height > maxPageContentPx ||
-        (isNewEntry && currentHeight + block.height > maxPageContentPx - 80)
-      );
+      // Break only when the block genuinely no longer fits. Keep-together is
+      // structural, not heuristic: entry headers are fused into their first-bullet
+      // block (non-bullet entries are single blocks), so a break always moves the
+      // whole header + first-line unit and titles are never orphaned — which
+      // makes the old extra 80px pre-break clearance for new entries unnecessary.
+      const shouldBreak = currentHeight > 0 && currentHeight + block.height > maxPageContentPx;
 
       if (shouldBreak && currentPageIndex < 4) {
         currentPageIndex++;
@@ -883,6 +959,7 @@ export default function ResumePreview({ data, template, onChangeData, editable =
         case 'professional': return <ProfessionalTemplate data={renderData} />;
         case 'times': return <TimesTemplate data={renderData} />;
         case 'jake': return <JakeTemplate data={renderData} />;
+        case 'scholar': return <ScholarTemplate data={renderData} />;
         case 'gaurav': return <AnalystTemplate data={renderData} />;
         case 'regent': return <RegentTemplate data={renderData} />;
         case 'twocolumn': return <TwoColumnTemplate data={renderData} />;
@@ -899,6 +976,7 @@ export default function ResumePreview({ data, template, onChangeData, editable =
         case 'sage': return <SageTemplate data={renderData} />;
         case 'rezi': return <ReziTemplate data={renderData} />;
         case 'student': return <StudentTemplate data={renderData} />;
+        case 'intern': return <InternTemplate data={renderData} />;
         default: return <VanguardTemplate data={renderData} />;
       }
     } catch (e) {
@@ -936,7 +1014,7 @@ export default function ResumePreview({ data, template, onChangeData, editable =
 
       {/* Multi-Page Sheets View: Physical Pages with Fixed Dimensions & Workspace Gaps */}
       {activePages.length > 0 ? (
-        <div className="flex flex-col items-center w-full space-y-8 print:space-y-0">
+        <div className="flex flex-col items-center w-full space-y-10 print:space-y-0">
           {activePages.map((htmlString, index) => (
             <div
               key={index}
@@ -947,7 +1025,7 @@ export default function ResumePreview({ data, template, onChangeData, editable =
               onInput={onDomInput ? (e) => onDomInput(e.currentTarget) : undefined}
               onKeyDown={handleSheetKeyDown}
               onPaste={handleSheetPaste}
-              className="resume-page-sheet resume-page bg-white mx-auto relative print:border-0 print:shadow-none print:m-0 outline-none select-text cursor-text"
+              className="resume-page-sheet resume-page bg-white mx-auto relative shadow-2xl rounded-xs ring-1 ring-black/10 print:border-0 print:shadow-none print:ring-0 print:m-0 outline-none select-text cursor-text"
               data-paginated-sheet="true"
               data-page-index={index}
               data-page-number={index + 1}
@@ -988,7 +1066,7 @@ export default function ResumePreview({ data, template, onChangeData, editable =
           onInput={onDomInput ? (e) => onDomInput(e.currentTarget) : undefined}
           onKeyDown={handleSheetKeyDown}
           onPaste={handleSheetPaste}
-          className="resume-page-sheet resume-page bg-white mx-auto relative print:border-0 print:shadow-none print:m-0 outline-none select-text cursor-text"
+          className="resume-page-sheet resume-page bg-white mx-auto relative shadow-2xl rounded-xs ring-1 ring-black/10 print:border-0 print:shadow-none print:ring-0 print:m-0 outline-none select-text cursor-text"
           data-paginated-sheet="false"
           style={{
             ...containerStyle,

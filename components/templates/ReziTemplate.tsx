@@ -25,7 +25,7 @@ import {
   CONTACT_SEPARATOR,
   renderCourseworkBlockHelper,
 } from '../../utils/templateUtils';
-import { resolveSection, getResolvedSectionOrder, isSectionHiddenByTemplateDefault } from '../../utils/sectionRegistry';
+import { resolveSection, getResolvedSectionOrder, isSectionHiddenByTemplateDefault, isSectionExplicitlyAdded } from '../../utils/sectionRegistry';
 import type { CustomSectionData } from '../../types/resumeSections';
 import { getTranslation, Language } from '../../i18n/translations';
 import { MapPin, Mail, Phone, Linkedin, Globe, Github } from 'lucide-react';
@@ -41,21 +41,6 @@ const W_BOLD = 700;
 const formatMonthYear = (dateString: string | null | undefined) => {
   return formatMonthYearUtil(dateString, 'short');
 };
-
-const DEFAULT_HARVARD_LEADERSHIP: Experience[] = [
-  {
-    id: 'default_harvard_lead_1',
-    company: 'Organization',
-    role: 'Position Title',
-    location: 'City, State',
-    startDate: 'Month Year',
-    endDate: 'Month Year',
-    description: [
-      'This section can be formatted similarly to the Experience section, or you can omit descriptions for activities.',
-      'If this section is more relevant to the opportunity you are applying for, consider moving this above your Experience section.',
-    ],
-  },
-];
 
 export default function ReziTemplate({ data }: { data: ResumeData }) {
   const { fontSizes } = data;
@@ -481,26 +466,33 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
   };
 
   const renderSection = (id: string) => {
-    // Leadership & Activities is always present by default on Harvard unless explicitly hidden
-    if (id === 'leadership') {
-      if (data.sectionVisibility?.['leadership'] === false) return null;
-      const leadershipItems =
-        data.leadership && data.leadership.length > 0
-          ? data.leadership
-          : DEFAULT_HARVARD_LEADERSHIP;
-      const sectionTitle =
-        data.sectionTitles?.leadership && data.sectionTitles.leadership !== 'Leadership'
-          ? data.sectionTitles.leadership
-          : 'Leadership & Activities';
-      return renderExperienceBlock(sectionTitle, leadershipItems, 'leadership');
-    }
-
+    // Leadership follows the same rules as every other section: an explicit
+    // sectionVisibility flag wins, and the section only renders when the user
+    // actually has leadership entries. When the entries are removed the section
+    // must disappear from the preview too — no fallback to sample content
+    // (which previously kept a removed section visible in the preview).
     const resolved = resolveSection(data, id);
     if (!resolved || !resolved.visible || !resolved.hasContent) return null;
 
-    // Sections not on the Harvard template (summary, projects, certifications,
-    // achievements, etc.) are hidden by default unless explicitly opted in
-    // via sectionVisibility[id] = true.
+    // Student templates do not have professional summary, key achievements, or references
+    // by default — but an explicit user add (sidebar, canvas + dock, or the
+    // hidden-content notice banner) still wins and renders the section.
+    if (
+      (resolved.type === 'summary' ||
+        resolved.type === 'achievements' ||
+        resolved.type === 'references' ||
+        id === 'summary' ||
+        id === 'keyAchievements' ||
+        id === 'achievements' ||
+        id === 'referee' ||
+        id === 'references') &&
+      !isSectionExplicitlyAdded(data, id)
+    ) {
+      return null;
+    }
+
+    // Sections not on the Harvard template (projects, certifications, etc.)
+    // are hidden by default unless explicitly opted in via sectionVisibility[id] = true.
     if (isSectionHiddenByTemplateDefault('rezi', resolved.id, data.sectionVisibility)) return null;
 
     let sectionTitle = resolved.title;
@@ -682,32 +674,10 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
     );
   })();
 
-  /**
-   * The Harvard resume arranges sections in the exact order:
-   * Education → Experience → Leadership & Activities → Skills & Interests.
-   * Those four are pinned in that order by default; any other section
-   * that the user explicitly adds or opts into follows in its relative order,
-   * and sections hidden by default remain hidden unless opted into.
-   */
   const getReziSectionOrder = (): string[] => {
     const resolved = getResolvedSectionOrder(data);
     const isLeadershipExplicitlyHidden = data.sectionVisibility?.['leadership'] === false;
-
-    // If the user has manually positioned leadership in sectionOrder, honor their sequence
-    if (Array.isArray(data.sectionOrder) && data.sectionOrder.includes('leadership')) {
-      return resolved.filter((id) => id !== 'leadership' || !isLeadershipExplicitlyHidden);
-    }
-
-    const native = ['education', 'experience', 'leadership', 'skills'];
-    const nativeSet = new Set(native);
-    const pinned = native.filter((id) => {
-      if (id === 'leadership') {
-        return !isLeadershipExplicitlyHidden;
-      }
-      return resolved.includes(id);
-    });
-    const rest = resolved.filter((id) => !nativeSet.has(id));
-    return [...pinned, ...rest];
+    return resolved.filter((id) => id !== 'leadership' || !isLeadershipExplicitlyHidden);
   };
 
   return (
@@ -732,7 +702,7 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
             data.headerAlignment === 'right' ? 'text-right' :
             'text-center'
           }`}
-          style={{ width: '100%', fontSize: `${fontSizes?.header || 18}pt`, color: REZI_INK, fontFamily: 'Merriweather, serif', fontWeight: W_BOLD, lineHeight: 1.2, marginBottom: '4px' }}
+          style={{ width: '100%', fontSize: `${fontSizes?.header || 18}pt`, color: REZI_INK, fontFamily: data.font || 'Merriweather, serif', fontWeight: W_BOLD, lineHeight: 1.2, marginBottom: '4px' }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase)} />
         </h1>

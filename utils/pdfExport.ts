@@ -154,14 +154,72 @@ export function toSrgbString(cssColor: string): string {
 }
 
 /**
+ * Normalize section headers before html2canvas capture.
+ *
+ * html2canvas renders an element's border box without its vertical padding, so
+ * bordered section headers (e.g. Regent's top+bottom-ruled titles) capture with
+ * the rule drawn up through the heading text even though the live preview is
+ * correct. For headers that carry border rules we:
+ *   - keep padding and line-height untouched (the padding IS the visible gap
+ *     between text and rule — stripping it produced the strike-through),
+ *   - keep the border widths so layout stays pixel-identical, but make the
+ *     borders transparent, and
+ *   - paint the rules ourselves as absolutely-positioned background bars pinned
+ *     to the element's true geometry with an explicit `top` in px (never
+ *     `bottom`, which would inherit html2canvas's mis-computed box height).
+ *
+ * Headers without border rules keep the legacy lock (margin/padding flattened) —
+ * other templates rely on that behaviour.
+ */
+function lockHeadingGeometry(root: ParentNode): void {
+  root.querySelectorAll<HTMLElement>('.section-header, h2, h3, .section-header-wrap').forEach((el) => {
+    el.style.boxSizing = 'border-box';
+    // Already converted in an earlier pass — re-converting would re-measure
+    if (el.dataset.ruleLock === '1') return;
+    const cs = window.getComputedStyle(el);
+    const borderT = parseFloat(cs.borderTopWidth) || 0;
+    const borderB = parseFloat(cs.borderBottomWidth) || 0;
+    if (borderT > 0 || borderB > 0) {
+      // Measure the TRUE (padded) geometry first — the rules must be pinned to
+      // where the preview draws them.
+      const boxH = el.getBoundingClientRect().height;
+      const colorT = toSrgbString(cs.borderTopColor || '#111111');
+      const colorB = toSrgbString(cs.borderBottomColor || '#111111');
+      el.dataset.ruleLock = '1';
+      el.style.position = 'relative';
+      el.style.borderTopColor = 'transparent';
+      el.style.borderBottomColor = 'transparent';
+      // Position bars in padding-box coordinates
+      const addBar = (topPx: number, heightPx: number, color: string) => {
+        if (heightPx <= 0) return;
+        const bar = document.createElement('div');
+        bar.setAttribute('data-rule-bar', '');
+        bar.style.cssText = `position:absolute;left:0;right:0;top:${topPx}px;height:${heightPx}px;background:${color};`;
+        el.appendChild(bar);
+      };
+      addBar(-borderT, borderT, colorT);
+      addBar(boxH - borderT - borderB, borderB, colorB);
+      el.style.marginTop = '0px';
+      el.style.paddingTop = '0px';
+      el.style.paddingBottom = '0px';
+      el.style.margin = '0px';
+      el.style.lineHeight = '1.25';
+    }
+  });
+}
+
+/**
  * Capture a resume page DOM element using html2canvas at high DPI.
  *
  * Key fixes applied before capture:
  *  - double-rAF after DOM mount so browser finishes layout computation
  *  - SVG flex gap → explicit margin-right (html2canvas 1.4.1 gap inconsistency)
- *  - border-bottom → explicit <div> divider (html2canvas border rendering bug)
+ *  - bordered section headers → transparent borders + explicit background bars
+ *    at the true rule positions (html2canvas draws borders against a
+ *    padding-less box, which shifted rules up through the heading text)
  *  - currentColor on SVG path children resolved to a real hex/rgb value
- *  - <hr> converted to height+background-color (not border)
+ *  - <hr> converted to height+background-color (not border), preserving the
+ *    source rule thickness
  */
 export async function captureElement(
   el: HTMLElement,
@@ -184,11 +242,10 @@ export async function captureElement(
   const defaultW = isA4 ? 794 : 816;
   const defaultH = isA4 ? 1123 : 1056;
 
-  const rawW = el.offsetWidth || el.clientWidth || 0;
   const rawH = el.offsetHeight || el.clientHeight || 0;
-  // Use measured element dimensions when available, otherwise exact paper size
-  const w = rawW >= 650 ? rawW : defaultW;
-  const h = rawH >= 900 ? rawH : defaultH;
+  // Always use exact paper width (816 for Letter, 794 for A4) to prevent right-edge clipping
+  const w = defaultW;
+  const h = rawH > defaultH ? rawH : defaultH;
 
   const host = document.createElement('div');
   host.style.cssText = [
@@ -214,6 +271,7 @@ export async function captureElement(
   clone.style.maxWidth = `${w}px`;
   clone.style.height = `${h}px`;
   clone.style.minHeight = `${h}px`;
+  clone.style.boxSizing = 'border-box';
   clone.style.overflow = 'hidden';
   clone.style.backgroundColor = '#ffffff';
   clone.style.visibility = 'visible';
@@ -224,10 +282,13 @@ export async function captureElement(
   host.appendChild(clone);
   document.body.appendChild(host);
 
-  // Double rAF: give the browser two frames to fully compute layout on the mounted clone
-  await new Promise<void>((resolve) =>
-    requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
-  );
+  // Double rAF: give the browser two frames to fully compute layout on the mounted clone.
+  // rAF never fires in hidden/background tabs, so race a timeout fallback — otherwise an
+  // export started in a background tab hangs forever at "Downloading...".
+  await new Promise<void>((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+    setTimeout(resolve, 500);
+  });
 
   // Strip contenteditable so no selection caret or focus rings appear
   clone.removeAttribute('contenteditable');
@@ -236,74 +297,84 @@ export async function captureElement(
   // Remove page-number badges, floating icons, and print-hidden elements
   clone.querySelectorAll('.print\\:hidden, [class*="print:hidden"], .absolute.bottom-3').forEach((c) => c.remove());
 
-  // Resolve SVG colors cleanly and lock inline geometry so html2canvas renders exact colors and positions
-  clone.querySelectorAll<SVGSVGElement>('svg').forEach((svg) => {
-    try {
-      const comp = window.getComputedStyle(svg);
-      const strokeAttr = svg.getAttribute('stroke');
-      const fillAttr = svg.getAttribute('fill');
-      const strokeVal = comp.stroke && comp.stroke !== 'none' ? comp.stroke : (comp.color || '#374151');
-      const resolvedColor = toSrgbString(strokeVal);
+  // Helper to align SVGs and add physical right margin so html2canvas never overlaps icon with text
+  const formatSvgIcons = (root: ParentNode) => {
+    root.querySelectorAll<SVGSVGElement>('svg').forEach((svg) => {
+      try {
+        const comp = window.getComputedStyle(svg);
+        const strokeAttr = svg.getAttribute('stroke');
+        const fillAttr = svg.getAttribute('fill');
+        const strokeVal = comp.stroke && comp.stroke !== 'none' ? comp.stroke : (comp.color || '#374151');
+        const resolvedColor = toSrgbString(strokeVal);
 
-      if (strokeAttr && strokeAttr === 'currentColor') {
-        svg.setAttribute('stroke', resolvedColor);
+        if (strokeAttr && strokeAttr === 'currentColor') {
+          svg.setAttribute('stroke', resolvedColor);
+        }
+        if (fillAttr && fillAttr === 'currentColor') {
+          svg.setAttribute('fill', resolvedColor);
+        }
+        svg.querySelectorAll('[stroke="currentColor"]').forEach((c) => c.setAttribute('stroke', resolvedColor));
+        svg.querySelectorAll('[fill="currentColor"]').forEach((c) => c.setAttribute('fill', resolvedColor));
+
+        // Lock SVG icon layout to prevent mobile displacement and overlap
+        svg.style.display = 'inline-block';
+        svg.style.verticalAlign = 'middle';
+        svg.style.flexShrink = '0';
+        svg.style.position = 'static';
+        svg.style.transform = 'none';
+
+        const parent = svg.parentElement;
+        if (parent) {
+          parent.style.display = 'inline-flex';
+          parent.style.alignItems = 'center';
+          parent.style.verticalAlign = 'middle';
+          parent.style.lineHeight = '1';
+        }
+
+        // html2canvas ignores flex 'gap'. Set explicit margin-right if followed by text or sibling
+        const nextSibling = svg.nextElementSibling as HTMLElement | null;
+        if (nextSibling || (parent && parent.textContent && parent.textContent.trim().length > 0)) {
+          svg.style.margin = '0 6px 0 0';
+          if (nextSibling) {
+            nextSibling.style.display = 'inline-block';
+            nextSibling.style.verticalAlign = 'middle';
+          }
+        } else {
+          svg.style.margin = '0';
+        }
+      } catch {
+        // Fallback: ignore SVG color resolution errors
       }
-      if (fillAttr && fillAttr === 'currentColor') {
-        svg.setAttribute('fill', resolvedColor);
-      }
-      svg.querySelectorAll('[stroke="currentColor"]').forEach((c) => c.setAttribute('stroke', resolvedColor));
-      svg.querySelectorAll('[fill="currentColor"]').forEach((c) => c.setAttribute('fill', resolvedColor));
+    });
+  };
 
-      // Lock SVG icon layout to prevent mobile displacement
-      svg.style.display = 'inline-block';
-      svg.style.verticalAlign = 'middle';
-      svg.style.flexShrink = '0';
-      svg.style.margin = '0';
-      svg.style.position = 'static';
-      svg.style.transform = 'none';
+  formatSvgIcons(clone);
 
-      const parent = svg.parentElement;
-      if (parent) {
-        parent.style.display = 'inline-flex';
-        parent.style.alignItems = 'center';
-        parent.style.verticalAlign = 'middle';
-        parent.style.lineHeight = '1';
-      }
-    } catch {
-      // Fallback: ignore SVG color resolution errors
-    }
-  });
+  // Lock section headers, wrappers and dividers so text never separates from
+  // backgrounds or borders (bordered headers get the bar treatment — see
+  // lockHeadingGeometry).
+  lockHeadingGeometry(clone);
 
-  // Lock section headers, wrappers and dividers so text never separates from backgrounds or borders
-  clone.querySelectorAll<HTMLElement>('.section-header, h2, h3, .section-header-wrap').forEach((el) => {
-    el.style.marginTop = '0px';
-    el.style.boxSizing = 'border-box';
-    if (el.tagName.toLowerCase() === 'h2' || el.tagName.toLowerCase() === 'h3' || el.classList.contains('section-header')) {
-      el.style.paddingTop = '0px';
-      el.style.paddingBottom = '0px';
-      el.style.margin = '0px';
-      el.style.lineHeight = '1.25';
-    }
-  });
-
-  // Convert HR borders to clean solid 1px background block for html2canvas consistency
+  // Convert HR borders to clean solid background block for html2canvas consistency,
+  // preserving the source rule's thickness (e.g. Regent's 2.5px contact rule).
   clone.querySelectorAll<HTMLHRElement>('hr').forEach((hr) => {
     try {
       const comp = window.getComputedStyle(hr);
       const hrColor = toSrgbString(comp.borderTopColor || comp.borderColor || comp.color || '#e5e7eb');
       hr.style.border = 'none';
-      hr.style.height = '1px';
+      hr.style.height = `${Math.max(1, parseFloat(comp.borderTopWidth) || 1)}px`;
       hr.style.backgroundColor = hrColor;
     } catch {
       // Fallback
     }
   });
 
-  // Strip shadows for clean raster output
+  // Strip shadows and force letter-spacing normal to prevent html2canvas double-rendering bug
   clone.querySelectorAll<HTMLElement>('*').forEach((child) => {
     if (child.style) {
       if (child.style.boxShadow) child.style.boxShadow = 'none';
       if (child.style.textShadow) child.style.textShadow = 'none';
+      child.style.letterSpacing = 'normal';
     }
   });
 
@@ -352,33 +423,50 @@ export async function captureElement(
           (clonedDoc.body.style as any).textSizeAdjust = '100%';
         }
 
-        // Lock all SVGs inside cloned document
-        clonedDoc.querySelectorAll('svg').forEach((svg) => {
-          svg.style.display = 'inline-block';
-          svg.style.verticalAlign = 'middle';
-          svg.style.flexShrink = '0';
-          svg.style.margin = '0';
-          svg.style.transform = 'none';
-          const p = svg.parentElement;
-          if (p) {
-            p.style.display = 'inline-flex';
-            p.style.alignItems = 'center';
-            p.style.verticalAlign = 'middle';
-            p.style.lineHeight = '1';
+        // Inject global override inside clonedDoc iframe to completely prevent html2canvas letterSpacing double-render bug and ensure contact links underline
+        try {
+          const resetStyle = clonedDoc.createElement('style');
+          resetStyle.textContent = `
+            * {
+              letter-spacing: normal !important;
+              text-shadow: none !important;
+              box-shadow: none !important;
+            }
+            a[data-path="linkedin"],
+            a[data-path="portfolio"],
+            a[data-path="github"] {
+              text-decoration: underline !important;
+            }
+          `;
+          clonedDoc.head?.appendChild(resetStyle);
+        } catch {}
+
+        // Copy fonts and font links into clonedDoc iframe
+        if (typeof document !== 'undefined') {
+          if (document.fonts && (clonedDoc as any).fonts) {
+            document.fonts.forEach((font) => {
+              try {
+                (clonedDoc as any).fonts.add(font);
+              } catch {}
+            });
           }
-        });
+          document.querySelectorAll<HTMLLinkElement>('link[rel*="stylesheet"]').forEach((link) => {
+            if (!clonedDoc.head?.querySelector(`link[href="${link.href}"]`)) {
+              try {
+                const l = clonedDoc.createElement('link');
+                l.rel = 'stylesheet';
+                l.href = link.href;
+                clonedDoc.head?.appendChild(l);
+              } catch {}
+            }
+          });
+        }
+
+        // Lock all SVGs inside cloned document with explicit margin
+        formatSvgIcons(clonedDoc);
 
         // Lock all headings and section headers inside cloned document
-        clonedDoc.querySelectorAll('.section-header, h2, h3, .section-header-wrap').forEach((el) => {
-          (el as HTMLElement).style.marginTop = '0px';
-          (el as HTMLElement).style.boxSizing = 'border-box';
-          if (el.tagName.toLowerCase() === 'h2' || el.tagName.toLowerCase() === 'h3' || el.classList.contains('section-header')) {
-            (el as HTMLElement).style.paddingTop = '0px';
-            (el as HTMLElement).style.paddingBottom = '0px';
-            (el as HTMLElement).style.margin = '0px';
-            (el as HTMLElement).style.lineHeight = '1.25';
-          }
-        });
+        lockHeadingGeometry(clonedDoc);
 
         // Sanitize any modern oklch/oklab in stylesheets within the iframe
         clonedDoc.querySelectorAll('style').forEach((styleEl) => {
@@ -392,8 +480,9 @@ export async function captureElement(
       },
     });
 
+    const timeoutMs = scale <= 2 ? 15000 : Math.round(scale * 8000);
     const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('PDF capture timed out. Please try again.')), 15000)
+      setTimeout(() => reject(new Error('PDF capture timed out. Please try again.')), timeoutMs)
     );
 
     return await Promise.race([canvasPromise, timeoutPromise]);
@@ -531,33 +620,26 @@ export async function exportResumeToServerPdf(
 }
 
 /**
- * Exports all visible resume page sheets directly to PDF using html2canvas + jsPDF.
- * RASTER output (image-based, no text layer) — kept as an explicit legacy fallback only;
- * prefer exportResumeToServerPdf for downloads.
+ * Resolve the resume page elements to capture, plus a cleanup fn for any
+ * offscreen render it created.
+ *
+ * 1. Pristine offscreen render: ResumePreview rendered at standard desktop
+ *    width in an offscreen container — guarantees identical desktop paper
+ *    dimensions, accurate font metrics, and full page slicing even on mobile
+ *    phones or when the editor tab is active.
+ * 2. Fallback: progressively looser searches of the live DOM.
+ *
+ * Throws if no pages can be found at all.
  */
-export async function exportResumeToPdf(
-  data: ResumeData,
-  template?: TemplateType,
-  customFilename?: string
-): Promise<void> {
-  const resolvedTemplate: TemplateType = data.template || template || 'vanguard';
-  const dataWithTemplate: ResumeData = { ...data, template: resolvedTemplate };
-  const finalFilename = buildResumeFilename(dataWithTemplate, customFilename);
-  const pageSize = (dataWithTemplate.pageSize || 'letter').toLowerCase();
-  const isA4 = pageSize === 'a4';
-
-  const pageWidthMm = isA4 ? 210 : 215.9;
-  const pageHeightMm = isA4 ? 297 : 279.4;
-  const format = isA4 ? 'a4' : 'letter';
-  const paperW = isA4 ? 794 : 816;
-
+async function resolveExportSheets(
+  dataWithTemplate: ResumeData,
+  resolvedTemplate: TemplateType,
+  paperW: number
+): Promise<{ sheets: HTMLElement[]; cleanup: () => void }> {
   let sheets: HTMLElement[] = [];
   let cleanupOffscreen: (() => void) | null = null;
 
-  // 1. Pristine offscreen render:
-  // Render ResumePreview at standard desktop width in an offscreen container.
-  // This guarantees identical desktop paper dimensions, accurate font metrics,
-  // and full page slicing even on mobile phones or when the editor tab is active.
+  // 1. Pristine offscreen render
   try {
     if (typeof (window as any).loadTemplateFonts === 'function') {
       (window as any).loadTemplateFonts();
@@ -613,8 +695,20 @@ export async function exportResumeToPdf(
         const rootEl = offscreenHost.querySelector<HTMLElement>('.resume-preview-root');
         const isPaginated = rootEl?.getAttribute('data-paginated') === 'true';
         const found = offscreenHost.querySelectorAll<HTMLElement>('.resume-page-sheet[data-paginated-sheet="true"]');
+        const allSheets = offscreenHost.querySelectorAll<HTMLElement>('.resume-page-sheet');
         if (isPaginated && found.length > 0 && found[0].innerHTML.trim().length > 50) {
-          requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+          // Double-rAF confirms layout has settled; rAF never fires in hidden tabs,
+          // so race a timeout fallback or a backgrounded export hangs forever.
+          new Promise<void>((r) => {
+            requestAnimationFrame(() => requestAnimationFrame(() => r()));
+            setTimeout(r, 500);
+          }).then(resolve);
+        } else if (allSheets.length > 0 && allSheets[0].innerHTML.trim().length > 50 && attempts > 8) {
+          // Single-page physical sheet (data-paginated-sheet="false") settled
+          new Promise<void>((r) => {
+            requestAnimationFrame(() => requestAnimationFrame(() => r()));
+            setTimeout(r, 500);
+          }).then(resolve);
         } else if (attempts < 80) {
           setTimeout(check, 50);
         } else {
@@ -624,7 +718,10 @@ export async function exportResumeToPdf(
       check();
     });
 
-    const offscreenSheets = Array.from(offscreenHost.querySelectorAll<HTMLElement>('.resume-page-sheet[data-paginated-sheet="true"]'));
+    const paginatedSheets = Array.from(offscreenHost.querySelectorAll<HTMLElement>('.resume-page-sheet[data-paginated-sheet="true"]'));
+    const offscreenSheets = paginatedSheets.length > 0
+      ? paginatedSheets
+      : Array.from(offscreenHost.querySelectorAll<HTMLElement>('.resume-page-sheet'));
     if (offscreenSheets.length > 0) {
       sheets = offscreenSheets;
       cleanupOffscreen = () => {
@@ -718,6 +815,36 @@ export async function exportResumeToPdf(
     );
   }
 
+  return { sheets, cleanup: cleanupOffscreen ?? (() => {}) };
+}
+
+/**
+ * Exports all visible resume page sheets directly to PDF using html2canvas + jsPDF.
+ * RASTER output (image-based, no text layer) — kept as an explicit legacy fallback only;
+ * prefer exportResumeToServerPdf for downloads.
+ *
+ * `scale` controls raster resolution (CSS px × scale = image px; ×96 = DPI):
+ * 2 ≈ 192 DPI standard, 3.125 = exactly 300 DPI for print-grade samples.
+ */
+export async function exportResumeToPdf(
+  data: ResumeData,
+  template?: TemplateType,
+  customFilename?: string,
+  scale: number = 2
+): Promise<void> {
+  const resolvedTemplate: TemplateType = data.template || template || 'vanguard';
+  const dataWithTemplate: ResumeData = { ...data, template: resolvedTemplate };
+  const finalFilename = buildResumeFilename(dataWithTemplate, customFilename);
+  const pageSize = (dataWithTemplate.pageSize || 'letter').toLowerCase();
+  const isA4 = pageSize === 'a4';
+
+  const pageWidthMm = isA4 ? 210 : 215.9;
+  const pageHeightMm = isA4 ? 297 : 279.4;
+  const format = isA4 ? 'a4' : 'letter';
+  const paperW = isA4 ? 794 : 816;
+
+  const { sheets, cleanup } = await resolveExportSheets(dataWithTemplate, resolvedTemplate, paperW);
+
   try {
     const pdf = new jsPDF({
       orientation: 'portrait',
@@ -726,7 +853,7 @@ export async function exportResumeToPdf(
       compress: true,
     });
 
-    const SCALE = 2; // High-clarity 2× rendering
+    const SCALE = Math.max(1, scale);
 
     for (let i = 0; i < sheets.length; i++) {
       const sheet = sheets[i];
@@ -760,8 +887,103 @@ export async function exportResumeToPdf(
     const pdfBlob = pdf.output('blob');
     downloadFile(pdfBlob, finalFilename);
   } finally {
-    cleanupOffscreen?.();
+    cleanup();
   }
+}
+
+export type ImageExportFormat = 'png' | 'jpeg' | 'jpg';
+
+/**
+ * Export the resume as a single high-quality image (PNG or JPG).
+ *
+ * Uses pristine offscreen rendering + html2canvas capture.
+ * Multi-page resumes are stitched into a single tall image with a clean white gap between pages.
+ * A solid white background canvas is always guaranteed so JPEG never turns transparent areas black.
+ *
+ * `scale` controls image resolution (CSS px × scale = image px; ×96 = DPI):
+ * 3.125 = exactly 300 DPI for print-grade samples.
+ */
+export async function exportResumeToImage(
+  data: ResumeData,
+  template?: TemplateType,
+  customFilename?: string,
+  scale: number = 3.125,
+  format: ImageExportFormat = 'png',
+  quality: number = 0.95
+): Promise<void> {
+  const isJpeg = format.toLowerCase() === 'jpeg' || format.toLowerCase() === 'jpg';
+  const ext = isJpeg ? 'jpg' : 'png';
+  const mimeType = isJpeg ? 'image/jpeg' : 'image/png';
+  const resolvedTemplate: TemplateType = data.template || template || 'vanguard';
+  const dataWithTemplate: ResumeData = { ...data, template: resolvedTemplate };
+  const baseName = customFilename && customFilename.trim()
+    ? sanitizeFilename(customFilename.trim(), 'Resume')
+    : `${sanitizeFilename(dataWithTemplate.fullName, 'Resume')}_Resume`;
+  const finalFilename = `${baseName}.${ext}`;
+  const pageSize = (dataWithTemplate.pageSize || 'letter').toLowerCase();
+  const isA4 = pageSize === 'a4';
+  const paperW = isA4 ? 794 : 816;
+
+  const { sheets, cleanup } = await resolveExportSheets(dataWithTemplate, resolvedTemplate, paperW);
+
+  try {
+    const SCALE = Math.max(1, scale);
+    const canvases: HTMLCanvasElement[] = [];
+
+    for (let i = 0; i < sheets.length; i++) {
+      try {
+        canvases.push(await captureElement(sheets[i], SCALE, isA4 ? 'a4' : 'letter'));
+      } catch (err) {
+        console.error('Canvas capture error on sheet', i, err);
+        throw new Error(`Failed to capture page ${i + 1}: ${err instanceof Error ? err.message : String(err)}`);
+      }
+    }
+
+    if (canvases.length === 0) {
+      throw new Error('No pages captured for image export.');
+    }
+
+    // Always create a clean white-background canvas to ensure JPEG never turns unfilled areas black
+    const gapPx = Math.round(16 * SCALE);
+    const width = Math.max(...canvases.map((c) => c.width));
+    const height = canvases.length === 1
+      ? canvases[0].height
+      : canvases.reduce((sum, c) => sum + c.height, 0) + gapPx * (canvases.length - 1);
+
+    const finalCanvas = document.createElement('canvas');
+    finalCanvas.width = width;
+    finalCanvas.height = height;
+    const ctx = finalCanvas.getContext('2d');
+    if (!ctx) throw new Error('Could not create image canvas. Please try again.');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, height);
+
+    let y = 0;
+    for (const c of canvases) {
+      ctx.drawImage(c, Math.round((width - c.width) / 2), y);
+      y += c.height + gapPx;
+    }
+
+    const blob = await new Promise<Blob | null>((resolve) =>
+      finalCanvas.toBlob(resolve, mimeType, isJpeg ? quality : undefined)
+    );
+    if (!blob) throw new Error(`${ext.toUpperCase()} encoding failed. Please try again.`);
+    downloadFile(blob, finalFilename);
+  } finally {
+    cleanup();
+  }
+}
+
+/**
+ * Backward compatibility wrapper for PNG image export.
+ */
+export async function exportResumeToImagePng(
+  data: ResumeData,
+  template?: TemplateType,
+  customFilename?: string,
+  scale: number = 3.125
+): Promise<void> {
+  return exportResumeToImage(data, template, customFilename, scale, 'png');
 }
 
 /**

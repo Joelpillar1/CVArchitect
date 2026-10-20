@@ -128,9 +128,9 @@ export function analyzeResume(data: ResumeData): AnalyticsResult {
 
 function calculateSectionScores(data: ResumeData): AnalyticsResult['sectionScores'] {
     // Count skills properly (trim and filter empty entries)
-    const skillCount = data.skills
+    const skillCount = typeof data.skills === 'string'
         ? data.skills.split(',').map(s => s.trim()).filter(s => s.length > 0).length
-        : 0;
+        : Array.isArray(data.skills) ? data.skills.length : 0;
 
     const scores: AnalyticsResult['sectionScores'] = {
         personalInfo: calculatePersonalInfoScore(data),
@@ -193,24 +193,26 @@ function calculatePersonalInfoScore(data: ResumeData): number {
 }
 
 function calculateExperienceScore(data: ResumeData): number {
-    if (data.experience.length === 0) return 0;
+    // Tolerate partial data (e.g. resumes created by older buggy flows or partial imports)
+    const experience = Array.isArray(data.experience) ? data.experience : [];
+    if (experience.length === 0) return 0;
 
     // Give high score for 4+ experiences
     let score = 0;
 
-    if (data.experience.length >= 4) {
+    if (experience.length >= 4) {
         score = 70; // Strong base for 4+ experiences
-    } else if (data.experience.length >= 2) {
+    } else if (experience.length >= 2) {
         score = 50;
     } else {
         score = 30;
     }
 
     // Quality checks - reward good descriptions
-    const avgDescLength = data.experience.reduce((acc, exp) => {
+    const avgDescLength = experience.reduce((acc, exp) => {
         const descText = getDescriptionText(exp.description);
         return acc + descText.length;
-    }, 0) / data.experience.length;
+    }, 0) / experience.length;
 
     if (avgDescLength > 80) score += 15;  // Decent descriptions
     if (avgDescLength > 150) score += 15; // Good descriptions
@@ -223,11 +225,11 @@ function calculateExperienceScore(data: ResumeData): number {
 // ============================================================================
 function calculateRelevance(data: ResumeData) {
     const resumeText = [
-        data.summary,
-        data.skills,
+        data.summary || '',
+        typeof data.skills === 'string' ? data.skills : (Array.isArray(data.skills) ? (data.skills as string[]).join(' ') : ''),
         data.keyAchievements || '',
-        ...data.experience.map(e => getDescriptionText(e.description)),
-        ...data.projects?.map(p => getDescriptionText(p.description)) || []
+        ...(Array.isArray(data.experience) ? data.experience : []).map(e => getDescriptionText(e.description)),
+        ...(Array.isArray(data.projects) ? data.projects : []).map(p => getDescriptionText(p.description))
     ].join(' ').toLowerCase();
 
     const resultKeywords = {
@@ -310,14 +312,15 @@ function calculateRelevance(data: ResumeData) {
 // PILLAR 2: IMPACT (Quality/Readability)
 // ============================================================================
 function analyzeReadability(data: ResumeData) {
-    const descriptions = data.experience.map(e => getDescriptionText(e.description)).filter(Boolean);
-    const allResumeText = [data.summary, ...descriptions, data.keyAchievements || ''].join(' ').toLowerCase();
+    const experience = Array.isArray(data.experience) ? data.experience : [];
+    const descriptions = experience.map(e => getDescriptionText(e.description)).filter(Boolean);
+    const allResumeText = [data.summary || '', ...descriptions, data.keyAchievements || ''].join(' ').toLowerCase();
 
     // 1. Metric Density (Bullets with numbers / Total bullets)
     let totalBullets = 0;
     let numberedBullets = 0;
 
-    data.experience.forEach(exp => {
+    experience.forEach(exp => {
         // Handle both array and string formats
         let lines: string[] = [];
         if (Array.isArray(exp.description)) {
@@ -519,7 +522,7 @@ function generateRecommendations(
     if (readability.metricDensity > 0.25) strengths.push('Strong use of metrics (numbers/%) in experience');
     if (keywords.actionVerbs > 10) strengths.push('Dynamic use of action verbs');
     if (completeness > 85) strengths.push('Resume structure is comprehensive');
-    if (data.experience.length >= 4) strengths.push('Strong work history with 4+ experiences');
+    if (Array.isArray(data.experience) && data.experience.length >= 4) strengths.push('Strong work history with 4+ experiences');
 
     // Improvements - Updated thresholds
     if (readability.metricDensity < 0.15) improvements.push('Add more numbers! Only ' + Math.round(readability.metricDensity * 100) + '% of your bullets have metrics. Aim for 25%.');

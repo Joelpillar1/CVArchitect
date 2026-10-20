@@ -176,7 +176,10 @@ export function isMeaningfulEducation(edu?: Education | null): boolean {
 export function isMeaningfulProject(proj?: Project | null): boolean {
   if (!proj || typeof proj !== 'object') return false;
   const hasName = isMeaningfulString(proj.name);
-  const hasDesc = isMeaningfulString(proj.description) && !proj.description.toLowerCase().includes('brief description of the project');
+  const projDescText = Array.isArray(proj.description)
+    ? proj.description.join('\n')
+    : proj.description;
+  const hasDesc = isMeaningfulString(projDescText) && !projDescText.toLowerCase().includes('brief description of the project');
   return hasName || hasDesc;
 }
 
@@ -191,14 +194,24 @@ export function isMeaningfulCertification(cert?: Certification | null): boolean 
 }
 
 /**
- * Identifies if a resume matches the static default demo fixtures ("YOUR NAME" or "Alex Morgan" default template).
+ * Identifies if a resume matches the static default demo fixtures (the
+ * unfilled "YOUR NAME" template, the rebranded "Alexander Williams" fixture,
+ * or the "Alex Morgan" / Acme Corp default template).
+ *
+ * The Alexander Williams fixture is only matched when its placeholder job
+ * title and company are also untouched, so a real person by that name who has
+ * filled in their details is never mistaken for demo content.
  */
 export function isKnownDemoData(resume: ResumeData): boolean {
   if (!resume) return false;
   const lowerName = (resume.fullName || '').trim().toLowerCase();
+  const lowerJobTitle = (resume.jobTitle || '').trim().toLowerCase();
   const lowerCompany = Array.isArray(resume.experience) && resume.experience[0]?.company ? resume.experience[0].company.toLowerCase() : '';
 
   if (lowerName === 'your name' || (lowerName === 'alex morgan' && lowerCompany === 'acme corp')) {
+    return true;
+  }
+  if (lowerName === 'alexander williams' && lowerJobTitle === 'professional role' && lowerCompany === 'company name') {
     return true;
   }
   return false;

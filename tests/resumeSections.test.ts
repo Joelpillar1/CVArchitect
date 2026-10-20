@@ -8,6 +8,8 @@ import {
   getSectionContent,
   hasSectionContent,
   isSectionVisible,
+  isSectionHiddenByTemplateDefault,
+  isSectionExplicitlyAdded,
   getSectionTitle,
   resolveSection,
 } from '../utils/sectionRegistry';
@@ -17,7 +19,7 @@ import { INITIAL_DATA } from '../types';
 import { buildTextCandidates } from '../utils/inlineTextFormat';
 
 describe('Phase 1: Resume Section Domain Architecture', () => {
-  const ALL_37_TYPES: ResumeSectionType[] = [
+  const ALL_38_TYPES: ResumeSectionType[] = [
     'contact',
     'summary',
     'experience',
@@ -35,6 +37,7 @@ describe('Phase 1: Resume Section Domain Architecture', () => {
     'languages',
     'leadership',
     'volunteering',
+    'involvement',
     'memberships',
     'publications',
     'conferences_speaking',
@@ -71,24 +74,24 @@ describe('Phase 1: Resume Section Domain Architecture', () => {
   describe('1. Section Registry', () => {
     it('1 & 2. Registry contains every approved section type with no duplicates', () => {
       const registeredTypes = Object.keys(SECTION_REGISTRY);
-      expect(registeredTypes.length).toBe(37);
-      expect(new Set(registeredTypes).size).toBe(37);
+      expect(registeredTypes.length).toBe(38);
+      expect(new Set(registeredTypes).size).toBe(38);
 
-      for (const type of ALL_37_TYPES) {
+      for (const type of ALL_38_TYPES) {
         expect(SECTION_REGISTRY[type]).toBeDefined();
         expect(SECTION_REGISTRY[type].type).toBe(type);
       }
     });
 
     it('3. Exactly the intended 8 core sections are defaultVisible: true', () => {
-      const defaultVisibleTypes = ALL_37_TYPES.filter((t) => SECTION_REGISTRY[t].defaultVisible);
+      const defaultVisibleTypes = ALL_38_TYPES.filter((t) => SECTION_REGISTRY[t].defaultVisible);
       expect(defaultVisibleTypes.sort()).toEqual([...CORE_8_VISIBLE].sort());
       expect(defaultVisibleTypes.length).toBe(8);
     });
 
     it('4. All other optional sections are defaultVisible: false', () => {
-      const hiddenTypes = ALL_37_TYPES.filter((t) => !SECTION_REGISTRY[t].defaultVisible);
-      expect(hiddenTypes.length).toBe(29);
+      const hiddenTypes = ALL_38_TYPES.filter((t) => !SECTION_REGISTRY[t].defaultVisible);
+      expect(hiddenTypes.length).toBe(30);
       for (const type of hiddenTypes) {
         expect(CORE_8_VISIBLE.includes(type)).toBe(false);
       }
@@ -328,8 +331,6 @@ describe('Phase 1: Resume Section Domain Architecture', () => {
         'education',
         'projects',
         'certifications',
-        'additional_information',
-        'references',
       ]);
     });
   });
@@ -496,6 +497,8 @@ describe('Phase 1: Resume Section Domain Architecture', () => {
             id: 'vol_1',
             role: 'Mentor',
             company: 'Tech NGO',
+            startDate: '',
+            endDate: '',
             description: ['Mentored 10 junior developers', 'Organized community workshops'],
           },
         ],
@@ -669,12 +672,461 @@ describe('Phase 1: Resume Section Domain Architecture', () => {
       expect(analystTemplate).toBeDefined();
       expect(analystTemplate?.name).toBe('Analyst');
 
-      expect(GAURAV_TEMPLATE_PREVIEW_DATA.fullName).toBe('Alex Rivera');
-      expect(GAURAV_TEMPLATE_PREVIEW_DATA.email).toBe('alex.rivera@example.com');
-      expect(GAURAV_TEMPLATE_PREVIEW_DATA.phone).toBe('+1 (555) 432-8910');
+      expect(GAURAV_TEMPLATE_PREVIEW_DATA.fullName).toBe('Alexander Williams');
+      expect(GAURAV_TEMPLATE_PREVIEW_DATA.email).toBe('alexander.williams@example.com');
+      expect(GAURAV_TEMPLATE_PREVIEW_DATA.phone).toBe('+1 (555) 123-4567');
       expect(GAURAV_TEMPLATE_PREVIEW_DATA.atHandle).toBe('');
       expect(GAURAV_TEMPLATE_PREVIEW_DATA.experience[0].role).toBe('Senior Data Analyst');
     });
+
+    it('Sage template hides leadership, projects, additional_information, and references by default', async () => {
+      const { isSectionHiddenByTemplateDefault, TEMPLATE_HIDDEN_SECTION_TYPES } = await import('../utils/sectionRegistry');
+
+      expect(TEMPLATE_HIDDEN_SECTION_TYPES.sage).toEqual([
+        'leadership',
+        'projects',
+        'additional_information',
+        'references',
+      ]);
+
+      expect(isSectionHiddenByTemplateDefault('sage', 'leadership')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('sage', 'projects')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('sage', 'additionalInfo')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('sage', 'additional_information')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('sage', 'referee')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('sage', 'references')).toBe(true);
+
+      // Other sections remain visible
+      expect(isSectionHiddenByTemplateDefault('sage', 'experience')).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('sage', 'education')).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('sage', 'skills')).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('sage', 'summary')).toBe(false);
+
+      // Opt-in via sectionVisibility works
+      expect(isSectionHiddenByTemplateDefault('sage', 'leadership', { leadership: true })).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('sage', 'projects', { projects: true })).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('sage', 'additionalInfo', { additionalInfo: true })).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('sage', 'references', { references: true })).toBe(false);
+    });
+
+    it('Times Classic template hides leadership, projects, additional_information, and references by default', async () => {
+      const { isSectionHiddenByTemplateDefault, TEMPLATE_HIDDEN_SECTION_TYPES } = await import('../utils/sectionRegistry');
+
+      expect(TEMPLATE_HIDDEN_SECTION_TYPES.times).toEqual([
+        'leadership',
+        'projects',
+        'additional_information',
+        'references',
+      ]);
+
+      expect(isSectionHiddenByTemplateDefault('times', 'leadership')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('times', 'projects')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('times', 'additionalInfo')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('times', 'additional_information')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('times', 'referee')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('times', 'references')).toBe(true);
+
+      // Other sections remain visible
+      expect(isSectionHiddenByTemplateDefault('times', 'experience')).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('times', 'education')).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('times', 'skills')).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('times', 'summary')).toBe(false);
+
+      // Opt-in via sectionVisibility works
+      expect(isSectionHiddenByTemplateDefault('times', 'leadership', { leadership: true })).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('times', 'projects', { projects: true })).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('times', 'additionalInfo', { additionalInfo: true })).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('times', 'references', { references: true })).toBe(false);
+    });
+
+    it('Regent Serif template hides leadership, projects, additional_information, and references by default', async () => {
+      const { isSectionHiddenByTemplateDefault, TEMPLATE_HIDDEN_SECTION_TYPES } = await import('../utils/sectionRegistry');
+
+      expect(TEMPLATE_HIDDEN_SECTION_TYPES.regent).toEqual([
+        'leadership',
+        'projects',
+        'additional_information',
+        'references',
+      ]);
+
+      expect(isSectionHiddenByTemplateDefault('regent', 'leadership')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('regent', 'projects')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('regent', 'additionalInfo')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('regent', 'additional_information')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('regent', 'referee')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('regent', 'references')).toBe(true);
+
+      // Other sections remain visible
+      expect(isSectionHiddenByTemplateDefault('regent', 'experience')).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('regent', 'education')).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('regent', 'skills')).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('regent', 'summary')).toBe(false);
+
+      // Opt-in via sectionVisibility works
+      expect(isSectionHiddenByTemplateDefault('regent', 'leadership', { leadership: true })).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('regent', 'projects', { projects: true })).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('regent', 'additionalInfo', { additionalInfo: true })).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('regent', 'references', { references: true })).toBe(false);
+    });
+
+    it('Pro Clean template hides leadership, projects, additional_information, and references by default', async () => {
+      const { isSectionHiddenByTemplateDefault, TEMPLATE_HIDDEN_SECTION_TYPES } = await import('../utils/sectionRegistry');
+
+      expect(TEMPLATE_HIDDEN_SECTION_TYPES.professional).toEqual([
+        'leadership',
+        'projects',
+        'additional_information',
+        'references',
+      ]);
+
+      expect(isSectionHiddenByTemplateDefault('professional', 'leadership')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('professional', 'projects')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('professional', 'additionalInfo')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('professional', 'additional_information')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('professional', 'referee')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('professional', 'references')).toBe(true);
+
+      // Other sections remain visible
+      expect(isSectionHiddenByTemplateDefault('professional', 'experience')).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('professional', 'education')).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('professional', 'skills')).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('professional', 'summary')).toBe(false);
+
+      // Opt-in via sectionVisibility works
+      expect(isSectionHiddenByTemplateDefault('professional', 'leadership', { leadership: true })).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('professional', 'projects', { projects: true })).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('professional', 'additionalInfo', { additionalInfo: true })).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('professional', 'references', { references: true })).toBe(false);
+    });
+
+    it('Styled template hides leadership, projects, additional_information, and references by default', async () => {
+      const { isSectionHiddenByTemplateDefault, TEMPLATE_HIDDEN_SECTION_TYPES } = await import('../utils/sectionRegistry');
+
+      expect(TEMPLATE_HIDDEN_SECTION_TYPES.styled).toEqual([
+        'leadership',
+        'projects',
+        'additional_information',
+        'references',
+      ]);
+
+      expect(isSectionHiddenByTemplateDefault('styled', 'leadership')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('styled', 'projects')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('styled', 'additionalInfo')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('styled', 'additional_information')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('styled', 'referee')).toBe(true);
+      expect(isSectionHiddenByTemplateDefault('styled', 'references')).toBe(true);
+
+      // Other sections remain visible
+      expect(isSectionHiddenByTemplateDefault('styled', 'experience')).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('styled', 'education')).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('styled', 'skills')).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('styled', 'summary')).toBe(false);
+
+      // Opt-in via sectionVisibility works
+      expect(isSectionHiddenByTemplateDefault('styled', 'leadership', { leadership: true })).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('styled', 'projects', { projects: true })).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('styled', 'additionalInfo', { additionalInfo: true })).toBe(false);
+      expect(isSectionHiddenByTemplateDefault('styled', 'references', { references: true })).toBe(false);
+    });
+
+    it('CLASSIC_TEMPLATE_PREVIEW_DATA has Professional Summary, no professional title, and is tailored for engineering in New Zealand', async () => {
+      const { CLASSIC_TEMPLATE_PREVIEW_DATA, getTemplatePreviewData } = await import('../utils/sampleResumeData');
+
+      expect(CLASSIC_TEMPLATE_PREVIEW_DATA.jobTitle).toBe('');
+      expect(CLASSIC_TEMPLATE_PREVIEW_DATA.location).toBe('Auckland, New Zealand');
+      expect(CLASSIC_TEMPLATE_PREVIEW_DATA.sectionTitles?.summary).toBe('Professional Summary');
+      expect(CLASSIC_TEMPLATE_PREVIEW_DATA.sectionTitles?.skills).toBe('Skills');
+      expect(CLASSIC_TEMPLATE_PREVIEW_DATA.summary).toContain('Chartered Mechanical and Systems Engineer');
+      expect(CLASSIC_TEMPLATE_PREVIEW_DATA.summary).toContain('New Zealand');
+      expect(CLASSIC_TEMPLATE_PREVIEW_DATA.experience.length).toBe(3);
+      expect(CLASSIC_TEMPLATE_PREVIEW_DATA.experience[0].role).toBe('Lead Mechanical Systems Engineer');
+      expect(CLASSIC_TEMPLATE_PREVIEW_DATA.experience[0].company).toBe('Beca Engineering');
+      expect(CLASSIC_TEMPLATE_PREVIEW_DATA.experience[0].location).toBe('Auckland, New Zealand');
+      expect(CLASSIC_TEMPLATE_PREVIEW_DATA.education.length).toBe(2);
+      expect(CLASSIC_TEMPLATE_PREVIEW_DATA.education[0].degree).toBe('Master of Engineering (Mechanical)');
+      expect(CLASSIC_TEMPLATE_PREVIEW_DATA.education[0].school).toBe('University of Auckland');
+      expect(CLASSIC_TEMPLATE_PREVIEW_DATA.certifications.length).toBe(3);
+      expect(CLASSIC_TEMPLATE_PREVIEW_DATA.certifications[0].name).toBe('Chartered Professional Engineer (CPEng) – Mechanical');
+      expect(CLASSIC_TEMPLATE_PREVIEW_DATA.certifications[0].issuer).toBe('Engineering New Zealand');
+      expect(CLASSIC_TEMPLATE_PREVIEW_DATA.skills).toContain('Technical Skills: CAD/CAM');
+      expect(CLASSIC_TEMPLATE_PREVIEW_DATA.skills).toContain('Software & Standards: Revit MEP');
+
+      const classicPreview = getTemplatePreviewData('classic');
+      expect(classicPreview.jobTitle).toBe('');
+      expect(classicPreview.location).toBe('Auckland, New Zealand');
+      expect(classicPreview.sectionTitles?.summary).toBe('Professional Summary');
+      expect(classicPreview.summary).toBe(CLASSIC_TEMPLATE_PREVIEW_DATA.summary);
+      expect(classicPreview.experience).toEqual(CLASSIC_TEMPLATE_PREVIEW_DATA.experience);
+    });
+
+    it('sanitizeResumeData converts null and undefined collections to safe defaults', async () => {
+      const { sanitizeResumeData } = await import('../utils/resumeSanitizer');
+
+      const corruptedInput: any = {
+        fullName: 'Jane Doe',
+        experience: null,
+        education: null,
+        skills: null,
+        summary: null,
+        projects: null,
+        certifications: null,
+        languages: null,
+        additionalInfo: null,
+        leadership: null,
+      };
+
+      const sanitized = sanitizeResumeData(corruptedInput);
+
+      expect(sanitized.fullName).toBe('Jane Doe');
+      expect(Array.isArray(sanitized.experience)).toBe(true);
+      expect(sanitized.experience).toEqual([]);
+      expect(Array.isArray(sanitized.education)).toBe(true);
+      expect(sanitized.education).toEqual([]);
+      expect(typeof sanitized.skills).toBe('string');
+      expect(sanitized.skills).toBe('');
+      expect(typeof sanitized.summary).toBe('string');
+      expect(sanitized.summary).toBe('');
+      expect(Array.isArray(sanitized.projects)).toBe(true);
+      expect(Array.isArray(sanitized.certifications)).toBe(true);
+      expect(Array.isArray(sanitized.languages)).toBe(true);
+      expect(Array.isArray(sanitized.additionalInfo)).toBe(true);
+      expect(Array.isArray(sanitized.leadership)).toBe(true);
+    });
+  });
+
+  describe('Involvement section: Free/CareerCraft migration', () => {
+    const freeResumeWithLeadership: ResumeData = {
+      ...INITIAL_DATA,
+      template: 'free',
+      leadership: [
+        {
+          id: '1',
+          role: 'President',
+          company: 'Robotics Club',
+          location: 'University of Wisconsin–Madison',
+          startDate: 'September 2019',
+          endDate: 'Present',
+          description: ['Ran weekly build sessions'],
+        },
+      ],
+      sectionOrder: ['education', 'experience', 'leadership', 'skills'],
+      sectionTitles: { leadership: 'INVOLVEMENT' },
+      sectionVisibility: { leadership: true, summary: false },
+    };
+
+    it('moves leadership content into the involvement section for free-template resumes', async () => {
+      const { migrateLeadershipToInvolvement } = await import('../utils/resumeSanitizer');
+
+      const migrated = migrateLeadershipToInvolvement(freeResumeWithLeadership);
+
+      expect(migrated.involvement).toHaveLength(1);
+      expect(migrated.involvement?.[0].role).toBe('President');
+      expect(migrated.leadership).toEqual([]);
+      expect(migrated.sectionOrder).toEqual(['education', 'experience', 'involvement', 'skills']);
+      expect(migrated.sectionTitles?.involvement).toBe('INVOLVEMENT');
+      expect(migrated.sectionTitles && 'leadership' in migrated.sectionTitles).toBe(false);
+      expect(migrated.sectionVisibility?.involvement).toBe(true);
+      expect(migrated.sectionVisibility?.summary).toBe(false);
+      expect(migrated.sectionVisibility && 'leadership' in migrated.sectionVisibility).toBe(false);
+    });
+
+    it('leaves leadership data untouched when it is not used as involvement', async () => {
+      const { migrateLeadershipToInvolvement } = await import('../utils/resumeSanitizer');
+
+      const otherResume: ResumeData = {
+        ...INITIAL_DATA,
+        template: 'vanguard',
+        leadership: [
+          {
+            id: '1',
+            role: 'Team Lead',
+            company: 'Engineering Org',
+            startDate: 'January 2020',
+            endDate: 'Present',
+            description: ['Led the team'],
+          },
+        ],
+        sectionTitles: { leadership: 'Leadership & Activities' },
+      };
+
+      const result = migrateLeadershipToInvolvement(otherResume);
+      expect(result).toBe(otherResume);
+      expect(result.leadership).toHaveLength(1);
+      expect(result.involvement ?? []).toHaveLength(0);
+    });
+
+    it('is idempotent once the involvement section has content', async () => {
+      const { migrateLeadershipToInvolvement } = await import('../utils/resumeSanitizer');
+
+      const once = migrateLeadershipToInvolvement(freeResumeWithLeadership);
+      const twice = migrateLeadershipToInvolvement(once);
+      expect(twice).toBe(once);
+      expect(twice.involvement).toHaveLength(1);
+    });
+
+    it('CareerCraft preview uses the Involvement section with the reference template entries', async () => {
+      const { getTemplatePreviewData } = await import('../utils/sampleResumeData');
+
+      const preview = getTemplatePreviewData('free');
+
+      // Uses involvement — not leadership
+      expect(preview.leadership ?? []).toHaveLength(0);
+      expect(preview.sectionOrder).toContain('involvement');
+      expect(preview.sectionOrder).not.toContain('leadership');
+      expect(preview.sectionTitles?.involvement).toBe('INVOLVEMENT');
+      expect(preview.sectionTitles && 'leadership' in preview.sectionTitles).toBe(false);
+
+      // Reference template's involvement details are present
+      const roles = (preview.involvement ?? []).map((e) => e.role);
+      expect(roles).toEqual(
+        expect.arrayContaining([
+          'Associate Member',
+          'Active Member',
+          'General Member',
+          'Electrical Lead & Powertrain Engineer', // pre-existing entry kept
+        ])
+      );
+
+      const associate = (preview.involvement ?? []).find((e) => e.role === 'Associate Member');
+      expect(associate?.location).toBe('University of Wisconsin–Madison');
+      expect(associate?.company).toBe('Capital Management Club');
+      expect(associate?.startDate).toBe('September 2019');
+      expect(associate?.endDate).toBe('Present');
+      expect(associate?.description).toEqual([
+        'Develop equity research skills through attending training sessions that utilize FactSet software',
+        'Learn value and growth-based investing strategies by looking at relevant company multiples',
+      ]);
+
+      // Resolves as a visible, experience-rendered section (entries with bulleted descriptions)
+      const resolved = resolveSection(preview, 'involvement');
+      expect(resolved?.visible).toBe(true);
+      expect(resolved?.hasContent).toBe(true);
+      expect(resolved?.rendererKind).toBe('experience');
+    });
+
+    it('removes additional_information and references by default across templates until added via editor', () => {
+      const templates = ['vanguard', 'freshgrad1', 'freshgrad8', 'student', 'free', 'times', 'classic'];
+
+      templates.forEach((tpl) => {
+        const defaultResume: ResumeData = {
+          ...INITIAL_DATA,
+          template: tpl as any,
+          additionalInfo: [{ id: '1', label: 'Hobbies', value: 'Photography' }],
+          referee: 'Available upon request',
+        };
+
+        // By default (not added via editor / sectionVisibility = true), both sections must be hidden
+        expect(isSectionHiddenByTemplateDefault(tpl, 'additional_information', defaultResume.sectionVisibility)).toBe(true);
+        expect(isSectionHiddenByTemplateDefault(tpl, 'additionalInfo', defaultResume.sectionVisibility)).toBe(true);
+        expect(isSectionHiddenByTemplateDefault(tpl, 'references', defaultResume.sectionVisibility)).toBe(true);
+        expect(isSectionHiddenByTemplateDefault(tpl, 'referee', defaultResume.sectionVisibility)).toBe(true);
+
+        expect(isSectionVisible(defaultResume, 'additional_information')).toBe(false);
+        expect(isSectionVisible(defaultResume, 'additionalInfo')).toBe(false);
+        expect(isSectionVisible(defaultResume, 'references')).toBe(false);
+        expect(isSectionVisible(defaultResume, 'referee')).toBe(false);
+
+        const resolvedAddl = resolveSection(defaultResume, 'additional_information');
+        expect(resolvedAddl?.visible).toBe(false);
+
+        const resolvedRef = resolveSection(defaultResume, 'references');
+        expect(resolvedRef?.visible).toBe(false);
+
+        // When added via the editor (sectionVisibility set to true)
+        const optedInResume: ResumeData = {
+          ...defaultResume,
+          sectionVisibility: {
+            additional_information: true,
+            references: true,
+          },
+        };
+
+        expect(isSectionHiddenByTemplateDefault(tpl, 'additional_information', optedInResume.sectionVisibility)).toBe(false);
+        expect(isSectionHiddenByTemplateDefault(tpl, 'references', optedInResume.sectionVisibility)).toBe(false);
+
+        expect(isSectionVisible(optedInResume, 'additional_information')).toBe(true);
+        expect(isSectionVisible(optedInResume, 'references')).toBe(true);
+
+        const resolvedOptedAddl = resolveSection(optedInResume, 'additional_information');
+        expect(resolvedOptedAddl?.visible).toBe(true);
+        expect(resolvedOptedAddl?.hasContent).toBe(true);
+
+        const resolvedOptedRef = resolveSection(optedInResume, 'references');
+        expect(resolvedOptedOptedRef => resolvedOptedRef?.visible).toBeTruthy();
+        expect(resolvedOptedRef?.visible).toBe(true);
+        expect(resolvedOptedRef?.hasContent).toBe(true);
+      });
+    });
+
+    it('preserves typed text and splits accurately when Enter is pressed on a bullet', () => {
+      // Simulates the handleBulletEnter logic
+      const lines = ['Initial bullet'];
+      const bulletIndex = 0;
+      const liveDomText = 'Initial bullet with freshly typed words';
+      const stored = liveDomText;
+      const caretOffset = liveDomText.length;
+      const beforeTagged = stored.slice(0, caretOffset);
+      const afterTagged = stored.slice(caretOffset);
+
+      const cleanBefore = beforeTagged.trim();
+      const cleanAfter = afterTagged.trim();
+
+      lines.splice(bulletIndex, 1, cleanBefore, cleanAfter);
+
+      expect(lines).toEqual(['Initial bullet with freshly typed words', '']);
+
+      // Now simulate typing into the new empty bullet and pressing Enter again
+      const newBulletIndex = 1;
+      const secondTyped = 'Second line typed by user';
+      const secondBefore = secondTyped.slice(0, secondTyped.length);
+      const secondAfter = secondTyped.slice(secondTyped.length);
+
+      lines.splice(newBulletIndex, 1, secondBefore.trim(), secondAfter.trim());
+
+      expect(lines).toEqual([
+        'Initial bullet with freshly typed words',
+        'Second line typed by user',
+        '',
+      ]);
+    });
   });
 });
+
+describe('isSectionExplicitlyAdded — explicit adds beat template design blocks', () => {
+  it('is false when there is no data or no section key', () => {
+    expect(isSectionExplicitlyAdded(null, 'summary')).toBe(false);
+    expect(isSectionExplicitlyAdded(undefined, 'summary')).toBe(false);
+    expect(isSectionExplicitlyAdded({ sectionVisibility: { summary: true } }, '')).toBe(false);
+  });
+
+  it('is false by default so template "not part of this design" blocks still apply', () => {
+    expect(isSectionExplicitlyAdded({}, 'summary')).toBe(false);
+    expect(isSectionExplicitlyAdded({ sectionVisibility: {} }, 'achievements')).toBe(false);
+    expect(
+      isSectionExplicitlyAdded({ sectionVisibility: { summary: false } }, 'summary')
+    ).toBe(false);
+  });
+
+  it('is true when sectionVisibility opts in via the raw key or canonical type', () => {
+    expect(isSectionExplicitlyAdded({ sectionVisibility: { summary: true } }, 'summary')).toBe(true);
+    expect(isSectionExplicitlyAdded({ sectionVisibility: { references: true } }, 'references')).toBe(
+      true
+    );
+    // Legacy order ids resolve to their canonical type
+    expect(
+      isSectionExplicitlyAdded({ sectionVisibility: { achievements: true } }, 'keyAchievements')
+    ).toBe(true);
+  });
+
+  it('is true when the section is recorded in userAddedSections', () => {
+    expect(isSectionExplicitlyAdded({ userAddedSections: ['summary'] }, 'summary')).toBe(true);
+    // Canonical type matches an aliased entry
+    expect(isSectionExplicitlyAdded({ userAddedSections: ['achievements'] }, 'keyAchievements')).toBe(
+      true
+    );
+    expect(isSectionExplicitlyAdded({ userAddedSections: ['awards'] }, 'awards')).toBe(true);
+    expect(isSectionExplicitlyAdded({ userAddedSections: ['awards'] }, 'summary')).toBe(false);
+  });
+});
+
 

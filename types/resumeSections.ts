@@ -18,6 +18,7 @@ export type ResumeSectionType =
   | 'languages'
   | 'leadership'
   | 'volunteering'
+  | 'involvement'
   | 'memberships'
   | 'publications'
   | 'conferences_speaking'

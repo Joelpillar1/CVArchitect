@@ -7,7 +7,9 @@ import { canAccessTemplate, FREE_TEMPLATES } from '../utils/pricingConfig';
 import { TEMPLATE_CONFIG, getTemplateCategory } from '../utils/templateConfig';
 import { getTemplatePreviewData } from '../utils/sampleResumeData';
 import { ResumeSectionType } from '../types/resumeSections';
-import { SECTION_REGISTRY, createDefaultSectionOrder } from '../utils/sectionRegistry';
+import { SECTION_REGISTRY, createDefaultSectionOrder, isSectionHiddenByTemplateDefault } from '../utils/sectionRegistry';
+import { applySectionStarterContent, getCustomStarterContent } from '../utils/sectionStarterContent';
+import { templateSupportsSection } from '../utils/templateResumeMapper';
 import PersonalInfoForm from './PersonalInfoForm';
 import ExperienceForm from './ExperienceForm';
 import EducationForm from './EducationForm';
@@ -68,12 +70,7 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                     id: customId,
                     title: customConfig.title,
                     contentType: customConfig.contentType,
-                    content:
-                        customConfig.contentType === 'bullets'
-                            ? ['Key achievement or highlight in this custom section', 'Additional project milestone or accomplishment']
-                            : customConfig.contentType === 'key_value'
-                            ? [{ id: '1', label: 'Item', value: 'Details' }]
-                            : 'Add descriptive overview or notes for this section.',
+                    content: getCustomStarterContent(customConfig.contentType),
                 },
             };
 
@@ -95,7 +92,6 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
             onChange(updatedData);
             setActiveTab(customId as EditorTab);
         } else {
-            const def = SECTION_REGISTRY[sectionType];
             const newVisibility = {
                 ...(updatedData.sectionVisibility || {}),
                 [sectionType]: true,
@@ -114,95 +110,16 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                 ...updatedData,
                 sectionVisibility: newVisibility,
                 sectionOrder: newSectionOrder,
+                // Explicit user addition — kept across template switches.
+                userAddedSections: Array.from(
+                    new Set([...(updatedData.userAddedSections || []), sectionType])
+                ),
             };
 
-            // Populate starter content if empty so it renders immediately
-            if (def) {
-                const field = def.dataField as keyof ResumeData;
-                const currentVal = updatedData[field];
-                const hasContent = Array.isArray(currentVal)
-                    ? currentVal.length > 0
-                    : typeof currentVal === 'string'
-                    ? currentVal.trim().length > 0
-                    : Boolean(currentVal);
-
-                if (!hasContent) {
-                    switch (def.rendererKind) {
-                        case 'experience':
-                            (updatedData as any)[field] = [
-                                {
-                                    id: Date.now().toString(),
-                                    role: `${def.defaultTitle} Lead / Member`,
-                                    company: 'Organization / Institution',
-                                    startDate: '2023',
-                                    endDate: 'Present',
-                                    description: '• Led key initiatives and collaborated with cross-functional partners\n• Achieved quantifiable results and streamlined operational workflow',
-                                },
-                            ];
-                            break;
-                        case 'projects':
-                            (updatedData as any)[field] = [
-                                {
-                                    id: Date.now().toString(),
-                                    name: `${def.defaultTitle} Highlight`,
-                                    technologies: 'React, TypeScript, Tailwind CSS',
-                                    link: '',
-                                    description: '• Designed and built high-impact features improving user engagement\n• Implemented automated workflows and delivered scalable architecture',
-                                },
-                            ];
-                            break;
-                        case 'certifications':
-                            (updatedData as any)[field] = [
-                                {
-                                    id: Date.now().toString(),
-                                    name: `${def.defaultTitle} Credential`,
-                                    issuer: 'Accrediting Organization',
-                                    date: '2024',
-                                },
-                            ];
-                            break;
-                        case 'languages':
-                            (updatedData as any)[field] = [
-                                { id: '1', language: 'English', proficiency: 'Native / Bilingual' },
-                                { id: '2', language: 'Spanish', proficiency: 'Professional Working' },
-                            ];
-                            break;
-                        case 'skills':
-                            (updatedData as any)[field] =
-                                'JavaScript, TypeScript, React, Node.js, Python, Git, Problem Solving, Team Leadership';
-                            break;
-                        case 'bullets':
-                            (updatedData as any)[field] =
-                                '• Key milestone or contribution delivering measurable impact\n• Published research or presentation delivered to target audience';
-                            break;
-                        case 'key_value':
-                            (updatedData as any)[field] = [
-                                { id: '1', label: 'Availability', value: 'Immediate' },
-                                { id: '2', label: 'Work Authorization', value: 'Authorized to work' },
-                            ];
-                            break;
-                        case 'coursework':
-                            (updatedData as any)[field] = [
-                                {
-                                    id: Date.now().toString(),
-                                    courseName: 'Computer Science',
-                                    institution: 'BUK',
-                                    year: '2026',
-                                    skills: 'Excel, Work, Spreadsheet',
-                                    description: [
-                                        'Expert in translating complex blockchain protocols into intuitive user experiences. Deeply rooted in the Solana ecosystem with a focus on liquid staking, gamified finance (GameFi), and scalable design systems.',
-                                        'Expert in translating complex blockchain protocols into intuitive user experiences. Deeply rooted in the Solana ecosystem with a focus on liquid staking, gamified finance (GameFi), and scalable design systems.',
-                                    ],
-                                },
-                            ];
-                            break;
-                        case 'text':
-                            (updatedData as any)[field] =
-                                'Accomplished professional with a track record of delivering impactful results and driving innovation.';
-                            break;
-                    }
-                }
-            }
+            // Populate starter content while the field is empty so the added
+            // section renders in the preview immediately (shared with the
+            // agent page's add flow — existing content is never overwritten).
+            updatedData = applySectionStarterContent(updatedData, sectionType);
 
             onChange(updatedData);
             setActiveTab(sectionType as EditorTab);
@@ -268,25 +185,54 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
 
     const sections = [...standardSections, ...customSectionsList, ...extendedSectionsList];
 
+    const isSectionVisibleInSidebar = React.useCallback((secId: string): boolean => {
+        if (secId === 'personal') return true;
+        // Explicit user intent always wins: a section the user added/enabled in
+        // the editor (visibility flag written by the add flow) must stay
+        // editable even when the template doesn't natively support it
+        // (e.g. Summary on CareerCraft). expert_skills has no editor form,
+        // so it is excluded.
+        if (secId !== 'expert_skills' && data.sectionVisibility?.[secId] === true) {
+            return true;
+        }
+        if (currentTemplate === 'modern') {
+            // Finance template strictly supports only Summary, Experience, Education, Skills
+            return ['summary', 'experience', 'education', 'skills'].includes(secId);
+        }
+        if (!templateSupportsSection(currentTemplate, secId)) {
+            return false;
+        }
+        if (isSectionHiddenByTemplateDefault(currentTemplate, secId, data.sectionVisibility)) {
+            return false;
+        }
+        return true;
+    }, [currentTemplate, data.sectionVisibility]);
+
     // Helper function to compute full section order consistently
-    // This ensures all sections are included, even if not in saved order
-    // Validates section IDs and filters out any invalid ones
+    // This ensures only sections supported and visible for the active template are shown
     const computeFullSectionOrder = React.useCallback((sectionOrder: string[] | undefined): string[] => {
         const availableSectionIds = sections
-            .filter(s => s.id !== 'personal')
+            .filter(s => s.id !== 'personal' && isSectionVisibleInSidebar(s.id))
             .map(s => s.id);
 
         const savedOrder = sectionOrder || [];
 
-        // Filter out invalid section IDs (defensive programming)
+        // Filter out invalid or unsupported section IDs (defensive programming)
         const validSavedOrder = savedOrder.filter(id => availableSectionIds.includes(id));
 
-        // Find sections that exist but aren't in saved order
+        // Find sections that exist and are supported but aren't in saved order
         const missingSections = availableSectionIds.filter(id => !validSavedOrder.includes(id));
 
-        // Return: valid saved order + missing sections appended
         return [...validSavedOrder, ...missingSections];
-    }, [sections]);
+    }, [sections, isSectionVisibleInSidebar]);
+
+    // Keep activeTab in sync with visible sections when switching templates
+    React.useEffect(() => {
+        const allowed = ['personal', ...computeFullSectionOrder(data.sectionOrder)];
+        if (activeTab && !allowed.includes(activeTab)) {
+            setActiveTab('personal');
+        }
+    }, [currentTemplate, data.sectionOrder, activeTab, computeFullSectionOrder, setActiveTab]);
 
     // Sort templates: free templates first, then pro templates
     const sortedTemplates = [...TEMPLATE_CONFIG].sort((a, b) => {
@@ -357,8 +303,9 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                             return (
                                 <div key={section.id} className="border-b border-brand-border">
                                     <button
+                                        type="button"
                                         onClick={() => toggleSection(section.id)}
-                                        className={`w-full flex items-center justify-between p-4 hover:bg-brand-secondary transition-colors ${isActive ? 'bg-brand-secondary' : ''}`}
+                                        className={`w-full flex items-center justify-between p-4 hover:bg-brand-secondary transition-colors cursor-pointer select-none ${isActive ? 'bg-brand-secondary' : ''}`}
                                     >
                                         <div className="flex items-center gap-3">
                                             <span className={`text-xs font-bold uppercase tracking-wide ${isActive ? 'text-gray-900' : 'text-gray-500'}`}>{section.label}</span>
@@ -370,6 +317,7 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                                             className="px-4 pt-4 pb-6 animate-fadeIn"
                                             draggable={false}
                                             onDragStart={(e) => e.stopPropagation()}
+                                            onClick={(e) => e.stopPropagation()}
                                         >
                                             {section.component}
                                         </div>
@@ -446,11 +394,24 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                                         }}
                                         className={`border-b border-brand-border transition-all ${isDragging ? 'opacity-40 bg-gray-50 ring-1 ring-brand-green/30' : ''}`}
                                     >
-                                        <div className={`w-full flex items-center justify-between p-4 hover:bg-brand-secondary transition-colors ${isActive ? 'bg-brand-secondary' : ''}`}>
+                                        <div
+                                            role="button"
+                                            tabIndex={0}
+                                            onClick={() => toggleSection(section.id)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                    e.preventDefault();
+                                                    toggleSection(section.id);
+                                                }
+                                            }}
+                                            className={`w-full flex items-center justify-between p-4 hover:bg-brand-secondary transition-colors cursor-pointer select-none ${isActive ? 'bg-brand-secondary' : ''}`}
+                                        >
                                             <div className="flex items-center gap-2 sm:gap-3 flex-1">
                                                 {/* Drag Handle - Only this handle is draggable */}
                                                 <div
                                                     draggable={true}
+                                                    onMouseDown={(e) => e.stopPropagation()}
+                                                    onClick={(e) => e.stopPropagation()}
                                                     onDragStart={(e) => {
                                                         e.stopPropagation();
                                                         setDraggedSection(section.id);
@@ -468,8 +429,9 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                                                 </div>
 
                                                 {/* Move Buttons (arrows) for reordering */}
-                                                <div className="flex flex-col gap-0.5 -ml-1">
+                                                <div className="flex flex-col gap-0.5 -ml-1" onClick={(e) => e.stopPropagation()}>
                                                     <button
+                                                        type="button"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             moveSection(section.id, 'up');
@@ -484,6 +446,7 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                                                         <ChevronUp size={14} />
                                                     </button>
                                                     <button
+                                                        type="button"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             moveSection(section.id, 'down');
@@ -499,26 +462,23 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                                                     </button>
                                                 </div>
 
-                                                <button
-                                                    onClick={() => toggleSection(section.id)}
-                                                    className="flex-1 text-left flex items-center gap-3"
-                                                >
+                                                <div className="flex-1 text-left flex items-center gap-3">
                                                     <span className={`text-xs font-bold uppercase tracking-wide ${isActive ? 'text-gray-900' : 'text-gray-500'}`}>{section.label}</span>
-                                                </button>
+                                                </div>
                                             </div>
-                                            <button
-                                                onClick={() => toggleSection(section.id)}
+                                            <div
                                                 className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors"
                                                 aria-label={isActive ? "Collapse section" : "Expand section"}
                                             >
                                                 {isActive ? <ChevronDown size={16} /> : <Plus size={16} />}
-                                            </button>
+                                            </div>
                                         </div>
                                         {isActive && (
                                             <div
                                                 className="px-4 pt-4 pb-6 animate-fadeIn"
                                                 draggable={false}
                                                 onDragStart={(e) => e.stopPropagation()}
+                                                onClick={(e) => e.stopPropagation()}
                                             >
                                                 {section.component}
                                             </div>

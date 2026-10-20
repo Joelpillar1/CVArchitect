@@ -157,7 +157,7 @@ export default function AnalyticsDashboard({ data, isSidebar = false }: Analytic
 
     // ATS Checklist items
     const hasContact = Boolean(data.fullName && data.email);
-    const hasExperience = data.experience.length >= 2;
+    const hasExperience = (data.experience || []).length >= 2;
     const hasGoodMetrics = analytics.readability.metricDensity >= 0.15;
     const hasGoodVerbs = analytics.keywords.actionVerbs >= 8;
 

@@ -573,7 +573,7 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
                 href={getLinkedInHref(data.linkedin)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-900 no-underline break-all"
+                className="text-gray-900 underline break-all"
               >
                 <RichText text={formatLinkedInDisplay(data.linkedin)} />
               </a>

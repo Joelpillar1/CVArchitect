@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ResumeData, TemplateType } from '../types';
 import { Layout, Type, Palette, AlignJustify, Move, Save, AlignLeft, AlignCenter, AlignRight, X, Check, MapPin } from 'lucide-react';
 import { FREE_TEMPLATES } from '../utils/pricingConfig';
+import { getMarginHorizontalIn, getMarginVerticalIn } from '../utils/templateUtils';
 
 interface DesignCustomizationProps {
     data: ResumeData;
@@ -77,11 +78,11 @@ export default function DesignCustomization({
         { id: 'vanguard', name: 'The Vanguard' },
         { id: 'elevate', name: 'Elevate Resume' },
         { id: 'prime', name: 'Prime Profile' },
-        { id: 'impact', name: 'Impact' },
+        { id: 'impact', name: 'Creative' },
         { id: 'free', name: 'CareerCraft' },
         { id: 'simplepro', name: 'SimplePro' },
         { id: 'dev', name: 'DevPro' },
-        { id: 'modern', name: 'Modern' },
+        { id: 'modern', name: 'Finance' },
         { id: 'classic', name: 'Classic' },
         { id: 'apex', name: 'Apex Executive' },
         { id: 'wonsulting', name: 'Expert Template' },
@@ -91,10 +92,12 @@ export default function DesignCustomization({
         { id: 'professional', name: 'Professional Clean' },
         { id: 'times', name: 'Times Classic' },
         { id: 'jake', name: 'Jake Template' },
+        { id: 'scholar', name: 'Scholar' },
         { id: 'gaurav', name: 'Analyst' },
         { id: 'regent', name: 'Regent Serif' },
         { id: 'sage', name: 'Sage' },
-        { id: 'rezi', name: 'Harvard' }
+        { id: 'rezi', name: 'Harvard' },
+        { id: 'intern', name: 'Student Intern' }
     ];
 
     // Sort templates: free templates first, then pro templates
@@ -413,14 +416,14 @@ export default function DesignCustomization({
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-700 flex justify-between">
                             <span>Top & Bottom Margins</span>
-                            <span className="text-gray-400 text-xs">{Math.round(((data.margins?.vertical !== undefined ? (data.margins.vertical > 2 ? data.margins.vertical / 96 : data.margins.vertical) : 25 / 96) * 96))}px</span>
+                            <span className="text-gray-400 text-xs">{Math.round(getMarginVerticalIn(data) * 96)}px</span>
                         </label>
                         <input
                             type="range"
                             min="8"
-                            max="60"
+                            max="72"
                             step="1"
-                            value={Math.round(((data.margins?.vertical !== undefined ? (data.margins.vertical > 2 ? data.margins.vertical / 96 : data.margins.vertical) : 25 / 96) * 96))}
+                            value={Math.round(getMarginVerticalIn(data) * 96)}
                             onChange={(e) => handleNestedChange('margins', 'vertical', parseFloat(e.target.value) / 96)}
                             className="w-full accent-brand-green"
                         />
@@ -429,14 +432,14 @@ export default function DesignCustomization({
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-700 flex justify-between">
                             <span>Left & Right Margins</span>
-                            <span className="text-gray-400 text-xs">{Math.round(((data.margins?.horizontal !== undefined ? (data.margins.horizontal > 2 ? data.margins.horizontal / 96 : data.margins.horizontal) : 25 / 96) * 96))}px</span>
+                            <span className="text-gray-400 text-xs">{Math.round(getMarginHorizontalIn(data) * 96)}px</span>
                         </label>
                         <input
                             type="range"
                             min="8"
-                            max="60"
+                            max="72"
                             step="1"
-                            value={Math.round(((data.margins?.horizontal !== undefined ? (data.margins.horizontal > 2 ? data.margins.horizontal / 96 : data.margins.horizontal) : 25 / 96) * 96))}
+                            value={Math.round(getMarginHorizontalIn(data) * 96)}
                             onChange={(e) => handleNestedChange('margins', 'horizontal', parseFloat(e.target.value) / 96)}
                             className="w-full accent-brand-green"
                         />

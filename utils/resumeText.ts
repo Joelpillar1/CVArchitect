@@ -41,7 +41,7 @@ export function serializeResumeToText(resume: ResumeData): string {
   // Projects
   for (const p of resume.projects ?? []) {
     push(p.name);
-    push(p.description);
+    for (const bullet of parseDescriptionBullets(p.description)) push(bullet);
     push(p.technologies);
   }
 

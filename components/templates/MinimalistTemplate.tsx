@@ -23,6 +23,7 @@ import {
   CONTACT_SEPARATOR,
   formatSectionTitle,
   splitSkillsList,
+  parseExpertSkillItems,
   renderCourseworkBlockHelper,
   renderExpertSkillsBlockHelper,
 } from '../../utils/templateUtils';
@@ -48,22 +49,23 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
   };
 
   const renderSectionHeader = (title: string) => (
-    <div
-      className="section-header-wrap w-full bg-[#F4F7FA] text-center py-1 mb-2 px-3 rounded-sm break-inside-avoid box-border"
-      style={{ display: 'block', width: '100%', boxSizing: 'border-box' }}
-    >
+    <div className="section-header-wrap break-inside-avoid w-full mb-1.5">
       <h2
-        className="section-header m-0 p-0 tracking-[0.15em] font-normal leading-tight text-center"
+        className="section-header font-bold uppercase tracking-wider text-gray-900 m-0 p-0"
         style={{
-          color: accentColor,
           fontSize: `${fontSizes?.sectionTitle || 11}pt`,
+          color: accentColor,
           margin: 0,
           padding: 0,
-          lineHeight: 1.25,
+          marginBottom: '2px',
         }}
       >
-        {formatSectionTitle(title, data.sectionHeaderCase)}
+        {formatSectionTitle(title, data.sectionHeaderCase || 'uppercase')}
       </h2>
+      <div
+        className="section-divider w-full h-[1.5px]"
+        style={{ backgroundColor: accentColor }}
+      />
     </div>
   );
 
@@ -96,25 +98,65 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
     );
   };
 
-  const renderSkillsBlock = (title: string, skillsStr: string) => {
-    if (!skillsStr || !skillsStr.trim()) return null;
-    const skillsList = splitSkillsList(skillsStr);
-    if (skillsList.length === 0) return null;
+  const renderSkillsBlock = (title: string, items: any, basePath: string = 'skills') => {
+    const parsed = parseExpertSkillItems(items);
+    if (parsed.length === 0) return null;
+
+    const hasAnyCategory = parsed.some((item) => Boolean(item.category?.trim()));
+
+    if (!hasAnyCategory && data.skillsColumnCount && data.skillsColumnCount > 1) {
+      const rawText = typeof items === 'string' ? items : '';
+      const skillsList = splitSkillsList(rawText);
+      if (skillsList.length > 0) {
+        return (
+          <section className="break-inside-avoid" style={{ marginBottom: sectionGap }}>
+            {renderSectionHeader(title)}
+            <ul
+              data-skills-grid
+              className={`list-none pl-2.5 grid gap-x-8 gap-y-1 text-gray-700 ${data.skillsColumnCount === 2 ? 'grid-cols-2' : (data.skillsColumnCount === 4 ? 'grid-cols-4' : 'grid-cols-3')}`}
+              style={bodyStyle}
+            >
+              {skillsList.map((skill, i) => (
+                <li key={i} data-skill-cell className="flex items-baseline gap-1.5 min-w-0">
+                  <span data-bullet aria-hidden="true" className="shrink-0 select-none pointer-events-none text-[1.15em] font-bold leading-none text-gray-700">•</span>
+                  <span className="flex-1" style={{ lineHeight: 'inherit' }}><RichText text={skill} /></span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      }
+    }
+
     return (
       <section className="break-inside-avoid" style={{ marginBottom: sectionGap }}>
         {renderSectionHeader(title)}
-        <ul
-          data-skills-grid
-          className={`list-none pl-2.5 grid gap-x-8 gap-y-1 text-gray-700 ${data.skillsColumnCount === 2 ? 'grid-cols-2' : (data.skillsColumnCount === 4 ? 'grid-cols-4' : 'grid-cols-3')}`}
-          style={bodyStyle}
-        >
-          {skillsList.map((skill, i) => (
-            <li key={i} data-skill-cell className="flex items-baseline gap-1.5 min-w-0">
-              <span data-bullet aria-hidden="true" className="shrink-0 select-none pointer-events-none text-[1.15em] font-bold leading-none text-gray-700">•</span>
-              <span className="flex-1" style={{ lineHeight: 'inherit' }}><RichText text={skill} /></span>
-            </li>
-          ))}
-        </ul>
+        <div className="space-y-1 text-gray-700" style={bodyStyle}>
+          {parsed.map((item, index) => {
+            const hasCategory = Boolean(item.category?.trim());
+            const catText = item.category?.trim() || '';
+            const catClean = catText.endsWith(':') ? catText : `${catText}:`;
+            return (
+              <p key={item.id || index} className="leading-snug m-0">
+                {hasCategory ? (
+                  <>
+                    <span data-path={`${basePath}.${index}.category`} className="font-bold text-gray-900">
+                      <RichText text={catClean} />
+                      {' '}
+                    </span>
+                    <span data-path={`${basePath}.${index}.skills`} className="text-gray-700">
+                      <RichText text={item.skills ?? ''} />
+                    </span>
+                  </>
+                ) : (
+                  <span data-path={`${basePath}.${index}.skills`} className="text-gray-700">
+                    <RichText text={item.skills ?? ''} />
+                  </span>
+                )}
+              </p>
+            );
+          })}
+        </div>
       </section>
     );
   };
@@ -413,26 +455,18 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
     if (!resolved || !resolved.visible || !resolved.hasContent) return null;
 
     let sectionTitle = resolved.title;
-    if (resolved.type === 'summary') sectionTitle = t.professionalSummary || resolved.title;
-    if (resolved.type === 'skills') sectionTitle = t.technicalSkills || resolved.title;
-    if (resolved.type === 'experience') sectionTitle = t.experienceTitle || resolved.title;
-    if (resolved.type === 'education') sectionTitle = t.educationTitle || resolved.title;
-    if (resolved.type === 'certifications') sectionTitle = t.certifications || resolved.title;
+    if (resolved.type === 'summary') sectionTitle = data.sectionTitles?.summary || t.professionalSummary || resolved.title;
+    if (resolved.type === 'skills') sectionTitle = data.sectionTitles?.skills || t.technicalSkills || resolved.title;
+    if (resolved.type === 'experience') sectionTitle = data.sectionTitles?.experience || t.experienceTitle || resolved.title;
+    if (resolved.type === 'education') sectionTitle = data.sectionTitles?.education || t.educationTitle || resolved.title;
+    if (resolved.type === 'certifications') sectionTitle = data.sectionTitles?.certifications || t.certifications || resolved.title;
 
     switch (resolved.rendererKind) {
       case 'text':
         return renderTextBlock(sectionTitle, resolved.content as string, resolved.id);
       case 'skills':
-        return renderSkillsBlock(sectionTitle, resolved.content as string);
       case 'expert_skills':
-        return renderExpertSkillsBlockHelper({
-          data,
-          title: sectionTitle,
-          items: resolved.content as any,
-          basePath: resolved.id,
-          renderSectionHeader,
-          bodyStyle,
-        });
+        return renderSkillsBlock(sectionTitle, resolved.content as any, resolved.id);
       case 'bullets':
         return renderBulletsBlock(sectionTitle, resolved.content as string[] | string, resolved.id);
       case 'experience':

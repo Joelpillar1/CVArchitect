@@ -306,6 +306,8 @@ export const ALL_TEMPLATES = [
     'sage',
     'rezi',
     'student',
+    'intern',
+    'scholar',
 ];
 
 export const getPlanById = (planId: string): Plan | undefined => {

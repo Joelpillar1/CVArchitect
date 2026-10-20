@@ -56,6 +56,7 @@ export default function AnalystTemplate({ data }: { data: ResumeData }) {
     fontSize: `${bodyPt}pt`,
     lineHeight: data.lineHeight || 1.4,
   };
+  const compactItemGap = `${Math.max(0.04, Math.min(0.06, getSectionGapIn(data) * 0.35))}in`;
 
   /**
    * MM/YYYY from the stored month value ("2025-08" → "08/2025"), passing
@@ -373,7 +374,6 @@ export default function AnalystTemplate({ data }: { data: ResumeData }) {
    */
   const renderEducationBlock = (title: string, items: Education[], basePath: string = 'education') => {
     if (!items || items.length === 0) return null;
-    const itemGap = `${getItemGapIn(data, 0.08)}in`;
     return (
       <section style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
         {renderSectionHeader(title)}
@@ -381,12 +381,21 @@ export default function AnalystTemplate({ data }: { data: ResumeData }) {
           {items.map((edu, index) => {
             if (!edu.school && !edu.degree && !edu.year && !edu.gpa) return null;
             const rightParts = [(edu.year || '').trim(), (edu.gpa || '').trim()].filter(Boolean);
+            const courseItems = (Array.isArray(edu.relevantCourses)
+              ? edu.relevantCourses
+              : typeof edu.relevantCourses === 'string'
+                ? edu.relevantCourses.split('\n')
+                : []
+            )
+              .map(c => c.replace(/^[•\-\*]\s*/, '').replace(/^(?:Relevant\s+Coursework|Relevant\s+Courses?):\s*/i, '').trim())
+              .filter(Boolean);
+            const hasDetails = courseItems.length > 0;
 
             return (
               <div
                 key={edu.id || index}
                 className="break-inside-avoid flex justify-between items-baseline text-gray-900"
-                style={{ ...bodyStyle, marginBottom: index === items.length - 1 ? 0 : itemGap }}
+                style={{ ...bodyStyle, marginBottom: index === items.length - 1 ? 0 : (hasDetails ? '0.08in' : compactItemGap) }}
               >
                 <div>
                   {edu.degree && (
@@ -421,7 +430,6 @@ export default function AnalystTemplate({ data }: { data: ResumeData }) {
     if (!items || items.length === 0) return null;
     const validItems = items.filter((c) => c?.name?.trim() || c?.issuer?.trim() || c?.date?.trim());
     if (validItems.length === 0) return null;
-    const itemGap = `${getItemGapIn(data, 0.08)}in`;
 
     return (
       <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
@@ -435,7 +443,7 @@ export default function AnalystTemplate({ data }: { data: ResumeData }) {
               <div
                 key={cert.id || index}
                 className="flex justify-between items-baseline text-gray-900"
-                style={{ marginBottom: index === validItems.length - 1 ? 0 : itemGap }}
+                style={{ marginBottom: index === validItems.length - 1 ? 0 : compactItemGap }}
               >
                 <div>
                   <span data-path={`${basePath}.${index}.name`} className="font-bold">
@@ -468,7 +476,6 @@ export default function AnalystTemplate({ data }: { data: ResumeData }) {
     if (!items || items.length === 0) return null;
     const validItems = items.filter((l) => l?.language?.trim());
     if (validItems.length === 0) return null;
-    const itemGap = `${getItemGapIn(data, 0.08)}in`;
 
     return (
       <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
@@ -478,7 +485,7 @@ export default function AnalystTemplate({ data }: { data: ResumeData }) {
             <div
               key={lang.id || index}
               className="text-gray-900"
-              style={{ marginBottom: index === validItems.length - 1 ? 0 : itemGap }}
+              style={{ marginBottom: index === validItems.length - 1 ? 0 : compactItemGap }}
             >
               <span data-path={`${basePath}.${index}.language`} className="font-bold">
                 <RichText text={lang.language} />
@@ -498,7 +505,6 @@ export default function AnalystTemplate({ data }: { data: ResumeData }) {
   const renderKeyValueBlock = (title: string, items: AdditionalInfoItem[], basePath: string = 'additionalInfo') => {
     const validItems = (items || []).filter((item) => item?.label?.trim() && item?.value?.trim());
     if (validItems.length === 0) return null;
-    const itemGap = `${getItemGapIn(data, 0.08)}in`;
 
     return (
       <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
@@ -508,7 +514,7 @@ export default function AnalystTemplate({ data }: { data: ResumeData }) {
             <div
               key={item.id || index}
               className="text-gray-900"
-              style={{ marginBottom: index === validItems.length - 1 ? 0 : itemGap }}
+              style={{ marginBottom: index === validItems.length - 1 ? 0 : compactItemGap }}
             >
               <span data-path={`${basePath}.${index}.label`} className="font-bold">
                 <RichText text={item.label} />:
@@ -666,19 +672,8 @@ export default function AnalystTemplate({ data }: { data: ResumeData }) {
     }
   };
 
-  /**
-   * The source resume arranges sections Summary → Core Skills → Professional
-   * Experience → Education → Certification. Those five are pinned in that
-   * order; any other populated section follows in its existing relative
-   * order, and sections the user has removed or hidden stay removed.
-   */
   const getAnalystSectionOrder = (): string[] => {
-    const resolved = getResolvedSectionOrder(data);
-    const native = ['summary', 'skills', 'experience', 'education', 'certifications'];
-    const nativeSet = new Set(native);
-    const pinned = native.filter((id) => resolved.includes(id));
-    const rest = resolved.filter((id) => !nativeSet.has(id));
-    return [...pinned, ...rest];
+    return getResolvedSectionOrder(data);
   };
 
   // The header: centered ALL CAPS serif name with the plain contact line

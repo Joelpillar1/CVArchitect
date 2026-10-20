@@ -487,17 +487,17 @@ export default function EditorSidebarRight({
 
         setProcessingStatus('Extracting target competencies & recruiter signals...');
         setIsProcessing(true);
-        const analyzingMsgId = `analyzing-${Date.now()}`;
-        setMessages(prev => [
-            ...prev,
-            {
-                id: analyzingMsgId,
-                sender: 'agent',
-                timestamp: Date.now(),
-                type: 'text',
-                text: 'Analyzing Job Description against your resume and architecting your step-by-step tailoring strategy...'
-            }
-        ]);
+        // Agent chat thinking state is handled by processingStatus & isProcessing indicator
+
+
+
+
+
+
+
+
+
+
 
         if (isEmbeddedPreview) {
             setTimeout(() => {
@@ -539,7 +539,7 @@ export default function EditorSidebarRight({
                     }
                 };
 
-                setMessages(prev => prev.filter(m => m.id !== analyzingMsgId).concat(analysisMsg));
+                setMessages(prev => [...prev, analysisMsg]);
                 setIsProcessing(false);
             }, 600);
             return;
@@ -623,7 +623,7 @@ export default function EditorSidebarRight({
                 }
             };
 
-            setMessages(prev => prev.filter(m => m.id !== analyzingMsgId).concat(analysisMsg));
+            setMessages(prev => [...prev, analysisMsg]);
         } catch (err: any) {
             console.error('Job processing failed, using fallback analysis:', err);
             const analytics: AnalyticsResult = analyzeResume(updatedData);
@@ -658,7 +658,7 @@ export default function EditorSidebarRight({
                     'Tailor Entire Resume'
                 ]
             };
-            setMessages(prev => prev.filter(m => m.id !== analyzingMsgId).concat(fallbackMsg));
+            setMessages(prev => [...prev, fallbackMsg]);
         } finally {
             setIsProcessing(false);
         }
@@ -2416,6 +2416,7 @@ Return 3-4 bullet points starting with '• '. Output ONLY the bullet points.`;
             clean.toLowerCase().includes('job description');
 
         if (isJobDesc) {
+            setProcessingStatus('Extracting target competencies & recruiter signals...');
             setIsProcessing(true);
             setTimeout(async () => {
                 await handleProcessJobDescription(clean);

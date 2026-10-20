@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { TemplateType, ResumeData } from '../types';
 import {
     ArrowRight,
@@ -37,6 +38,18 @@ export default function Templates({ onSelect, data, isPublic, userPlan = 'free',
         return () => clearTimeout(timer);
     }, []);
 
+    React.useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                setPreviewTemplate(null);
+            }
+        };
+        if (previewTemplate) {
+            window.addEventListener('keydown', handleKeyDown);
+            return () => window.removeEventListener('keydown', handleKeyDown);
+        }
+    }, [previewTemplate]);
+
     const templates = TEMPLATE_CONFIG;
 
     // Sort templates: free templates first, then pro templates
@@ -57,7 +70,11 @@ export default function Templates({ onSelect, data, isPublic, userPlan = 'free',
     });
 
     const getPreviewDataForTemplate = (templateId: TemplateType): ResumeData => {
-        return getTemplatePreviewData(templateId);
+        const preview = getTemplatePreviewData(templateId);
+        return {
+            ...preview,
+            font: 'Merriweather, serif',
+        };
     };
 
     const filteredTemplates = sortedTemplates.filter(t => {
@@ -220,63 +237,83 @@ export default function Templates({ onSelect, data, isPublic, userPlan = 'free',
                 </div>
             </div>
 
-            {/* Preview Modal */}
-            {previewTemplate && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
-                    <div className="absolute inset-0 bg-brand-dark/80 backdrop-blur-md transition-opacity" onClick={() => setPreviewTemplate(null)} />
-                    <div className="relative w-full max-w-6xl h-full max-h-[90vh] bg-brand-bg rounded-2xl shadow-2xl flex flex-col overflow-hidden">
-                        <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200 shrink-0 z-10 shadow-sm">
-                            <div>
-                                <h3 className="text-xl font-bold text-brand-dark">Template Preview</h3>
-                                <p className="text-sm text-gray-500 hidden md:block">Full preview of the {sortedTemplates.find(t => t.id === previewTemplate)?.name} template</p>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <button
-                                    onClick={() => setPreviewTemplate(null)}
-                                    className="p-2 text-gray-400 hover:text-brand-dark hover:bg-gray-100 rounded-full transition-colors"
-                                >
-                                    <X size={24} />
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        if (previewTemplate) {
-                                            handleChooseTemplate(previewTemplate);
-                                            if (!isPublic && !canAccessTemplate(userPlan, previewTemplate)) {
-                                                // keep modal open or let paywall handle it
-                                            } else {
-                                                setPreviewTemplate(null);
-                                            }
-                                        }
-                                    }}
-                                    className={`px-6 py-2 rounded-lg font-bold shadow-lg transition-all flex items-center gap-2 ${
-                                        previewTemplate && !isPublic && !canAccessTemplate(userPlan, previewTemplate)
-                                            ? 'bg-amber-400 hover:bg-amber-500 text-brand-dark'
-                                            : 'bg-brand-green hover:bg-brand-greenHover text-brand-dark'
-                                    }`}
-                                >
-                                    {previewTemplate && !isPublic && !canAccessTemplate(userPlan, previewTemplate) ? (
-                                        <>
-                                            <Lock size={16} /> Unlock Pro Template
-                                        </>
-                                    ) : (
-                                        'Use This Template'
-                                    )}
-                                </button>
-                            </div>
+            {/* Preview Modal - Full screen with transparent backdrop */}
+            {previewTemplate && createPortal(
+                <div 
+                    className="fixed inset-0 z-[100] w-screen h-screen bg-black/60 backdrop-blur-sm flex flex-col overflow-hidden animate-fadeIn"
+                    onClick={() => setPreviewTemplate(null)}
+                >
+                    <div 
+                        className="flex items-center justify-between px-6 py-4 bg-transparent shrink-0 z-10"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div>
+                            <h3 className="text-base sm:text-lg font-bold text-white drop-shadow-sm">
+                                {sortedTemplates.find(t => t.id === previewTemplate)?.name} Template Preview
+                            </h3>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto p-8 bg-[#525659] flex justify-center relative">
-                            <div className="scale-75 md:scale-90 origin-top transition-transform">
-                                {previewTemplate && (
-                                    <ResumePreview
-                                        data={getPreviewDataForTemplate(previewTemplate)}
-                                        template={previewTemplate}
-                                    />
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => setPreviewTemplate(null)}
+                                className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-colors"
+                                title="Close (Esc)"
+                            >
+                                <X size={20} />
+                            </button>
+                            <button
+                                onClick={() => {
+                                    if (previewTemplate) {
+                                        handleChooseTemplate(previewTemplate);
+                                        if (!isPublic && !canAccessTemplate(userPlan, previewTemplate)) {
+                                            // keep modal open or let paywall handle it
+                                        } else {
+                                            setPreviewTemplate(null);
+                                        }
+                                    }
+                                }}
+                                className={`px-6 py-2.5 rounded-xl font-bold shadow-md transition-all flex items-center gap-2 text-xs sm:text-sm active:scale-95 ${
+                                    previewTemplate && !isPublic && !canAccessTemplate(userPlan, previewTemplate)
+                                        ? 'bg-amber-400 hover:bg-amber-500 text-brand-dark'
+                                        : 'bg-brand-green hover:bg-brand-greenHover text-brand-dark'
+                                }`}
+                            >
+                                {previewTemplate && !isPublic && !canAccessTemplate(userPlan, previewTemplate) ? (
+                                    <>
+                                        <Lock size={15} /> Unlock Pro Template
+                                    </>
+                                ) : (
+                                    <>
+                                        Use This Template <ArrowRight size={14} />
+                                    </>
                                 )}
-                            </div>
+                            </button>
                         </div>
                     </div>
-                </div>
+
+                    {/* Transparent Canvas with centered A4 Document */}
+                    <div 
+                        className="flex-1 overflow-y-auto flex justify-center items-start py-8 px-4 bg-transparent cursor-pointer"
+                        onClick={(e) => {
+                            if (e.target === e.currentTarget) {
+                                setPreviewTemplate(null);
+                            }
+                        }}
+                    >
+                        <div 
+                            className="origin-top my-2 cursor-default max-w-full"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {previewTemplate && (
+                                <ResumePreview
+                                    data={getPreviewDataForTemplate(previewTemplate)}
+                                    template={previewTemplate}
+                                />
+                            )}
+                        </div>
+                    </div>
+                </div>,
+                document.body
             )}
         </div>
     );

@@ -36,7 +36,9 @@ export default function SkillsForm({ data, onChange, onAIAction }: SkillsFormPro
 
   // Fall back to legacy expertSkills if data.skills is empty
   const effectiveRawSkills = useMemo(() => {
-    const raw = (data.skills || '').trim();
+    const raw = typeof data.skills === 'string' 
+      ? data.skills.trim() 
+      : (Array.isArray(data.skills) ? (data.skills as string[]).join(', ').trim() : '');
     if (raw) return raw;
     if (data.expertSkills) {
       if (Array.isArray(data.expertSkills) && data.expertSkills.length > 0) {
@@ -143,7 +145,11 @@ export default function SkillsForm({ data, onChange, onAIAction }: SkillsFormPro
   };
 
   const handleEnhanceSkills = async () => {
-    if (!data.skills.trim()) {
+    const hasSkills = typeof data.skills === 'string'
+      ? data.skills.trim().length > 0
+      : (Array.isArray(data.skills) ? data.skills.length > 0 : Boolean(data.skills));
+
+    if (!hasSkills) {
       showToast('Please add some skills first before enhancing.', 'info');
       return;
     }
@@ -156,7 +162,8 @@ export default function SkillsForm({ data, onChange, onAIAction }: SkillsFormPro
     setIsEnhancingSkills(true);
     try {
       const { enhanceSkills } = await import('./utils/aiEnhancer');
-      const enhanced = await enhanceSkills(data.skills, data.jobTitle || 'Professional');
+      const skillsStr = typeof data.skills === 'string' ? data.skills : (Array.isArray(data.skills) ? (data.skills as string[]).join(', ') : String(data.skills || ''));
+      const enhanced = await enhanceSkills(skillsStr, data.jobTitle || 'Professional');
       onChange({ ...data, skills: enhanced });
       showToast('Skills enhanced successfully!', 'success');
     } catch (error) {
@@ -201,7 +208,7 @@ export default function SkillsForm({ data, onChange, onAIAction }: SkillsFormPro
         <button
           type="button"
           onClick={handleEnhanceSkills}
-          disabled={isEnhancingSkills || !data.skills.trim()}
+          disabled={isEnhancingSkills || !(typeof data.skills === 'string' ? data.skills.trim() : (Array.isArray(data.skills) ? (data.skills as string[]).join(', ').trim() : ''))}
           className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-brand-dark bg-brand-green hover:bg-brand-greenHover rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs cursor-pointer"
           title="Enhance with AI (1 credit)"
         >
@@ -216,7 +223,7 @@ export default function SkillsForm({ data, onChange, onAIAction }: SkillsFormPro
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-gray-700">Skills List (Comma separated)</label>
             <textarea
-              value={data.skills ?? effectiveRawSkills}
+              value={typeof data.skills === 'string' ? data.skills : (Array.isArray(data.skills) ? (data.skills as string[]).join(', ') : (data.skills ?? effectiveRawSkills ?? ''))}
               onChange={(e) => onChange({ ...data, skills: e.target.value })}
               rows={6}
               className="w-full p-3 text-xs border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all resize-none leading-relaxed text-gray-800"

@@ -19,7 +19,7 @@ export default function PersonalInfoForm({ data, onChange }: PersonalInfoFormPro
                         <label className="text-xs font-medium text-gray-500 block">Full Name</label>
                         <input
                             type="text"
-                            value={data.fullName}
+                            value={data.fullName || ''}
                             onChange={(e) => handleChange('fullName', e.target.value)}
                             className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
                             placeholder="John Doe"
@@ -30,7 +30,7 @@ export default function PersonalInfoForm({ data, onChange }: PersonalInfoFormPro
                         <label className="text-xs font-medium text-gray-500 block">Job Title</label>
                         <input
                             type="text"
-                            value={data.jobTitle}
+                            value={data.jobTitle || ''}
                             onChange={(e) => handleChange('jobTitle', e.target.value)}
                             className="w-full p-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all"
                             placeholder="Software Engineer"

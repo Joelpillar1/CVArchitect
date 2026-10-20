@@ -4,7 +4,7 @@ import { ResumeData, TemplateType } from '../types';
 import { UserSubscription } from '../types/pricing';
 import { SubscriptionManager } from '../utils/subscriptionManager';
 import { canAccessTemplate, isPaidPlan } from '../utils/pricingConfig';
-import { ChevronLeft, ChevronDown, Maximize2, Minimize2, Download, User, Briefcase, GraduationCap, Award, Layout as LayoutIcon, Target, CheckCircle, Monitor, Edit3, Palette, ShoppingCart, Save, Check, Loader2, PanelLeftOpen, ZoomIn, ZoomOut, Pencil, Printer, FileText, Code } from 'lucide-react';
+import { ChevronLeft, ChevronDown, Maximize2, Minimize2, Download, User, Briefcase, GraduationCap, Award, Layout as LayoutIcon, Target, CheckCircle, Monitor, Edit3, Palette, ShoppingCart, Save, Check, Loader2, PanelLeftOpen, ZoomIn, ZoomOut, Pencil, Printer, FileText, FileText as FileTextIcon, Code, Image as ImageIcon } from 'lucide-react';
 import { Loader } from './ui/Loader';
 import ResumePreview from './ResumePreview';
 import ResumeWorkspace from './resume-agent/ResumeWorkspace';
@@ -29,6 +29,7 @@ import ElegantTemplate from './templates/ElegantTemplate';
 import ProfessionalTemplate from './templates/ProfessionalTemplate';
 import TimesTemplate from './templates/TimesTemplate';
 import JakeTemplate from './templates/JakeTemplate';
+import ScholarTemplate from './templates/ScholarTemplate';
 import AnalystTemplate from './templates/AnalystTemplate';
 import RegentTemplate from './templates/RegentTemplate';
 import TwoColumnTemplate from './templates/TwoColumnTemplate';
@@ -37,6 +38,7 @@ import ReziTemplate from './templates/ReziTemplate';
 import FreshGradTemplate from './templates/FreshGradTemplate';
 import FreshGrad8Template from './templates/FreshGrad8Template';
 import StudentTemplate from './templates/StudentTemplate';
+import InternTemplate from './templates/InternTemplate';
 import PrintPortal from './PrintPortal';
 import UnsavedChangesModal from './UnsavedChangesModal';
 
@@ -66,6 +68,11 @@ interface EditorProps {
   hasUnsavedChanges?: boolean;
   onDiscardChanges?: () => void;
   initialLeftSidebarView?: 'create' | 'templates' | 'analytics';
+  /** Adds a "Sample Image (PNG, 300 DPI)" entry to the download menu that
+   *  rasterizes every page at print-grade quality into a single PNG file for
+   *  portfolio samples. Dev/screenshot surface only — the dashboard never
+   *  passes this. */
+  sampleImageExport?: boolean;
 }
 
 export type EditorTab = 'personal' | 'summary' | 'education' | 'experience' | 'achievements' | 'skills' | 'certifications' | 'additionalInfo' | 'references' | 'projects' | 'leadership' | 'design' | 'job-match' | (string & {}) | '' | null;
@@ -73,13 +80,13 @@ export type EditorTab = 'personal' | 'summary' | 'education' | 'experience' | 'a
 import { analyzeResume } from './utils/resumeAnalytics';
 
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FileText as FileTextIcon } from 'lucide-react';
 import { saveToStorage, loadFromStorage } from '../utils/statePersistence';
-import { exportResumeToServerPdf, exportResumeToPdf, exportCoverLetterToPdf, printResumeToPdf, exportResumeToPlainText } from '../utils/pdfExport';
+import { exportResumeToServerPdf, exportResumeToPdf, exportResumeToImage, exportResumeToImagePng, exportCoverLetterToPdf, printResumeToPdf, exportResumeToPlainText } from '../utils/pdfExport';
 import { exportResumeToDocx } from '../utils/docxExport';
 import { useToast } from '../contexts/ToastContext';
 
-export default function Editor({ data, onChange, template, onTemplateChange, onBack, onSave, onSaveAsTemplate, currentResumeId, showWelcomeModal, onCloseWelcomeModal, auditResult, userSubscription, onAIAction, onShowPaywall, embedded = false, leftSidebarWidthClass, rightSidebarWidthClass, hasUnsavedChanges, onDiscardChanges, initialLeftSidebarView }: EditorProps) {
+export default function Editor({ data, onChange, template, onTemplateChange, onBack, onSave, onSaveAsTemplate, currentResumeId, showWelcomeModal, onCloseWelcomeModal, auditResult, userSubscription, onAIAction, onShowPaywall, embedded = false, leftSidebarWidthClass, rightSidebarWidthClass, hasUnsavedChanges, onDiscardChanges, initialLeftSidebarView, sampleImageExport = false }: EditorProps) {
+  const effectiveTemplate = (data?.template || template || 'modern') as TemplateType;
   const [internalDirty, setInternalDirty] = useState(false);
   const isDirty = hasUnsavedChanges !== undefined ? hasUnsavedChanges : internalDirty;
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
@@ -322,6 +329,9 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
         e.preventDefault();
         handleSaveClick();
       } else if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'b' || e.key === '\\')) {
+        const target = e.target as HTMLElement | null;
+        const isInput = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+        if (isInput) return;
         e.preventDefault();
         setIsLeftSidebarOpen(prev => !prev);
       }
@@ -426,7 +436,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
   }, []);
 
   const handleDownload = async () => {
-    if (!canAccessTemplate(userSubscription.planId, template)) {
+    if (!canAccessTemplate(userSubscription.planId, effectiveTemplate)) {
       onShowPaywall?.('export');
       return;
     }
@@ -452,19 +462,26 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
         result = await exportResumeToServerPdf(dataWithTemplate, activeTemplate);
       }
 
-      // Record export for usage counting on free tier
-      if (!isUserPro) {
-        subscriptionManager.deductCredit('pdf_export');
-        if (userSubscription.userId && userSubscription.userId !== 'guest') {
-          import('../services/subscriptionService').then(({ subscriptionService }) => {
-            subscriptionService.performAction(userSubscription.userId, 'pdf_export', 0)
-              .catch(e => console.warn('Failed to sync pdf_export usage:', e));
-          });
+      // Record export for usage counting on free tier.
+      // Isolated try/catch: the server PDF has already downloaded at this point,
+      // so a usage-tracking failure must never bubble into the outer catch and
+      // re-run the whole export through the displaced raster fallback.
+      let remainingNotice = '';
+      try {
+        if (!isUserPro) {
+          subscriptionManager.deductCredit('pdf_export');
+          if (userSubscription.userId && userSubscription.userId !== 'guest') {
+            import('../services/subscriptionService').then(({ subscriptionService }) => {
+              subscriptionService.performAction(userSubscription.userId, 'pdf_export', 0)
+                .catch(e => console.warn('Failed to sync pdf_export usage:', e));
+            });
+          }
+          const pdfRemaining = Math.max(0, 3 - (subscriptionManager.getUsageCount('pdf_export') + 1));
+          remainingNotice = ` (${pdfRemaining} free download${pdfRemaining === 1 ? '' : 's'} remaining)`;
         }
+      } catch (usageError) {
+        console.warn('Failed to record pdf_export usage:', usageError);
       }
-
-      const pdfRemaining = Math.max(0, 3 - (subscriptionManager.getUsageCount('pdf_export') + 1));
-      const remainingNotice = !isUserPro ? ` (${pdfRemaining} free download${pdfRemaining === 1 ? '' : 's'} remaining)` : '';
 
       showToast(
         result.verified && result.pages !== null
@@ -495,14 +512,14 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
       return;
     }
 
-    if (!canAccessTemplate(userSubscription.planId, template)) {
+    if (!canAccessTemplate(userSubscription.planId, effectiveTemplate)) {
       onShowPaywall?.('export');
       return;
     }
 
     setIsDownloading(true);
     try {
-      await exportResumeToDocx(data, undefined, template);
+      await exportResumeToDocx(data, undefined, effectiveTemplate);
     } catch (error) {
       console.error('Error generating Word document:', error);
       alert(`Word export failed: ${error instanceof Error ? error.message : String(error)}`);
@@ -512,7 +529,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
   };
 
   const handlePrintDownload = () => {
-    if (!canAccessTemplate(userSubscription.planId, template)) {
+    if (!canAccessTemplate(userSubscription.planId, effectiveTemplate)) {
       onShowPaywall?.('export');
       return;
     }
@@ -544,6 +561,26 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
     exportResumeToPlainText(data, format);
   };
 
+  // Sample-only image export (enabled by the /screenshot dev surface): every
+  // Sample-only image export (enabled by the /screenshot dev surface): every
+  // page captured at exactly 300 DPI and written as a single high-quality PNG or JPG
+  // image — print-grade quality for portfolio samples. No credit accounting.
+  const handleSampleImageDownload = async (format: 'png' | 'jpg' = 'png') => {
+    setIsDownloading(true);
+    try {
+      const activeTemplate = data.template || template || 'vanguard';
+      const dataWithTemplate: ResumeData = { ...data, template: activeTemplate };
+      await exportResumeToImage(dataWithTemplate, activeTemplate, undefined, 3.125, format);
+      showToast(`High-quality image (${format.toUpperCase()}) downloaded.`, 'success');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('Sample image export failed:', error);
+      showToast(`Sample image failed — ${message}`, 'error');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   const handleCoverLetterDownload = async (content: string) => {
     if (!canAccessTemplate(userSubscription.planId, template)) {
       onShowPaywall?.('export');
@@ -569,7 +606,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
       );
     }
 
-    switch (template) {
+    switch (effectiveTemplate) {
       case 'vanguard': return <VanguardTemplate data={data} />;
       case 'elevate': return <ElevateResume data={data} />;
       case 'prime': return <PrimeProfile data={data} />;
@@ -590,6 +627,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
       case 'professional': return <ProfessionalTemplate data={data} />;
       case 'times': return <TimesTemplate data={data} />;
       case 'jake': return <JakeTemplate data={data} />;
+      case 'scholar': return <ScholarTemplate data={data} />;
       case 'gaurav': return <AnalystTemplate data={data} />;
       case 'regent': return <RegentTemplate data={data} />;
       case 'twocolumn': return <TwoColumnTemplate data={data} />;
@@ -606,6 +644,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
       case 'freshgrad8':
         return <FreshGrad8Template data={data} />;
       case 'student': return <StudentTemplate data={data} />;
+      case 'intern': return <InternTemplate data={data} />;
       default: return <VanguardTemplate data={data} />;
     }
   };
@@ -776,7 +815,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
             {!isUserPro && <span className="text-[9px] bg-amber-100 text-amber-800 font-bold px-1 rounded ml-0.5">PRO</span>}
           </button>
 
-          {canAccessTemplate(userSubscription.planId, template) ? (
+          {canAccessTemplate(userSubscription.planId, effectiveTemplate) ? (
             <div className="relative inline-flex items-center" ref={downloadMenuRef}>
               <button
                 onClick={handleDownload}
@@ -848,6 +887,45 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
                       <div className="text-[11px] text-gray-500 font-normal">Selectable text & ATS optimized</div>
                     </div>
                   </button>
+
+                  {/* 2b. Sample Image (PNG & JPG, 300 DPI) — /screenshot dev surface */}
+                  {sampleImageExport && (
+                    <>
+                      <button
+                        onClick={() => {
+                          setIsDownloadMenuOpen(false);
+                          handleSampleImageDownload('png');
+                        }}
+                        className="w-full flex items-start gap-2.5 px-2.5 py-2 text-left rounded-lg hover:bg-gray-100 transition-colors cursor-pointer group"
+                      >
+                        <ImageIcon className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0 group-hover:scale-110 group-hover:text-gray-700 transition-all" />
+                        <div>
+                          <div className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
+                            Download Image (PNG)
+                            <span className="text-[10px] bg-purple-100 text-purple-800 font-semibold px-1.5 py-0.2 rounded">PNG · 300 DPI</span>
+                          </div>
+                          <div className="text-[11px] text-gray-500 font-normal">Lossless high-res PNG for portfolio & print</div>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setIsDownloadMenuOpen(false);
+                          handleSampleImageDownload('jpg');
+                        }}
+                        className="w-full flex items-start gap-2.5 px-2.5 py-2 text-left rounded-lg hover:bg-gray-100 transition-colors cursor-pointer group"
+                      >
+                        <ImageIcon className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0 group-hover:scale-110 group-hover:text-gray-700 transition-all" />
+                        <div>
+                          <div className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
+                            Download Image (JPG)
+                            <span className="text-[10px] bg-amber-100 text-amber-800 font-semibold px-1.5 py-0.2 rounded">JPG · 300 DPI</span>
+                          </div>
+                          <div className="text-[11px] text-gray-500 font-normal">Compressed high-res JPG for web & mobile</div>
+                        </div>
+                      </button>
+                    </>
+                  )}
 
                   {/* 3. Export Word (.docx) */}
                   <button
@@ -929,7 +1007,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
             setActiveTab={setActiveTab}
             data={data}
             onChange={handleChangeData}
-            currentTemplate={template}
+            currentTemplate={effectiveTemplate}
             onTemplateChange={handleTemplateChange}
             userSubscription={userSubscription}
             onAIAction={onAIAction}
@@ -960,7 +1038,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
           <ResumeWorkspace
             data={data}
             onChangeData={handleChangeData}
-            template={template}
+            template={effectiveTemplate}
             onChangeTemplate={handleTemplateChange}
             zoom={zoom}
             onZoomIn={handleZoomIn}
@@ -997,7 +1075,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
             onSave={onSave}
             onSaveAsTemplate={onSaveAsTemplate}
             currentResumeId={currentResumeId}
-            currentTemplate={template}
+            currentTemplate={effectiveTemplate}
             userSubscription={userSubscription}
             onAIAction={onAIAction}
             embedded={embedded}
@@ -1044,7 +1122,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
       {/* Hidden Print Container - Rendered via PrintPortal to escape app layout constraints */}
       <PrintPortal
         data={data}
-        template={template}
+        template={effectiveTemplate}
         isPrintingCoverLetter={isPrintingCoverLetter}
         coverLetterContent={coverLetterContent}
       />

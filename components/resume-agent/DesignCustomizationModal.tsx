@@ -53,7 +53,7 @@ export default function DesignCustomizationModal({
               <button
                 onClick={() => handleChange('jobTitleCase', 'sentence')}
                 className={`py-2 px-3 rounded-lg border text-xs font-bold transition-all ${
-                  (!data.jobTitleCase || data.jobTitleCase === 'sentence')
+                  data.jobTitleCase === 'sentence'
                     ? 'bg-brand-dark text-white border-brand-dark'
                     : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
                 }`}
@@ -63,7 +63,7 @@ export default function DesignCustomizationModal({
               <button
                 onClick={() => handleChange('jobTitleCase', 'uppercase')}
                 className={`py-2 px-3 rounded-lg border text-xs font-bold transition-all ${
-                  data.jobTitleCase === 'uppercase'
+                  (!data.jobTitleCase || data.jobTitleCase === 'uppercase')
                     ? 'bg-brand-dark text-white border-brand-dark'
                     : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
                 }`}
@@ -86,7 +86,7 @@ export default function DesignCustomizationModal({
                   key={id}
                   onClick={() => handleChange('sectionHeaderCase', id)}
                   className={`py-2 px-2.5 rounded-lg border text-[11px] font-bold transition-all ${
-                    (data.sectionHeaderCase || (data.template === 'regent' ? 'titlecase' : 'uppercase')) === id
+                    (data.sectionHeaderCase || 'uppercase') === id
                       ? 'bg-brand-dark text-white border-brand-dark'
                       : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
                   }`}

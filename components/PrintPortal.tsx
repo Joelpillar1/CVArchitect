@@ -20,6 +20,7 @@ import ElegantTemplate from './templates/ElegantTemplate';
 import ProfessionalTemplate from './templates/ProfessionalTemplate';
 import TimesTemplate from './templates/TimesTemplate';
 import JakeTemplate from './templates/JakeTemplate';
+import ScholarTemplate from './templates/ScholarTemplate';
 import AnalystTemplate from './templates/AnalystTemplate';
 import RegentTemplate from './templates/RegentTemplate';
 import TwoColumnTemplate from './templates/TwoColumnTemplate';
@@ -28,6 +29,7 @@ import ReziTemplate from './templates/ReziTemplate';
 import FreshGradTemplate from './templates/FreshGradTemplate';
 import FreshGrad8Template from './templates/FreshGrad8Template';
 import StudentTemplate from './templates/StudentTemplate';
+import InternTemplate from './templates/InternTemplate';
 
 interface PrintPortalProps {
   data: ResumeData;
@@ -60,6 +62,7 @@ export function renderResumeTemplate(template?: TemplateType, data?: ResumeData)
     case 'professional': return <ProfessionalTemplate data={data} />;
     case 'times': return <TimesTemplate data={data} />;
     case 'jake': return <JakeTemplate data={data} />;
+    case 'scholar': return <ScholarTemplate data={data} />;
     case 'gaurav': return <AnalystTemplate data={data} />;
     case 'regent': return <RegentTemplate data={data} />;
     case 'twocolumn': return <TwoColumnTemplate data={data} />;
@@ -76,6 +79,7 @@ export function renderResumeTemplate(template?: TemplateType, data?: ResumeData)
     case 'freshgrad8':
       return <FreshGrad8Template data={data} />;
     case 'student': return <StudentTemplate data={data} />;
+    case 'intern': return <InternTemplate data={data} />;
     default: return <VanguardTemplate data={data} />;
   }
 }

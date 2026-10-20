@@ -22,6 +22,8 @@ import { profileService, UserProfile } from '../services/profileService';
 import { coverLetterService, SavedCoverLetter } from '../services/coverLetterService';
 import { SubscriptionManager } from '../utils/subscriptionManager';
 import { PLANS, isPaidPlan, canAccessTemplate } from '../utils/pricingConfig';
+import { buildScratchResumeData } from '../utils/scratchResume';
+import { mapResumeToTemplate } from '../utils/templateResumeMapper';
 import {
     clearPendingCheckoutPlan,
     getPendingCheckoutPlan,
@@ -30,6 +32,7 @@ import {
 } from '../utils/pendingCheckout';
 import { linkCreemSubscriptionFromCheckout } from '../services/creemPaymentsService';
 import { saveToStorage, debouncedSaveToStorage, loadFromStorage } from '../utils/statePersistence';
+import { sanitizeResumeData, migrateLeadershipToInvolvement } from '../utils/resumeSanitizer';
 
 <meta name="google-site-verification" content="tM8NcOMoT43REWAXI4sUDCX6usdXgja0epq5QCK1Ygc" />
 
@@ -41,11 +44,14 @@ export default function Dashboard() {
 
     // Ref for job description from extension URL (so load-resumes doesn't overwrite it)
     const jobDescriptionFromUrlRef = React.useRef<string | null>(null);
+    // Track if user has actively typed/edited in this session to prevent background async network clobbers
+    const userHasEditedSinceMountRef = React.useRef<boolean>(false);
 
     // Core state needed for routing-based dashboard
     // Load from localStorage on mount; if URL has ?job= from extension, merge it so first paint has it
     const [resumeData, setResumeDataState] = useState<ResumeData>(() => {
-        const data = loadFromStorage<ResumeData>('cv_app_data', INITIAL_DATA);
+        const raw = loadFromStorage<ResumeData>('cv_app_data', INITIAL_DATA);
+        const data = sanitizeResumeData(raw);
         if (typeof window !== 'undefined') {
             const params = new URLSearchParams(window.location.search);
             const jobParam = params.get('job');
@@ -81,7 +87,8 @@ export default function Dashboard() {
     // Wrapper functions that persist immediately
     const setResumeData = useCallback((data: ResumeData | ((prev: ResumeData) => ResumeData)) => {
         setResumeDataState(prev => {
-            const newData = typeof data === 'function' ? data(prev) : data;
+            const resolved = typeof data === 'function' ? data(prev) : data;
+            const newData = sanitizeResumeData(resolved);
             // Immediate save for critical state
             debouncedSaveToStorage('cv_app_data', newData, 300);
             return newData;
@@ -189,7 +196,7 @@ export default function Dashboard() {
                                 id: r.id,
                                 tag: r.title || 'Untitled Resume',
                                 baseTemplate: template as TemplateType,
-                                data: content as ResumeData,
+                                data: migrateLeadershipToInvolvement(content as ResumeData),
                                 createdAt: new Date(r.created_at),
                             };
                         } catch (e) {
@@ -214,22 +221,35 @@ export default function Dashboard() {
 
                 if (targetResume) {
                     const localData = loadFromStorage<ResumeData>('cv_app_data', null);
-                    const isInitialLoad = !hasLoadedResumesRef.current;
+                    const hasUserTyped = userHasEditedSinceMountRef.current || hasUnsavedChanges;
 
-                    if (isInitialLoad || !localData) {
-                        console.log('Restoring saved resume from database:', targetResume.id, targetResume);
-                        setCurrentResumeId(targetResume.id);
+                    // Check if localData represents real user work (different from default INITIAL_DATA)
+                    const isLocalDataDefaultOrEmpty = !localData || (
+                        localData.fullName === INITIAL_DATA.fullName &&
+                        localData.email === INITIAL_DATA.email &&
+                        (!localData.experience || localData.experience.length === 0 || localData.experience[0]?.company === INITIAL_DATA.experience[0]?.company)
+                    );
+
+                    // Only restore from server if the user hasn't actively edited in this session
+                    // AND local storage is empty or default
+                    if (!hasUserTyped && isLocalDataDefaultOrEmpty) {
+                        console.log('Restoring saved resume from database:', targetResume.id);
                         const jobFromUrl = jobDescriptionFromUrlRef.current;
-                        const mergedData = {
+                        const mergedData = sanitizeResumeData({
                             ...INITIAL_DATA,
                             ...targetResume.data,
                             ...(jobFromUrl ? { jobDescription: jobFromUrl } : {}),
-                        };
+                        });
                         if (jobFromUrl) jobDescriptionFromUrlRef.current = null;
                         setResumeData(mergedData);
                         setSelectedTemplate(targetResume.baseTemplate);
                         saveToStorage('cv_app_data', mergedData);
                         saveToStorage('cv_app_template', targetResume.baseTemplate);
+                    }
+
+                    // Always link current resume ID if not set
+                    if (!currentResumeId) {
+                        setCurrentResumeId(targetResume.id);
                         saveToStorage('cv_app_resume_id', targetResume.id);
                     }
                 }
@@ -949,6 +969,7 @@ export default function Dashboard() {
                                         return;
                                     }
                                     setSelectedTemplate(template);
+                                    saveToStorage('cv_app_template', template);
                                     setCurrentResumeId(null);
                                     setShowOnboardingModal(true);
                                 }}
@@ -1016,6 +1037,9 @@ export default function Dashboard() {
                                 isLoading={isLoadingCoverLetters}
                                 onViewLetter={(letter) => {
                                     navigate('/dashboard/cover-letter', { state: { initialLetter: letter } });
+                                }}
+                                onSelectTemplate={(templateId) => {
+                                    navigate('/dashboard/cover-letter', { state: { template: templateId } });
                                 }}
                                 onDeleteLetter={async (id) => {
                                     try {
@@ -1114,10 +1138,11 @@ export default function Dashboard() {
                             <Editor
                                 data={resumeData}
                                 onChange={(newData) => {
+                                    userHasEditedSinceMountRef.current = true;
                                     setResumeData(newData);
                                     setHasUnsavedChanges(true);
                                 }}
-                                template={selectedTemplate}
+                                template={(resumeData?.template || selectedTemplate) as TemplateType}
                                 onTemplateChange={(template) => {
                                     if (!canAccessTemplate(userSubscription.planId, template)) {
                                         setShowPricingModal(true);
@@ -1127,8 +1152,8 @@ export default function Dashboard() {
                                     // Immediately persist template to localStorage
                                     localStorage.setItem('cv_app_template', template);
 
-                                    // Update the resume data's template field
-                                    const updatedData = { ...resumeData, template };
+                                    // Update the resume data's template field and map sections
+                                    const updatedData = mapResumeToTemplate(resumeData, template);
                                     setResumeData(updatedData);
 
                                     // If there's a current resume being edited, update its baseTemplate
@@ -1452,6 +1477,7 @@ export default function Dashboard() {
             {/* Onboarding modal: upload vs start from scratch */}
             <TemplateOnboardingModal
                 isOpen={showOnboardingModal}
+                selectedTemplate={selectedTemplate}
                 onClose={() => setShowOnboardingModal(false)}
                 onCheckUploadPermission={() => {
                     const check = subscriptionManager.canUseFeature('resume_upload');
@@ -1497,30 +1523,30 @@ export default function Dashboard() {
                                 .catch(err => console.error('Failed to sync upload usage:', err));
                         }
 
-                        // Use parsed data from uploaded resume
-                        const empty = createEmptyResume();
+                        const chosenTemplate = (data.parsedData?.template || selectedTemplate || 'modern') as TemplateType;
+                        // Use parsed data from uploaded resume, cleanly mapped to the chosen template
+                        const rawParsed = data.parsedData || {};
+                        const mapped = mapResumeToTemplate(rawParsed, chosenTemplate);
                         newResumeData = {
-                            ...empty,
-                            template: selectedTemplate,
-                            ...(data.parsedData || {}),
-                            jobTitle: (data.parsedData?.jobTitle as string) || data.role || '',
+                            ...mapped,
+                            template: chosenTemplate,
+                            jobTitle: (data.parsedData?.jobTitle as string) || data.role || mapped.jobTitle || '',
                             source: 'upload',
                         };
-
-                        // Ensure experience IDs are present/unique
-                        if (newResumeData.experience) {
-                            newResumeData.experience = newResumeData.experience.map((exp: any, index: number) => ({
-                                ...exp,
-                                id: exp.id || `exp_${Date.now()}_${index}`,
-                            }));
-                        }
                     } else {
-                        // Start from scratch with role as job title
-                        newResumeData = {
-                            ...newResumeData,
-                            jobTitle: data.role || 'Professional Role',
-                            source: 'scratch',
-                        };
+                        // Start from scratch: open with the chosen template's own
+                        // preview content (the editor shows the real design instead
+                        // of a blank page), personalized with the onboarding answers:
+                        // name + contact replace the demo identity, the target role
+                        // becomes the job title (unless the template has no title
+                        // line), and the experience level shapes the demo work history.
+                        newResumeData = buildScratchResumeData({
+                            template: selectedTemplate,
+                            name: data.name,
+                            contact: data.contact,
+                            jobTitle: data.role,
+                            experienceLevel: data.experience,
+                        });
                     }
 
                     const tag =
@@ -1529,7 +1555,10 @@ export default function Dashboard() {
                         (newResumeData.fullName?.trim() ? `${newResumeData.fullName.trim()}'s Resume` : 'Untitled Resume');
                     newResumeData.currentTag = tag;
                     newResumeData.resumeTitle = tag;
-                    const baseTemplate = selectedTemplate;
+                    const baseTemplate = (newResumeData.template || selectedTemplate) as TemplateType;
+                    setSelectedTemplate(baseTemplate);
+                    saveToStorage('cv_app_template', baseTemplate);
+                    saveToStorage('cv_app_data', newResumeData);
 
                     if (user) {
                         (async () => {

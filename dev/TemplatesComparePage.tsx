@@ -18,6 +18,7 @@ import MinimalistTemplate from '../components/templates/MinimalistTemplate';
 import ProfessionalTemplate from '../components/templates/ProfessionalTemplate';
 import TimesTemplate from '../components/templates/TimesTemplate';
 import JakeTemplate from '../components/templates/JakeTemplate';
+import ScholarTemplate from '../components/templates/ScholarTemplate';
 import AnalystTemplate from '../components/templates/AnalystTemplate';
 import RegentTemplate from '../components/templates/RegentTemplate';
 import TwoColumnTemplate from '../components/templates/TwoColumnTemplate';
@@ -26,6 +27,7 @@ import FreshGrad8Template from '../components/templates/FreshGrad8Template';
 import SageTemplate from '../components/templates/SageTemplate';
 import ReziTemplate from '../components/templates/ReziTemplate';
 import StudentTemplate from '../components/templates/StudentTemplate';
+import InternTemplate from '../components/templates/InternTemplate';
 
 /**
  * DEV HARNESS — renders every unique template with the gallery sample resume so
@@ -34,6 +36,7 @@ import StudentTemplate from '../components/templates/StudentTemplate';
  */
 const TEMPLATES: { name: string; Component: React.ComponentType<{ data: any }> }[] = [
   { name: 'student', Component: StudentTemplate },
+  { name: 'intern', Component: InternTemplate },
   { name: 'free', Component: FreeTemplate },
   { name: 'freshgrad1', Component: FreshGradTemplate },
   { name: 'freshgrad8', Component: FreshGrad8Template },
@@ -53,6 +56,7 @@ const TEMPLATES: { name: string; Component: React.ComponentType<{ data: any }> }
   { name: 'professional', Component: ProfessionalTemplate },
   { name: 'times', Component: TimesTemplate },
   { name: 'jake', Component: JakeTemplate },
+  { name: 'scholar', Component: ScholarTemplate },
   { name: 'gaurav', Component: AnalystTemplate },
   { name: 'regent', Component: RegentTemplate },
   { name: 'twocolumn', Component: TwoColumnTemplate },

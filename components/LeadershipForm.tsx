@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { ResumeData, Experience } from '../types';
-import { Plus, Trash2, ChevronUp, ChevronDown, Sparkles } from 'lucide-react';
+import { Plus, Trash2, ChevronUp, ChevronDown, Sparkles, X } from 'lucide-react';
 import { enhanceDescription } from './utils/aiEnhancer';
+import { parseDescriptionBullets } from '../utils/templateUtils';
 
 interface LeadershipFormProps {
     data: ResumeData;
@@ -23,7 +24,7 @@ export default function LeadershipForm({ data, onChange, onAIAction }: Leadershi
             location: '',
             startDate: '',
             endDate: '',
-            description: ''
+            description: ['']
         };
         onChange({ ...data, leadership: [newEntry, ...leadership] });
     };
@@ -32,13 +33,38 @@ export default function LeadershipForm({ data, onChange, onAIAction }: Leadershi
         onChange({ ...data, leadership: leadership.filter(item => item.id !== id) });
     };
 
-    const handleChange = (id: string, field: keyof Experience, value: string) => {
+    const handleChange = (id: string, field: keyof Experience, value: string | string[]) => {
         onChange({
             ...data,
             leadership: leadership.map(item =>
                 item.id === id ? { ...item, [field]: value } : item
             )
         });
+    };
+
+    const getDescBullets = (item: Experience): string[] =>
+        Array.isArray(item.description)
+            ? item.description
+            : parseDescriptionBullets(item.description || '');
+
+    const handleBulletChange = (itemId: string, bulletIdx: number, val: string) => {
+        const item = leadership.find(i => i.id === itemId);
+        if (!item) return;
+        const bullets = [...getDescBullets(item)];
+        bullets[bulletIdx] = val;
+        handleChange(itemId, 'description', bullets);
+    };
+
+    const handleAddBullet = (itemId: string) => {
+        const item = leadership.find(i => i.id === itemId);
+        if (!item) return;
+        handleChange(itemId, 'description', [...getDescBullets(item), '']);
+    };
+
+    const handleRemoveBullet = (itemId: string, bulletIdx: number) => {
+        const item = leadership.find(i => i.id === itemId);
+        if (!item) return;
+        handleChange(itemId, 'description', getDescBullets(item).filter((_, idx) => idx !== bulletIdx));
     };
 
     const normalizeDesc = (desc: unknown): string => {
@@ -66,7 +92,7 @@ export default function LeadershipForm({ data, onChange, onAIAction }: Leadershi
                 item.role || 'Leader',
                 item.company || 'Organization'
             );
-            handleChange(item.id, 'description', enhanced);
+            handleChange(item.id, 'description', parseDescriptionBullets(enhanced));
         } catch (error) {
             alert('Failed to enhance. Check your API key.');
             console.error(error);
@@ -111,6 +137,7 @@ export default function LeadershipForm({ data, onChange, onAIAction }: Leadershi
             <div className="space-y-6">
                 {leadership.map((item, index) => {
                     const isCurrentPosition = item.endDate?.toLowerCase() === 'present';
+                    const bullets = getDescBullets(item);
 
                     return (
                         <div
@@ -214,14 +241,33 @@ export default function LeadershipForm({ data, onChange, onAIAction }: Leadershi
 
                             <div className="space-y-2">
                                 <label className="text-xs font-medium text-gray-500">Description</label>
-                                <textarea
-                                    value={normalizeDesc(item.description)}
-                                    onChange={(e) => handleChange(item.id, 'description', e.target.value)}
-                                    rows={3}
-                                    className="w-full p-3 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition-all resize-none leading-relaxed"
-                                    placeholder="Briefly describe your responsibilities and impact..."
-                                />
-                                <div className="flex justify-end">
+                                {bullets.map((b, bIdx) => (
+                                    <div key={bIdx} className="group/bullet relative flex items-center gap-2.5">
+                                        <span className="w-2 h-2 rounded-full bg-brand-green shrink-0" />
+                                        <input
+                                            type="text"
+                                            value={b}
+                                            onChange={(e) => handleBulletChange(item.id, bIdx, e.target.value)}
+                                            placeholder="Describe key responsibilities and measurable impact..."
+                                            className="flex-1 min-w-0 px-3.5 py-2.5 text-xs border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-brand-green/30 focus:border-brand-green outline-none transition-all"
+                                        />
+                                        <button
+                                            onClick={() => handleRemoveBullet(item.id, bIdx)}
+                                            className="absolute right-1.5 p-1 text-gray-400 hover:text-red-500 rounded-md bg-white/90 opacity-0 group-hover/bullet:opacity-100 focus:opacity-100 transition-opacity"
+                                            title="Remove bullet"
+                                        >
+                                            <X size={13} />
+                                        </button>
+                                    </div>
+                                ))}
+                                <button
+                                    onClick={() => handleAddBullet(item.id)}
+                                    className="w-full flex items-center justify-center gap-1.5 py-2.5 mt-1 rounded-xl bg-brand-green/10 hover:bg-brand-green/20 border border-brand-green/20 text-brand-dark text-xs font-semibold transition-colors cursor-pointer"
+                                >
+                                    <Plus size={14} />
+                                    <span>Add More</span>
+                                </button>
+                                <div className="flex justify-end pt-1">
                                     <button
                                         onClick={() => handleEnhanceDescription(item)}
                                         disabled={enhancingId === item.id || !normalizeDesc(item.description).trim()}

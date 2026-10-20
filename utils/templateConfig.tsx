@@ -106,7 +106,7 @@ export const TEMPLATE_CONFIG: { id: TemplateType; name: string; subtitle: string
     },
     {
         id: 'impact',
-        name: "Impact",
+        name: "Creative",
         subtitle: "Compact",
         icon: <Award className="text-red-600" size={20} />,
         bg: "bg-[#FFFFFF]"
@@ -127,9 +127,9 @@ export const TEMPLATE_CONFIG: { id: TemplateType; name: string; subtitle: string
     },
     {
         id: 'modern',
-        name: "Modern",
-        subtitle: "Contemporary",
-        icon: <LayoutTemplate className="text-teal-600" size={20} />,
+        name: "Finance",
+        subtitle: "Corporate & Banking",
+        icon: <LineChart className="text-emerald-700" size={20} />,
         bg: "bg-[#FFFFFF]"
     },
     {
@@ -182,6 +182,13 @@ export const TEMPLATE_CONFIG: { id: TemplateType; name: string; subtitle: string
         bg: "bg-[#FFFFFF]"
     },
     {
+        id: 'scholar',
+        name: "Scholar",
+        subtitle: "Academic CV",
+        icon: <Landmark className="text-violet-700" size={20} />,
+        bg: "bg-[#FFFFFF]"
+    },
+    {
         id: 'gaurav',
         name: "Analyst",
         subtitle: "ATS Analyst",
@@ -216,6 +223,13 @@ export const TEMPLATE_CONFIG: { id: TemplateType; name: string; subtitle: string
         icon: <BookOpen className="text-teal-600" size={20} />,
         bg: "bg-[#FFFFFF]"
     },
+    {
+        id: 'intern',
+        name: "Student Intern",
+        subtitle: "Intern",
+        icon: <GraduationCap className="text-blue-600" size={20} />,
+        bg: "bg-[#FFFFFF]"
+    },
 ];
 
 export const getTemplateMetadata = (id: TemplateType) => {
@@ -223,9 +237,9 @@ export const getTemplateMetadata = (id: TemplateType) => {
 };
 
 export const getTemplateCategory = (t: { id: TemplateType; name: string; subtitle: string }): string => {
-    if (t.id === 'rezi' || t.name.toLowerCase().includes('harvard')) return 'Student';
+    if (t.id === 'rezi' || t.id === 'intern' || t.name.toLowerCase().includes('harvard')) return 'Student';
     const sub = t.subtitle.toLowerCase();
-    if (['entry level', 'graduate', 'finance', 'engineering', 'creative', 'chemical eng', 'marketing', 'leadership', 'student'].some(k => sub.includes(k))) return 'Student';
+    if (['entry level', 'graduate', 'finance', 'engineering', 'creative', 'chemical eng', 'marketing', 'leadership', 'student', 'intern'].some(k => sub.includes(k))) return 'Student';
     if (['executive', 'senior leader', 'c-suite'].some(k => sub.includes(k))) return 'Executive';
     if (['modern tech', 'bold design', 'contemporary', 'clean', 'developer', 'modern'].some(k => sub.includes(k))) return 'Modern';
     if (['academic', 'research'].some(k => sub.includes(k))) return 'Academic';

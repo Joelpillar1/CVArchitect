@@ -574,19 +574,8 @@ export default function JakeTemplate({ data }: { data: ResumeData }) {
     }
   };
 
-  /**
-   * The source resume arranges sections Education → Experience → Projects →
-   * Technical Skills. Those four are pinned in that order; any other populated
-   * section follows in its existing relative order, and sections the user has
-   * removed or hidden stay removed.
-   */
   const getJakeSectionOrder = (): string[] => {
-    const resolved = getResolvedSectionOrder(data);
-    const native = ['education', 'experience', 'projects', 'skills'];
-    const nativeSet = new Set(native);
-    const pinned = native.filter((id) => resolved.includes(id));
-    const rest = resolved.filter((id) => !nativeSet.has(id));
-    return [...pinned, ...rest];
+    return getResolvedSectionOrder(data);
   };
 
   // The header: centered name in the template's serif face, with the plain

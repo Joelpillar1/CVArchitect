@@ -25,11 +25,12 @@ import {
   formatSectionTitle,
   isTitleFirst,
   splitSkillsList,
+  parseExpertSkillItems,
   CONTACT_SEPARATOR,
   renderCourseworkBlockHelper,
   renderExpertSkillsBlockHelper,
 } from '../../utils/templateUtils';
-import { resolveSection, getResolvedSectionOrder } from '../../utils/sectionRegistry';
+import { resolveSection, getResolvedSectionOrder, isSectionExplicitlyAdded } from '../../utils/sectionRegistry';
 import type { CustomSectionData } from '../../types/resumeSections';
 import { getTranslation, Language } from '../../i18n/translations';
 
@@ -92,24 +93,36 @@ const FreshGradTemplate: React.FC<FreshGradTemplateProps> = ({ data }) => {
     );
   };
 
-  const renderSkillsBlock = (title: string, skillsStr: string) => {
-    if (!skillsStr || !skillsStr.trim()) return null;
-    const skillsList = splitSkillsList(skillsStr);
-    if (skillsList.length === 0) return null;
+  const renderSkillsBlock = (title: string, items: any, basePath: string = 'skills') => {
+    const parsed = parseExpertSkillItems(items);
+    if (parsed.length === 0) return null;
+
     return (
       <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
         {renderSectionHeader(title)}
-        <ul
-          data-skills-grid
-          className={`list-none pl-2.5 grid gap-x-8 gap-y-1 text-gray-800 ${data.skillsColumnCount === 2 ? 'grid-cols-2' : (data.skillsColumnCount === 4 ? 'grid-cols-4' : 'grid-cols-3')}`}
-          style={bodyStyle}
-        >
-          {skillsList.map((skill, i) => (
-            <li key={i} data-skill-cell className="flex items-baseline gap-1.5 min-w-0">
-              <span data-bullet aria-hidden="true" className="shrink-0 select-none pointer-events-none leading-none">•</span>
-              <span className="flex-1" style={{ lineHeight: 'inherit' }}><RichText text={skill} /></span>
-            </li>
-          ))}
+        <ul className="list-disc list-outside ml-5 space-y-0.5 text-justify" style={bodyStyle}>
+          {parsed.map((item, index) => {
+            const hasCategory = Boolean(item.category?.trim());
+            return (
+              <li key={item.id || index} className="leading-relaxed mb-0.5">
+                {hasCategory ? (
+                  <>
+                    <span data-path={`${basePath}.${index}.category`} className="font-bold text-gray-900">
+                      <RichText text={item.category.trim()} />
+                      {item.category.trim().endsWith(':') ? ' ' : ': '}
+                    </span>
+                    <span data-path={`${basePath}.${index}.skills`} className="text-gray-800">
+                      <RichText text={item.skills ?? ''} />
+                    </span>
+                  </>
+                ) : (
+                  <span data-path={`${basePath}.${index}.skills`} className="text-gray-800">
+                    <RichText text={item.skills ?? ''} />
+                  </span>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </section>
     );
@@ -430,9 +443,27 @@ const FreshGradTemplate: React.FC<FreshGradTemplateProps> = ({ data }) => {
     const resolved = resolveSection(data, id);
     if (!resolved || !resolved.visible || !resolved.hasContent) return null;
 
+    // Student templates do not have professional summary or key achievements by
+    // default — but an explicit user add (sidebar, canvas + dock, or the
+    // hidden-content notice banner) still wins and renders the section.
+    if (
+      (resolved.type === 'summary' ||
+        resolved.type === 'achievements' ||
+        id === 'summary' ||
+        id === 'keyAchievements' ||
+        id === 'achievements') &&
+      !isSectionExplicitlyAdded(data, id)
+    ) {
+      return null;
+    }
+
     let sectionTitle = resolved.title;
-    if (resolved.type === 'summary') sectionTitle = t.professionalSummary || resolved.title;
-    if (resolved.type === 'skills') sectionTitle = t.technicalSkills || resolved.title;
+    if (resolved.type === 'skills') {
+      const customTitle = data.sectionTitles?.skills;
+      sectionTitle = customTitle && customTitle !== 'Skills' && customTitle !== 'Expert-Level Skills'
+        ? customTitle
+        : 'Skills & Interests';
+    }
     if (resolved.type === 'experience') sectionTitle = t.experienceTitle || resolved.title;
     if (resolved.type === 'education') sectionTitle = t.educationTitle || resolved.title;
     if (resolved.type === 'certifications') sectionTitle = t.certifications || resolved.title;
@@ -441,16 +472,8 @@ const FreshGradTemplate: React.FC<FreshGradTemplateProps> = ({ data }) => {
       case 'text':
         return renderTextBlock(sectionTitle, resolved.content as string, resolved.id);
       case 'skills':
-        return renderSkillsBlock(sectionTitle, resolved.content as string);
       case 'expert_skills':
-        return renderExpertSkillsBlockHelper({
-          data,
-          title: sectionTitle,
-          items: resolved.content as any,
-          basePath: resolved.id,
-          renderSectionHeader,
-          bodyStyle: { fontSize: `${bodySize}pt`, lineHeight: data.lineHeight || 1.5 },
-        });
+        return renderSkillsBlock(sectionTitle, resolved.content as any, resolved.id);
       case 'bullets':
         return renderBulletsBlock(sectionTitle, resolved.content as string[] | string, resolved.id);
       case 'experience':

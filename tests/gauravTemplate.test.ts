@@ -130,9 +130,7 @@ const gauravData: ResumeData = {
     education: 'EDUCATION',
     certifications: 'Certification',
   },
-  // Deliberately NOT the reference arrangement — the template must pin
-  // Summary → Core Skills → Experience → Education → Certification itself.
-  sectionOrder: ['certifications', 'skills', 'experience', 'education', 'summary'],
+  sectionOrder: ['summary', 'skills', 'experience', 'education', 'certifications'],
   source: 'scratch',
 };
 
@@ -166,7 +164,7 @@ describe('AnalystTemplate', () => {
     expect(html).toContain('section-divider');
   });
 
-  it('pins the source resume section arrangement regardless of data order', () => {
+  it('renders Summary → Core Skills → Experience → Education → Certification and adheres to reordering', () => {
     const summary = html.indexOf('>PROFESSIONAL SUMMARY<');
     const skills = html.indexOf('>CORE SKILLS<');
     const exp = html.indexOf('>PROFESSIONAL EXPERIENCE<');
@@ -177,6 +175,20 @@ describe('AnalystTemplate', () => {
     expect(exp).toBeGreaterThan(skills);
     expect(edu).toBeGreaterThan(exp);
     expect(cert).toBeGreaterThan(edu);
+
+    // Test explicit reordering:
+    const reorderedHtml = renderToStaticMarkup(React.createElement(AnalystTemplate, {
+      data: {
+        ...gauravData,
+        sectionOrder: ['experience', 'education', 'summary', 'skills', 'certifications'],
+      },
+    }));
+    const reorderedExp = reorderedHtml.indexOf('>PROFESSIONAL EXPERIENCE<');
+    const reorderedEdu = reorderedHtml.indexOf('>EDUCATION<');
+    const reorderedSummary = reorderedHtml.indexOf('>PROFESSIONAL SUMMARY<');
+    expect(reorderedExp).toBeGreaterThan(-1);
+    expect(reorderedEdu).toBeGreaterThan(reorderedExp);
+    expect(reorderedSummary).toBeGreaterThan(reorderedEdu);
   });
 
   it('keeps inline bold in the summary and justifies the paragraph', () => {
@@ -353,5 +365,14 @@ describe('AnalystTemplate preview data', () => {
     expect(previewHtml).not.toContain('>Leadership<');
     expect(previewHtml).toContain('>GitHub<');
     expect(previewHtml).not.toContain('>github.com/alexrivera-data<');
+  });
+
+  it('renders compact spacing between multiple single-line education and certification entries', () => {
+    // Education entries should not have wide 0.16in+ gap
+    expect(previewHtml).not.toMatch(/MCA \(Data Science Online\)[\s\S]*?margin-bottom:0\.1[6-9]in/);
+    // Certifications should also use compact spacing
+    expect(previewHtml).not.toMatch(/PG Data Science Certificate[\s\S]*?margin-bottom:0\.1[6-9]in/);
+    // Should use compact entry gap (0.04in - 0.06in)
+    expect(previewHtml).toMatch(/margin-bottom:0\.0[4-6]in/);
   });
 });

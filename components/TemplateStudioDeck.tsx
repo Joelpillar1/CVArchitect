@@ -26,6 +26,7 @@ import StyledTemplate from './templates/StyledTemplate';
 import ElegantTemplate from './templates/ElegantTemplate';
 import MinimalistTemplate from './templates/MinimalistTemplate';
 import JakeTemplate from './templates/JakeTemplate';
+import ScholarTemplate from './templates/ScholarTemplate';
 import AnalystTemplate from './templates/AnalystTemplate';
 import RegentTemplate from './templates/RegentTemplate';
 import TwoColumnTemplate from './templates/TwoColumnTemplate';
@@ -33,6 +34,7 @@ import FreshGradTemplate from './templates/FreshGradTemplate';
 import SageTemplate from './templates/SageTemplate';
 import ReziTemplate from './templates/ReziTemplate';
 import StudentTemplate from './templates/StudentTemplate';
+import InternTemplate from './templates/InternTemplate';
 
 /** Template IDs excluded from the landing-page preview (still available in the dashboard) */
 const LANDING_EXCLUDED: Set<TemplateType> = new Set([
@@ -46,8 +48,10 @@ const LANDING_EXCLUDED: Set<TemplateType> = new Set([
   'elevate',      // Elevate
   'prime',        // Prime Profile
   'student',      // Student Profile
+  'intern',       // Student Intern
   'freshgrad1',   // Campus Classic
   'dev',          // DevPro
+  'scholar',      // Scholar
 ]);
 
 /** Display order for landing page: Harvard first, followed by Regent then Vanguard */
@@ -145,6 +149,7 @@ const DirectTemplateSheet = React.memo(function DirectTemplateSheet({
       case 'elegant': return <ElegantTemplate data={data} />;
       case 'minimalist': return <MinimalistTemplate data={data} />;
       case 'jake': return <JakeTemplate data={data} />;
+      case 'scholar': return <ScholarTemplate data={data} />;
       case 'gaurav': return <AnalystTemplate data={data} />;
       case 'regent': return <RegentTemplate data={data} />;
       case 'twocolumn': return <TwoColumnTemplate data={data} />;
@@ -160,6 +165,7 @@ const DirectTemplateSheet = React.memo(function DirectTemplateSheet({
       case 'sage': return <SageTemplate data={data} />;
       case 'rezi': return <ReziTemplate data={data} />;
       case 'student': return <StudentTemplate data={data} />;
+      case 'intern': return <InternTemplate data={data} />;
       default: return <ClassicTemplate data={data} />;
     }
   };

@@ -1,17 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Upload, FileText, Loader2, Sparkles } from 'lucide-react';
 import { parseResume } from '../../utils/resumeParser';
-import { ResumeData, INITIAL_DATA, createEmptyResume } from '../../types';
+import { ResumeData, INITIAL_DATA, createEmptyResume, TemplateType } from '../../types';
 import { Loader } from '../ui/Loader';
+import { mapResumeToTemplate } from '../../utils/templateResumeMapper';
 
 interface ResumeUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
   onResumeLoaded: (data: ResumeData, title?: string) => void;
   autoProcessFile?: File | null;
+  template?: TemplateType;
 }
 
-export default function ResumeUploadModal({ isOpen, onClose, onResumeLoaded, autoProcessFile }: ResumeUploadModalProps) {
+export default function ResumeUploadModal({ isOpen, onClose, onResumeLoaded, autoProcessFile, template }: ResumeUploadModalProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -37,18 +39,20 @@ export default function ResumeUploadModal({ isOpen, onClose, onResumeLoaded, aut
     setProgress(20);
 
     try {
-      const parsedPartial = await parseResume(file, (prog) => setProgress(prog));
+      const parsedPartial = await parseResume(file, (prog) => setProgress(prog), template);
       setProgress(100);
 
+      const mappedData = mapResumeToTemplate(parsedPartial, template);
       const mergedData: ResumeData = {
         ...createEmptyResume(),
-        ...parsedPartial,
-        fullName: parsedPartial.fullName || '',
-        jobTitle: parsedPartial.jobTitle || '',
-        summary: parsedPartial.summary || '',
-        experience: Array.isArray(parsedPartial.experience) ? parsedPartial.experience : [],
-        skills: parsedPartial.skills || '',
-        education: Array.isArray(parsedPartial.education) ? parsedPartial.education : [],
+        ...mappedData,
+        template: template || mappedData.template,
+        fullName: mappedData.fullName || '',
+        jobTitle: mappedData.jobTitle || '',
+        summary: mappedData.summary || '',
+        experience: Array.isArray(mappedData.experience) ? mappedData.experience : [],
+        skills: mappedData.skills || '',
+        education: Array.isArray(mappedData.education) ? mappedData.education : [],
       };
 
       const rawFileName = file.name ? file.name.replace(/\.[^/.]+$/, '').trim() : '';

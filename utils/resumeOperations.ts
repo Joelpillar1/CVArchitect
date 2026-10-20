@@ -583,7 +583,8 @@ export function applyOperation(data: ResumeData, op: ResumeOperation): ResumeDat
         ? [...data.sectionOrder]
         : createDefaultSectionOrder();
 
-      if (!order.some((s) => s === op.section || normalizeSectionType(s) === canonical)) {
+      const alreadyInOrder = order.some((s) => s === op.section || normalizeSectionType(s) === canonical);
+      if (!alreadyInOrder) {
         order.push(op.section);
       }
 
@@ -591,6 +592,11 @@ export function applyOperation(data: ResumeData, op: ResumeOperation): ResumeDat
         ...data,
         sectionVisibility: vis,
         sectionOrder: order,
+        // Showing a section is an explicit user action — record it so template
+        // switches keep it alongside the new template's defaults.
+        userAddedSections: Array.from(
+          new Set([...(data.userAddedSections || []), op.section])
+        ),
       };
 
       // If initial/default content value is supplied, populate the canonical scalar field

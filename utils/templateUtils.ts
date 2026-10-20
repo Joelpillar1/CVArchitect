@@ -390,15 +390,15 @@ export const formatAllResumeBullets = <T extends Partial<ResumeData>>(resume: T)
 
 /** Shared spacing defaults for resume templates (inches) */
 export const TEMPLATE_SPACING = {
-    marginHorizontal: 25 / 96,
-    marginVertical: 25 / 96,
+    marginHorizontal: 0.5,
+    marginVertical: 0.5,
     sectionGap: 0.1,
     headerGap: 0.08,
     headerItemGap: 0.04,
     headerContactGap: 0.04,
     compact: {
-        marginHorizontal: 25 / 96,
-        marginVertical: 25 / 96,
+        marginHorizontal: 0.4,
+        marginVertical: 0.4,
         sectionGap: 0.1,
         headerGap: 0.08,
     },
@@ -412,7 +412,11 @@ export type SpacingVariant = 'default' | 'compact';
 export function getMarginHorizontalIn(data: ResumeData, variant: SpacingVariant = 'default'): number {
     if (data.margins?.horizontal !== undefined) {
         const val = data.margins.horizontal;
-        return val > 2 ? val / 96 : val;
+        const valIn = val > 2 ? val / 96 : val;
+        if (Math.abs(valIn - 25 / 96) < 0.002) {
+            return variant === 'compact' ? TEMPLATE_SPACING.compact.marginHorizontal : TEMPLATE_SPACING.marginHorizontal;
+        }
+        return valIn;
     }
     return variant === 'compact' ? TEMPLATE_SPACING.compact.marginHorizontal : TEMPLATE_SPACING.marginHorizontal;
 }
@@ -420,7 +424,11 @@ export function getMarginHorizontalIn(data: ResumeData, variant: SpacingVariant 
 export function getMarginVerticalIn(data: ResumeData, variant: SpacingVariant = 'default'): number {
     if (data.margins?.vertical !== undefined) {
         const val = data.margins.vertical;
-        return val > 2 ? val / 96 : val;
+        const valIn = val > 2 ? val / 96 : val;
+        if (Math.abs(valIn - 25 / 96) < 0.002) {
+            return variant === 'compact' ? TEMPLATE_SPACING.compact.marginVertical : TEMPLATE_SPACING.marginVertical;
+        }
+        return valIn;
     }
     return variant === 'compact' ? TEMPLATE_SPACING.compact.marginVertical : TEMPLATE_SPACING.marginVertical;
 }
@@ -489,7 +497,7 @@ export function getHeaderItemGapIn(data: ResumeData): number {
     return Math.max(0.03, raw);
 }
 
-export function getItemGapIn(data: ResumeData, minGap: number = 0.16): number {
+export function getItemGapIn(data: ResumeData, minGap: number = 0.12): number {
     return Math.max(minGap, getSectionGapIn(data) * 1.15);
 }
 
@@ -907,7 +915,7 @@ export function formatSectionTitle(
     }
 }
 
-/** Job title display: Uppercase or Sentence case. Defaults to sentence case. */
+/** Job title display: Uppercase or Sentence case. Defaults to uppercase across all templates. */
 export function formatJobTitleDisplay(
     value: string | null | undefined,
     jobTitleCase?: ResumeData['jobTitleCase']
@@ -915,12 +923,15 @@ export function formatJobTitleDisplay(
     if (!value || typeof value !== 'string') return '';
     const trimmed = value.trim();
     if (!trimmed) return '';
-    if (jobTitleCase === 'uppercase') return trimmed.toUpperCase();
-    
-    // Sentence/Title Case: capitalize each word cleanly
-    return trimmed.replace(/\b\w+/g, (txt) => {
-        return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase();
-    });
+    if (jobTitleCase === 'sentence') {
+        // Sentence/Title Case: capitalize each word cleanly
+        return trimmed.replace(/\b\w+/g, (txt) => {
+            return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase();
+        });
+    }
+
+    // Default: Uppercase
+    return trimmed.toUpperCase();
 }
 
 /** Compact LinkedIn label: in/username */

@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { ResumeData, TemplateType } from '../types';
 import VersionHistory from './VersionHistory';
+import { getMarginHorizontalIn, getMarginVerticalIn } from '../utils/templateUtils';
 
 interface EditorSidebarDesignProps {
     data: ResumeData;
@@ -553,14 +554,14 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
                     <div className="space-y-2">
                         <label className="text-xs font-medium text-gray-700 flex justify-between">
                             <span>Top & Bottom Margins</span>
-                            <span className="text-gray-400">{Math.round(((data.margins?.vertical !== undefined ? (data.margins.vertical > 2 ? data.margins.vertical / 96 : data.margins.vertical) : 25 / 96) * 96))}px</span>
+                            <span className="text-gray-400">{Math.round(getMarginVerticalIn(data) * 96)}px</span>
                         </label>
                         <input
                             type="range"
                             min="8"
-                            max="60"
+                            max="72"
                             step="1"
-                            value={Math.round(((data.margins?.vertical !== undefined ? (data.margins.vertical > 2 ? data.margins.vertical / 96 : data.margins.vertical) : 25 / 96) * 96))}
+                            value={Math.round(getMarginVerticalIn(data) * 96)}
                             onChange={(e) => handleNestedChange('margins', 'vertical', parseFloat(e.target.value) / 96)}
                             className="w-full accent-brand-green"
                         />
@@ -569,14 +570,14 @@ export default function EditorSidebarDesign({ data, onChange, onSave, onSaveAsTe
                     <div className="space-y-2">
                         <label className="text-xs font-medium text-gray-700 flex justify-between">
                             <span>Left & Right Margins</span>
-                            <span className="text-gray-400">{Math.round(((data.margins?.horizontal !== undefined ? (data.margins.horizontal > 2 ? data.margins.horizontal / 96 : data.margins.horizontal) : 25 / 96) * 96))}px</span>
+                            <span className="text-gray-400">{Math.round(getMarginHorizontalIn(data) * 96)}px</span>
                         </label>
                         <input
                             type="range"
                             min="8"
-                            max="60"
+                            max="72"
                             step="1"
-                            value={Math.round(((data.margins?.horizontal !== undefined ? (data.margins.horizontal > 2 ? data.margins.horizontal / 96 : data.margins.horizontal) : 25 / 96) * 96))}
+                            value={Math.round(getMarginHorizontalIn(data) * 96)}
                             onChange={(e) => handleNestedChange('margins', 'horizontal', parseFloat(e.target.value) / 96)}
                             className="w-full accent-brand-green"
                         />
