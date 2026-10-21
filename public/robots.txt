@@ -35,9 +35,16 @@ Disallow: /dev-*
 Disallow: /api/
 
 # -----------------------------------------------
-# OpenAI — ChatGPT, GPTBot, ChatGPT-User
+# OpenAI — ChatGPT, GPTBot, ChatGPT-User, OAI-SearchBot
 # -----------------------------------------------
 User-agent: GPTBot
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /ai.txt
+Allow: /blog
+
+User-agent: OAI-SearchBot
 Allow: /
 Allow: /llms.txt
 Allow: /llms-full.txt
@@ -51,8 +58,14 @@ Allow: /llms-full.txt
 Allow: /ai.txt
 
 # -----------------------------------------------
-# Anthropic — ClaudeBot, Claude-Web, anthropic-ai
+# Anthropic — ClaudeBot, Claude-SearchBot, Claude-Web, anthropic-ai
 # -----------------------------------------------
+User-agent: Claude-SearchBot
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /ai.txt
+
 User-agent: ClaudeBot
 Allow: /
 Allow: /llms.txt
@@ -80,6 +93,12 @@ Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /ai.txt
 Allow: /blog
+
+User-agent: Perplexity-User
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /ai.txt
 
 # -----------------------------------------------
 # DeepSeek AI

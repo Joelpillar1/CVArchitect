@@ -226,7 +226,7 @@ export function TemplateCardPreviewCanvas({
   }, []);
 
   return (
-    <div className="relative w-full aspect-[4/3] bg-white rounded-xl border border-gray-200/70 overflow-hidden shadow-2xs flex items-center justify-center">
+    <div data-resume-preview className="relative w-full aspect-[4/3] bg-white rounded-xl border border-gray-200/70 overflow-hidden shadow-2xs flex items-center justify-center">
       {/* Background / Initial Skeleton */}
       <div
         className={`absolute inset-0 flex items-start justify-center pt-2 overflow-hidden pointer-events-none select-none transition-opacity duration-300 ${

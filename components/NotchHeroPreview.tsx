@@ -29,7 +29,7 @@ export default function NotchHeroPreview() {
   };
 
   return (
-    <div className="relative w-full max-w-[calc(100%-1rem)] sm:max-w-[calc(100%-2rem)] xl:max-w-[1460px] 2xl:max-w-[1580px] mx-auto mt-10 md:mt-14 mb-16">
+    <div data-resume-preview className="relative w-full max-w-[calc(100%-1rem)] sm:max-w-[calc(100%-2rem)] xl:max-w-[1460px] 2xl:max-w-[1580px] mx-auto mt-10 md:mt-14 mb-16">
       {/* Top Floating Notch Container */}
       <div className="relative z-20 flex justify-center -mb-5 sm:-mb-6">
         <div className="bg-white px-2 py-1.5 sm:px-3 sm:py-2 rounded-full border border-gray-200/90 flex items-center gap-1 sm:gap-1.5 overflow-x-auto max-w-[95vw] scrollbar-none">

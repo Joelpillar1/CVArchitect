@@ -104,15 +104,6 @@ export default function MyCoverLetters({
                             </span>
                         </button>
                     </div>
-
-                    {activeTab === 'letters' && letters.length > 0 && (
-                        <button
-                            onClick={() => setActiveTab('templates')}
-                            className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:text-emerald-800 transition-colors"
-                        >
-                            <Plus size={14} /> New from Template
-                        </button>
-                    )}
                 </div>
 
                 {/* Tab Content */}

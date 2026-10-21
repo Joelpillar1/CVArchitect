@@ -71,7 +71,7 @@ const comparisonSections: { title: string; rows: { label: string; cells: [Compar
     {
         title: 'Exports & Downloads',
         rows: [
-            { label: 'Pixel-Perfect PDF Export', cells: [{ type: 'text', text: '1 Download' }, { type: 'text', text: 'Unlimited' }, { type: 'text', text: 'Unlimited' }] },
+            { label: 'Pixel-Perfect PDF Export', cells: [{ type: 'text', text: '3 Downloads' }, { type: 'text', text: 'Unlimited' }, { type: 'text', text: 'Unlimited' }] },
             { label: 'Editable Word (.DOCX) Export', cells: [{ type: 'dash' }, { type: 'check' }, { type: 'check' }] },
             { label: 'Plain Text (.TXT) Export', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }] },
         ],

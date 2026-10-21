@@ -575,11 +575,19 @@ export interface GeneratedCoverLetter {
     };
 }
 
+export interface CoverLetterOptions {
+    highlightPosition?: string;
+    highlightEducation?: string;
+    highlightSkills?: string[];
+    tone?: string;
+}
+
 export const generateCoverLetter = async (
     resumeData: ResumeData,
     jobTitle: string,
     companyName: string,
-    jobDescription: string
+    jobDescription: string,
+    options?: CoverLetterOptions
 ): Promise<GeneratedCoverLetter> => {
     try {
         const prompt = `Write a professional cover letter for a "${jobTitle}" position at "${companyName}".
@@ -591,19 +599,25 @@ Phone: ${resumeData.phone}
 Current Title: ${resumeData.jobTitle}
 Summary: ${resumeData.summary}
 Key Skills: ${resumeData.skills}
-Recent Experience: ${JSON.stringify(resumeData.experience.slice(0, 2))}
+Recent Experience: ${JSON.stringify(resumeData.experience.slice(0, 3))}
+Education: ${JSON.stringify(resumeData.education.slice(0, 2))}
 
 JOB DESCRIPTION:
-${jobDescription.substring(0, 2000)}
+${jobDescription.substring(0, 3000)}
+
+${options?.highlightPosition ? `HIGHLIGHT ROLE: Emphasize the candidate's specific impact and achievements from: "${options.highlightPosition}".` : ''}
+${options?.highlightEducation ? `HIGHLIGHT EDUCATION: Mention and align the candidate's educational background: "${options.highlightEducation}".` : ''}
+${options?.highlightSkills && options.highlightSkills.length > 0 ? `TARGET COMPETENCIES: Prioritize highlighting these key skills: ${options.highlightSkills.join(', ')}.` : ''}
+${options?.tone ? `TONE OF VOICE: Adopt a ${options.tone} tone throughout.` : ''}
 
 INSTRUCTIONS:
 - Analyze the candidate's profile against the job description.
-- Create a structured cover letter response in JSON format.
-- **plainText**: A standard, complete cover letter body (Salutation to Sign-off) as a single string. Exclude header (Date/Address).
+- Create a tailored, modern, and engaging cover letter in JSON format.
+- **plainText**: A standard, complete cover letter body (Salutation to Sign-off) as a single string with paragraph breaks. Exclude header (Date/Address). IMPORTANT: "Sincerely," and the applicant's full name must be on their own separate line each (never joined on the same line).
 - **structured**: 
     - "opening": A strong opening paragraph (hook).
     - "skills": Identify 3-5 KEY SKILLS required for the job that the candidate has. For each, write a "description" (1-2 sentences) demonstrating how the candidate applied this skill in the past (STAR method).
-    - "closing": A strong closing paragraph including call to action and sign-off ("Sincerely, Name").
+    - "closing": A strong closing paragraph including call to action and sign-off ("Sincerely," and the applicant's name on a line each).
 
 Return EXACTLY this JSON structure:
 {

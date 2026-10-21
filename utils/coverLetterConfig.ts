@@ -1,7 +1,7 @@
 import { ResumeData } from '../types';
 import { GeneratedCoverLetter } from '../components/utils/aiEnhancer';
 
-export type CoverLetterTemplateType = 'modern' | 'bold' | 'structured';
+export type CoverLetterTemplateType = 'classic' | 'editorial' | 'minimal' | 'academic' | 'technical' | 'modern' | 'bold' | 'structured';
 
 export interface CoverLetterTemplateConfig {
     id: CoverLetterTemplateType;
@@ -15,11 +15,56 @@ export interface CoverLetterTemplateConfig {
 
 export const COVER_LETTER_TEMPLATES: CoverLetterTemplateConfig[] = [
     {
+        id: 'technical',
+        name: 'Technical',
+        subtitle: 'NASA & engineering format with bold organization recipient',
+        category: 'Professional',
+        isFree: false,
+        description: 'Optimized for aerospace, robotics, software systems, and deep-tech roles: bold left-aligned candidate header, prominent organization identifier, deep technical project narratives, and clean executive signature spacing.',
+        tags: ['Engineering', 'Aerospace', 'NASA', 'STEM', 'ATS-Friendly']
+    },
+    {
+        id: 'academic',
+        name: 'Academic',
+        subtitle: 'Traditional scholarly format with standalone date & formal address',
+        category: 'Professional',
+        isFree: false,
+        description: 'Faithfully tailored for academia, fellowships, research laboratories, and scholarly appointments: prominent candidate header, standalone international date, formal institutional recipient line, and unhurried intellectual prose.',
+        tags: ['Academic', 'Research', 'Higher Ed', 'Fellowship', 'ATS-Friendly']
+    },
+    {
+        id: 'minimal',
+        name: 'Clean Minimal',
+        subtitle: 'Streamlined narrative format with essential contact block',
+        category: 'Professional',
+        isFree: false,
+        description: 'A pure, distraction-free traditional format with streamlined contact essentials (location, phone, email) without header dates, fluid prose paragraphs, and generous executive signature spacing.',
+        tags: ['Minimal', 'Streamlined', 'Engineering', 'Tech', 'ATS-Friendly']
+    },
+    {
+        id: 'editorial',
+        name: 'Editorial',
+        subtitle: 'Left-aligned executive layout with inline date & generous margins',
+        category: 'Professional',
+        isFree: false,
+        description: 'Faithfully modeled after premier banking and executive correspondence: bold serif candidate header, date embedded directly in the contact block, unbulleted achievement highlights, and classic signature spacing.',
+        tags: ['Editorial', 'Executive', 'Banking', 'Corporate', 'ATS-Friendly']
+    },
+    {
+        id: 'classic',
+        name: 'Classic',
+        subtitle: 'Traditional left-aligned format with classic editorial typography',
+        category: 'Professional',
+        isFree: false,
+        description: 'An understated, timeless traditional layout featuring clean left alignment, formal address hierarchy, and elegant serif typography. Perfect for academia, law, education, finance, and corporate roles.',
+        tags: ['Classic', 'Left-Aligned', 'Editorial', 'Academic', 'ATS-Friendly']
+    },
+    {
         id: 'modern',
         name: 'Modern',
         subtitle: 'Clean serif typography with centered header & dividers',
         category: 'Modern',
-        isFree: true,
+        isFree: false,
         description: 'A classic, elegant design with centered typography, delicate dividing rules, and balanced spacing. Ideal for corporate, academic, and creative roles.',
         tags: ['Serif', 'Clean', 'Centered', 'ATS-Friendly']
     },
@@ -28,7 +73,7 @@ export const COVER_LETTER_TEMPLATES: CoverLetterTemplateConfig[] = [
         name: 'Bold',
         subtitle: 'High-contrast header with featured competency bar',
         category: 'Professional',
-        isFree: true,
+        isFree: false,
         description: 'A punchy, modern design featuring prominent bold headers, clean dividers, and a top-line core skill highlight banner.',
         tags: ['High Contrast', 'Skills Bar', 'Minimalist', 'Tech']
     },
@@ -37,7 +82,7 @@ export const COVER_LETTER_TEMPLATES: CoverLetterTemplateConfig[] = [
         name: 'Impact',
         subtitle: 'Evidence-driven layout with highlighted competencies',
         category: 'Executive',
-        isFree: true,
+        isFree: false,
         description: 'Designed to capture attention with a structured two-column impact section featuring checkmarked accomplishments and clear opening/closing narrative.',
         tags: ['Evidence-Based', 'Key Highlights', 'Executive', 'Results-Driven']
     }
@@ -51,27 +96,25 @@ export const SAMPLE_COVER_LETTER_RESUME: ResumeData = {
     location: 'San Francisco, CA',
     address: 'San Francisco, CA',
     linkedin: 'linkedin.com/in/alexmorgan',
-    website: 'alexmorgan.dev',
+    portfolio: 'alexmorgan.dev',
     summary: 'Results-driven Senior Product Manager with 7+ years of experience leading cross-functional teams and launching SaaS products with multi-million dollar revenue impact.',
     skills: 'Product Strategy, Data Analytics, Cross-functional Leadership, Agile & Scrum, User Research, SaaS Growth',
     experience: [
         {
             id: 'exp-1',
             company: 'TechFlow Systems',
-            position: 'Senior Product Manager',
+            role: 'Senior Product Manager',
             startDate: '2021',
             endDate: 'Present',
-            current: true,
             description: 'Led core product squad of 14 engineers, designers, and marketers.'
         }
     ],
     education: [
         {
             id: 'edu-1',
-            institution: 'University of California, Berkeley',
+            school: 'University of California, Berkeley',
             degree: 'B.S. in Computer Science & Business',
-            startDate: '2014',
-            endDate: '2018'
+            year: '2018'
         }
     ],
     projects: [],

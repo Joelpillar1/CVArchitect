@@ -41,6 +41,10 @@ dist-ssr
 *.html
 *.md
 !README.md
+# Build-time prerender pipeline - must be committed so Vercel can run it
+!scripts/routes.mjs
+!scripts/prerender.mjs
+!scripts/verify-prerender.mjs
 caret-*
 dump-*
 seed-check*

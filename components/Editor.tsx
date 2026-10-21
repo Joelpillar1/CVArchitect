@@ -84,6 +84,7 @@ import { saveToStorage, loadFromStorage } from '../utils/statePersistence';
 import { exportResumeToServerPdf, exportResumeToPdf, exportResumeToImage, exportResumeToImagePng, exportCoverLetterToPdf, printResumeToPdf, exportResumeToPlainText } from '../utils/pdfExport';
 import { exportResumeToDocx } from '../utils/docxExport';
 import { useToast } from '../contexts/ToastContext';
+import { extractTargetJobDetails } from '../utils/jobDataExtractor';
 
 export default function Editor({ data, onChange, template, onTemplateChange, onBack, onSave, onSaveAsTemplate, currentResumeId, showWelcomeModal, onCloseWelcomeModal, auditResult, userSubscription, onAIAction, onShowPaywall, embedded = false, leftSidebarWidthClass, rightSidebarWidthClass, hasUnsavedChanges, onDiscardChanges, initialLeftSidebarView, sampleImageExport = false }: EditorProps) {
   const effectiveTemplate = (data?.template || template || 'modern') as TemplateType;
@@ -581,6 +582,48 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
     }
   };
 
+  const handleOpenCoverLetter = React.useCallback(() => {
+    if (!isUserPro) {
+      onShowPaywall?.('cover_letter');
+      return;
+    }
+    const jobDetails = extractTargetJobDetails(data);
+    // Explicitly sync current resume's target job details to cover letter storage
+    if (jobDetails.company) {
+      saveToStorage('cover_letter_companyName', jobDetails.company);
+    }
+    if (jobDetails.title) {
+      saveToStorage('cover_letter_jobTitle', jobDetails.title);
+    }
+    if (jobDetails.description) {
+      saveToStorage('cover_letter_jobDescription', jobDetails.description);
+    }
+    if (jobDetails.highlightPosition) {
+      saveToStorage('cover_letter_highlightPosition', jobDetails.highlightPosition);
+    }
+    if (jobDetails.highlightEducation) {
+      saveToStorage('cover_letter_highlightEducation', jobDetails.highlightEducation);
+    }
+
+    navigate('/dashboard/cover-letter', {
+      state: {
+        fromResume: true,
+        companyName: jobDetails.company,
+        jobTitle: jobDetails.title,
+        jobDescription: jobDetails.description,
+        prefillJob: {
+          companyName: jobDetails.company,
+          jobTitle: jobDetails.title,
+          jobDescription: jobDetails.description,
+        },
+        highlightPosition: jobDetails.highlightPosition,
+        highlightEducation: jobDetails.highlightEducation,
+        highlightSkills: jobDetails.highlightSkills,
+        resumeData: data,
+      }
+    });
+  }, [data, isUserPro, navigate, onShowPaywall]);
+
   const handleCoverLetterDownload = async (content: string) => {
     if (!canAccessTemplate(userSubscription.planId, template)) {
       onShowPaywall?.('export');
@@ -800,18 +843,13 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
           </button>
 
           <button
-            onClick={() => {
-              if (!isUserPro) {
-                onShowPaywall?.('cover_letter');
-                return;
-              }
-              navigate('/dashboard/cover-letter');
-            }}
-            className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 border border-brand-border rounded-lg text-xs font-semibold text-brand-dark hover:bg-brand-secondary transition-colors cursor-pointer"
-            title="Create Cover Letter"
+            type="button"
+            onClick={handleOpenCoverLetter}
+            className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 border border-brand-border rounded-lg text-xs font-semibold text-brand-dark hover:bg-brand-secondary transition-all cursor-pointer active:scale-95 shadow-2xs"
+            title="Create tailored Cover Letter for this resume and target job"
           >
-            <FileTextIcon size={14} />
-            <span>Cover Letter</span>
+            <FileTextIcon size={14} className="text-brand-dark" />
+            <span className="hidden sm:inline">Cover Letter</span>
             {!isUserPro && <span className="text-[9px] bg-amber-100 text-amber-800 font-bold px-1 rounded ml-0.5">PRO</span>}
           </button>
 
@@ -973,6 +1011,26 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
                   >
                     <Code className="w-3.5 h-3.5 text-gray-500 group-hover:text-gray-700 transition-colors" />
                     <span className="text-xs font-medium">Export Markdown (.md)</span>
+                  </button>
+
+                  {/* 5. Direct Link to Cover Letter Editor */}
+                  <div className="h-px bg-gray-100 my-1" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsDownloadMenuOpen(false);
+                      handleOpenCoverLetter();
+                    }}
+                    className="w-full flex items-start gap-2.5 px-2.5 py-2 text-left rounded-lg hover:bg-brand-green/10 transition-colors cursor-pointer group"
+                  >
+                    <FileText className="w-4 h-4 text-brand-dark mt-0.5 flex-shrink-0 group-hover:scale-110 transition-all" />
+                    <div>
+                      <div className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
+                        Create Cover Letter
+                        <span className="text-[10px] bg-brand-green/40 text-brand-dark font-semibold px-1.5 py-0.2 rounded">Target JD</span>
+                      </div>
+                      <div className="text-[11px] text-gray-500 font-normal">Edit & tailor cover letter for this role</div>
+                    </div>
                   </button>
                 </div>
               )}

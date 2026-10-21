@@ -4,8 +4,6 @@ import { useAuth } from './contexts/AuthContext';
 import { applyPendingPlanFromSearch, getPendingCheckoutPlan } from './utils/pendingCheckout';
 
 // Page Components
-import LandingPage from './components/LandingPage';
-import HeroLandingPage from './components/HeroLandingPage';
 import SignIn from './components/SignIn';
 import SignUp from './components/SignUp';
 import ForgotPassword from './components/ForgotPassword';
@@ -15,6 +13,8 @@ import TermsOfService from './components/TermsOfService';
 import Contact from './components/Contact';
 import RefundPolicy from './components/RefundPolicy';
 import PricingPage from './components/PricingPage';
+import CoverLetterLandingPage from './components/CoverLetterLandingPage';
+import ResumeTemplatesPage from './components/ResumeTemplatesPage';
 import BlogPage from './components/BlogPage';
 import BlogPost from './components/BlogPost';
 import Support from './components/Support';
@@ -186,11 +186,6 @@ export default function AppRoutes() {
         <Routes>
             {/* Public Landing & Content Routes */}
             <Route path="/" element={<AgentLandingPage />} />
-            <Route path="/cvarchitect" element={<LandingPage />} />
-            <Route path="/classic" element={<LandingPage />} />
-            <Route path="/landingpage" element={<HeroLandingPage />} />
-            <Route path="/agent-landing" element={<AgentLandingPage />} />
-            <Route path="/agent" element={<AgentLandingPage />} />
             <Route path="/login" element={<PublicRoute><SignIn /></PublicRoute>} />
             <Route path="/signup" element={<PublicRoute><SignUp /></PublicRoute>} />
             <Route path="/auth/callback" element={<AuthCallback />} />
@@ -203,6 +198,8 @@ export default function AppRoutes() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/refund-policy" element={<RefundPolicyWrapper />} />
             <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/cover-letter" element={<CoverLetterLandingPage />} />
+            <Route path="/resume-templates" element={<ResumeTemplatesPage />} />
             <Route path="/support" element={<Support />} />
             <Route path="/resume-checker" element={<ResumeMatchChecker />} />
             <Route path="/action-words" element={<ActionVerbs />} />
@@ -218,6 +215,9 @@ export default function AppRoutes() {
 
             {/* Protected Route - Resume Agent */}
             <Route path="/resume-agent" element={<ProtectedRoute><ResumeAgentPage /></ProtectedRoute>} />
+
+            {/* Main /editor shortcut route */}
+            <Route path="/editor" element={<Navigate to="/dashboard/editor" replace />} />
 
             {/* Protected Route - Dashboard with nested routes */}
             <Route path="/dashboard/*" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

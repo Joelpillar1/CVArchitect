@@ -1,23 +1,44 @@
 import React from 'react';
 import { ResumeData } from '../../types';
+import { parseCoverLetterBlocks, RenderCoverLetterBlocks } from './coverLetterFormatter';
 
 interface ModernCoverLetterProps {
     data: ResumeData;
     content: string; // The generated cover letter text
     companyName?: string;
     jobTitle?: string;
+    fontSize?: number;
+    lineSpacing?: number;
+    spacing?: 'compact' | 'normal' | 'spacious';
+    fontFamily?: 'sans' | 'serif' | 'mono' | 'merriweather';
+    isStreaming?: boolean;
 }
 
-export default function ModernCoverLetter({ data, content, companyName, jobTitle }: ModernCoverLetterProps) {
+export default function ModernCoverLetter({
+    data,
+    content,
+    companyName,
+    jobTitle,
+    fontSize,
+    lineSpacing,
+    spacing = 'normal',
+    fontFamily = 'merriweather',
+    isStreaming = false
+}: ModernCoverLetterProps) {
     const todayDate = new Date().toLocaleDateString('en-US', {
         month: 'long',
         day: 'numeric',
         year: 'numeric'
     });
 
+    const blocks = parseCoverLetterBlocks(content, data.fullName);
+
+    const paddingClass = spacing === 'compact' ? 'p-[16mm_16mm]' : spacing === 'spacious' ? 'p-[28mm_24mm]' : 'p-[24mm_22mm]';
+    const fontClass = (fontFamily === 'merriweather' || fontFamily === 'serif') ? 'font-serif' : fontFamily === 'mono' ? 'font-mono' : 'font-sans';
+
     return (
         <div 
-            className="w-[210mm] min-h-[297mm] bg-white text-gray-900 font-sans mx-auto relative flex flex-col justify-between box-border p-[24mm_22mm] shadow-xs"
+            className={`w-[210mm] min-h-[297mm] bg-white text-gray-900 font-sans mx-auto relative flex flex-col justify-between box-border ${paddingClass} shadow-xs`}
             style={{ width: '210mm', minHeight: '297mm', boxSizing: 'border-box' }}
         >
             <div>
@@ -72,16 +93,31 @@ export default function ModernCoverLetter({ data, content, companyName, jobTitle
                 </div>
 
                 {/* Content Body */}
-                <div className="text-justify leading-relaxed text-[13.5px] text-gray-800 font-serif space-y-4">
-                    {content
-                        .split(/\n\s*\n/)
-                        .map(block => block.split(/\n/).filter(line => line.trim()).join(' '))
-                        .filter(p => p.trim())
-                        .map((paragraph, idx) => (
-                            <p key={idx} className="leading-[1.75]">
-                                {paragraph.trim()}
-                            </p>
-                        ))}
+                <div 
+                    className={`text-justify leading-relaxed text-[13.5px] text-gray-800 ${fontClass} space-y-4`}
+                    style={{
+                        fontSize: fontSize ? `${fontSize}pt` : undefined,
+                        lineHeight: lineSpacing ? `${lineSpacing}` : undefined
+                    }}
+                >
+                    {content.trim() ? (
+                        <RenderCoverLetterBlocks
+                            blocks={blocks}
+                            lineSpacing={lineSpacing}
+                            isStreaming={isStreaming}
+                            serifName={fontFamily === 'serif' || fontFamily === 'merriweather'}
+                        />
+                    ) : isStreaming ? (
+                        <div className="space-y-3.5 py-3 animate-pulse">
+                            <div className="inline-flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-50/90 px-3.5 py-2 rounded-lg border border-slate-200/80 mb-2">
+                                <span className="inline-block w-2 h-2 rounded-full bg-slate-400 animate-ping" />
+                                <span>Tailoring your experience for {companyName || 'this role'}...</span>
+                            </div>
+                            <div className="h-3 bg-slate-100 rounded-sm w-11/12"></div>
+                            <div className="h-3 bg-slate-100 rounded-sm w-full"></div>
+                            <div className="h-3 bg-slate-100 rounded-sm w-4/5"></div>
+                        </div>
+                    ) : null}
                 </div>
             </div>
         </div>

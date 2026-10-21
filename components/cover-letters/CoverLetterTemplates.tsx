@@ -128,9 +128,6 @@ export default function CoverLetterTemplates({
                                                     <Check size={11} className="stroke-[3]" /> Active
                                                 </span>
                                             )}
-                                            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider shrink-0 px-1">
-                                                {template.isFree ? 'Free' : 'Pro'}
-                                            </span>
                                         </div>
                                     </div>
 

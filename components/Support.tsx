@@ -66,7 +66,7 @@ const FAQS: FAQ[] = [
         question: 'What is included in the free plan?',
         answer: (
             <p>
-                The Foundation free plan includes 1 AI-tailored resume on our base template with full PDF download. To continue with unlimited AI tailoring (subject to fair use), all templates, and unlimited downloads, upgrade to Build or Lifetime Access.
+                The Foundation free plan includes 1 AI-tailored resume on our base template with 3 PDF downloads. To continue with unlimited AI tailoring (subject to fair use), all templates, and unlimited downloads, upgrade to Build or Lifetime Access.
             </p>
         ),
     },

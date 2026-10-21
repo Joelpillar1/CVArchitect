@@ -5,10 +5,16 @@ import { generateCoverLetter, GeneratedCoverLetter } from './utils/aiEnhancer';
 import ModernCoverLetter from './cover-letters/ModernCoverLetter';
 import BoldCoverLetter from './cover-letters/BoldCoverLetter';
 import StructuredCoverLetter from './cover-letters/StructuredCoverLetter';
+import ClassicCoverLetter from './cover-letters/ClassicCoverLetter';
+import EditorialCoverLetter from './cover-letters/EditorialCoverLetter';
+import MinimalCoverLetter from './cover-letters/MinimalCoverLetter';
+import AcademicCoverLetter from './cover-letters/AcademicCoverLetter';
+import TechnicalCoverLetter from './cover-letters/TechnicalCoverLetter';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { coverLetterService, SavedCoverLetter } from '../services/coverLetterService';
 import { exportElementToPdf, exportCoverLetterToPdf, sanitizeFilename } from '../utils/pdfExport';
+import { exportCoverLetterToDocx } from '../utils/coverLetterDocxExport';
 import { Loader } from './ui/Loader';
 
 interface CoverLetterModalProps {
@@ -30,7 +36,7 @@ export default function CoverLetterModal({ isOpen, onClose, resumeData, onDeduct
     const [generatedLetter, setGeneratedLetter] = useState<GeneratedCoverLetter | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
-    const [selectedTemplate, setSelectedTemplate] = useState<'modern' | 'bold' | 'structured'>('modern');
+    const [selectedTemplate, setSelectedTemplate] = useState<'classic' | 'editorial' | 'minimal' | 'academic' | 'technical' | 'modern' | 'bold' | 'structured'>('technical');
     const [isEditing, setIsEditing] = useState(false);
     const [editedText, setEditedText] = useState('');
     const [editMode, setEditMode] = useState<'text' | 'structured'>('text');
@@ -108,6 +114,7 @@ export default function CoverLetterModal({ isOpen, onClose, resumeData, onDeduct
     };
 
     const [isExporting, setIsExporting] = useState(false);
+    const [isExportingDocx, setIsExportingDocx] = useState(false);
 
     const handleDownloadPDF = async () => {
         if (!generatedLetter) return;
@@ -123,12 +130,32 @@ export default function CoverLetterModal({ isOpen, onClose, resumeData, onDeduct
             } else {
                 await exportCoverLetterToPdf(generatedLetter.plainText, resumeData, jobTitle, companyName);
             }
-            showToast('Cover letter downloaded successfully!', 'success');
+            showToast('Cover letter PDF downloaded successfully!', 'success');
         } catch (err) {
             console.error('Failed to export cover letter PDF:', err);
             showToast('Failed to download cover letter PDF.', 'error');
         } finally {
             setIsExporting(false);
+        }
+    };
+
+    const handleDownloadDocx = async () => {
+        if (!generatedLetter) return;
+        setIsExportingDocx(true);
+        try {
+            await exportCoverLetterToDocx({
+                content: generatedLetter,
+                resumeData,
+                companyName,
+                jobTitle,
+                template: selectedTemplate,
+            });
+            showToast('Cover letter Word document (.docx) downloaded successfully!', 'success');
+        } catch (err) {
+            console.error('Failed to export cover letter to Word:', err);
+            showToast('Failed to download cover letter as Word document.', 'error');
+        } finally {
+            setIsExportingDocx(false);
         }
     };
 
@@ -379,7 +406,42 @@ export default function CoverLetterModal({ isOpen, onClose, resumeData, onDeduct
                                 ) : (
                                     <div id="cover-letter-modal-preview" className="scale-[0.8] origin-top shadow-2xl transition-all duration-300 bg-white">
                                         {/* Preview Render */}
-                                        {selectedTemplate === 'structured' ? (
+                                        {selectedTemplate === 'technical' ? (
+                                            <TechnicalCoverLetter
+                                                data={resumeData}
+                                                content={generatedLetter}
+                                                companyName={companyName}
+                                                jobTitle={jobTitle}
+                                            />
+                                        ) : selectedTemplate === 'academic' ? (
+                                            <AcademicCoverLetter
+                                                data={resumeData}
+                                                content={generatedLetter}
+                                                companyName={companyName}
+                                                jobTitle={jobTitle}
+                                            />
+                                        ) : selectedTemplate === 'minimal' ? (
+                                            <MinimalCoverLetter
+                                                data={resumeData}
+                                                content={generatedLetter}
+                                                companyName={companyName}
+                                                jobTitle={jobTitle}
+                                            />
+                                        ) : selectedTemplate === 'editorial' ? (
+                                            <EditorialCoverLetter
+                                                data={resumeData}
+                                                content={generatedLetter}
+                                                companyName={companyName}
+                                                jobTitle={jobTitle}
+                                            />
+                                        ) : selectedTemplate === 'classic' ? (
+                                            <ClassicCoverLetter
+                                                data={resumeData}
+                                                content={generatedLetter}
+                                                companyName={companyName}
+                                                jobTitle={jobTitle}
+                                            />
+                                        ) : selectedTemplate === 'structured' ? (
                                             <StructuredCoverLetter
                                                 data={resumeData}
                                                 content={generatedLetter}
@@ -486,9 +548,19 @@ export default function CoverLetterModal({ isOpen, onClose, resumeData, onDeduct
                             </button>
 
                             <button
+                                onClick={handleDownloadDocx}
+                                disabled={isExporting || isExportingDocx}
+                                className="flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-brand-dark bg-white border border-gray-300 hover:bg-gray-50 rounded-lg shadow-sm hover:shadow transition-all cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
+                                title="Download as Word (.docx)"
+                            >
+                                {isExportingDocx ? <Loader size="xs" /> : <FileText size={16} className="text-blue-600" />}
+                                <span>{isExportingDocx ? 'Exporting...' : 'Download Word (.docx)'}</span>
+                            </button>
+
+                            <button
                                 onClick={handleDownloadPDF}
-                                disabled={isExporting}
-                                className="flex items-center gap-2 px-6 py-2 text-sm font-bold text-white bg-brand-dark hover:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
+                                disabled={isExporting || isExportingDocx}
+                                className="flex items-center gap-2 px-5 py-2 text-sm font-bold text-white bg-brand-dark hover:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-all cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
                             >
                                 {isExporting ? <Loader size="xs" variant="light" /> : <Download size={16} />}
                                 {isExporting ? 'Downloading...' : 'Download PDF'}

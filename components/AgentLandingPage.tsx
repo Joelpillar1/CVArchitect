@@ -912,7 +912,8 @@ export default function AgentLandingPage() {
           </div>
 
           <nav className="hidden md:flex items-center gap-7">
-            <button onClick={scrollToFeatures} className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors cursor-pointer">Features</button>
+            <button onClick={() => navigate('/resume-templates')} className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors cursor-pointer">Templates</button>
+            <button onClick={() => navigate('/cover-letter')} className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors cursor-pointer">Cover Letter</button>
             <button onClick={() => navigate('/pricing')} className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors cursor-pointer">Pricing</button>
             <button onClick={() => navigate('/blog')} className="text-sm font-medium text-brand-dark/70 hover:text-brand-dark transition-colors cursor-pointer">Blog</button>
             <ToolsDropdown />
@@ -967,7 +968,7 @@ export default function AgentLandingPage() {
           </div>
         </div>
 
-        {/* Mobile menu panel  -  same four items as the desktop nav */}
+        {/* Mobile menu panel  -  same five items as the desktop nav */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
@@ -979,10 +980,16 @@ export default function AgentLandingPage() {
             >
               <div className="flex flex-col gap-5 px-5 py-5">
                 <button
-                  onClick={() => { scrollToFeatures(); setIsMobileMenuOpen(false); }}
+                  onClick={() => { navigate('/resume-templates'); setIsMobileMenuOpen(false); }}
                   className="text-left text-lg font-bold text-brand-dark hover:text-brand-green py-2 border-b border-brand-border/60 cursor-pointer"
                 >
-                  Features
+                  Templates
+                </button>
+                <button
+                  onClick={() => { navigate('/cover-letter'); setIsMobileMenuOpen(false); }}
+                  className="text-left text-lg font-bold text-brand-dark hover:text-brand-green py-2 border-b border-brand-border/60 cursor-pointer"
+                >
+                  Cover Letter
                 </button>
                 <button
                   onClick={() => { navigate('/pricing'); setIsMobileMenuOpen(false); }}

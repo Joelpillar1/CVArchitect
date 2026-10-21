@@ -55,7 +55,7 @@ Simulates parsing performance against the four major enterprise ATS engines:
 
 ## Pricing & Subscription Options
 
-- **Foundation Free Tier**: 1 full AI-tailored resume on base ATS templates with unrestricted PDF export. No credit card required.
+- **Foundation Free Tier**: 1 full AI-tailored resume on base ATS templates with 3 PDF downloads. No credit card required.
 - **Career Build ($10/month)**: Continuous unlimited tailoring, multiple saved resume versions, cover letter builder. Cancel anytime.
 - **Lifetime Pass ($99 one-time)**: Permanent access to all present and future models, tools, and templates with zero recurring fees.
 

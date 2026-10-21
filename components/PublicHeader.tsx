@@ -47,7 +47,8 @@ export default function PublicHeader({ variant = 'default' }: PublicHeaderProps)
     };
 
     const navLinks = [
-        { label: 'Features', path: '/#features' },
+        { label: 'Templates', path: '/resume-templates' },
+        { label: 'Cover Letter', path: '/cover-letter' },
         { label: 'Pricing', path: '/pricing' },
         { label: 'Blog', path: '/blog' },
     ];

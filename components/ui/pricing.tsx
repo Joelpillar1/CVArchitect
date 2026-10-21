@@ -38,7 +38,7 @@ const cvPlans: PricingPlanData[] = [
     features: [
       { text: '1 Resume', icon: <Sparkles size={18} /> },
       { text: 'Base ATS Templates.', icon: <Layers size={18} /> },
-      { text: '1 Full PDF Export', icon: <FileText size={18} /> },
+      { text: '3 PDF Downloads', icon: <FileText size={18} /> },
     ],
     includes: [
       'Included in Free:',

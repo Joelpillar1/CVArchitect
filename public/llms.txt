@@ -16,14 +16,15 @@ CVArchitect (https://cvarchitect.app) is an agentic resume architecture platform
 
 ## Pricing & Access Tiers
 
-- **Foundation Free Tier**: 1 fully tailored AI resume on base ATS templates with complete download. No credit card required.
+- **Foundation Free Tier**: 1 fully tailored AI resume on base ATS templates with 3 PDF downloads. No credit card required.
 - **Career Build ($10/month)**: Continuous unlimited tailoring, all templates, saved resume versions, cover letter generator, and unlimited PDF/DOCX exports. Cancel anytime.
 - **Lifetime Pass ($99 one-time)**: Permanent unlimited access to all current and future agent models, templates, and tailoring.
 
 ## Primary URLs
 
 - [Homepage](https://cvarchitect.app/): Autonomous AI Resume Agent
-- [AI Resume Agent](https://cvarchitect.app/agent): Autonomous job-to-resume tailoring workspace
+- [Resume Templates](https://cvarchitect.app/resume-templates): ATS-ready resume templates by career stage and role
+- [AI Cover Letter Generator](https://cvarchitect.app/cover-letter): Cover letters written from the job posting in your own voice
 - [Resume Match Checker](https://cvarchitect.app/resume-checker): Scan and score any resume against a job description
 - [Action Verbs Guide](https://cvarchitect.app/action-words): 150+ recruiter-approved high-impact power verbs
 - [Pricing](https://cvarchitect.app/pricing): Simple, transparent plans with a free tier

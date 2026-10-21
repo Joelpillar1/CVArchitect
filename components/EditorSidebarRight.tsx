@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
-import { loadFromStorage } from '../utils/statePersistence';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { extractTargetJobDetails } from '../utils/jobDataExtractor';
+
+import { loadFromStorage, saveToStorage } from '../utils/statePersistence';
 import { ResumeData, TemplateType } from '../types';
 import { UserSubscription } from '../types/pricing';
 import {
@@ -218,6 +220,7 @@ export default function EditorSidebarRight({
     userSubscription,
     embedded = false
 }: EditorSidebarRightProps) {
+    const navigate = useNavigate();
     const isEmbeddedPreview = Boolean(embedded || userSubscription?.userId === 'preview');
     const broadcastHighlight = (path: string, action: 'highlight' | 'applied' | 'clear' = 'highlight', duration?: number) => {
         if (typeof window !== 'undefined' && path) {
@@ -623,6 +626,7 @@ export default function EditorSidebarRight({
                 }
             };
 
+            onChange({ ...updatedData, agentJobData: parsedJob, agentAnalysis: matchAnalysis });
             setMessages(prev => [...prev, analysisMsg]);
         } catch (err: any) {
             console.error('Job processing failed, using fallback analysis:', err);
@@ -3499,6 +3503,41 @@ Return strictly valid JSON with this shape:
                                 className="w-full py-3 bg-brand-green hover:bg-brand-greenHover active:scale-[0.98] text-brand-dark font-bold text-xs rounded-xl flex items-center justify-center transition-all shadow-xs hover:shadow-sm border border-brand-green/60 cursor-pointer mt-2 disabled:opacity-50"
                             >
                                 <span>Start Optimizing...</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (onAIAction && !onAIAction('cover_letter')) return;
+                                    const jobDetails = extractTargetJobDetails(data);
+                                    if (jobDetails.company) saveToStorage('cover_letter_companyName', jobDetails.company);
+                                    if (jobDetails.title) saveToStorage('cover_letter_jobTitle', jobDetails.title);
+                                    if (jobDetails.description) saveToStorage('cover_letter_jobDescription', jobDetails.description);
+                                    if (jobDetails.highlightPosition) saveToStorage('cover_letter_highlightPosition', jobDetails.highlightPosition);
+                                    if (jobDetails.highlightEducation) saveToStorage('cover_letter_highlightEducation', jobDetails.highlightEducation);
+                                    navigate('/dashboard/cover-letter', {
+                                        state: {
+                                            fromResume: true,
+                                            companyName: jobDetails.company,
+                                            jobTitle: jobDetails.title,
+                                            jobDescription: jobDetails.description,
+                                            prefillJob: {
+                                                companyName: jobDetails.company,
+                                                jobTitle: jobDetails.title,
+                                                jobDescription: jobDetails.description,
+                                            },
+                                            highlightPosition: jobDetails.highlightPosition,
+                                            highlightEducation: jobDetails.highlightEducation,
+                                            highlightSkills: jobDetails.highlightSkills,
+                                            resumeData: data,
+                                        }
+                                    });
+                                }}
+                                className="w-full py-2.5 bg-white hover:bg-neutral-50 active:scale-[0.98] text-brand-dark font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-2xs border border-neutral-200 cursor-pointer"
+                                title="Open Cover Letter Editor with this Target JD"
+                            >
+                                <FileText size={14} className="text-brand-dark" />
+                                <span>Create Cover Letter for this Job</span>
                             </button>
                         </>
                     ) : (

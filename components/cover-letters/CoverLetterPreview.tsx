@@ -5,6 +5,11 @@ import { CoverLetterTemplateType, SAMPLE_COVER_LETTER_DATA, SAMPLE_COVER_LETTER_
 import ModernCoverLetter from './ModernCoverLetter';
 import BoldCoverLetter from './BoldCoverLetter';
 import StructuredCoverLetter from './StructuredCoverLetter';
+import ClassicCoverLetter from './ClassicCoverLetter';
+import EditorialCoverLetter from './EditorialCoverLetter';
+import MinimalCoverLetter from './MinimalCoverLetter';
+import AcademicCoverLetter from './AcademicCoverLetter';
+import TechnicalCoverLetter from './TechnicalCoverLetter';
 
 interface CoverLetterPreviewProps {
     template: CoverLetterTemplateType;
@@ -45,7 +50,42 @@ export default function CoverLetterPreview({
             className={`w-[210mm] min-h-[297mm] bg-white text-gray-900 pointer-events-none select-none box-border shadow-xs ${className}`}
             style={{ width: '210mm', minHeight: '297mm' }}
         >
-            {template === 'structured' ? (
+            {template === 'technical' ? (
+                <TechnicalCoverLetter
+                    data={activeResumeData}
+                    content={normalizedContent}
+                    companyName={companyName}
+                    jobTitle={jobTitle}
+                />
+            ) : template === 'academic' ? (
+                <AcademicCoverLetter
+                    data={activeResumeData}
+                    content={normalizedContent}
+                    companyName={companyName}
+                    jobTitle={jobTitle}
+                />
+            ) : template === 'minimal' ? (
+                <MinimalCoverLetter
+                    data={activeResumeData}
+                    content={normalizedContent}
+                    companyName={companyName}
+                    jobTitle={jobTitle}
+                />
+            ) : template === 'editorial' ? (
+                <EditorialCoverLetter
+                    data={activeResumeData}
+                    content={normalizedContent}
+                    companyName={companyName}
+                    jobTitle={jobTitle}
+                />
+            ) : template === 'classic' ? (
+                <ClassicCoverLetter
+                    data={activeResumeData}
+                    content={normalizedContent}
+                    companyName={companyName}
+                    jobTitle={jobTitle}
+                />
+            ) : template === 'structured' ? (
                 <StructuredCoverLetter
                     data={activeResumeData}
                     content={normalizedContent}

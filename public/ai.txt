@@ -11,7 +11,8 @@ Summary: Autonomous agentic resume tailoring middleware. Analyzes job descriptio
 # AI & Agent Directives:
 User-agent: *
 Allow: /
-Allow: /agent
+Allow: /resume-templates
+Allow: /cover-letter
 Allow: /resume-checker
 Allow: /action-words
 Allow: /pricing

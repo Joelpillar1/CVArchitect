@@ -108,7 +108,7 @@ export default function EditorHeroPreview() {
   };
 
   return (
-    <div className="w-full relative overflow-hidden bg-white text-neutral-900 select-none">
+    <div data-resume-preview className="w-full relative overflow-hidden bg-white text-neutral-900 select-none">
       {/* ─── Mobile View (< md): Real App Component Structure from EditorSidebarRight ─── */}
       <div className="block md:hidden bg-white font-sans text-left">
         {/* 1. Top Header Bar */}

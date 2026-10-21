@@ -13,7 +13,7 @@ const faqs = [
     },
     {
         q: 'Do I need a paid plan to get started?',
-        a: 'No. The Foundation plan is completely free and includes one full AI-tailored resume with a PDF download. Paid plans unlock unlimited tailoring (subject to fair use), all 20+ templates, and unlimited PDF & DOCX downloads.',
+        a: 'No. The Foundation plan is completely free and includes one full AI-tailored resume with 3 PDF downloads. Paid plans unlock unlimited tailoring (subject to fair use), all 20+ templates, and unlimited PDF & DOCX downloads.',
     },
     {
         q: 'Can I cancel my subscription anytime?',

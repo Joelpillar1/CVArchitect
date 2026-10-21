@@ -1,11 +1,41 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Sparkles, Copy, Download, Briefcase, Building, FileText, Check, AlertCircle, LayoutTemplate, AlignCenter, Save, Loader2, Eye, X } from 'lucide-react';
+import {
+    ArrowLeft,
+    Sparkles,
+    Copy,
+    Download,
+    Briefcase,
+    Building,
+    FileText,
+    Check,
+    AlertCircle,
+    LayoutTemplate,
+    Save,
+    Eye,
+    X,
+    ChevronDown,
+    Plus,
+    RotateCcw,
+    Type,
+    AlignJustify,
+    Maximize2,
+    ClipboardPaste,
+    SlidersHorizontal,
+    Edit3,
+    CheckCircle2,
+    BookOpen
+} from 'lucide-react';
 import { ResumeData } from '../types';
-import { generateCoverLetter, GeneratedCoverLetter } from '../components/utils/aiEnhancer';
+import { generateCoverLetter, GeneratedCoverLetter, CoverLetterOptions } from '../components/utils/aiEnhancer';
 import ModernCoverLetter from '../components/cover-letters/ModernCoverLetter';
 import BoldCoverLetter from '../components/cover-letters/BoldCoverLetter';
 import StructuredCoverLetter from '../components/cover-letters/StructuredCoverLetter';
+import ClassicCoverLetter from '../components/cover-letters/ClassicCoverLetter';
+import EditorialCoverLetter from '../components/cover-letters/EditorialCoverLetter';
+import MinimalCoverLetter from '../components/cover-letters/MinimalCoverLetter';
+import AcademicCoverLetter from '../components/cover-letters/AcademicCoverLetter';
+import TechnicalCoverLetter from '../components/cover-letters/TechnicalCoverLetter';
 import CoverLetterTemplates from '../components/cover-letters/CoverLetterTemplates';
 import CoverLetterPreview from '../components/cover-letters/CoverLetterPreview';
 import {
@@ -22,86 +52,372 @@ import { SubscriptionManager } from '../utils/subscriptionManager';
 import { UserSubscription } from '../types/pricing';
 import { saveToStorage, loadFromStorage, debouncedSaveToStorage } from '../utils/statePersistence';
 import { exportElementToPdf, exportCoverLetterToPdf, sanitizeFilename } from '../utils/pdfExport';
+import { exportCoverLetterToDocx } from '../utils/coverLetterDocxExport';
+import { extractTargetJobDetails, extractCompanyFromText, extractTitleFromText, isValidCompanyName } from '../utils/jobDataExtractor';
 import { createPortal } from 'react-dom';
 import { Loader } from '../components/ui/Loader';
+
+interface CustomDropdownProps<T> {
+    icon: React.ElementType;
+    value: T;
+    options: { value: T; label: string; previewClass?: string }[];
+    onChange: (val: T) => void;
+    title?: string;
+}
+
+const streamCoverLetter = async (
+    targetLetter: GeneratedCoverLetter,
+    onProgress: (currentLetter: GeneratedCoverLetter) => void,
+    cancellationRef: React.MutableRefObject<{ cancelled: boolean }>
+): Promise<void> => {
+    const rawParagraphs = targetLetter.plainText
+        .split(/\n\s*\n/)
+        .map(p => p.trim())
+        .filter(Boolean);
+
+    const structuredOpening = targetLetter.structured?.opening?.trim() || '';
+    const structuredSkills = targetLetter.structured?.skills || [];
+    const structuredClosing = targetLetter.structured?.closing?.trim() || '';
+
+    const completedParagraphs: string[] = [];
+
+    for (let pIdx = 0; pIdx < rawParagraphs.length; pIdx++) {
+        if (cancellationRef.current.cancelled) break;
+        const fullPara = rawParagraphs[pIdx];
+
+        const tokens = fullPara.split(/(\s+)/);
+        let currentParaText = '';
+
+        for (let tIdx = 0; tIdx < tokens.length; tIdx += 2) {
+            if (cancellationRef.current.cancelled) break;
+            const chunk = tokens.slice(tIdx, tIdx + 2).join('');
+            currentParaText += chunk;
+
+            const currentPlain = [...completedParagraphs, currentParaText].join('\n\n');
+
+            let curOpening = '';
+            let curSkills: { skill: string; description: string }[] = [];
+            let curClosing = '';
+
+            if (pIdx === 0) {
+                curOpening = currentParaText;
+            } else if (pIdx < rawParagraphs.length - 1) {
+                curOpening = structuredOpening || rawParagraphs[0];
+                const skillProgress = Math.min(pIdx - 1, structuredSkills.length - 1);
+                curSkills = structuredSkills.slice(0, Math.max(0, skillProgress + 1));
+            } else {
+                curOpening = structuredOpening || rawParagraphs[0];
+                curSkills = structuredSkills;
+                curClosing = currentParaText;
+            }
+
+            onProgress({
+                plainText: currentPlain,
+                structured: {
+                    opening: curOpening,
+                    skills: curSkills,
+                    closing: curClosing
+                }
+            });
+
+            await new Promise((r) => setTimeout(r, 22));
+        }
+
+        completedParagraphs.push(fullPara);
+
+        if (pIdx < rawParagraphs.length - 1 && !cancellationRef.current.cancelled) {
+            await new Promise((r) => setTimeout(r, 180));
+        }
+    }
+};
+
+function CustomDropdown<T extends string | number>({
+    icon: Icon,
+    value,
+    options,
+    onChange,
+    title
+}: CustomDropdownProps<T>) {
+    const [isOpen, setIsOpen] = useState(false);
+    const [coords, setCoords] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+    const buttonRef = useRef<HTMLButtonElement>(null);
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    const updatePosition = () => {
+        if (buttonRef.current) {
+            const rect = buttonRef.current.getBoundingClientRect();
+            setCoords({
+                top: rect.bottom + 6,
+                left: rect.left
+            });
+        }
+    };
+
+    const toggleOpen = () => {
+        if (!isOpen) {
+            updatePosition();
+        }
+        setIsOpen((prev) => !prev);
+    };
+
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            const target = event.target as Node;
+            if (
+                buttonRef.current && !buttonRef.current.contains(target) &&
+                menuRef.current && !menuRef.current.contains(target)
+            ) {
+                setIsOpen(false);
+            }
+        }
+        function handleScrollOrResize() {
+            if (isOpen) {
+                updatePosition();
+            }
+        }
+        if (isOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+            window.addEventListener('resize', handleScrollOrResize);
+            window.addEventListener('scroll', handleScrollOrResize, true);
+        }
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            window.removeEventListener('resize', handleScrollOrResize);
+            window.removeEventListener('scroll', handleScrollOrResize, true);
+        };
+    }, [isOpen]);
+
+    const activeOption = options.find((opt) => opt.value === value) || options[0];
+
+    return (
+        <div className="relative inline-block text-left">
+            <button
+                ref={buttonRef}
+                type="button"
+                onClick={toggleOpen}
+                className={`flex items-center gap-1.5 bg-white border rounded-xl px-2.5 py-1.5 shadow-2xs text-xs font-bold text-brand-dark transition-all cursor-pointer select-none ${
+                    isOpen ? 'border-brand-dark ring-2 ring-brand-green/30' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                }`}
+                title={title}
+            >
+                <Icon size={13} className="text-gray-400 shrink-0" />
+                <span className={`truncate max-w-[130px] ${activeOption?.previewClass || ''}`}>
+                    {activeOption?.label}
+                </span>
+                <ChevronDown
+                    size={12}
+                    className={`text-gray-400 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                />
+            </button>
+
+            {isOpen && createPortal(
+                <div
+                    ref={menuRef}
+                    style={{
+                        position: 'fixed',
+                        top: coords.top,
+                        left: coords.left,
+                        zIndex: 9999
+                    }}
+                    className="min-w-[175px] bg-white rounded-xl shadow-2xl border border-gray-200/90 py-1 animate-fadeIn"
+                >
+                    {options.map((option) => {
+                        const isSelected = option.value === value;
+                        return (
+                            <button
+                                key={String(option.value)}
+                                type="button"
+                                onClick={() => {
+                                    onChange(option.value);
+                                    setIsOpen(false);
+                                }}
+                                className={`w-full flex items-center justify-between px-3 py-2 text-xs text-left transition-colors cursor-pointer ${
+                                    isSelected
+                                        ? 'bg-brand-green/15 text-brand-dark font-bold'
+                                        : 'text-gray-700 hover:bg-gray-100 font-medium'
+                                }`}
+                            >
+                                <span className={option.previewClass || ''}>{option.label}</span>
+                                {isSelected && <Check size={13} className="text-brand-dark shrink-0 ml-2" />}
+                            </button>
+                        );
+                    })}
+                </div>,
+                document.body
+            )}
+        </div>
+    );
+}
 
 interface CoverLetterPageProps {
     resumeData: ResumeData;
     userSubscription: UserSubscription;
     onDeductCredit: () => boolean;
     initialLetter?: SavedCoverLetter;
-    onSave?: () => void; // Callback after successful save
+    onSave?: () => void;
 }
 
-export default function CoverLetterPage({ resumeData, userSubscription, onDeductCredit, initialLetter: propInitialLetter, onSave }: CoverLetterPageProps) {
+export default function CoverLetterPage({
+    resumeData,
+    userSubscription,
+    onDeductCredit,
+    initialLetter: propInitialLetter,
+    onSave
+}: CoverLetterPageProps) {
     const { user } = useAuth();
     const { showToast } = useToast();
     const navigate = useNavigate();
     const location = useLocation();
     const subscriptionManager = new SubscriptionManager(userSubscription);
-    
-    // Get initialLetter from props or route state
-    const initialLetter = propInitialLetter || (location.state as any)?.initialLetter;
-    const passedTemplate = (location.state as any)?.template as CoverLetterTemplateType | undefined;
-    
-    // Restore state from localStorage on mount
-    const [step, setStepState] = useState<'input' | 'generating' | 'result'>(() => {
-        return loadFromStorage<'input' | 'generating' | 'result'>('cover_letter_step', 'input');
-    });
-    const [jobTitle, setJobTitleState] = useState(() => {
-        return loadFromStorage<string>('cover_letter_jobTitle', resumeData.jobTitle || '');
-    });
-    const [companyName, setCompanyNameState] = useState(() => {
-        return loadFromStorage<string>('cover_letter_companyName', '');
-    });
-    const [jobDescription, setJobDescriptionState] = useState(() => {
-        return loadFromStorage<string>('cover_letter_jobDescription', resumeData.jobDescription || '');
-    });
+
+    // Route state payload & Resume defaults
+    const locationState = location.state as any;
+    const initialLetter = propInitialLetter || locationState?.initialLetter;
+    const passedTemplate = locationState?.template as CoverLetterTemplateType | undefined;
+    const prefillJob = locationState?.prefillJob;
+    const fromResume = Boolean(locationState?.fromResume);
+
+    // Automatically extract target company, title, JD and highlights from resumeData
+    const resumeJobDetails = useMemo(() => extractTargetJobDetails(resumeData), [resumeData]);
+
+    const initialCompany = useMemo(() => {
+        if (initialLetter?.company_name && isValidCompanyName(initialLetter.company_name)) return initialLetter.company_name;
+        if (locationState?.companyName && isValidCompanyName(locationState.companyName)) return locationState.companyName;
+        if (prefillJob?.companyName && isValidCompanyName(prefillJob.companyName)) return prefillJob.companyName;
+        if (fromResume && resumeJobDetails.company && isValidCompanyName(resumeJobDetails.company)) return resumeJobDetails.company;
+        const stored = loadFromStorage<string>('cover_letter_companyName', '');
+        if (isValidCompanyName(stored)) return stored;
+        return (resumeJobDetails.company && isValidCompanyName(resumeJobDetails.company)) ? resumeJobDetails.company : '';
+    }, [initialLetter, locationState, prefillJob, fromResume, resumeJobDetails]);
+
+    const initialTitle = useMemo(() => {
+        if (initialLetter?.job_title) return initialLetter.job_title;
+        if (locationState?.jobTitle) return locationState.jobTitle;
+        if (prefillJob?.jobTitle) return prefillJob.jobTitle;
+        if (fromResume && resumeJobDetails.title) return resumeJobDetails.title;
+        const stored = loadFromStorage<string>('cover_letter_jobTitle', '');
+        return stored || resumeJobDetails.title || resumeData.jobTitle || '';
+    }, [initialLetter, locationState, prefillJob, fromResume, resumeJobDetails, resumeData.jobTitle]);
+
+    const initialDescription = useMemo(() => {
+        if (initialLetter?.job_description) return initialLetter.job_description;
+        if (locationState?.jobDescription) return locationState.jobDescription;
+        if (prefillJob?.jobDescription) return prefillJob.jobDescription;
+        if (fromResume && resumeJobDetails.description) return resumeJobDetails.description;
+        const stored = loadFromStorage<string>('cover_letter_jobDescription', '');
+        return stored || resumeJobDetails.description || '';
+    }, [initialLetter, locationState, prefillJob, fromResume, resumeJobDetails]);
+
+    // Core letter inputs
+    const [jobTitle, setJobTitleState] = useState<string>(() => initialTitle);
+    const [companyName, setCompanyNameState] = useState<string>(() => initialCompany);
+    const [jobDescription, setJobDescriptionState] = useState<string>(() => initialDescription);
+
+    // Generated Letter & Edit State
     const [generatedLetter, setGeneratedLetterState] = useState<GeneratedCoverLetter | null>(() => {
-        const saved = loadFromStorage<GeneratedCoverLetter | null>('cover_letter_generated', null);
-        return saved;
+        return loadFromStorage<GeneratedCoverLetter | null>('cover_letter_generated', null);
     });
-    const [error, setError] = useState<string | null>(null);
-    const [copied, setCopied] = useState(false);
-    const [selectedTemplate, setSelectedTemplateState] = useState<CoverLetterTemplateType>(() => {
-        if (passedTemplate) return passedTemplate;
-        return loadFromStorage<CoverLetterTemplateType>('cover_letter_template', 'modern');
-    });
-    const [isEditing, setIsEditing] = useState(false);
     const [editedText, setEditedTextState] = useState(() => {
         return loadFromStorage<string>('cover_letter_editedText', '');
     });
-    const [editMode, setEditMode] = useState<'text' | 'structured'>('text');
     const [structuredEdit, setStructuredEditState] = useState<{
         opening: string;
         skills: { skill: string; description: string }[];
         closing: string;
     }>(() => {
-        return loadFromStorage<{ opening: string; skills: { skill: string; description: string }[]; closing: string }>('cover_letter_structuredEdit', { opening: '', skills: [], closing: '' });
+        return loadFromStorage('cover_letter_structuredEdit', { opening: '', skills: [], closing: '' });
     });
 
+    // Formatting & Typography Toolbar Controls
+    const [fontSize, setFontSizeState] = useState<number>(() => {
+        return loadFromStorage<number>('cover_letter_fontSize', 12);
+    });
+    const [lineSpacing, setLineSpacingState] = useState<number>(() => {
+        return loadFromStorage<number>('cover_letter_lineSpacing', 1.5);
+    });
+    const [spacing, setSpacingState] = useState<'compact' | 'normal' | 'spacious'>(() => {
+        return loadFromStorage<'compact' | 'normal' | 'spacious'>('cover_letter_spacing', 'normal');
+    });
+    const [fontFamily, setFontFamilyState] = useState<'merriweather' | 'sans' | 'mono' | 'serif'>(() => {
+        return loadFromStorage<'merriweather' | 'sans' | 'mono' | 'serif'>('cover_letter_fontFamily', 'merriweather');
+    });
+    const [viewAsPages, setViewAsPages] = useState<boolean>(true);
+    const [zoomScale, setZoomScale] = useState<number>(1);
+
+    // Template selection
+    const [selectedTemplate, setSelectedTemplateState] = useState<CoverLetterTemplateType>(() => {
+        if (passedTemplate) return passedTemplate;
+        return loadFromStorage<CoverLetterTemplateType>('cover_letter_template', 'classic');
+    });
+
+    // AI Highlights controls
+    const [highlightPosition, setHighlightPosition] = useState<string>(() => {
+        const stored = loadFromStorage<string>('cover_letter_highlightPosition', '');
+        return locationState?.highlightPosition || stored || resumeJobDetails.highlightPosition || '';
+    });
+
+    const [highlightEducation, setHighlightEducation] = useState<string>(() => {
+        const stored = loadFromStorage<string>('cover_letter_highlightEducation', '');
+        return locationState?.highlightEducation || stored || resumeJobDetails.highlightEducation || '';
+    });
+
+    const [highlightSkills, setHighlightSkills] = useState<string[]>(() => {
+        if (locationState?.highlightSkills && Array.isArray(locationState.highlightSkills) && locationState.highlightSkills.length > 0) {
+            return locationState.highlightSkills;
+        }
+        if (resumeJobDetails.highlightSkills.length > 0) {
+            return resumeJobDetails.highlightSkills;
+        }
+        if (resumeData.skills) {
+            return resumeData.skills.split(',').map(s => s.trim()).filter(Boolean).slice(0, 3);
+        }
+        return ['Data Analysis', 'Project Leadership', 'Cross-Functional Collaboration'];
+    });
+    const [skillInputValue, setSkillInputValue] = useState('');
+    const [tone, setTone] = useState<'Confident' | 'Direct' | 'Enthusiastic'>('Confident');
+
+    // UI state
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [isStreaming, setIsStreaming] = useState(false);
+    const [streamingContent, setStreamingContent] = useState<GeneratedCoverLetter | null>(null);
+    const streamCancellationRef = useRef<{ cancelled: boolean }>({ cancelled: false });
+    const [isExporting, setIsExporting] = useState(false);
+    const [isExportingDocx, setIsExportingDocx] = useState(false);
+    const [isDownloadMenuOpen, setIsDownloadMenuOpen] = useState(false);
+    const downloadMenuRef = useRef<HTMLDivElement>(null);
+    const [isSaving, setIsSaving] = useState(false);
+    const [copied, setCopied] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
     const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+    const [activeMobileTab, setActiveMobileTab] = useState<'editor' | 'preview'>('preview');
 
-    // Wrapper functions that persist immediately
-    const setStep = useCallback((newStep: 'input' | 'generating' | 'result') => {
-        setStepState(newStep);
-        saveToStorage('cover_letter_step', newStep);
-    }, []);
+    useEffect(() => {
+        const handleOutsideClick = (e: MouseEvent) => {
+            if (downloadMenuRef.current && !downloadMenuRef.current.contains(e.target as Node)) {
+                setIsDownloadMenuOpen(false);
+            }
+        };
+        if (isDownloadMenuOpen) {
+            document.addEventListener('mousedown', handleOutsideClick);
+            return () => document.removeEventListener('mousedown', handleOutsideClick);
+        }
+    }, [isDownloadMenuOpen]);
 
+    // Persistent setters
     const setJobTitle = useCallback((title: string) => {
         setJobTitleState(title);
-        debouncedSaveToStorage('cover_letter_jobTitle', title, 500);
+        debouncedSaveToStorage('cover_letter_jobTitle', title, 400);
     }, []);
 
     const setCompanyName = useCallback((name: string) => {
         setCompanyNameState(name);
-        debouncedSaveToStorage('cover_letter_companyName', name, 500);
+        debouncedSaveToStorage('cover_letter_companyName', name, 400);
     }, []);
 
     const setJobDescription = useCallback((desc: string) => {
         setJobDescriptionState(desc);
-        debouncedSaveToStorage('cover_letter_jobDescription', desc, 500);
+        debouncedSaveToStorage('cover_letter_jobDescription', desc, 400);
     }, []);
 
     const setGeneratedLetter = useCallback((letter: GeneratedCoverLetter | null) => {
@@ -120,16 +436,35 @@ export default function CoverLetterPage({ resumeData, userSubscription, onDeduct
 
     const setEditedText = useCallback((text: string) => {
         setEditedTextState(text);
-        debouncedSaveToStorage('cover_letter_editedText', text, 500);
+        debouncedSaveToStorage('cover_letter_editedText', text, 400);
     }, []);
 
     const setStructuredEdit = useCallback((edit: { opening: string; skills: { skill: string; description: string }[]; closing: string }) => {
         setStructuredEditState(edit);
-        debouncedSaveToStorage('cover_letter_structuredEdit', edit, 500);
+        debouncedSaveToStorage('cover_letter_structuredEdit', edit, 400);
     }, []);
 
-    const prefillJob = (location.state as any)?.prefillJob;
+    const setFontSize = useCallback((size: number) => {
+        setFontSizeState(size);
+        saveToStorage('cover_letter_fontSize', size);
+    }, []);
 
+    const setLineSpacing = useCallback((spacingVal: number) => {
+        setLineSpacingState(spacingVal);
+        saveToStorage('cover_letter_lineSpacing', spacingVal);
+    }, []);
+
+    const setSpacing = useCallback((val: 'compact' | 'normal' | 'spacious') => {
+        setSpacingState(val);
+        saveToStorage('cover_letter_spacing', val);
+    }, []);
+
+    const setFontFamily = useCallback((val: 'merriweather' | 'sans' | 'mono' | 'serif') => {
+        setFontFamilyState(val);
+        saveToStorage('cover_letter_fontFamily', val);
+    }, []);
+
+    // Initial setup from router or storage
     useEffect(() => {
         if (passedTemplate) {
             setSelectedTemplate(passedTemplate);
@@ -138,112 +473,268 @@ export default function CoverLetterPage({ resumeData, userSubscription, onDeduct
 
     useEffect(() => {
         if (initialLetter) {
-            // If we have an initial letter, use it (overrides localStorage)
-            setStep('result');
             setJobTitle(initialLetter.job_title || '');
             setCompanyName(initialLetter.company_name || '');
             setJobDescription(initialLetter.job_description || '');
             setGeneratedLetter(initialLetter.content);
             setEditedText(initialLetter.content.plainText);
-            setIsEditing(false);
 
-            if (initialLetter.content.structured && initialLetter.content.structured.skills && initialLetter.content.structured.skills.length > 0) {
+            if (initialLetter.content.structured && initialLetter.content.structured.skills?.length > 0) {
                 setStructuredEdit(initialLetter.content.structured);
             }
-        } else if (prefillJob) {
-            // Prefill from the job details passed via router state
-            setStep('input');
-            setJobTitle(prefillJob.jobTitle || '');
-            setCompanyName(prefillJob.companyName || '');
-            setJobDescription(prefillJob.jobDescription || '');
-            setGeneratedLetter(null);
-            setError(null);
-            setIsEditing(false);
-        } else {
-            // Only reset if we don't have saved state (first visit)
-            const hasSavedState = loadFromStorage<GeneratedCoverLetter | null>('cover_letter_generated', null);
-            if (!hasSavedState) {
-                // First visit - use defaults
-                setStep('input');
-                setJobTitle(resumeData.jobTitle || '');
-                setJobDescription(resumeData.jobDescription || '');
-                setCompanyName('');
-                setGeneratedLetter(null);
-                if (!passedTemplate) {
-                    setSelectedTemplate('modern');
+        } else if (fromResume || locationState?.companyName || locationState?.jobDescription || prefillJob) {
+            const targetCompany = locationState?.companyName || prefillJob?.companyName || (fromResume ? resumeJobDetails.company : '');
+            const targetTitle = locationState?.jobTitle || prefillJob?.jobTitle || (fromResume ? (resumeJobDetails.title || resumeData.jobTitle) : '');
+            const targetJd = locationState?.jobDescription || prefillJob?.jobDescription || (fromResume ? resumeJobDetails.description : '');
+
+            if (targetCompany && isValidCompanyName(targetCompany)) setCompanyName(targetCompany);
+            if (targetTitle) setJobTitle(targetTitle);
+            if (targetJd) setJobDescription(targetJd);
+
+            if (locationState?.highlightPosition) {
+                setHighlightPosition(locationState.highlightPosition);
+                debouncedSaveToStorage('cover_letter_highlightPosition', locationState.highlightPosition, 400);
+            } else if (fromResume && resumeJobDetails.highlightPosition) {
+                setHighlightPosition(resumeJobDetails.highlightPosition);
+            }
+
+            if (locationState?.highlightEducation) {
+                setHighlightEducation(locationState.highlightEducation);
+                debouncedSaveToStorage('cover_letter_highlightEducation', locationState.highlightEducation, 400);
+            } else if (fromResume && resumeJobDetails.highlightEducation) {
+                setHighlightEducation(resumeJobDetails.highlightEducation);
+            }
+
+            if (locationState?.highlightSkills && Array.isArray(locationState.highlightSkills) && locationState.highlightSkills.length > 0) {
+                setHighlightSkills(locationState.highlightSkills);
+            } else if (fromResume && resumeJobDetails.highlightSkills.length > 0) {
+                setHighlightSkills(resumeJobDetails.highlightSkills);
+            }
+
+            // If navigating from resume editor with a target company, and current generated letter was for a DIFFERENT company,
+            // reset generatedLetter so active preview immediately reflects the new target company and title
+            if (fromResume && targetCompany && generatedLetter) {
+                const plain = generatedLetter.plainText.toLowerCase();
+                if (!plain.includes(targetCompany.toLowerCase())) {
+                    setGeneratedLetter(null);
+                    setEditedText('');
                 }
             }
-            setError(null);
-            setIsEditing(false);
         }
-    }, [initialLetter, prefillJob, passedTemplate, resumeData.jobDescription, resumeData.jobTitle, setCompanyName, setEditedText, setGeneratedLetter, setJobDescription, setJobTitle, setSelectedTemplate, setStep, setStructuredEdit]);
+    }, [initialLetter, prefillJob, locationState, fromResume, resumeJobDetails, resumeData.jobTitle, setCompanyName, setEditedText, setGeneratedLetter, setJobDescription, setJobTitle, setStructuredEdit]);
 
+    // Active draft computation (guarantees the document is always populated with high aesthetic quality)
+    const activeDraftLetter = useMemo<GeneratedCoverLetter>(() => {
+        if (generatedLetter) return generatedLetter;
+
+        const candidateName = resumeData.fullName || 'Alex Morgan';
+        const targetTitle = jobTitle.trim() || resumeData.jobTitle || 'Professional';
+        const targetCompany = companyName.trim() || 'Hiring Team';
+
+        const customizedText = SAMPLE_COVER_LETTER_DATA.plainText
+            .replace(/Alex Morgan/g, candidateName)
+            .replace(/Senior Product Manager/g, targetTitle)
+            .replace(/your company/g, targetCompany);
+
+        return {
+            plainText: customizedText,
+            structured: {
+                opening: SAMPLE_COVER_LETTER_DATA.structured.opening
+                    .replace(/Senior Product Manager/g, targetTitle)
+                    .replace(/your company/g, targetCompany),
+                skills: SAMPLE_COVER_LETTER_DATA.structured.skills,
+                closing: SAMPLE_COVER_LETTER_DATA.structured.closing
+                    .replace(/Alex Morgan/g, candidateName)
+            }
+        };
+    }, [generatedLetter, resumeData.fullName, resumeData.jobTitle, jobTitle, companyName]);
+
+    // Active displayed content (supports live streaming directly onto the document sheet)
+    const displayContent = (isStreaming && streamingContent !== null)
+        ? streamingContent
+        : (generatedLetter || activeDraftLetter);
+    const currentTemplateConfig = getCoverLetterTemplateConfig(selectedTemplate);
+
+    // List of candidate positions for highlight dropdown
+    const candidatePositions = useMemo(() => {
+        if (!resumeData.experience || resumeData.experience.length === 0) return [];
+        return resumeData.experience
+            .map(exp => {
+                const role = exp.role || exp.position || '';
+                const comp = exp.company || '';
+                return role && comp ? `${role} at ${comp}` : role || comp;
+            })
+            .filter(Boolean);
+    }, [resumeData.experience]);
+
+    // List of candidate education degrees for highlight dropdown
+    const candidateEducation = useMemo(() => {
+        if (!resumeData.education || resumeData.education.length === 0) return [];
+        return resumeData.education
+            .map(edu => {
+                const deg = edu.degree || '';
+                const inst = edu.institution || edu.school || '';
+                return deg && inst ? `${deg} (${inst})` : deg || inst;
+            })
+            .filter(Boolean);
+    }, [resumeData.education]);
+
+    // List of available skills from resume
+    const availableResumeSkills = useMemo(() => {
+        if (!resumeData.skills) return [];
+        return resumeData.skills
+            .split(',')
+            .map(s => s.trim())
+            .filter(s => Boolean(s) && !highlightSkills.includes(s))
+            .slice(0, 8);
+    }, [resumeData.skills, highlightSkills]);
+
+    // Typography and layout dropdown options
+    const fontOptions = useMemo(() => [
+        { value: 'merriweather' as const, label: 'Merriweather (Serif)', previewClass: 'font-serif' },
+        { value: 'sans' as const, label: 'Inter (Sans)', previewClass: 'font-sans' },
+        { value: 'mono' as const, label: 'Mono (Tech)', previewClass: 'font-mono' }
+    ], []);
+
+    const lineSpacingOptions = useMemo(() => [
+        { value: 1.3, label: '1.3 Tight' },
+        { value: 1.5, label: '1.5 Normal' },
+        { value: 1.75, label: '1.75 Relaxed' }
+    ], []);
+
+    const spacingOptions = useMemo(() => [
+        { value: 'compact' as const, label: 'Compact Margins' },
+        { value: 'normal' as const, label: 'Normal Margins' },
+        { value: 'spacious' as const, label: 'Spacious Margins' }
+    ], []);
+
+    const normalizedFontFamily: 'merriweather' | 'sans' | 'mono' = (fontFamily === 'serif' || fontFamily === 'merriweather') ? 'merriweather' : fontFamily;
+
+    const handleSkipStreaming = useCallback(() => {
+        streamCancellationRef.current.cancelled = true;
+    }, []);
+
+    // AI Generation handler
     const handleGenerate = async () => {
         if (!jobTitle.trim() || !companyName.trim()) {
-            setError('Please provide at least a Job Title and Company Name');
+            setError('Please provide at least a Company Name and Job Title to tailor your cover letter.');
             return;
         }
 
         if (!onDeductCredit()) return;
 
         setError(null);
-        setStep('generating');
+        setIsGenerating(true);
+        setIsStreaming(true);
+        streamCancellationRef.current = { cancelled: false };
+
+        // Ensure user is in Page View to watch the live paragraph streaming
+        setViewAsPages(true);
+        setActiveMobileTab('preview');
+
+        // Initialize with empty document body so live streaming begins fresh
+        setStreamingContent({
+            plainText: '',
+            structured: { opening: '', skills: [], closing: '' }
+        });
 
         try {
+            const options: CoverLetterOptions = {
+                highlightPosition: highlightPosition?.trim() || undefined,
+                highlightEducation: highlightEducation?.trim() || undefined,
+                highlightSkills: highlightSkills.length > 0 ? highlightSkills : undefined,
+                tone: tone
+            };
+
             const letter = await generateCoverLetter(
                 resumeData,
                 jobTitle,
                 companyName,
-                jobDescription
+                jobDescription,
+                options
             );
+
+            // Stream paragraph by paragraph onto the document sheet in real-time
+            await streamCoverLetter(
+                letter,
+                (progress) => {
+                    setStreamingContent(progress);
+                },
+                streamCancellationRef
+            );
+
+            // Finalize and persist completed letter
             setGeneratedLetter(letter);
             setEditedText(letter.plainText);
-            setStep('result');
-        } catch (err) {
-            console.error(err);
-            setError('Failed to generate cover letter. Please try again.');
-            setStep('input');
+            if (letter.structured && letter.structured.skills && letter.structured.skills.length > 0) {
+                setStructuredEdit(letter.structured);
+            }
+            showToast('Tailored cover letter generated successfully!', 'success');
+        } catch (err: any) {
+            console.error('Generation error:', err);
+            setError(err?.message || 'Failed to generate cover letter. Please try again.');
+            showToast('Failed to generate cover letter.', 'error');
+        } finally {
+            setStreamingContent(null);
+            setIsStreaming(false);
+            setIsGenerating(false);
         }
     };
 
     const handleUseSampleDraft = () => {
-        if (!jobTitle.trim()) {
-            setJobTitle(resumeData.jobTitle || 'Senior Professional');
-        }
-        if (!companyName.trim()) {
-            setCompanyName('Target Company');
-        }
-        setGeneratedLetter(SAMPLE_COVER_LETTER_DATA);
-        setEditedText(SAMPLE_COVER_LETTER_DATA.plainText);
-        setStructuredEdit(SAMPLE_COVER_LETTER_DATA.structured);
-        setStep('result');
-        showToast('Sample template draft loaded. You can now customize it directly.', 'info');
+        const title = jobTitle.trim() || resumeData.jobTitle || 'Senior Professional';
+        const company = companyName.trim() || 'Target Company';
+        setJobTitle(title);
+        setCompanyName(company);
+
+        const candidateName = resumeData.fullName || 'Alex Morgan';
+        const customizedText = SAMPLE_COVER_LETTER_DATA.plainText
+            .replace(/Alex Morgan/g, candidateName)
+            .replace(/Senior Product Manager/g, title)
+            .replace(/your company/g, company);
+
+        const draft: GeneratedCoverLetter = {
+            plainText: customizedText,
+            structured: {
+                opening: SAMPLE_COVER_LETTER_DATA.structured.opening
+                    .replace(/Senior Product Manager/g, title)
+                    .replace(/your company/g, company),
+                skills: SAMPLE_COVER_LETTER_DATA.structured.skills,
+                closing: SAMPLE_COVER_LETTER_DATA.structured.closing
+                    .replace(/Alex Morgan/g, candidateName)
+            }
+        };
+
+        setGeneratedLetter(draft);
+        setEditedText(customizedText);
+        setStructuredEdit(draft.structured);
+        showToast('Sample template draft loaded. You can now customize or edit it directly.', 'info');
     };
 
     const handleCopy = () => {
-        if (!generatedLetter) return;
-        navigator.clipboard.writeText(generatedLetter.plainText);
+        const textToCopy = displayContent.plainText;
+        if (!textToCopy) return;
+        navigator.clipboard.writeText(textToCopy);
         setCopied(true);
+        showToast('Cover letter text copied to clipboard!', 'success');
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const [isExporting, setIsExporting] = useState(false);
-
     const handleDownloadPDF = async () => {
-        if (!generatedLetter) return;
         setIsExporting(true);
+        setIsDownloadMenuOpen(false);
         try {
             const letterEl = document.getElementById('cover-letter-rendered-document');
             if (letterEl) {
-                const fileName = `${sanitizeFilename(resumeData.fullName, 'Applicant')}_Cover_Letter_${sanitizeFilename(jobTitle || 'Application', 'Role')}.pdf`;
+                const fileName = `${sanitizeFilename(resumeData.fullName, 'Applicant')}_Cover_Letter_${sanitizeFilename(jobTitle || 'Role', 'Application')}.pdf`;
                 await exportElementToPdf(letterEl, {
                     filename: fileName,
                     pageSize: 'a4'
                 });
             } else {
-                await exportCoverLetterToPdf(generatedLetter.plainText, resumeData, jobTitle, companyName);
+                await exportCoverLetterToPdf(displayContent.plainText, resumeData, jobTitle, companyName);
             }
-            showToast('Cover letter downloaded successfully!', 'success');
+            showToast('Cover letter PDF downloaded successfully!', 'success');
         } catch (err) {
             console.error('Failed to export cover letter:', err);
             showToast('Failed to download cover letter PDF.', 'error');
@@ -252,62 +743,173 @@ export default function CoverLetterPage({ resumeData, userSubscription, onDeduct
         }
     };
 
-    const handleSaveEdit = () => {
-        if (generatedLetter) {
-            if (editMode === 'structured') {
-                const newPlainText = `${structuredEdit.opening}\n\n${structuredEdit.skills.map(s => `${s.skill}\n${s.description}`).join('\n\n')}\n\n${structuredEdit.closing}`;
-
-                setGeneratedLetter({
-                    ...generatedLetter,
-                    plainText: newPlainText,
-                    structured: {
-                        opening: structuredEdit.opening,
-                        skills: structuredEdit.skills,
-                        closing: structuredEdit.closing
-                    }
-                });
-            } else {
-                setGeneratedLetter({
-                    ...generatedLetter,
-                    plainText: editedText,
-                    structured: {
-                        ...generatedLetter.structured,
-                        skills: []
-                    }
-                });
-            }
-            setIsEditing(false);
+    const handleDownloadDocx = async () => {
+        setIsExportingDocx(true);
+        setIsDownloadMenuOpen(false);
+        try {
+            await exportCoverLetterToDocx({
+                content: displayContent,
+                resumeData,
+                companyName,
+                jobTitle,
+                template: selectedTemplate,
+                fontFamily,
+                fontSize,
+                lineSpacing,
+                spacing,
+            });
+            showToast('Cover letter Word document (.docx) downloaded successfully!', 'success');
+        } catch (err) {
+            console.error('Failed to export cover letter to Word:', err);
+            showToast('Failed to download cover letter as Word document.', 'error');
+        } finally {
+            setIsExportingDocx(false);
         }
     };
 
-    const currentTemplateConfig = getCoverLetterTemplateConfig(selectedTemplate);
+    const handleSaveCoverLetter = async () => {
+        if (!user) {
+            showToast('Please sign in to save cover letters.', 'info');
+            return;
+        }
+
+        setIsSaving(true);
+        try {
+            const letterToSave = displayContent;
+            if (initialLetter) {
+                await coverLetterService.updateCoverLetter(initialLetter.id, letterToSave);
+                showToast('Cover letter updated!', 'success');
+            } else {
+                await coverLetterService.createCoverLetter(
+                    user.id,
+                    `${jobTitle || 'Role'} — ${companyName || 'Application'}`,
+                    letterToSave,
+                    { jobTitle, companyName, jobDescription }
+                );
+                showToast('Cover letter saved to your library!', 'success');
+            }
+            if (onSave) {
+                onSave();
+            }
+        } catch (error) {
+            console.error('Error saving cover letter:', error);
+            showToast('Failed to save cover letter.', 'error');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handlePasteFromClipboard = async () => {
+        try {
+            const text = await navigator.clipboard.readText();
+            if (text && text.trim()) {
+                const cleanText = text.trim();
+                setJobDescription(cleanText);
+                const detectedComp = extractCompanyFromText(cleanText);
+                if (detectedComp && (!companyName || companyName.trim() === 'Hiring Team')) {
+                    setCompanyName(detectedComp);
+                }
+                const detectedTitle = extractTitleFromText(cleanText);
+                if (detectedTitle && (!jobTitle || jobTitle.trim() === 'Professional')) {
+                    setJobTitle(detectedTitle);
+                }
+                showToast(
+                    detectedComp ? `Pasted JD & detected ${detectedComp}!` : 'Job description pasted from clipboard!',
+                    'success'
+                );
+            }
+        } catch {
+            showToast('Unable to read clipboard. Please paste manually.', 'info');
+        }
+    };
+
+    const handleAutoDetectJobDetails = (textToAnalyze?: string) => {
+        const text = textToAnalyze || jobDescription;
+        if (!text || !text.trim()) {
+            showToast('Please provide a job description first.', 'info');
+            return;
+        }
+        const detectedComp = extractCompanyFromText(text);
+        const detectedTitle = extractTitleFromText(text);
+        let updated = false;
+        if (detectedComp) {
+            setCompanyName(detectedComp);
+            updated = true;
+        }
+        if (detectedTitle) {
+            setJobTitle(detectedTitle);
+            updated = true;
+        }
+        if (updated) {
+            showToast(`Detected: ${detectedComp || ''} ${detectedTitle ? `(${detectedTitle})` : ''}`, 'success');
+        } else {
+            showToast('Could not automatically identify company from this text. You can type it directly above.', 'info');
+        }
+    };
+
+    const handleAddSkill = (skillToAdd?: string) => {
+        const val = (skillToAdd || skillInputValue).trim();
+        if (val && !highlightSkills.includes(val)) {
+            setHighlightSkills([...highlightSkills, val]);
+            if (!skillToAdd) setSkillInputValue('');
+        }
+    };
+
+    const handleRemoveSkill = (skillToRemove: string) => {
+        setHighlightSkills(highlightSkills.filter(s => s !== skillToRemove));
+    };
+
+    // Save inline edit into generated letter state
+    const handleUpdateInlineText = (newText: string) => {
+        setEditedText(newText);
+        setGeneratedLetter({
+            plainText: newText,
+            structured: {
+                opening: newText.split('\n\n')[0] || '',
+                skills: generatedLetter?.structured?.skills || [],
+                closing: newText.split('\n\n').slice(-1)[0] || ''
+            }
+        });
+    };
 
     return (
         <>
-            {/* Hidden print element - only visible during print */}
-            {generatedLetter && createPortal(
+            {/* Hidden Print Element for Crisp Print/Vector Output */}
+            {createPortal(
                 <div className="print-root hidden print:block absolute top-0 left-0 w-full h-auto bg-white z-[9999] print:w-full print:max-w-[210mm]">
                     <div className="print-cover-letter" style={{ padding: '0 8mm' }}>
                         {selectedTemplate === 'structured' ? (
                             <StructuredCoverLetter
                                 data={resumeData}
-                                content={generatedLetter}
+                                content={displayContent}
                                 companyName={companyName}
                                 jobTitle={jobTitle}
+                                fontSize={fontSize}
+                                lineSpacing={lineSpacing}
+                                spacing={spacing}
+                                fontFamily={fontFamily}
                             />
                         ) : selectedTemplate === 'bold' ? (
                             <BoldCoverLetter
                                 data={resumeData}
-                                content={generatedLetter.plainText}
+                                content={displayContent.plainText}
                                 companyName={companyName}
                                 jobTitle={jobTitle}
+                                fontSize={fontSize}
+                                lineSpacing={lineSpacing}
+                                spacing={spacing}
+                                fontFamily={fontFamily}
                             />
                         ) : (
                             <ModernCoverLetter
                                 data={resumeData}
-                                content={generatedLetter.plainText}
+                                content={displayContent.plainText}
                                 companyName={companyName}
                                 jobTitle={jobTitle}
+                                fontSize={fontSize}
+                                lineSpacing={lineSpacing}
+                                spacing={spacing}
+                                fontFamily={fontFamily}
                             />
                         )}
                     </div>
@@ -315,427 +917,665 @@ export default function CoverLetterPage({ resumeData, userSubscription, onDeduct
                 document.body
             )}
 
-            <div className="min-h-screen bg-gray-50 flex flex-col">
-                {/* Header */}
-                <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-50 shadow-xs gap-3">
+            <div className="h-screen flex flex-col bg-slate-50 overflow-hidden font-sans">
+                {/* 1. TOP HEADER BAR */}
+                <header className="h-14 sm:h-16 bg-white border-b border-gray-200/90 px-3 sm:px-6 flex items-center justify-between shrink-0 z-40 shadow-2xs">
                     <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                        {step === 'result' ? (
-                            initialLetter ? (
-                                <button
-                                    onClick={() => navigate(-1)}
-                                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors shrink-0 text-gray-600"
-                                    title="Close"
-                                >
-                                    <ArrowLeft size={18} />
-                                </button>
-                            ) : (
-                                <button
-                                    onClick={() => setStep('input')}
-                                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors shrink-0 text-gray-600"
-                                    title="Back to inputs"
-                                >
-                                    <ArrowLeft size={18} />
-                                </button>
-                            )
-                        ) : (
-                            <button
-                                onClick={() => navigate(-1)}
-                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors shrink-0 text-gray-600"
-                                title="Go back"
-                            >
-                                <ArrowLeft size={18} />
-                            </button>
-                        )}
+                        <button
+                            type="button"
+                            onClick={() => navigate(-1)}
+                            className="p-2 hover:bg-gray-100 rounded-xl transition-colors text-gray-600 hover:text-brand-dark shrink-0"
+                            title="Back"
+                        >
+                            <ArrowLeft size={18} />
+                        </button>
 
-                        <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-8 h-8 bg-brand-green/20 text-emerald-800 rounded-lg flex items-center justify-center shrink-0">
-                                <Sparkles size={17} className="text-emerald-700" />
-                            </div>
-                            <div className="hidden sm:block">
-                                <h1 className="text-base sm:text-lg font-bold text-brand-dark truncate leading-tight">
-                                    {initialLetter ? 'Edit Cover Letter' : 'Cover Letter Generator'}
-                                </h1>
-                            </div>
+                        <div className="min-w-0">
+                            <h1 className="text-sm sm:text-base font-bold text-brand-dark truncate leading-tight">
+                                {initialLetter ? 'Edit Cover Letter' : 'Cover Letter Editor'}
+                            </h1>
                         </div>
+                    </div>
 
-                        {/* Template Selector Button */}
-                        {step === 'result' && !isEditing && (
-                            <button
-                                type="button"
-                                onClick={() => setIsTemplateModalOpen(true)}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-brand-dark bg-gray-100 hover:bg-gray-200 transition-all border border-gray-200 shadow-2xs"
-                                title="Change Template"
-                            >
-                                <LayoutTemplate size={13} className="text-gray-500" />
-                                <span>Template: <strong>{currentTemplateConfig.name}</strong></span>
-                            </button>
-                        )}
+                    {/* Mobile View Switcher */}
+                    <div className="flex lg:hidden items-center bg-gray-100 p-1 rounded-xl text-xs font-semibold">
+                        <button
+                            type="button"
+                            onClick={() => setActiveMobileTab('editor')}
+                            className={`px-3 py-1 rounded-lg transition-all ${activeMobileTab === 'editor' ? 'bg-white text-brand-dark shadow-xs font-bold' : 'text-gray-600'}`}
+                        >
+                            AI Writer
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setActiveMobileTab('preview')}
+                            className={`px-3 py-1 rounded-lg transition-all ${activeMobileTab === 'preview' ? 'bg-white text-brand-dark shadow-xs font-bold' : 'text-gray-600'}`}
+                        >
+                            Preview
+                        </button>
                     </div>
 
                     {/* Top Right Action Buttons */}
-                    <div className="flex items-center gap-2 sm:gap-2.5 ml-auto flex-wrap">
-                        {step === 'result' ? (
-                            <>
-                                {isEditing ? (
+                    <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+                        <button
+                            type="button"
+                            onClick={handleCopy}
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-brand-dark bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition-all shadow-2xs"
+                            title="Copy Text"
+                        >
+                            {copied ? <Check size={14} className="text-emerald-700" /> : <Copy size={14} />}
+                            <span className="hidden sm:inline">{copied ? 'Copied' : 'Copy'}</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={handleSaveCoverLetter}
+                            disabled={isSaving}
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-brand-dark bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition-all shadow-2xs disabled:opacity-60"
+                            title="Save Cover Letter"
+                        >
+                            {isSaving ? <Loader size="xs" /> : <Save size={14} className="text-gray-600" />}
+                            <span className="hidden sm:inline">{initialLetter ? 'Update' : 'Save'}</span>
+                        </button>
+
+                        {/* Download Split Button with DOCX/PDF Dropdown */}
+                        <div className="relative" ref={downloadMenuRef}>
+                            <div className="inline-flex items-center rounded-xl shadow-xs overflow-hidden bg-brand-green">
+                                <button
+                                    type="button"
+                                    onClick={handleDownloadPDF}
+                                    disabled={isExporting || isExportingDocx}
+                                    className="flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs font-bold text-brand-dark bg-brand-green hover:bg-brand-greenHover transition-all active:scale-95 disabled:opacity-75 disabled:cursor-not-allowed cursor-pointer"
+                                    title="Download Cover Letter"
+                                >
+                                    {isExporting || isExportingDocx ? <Loader size="xs" /> : <Download size={14} />}
+                                    <span>{isExporting ? 'Downloading...' : isExportingDocx ? 'Exporting...' : 'Download'}</span>
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() => setIsDownloadMenuOpen((prev) => !prev)}
+                                    disabled={isExporting || isExportingDocx}
+                                    className="px-2 py-1.5 bg-brand-green hover:bg-brand-greenHover border-l border-brand-dark/15 text-brand-dark transition-colors cursor-pointer flex items-center justify-center disabled:opacity-75"
+                                    title="Download Options (.pdf, .docx)"
+                                    aria-expanded={isDownloadMenuOpen}
+                                >
+                                    <ChevronDown size={13} className={`transition-transform duration-200 ${isDownloadMenuOpen ? 'rotate-180' : ''}`} />
+                                </button>
+                            </div>
+
+                            {/* Dropdown Menu */}
+                            {isDownloadMenuOpen && (
+                                <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-xl border border-gray-200/90 p-1.5 z-50 animate-pop-in">
+                                    <div className="px-3 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                                        Download Format
+                                    </div>
+
+                                    {/* 1. PDF Download */}
                                     <button
                                         type="button"
-                                        onClick={() => setIsEditing(false)}
-                                        className="flex items-center gap-1.5 px-3.5 py-1.5 bg-gray-100 hover:bg-gray-200 text-brand-dark text-xs font-bold rounded-xl transition-all shadow-2xs"
+                                        onClick={handleDownloadPDF}
+                                        disabled={isExporting || isExportingDocx}
+                                        className="w-full flex items-start gap-2.5 px-3 py-2 text-left rounded-xl hover:bg-gray-100 transition-colors cursor-pointer group"
                                     >
-                                        <Eye size={14} />
-                                        <span>View Preview</span>
+                                        <div className="p-1.5 rounded-lg bg-emerald-50 text-emerald-800 mt-0.5 group-hover:scale-105 transition-transform">
+                                            <Download size={15} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="text-xs font-bold text-brand-dark flex items-center justify-between">
+                                                <span>Download PDF</span>
+                                                <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded">.PDF</span>
+                                            </div>
+                                            <div className="text-[11px] text-gray-500 font-normal">Pixel-perfect ATS print document</div>
+                                        </div>
                                     </button>
+
+                                    {/* 2. DOCX Download */}
+                                    <button
+                                        type="button"
+                                        onClick={handleDownloadDocx}
+                                        disabled={isExporting || isExportingDocx}
+                                        className="w-full flex items-start gap-2.5 px-3 py-2 text-left rounded-xl hover:bg-gray-100 transition-colors cursor-pointer group"
+                                    >
+                                        <div className="p-1.5 rounded-lg bg-blue-50 text-blue-800 mt-0.5 group-hover:scale-105 transition-transform">
+                                            <FileText size={15} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="text-xs font-bold text-brand-dark flex items-center justify-between">
+                                                <span>Download DOCX</span>
+                                                <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-1.5 py-0.5 rounded">.DOCX</span>
+                                            </div>
+                                            <div className="text-[11px] text-gray-500 font-normal">Fully editable Microsoft Word document</div>
+                                        </div>
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </header>
+
+                {/* 2. MAIN WORKSPACE: STUDIO CANVAS + AI WRITER SIDEBAR */}
+                <div className="flex-1 flex overflow-hidden relative">
+                    {/* LEFT / CENTER: DOCUMENT PREVIEW & CONTROLS CANVAS */}
+                    <main
+                        className={`flex-1 flex flex-col bg-[#f4f6f8] overflow-hidden relative transition-all ${activeMobileTab === 'editor' ? 'hidden lg:flex' : 'flex'}`}
+                    >
+                        {/* Floating Top Document Controls Bar */}
+                        <div className="bg-white border-b border-gray-200 px-4 py-2.5 flex items-center justify-between gap-3 overflow-visible shadow-2xs z-20">
+                            {/* Controls: Template Selector, Font Size, Line Spacing, Margin/Padding, Font Family */}
+                            <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 flex-wrap">
+                                {/* Template Selector Button */}
+                                <button
+                                    type="button"
+                                    onClick={() => setIsTemplateModalOpen(true)}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-brand-dark bg-white hover:bg-gray-50 border border-gray-200 transition-all shadow-2xs cursor-pointer shrink-0"
+                                    title="Change Template"
+                                >
+                                    <LayoutTemplate size={13} className="text-brand-dark" />
+                                    <span>Template: <strong>{currentTemplateConfig.name}</strong></span>
+                                    <ChevronDown size={13} className="text-gray-400" />
+                                </button>
+
+                                <div className="h-5 w-[1px] bg-gray-200 hidden sm:block" />
+
+                                {/* Font Family Custom Dropdown */}
+                                <CustomDropdown
+                                    icon={Type}
+                                    value={normalizedFontFamily}
+                                    options={fontOptions}
+                                    onChange={(val) => setFontFamily(val)}
+                                    title="Font Family"
+                                />
+
+                                {/* Font Size: - 12 + */}
+                                <div className="flex items-center bg-white border border-gray-200 rounded-xl p-0.5 shadow-2xs">
+                                    <button
+                                        type="button"
+                                        onClick={() => setFontSize(Math.max(10, fontSize - 1))}
+                                        className="w-7 h-7 flex items-center justify-center text-brand-dark hover:bg-gray-100 rounded-lg transition-all font-bold text-sm cursor-pointer"
+                                        title="Decrease Font Size"
+                                    >
+                                        -
+                                    </button>
+                                    <span className="px-2 text-xs font-bold text-brand-dark min-w-[28px] text-center select-none">
+                                        {fontSize}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setFontSize(Math.min(16, fontSize + 1))}
+                                        className="w-7 h-7 flex items-center justify-center text-brand-dark hover:bg-gray-100 rounded-lg transition-all font-bold text-sm cursor-pointer"
+                                        title="Increase Font Size"
+                                    >
+                                        +
+                                    </button>
+                                </div>
+
+                                {/* Line Spacing Custom Dropdown */}
+                                <CustomDropdown
+                                    icon={AlignJustify}
+                                    value={lineSpacing}
+                                    options={lineSpacingOptions}
+                                    onChange={(val) => setLineSpacing(val)}
+                                    title="Line Spacing"
+                                />
+
+                                {/* Margins / Spacing Custom Dropdown */}
+                                <CustomDropdown
+                                    icon={Maximize2}
+                                    value={spacing}
+                                    options={spacingOptions}
+                                    onChange={(val) => setSpacing(val)}
+                                    title="Page Margins"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Document Scroll Canvas */}
+                        <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8 flex justify-center items-start relative">
+                            {/* Centered Realistic Document Sheet */}
+                            <div className="w-full flex flex-col items-center pb-16">
+                                {viewAsPages ? (
+                                    /* 1. Realistic A4 Document Page Preview */
+                                    <div className="relative group">
+                                        <div
+                                            id="cover-letter-rendered-document"
+                                            className="w-[210mm] min-h-[297mm] bg-white shadow-[0_16px_40px_-12px_rgba(0,0,0,0.12),0_0_1px_1px_rgba(0,0,0,0.06)] hover:shadow-2xl rounded-xs ring-1 ring-black/5 origin-top transition-transform duration-200 transform scale-[0.62] sm:scale-[0.78] md:scale-[0.88] lg:scale-[0.95] xl:scale-100 my-2"
+                                        >
+                                            {selectedTemplate === 'technical' ? (
+                                                <TechnicalCoverLetter
+                                                    data={resumeData}
+                                                    content={displayContent}
+                                                    companyName={companyName}
+                                                    jobTitle={jobTitle}
+                                                    fontSize={fontSize}
+                                                    lineSpacing={lineSpacing}
+                                                    spacing={spacing}
+                                                    fontFamily={fontFamily}
+                                                    isStreaming={isStreaming}
+                                                />
+                                            ) : selectedTemplate === 'academic' ? (
+                                                <AcademicCoverLetter
+                                                    data={resumeData}
+                                                    content={displayContent}
+                                                    companyName={companyName}
+                                                    jobTitle={jobTitle}
+                                                    fontSize={fontSize}
+                                                    lineSpacing={lineSpacing}
+                                                    spacing={spacing}
+                                                    fontFamily={fontFamily}
+                                                    isStreaming={isStreaming}
+                                                />
+                                            ) : selectedTemplate === 'minimal' ? (
+                                                <MinimalCoverLetter
+                                                    data={resumeData}
+                                                    content={displayContent}
+                                                    companyName={companyName}
+                                                    jobTitle={jobTitle}
+                                                    fontSize={fontSize}
+                                                    lineSpacing={lineSpacing}
+                                                    spacing={spacing}
+                                                    fontFamily={fontFamily}
+                                                    isStreaming={isStreaming}
+                                                />
+                                            ) : selectedTemplate === 'editorial' ? (
+                                                <EditorialCoverLetter
+                                                    data={resumeData}
+                                                    content={displayContent}
+                                                    companyName={companyName}
+                                                    jobTitle={jobTitle}
+                                                    fontSize={fontSize}
+                                                    lineSpacing={lineSpacing}
+                                                    spacing={spacing}
+                                                    fontFamily={fontFamily}
+                                                    isStreaming={isStreaming}
+                                                />
+                                            ) : selectedTemplate === 'classic' ? (
+                                                <ClassicCoverLetter
+                                                    data={resumeData}
+                                                    content={displayContent}
+                                                    companyName={companyName}
+                                                    jobTitle={jobTitle}
+                                                    fontSize={fontSize}
+                                                    lineSpacing={lineSpacing}
+                                                    spacing={spacing}
+                                                    fontFamily={fontFamily}
+                                                    isStreaming={isStreaming}
+                                                />
+                                            ) : selectedTemplate === 'structured' ? (
+                                                <StructuredCoverLetter
+                                                    data={resumeData}
+                                                    content={displayContent}
+                                                    companyName={companyName}
+                                                    jobTitle={jobTitle}
+                                                    fontSize={fontSize}
+                                                    lineSpacing={lineSpacing}
+                                                    spacing={spacing}
+                                                    fontFamily={fontFamily}
+                                                    isStreaming={isStreaming}
+                                                />
+                                            ) : selectedTemplate === 'bold' ? (
+                                                <BoldCoverLetter
+                                                    data={resumeData}
+                                                    content={displayContent.plainText}
+                                                    companyName={companyName}
+                                                    jobTitle={jobTitle}
+                                                    fontSize={fontSize}
+                                                    lineSpacing={lineSpacing}
+                                                    spacing={spacing}
+                                                    fontFamily={fontFamily}
+                                                    isStreaming={isStreaming}
+                                                />
+                                            ) : (
+                                                <ModernCoverLetter
+                                                    data={resumeData}
+                                                    content={displayContent.plainText}
+                                                    companyName={companyName}
+                                                    jobTitle={jobTitle}
+                                                    fontSize={fontSize}
+                                                    lineSpacing={lineSpacing}
+                                                    spacing={spacing}
+                                                    fontFamily={fontFamily}
+                                                    isStreaming={isStreaming}
+                                                />
+                                            )}
+                                        </div>
+
+                                        {/* Floating Quick Action overlay to edit content */}
+                                        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button
+                                                type="button"
+                                                onClick={() => setViewAsPages(false)}
+                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-900/90 text-white rounded-xl text-xs font-semibold backdrop-blur-md shadow-lg hover:bg-black transition-all"
+                                            >
+                                                <Edit3 size={12} />
+                                                <span>Edit Text Directly</span>
+                                            </button>
+                                        </div>
+                                    </div>
                                 ) : (
+                                    /* 2. Direct Content Editor Mode */
+                                    <div className="w-full max-w-3xl bg-white rounded-2xl shadow-lg border border-gray-200/90 p-6 sm:p-8 space-y-6">
+                                        <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+                                            <div>
+                                                <h3 className="text-base font-bold text-gray-900">Direct Content Editor</h3>
+                                                <p className="text-xs text-gray-500">Edit the text directly. Changes synchronize live to the document page.</p>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => setViewAsPages(true)}
+                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-900 rounded-xl text-xs font-semibold transition-all border border-gray-200 cursor-pointer shadow-2xs"
+                                            >
+                                                <Eye size={13} className="text-gray-500" />
+                                                <span>Return to Page View</span>
+                                            </button>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <label className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                                                Cover Letter Body
+                                            </label>
+                                            <textarea
+                                                value={displayContent.plainText}
+                                                onChange={(e) => handleUpdateInlineText(e.target.value)}
+                                                rows={18}
+                                                className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none font-serif text-sm leading-relaxed text-brand-dark bg-slate-50/50"
+                                                placeholder="Write or edit your cover letter paragraphs..."
+                                            />
+                                        </div>
+
+                                        <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
+                                            <button
+                                                type="button"
+                                                onClick={() => setViewAsPages(true)}
+                                                className="px-5 py-2 text-xs font-bold text-brand-dark bg-brand-green hover:bg-brand-greenHover rounded-xl transition-all shadow-xs"
+                                            >
+                                                Done & View Page
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </main>
+
+                    {/* RIGHT: AI COVER LETTER WRITER SIDEBAR */}
+                    <aside
+                        className={`w-full lg:w-[410px] xl:w-[440px] shrink-0 bg-white border-l border-gray-200/90 flex flex-col h-full z-30 transition-all ${activeMobileTab === 'preview' ? 'hidden lg:flex' : 'flex'}`}
+                    >
+                        {/* Scrollable Form Content */}
+                        <div className="flex-1 overflow-y-auto p-5 space-y-5">
+                            {/* Validation Error Banner */}
+                            {error && (
+                                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs">
+                                    <AlertCircle size={15} className="shrink-0 mt-0.5 text-red-600" />
+                                    <span>{error}</span>
+                                </div>
+                            )}
+
+                            {/* COMPANY NAME */}
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-extrabold text-brand-dark uppercase tracking-wider flex items-center gap-1.5">
+                                    <Building size={13} className="text-gray-400" />
+                                    <span>Company Name</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    value={companyName}
+                                    onChange={(e) => setCompanyName(e.target.value)}
+                                    placeholder="e.g. Google"
+                                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none text-sm text-brand-dark placeholder-gray-400 font-medium transition-all shadow-2xs hover:border-gray-300"
+                                />
+                            </div>
+
+                            {/* POSITION/TITLE */}
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-extrabold text-brand-dark uppercase tracking-wider flex items-center gap-1.5">
+                                    <Briefcase size={13} className="text-gray-400" />
+                                    <span>Position/Title</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    value={jobTitle}
+                                    onChange={(e) => setJobTitle(e.target.value)}
+                                    placeholder="e.g. Data Analyst"
+                                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none text-sm text-brand-dark placeholder-gray-400 font-medium transition-all shadow-2xs hover:border-gray-300"
+                                />
+                            </div>
+
+                            {/* JOB DESCRIPTION (PASTE JD) */}
+                            <div className="space-y-1.5">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-xs font-extrabold text-brand-dark uppercase tracking-wider flex items-center gap-1.5">
+                                        <FileText size={13} className="text-gray-400" />
+                                        <span>Job Description</span>
+                                    </label>
+                                    <div className="flex items-center gap-2">
+                                        {jobDescription && (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleAutoDetectJobDetails()}
+                                                className="text-[11px] font-bold text-gray-500 hover:text-brand-dark flex items-center gap-1 transition-colors cursor-pointer"
+                                                title="Detect company name and title from this JD"
+                                            >
+                                                <Sparkles size={11} className="text-emerald-700" />
+                                                <span>Detect</span>
+                                            </button>
+                                        )}
+                                        <button
+                                            type="button"
+                                            onClick={handlePasteFromClipboard}
+                                            className="text-[11px] font-bold text-emerald-800 hover:text-brand-dark flex items-center gap-1 transition-colors cursor-pointer"
+                                        >
+                                            <ClipboardPaste size={12} />
+                                            <span>Paste JD</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <textarea
+                                    value={jobDescription}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setJobDescription(val);
+                                        if ((!companyName || companyName.trim() === 'Hiring Team') && val.trim().length > 30) {
+                                            const detectedComp = extractCompanyFromText(val);
+                                            if (detectedComp) setCompanyName(detectedComp);
+                                        }
+                                        if ((!jobTitle || jobTitle.trim() === 'Professional') && val.trim().length > 30) {
+                                            const detectedTitle = extractTitleFromText(val);
+                                            if (detectedTitle) setJobTitle(detectedTitle);
+                                        }
+                                    }}
+                                    rows={5}
+                                    placeholder="Paste the target job posting or requirements here. The AI will extract core keywords and tailor your narrative..."
+                                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none text-xs leading-relaxed text-brand-dark placeholder-gray-400 resize-none transition-all shadow-2xs hover:border-gray-300"
+                                />
+                                {jobDescription && (
+                                    <div className="flex justify-between items-center text-[10px] text-gray-400 px-1">
+                                        <span>{jobDescription.length} characters</span>
+                                        <button
+                                            type="button"
+                                            onClick={() => setJobDescription('')}
+                                            className="hover:text-red-500 font-medium"
+                                        >
+                                            Clear
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* POSITION HIGHLIGHT (user types themselves with hint) */}
+                            <div className="space-y-1.5 pt-1 border-t border-gray-100">
+                                <label className="text-xs font-extrabold text-brand-dark uppercase tracking-wider flex items-center justify-between">
+                                    <span>Position Highlight</span>
+                                    <span className="text-[10px] text-gray-400 font-normal lowercase">(optional)</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    value={highlightPosition}
+                                    onChange={(e) => setHighlightPosition(e.target.value)}
+                                    placeholder="e.g. Marketing Analyst at Kaplan"
+                                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none text-xs text-brand-dark placeholder-gray-400 font-medium transition-all shadow-2xs hover:border-gray-300"
+                                />
+                                <p className="text-[11px] text-gray-500 leading-tight">
+                                    Type a specific role, past project, or achievement you want emphasized in the letter.
+                                </p>
+                            </div>
+
+                            {/* EDUCATION HIGHLIGHT (user types themselves with hint) */}
+                            <div className="space-y-1.5 pt-1 border-t border-gray-100">
+                                <label className="text-xs font-extrabold text-brand-dark uppercase tracking-wider flex items-center justify-between">
+                                    <span>Education Highlight</span>
+                                    <span className="text-[10px] text-gray-400 font-normal lowercase">(optional)</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    value={highlightEducation}
+                                    onChange={(e) => setHighlightEducation(e.target.value)}
+                                    placeholder="e.g. B.S. in Economics from University of Wisconsin"
+                                    className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none text-xs text-brand-dark placeholder-gray-400 font-medium transition-all shadow-2xs hover:border-gray-300"
+                                />
+                                <p className="text-[11px] text-gray-500 leading-tight">
+                                    Type your degree, major, academic credential, or university to weave into the narrative.
+                                </p>
+                            </div>
+
+                            {/* SKILLS HIGHLIGHT (chips + input) */}
+                            <div className="space-y-2 pt-1 border-t border-gray-100">
+                                <span className="text-xs font-extrabold text-brand-dark uppercase tracking-wider block">
+                                    Skills Highlight
+                                </span>
+
+                                {/* Active Skill Chips */}
+                                <div className="flex flex-wrap gap-1.5 min-h-[32px]">
+                                    {highlightSkills.map((skill, idx) => (
+                                        <span
+                                            key={idx}
+                                            className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-dark text-white rounded-full text-xs font-bold shadow-2xs animate-fadeIn"
+                                        >
+                                            <span>{skill}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleRemoveSkill(skill)}
+                                                className="hover:bg-gray-700 rounded-full p-0.5 transition-colors"
+                                                title="Remove skill"
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        </span>
+                                    ))}
+                                </div>
+
+                                {/* Add Skill Input */}
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        value={skillInputValue}
+                                        onChange={(e) => setSkillInputValue(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                handleAddSkill();
+                                            }
+                                        }}
+                                        placeholder="Enter skill and press enter..."
+                                        className="flex-1 px-3.5 py-2 border border-gray-200 rounded-xl text-xs text-brand-dark focus:ring-2 focus:ring-brand-green outline-none shadow-2xs"
+                                    />
                                     <button
                                         type="button"
-                                        onClick={() => {
-                                            if (selectedTemplate === 'structured' && generatedLetter?.structured?.skills?.length) {
-                                                setStructuredEdit(generatedLetter.structured);
-                                                setEditMode('structured');
-                                            } else if (generatedLetter) {
-                                                setEditedText(generatedLetter.plainText);
-                                                setEditMode('text');
-                                            }
-                                            setIsEditing(true);
-                                        }}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-green/20 hover:bg-brand-green/30 text-emerald-900 border border-brand-green/30 text-xs font-bold rounded-xl transition-all shadow-2xs active:scale-95"
-                                        title="Edit Cover"
+                                        onClick={() => handleAddSkill()}
+                                        className="px-3.5 py-2 bg-brand-green hover:bg-brand-greenHover text-brand-dark rounded-xl text-xs font-bold transition-colors shadow-2xs cursor-pointer active:scale-95"
                                     >
-                                        <FileText size={14} />
-                                        <span>Edit Cover</span>
+                                        Add
                                     </button>
+                                </div>
+
+                                {/* Suggested Skills from Resume */}
+                                {availableResumeSkills.length > 0 && (
+                                    <div className="pt-1">
+                                        <span className="text-[10px] text-gray-400 block mb-1">From your resume:</span>
+                                        <div className="flex flex-wrap gap-1">
+                                            {availableResumeSkills.map((sk, idx) => (
+                                                <button
+                                                    key={idx}
+                                                    type="button"
+                                                    onClick={() => handleAddSkill(sk)}
+                                                    className="px-2 py-0.5 text-[11px] font-medium bg-gray-100 hover:bg-brand-green/20 hover:text-brand-dark text-gray-700 rounded-md transition-colors"
+                                                >
+                                                    + {sk}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
                                 )}
+                            </div>
 
-                                {!isEditing && (
-                                    <>
+                            {/* TONE SELECTION */}
+                            <div className="space-y-1.5 pt-1 border-t border-gray-100">
+                                <span className="text-xs font-extrabold text-brand-dark uppercase tracking-wider block">
+                                    Tone & Style
+                                </span>
+                                <div className="grid grid-cols-3 gap-1.5">
+                                    {(['Confident', 'Direct', 'Enthusiastic'] as const).map((t) => (
                                         <button
-                                            onClick={handleCopy}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-2xs"
-                                            title="Copy Text"
+                                            key={t}
+                                            type="button"
+                                            onClick={() => setTone(t)}
+                                            className={`py-1.5 px-2 rounded-xl text-xs font-bold transition-all text-center border ${tone === t ? 'bg-brand-dark text-white border-brand-dark shadow-2xs' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'}`}
                                         >
-                                            {copied ? <Check size={14} /> : <Copy size={14} />}
-                                            <span className="hidden md:inline">{copied ? 'Copied' : 'Copy'}</span>
+                                            {t}
                                         </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
 
-                                        <button
-                                            onClick={async () => {
-                                                if (user && generatedLetter) {
-                                                    try {
-                                                        if (initialLetter) {
-                                                            await coverLetterService.updateCoverLetter(initialLetter.id, generatedLetter);
-                                                            showToast('Cover letter updated!', 'success');
-                                                        } else {
-                                                            await coverLetterService.createCoverLetter(
-                                                                user.id,
-                                                                `${jobTitle} - ${companyName}`,
-                                                                generatedLetter,
-                                                                { jobTitle, companyName, jobDescription }
-                                                            );
-                                                            showToast('Cover letter saved successfully!', 'success');
-                                                        }
-                                                        if (onSave) {
-                                                            onSave();
-                                                        }
-                                                    } catch (error) {
-                                                        console.error('Error saving cover letter:', error);
-                                                        showToast('Failed to save cover letter.', 'error');
-                                                    }
-                                                } else {
-                                                    showToast('Please sign in to save cover letters.', 'info');
-                                                }
-                                            }}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors shadow-2xs"
-                                            title="Save Cover Letter"
-                                        >
-                                            <Save size={14} />
-                                            <span className="hidden md:inline">{initialLetter ? 'Update' : 'Save'}</span>
-                                        </button>
-
-                                        <button
-                                            onClick={handleDownloadPDF}
-                                            disabled={isExporting}
-                                            className="flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs font-bold text-white bg-brand-dark hover:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed active:scale-95"
-                                        >
-                                            {isExporting ? <Loader size="xs" variant="light" /> : <Download size={14} />}
-                                            <span>{isExporting ? 'Downloading...' : 'Download PDF'}</span>
-                                        </button>
-                                    </>
-                                )}
-                            </>
-                        ) : (
+                        {/* Sidebar Footer: Primary Action Button */}
+                        <div className="p-5 border-t border-gray-100 bg-gray-50/50 space-y-2 shrink-0">
                             <button
                                 type="button"
-                                onClick={() => setIsTemplateModalOpen(true)}
-                                className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-brand-dark text-xs font-bold rounded-xl transition-all shadow-2xs"
-                                title="Switch template"
+                                onClick={handleGenerate}
+                                disabled={isGenerating}
+                                className="w-full py-3 px-4 bg-brand-green hover:bg-brand-greenHover text-brand-dark font-extrabold text-sm rounded-xl shadow-xs hover:shadow-md transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-75 disabled:cursor-not-allowed cursor-pointer"
                             >
-                                <LayoutTemplate size={14} />
-                                <span>Templates</span>
-                            </button>
-                        )}
-                    </div>
-                </div>
-
-                {/* Body */}
-                <div className="flex-1 overflow-y-auto">
-                    {step === 'input' && (
-                        <div className="max-w-4xl mx-auto p-4 sm:p-8">
-                            <div className="bg-white rounded-2xl shadow-xs border border-gray-200/90 p-6 sm:p-8 space-y-6">
-                                {/* Selected Template Showcase Card */}
-                                <div className="bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-xl bg-brand-green/20 text-emerald-800 flex items-center justify-center shrink-0">
-                                            <LayoutTemplate size={20} />
-                                        </div>
-                                        <div>
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                                                    Active Template
-                                                </span>
-                                                <span className="text-[10px] font-extrabold uppercase bg-brand-dark text-white px-2 py-0.5 rounded-full shadow-2xs">
-                                                    {currentTemplateConfig.name}
-                                                </span>
-                                                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-                                                    {currentTemplateConfig.category}
-                                                </span>
-                                            </div>
-                                            <p className="text-xs text-gray-500 mt-1 line-clamp-1">
-                                                {currentTemplateConfig.subtitle}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-2 shrink-0">
-                                        <button
-                                            type="button"
-                                            onClick={() => setIsPreviewModalOpen(true)}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition-all shadow-2xs"
-                                        >
-                                            <Eye size={13} />
-                                            <span>Quick View</span>
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setIsTemplateModalOpen(true)}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-brand-dark bg-brand-green hover:bg-brand-greenHover rounded-lg transition-all shadow-2xs"
-                                        >
-                                            <LayoutTemplate size={13} />
-                                            <span>Change</span>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-1">
-                                        <label className="text-sm font-semibold text-gray-700 flex items-center gap-1.5">
-                                            <Briefcase size={14} className="text-gray-400" /> Target Job Title
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={jobTitle}
-                                            onChange={(e) => setJobTitle(e.target.value)}
-                                            className="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none text-sm transition-all"
-                                            placeholder="e.g. Senior Product Manager"
-                                        />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <label className="text-sm font-semibold text-gray-700 flex items-center gap-1.5">
-                                            <Building size={14} className="text-gray-400" /> Company Name
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={companyName}
-                                            onChange={(e) => setCompanyName(e.target.value)}
-                                            className="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none text-sm transition-all"
-                                            placeholder="e.g. Acme Corp"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-1">
-                                    <label className="text-sm font-semibold text-gray-700 flex items-center gap-1.5">
-                                        <FileText size={14} className="text-gray-400" /> Job Description (Recommended)
-                                    </label>
-                                    <textarea
-                                        value={jobDescription}
-                                        onChange={(e) => setJobDescription(e.target.value)}
-                                        rows={6}
-                                        className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none resize-none text-sm leading-relaxed"
-                                        placeholder="Paste the job requirements or posting details here to ensure maximum tailoring..."
-                                    />
-                                </div>
-
-                                {error && (
-                                    <div className="flex items-center gap-2 text-red-600 bg-red-50 p-3 rounded-xl text-sm border border-red-200">
-                                        <AlertCircle size={16} />
-                                        {error}
-                                    </div>
-                                )}
-
-                                <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-4 border-t border-gray-100">
-                                    <button
-                                        type="button"
-                                        onClick={handleUseSampleDraft}
-                                        className="w-full sm:w-auto px-4 py-2 text-xs font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors border border-dashed border-gray-300"
-                                    >
-                                        Start with Sample Draft (0 Credits)
-                                    </button>
-
-                                    <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-                                        <button
-                                            type="button"
-                                            onClick={() => navigate(-1)}
-                                            className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors"
-                                        >
-                                            Cancel
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={handleGenerate}
-                                            className="flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-2.5 text-sm font-bold text-brand-dark bg-brand-green hover:bg-brand-greenHover rounded-xl shadow-xs hover:shadow-md transition-all active:scale-95"
-                                        >
-                                            <Sparkles size={16} />
-                                            <span>Generate with AI (1 Credit)</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {step === 'generating' && (
-                        <div className="flex flex-col items-center justify-center py-24 space-y-4">
-                            <Loader size="xl" />
-                            <h3 className="text-lg font-bold text-brand-dark">Crafting your cover letter...</h3>
-                            <p className="text-gray-500 text-sm">Tailoring your narrative against the company and job description.</p>
-                        </div>
-                    )}
-
-                    {step === 'result' && generatedLetter && (
-                        <div className="flex flex-col min-h-full">
-                            <div className="flex-1 overflow-auto p-4 sm:p-6 md:p-8 flex justify-center bg-white">
-                                {isEditing ? (
-                                    <div className="w-full max-w-4xl bg-white p-4 sm:p-6 rounded-2xl shadow-lg min-h-[60vh] flex flex-col">
-                                        <h3 className="text-lg font-bold text-brand-dark mb-4">Edit Cover Letter Content</h3>
-                                        {editMode === 'structured' ? (
-                                            <div className="flex-1 overflow-y-auto space-y-6 pr-2">
-                                                <div className="space-y-2">
-                                                    <label className="text-sm font-semibold text-gray-700">Opening Paragraph</label>
-                                                    <textarea
-                                                        value={structuredEdit.opening}
-                                                        onChange={(e) => setStructuredEdit({ ...structuredEdit, opening: e.target.value })}
-                                                        className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none resize-none font-sans text-sm leading-relaxed min-h-[120px]"
-                                                        placeholder="Opening paragraph..."
-                                                    />
-                                                </div>
-
-                                                <div className="space-y-3">
-                                                    <label className="text-sm font-semibold text-gray-700">Key Skills & Impacts</label>
-                                                    {structuredEdit.skills.map((skillItem, idx) => (
-                                                        <div key={idx} className="p-4 bg-gray-50 rounded-xl border border-gray-100 space-y-3">
-                                                            <div>
-                                                                <input
-                                                                    value={skillItem.skill}
-                                                                    onChange={(e) => {
-                                                                        const newSkills = [...structuredEdit.skills];
-                                                                        newSkills[idx].skill = e.target.value;
-                                                                        setStructuredEdit({ ...structuredEdit, skills: newSkills });
-                                                                    }}
-                                                                    className="w-full p-2 border border-gray-200 rounded-lg text-sm font-bold text-brand-dark focus:ring-1 focus:ring-brand-green focus:border-transparent outline-none"
-                                                                    placeholder="Skill Name"
-                                                                />
-                                                            </div>
-                                                            <textarea
-                                                                value={skillItem.description}
-                                                                onChange={(e) => {
-                                                                    const newSkills = [...structuredEdit.skills];
-                                                                    newSkills[idx].description = e.target.value;
-                                                                    setStructuredEdit({ ...structuredEdit, skills: newSkills });
-                                                                }}
-                                                                className="w-full p-2 border border-gray-200 rounded-lg text-sm text-gray-600 focus:ring-1 focus:ring-brand-green focus:border-transparent outline-none resize-none min-h-[60px]"
-                                                                placeholder="Description of how you used this skill..."
-                                                            />
-                                                        </div>
-                                                    ))}
-                                                </div>
-
-                                                <div className="space-y-2">
-                                                    <label className="text-sm font-semibold text-gray-700">Closing Paragraph</label>
-                                                    <textarea
-                                                        value={structuredEdit.closing}
-                                                        onChange={(e) => setStructuredEdit({ ...structuredEdit, closing: e.target.value })}
-                                                        className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none resize-none font-sans text-sm leading-relaxed min-h-[120px]"
-                                                        placeholder="Closing paragraph..."
-                                                    />
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <textarea
-                                                value={editedText}
-                                                onChange={(e) => setEditedText(e.target.value)}
-                                                className="flex-1 w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none resize-none font-mono text-sm leading-relaxed"
-                                                placeholder="Edit your cover letter here..."
-                                            />
-                                        )}
-                                        <div className="flex justify-end gap-3 mt-4">
-                                            <button
-                                                onClick={() => setIsEditing(false)}
-                                                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors"
-                                            >
-                                                Cancel
-                                            </button>
-                                            <button
-                                                onClick={handleSaveEdit}
-                                                className="px-6 py-2 text-sm font-bold text-white bg-brand-dark hover:bg-gray-800 rounded-xl transition-colors"
-                                            >
-                                                Done Editing
-                                            </button>
-                                        </div>
-                                    </div>
+                                {isGenerating ? (
+                                    <>
+                                        <Loader size="xs" />
+                                        <span>Generating Cover Letter...</span>
+                                    </>
                                 ) : (
-                                    <div id="cover-letter-rendered-document" className="w-[210mm] min-h-[297mm] shadow-2xl transition-all duration-300 bg-white origin-top transform scale-[0.75] sm:scale-[0.85] md:scale-[0.92] lg:scale-100">
-                                        {selectedTemplate === 'structured' ? (
-                                            <StructuredCoverLetter
-                                                data={resumeData}
-                                                content={generatedLetter}
-                                                companyName={companyName}
-                                                jobTitle={jobTitle}
-                                            />
-                                        ) : selectedTemplate === 'bold' ? (
-                                            <BoldCoverLetter
-                                                data={resumeData}
-                                                content={generatedLetter.plainText}
-                                                companyName={companyName}
-                                                jobTitle={jobTitle}
-                                            />
-                                        ) : (
-                                            <ModernCoverLetter
-                                                data={resumeData}
-                                                content={generatedLetter.plainText}
-                                                companyName={companyName}
-                                                jobTitle={jobTitle}
-                                            />
-                                        )}
-                                    </div>
+                                    <>
+                                        <Sparkles size={16} />
+                                        <span>{generatedLetter ? 'Regenerate Cover Letter' : 'Generate Cover Letter'}</span>
+                                        <span className="text-[11px] opacity-80 font-normal ml-1">(1 Credit)</span>
+                                    </>
                                 )}
-                            </div>
-                        </div>
-                    )}
-                </div>
+                            </button>
 
+                            <button
+                                type="button"
+                                onClick={handleUseSampleDraft}
+                                className="w-full py-1.5 text-center text-xs font-semibold text-gray-500 hover:text-brand-dark transition-colors"
+                            >
+                                Start with Sample Draft (0 Credits)
+                            </button>
+                        </div>
+                    </aside>
+                </div>
             </div>
 
-            {/* Template Selector Modal - Full Screen with transparent backdrop */}
+            {/* Template Selector Modal - Full Screen Portal */}
             {isTemplateModalOpen && createPortal(
-                <div 
+                <div
                     className="fixed inset-0 z-[100] w-screen h-screen bg-black/60 backdrop-blur-sm flex flex-col overflow-hidden animate-fadeIn"
                     onClick={() => setIsTemplateModalOpen(false)}
                 >
-                    <div 
+                    <div
                         className="flex items-center justify-between px-6 py-4 bg-white/95 backdrop-blur-md border-b border-gray-200/80 shrink-0 z-10 shadow-sm"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="flex items-center gap-3">
                             <button
+                                type="button"
                                 onClick={() => setIsTemplateModalOpen(false)}
                                 className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-xl transition-colors text-gray-700 font-bold text-sm"
                                 title="Back"
@@ -745,19 +1585,21 @@ export default function CoverLetterPage({ resumeData, userSubscription, onDeduct
                             </button>
                             <div className="h-5 w-[1px] bg-gray-200 hidden sm:block" />
                             <div>
-                                <h3 className="text-base sm:text-lg font-bold text-brand-dark">Choose Cover Letter Template</h3>
+                                <h3 className="text-base sm:text-lg font-bold text-gray-900">Choose Cover Letter Template</h3>
                                 <p className="text-xs text-gray-400 hidden sm:block">Pick a format to match your target role and resume</p>
                             </div>
                         </div>
                         <button
+                            type="button"
                             onClick={() => setIsTemplateModalOpen(false)}
-                            className="p-2 text-gray-400 hover:text-brand-dark hover:bg-gray-100 rounded-full transition-colors"
+                            className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
                             title="Close"
                         >
                             <X size={20} />
                         </button>
                     </div>
-                    <div 
+
+                    <div
                         className="flex-1 overflow-y-auto p-6 md:p-8 bg-transparent"
                         onClick={(e) => {
                             if (e.target === e.currentTarget) {
@@ -765,7 +1607,7 @@ export default function CoverLetterPage({ resumeData, userSubscription, onDeduct
                             }
                         }}
                     >
-                        <div 
+                        <div
                             className="max-w-6xl mx-auto bg-white/95 backdrop-blur-md rounded-2xl p-6 md:p-8 shadow-2xl ring-1 ring-black/10"
                             onClick={(e) => e.stopPropagation()}
                         >
@@ -783,14 +1625,13 @@ export default function CoverLetterPage({ resumeData, userSubscription, onDeduct
                 document.body
             )}
 
-            {/* Full Screen Template Quick View with Transparent Backdrop */}
+            {/* Quick Template View Modal */}
             {isPreviewModalOpen && createPortal(
-                <div 
+                <div
                     className="fixed inset-0 z-[100] w-screen h-screen bg-black/60 backdrop-blur-sm flex flex-col overflow-hidden animate-fadeIn"
                     onClick={() => setIsPreviewModalOpen(false)}
                 >
-                    {/* Header */}
-                    <div 
+                    <div
                         className="flex items-center justify-between px-6 py-4 bg-transparent shrink-0 z-10"
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -802,12 +1643,14 @@ export default function CoverLetterPage({ resumeData, userSubscription, onDeduct
 
                         <div className="flex items-center gap-3">
                             <button
+                                type="button"
                                 onClick={() => setIsPreviewModalOpen(false)}
                                 className="px-5 py-2.5 rounded-xl font-bold transition-all bg-brand-green hover:bg-brand-greenHover text-brand-dark text-xs sm:text-sm active:scale-95 shadow-md"
                             >
                                 Continue with {currentTemplateConfig.name}
                             </button>
                             <button
+                                type="button"
                                 onClick={() => setIsPreviewModalOpen(false)}
                                 className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-colors"
                             >
@@ -816,8 +1659,7 @@ export default function CoverLetterPage({ resumeData, userSubscription, onDeduct
                         </div>
                     </div>
 
-                    {/* Transparent Canvas with centered A4 Document */}
-                    <div 
+                    <div
                         className="flex-1 overflow-y-auto flex justify-center items-start py-8 px-4 bg-transparent cursor-pointer"
                         onClick={(e) => {
                             if (e.target === e.currentTarget) {
@@ -825,7 +1667,7 @@ export default function CoverLetterPage({ resumeData, userSubscription, onDeduct
                             }
                         }}
                     >
-                        <div 
+                        <div
                             className="shadow-2xl rounded-xs bg-white overflow-hidden origin-top my-2 cursor-default ring-1 ring-black/10"
                             onClick={(e) => e.stopPropagation()}
                         >

@@ -991,6 +991,7 @@ export default function ResumePreview({ data, template, onChangeData, editable =
   return (
     <div
       className="resume-preview-root w-full flex flex-col items-center relative print:pb-0"
+      data-resume-preview
       data-bullet-style={data.bulletStyle || 'disc'}
       data-bullet-indent={data.bulletIndent ?? 0}
       data-paginated={activePages.length > 0 ? "true" : "false"}

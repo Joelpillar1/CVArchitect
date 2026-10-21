@@ -6,6 +6,31 @@
   ],
   "redirects": [
     {
+      "source": "/cvarchitect",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/classic",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/landingpage",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/agent-landing",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/agent",
+      "destination": "/",
+      "permanent": true
+    },
+    {
       "source": "/(.*)",
       "has": [
         {
@@ -36,7 +61,7 @@
       ]
     },
     {
-      "source": "/(blog|pricing|contact|privacy|terms|refund-policy|signup|action-words|resume-checker)(.*)",
+      "source": "/(blog|pricing|contact|privacy|terms|refund-policy|signup|action-words|resume-checker|cover-letter|resume-templates)(.*)",
       "headers": [
         { "key": "X-Robots-Tag", "value": "index, follow" },
         { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
@@ -46,6 +71,13 @@
       "source": "/(dashboard|admin|reset-password|forgot-password)(.*)",
       "headers": [
         { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
+      ]
+    },
+    {
+      "source": "/spa.html",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
       ]
     },
     {
@@ -99,7 +131,7 @@
   "rewrites": [
     {
       "source": "/((?!api/).*)",
-      "destination": "/index.html"
+      "destination": "/spa.html"
     }
   ]
 }
