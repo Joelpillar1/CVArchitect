@@ -691,7 +691,7 @@ export default function JakeTemplate({ data }: { data: ResumeData }) {
     >
       {/* Header */}
       <header className="break-inside-avoid w-full" style={{ marginBottom: `${getHeaderGapIn(data)}in`, width: '100%' }}>
-        <h1
+        <div data-resume-name
           data-path="fullName"
           className={`font-bold tracking-normal w-full ${alignmentClass}`}
           style={{
@@ -704,7 +704,7 @@ export default function JakeTemplate({ data }: { data: ResumeData }) {
           }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase)} />
-        </h1>
+        </div>
 
         {/* Contact line: phone | email | linkedin | handle — plain text under
             the name, no banner/background; links underlined like the reference.

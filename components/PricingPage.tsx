@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus } from 'lucide-react';
+import { Plus, ShieldCheck } from 'lucide-react';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
+import { PublicVisualCta } from './PublicVisualCta';
 import PricingPlans from './PricingPlans';
 import SEO from './SEO';
 
@@ -13,7 +14,7 @@ const faqs = [
     },
     {
         q: 'Do I need a paid plan to get started?',
-        a: 'No. The Foundation plan is completely free and includes one full AI-tailored resume with 3 PDF downloads. Paid plans unlock unlimited tailoring (subject to fair use), all 20+ templates, and unlimited PDF & DOCX downloads.',
+        a: 'No. The Foundation plan is completely free and includes one full AI-tailored resume with 3 PDF downloads. Paid plans unlock unlimited tailoring (subject to fair use), every template, and unlimited PDF & DOCX downloads.',
     },
     {
         q: 'Can I cancel my subscription anytime?',
@@ -21,7 +22,7 @@ const faqs = [
     },
     {
         q: 'What is the Lifetime plan?',
-        a: 'The Lifetime plan is a one-time payment of $99 that gives you permanent access to all features, all 20+ templates, AI tailoring (subject to fair use), and unlimited downloads forever with no renewals.',
+        a: 'The Lifetime plan is a one-time payment of $99 that gives you permanent access to all features, every template, AI tailoring (subject to fair use), and unlimited downloads forever with no renewals.',
     },
     {
         q: 'Can I create multiple tailored resumes for different jobs?',
@@ -40,8 +41,8 @@ export default function PricingPage() {
     return (
         <div className="min-h-screen bg-brand-bg text-brand-dark flex flex-col font-sans selection:bg-brand-green selection:text-brand-dark">
             <SEO
-                title="CVArchitect Pricing | AI Resume Plans from $10/month"
-                description="CVArchitect pricing: Foundation free tier with 1 AI resume, Build monthly at $10/mo, and Lifetime access for $99."
+                title="Cvarchitect Pricing | AI Resume Plans from $10/month"
+                description="Cvarchitect pricing: Foundation free tier with 1 AI resume, Build monthly at $10/mo, and Lifetime access for $99."
                 canonicalPath="/pricing"
             />
             <PublicHeader />
@@ -121,6 +122,29 @@ export default function PricingPage() {
                         </div>
                     </div>
                 </section>
+
+                <PublicVisualCta
+                    badge="Start Free Today"
+                    badgeIcon={<ShieldCheck className="w-3.5 h-3.5 text-brand-green" />}
+                    headline={<>Start with the free plan.<br className="hidden sm:inline" /> Upgrade whenever you need.</>}
+                    sub={<>10 AI rewrites, 3 PDF exports, no credit card required.<br className="hidden sm:inline" /> Experience the quality before you upgrade.</>}
+                    ctaLabel="Try Cvarchitect Free"
+                    onCta={() => navigate('/signup')}
+                    secondary={
+                        <button
+                            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                            className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-white/20 px-6 py-3 text-sm sm:text-base font-semibold text-white/80 transition-colors hover:bg-white/10 cursor-pointer"
+                        >
+                            Compare All Plans
+                        </button>
+                    }
+                    score={96}
+                    trustBullets={[
+                        'Cancel or upgrade anytime',
+                        'No hidden subscriptions',
+                        '100% money-back guarantee'
+                    ]}
+                />
             </main>
 
             <PublicFooter />

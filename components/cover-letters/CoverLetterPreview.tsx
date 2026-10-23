@@ -1,7 +1,12 @@
 import React from 'react';
 import { ResumeData } from '../../types';
 import { GeneratedCoverLetter } from '../utils/aiEnhancer';
-import { CoverLetterTemplateType, SAMPLE_COVER_LETTER_DATA, SAMPLE_COVER_LETTER_RESUME } from '../../utils/coverLetterConfig';
+import {
+    CoverLetterTemplateType,
+    SAMPLE_COVER_LETTER_DATA,
+    SAMPLE_COVER_LETTER_RESUME
+} from '../../utils/coverLetterConfig';
+import CorporateCoverLetter from './CorporateCoverLetter';
 import ModernCoverLetter from './ModernCoverLetter';
 import BoldCoverLetter from './BoldCoverLetter';
 import StructuredCoverLetter from './StructuredCoverLetter';
@@ -17,6 +22,7 @@ interface CoverLetterPreviewProps {
     content?: GeneratedCoverLetter | string;
     companyName?: string;
     jobTitle?: string;
+    signatureUrl?: string | null;
     className?: string;
 }
 
@@ -26,6 +32,7 @@ export default function CoverLetterPreview({
     content = SAMPLE_COVER_LETTER_DATA,
     companyName = 'Acme Corp',
     jobTitle = 'Senior Product Manager',
+    signatureUrl,
     className = ''
 }: CoverLetterPreviewProps) {
     // Normalize content object
@@ -50,7 +57,15 @@ export default function CoverLetterPreview({
             className={`w-[210mm] min-h-[297mm] bg-white text-gray-900 pointer-events-none select-none box-border shadow-xs ${className}`}
             style={{ width: '210mm', minHeight: '297mm' }}
         >
-            {template === 'technical' ? (
+            {template === 'corporate' ? (
+                <CorporateCoverLetter
+                    data={activeResumeData}
+                    content={normalizedContent}
+                    companyName={companyName}
+                    jobTitle={jobTitle}
+                    signatureUrl={signatureUrl}
+                />
+            ) : template === 'technical' ? (
                 <TechnicalCoverLetter
                     data={activeResumeData}
                     content={normalizedContent}
@@ -84,6 +99,7 @@ export default function CoverLetterPreview({
                     content={normalizedContent}
                     companyName={companyName}
                     jobTitle={jobTitle}
+                    signatureUrl={signatureUrl}
                 />
             ) : template === 'structured' ? (
                 <StructuredCoverLetter

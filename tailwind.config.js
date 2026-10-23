@@ -74,6 +74,7 @@ export default {
                 sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'sans-serif'],
                 serif: ['Merriweather', 'Georgia', 'serif'],
                 mono: ['Fira Code', 'monospace'],
+                signature: ['Alex Brush', 'Dancing Script', 'Caveat', 'Brush Script MT', 'cursive'],
             },
             boxShadow: {
                 'soft': '0 4px 20px -2px rgba(51, 60, 77, 0.05)',

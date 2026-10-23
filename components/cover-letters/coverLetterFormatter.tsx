@@ -118,6 +118,8 @@ export interface RenderCoverLetterContentProps {
     lineSpacing?: number;
     isStreaming?: boolean;
     serifName?: boolean;
+    signatureUrl?: string | null;
+    onUploadSignature?: () => void;
 }
 
 /**
@@ -127,7 +129,9 @@ export function RenderCoverLetterBlocks({
     blocks,
     lineSpacing,
     isStreaming = false,
-    serifName = true
+    serifName = true,
+    signatureUrl,
+    onUploadSignature
 }: RenderCoverLetterContentProps) {
     return (
         <>
@@ -141,8 +145,26 @@ export function RenderCoverLetterBlocks({
                         : [];
 
                     return (
-                        <div key={`signoff-${idx}`} className="pt-3 space-y-5">
+                        <div key={`signoff-${idx}`} className="pt-3 space-y-3">
                             <p className="leading-tight text-gray-900">{block.greeting}</p>
+
+                            {/* Render Uploaded / Custom Signature Image if provided */}
+                            {signatureUrl && (
+                                <div
+                                    className={`py-1 inline-block ${
+                                        onUploadSignature ? 'cursor-pointer hover:opacity-85 transition-opacity' : ''
+                                    }`}
+                                    onClick={onUploadSignature}
+                                    title={onUploadSignature ? 'Click to change signature' : undefined}
+                                >
+                                    <img
+                                        src={signatureUrl}
+                                        alt="Signature"
+                                        className="max-h-12 max-w-[200px] object-contain select-none"
+                                    />
+                                </div>
+                            )}
+
                             {signerLines.length > 0 ? (
                                 <div className="space-y-1">
                                     {signerLines.map((line, lineIdx) => {

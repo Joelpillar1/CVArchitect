@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useHydrating } from '../contexts/HydrationContext';
 import { Check, X, ArrowRight, Zap, Target, FileSearch, Sparkles, Layout, Trophy, PartyPopper, BarChart2, Copy } from 'lucide-react';
 import SEO from './SEO';
 import PublicFooter from './PublicFooter';
 import PublicHeader from './PublicHeader';
+import { PublicVisualCta } from './PublicVisualCta';
 import { Loader } from './ui/Loader';
 
 import { ATSEngine } from '../utils/ats-engine/engine';
@@ -21,6 +24,8 @@ const LOADING_STEPS = [
 ];
 
 export default function ResumeMatchChecker() {
+    const hydrating = useHydrating();
+    const navigate = useNavigate();
     const [resume, setResume] = useState('');
     const [jobDesc, setJobDesc] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -72,10 +77,11 @@ export default function ResumeMatchChecker() {
 
             <PublicHeader />
 
-            <main className="pt-28 pb-20 px-6 max-w-5xl mx-auto">
-                {/* Hero Header */}
+            <main className="pt-28 pb-0">
+                <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-20">
+                    {/* Hero Header */}
                 <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={hydrating ? false : { opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="text-center mb-12"
                 >
@@ -95,7 +101,7 @@ export default function ResumeMatchChecker() {
                 {/* Input Section */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
                     <motion.div 
-                        initial={{ opacity: 0, x: -20 }}
+                        initial={hydrating ? false : { opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.1 }}
                         className="flex flex-col gap-3"
@@ -113,7 +119,7 @@ export default function ResumeMatchChecker() {
                     </motion.div>
 
                     <motion.div 
-                        initial={{ opacity: 0, x: 20 }}
+                        initial={hydrating ? false : { opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.2 }}
                         className="flex flex-col gap-3"
@@ -135,7 +141,7 @@ export default function ResumeMatchChecker() {
                 <AnimatePresence>
                     {isLoading && (
                         <motion.div 
-                            initial={{ opacity: 0, scale: 0.9 }}
+                            initial={hydrating ? false : { opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.9 }}
                             className="bg-white rounded-3xl border-2 border-brand-green/30 shadow-float p-8 text-center mb-12 relative overflow-hidden"
@@ -151,7 +157,7 @@ export default function ResumeMatchChecker() {
                                     <h3 className="text-xl font-bold text-brand-dark">AI is analyzing your resume...</h3>
                                     <motion.p 
                                         key={loadingStep}
-                                        initial={{ opacity: 0, y: 10 }}
+                                        initial={hydrating ? false : { opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         className="text-brand-greenHover font-medium"
                                     >
@@ -204,7 +210,7 @@ export default function ResumeMatchChecker() {
                     {results && (
                         <motion.section 
                             id="results-section"
-                            initial={{ opacity: 0, y: 50 }}
+                            initial={hydrating ? false : { opacity: 0, y: 50 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 50 }}
                             className="scroll-mt-24"
@@ -248,7 +254,7 @@ export default function ResumeMatchChecker() {
                                                 stroke={results.score_breakdown.overall_score > 70 ? "#70E098" : results.score_breakdown.overall_score > 40 ? "#FFB800" : "#FF4D4D"}
                                                 strokeWidth="12"
                                                 strokeDasharray={552.92}
-                                                initial={{ strokeDashoffset: 552.92 }}
+                                                initial={hydrating ? false : { strokeDashoffset: 552.92 }}
                                                 animate={{ strokeDashoffset: 552.92 - (552.92 * results.score_breakdown.overall_score) / 100 }}
                                                 transition={{ duration: 1.5, ease: "easeOut" }}
                                                 strokeLinecap="round"
@@ -417,7 +423,7 @@ export default function ResumeMatchChecker() {
                                                         {results.bullet_suggestions.map((bullet, i) => (
                                                             <motion.div 
                                                                 key={i}
-                                                                initial={{ opacity: 0, x: -10 }}
+                                                                initial={hydrating ? false : { opacity: 0, x: -10 }}
                                                                 animate={{ opacity: 1, x: 0 }}
                                                                 transition={{ delay: i * 0.1 }}
                                                                 className="group relative bg-brand-bg/40 hover:bg-white p-5 rounded-xl border border-brand-border hover:border-brand-green/40 hover:shadow-soft transition-all"
@@ -521,7 +527,7 @@ export default function ResumeMatchChecker() {
                                 <div className="mt-16 pt-12 border-t border-brand-border text-center">
                                     {results.score_breakdown.raw_score >= 100 && results.missing_keywords.length === 0 ? (
                                         <motion.div 
-                                            initial={{ scale: 0.9, opacity: 0 }}
+                                            initial={hydrating ? false : { scale: 0.9, opacity: 0 }}
                                             animate={{ scale: 1, opacity: 1 }}
                                             className="bg-brand-green/5 rounded-2xl p-8 border-2 border-brand-green/30 relative overflow-hidden"
                                         >
@@ -544,17 +550,17 @@ export default function ResumeMatchChecker() {
                                                 </p>
                                                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                                                     <button 
-                                                        onClick={() => window.location.href = 'https://CVArchitect.app/signup'}
+                                                        onClick={() => window.location.href = 'https://cvarchitect.app/signup'}
                                                         className="px-10 py-5 bg-brand-dark text-white hover:bg-black rounded-full font-bold shadow-float transition-all flex items-center gap-2 group"
                                                     >
                                                         Build My Professional Resume
                                                         <Sparkles size={18} className="group-hover:rotate-12 transition-transform" />
                                                     </button>
                                                     <button 
-                                                        onClick={() => window.location.href = 'https://CVArchitect.app'}
+                                                        onClick={() => window.location.href = 'https://cvarchitect.app'}
                                                         className="px-8 py-5 border-2 border-brand-dark text-brand-dark hover:bg-brand-dark hover:text-white rounded-full font-bold transition-all"
                                                     >
-                                                        Visit CVArchitect App
+                                                        Visit Cvarchitect App
                                                     </button>
                                                 </div>
                                             </div>
@@ -568,13 +574,13 @@ export default function ResumeMatchChecker() {
                                                 Your resume is missing important keywords recruiters look for.
                                             </p>
                                             <p className="text-gray-600 mb-8 max-w-xl mx-auto">
-                                                Don't manually edit for every job application. Tailor your resume automatically with CVArchitect's AI builder to hit 95%+ match scores instantly.
+                                                Don't manually edit for every job application. Tailor your resume automatically with Cvarchitect's AI builder to hit 95%+ match scores instantly.
                                             </p>
                                             <button 
-                                                onClick={() => window.location.href = 'https://CVArchitect.app'}
+                                                onClick={() => window.location.href = 'https://cvarchitect.app'}
                                                 className="px-8 py-4 bg-brand-green hover:bg-brand-greenHover text-brand-dark rounded-full font-bold shadow-soft transition-all flex items-center gap-2 mx-auto"
                                             >
-                                                Tailor Your Resume with CVArchitect
+                                                Tailor Your Resume with Cvarchitect
                                                 <Sparkles size={18} />
                                             </button>
                                         </div>
@@ -655,7 +661,7 @@ export default function ResumeMatchChecker() {
                                 <div>
                                     <h4 className="font-bold text-lg mb-2 text-brand-dark">Is this resume checker free to use?</h4>
                                     <p className="text-gray-500 text-sm leading-relaxed">
-                                        Yes! CVArchitect offers this match checker as a free tool to help job seekers optimize their resumes. For even better results, you can use our AI Resume Builder to automatically tailor your content for every application.
+                                        Yes! Cvarchitect offers this match checker as a free tool to help job seekers optimize their resumes. For even better results, you can use our AI Resume Builder to automatically tailor your content for every application.
                                     </p>
                                 </div>
                                 <div>
@@ -667,26 +673,25 @@ export default function ResumeMatchChecker() {
                             </div>
                         </div>
 
-                        {/* Final Bottom CTA */}
-                        <div className="text-center bg-brand-dark rounded-[40px] p-10 md:p-16 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-green/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
-                            <div className="relative z-10">
-                                <h3 className="text-3xl md:text-4xl font-black text-white mb-6">
-                                    Tired of Manually <br className="hidden md:block" /> Optimizing Every Resume?
-                                </h3>
-                                <p className="text-gray-400 text-lg mb-10 max-w-xl mx-auto">
-                                    Join professionals using CVArchitect to build ATS-optimized resumes that get more interview callbacks.
-                                </p>
-                                <button 
-                                    onClick={() => window.location.href = 'https://CVArchitect.app/signup'}
-                                    className="px-12 py-5 bg-brand-green hover:bg-brand-greenHover text-brand-dark rounded-full font-black text-lg shadow-[0_20px_40px_rgba(112,224,152,0.3)] transition-all hover:scale-105"
-                                >
-                                    Increase My Match Score Now
-                                </button>
-                            </div>
-                        </div>
                     </div>
                 </section>
+                </div>
+
+                {/* Final Bottom Visual CTA - stretches full-width */}
+                <PublicVisualCta
+                    badge="Score 95%+ on Any ATS"
+                    badgeIcon={<Target className="w-3.5 h-3.5 text-brand-green" />}
+                    headline={<>Tired of manually<br className="hidden sm:inline" /> optimizing every resume?</>}
+                    sub={<>Let our AI match your experience against 3,500+ ATS keywords<br className="hidden sm:inline" /> and generate a tailor-fitted resume in 90 seconds.</>}
+                    ctaLabel="Increase My Match Score"
+                    onCta={() => navigate('/signup')}
+                    score={96}
+                    trustBullets={[
+                        'Cross-referenced with 4 ATS engines',
+                        'Real-time keyword gap analysis',
+                        'Free to start, no card needed'
+                    ]}
+                />
             </main>
 
             <PublicFooter />

@@ -1,20 +1,18 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Target, FileSearch, Sparkles, FileText, ArrowRight } from 'lucide-react';
+import { ChevronDown, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const FREE_TOOLS = [
     {
         label: 'Action Words for Resume',
         link: '/action-words',
-        description: 'High-impact action verbs and examples for your resume.',
-        icon: Sparkles
+        description: 'High-impact action verbs and examples for your resume.'
     },
     {
         label: 'Resume Match Checker',
         link: '/resume-checker',
-        description: 'Scan your resume against any job description.',
-        icon: Target
+        description: 'Scan your resume against any job description.'
     }
 ];
 
@@ -66,10 +64,10 @@ export default function ToolsDropdown({ isMobile, onClose }: ToolsDropdownProps)
                                     <button
                                         key={idx}
                                         onClick={() => handleNavigation(tool.link)}
-                                        className="flex items-center gap-3 p-3 text-sm font-bold text-gray-700 hover:text-brand-green text-left"
+                                        className="flex items-center justify-between p-3 text-sm font-bold text-gray-700 hover:text-brand-green text-left rounded-lg transition-colors"
                                     >
-                                        <tool.icon size={16} className="text-brand-green" />
-                                        {tool.label}
+                                        <span>{tool.label}</span>
+                                        <ArrowRight size={14} className="text-brand-green" />
                                     </button>
                                 ))}
                             </div>
@@ -97,7 +95,7 @@ export default function ToolsDropdown({ isMobile, onClose }: ToolsDropdownProps)
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
-                        className="absolute left-1/2 -translate-x-1/2 top-full w-[420px] pt-4 z-50 pointer-events-auto"
+                        className="absolute left-1/2 -translate-x-1/2 top-full w-[360px] pt-4 z-50 pointer-events-auto"
                     >
                         <div className="bg-white rounded-2xl shadow-float border border-brand-border overflow-hidden">
                             <div className="p-2 flex flex-col gap-1">
@@ -105,36 +103,22 @@ export default function ToolsDropdown({ isMobile, onClose }: ToolsDropdownProps)
                                     <button
                                         key={idx}
                                         onClick={() => handleNavigation(tool.link)}
-                                        className="flex items-start gap-3.5 p-3.5 rounded-xl hover:bg-brand-secondary transition-all text-left group/item border border-transparent hover:border-brand-border"
+                                        className="p-3.5 rounded-xl hover:bg-brand-secondary transition-all text-left group/item border border-transparent hover:border-brand-border"
                                     >
-                                        <div className="p-2.5 bg-brand-green/10 rounded-xl border border-brand-green/30 text-brand-green shrink-0 transition-transform group-hover/item:scale-110">
-                                            <tool.icon size={18} />
-                                        </div>
-                                        <div className="min-w-0 flex-1">
-                                            <p className="font-bold text-brand-dark text-sm mb-1 flex items-center gap-1.5">
-                                                {tool.label}
+                                        <div className="min-w-0">
+                                            <p className="font-bold text-brand-dark text-sm mb-1 flex items-center justify-between">
+                                                <span>{tool.label}</span>
                                                 <ArrowRight
                                                     size={14}
                                                     className="text-brand-green opacity-0 -translate-x-1 transition-all group-hover/item:opacity-100 group-hover/item:translate-x-0"
                                                 />
                                             </p>
-                                            <p className="text-xs text-gray-500 leading-relaxed font-medium">
+                                            <p className="text-xs text-gray-500 leading-relaxed font-normal">
                                                 {tool.description}
                                             </p>
                                         </div>
                                     </button>
                                 ))}
-                            </div>
-
-                            <div className="px-5 py-3 bg-brand-bg/60 border-t border-brand-border flex items-center justify-between">
-                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Free Career Resources</p>
-                                <button 
-                                    onClick={() => handleNavigation('/blog')}
-                                    className="text-xs font-bold text-brand-green hover:text-brand-greenHover flex items-center gap-1.5 transition-all"
-                                >
-                                    View all resources
-                                    <ArrowRight size={14} />
-                                </button>
                             </div>
                         </div>
                     </motion.div>

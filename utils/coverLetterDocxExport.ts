@@ -1,6 +1,6 @@
 /**
  * coverLetterDocxExport.ts
- * High-performance client-side Word (.docx) export for CVArchitect cover letters.
+ * High-performance client-side Word (.docx) export for Cvarchitect cover letters.
  * Generates pixel-perfect, ATS-compliant editable Microsoft Word (.docx) documents
  * mirroring the selected template design (Modern, Classic, Editorial, Minimal, Academic, Technical, Bold, Impact).
  */
@@ -92,25 +92,26 @@ export function buildCoverLetterDocxDocument(options: CoverLetterDocxOptions): D
   const isAcademic = template === 'academic';
   const isEditorial = template === 'editorial';
   const isBold = template === 'bold';
+  const isCorporate = template === 'corporate';
 
   const children: Paragraph[] = [];
 
   // ==========================================
   // 1. CANDIDATE HEADER
   // ==========================================
-  const candidateName = resumeData.fullName || 'Applicant';
+  const candidateName = resumeData.fullName || 'Alex Morgan';
   const candidateRole = resumeData.jobTitle || jobTitle || '';
 
   // Name paragraph
   children.push(
     new Paragraph({
       alignment: isCentered ? AlignmentType.CENTER : AlignmentType.LEFT,
-      spacing: { after: candidateRole ? 40 : 100 },
+      spacing: { after: candidateRole && !isCorporate ? 40 : 100 },
       children: [
         new TextRun({
           text: candidateName,
           bold: true,
-          size: isBold ? 40 : isTechnical ? 36 : 32, // 16 - 20pt
+          size: isBold ? 40 : isTechnical ? 36 : isCorporate ? 30 : 32, // 15 - 20pt
           font,
           color: '111827',
         }),
@@ -118,7 +119,7 @@ export function buildCoverLetterDocxDocument(options: CoverLetterDocxOptions): D
     })
   );
 
-  // Job title subtitle (if present)
+  // Job title subtitle (if present, except in standard corporate where it is in the subject line)
   if (candidateRole && (isCentered || isBold || isTechnical)) {
     children.push(
       new Paragraph({
@@ -182,7 +183,7 @@ export function buildCoverLetterDocxDocument(options: CoverLetterDocxOptions): D
         },
       })
     );
-  } else if (isEditorial || isTechnical || isAcademic) {
+  } else if (isEditorial || isTechnical || isAcademic || isCorporate) {
     // Stacked clean contact lines
     contactParts.forEach((part, idx) => {
       const isLast = idx === contactParts.length - 1;
@@ -226,8 +227,8 @@ export function buildCoverLetterDocxDocument(options: CoverLetterDocxOptions): D
   // ==========================================
   const formattedDate = getFormattedDate();
 
-  // For Academic: Standalone Date first
-  if (isAcademic) {
+  // For Academic & Corporate: Standalone Date first
+  if (isAcademic || isCorporate) {
     children.push(
       new Paragraph({
         alignment: AlignmentType.LEFT,
@@ -245,20 +246,32 @@ export function buildCoverLetterDocxDocument(options: CoverLetterDocxOptions): D
   }
 
   // Recipient block
-  if (companyName || jobTitle) {
+  if (companyName || jobTitle || isCorporate) {
     const recipientLines: { text: string; bold?: boolean; color?: string }[] = [];
-    if (companyName) {
+    if (isCorporate) {
       recipientLines.push({
-        text: companyName,
-        bold: isTechnical || isBold,
-        color: isTechnical ? '030712' : '1F2937',
+        text: 'Hiring Team',
+        bold: true,
+        color: '111827',
       });
-    }
-    if (jobTitle) {
       recipientLines.push({
-        text: jobTitle,
-        color: '4B5563',
+        text: companyName || 'Acme Corp',
+        color: '374151',
       });
+    } else {
+      if (companyName) {
+        recipientLines.push({
+          text: companyName,
+          bold: isTechnical || isBold,
+          color: isTechnical ? '030712' : '1F2937',
+        });
+      }
+      if (jobTitle) {
+        recipientLines.push({
+          text: jobTitle,
+          color: '4B5563',
+        });
+      }
     }
 
     recipientLines.forEach((line, idx) => {
@@ -266,7 +279,7 @@ export function buildCoverLetterDocxDocument(options: CoverLetterDocxOptions): D
       children.push(
         new Paragraph({
           alignment: AlignmentType.LEFT,
-          spacing: { after: isLast ? (isAcademic ? 240 : 160) : 40 },
+          spacing: { after: isLast ? (isAcademic || isCorporate ? 240 : 160) : 40 },
           children: [
             new TextRun({
               text: line.text,
@@ -281,8 +294,8 @@ export function buildCoverLetterDocxDocument(options: CoverLetterDocxOptions): D
     });
   }
 
-  // For Non-Academic templates: Date after recipient
-  if (!isAcademic && !isEditorial) {
+  // For Non-Academic, Non-Corporate templates: Date after recipient
+  if (!isAcademic && !isEditorial && !isCorporate) {
     children.push(
       new Paragraph({
         alignment: AlignmentType.LEFT,
@@ -293,6 +306,25 @@ export function buildCoverLetterDocxDocument(options: CoverLetterDocxOptions): D
             size: baseSizeHalfPoints,
             font,
             color: '4B5563',
+          }),
+        ],
+      })
+    );
+  }
+
+  // For Corporate: Bold Subject line
+  if (isCorporate) {
+    children.push(
+      new Paragraph({
+        alignment: AlignmentType.LEFT,
+        spacing: { before: 100, after: 180 },
+        children: [
+          new TextRun({
+            text: `Application for ${jobTitle || 'Marketing Manager'}`,
+            bold: true,
+            size: Math.round(baseSizeHalfPoints * 1.15),
+            font,
+            color: '111827',
           }),
         ],
       })
@@ -312,7 +344,7 @@ export function buildCoverLetterDocxDocument(options: CoverLetterDocxOptions): D
         spacing: { after: 200, line: lineSpacingTwips },
         children: [
           new TextRun({
-            text: 'Dear Hiring Team,',
+            text: isCorporate ? 'Dear Ms. Doe,' : 'Dear Hiring Team,',
             size: baseSizeHalfPoints,
             font,
             color: '1F2937',

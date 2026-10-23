@@ -57,8 +57,8 @@ export default function Contact({ onBack }: ContactProps) {
     return (
         <div className="min-h-screen bg-white">
             <SEO
-                title="Contact CVArchitect  -  Customer Support & Help"
-                description="Have questions about CVArchitect? Contact our support team via email at support@cvarchitect.app or live chat. We typically respond within 24 hours."
+                title="Contact Cvarchitect  -  Customer Support & Help"
+                description="Have questions about Cvarchitect? Contact our support team via email at support@cvarchitect.app or live chat. We typically respond within 24 hours."
                 canonicalPath="/contact"
             />
             <PublicHeader />
@@ -249,7 +249,7 @@ export default function Contact({ onBack }: ContactProps) {
                 <div className="bg-slate-50 rounded-2xl p-8 text-center">
                     <h3 className="text-xl font-bold text-brand-dark mb-3">Need Immediate Help?</h3>
                     <p className="text-gray-600 mb-4">
-                        Check out our comprehensive Help Center for instant answers to common questions about resume building, ATS optimization, and using CVArchitect's features.
+                        Check out our comprehensive Help Center for instant answers to common questions about resume building, ATS optimization, and using Cvarchitect's features.
                     </p>
                     <Link
                         to="/support"

@@ -51,11 +51,11 @@ export default function ForgotPassword() {
                     <a href="/" className="flex items-center gap-2.5 group">
                         <img
                             src="/images/logo icon.png"
-                            alt="CVArchitect"
+                            alt="Cvarchitect"
                             className="w-8 h-8 object-contain transition-transform duration-200 group-hover:scale-105"
                         />
                         <span className="font-bold text-xl tracking-tight text-brand-dark">
-                            CVArchitect
+                            Cvarchitect
                         </span>
                     </a>
 
@@ -152,7 +152,7 @@ export default function ForgotPassword() {
 
                 {/* Footer */}
                 <div className="flex items-center justify-center text-[11px] text-gray-400 pt-4 border-t border-gray-100">
-                    <span>© {new Date().getFullYear()} CVArchitect</span>
+                    <span>© {new Date().getFullYear()} Cvarchitect</span>
                 </div>
             </div>
 

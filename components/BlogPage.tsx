@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Clock, ArrowRight, Tag, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useHydrating } from '../contexts/HydrationContext';
 import { blogPosts, getAllCategories } from '../utils/blogData';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
@@ -18,6 +19,7 @@ const staggerContainer = {
 };
 
 export default function BlogPage() {
+    const hydrating = useHydrating();
     const navigate = useNavigate();
     const [activeCategory, setActiveCategory] = useState<string>('All');
     const [searchQuery, setSearchQuery] = useState('');
@@ -46,18 +48,18 @@ export default function BlogPage() {
     return (
         <div className="min-h-screen bg-white font-sans">
             <SEO
-                title="CVArchitect Blog — Resume Tips, ATS Guides & Career Advice"
-                description="Expert resume writing tips, ATS optimization guides, and career advice to help you land more interviews. Resources from CVArchitect's team of hiring experts."
+                title="Cvarchitect Blog — Resume Tips, ATS Guides & Career Advice"
+                description="Expert resume writing tips, ATS optimization guides, and career advice to help you land more interviews. Resources from Cvarchitect's team of hiring experts."
                 canonicalPath="/blog"
                 jsonLd={{
                     "@context": "https://schema.org",
                     "@type": "Blog",
-                    "name": "CVArchitect Blog",
+                    "name": "Cvarchitect Blog",
                     "description": "Expert resume writing tips, ATS optimization guides, and career advice.",
                     "url": "https://cvarchitect.app/blog",
                     "publisher": {
                         "@type": "Organization",
-                        "name": "CVArchitect",
+                        "name": "Cvarchitect",
                         "url": "https://cvarchitect.app"
                     }
                 }}
@@ -68,7 +70,7 @@ export default function BlogPage() {
             <section className="pt-32 pb-12 px-6 bg-gradient-to-b from-slate-50 to-white">
                 <div className="max-w-5xl mx-auto text-center">
                     <motion.div
-                        initial="hidden"
+                        initial={hydrating ? false : 'hidden'}
                         animate="visible"
                         variants={fadeUp}
                     >
@@ -76,7 +78,7 @@ export default function BlogPage() {
                             Career Resources
                         </span>
                         <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-brand-dark mb-4 leading-tight" style={{ fontFamily: 'Graphik, sans-serif' }}>
-                            The CVArchitect Blog
+                            The Cvarchitect Blog
                         </h1>
                         <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto mb-8">
                             Expert resume tips, ATS optimization strategies, and career advice to help you land your dream job faster.
@@ -120,7 +122,7 @@ export default function BlogPage() {
                 <section className="px-6 py-12">
                     <div className="max-w-5xl mx-auto">
                         <motion.article
-                            initial="hidden"
+                            initial={hydrating ? false : 'hidden'}
                             whileInView="visible"
                             viewport={{ once: true }}
                             variants={fadeUp}
@@ -186,7 +188,7 @@ export default function BlogPage() {
                         </div>
                     ) : (
                         <motion.div
-                            initial="hidden"
+                            initial={hydrating ? false : 'hidden'}
                             whileInView="visible"
                             viewport={{ once: true }}
                             variants={staggerContainer}

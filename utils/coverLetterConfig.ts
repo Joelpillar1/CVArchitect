@@ -1,7 +1,7 @@
 import { ResumeData } from '../types';
 import { GeneratedCoverLetter } from '../components/utils/aiEnhancer';
 
-export type CoverLetterTemplateType = 'classic' | 'editorial' | 'minimal' | 'academic' | 'technical' | 'modern' | 'bold' | 'structured';
+export type CoverLetterTemplateType = 'corporate' | 'classic' | 'editorial' | 'minimal' | 'academic' | 'technical' | 'modern' | 'bold' | 'structured';
 
 export interface CoverLetterTemplateConfig {
     id: CoverLetterTemplateType;
@@ -14,6 +14,15 @@ export interface CoverLetterTemplateConfig {
 }
 
 export const COVER_LETTER_TEMPLATES: CoverLetterTemplateConfig[] = [
+    {
+        id: 'corporate',
+        name: 'Corporate Standard',
+        subtitle: 'Formal business format with bold address blocks, subject line & signature',
+        category: 'Professional',
+        isFree: false,
+        description: 'Faithfully cloned from classic corporate correspondence: prominent bold sender & recipient addresses, standalone date, bold reference subject line, and an authentic cursive fountain-pen signature.',
+        tags: ['Corporate', 'Business', 'Subject Line', 'Signature', 'ATS-Friendly']
+    },
     {
         id: 'technical',
         name: 'Technical',
@@ -165,3 +174,4 @@ Alex Morgan`
 export function getCoverLetterTemplateConfig(id: CoverLetterTemplateType): CoverLetterTemplateConfig {
     return COVER_LETTER_TEMPLATES.find(t => t.id === id) || COVER_LETTER_TEMPLATES[0];
 }
+

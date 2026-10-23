@@ -7,7 +7,7 @@ import { VerticalCutReveal } from './vertical-cut-reveal';
 import { cn } from '../../lib/utils';
 import { Sparkles, CheckCheck, FileText, Layers, ShieldCheck, Infinity as InfinityIcon, Loader2, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BorderBeam } from 'border-beam';
+
 import { PlanId } from '../../types/pricing';
 import { Loader } from './Loader';
 
@@ -201,7 +201,7 @@ export default function PricingSection({
               className={cn(
                 'relative rounded-xl border transition-all flex flex-col w-full h-full overflow-hidden',
                 isDark
-                  ? 'bg-brand-dark text-white border-white/10'
+                  ? 'bg-brand-dark text-white border-brand-green/25 ring-1 ring-brand-green/15 shadow-[0_0_60px_-22px_rgba(166,255,0,0.5)]'
                   : 'bg-white text-brand-dark border-brand-border hover:border-brand-dark/30'
               )}
             >
@@ -254,13 +254,13 @@ export default function PricingSection({
                     'text-4xl sm:text-5xl font-extrabold tracking-tight',
                     isDark ? 'text-white' : 'text-brand-dark'
                   )}>
-                    ${plan.price}
+                    {`$${plan.price}`}
                   </span>
                   <span className={cn(
                     'font-semibold text-xs sm:text-sm ml-1.5',
                     isDark ? 'text-white/60' : 'text-brand-dark/60'
                   )}>
-                    /{plan.period}
+                    {`/${plan.period}`}
                   </span>
                 </div>
               </CardHeader>
@@ -366,20 +366,7 @@ export default function PricingSection({
               customVariants={revealVariants}
               className="flex"
             >
-              {isDark ? (
-                <BorderBeam
-                  size="md"
-                  theme="dark"
-                  borderRadius={12}
-                  strength={0.75}
-                  duration={4}
-                  className="rounded-xl w-full flex flex-col flex-1"
-                >
-                  {cardContent}
-                </BorderBeam>
-              ) : (
-                cardContent
-              )}
+              {cardContent}
             </TimelineContent>
           );
         })}

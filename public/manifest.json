@@ -1,6 +1,6 @@
 {
-    "name": "CVArchitect",
-    "short_name": "CVArchitect",
+    "name": "Cvarchitect",
+    "short_name": "Cvarchitect",
     "description": "AI-powered resume builder that helps professionals create ATS-optimized resumes and land interviews faster.",
     "start_url": "/?source=pwa",
     "display": "standalone",

@@ -2,7 +2,7 @@
  * pdfExport.ts
  *
  * Client-side PDF export and download utilities adapted from BentoPDF and optimized
- * for CVArchitect.
+ * for Cvarchitect.
  *
  * Features:
  * - High-DPI (2x scale) client-side rasterized PDF generation using html2canvas + jsPDF.

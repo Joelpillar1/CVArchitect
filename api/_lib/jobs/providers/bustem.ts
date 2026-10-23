@@ -270,7 +270,7 @@ function detailToJob(
 
 /** Default agent string so Bustem can identify and rate-limit us. */
 const BOT_HEADERS = {
-  'User-Agent': 'CVArchitect-JobBot/1.0 (+https://cvarchitect.com/bot)',
+  'User-Agent': 'Cvarchitect-JobBot/1.0 (+https://cvarchitect.com/bot)',
   Accept: 'text/html,application/xhtml+xml,*/*',
 };
 

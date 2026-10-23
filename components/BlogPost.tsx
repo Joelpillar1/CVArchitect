@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Clock, ArrowLeft, ArrowRight, User, Calendar, Tag, Maximize2, Check, Copy, Sparkles, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getPostBySlug, blogPosts, BlogSection } from '../utils/blogData';
+import { getRelatedLinks } from '../utils/relatedLinks';
+import { useHydrating } from '../contexts/HydrationContext';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
 import SEO from './SEO';
@@ -197,6 +199,7 @@ function renderSection(section: BlogSection, index: number) {
 }
 
 const BulletShowcase = ({ bullets, categories }: { bullets: { category: string; text: string }[], categories: string[] }) => {
+    const hydrating = useHydrating();
     const [activeCategory, setActiveCategory] = React.useState(categories[0] || 'All');
     const [copiedIndex, setCopiedIndex] = React.useState<number | null>(null);
     const [searchQuery, setSearchQuery] = React.useState('');
@@ -255,7 +258,7 @@ const BulletShowcase = ({ bullets, categories }: { bullets: { category: string; 
                         {filteredBullets.map((bullet, idx) => (
                             <motion.div
                                 layout
-                                initial={{ opacity: 0, scale: 0.9 }}
+                                initial={hydrating ? false : { opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.9 }}
                                 key={`${bullet.category}-${idx}`}
@@ -314,6 +317,7 @@ const BulletShowcase = ({ bullets, categories }: { bullets: { category: string; 
 export default function BlogPost() {
     const { slug } = useParams<{ slug: string }>();
     const navigate = useNavigate();
+    const hydrating = useHydrating();
     const post = slug ? getPostBySlug(slug) : undefined;
 
     useEffect(() => {
@@ -349,11 +353,16 @@ export default function BlogPost() {
     const prevPost = currentIndex > 0 ? blogPosts[currentIndex - 1] : null;
     const nextPost = currentIndex < blogPosts.length - 1 ? blogPosts[currentIndex + 1] : null;
 
+    // Marketing pages that match this article's topic.
+    const relatedLinks = getRelatedLinks(post);
+
     const formatDate = (dateStr: string) => {
         return new Date(dateStr).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
-            day: 'numeric'
+            day: 'numeric',
+            // Fixed zone keeps prerendered dates identical for every visitor.
+            timeZone: 'UTC',
         });
     };
 
@@ -371,7 +380,7 @@ export default function BlogPost() {
                     "description": post.metaDescription,
                     "image": `https://cvarchitect.app${post.coverImage}`,
                     "datePublished": post.publishDate,
-                    "dateModified": post.publishDate,
+                    "dateModified": post.updatedDate ?? post.publishDate,
                     "author": {
                         "@type": "Organization",
                         "name": post.author,
@@ -379,7 +388,7 @@ export default function BlogPost() {
                     },
                     "publisher": {
                         "@type": "Organization",
-                        "name": "CVArchitect",
+                        "name": "Cvarchitect",
                         "url": "https://cvarchitect.app",
                         "logo": {
                             "@type": "ImageObject",
@@ -397,7 +406,7 @@ export default function BlogPost() {
 
             {/* Article Header */}
             <motion.header
-                initial="hidden"
+                initial={hydrating ? false : 'hidden'}
                 animate="visible"
                 variants={fadeUp}
                 className="pt-28 pb-8 px-6"
@@ -430,10 +439,10 @@ export default function BlogPost() {
                     <div className="flex items-center gap-6 text-sm text-gray-500 pb-6 border-b border-gray-100">
                         <span className="flex items-center gap-2">
                             <div className="w-8 h-8 rounded-full overflow-hidden bg-brand-green/10 flex items-center justify-center">
-                                {post.author === 'CVArchitect Team' ? (
+                                {post.author === 'Cvarchitect Team' ? (
                                     <img 
                                         src="/images/logo icon.png" 
-                                        alt="CVArchitect Team" 
+                                        alt="Cvarchitect Team" 
                                         className="w-5 h-5 object-contain"
                                     />
                                 ) : (
@@ -444,7 +453,17 @@ export default function BlogPost() {
                         </span>
                         <span className="flex items-center gap-2">
                             <Calendar size={14} />
-                            {formatDate(post.publishDate)}
+                            {post.updatedDate ? (
+                                <>
+                                    <span>{formatDate(post.publishDate)}</span>
+                                    <span className="text-gray-300">·</span>
+                                    <span className="font-medium text-brand-dark/70">
+                                        {`Updated ${formatDate(post.updatedDate)}`}
+                                    </span>
+                                </>
+                            ) : (
+                                formatDate(post.publishDate)
+                            )}
                         </span>
                     </div>
                 </div>
@@ -480,6 +499,34 @@ export default function BlogPost() {
                             >
                                 {tag}
                             </span>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Related resources */}
+            <section className="px-6 pb-12">
+                <div className="max-w-3xl mx-auto rounded-2xl border border-gray-100 bg-slate-50/60 p-6 md:p-8">
+                    <h2 className="text-lg font-bold text-brand-dark">Keep going</h2>
+                    <p className="mt-1 text-sm text-gray-500">Tools that pair with this guide.</p>
+                    <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                        {relatedLinks.map((link) => (
+                            <a
+                                key={link.href}
+                                href={link.href}
+                                className="group block rounded-xl border border-gray-200 bg-white p-4 transition-colors hover:border-brand-green/50"
+                            >
+                                <span className="flex items-center justify-between gap-2 text-sm font-bold text-brand-dark">
+                                    {link.label}
+                                    <ArrowRight
+                                        size={14}
+                                        className="shrink-0 transition-transform group-hover:translate-x-0.5"
+                                    />
+                                </span>
+                                <span className="mt-1 block text-xs leading-relaxed text-gray-500">
+                                    {link.description}
+                                </span>
+                            </a>
                         ))}
                     </div>
                 </div>
@@ -558,7 +605,7 @@ export default function BlogPost() {
                         Put These Tips Into Action
                     </h2>
                     <p className="text-gray-300 text-lg mb-8">
-                        Build your ATS-optimized resume in minutes, not hours. CVArchitect's AI handles the hard part.
+                        Build your ATS-optimized resume in minutes, not hours. Cvarchitect's AI handles the hard part.
                     </p>
                     <a
                         href="/signup"

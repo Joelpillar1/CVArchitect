@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useHydrating } from '../contexts/HydrationContext';
 
 interface AuthHeroShowcaseProps {
   headlineTop?: string;
@@ -8,9 +9,14 @@ interface AuthHeroShowcaseProps {
 
 /* Animated stat counter that runs immediately on mount */
 function Counter({ value, decimals = 0, suffix = '' }: { value: number; decimals?: number; suffix?: string }) {
-  const [display, setDisplay] = useState('0');
+  const hydrating = useHydrating();
+  const prerendering =
+    typeof window !== 'undefined' && (window as any).__PRERENDER_HYDRATION__ === true;
+  const staticValue = hydrating || prerendering;
+  const [display, setDisplay] = useState(() => (staticValue ? value.toFixed(decimals) : '0'));
 
   useEffect(() => {
+    if (staticValue) return;
     const duration = 1400;
     const start = performance.now();
     let raf: number;
@@ -22,20 +28,16 @@ function Counter({ value, decimals = 0, suffix = '' }: { value: number; decimals
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [value, decimals]);
+  }, [value, decimals, staticValue]);
 
-  return (
-    <span>
-      {display}
-      {suffix}
-    </span>
-  );
+  return <span>{`${display}${suffix}`}</span>;
 }
 
 export default function AuthHeroShowcase({
   headlineTop = 'Build Resumes That',
   headlineBottom = 'Actually Get Read',
 }: AuthHeroShowcaseProps) {
+  const hydrating = useHydrating();
   return (
     <div className="hidden lg:flex flex-col justify-between h-full min-h-screen bg-brand-dark p-10 xl:p-14 relative overflow-hidden select-none">
       {/* Ambient colour blobs */}
@@ -89,7 +91,7 @@ export default function AuthHeroShowcase({
 
           {/* ─── ATS Score Card — floating over the sheets with active animations ─── */}
           <motion.div
-            initial={{ opacity: 0, x: '-50%', y: 16, scale: 0.95 }}
+            initial={hydrating ? false : { opacity: 0, x: '-50%', y: 16, scale: 0.95 }}
             animate={{ opacity: 1, x: '-50%', y: 0, scale: 1 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="absolute -bottom-2 left-1/2 z-30 w-[280px] xl:w-[300px] bg-white rounded-2xl p-5 text-center shadow-xl shadow-black/15"
@@ -100,7 +102,7 @@ export default function AuthHeroShowcase({
                 <Counter value={96} />
               </span>
               <motion.div 
-                initial={{ scale: 0.8, opacity: 0 }}
+                initial={hydrating ? false : { scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
                 className="mt-1"
@@ -132,7 +134,7 @@ export default function AuthHeroShowcase({
                         y="2" 
                         height="14" 
                         rx="7" 
-                        initial={{ width: 0 }}
+                        initial={hydrating ? false : { width: 0 }}
                         animate={{ width: (96 / 100) * 240 }}
                         transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
                       />
@@ -161,7 +163,7 @@ export default function AuthHeroShowcase({
                     stroke="#1E293B"
                     strokeWidth="3"
                     className="filter drop-shadow-md"
-                    initial={{ cx: 8 }}
+                    initial={hydrating ? false : { cx: 8 }}
                     animate={{ cx: (96 / 100) * 240 }}
                     transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
                   />
@@ -204,7 +206,7 @@ export default function AuthHeroShowcase({
                       return (
                         <motion.div
                           key={bIdx}
-                          initial={{ scaleY: 0, opacity: 0.2 }}
+                          initial={hydrating ? false : { scaleY: 0, opacity: 0.2 }}
                           animate={{ scaleY: 1, opacity: 1 }}
                           transition={{
                             delay: isLit ? 0.2 + cIdx * 0.15 + bIdx * 0.05 : 0,

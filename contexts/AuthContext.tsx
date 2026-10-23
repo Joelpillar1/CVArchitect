@@ -3,6 +3,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { getPendingCheckoutPlan } from '../utils/pendingCheckout';
 import { getAppUrl } from '../utils/appUrl';
+import { getAttributionMetadata, trackSignupAttribution } from '../utils/attribution';
 
 interface AuthContextType {
     user: User | null;
@@ -118,6 +119,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         })
                         .catch((err) => console.warn('Welcome email (Google fallback) failed (non-critical):', err));
                 }
+
+                // OAuth signups never pass through the signup form, so attach the
+                // first-party attribution captured on arrival to the new account.
+                if (isOAuth && isNewUser) {
+                    const attributionKey = `attribution_sent_${u.id}`;
+                    if (!u.user_metadata?.signup_source && !localStorage.getItem(attributionKey)) {
+                        const attribution = getAttributionMetadata();
+                        if (Object.keys(attribution).length > 0) {
+                            localStorage.setItem(attributionKey, '1');
+                            supabase.auth.updateUser({ data: attribution }).catch((err) => {
+                                console.warn('Attribution backfill failed (non-critical):', err);
+                            });
+                        }
+                    }
+                    trackSignupAttribution('google');
+                }
             }
         });
 
@@ -136,6 +153,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 options: {
                     data: {
                         full_name: fullName,
+                        ...getAttributionMetadata(),
                     },
                 },
             });
@@ -149,6 +167,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (identities && identities.length === 0) {
                 throw new Error('This email is already registered.');
             }
+
+            trackSignupAttribution('email');
 
             // Fire-and-forget welcome email via Supabase Edge Function + Resend.
             // Any failure here is logged but never blocks signup.

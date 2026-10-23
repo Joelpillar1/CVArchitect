@@ -478,7 +478,7 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
         className="text-center"
         style={{ marginBottom: `${getHeaderGapIn(data)}in` }}
       >
-        <h1
+        <div data-resume-name
           data-path="fullName"
           className="font-bold tracking-normal text-gray-900 mb-1.5"
           style={{
@@ -488,7 +488,7 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
           }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase)} />
-        </h1>
+        </div>
 
         {/* Note: Professional title removed from the top as requested */}
 

@@ -24,7 +24,10 @@ import {
     SlidersHorizontal,
     Edit3,
     CheckCircle2,
-    BookOpen
+    BookOpen,
+    PenTool,
+    Upload,
+    Trash2
 } from 'lucide-react';
 import { ResumeData } from '../types';
 import { generateCoverLetter, GeneratedCoverLetter, CoverLetterOptions } from '../components/utils/aiEnhancer';
@@ -36,8 +39,10 @@ import EditorialCoverLetter from '../components/cover-letters/EditorialCoverLett
 import MinimalCoverLetter from '../components/cover-letters/MinimalCoverLetter';
 import AcademicCoverLetter from '../components/cover-letters/AcademicCoverLetter';
 import TechnicalCoverLetter from '../components/cover-letters/TechnicalCoverLetter';
+import CorporateCoverLetter from '../components/cover-letters/CorporateCoverLetter';
 import CoverLetterTemplates from '../components/cover-letters/CoverLetterTemplates';
 import CoverLetterPreview from '../components/cover-letters/CoverLetterPreview';
+import SignatureModal from '../components/cover-letters/SignatureModal';
 import {
     CoverLetterTemplateType,
     COVER_LETTER_TEMPLATES,
@@ -392,6 +397,50 @@ export default function CoverLetterPage({
     const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
     const [activeMobileTab, setActiveMobileTab] = useState<'editor' | 'preview'>('preview');
 
+    // Signature upload state
+    const [signatureUrl, setSignatureUrlState] = useState<string | null>(() => {
+        return loadFromStorage<string | null>('cover_letter_signature', null);
+    });
+    const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
+    const signatureFileInputRef = useRef<HTMLInputElement>(null);
+
+    const setSignatureUrl = useCallback((url: string | null) => {
+        setSignatureUrlState(url);
+        if (url) {
+            saveToStorage('cover_letter_signature', url);
+        } else {
+            localStorage.removeItem('cover_letter_signature');
+        }
+    }, []);
+
+    const handleSignatureFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            showToast('Please select a valid image file (PNG, JPG, SVG, WebP)', 'error');
+            return;
+        }
+
+        if (file.size > 3 * 1024 * 1024) {
+            showToast('Signature image must be under 3MB', 'error');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            const result = reader.result as string;
+            setSignatureUrl(result);
+            showToast('Signature updated successfully!', 'success');
+            setIsSignatureModalOpen(false);
+        };
+        reader.onerror = () => {
+            showToast('Failed to read image file', 'error');
+        };
+        reader.readAsDataURL(file);
+        e.target.value = '';
+    };
+
     useEffect(() => {
         const handleOutsideClick = (e: MouseEvent) => {
             if (downloadMenuRef.current && !downloadMenuRef.current.contains(e.target as Node)) {
@@ -528,8 +577,8 @@ export default function CoverLetterPage({
         if (generatedLetter) return generatedLetter;
 
         const candidateName = resumeData.fullName || 'Alex Morgan';
-        const targetTitle = jobTitle.trim() || resumeData.jobTitle || 'Professional';
-        const targetCompany = companyName.trim() || 'Hiring Team';
+        const targetTitle = jobTitle.trim() || resumeData.jobTitle || 'Senior Product Manager';
+        const targetCompany = companyName.trim() || 'Acme Corp';
 
         const customizedText = SAMPLE_COVER_LETTER_DATA.plainText
             .replace(/Alex Morgan/g, candidateName)
@@ -682,8 +731,8 @@ export default function CoverLetterPage({
     };
 
     const handleUseSampleDraft = () => {
-        const title = jobTitle.trim() || resumeData.jobTitle || 'Senior Professional';
-        const company = companyName.trim() || 'Target Company';
+        const title = jobTitle.trim() || resumeData.jobTitle || 'Senior Product Manager';
+        const company = companyName.trim() || 'Acme Corp';
         setJobTitle(title);
         setCompanyName(company);
 
@@ -878,7 +927,75 @@ export default function CoverLetterPage({
             {createPortal(
                 <div className="print-root hidden print:block absolute top-0 left-0 w-full h-auto bg-white z-[9999] print:w-full print:max-w-[210mm]">
                     <div className="print-cover-letter" style={{ padding: '0 8mm' }}>
-                        {selectedTemplate === 'structured' ? (
+                        {selectedTemplate === 'corporate' ? (
+                            <CorporateCoverLetter
+                                data={resumeData}
+                                content={displayContent}
+                                companyName={companyName}
+                                jobTitle={jobTitle}
+                                signatureUrl={signatureUrl}
+                                fontSize={fontSize}
+                                lineSpacing={lineSpacing}
+                                spacing={spacing}
+                                fontFamily={fontFamily}
+                            />
+                        ) : selectedTemplate === 'technical' ? (
+                            <TechnicalCoverLetter
+                                data={resumeData}
+                                content={displayContent}
+                                companyName={companyName}
+                                jobTitle={jobTitle}
+                                fontSize={fontSize}
+                                lineSpacing={lineSpacing}
+                                spacing={spacing}
+                                fontFamily={fontFamily}
+                            />
+                        ) : selectedTemplate === 'academic' ? (
+                            <AcademicCoverLetter
+                                data={resumeData}
+                                content={displayContent}
+                                companyName={companyName}
+                                jobTitle={jobTitle}
+                                fontSize={fontSize}
+                                lineSpacing={lineSpacing}
+                                spacing={spacing}
+                                fontFamily={fontFamily}
+                            />
+                        ) : selectedTemplate === 'minimal' ? (
+                            <MinimalCoverLetter
+                                data={resumeData}
+                                content={displayContent}
+                                companyName={companyName}
+                                jobTitle={jobTitle}
+                                fontSize={fontSize}
+                                lineSpacing={lineSpacing}
+                                spacing={spacing}
+                                fontFamily={fontFamily}
+                            />
+                        ) : selectedTemplate === 'editorial' ? (
+                            <EditorialCoverLetter
+                                data={resumeData}
+                                content={displayContent}
+                                companyName={companyName}
+                                jobTitle={jobTitle}
+                                fontSize={fontSize}
+                                lineSpacing={lineSpacing}
+                                spacing={spacing}
+                                fontFamily={fontFamily}
+                            />
+                        ) : selectedTemplate === 'classic' ? (
+                            <ClassicCoverLetter
+                                data={resumeData}
+                                content={displayContent}
+                                companyName={companyName}
+                                jobTitle={jobTitle}
+                                signatureUrl={signatureUrl}
+                                fontSize={fontSize}
+                                lineSpacing={lineSpacing}
+                                spacing={spacing}
+                                fontFamily={fontFamily}
+                            />
+                        ) : selectedTemplate === 'structured' ? (
                             <StructuredCoverLetter
                                 data={resumeData}
                                 content={displayContent}
@@ -1127,6 +1244,23 @@ export default function CoverLetterPage({
                                     onChange={(val) => setSpacing(val)}
                                     title="Page Margins"
                                 />
+
+                                <div className="h-5 w-[1px] bg-gray-200 hidden sm:block" />
+
+                                {/* Signature Upload Button */}
+                                <button
+                                    type="button"
+                                    onClick={() => setIsSignatureModalOpen(true)}
+                                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-2xs cursor-pointer select-none ${
+                                        signatureUrl
+                                            ? 'bg-emerald-50 border-emerald-300 text-emerald-800 hover:bg-emerald-100'
+                                            : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
+                                    }`}
+                                    title="Upload or manage your handwritten signature"
+                                >
+                                    <PenTool size={13} className={signatureUrl ? 'text-emerald-700' : 'text-gray-400'} />
+                                    <span className="truncate max-w-[120px]">{signatureUrl ? 'Signature Active' : 'Add Signature'}</span>
+                                </button>
                             </div>
                         </div>
 
@@ -1141,7 +1275,21 @@ export default function CoverLetterPage({
                                             id="cover-letter-rendered-document"
                                             className="w-[210mm] min-h-[297mm] bg-white shadow-[0_16px_40px_-12px_rgba(0,0,0,0.12),0_0_1px_1px_rgba(0,0,0,0.06)] hover:shadow-2xl rounded-xs ring-1 ring-black/5 origin-top transition-transform duration-200 transform scale-[0.62] sm:scale-[0.78] md:scale-[0.88] lg:scale-[0.95] xl:scale-100 my-2"
                                         >
-                                            {selectedTemplate === 'technical' ? (
+                                            {selectedTemplate === 'corporate' ? (
+                                                <CorporateCoverLetter
+                                                    data={resumeData}
+                                                    content={displayContent}
+                                                    companyName={companyName}
+                                                    jobTitle={jobTitle}
+                                                    signatureUrl={signatureUrl}
+                                                    onUploadSignature={() => setIsSignatureModalOpen(true)}
+                                                    fontSize={fontSize}
+                                                    lineSpacing={lineSpacing}
+                                                    spacing={spacing}
+                                                    fontFamily={fontFamily}
+                                                    isStreaming={isStreaming}
+                                                />
+                                            ) : selectedTemplate === 'technical' ? (
                                                 <TechnicalCoverLetter
                                                     data={resumeData}
                                                     content={displayContent}
@@ -1195,6 +1343,8 @@ export default function CoverLetterPage({
                                                     content={displayContent}
                                                     companyName={companyName}
                                                     jobTitle={jobTitle}
+                                                    signatureUrl={signatureUrl}
+                                                    onUploadSignature={() => setIsSignatureModalOpen(true)}
                                                     fontSize={fontSize}
                                                     lineSpacing={lineSpacing}
                                                     spacing={spacing}
@@ -1527,6 +1677,57 @@ export default function CoverLetterPage({
                                     ))}
                                 </div>
                             </div>
+
+                            {/* SIGNATURE UPLOAD & CUSTOMIZATION */}
+                            <div className="space-y-2 pt-2 border-t border-gray-100">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-xs font-extrabold text-brand-dark uppercase tracking-wider flex items-center gap-1.5">
+                                        <PenTool size={13} className="text-emerald-700" />
+                                        <span>Signature</span>
+                                    </span>
+                                    {signatureUrl && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setSignatureUrl(null)}
+                                            className="text-[11px] text-red-600 hover:text-red-700 font-semibold cursor-pointer"
+                                        >
+                                            Remove
+                                        </button>
+                                    )}
+                                </div>
+
+                                {signatureUrl ? (
+                                    <div
+                                        onClick={() => setIsSignatureModalOpen(true)}
+                                        className="p-3 bg-white border border-emerald-300 rounded-xl hover:border-emerald-400 cursor-pointer transition-all flex items-center justify-between shadow-2xs group"
+                                        title="Click to edit or change your signature"
+                                    >
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <div className="h-10 max-w-[130px] flex items-center justify-center bg-gray-50 rounded-lg p-1 border border-gray-100">
+                                                <img
+                                                    src={signatureUrl}
+                                                    alt="Signature"
+                                                    className="max-h-8 max-w-full object-contain"
+                                                />
+                                            </div>
+                                            <div className="min-w-0">
+                                                <p className="text-xs font-bold text-brand-dark truncate">Signature Active</p>
+                                                <p className="text-[10px] text-gray-500">Click to change</p>
+                                            </div>
+                                        </div>
+                                        <span className="text-xs font-bold text-emerald-700 group-hover:underline">Edit</span>
+                                    </div>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsSignatureModalOpen(true)}
+                                        className="w-full py-2.5 px-3 bg-white border border-dashed border-gray-300 hover:border-brand-dark hover:bg-gray-50/80 rounded-xl text-xs font-bold text-brand-dark flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
+                                    >
+                                        <Upload size={14} className="text-gray-500" />
+                                        <span>Upload or Draw Signature</span>
+                                    </button>
+                                )}
+                            </div>
                         </div>
 
                         {/* Sidebar Footer: Primary Action Button */}
@@ -1682,6 +1883,21 @@ export default function CoverLetterPage({
                 </div>,
                 document.body
             )}
+
+            {/* Signature Upload & Draw Modal */}
+            <SignatureModal
+                isOpen={isSignatureModalOpen}
+                onClose={() => setIsSignatureModalOpen(false)}
+                currentSignatureUrl={signatureUrl}
+                onSaveSignature={(newUrl) => {
+                    setSignatureUrl(newUrl);
+                    showToast(
+                        newUrl ? 'Signature updated successfully!' : 'Signature reset to default',
+                        'success'
+                    );
+                }}
+                candidateName={resumeData.fullName || 'Alex Morgan'}
+            />
         </>
     );
 }

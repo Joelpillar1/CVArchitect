@@ -67,7 +67,7 @@ const FreshGradEngTemplate: React.FC<FreshGradEngTemplateProps> = ({ data }) => 
     >
       {/* Header */}
       <header className="break-inside-avoid w-full" style={{ marginBottom: `${getHeaderGapIn(data)}in`, width: '100%' }}>
-        <h1
+        <div data-resume-name
           data-path="fullName"
           className={`font-bold w-full ${data.headerAlignment === 'left' ? 'text-left' : data.headerAlignment === 'right' ? 'text-right' : 'text-center'}`}
           style={{
@@ -78,7 +78,7 @@ const FreshGradEngTemplate: React.FC<FreshGradEngTemplateProps> = ({ data }) => 
           }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase) || 'NAME'} />
-        </h1>
+        </div>
         <div
           className={`text-gray-900 flex flex-wrap w-full mx-auto ${
             data.contactAlignment === 'left' ? 'justify-start text-left' :

@@ -9,6 +9,8 @@
  * prerenders it and adds it to the sitemap. Nothing to keep in sync by hand.
  */
 import { blogPosts } from '../utils/blogData.ts';
+import { COMPARISON_VERIFIED_ISO, COMPETITORS } from '../utils/comparisonData.ts';
+import { ROLE_GUIDES, ROLE_LAST_UPDATED } from '../utils/roleTemplates.ts';
 
 export const SITE_URL = 'https://cvarchitect.app';
 
@@ -20,6 +22,26 @@ export const STATIC_ROUTES = [
   { path: '/cover-letter', priority: '0.9', changefreq: 'monthly' },
   { path: '/resume-checker', priority: '0.9', changefreq: 'monthly' },
   { path: '/action-words', priority: '0.8', changefreq: 'monthly' },
+  { path: '/compare', priority: '0.8', changefreq: 'monthly', lastmod: COMPARISON_VERIFIED_ISO },
+  { path: '/best-ai-resume-builders', priority: '0.9', changefreq: 'monthly', lastmod: COMPARISON_VERIFIED_ISO },
+  {
+    path: '/best-cover-letter-builders',
+    priority: '0.9',
+    changefreq: 'monthly',
+    lastmod: COMPARISON_VERIFIED_ISO,
+  },
+  {
+    path: '/best-ats-resume-checkers',
+    priority: '0.9',
+    changefreq: 'monthly',
+    lastmod: COMPARISON_VERIFIED_ISO,
+  },
+  {
+    path: '/best-resume-builders-for-first-time-writers',
+    priority: '0.9',
+    changefreq: 'monthly',
+    lastmod: COMPARISON_VERIFIED_ISO,
+  },
   { path: '/blog', priority: '0.8', changefreq: 'daily' },
   { path: '/support', priority: '0.4', changefreq: 'yearly' },
   { path: '/contact', priority: '0.4', changefreq: 'yearly' },
@@ -31,6 +53,22 @@ export const STATIC_ROUTES = [
 /** Prerendered for instant paint, but never indexed. */
 export const UTILITY_ROUTES = ['/signup', '/login'];
 
+/** Head-to-head comparison pages, generated from the comparison data file. */
+export const COMPARISON_ROUTES = COMPETITORS.map((competitor) => ({
+  path: `/compare/${competitor.slug}`,
+  priority: '0.7',
+  changefreq: 'monthly',
+  lastmod: COMPARISON_VERIFIED_ISO,
+}));
+
+/** Role-specific template pages, generated from the role guide data file. */
+export const ROLE_ROUTES = ROLE_GUIDES.map((guide) => ({
+  path: `/resume-templates/${guide.slug}`,
+  priority: '0.8',
+  changefreq: 'monthly',
+  lastmod: ROLE_LAST_UPDATED,
+}));
+
 /** Routes that must never be prerendered. */
 export const PRIVATE_PREFIXES = ['/dashboard', '/resume-agent', '/editor', '/print-resume', '/dev-', '/screenshot', '/auth/'];
 
@@ -41,6 +79,8 @@ export function isPrivateRoute(routePath) {
 export function getPrerenderRoutes() {
   const routes = [
     ...STATIC_ROUTES.map((route) => ({ path: route.path, index: true })),
+    ...COMPARISON_ROUTES.map((route) => ({ path: route.path, index: true })),
+    ...ROLE_ROUTES.map((route) => ({ path: route.path, index: true })),
     ...blogPosts.map((post) => ({ path: `/blog/${post.slug}`, index: true })),
     ...UTILITY_ROUTES.map((routePath) => ({ path: routePath, index: false })),
   ];
@@ -87,9 +127,10 @@ function wrapUrlset(entries) {
 
 /** Main sitemap: marketing pages only. */
 export function buildMainSitemap() {
-  const entries = STATIC_ROUTES.map((route) =>
+  const entries = [...STATIC_ROUTES, ...COMPARISON_ROUTES, ...ROLE_ROUTES].map((route) =>
     urlEntry({
       loc: `${SITE_URL}${route.path}`,
+      lastmod: route.lastmod,
       changefreq: route.changefreq,
       priority: route.priority,
     })
@@ -104,7 +145,7 @@ export function buildBlogSitemap() {
     ...blogPosts.map((post) =>
       urlEntry({
         loc: `${SITE_URL}/blog/${post.slug}`,
-        lastmod: post.publishDate,
+        lastmod: post.updatedDate ?? post.publishDate,
         changefreq: 'monthly',
         priority: '0.7',
       })

@@ -11,6 +11,7 @@ import React, {
 } from "react"
 import { DynamicAnimationOptions, motion } from "framer-motion"
 import { cn } from "../../lib/utils"
+import { useHydrating } from "../../contexts/HydrationContext"
 
 interface TextProps {
   children: React.ReactNode
@@ -64,7 +65,11 @@ const VerticalCutReveal = forwardRef<VerticalCutRevealRef, TextProps>(
   ) => {
     const containerRef = useRef<HTMLSpanElement>(null)
     const text = typeof children === "string" ? children : children?.toString() || ""
-    const [isAnimating, setIsAnimating] = useState(false)
+    const hydrating = useHydrating()
+    const prerendering =
+      typeof window !== "undefined" && (window as any).__PRERENDER_HYDRATION__ === true
+    const staticValue = hydrating || prerendering
+    const [isAnimating, setIsAnimating] = useState(staticValue)
 
     // Character splitting with Unicode / emoji support
     const splitIntoCharacters = (text: string): string[] => {
@@ -129,10 +134,10 @@ const VerticalCutReveal = forwardRef<VerticalCutRevealRef, TextProps>(
     }))
 
     useEffect(() => {
-      if (autoStart) {
+      if (autoStart && !staticValue) {
         startAnimation()
       }
-    }, [autoStart, startAnimation])
+    }, [autoStart, startAnimation, staticValue])
 
     const variants = {
       hidden: { y: reverse ? "-100%" : "100%" },
@@ -185,7 +190,7 @@ const VerticalCutReveal = forwardRef<VerticalCutRevealRef, TextProps>(
                 >
                   <motion.span
                     custom={previousCharsCount + charIndex}
-                    initial="hidden"
+                    initial={staticValue ? false : "hidden"}
                     animate={isAnimating ? "visible" : "hidden"}
                     variants={variants}
                     onAnimationComplete={

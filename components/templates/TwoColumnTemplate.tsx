@@ -505,7 +505,7 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
         className="text-center break-inside-avoid border-b-2 pb-3 w-full"
         style={{ marginBottom: `${getHeaderGapIn(data)}in`, borderColor: accentColor, width: '100%' }}
       >
-        <h1
+        <div data-resume-name
           data-path="fullName"
           className="font-bold text-gray-900 w-full"
           style={{
@@ -516,7 +516,7 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
           }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase) || 'YOUR NAME'} />
-        </h1>
+        </div>
 
         {isTitleFirst(data, false) && data.jobTitle && (
           <p

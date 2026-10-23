@@ -133,8 +133,8 @@ export default function SignUp() {
     return (
         <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-12 bg-white font-sans selection:bg-brand-green/30">
             <SEO
-                title="Create Account — CVArchitect | AI Resume Builder"
-                description="Create a CVArchitect account to build ATS-optimized resumes and tailor cover letters with AI."
+                title="Create Account — Cvarchitect | AI Resume Builder"
+                description="Create a Cvarchitect account to build ATS-optimized resumes and tailor cover letters with AI."
                 canonicalPath="/signup"
             />
 
@@ -145,11 +145,11 @@ export default function SignUp() {
                     <a href="/" className="flex items-center gap-2.5 group">
                         <img
                             src="/images/logo icon.png"
-                            alt="CVArchitect"
+                            alt="Cvarchitect"
                             className="w-8 h-8 object-contain transition-transform duration-200 group-hover:scale-105"
                         />
                         <span className="font-bold text-xl tracking-tight text-brand-dark">
-                            CVArchitect
+                            Cvarchitect
                         </span>
                     </a>
 
@@ -294,11 +294,11 @@ export default function SignUp() {
                                     className="w-4 h-4 rounded border-gray-300 text-brand-green focus:ring-brand-green mt-0.5"
                                 />
                                 <span className="leading-snug">
-                                    I agree to the{' '}
+                                    {'I agree to the '}
                                     <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-brand-dark underline font-medium">
                                         Terms of Service
-                                    </a>{' '}
-                                    and{' '}
+                                    </a>
+                                    {' and '}
                                     <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-brand-dark underline font-medium">
                                         Privacy Policy
                                     </a>
@@ -319,7 +319,7 @@ export default function SignUp() {
 
                     {/* Switcher to Log in */}
                     <p className="text-center text-xs text-gray-600 mt-6">
-                        Already have an account?{' '}
+                        {'Already have an account? '}
                         <button
                             onClick={() => navigate(`/login${planQuery}`)}
                             className="text-brand-dark font-bold hover:underline cursor-pointer ml-1"
@@ -331,7 +331,7 @@ export default function SignUp() {
 
                 {/* Footer */}
                 <div className="flex items-center justify-center text-[11px] text-gray-400 pt-4 border-t border-gray-100">
-                    <span>© {new Date().getFullYear()} CVArchitect</span>
+                    <span>{`© ${new Date().getUTCFullYear()} Cvarchitect`}</span>
                 </div>
             </div>
 

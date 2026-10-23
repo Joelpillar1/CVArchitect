@@ -15,7 +15,7 @@ import { getResumePriorities } from '../../utils/resumePriorities';
 import { handleTaskTurn } from '../../utils/agentTaskState';
 
 /**
- * POST /api/agent/run — the CVArchitect Agent's streaming endpoint (Vercel Node).
+ * POST /api/agent/run — the Cvarchitect Agent's streaming endpoint (Vercel Node).
  *
  * Auth mirrors api/create-checkout-session.ts (Bearer Supabase access token →
  * supabaseAdmin.auth.getUser). All request validation happens BEFORE any SSE bytes are

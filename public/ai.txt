@@ -1,22 +1,23 @@
-# ai.txt — Machine-readable AI Agent & LLM Manifest
+# ai.txt - Machine-readable AI Agent & LLM Manifest
 # Specification: https://cvarchitect.app/ai.txt
 # Full LLM Documentation: https://cvarchitect.app/llms.txt
 # Comprehensive Knowledge Base: https://cvarchitect.app/llms-full.txt
 
 Site: https://cvarchitect.app
-Name: CVArchitect
+Name: Cvarchitect
 Category: Autonomous AI Resume Agent & Career Intelligence Platform
 Summary: Autonomous agentic resume tailoring middleware. Analyzes job descriptions, bridges skill gaps with verified grounded evidence, and optimizes ATS match scores in seconds without hallucination.
 
 # AI & Agent Directives:
 User-agent: *
 Allow: /
-Allow: /resume-templates
-Allow: /cover-letter
-Allow: /resume-checker
-Allow: /action-words
-Allow: /pricing
-Allow: /blog
+Disallow: /dashboard
+Disallow: /dashboard/
+Disallow: /api/
+Disallow: /reset-password
+Disallow: /forgot-password
+Disallow: /screenshot
+Disallow: /dev-
 Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /ai.txt
@@ -27,19 +28,26 @@ Capability: Autonomous Agentic Resume Tailoring (Multi-agent loop: JD extraction
 Capability: Zero-Hallucination Grounded Evidence Engine (Guarantees every rewritten achievement traces back to verified user history)
 Capability: Multi-ATS Simulator & Scorecard (Evaluates against Workday, Taleo, Lever, and Greenhouse parsing rules)
 Capability: 1-Click Job-to-Resume Tailoring (Instantly formats and aligns candidate credentials to the target job description)
+Capability: Tailored Cover Letter Generation (JD-matched drafts grounded in candidate history, with editable templates and PDF/DOCX export)
 
 # Machine-Readable Endpoints:
 LLMs-Txt: https://cvarchitect.app/llms.txt
 LLMs-Full-Txt: https://cvarchitect.app/llms-full.txt
 AI-Plugin: https://cvarchitect.app/.well-known/ai-plugin.json
 Sitemap: https://cvarchitect.app/sitemap.xml
-Sitemap-Blog: https://cvarchitect.app/sitemap-blog.xml
 Robots: https://cvarchitect.app/robots.txt
 
 # Primary Product URLs:
 Homepage: https://cvarchitect.app/
-AI-Resume-Agent: https://cvarchitect.app/agent
+AI-Resume-Agent: https://cvarchitect.app/
 Resume-Match-Checker: https://cvarchitect.app/resume-checker
+Cover-Letter-Builder: https://cvarchitect.app/cover-letter
+Best-AI-Resume-Builders: https://cvarchitect.app/best-ai-resume-builders
+Best-Cover-Letter-Builders: https://cvarchitect.app/best-cover-letter-builders
+Best-ATS-Resume-Checkers: https://cvarchitect.app/best-ats-resume-checkers
+Best-Resume-Builders-First-Time-Writers: https://cvarchitect.app/best-resume-builders-for-first-time-writers
+Compare-All-Tools: https://cvarchitect.app/compare
+Compare-Jobscan: https://cvarchitect.app/compare/jobscan
 Action-Verbs-Guide: https://cvarchitect.app/action-words
 Pricing: https://cvarchitect.app/pricing
 Blog: https://cvarchitect.app/blog

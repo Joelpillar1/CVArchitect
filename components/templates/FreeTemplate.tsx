@@ -596,7 +596,7 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
         className="break-inside-avoid w-full"
         style={{ marginBottom: `${getHeaderGapIn(data)}in`, width: '100%' }}
       >
-        <h1
+        <div data-resume-name
           data-path="fullName"
           className={`font-bold tracking-normal uppercase w-full ${
             data.headerAlignment === 'left'
@@ -613,7 +613,7 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
           }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase)} />
-        </h1>
+        </div>
 
         {/* Job Title (if Title First) */}
         {isTitleFirst(data, false) && data.jobTitle && (

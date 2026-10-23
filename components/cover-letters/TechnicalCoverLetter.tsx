@@ -70,9 +70,9 @@ export default function TechnicalCoverLetter({
             <div>
                 {/* 1. Header: Left-Aligned Candidate Name & Contact Stack */}
                 <header className="mb-6">
-                    <h1 className="text-[26px] font-bold tracking-tight text-gray-950 mb-2 font-serif">
+                    <div data-resume-name className="text-[26px] font-bold tracking-tight text-gray-950 mb-2 font-serif">
                         {data.fullName || 'Charles Bloomberg'}
-                    </h1>
+                    </div>
 
                     <div className="text-[13px] text-gray-700 space-y-0.5 leading-relaxed font-serif">
                         {(data.location || data.address) && <p>{data.location || data.address}</p>}

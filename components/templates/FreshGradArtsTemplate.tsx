@@ -69,13 +69,13 @@ const FreshGradArtsTemplate: React.FC<FreshGradArtsTemplateProps> = ({ data }) =
       {/* Header */}
       <header className="mb-4 break-inside-avoid w-full" style={{ marginBottom: `${getHeaderGapIn(data)}in`, width: '100%' }}>
         <div className="w-full" style={{ width: '100%' }}>
-          <h1
+          <div data-resume-name
             data-path="fullName"
             className={`font-bold w-full ${data.headerAlignment === 'left' ? 'text-left' : data.headerAlignment === 'center' ? 'text-center' : 'text-right'}`}
             style={{ width: '100%', marginBottom: `${getHeaderItemGapIn(data)}in`, lineHeight: 1.15, fontSize: `${fontSizes?.header || 18}pt` }}
           >
             <RichText text={formatNameDisplay(data.fullName, data.headerCase) || 'Your Name'} />
-          </h1>
+          </div>
           <div
             className={`text-gray-900 flex flex-wrap w-full mx-auto ${
               data.contactAlignment === 'left' ? 'justify-start text-left' :

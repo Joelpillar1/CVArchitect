@@ -68,7 +68,7 @@ const FreshGradMarketingTemplate: React.FC<FreshGradMarketingTemplateProps> = ({
     >
       {/* Header */}
       <header className="break-inside-avoid w-full" style={{ marginBottom: `${getHeaderGapIn(data)}in`, width: '100%' }}>
-        <h1
+        <div data-resume-name
           data-path="fullName"
           className={`font-semibold w-full ${
             data.headerAlignment === 'left' ? 'text-left' :
@@ -83,7 +83,7 @@ const FreshGradMarketingTemplate: React.FC<FreshGradMarketingTemplateProps> = ({
           }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase) || 'First Last'} />
-        </h1>
+        </div>
         {(() => {
           const showIcons = data.showContactIcons ?? true;
           const items: React.ReactNode[] = [];

@@ -512,7 +512,7 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
     >
       {/* Header */}
       <header className="break-inside-avoid w-full" style={{ marginBottom: headerGap, width: '100%' }}>
-        <h1
+        <div data-resume-name
           data-path="fullName"
           className={`font-normal tracking-[0.2em] leading-none w-full ${
             data.headerAlignment === 'left' ? 'text-left' :
@@ -527,7 +527,7 @@ export default function MinimalistTemplate({ data }: MinimalistTemplateProps) {
           }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase)} />
-        </h1>
+        </div>
 
         {/* Contact Information */}
         {(() => {

@@ -695,7 +695,7 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
     >
       {/* Header */}
       <header className="flex flex-col break-inside-avoid w-full" style={{ marginBottom: `${getHeaderGapIn(data)}in`, width: '100%' }}>
-        <h1
+        <div data-resume-name
           data-path="fullName"
           className={`w-full ${
             data.headerAlignment === 'left' ? 'text-left' :
@@ -705,7 +705,7 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
           style={{ width: '100%', fontSize: `${fontSizes?.header || 18}pt`, color: REZI_INK, fontFamily: data.font || 'Merriweather, serif', fontWeight: W_BOLD, lineHeight: 1.2, marginBottom: '4px' }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase)} />
-        </h1>
+        </div>
 
         <div
           className="header-divider"

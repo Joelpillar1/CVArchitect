@@ -15,8 +15,10 @@ import {
     ShieldCheck 
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useHydrating } from '../contexts/HydrationContext';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
+import { PublicVisualCta } from './PublicVisualCta';
 import SEO from './SEO';
 
 const VERB_CATEGORIES = [
@@ -107,6 +109,7 @@ const VERB_CATEGORIES = [
 ];
 
 export default function ActionVerbs() {
+    const hydrating = useHydrating();
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
     const [copiedVerb, setCopiedVerb] = useState<string | null>(null);
@@ -148,7 +151,7 @@ export default function ActionVerbs() {
     return (
         <div className="min-h-screen bg-white font-sans text-slate-900">
             <SEO 
-                title="150+ Action Verbs for Resume: The Ultimate Action Words Guide | CVArchitect"
+                title="150+ Action Verbs for Resume: The Ultimate Action Words Guide | Cvarchitect"
                 description="Power up your resume with 150+ recruiter-approved action verbs for resume. Find the perfect action words to show impact, beat ATS, and land more interviews."
                 canonicalPath="/action-words"
                 jsonLd={{
@@ -165,7 +168,7 @@ export default function ActionVerbs() {
             <header className="pt-32 pb-16 px-6 bg-gradient-to-b from-slate-50 to-white">
                 <div className="max-w-4xl mx-auto text-center">
                     <motion.div
-                        initial="hidden"
+                        initial={hydrating ? false : 'hidden'}
                         animate="visible"
                         variants={fadeInUp}
                     >
@@ -182,7 +185,7 @@ export default function ActionVerbs() {
 
                     {/* Search Bar */}
                     <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={hydrating ? false : { opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
                         className="relative max-w-xl mx-auto"
@@ -225,7 +228,7 @@ export default function ActionVerbs() {
                         {filteredVerbs.map((item, idx) => (
                             <motion.div
                                 layout
-                                initial={{ opacity: 0, scale: 0.9 }}
+                                initial={hydrating ? false : { opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.9 }}
                                 key={`${item.verb}-${idx}`}
@@ -268,7 +271,7 @@ export default function ActionVerbs() {
                         {VERB_CATEGORIES.map((cat, idx) => (
                             <motion.div 
                                 key={cat.id}
-                                initial={{ opacity: 0, x: idx % 2 === 0 ? -20 : 20 }}
+                                initial={hydrating ? false : { opacity: 0, x: idx % 2 === 0 ? -20 : 20 }}
                                 whileInView={{ opacity: 1, x: 0 }}
                                 viewport={{ once: true }}
                                 className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100"
@@ -284,7 +287,7 @@ export default function ActionVerbs() {
                                     <div className="space-y-4">
                                         <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">Common Weak Phrases</p>
                                         <p className="p-4 bg-rose-50 border border-rose-100 rounded-xl text-rose-700 italic flex items-center gap-3">
-                                            <span className="text-lg">❌</span> {cat.example.before}
+                                            <span className="text-lg">❌</span>{` ${cat.example.before}`}
                                         </p>
                                     </div>
                                     <div className="space-y-4">
@@ -313,38 +316,35 @@ export default function ActionVerbs() {
                             Strong <strong>action verbs</strong> signify ownership. When you use words like "Orchestrated" or "Architected," you are demonstrating a level of agency that "Worked on" simply cannot convey. These <strong>action words</strong> are the building blocks of a high-performance resume.
                         </p>
                         <p>
-                            At CVArchitect, we've analyzed thousands of successful resumes to identify which <strong>action words for resume</strong> generate the highest response rates. Our database is curated to help you stand out in competitive fields like Tech, Finance, and Marketing.
+                            At Cvarchitect, we've analyzed thousands of successful resumes to identify which <strong>action words for resume</strong> generate the highest response rates. Our database is curated to help you stand out in competitive fields like Tech, Finance, and Marketing.
                         </p>
                     </div>
                 </div>
             </section>
 
             {/* Final CTA */}
-            <section className="py-24 px-6 bg-brand-dark text-white text-center relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-96 h-96 bg-brand-green/10 rounded-full blur-[120px] -mr-48 -mt-48"></div>
-                <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-green/5 rounded-full blur-[120px] -ml-48 -mb-48"></div>
-                
-                <div className="relative z-10 max-w-3xl mx-auto">
-                    <h2 className="text-4xl md:text-5xl font-extrabold mb-8">Ready to Build Your Impact?</h2>
-                    <p className="text-xl text-gray-300 mb-10 leading-relaxed">
-                        Don't just list your action verbs. Use them in our AI-powered builder to create a resume that lands interviews.
-                    </p>
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <button 
-                            onClick={() => navigate('/signup')}
-                            className="w-full sm:w-auto bg-brand-green text-brand-dark px-10 py-4 rounded-2xl font-bold text-lg hover:scale-105 transition-all shadow-xl shadow-brand-green/20"
-                        >
-                            Start Building Now — It's Free
-                        </button>
-                        <button 
-                            onClick={() => navigate('/resume-checker')}
-                            className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white px-10 py-4 rounded-2xl font-bold text-lg transition-all"
-                        >
-                            Check My Resume
-                        </button>
-                    </div>
-                </div>
-            </section>
+            <PublicVisualCta
+                badge="High-Impact Action Verbs"
+                badgeIcon={<Sparkles className="w-3.5 h-3.5 text-brand-green" />}
+                headline={<>Ready to build<br className="hidden sm:inline" /> your impact?</>}
+                sub={<>Don't just list your action verbs in isolation.<br className="hidden sm:inline" /> Use our builder to create a score-backed resume that lands interviews.</>}
+                ctaLabel="Start Building — It's Free"
+                onCta={() => navigate('/signup')}
+                secondary={
+                    <button 
+                        onClick={() => navigate('/resume-checker')}
+                        className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-white/20 px-6 py-3 text-sm sm:text-base font-semibold text-white/80 transition-colors hover:bg-white/10 cursor-pointer"
+                    >
+                        Check My Resume
+                    </button>
+                }
+                score={96}
+                trustBullets={[
+                    '350+ curated power verbs',
+                    'ATS bullet rewrite recommendations',
+                    'No credit card required'
+                ]}
+            />
 
             <PublicFooter />
         </div>

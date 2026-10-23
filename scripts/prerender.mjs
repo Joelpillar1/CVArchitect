@@ -22,6 +22,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer-core';
 import { getPrerenderRoutes, buildMainSitemap, buildBlogSitemap, SITE_URL } from './routes.mjs';
+import { HYDRATION_EXACT_ROUTES, HYDRATION_ROUTE_PREFIXES } from '../utils/hydrationRoutes.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -239,6 +240,15 @@ async function main() {
   const failures = [];
   const page = await browser.newPage();
   await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+  // Hydrated routes must snapshot their deterministic first render, not the
+  // post-pagination DOM, or the browser cannot attach to the static HTML.
+  await page.evaluateOnNewDocument(({ exact, prefixes }) => {
+    window.__PRERENDER_HYDRATION__ =
+      exact.includes(location.pathname) ||
+      prefixes.some(
+        (prefix) => location.pathname === prefix || location.pathname.startsWith(prefix)
+      );
+  }, { exact: HYDRATION_EXACT_ROUTES, prefixes: HYDRATION_ROUTE_PREFIXES });
   await page.setRequestInterception(true);
   page.on('request', (request) => {
     const url = request.url();

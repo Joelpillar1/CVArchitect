@@ -46,8 +46,29 @@ export default function SEO({
       : [jsonLd]
     : [];
 
+  /**
+   * react-helmet-async dedupes <script> tags by their primary attribute, which
+   * for inline scripts is `type`. Two ld+json scripts therefore collapse into
+   * one and the extra schemas silently vanish. Emit a single @graph instead.
+   */
+  const jsonLdPayload =
+    jsonLdArray.length > 1
+      ? {
+          '@context': 'https://schema.org',
+          '@graph': jsonLdArray.map((schema) => {
+            const copy = { ...(schema as Record<string, unknown>) };
+            delete copy['@context'];
+            return copy;
+          }),
+        }
+      : jsonLdArray[0];
+
   return (
-    <Helmet>
+    // defer={false} applies head changes synchronously. With the default defer
+    // behaviour, react-helmet-async waits for requestAnimationFrame, which does
+    // not fire in the headless prerender (or a background tab), so page-level
+    // JSON-LD silently vanished from the static HTML crawlers read.
+    <Helmet defer={false}>
       <title>{title}</title>
       {description && <meta name="description" content={description} data-rh="true" />}
       {keywords && <meta name="keywords" content={keywords} data-rh="true" />}
@@ -57,7 +78,7 @@ export default function SEO({
 
       {/* Open Graph */}
       <meta property="og:type" content="website" data-rh="true" />
-      <meta property="og:site_name" content="CVArchitect" data-rh="true" />
+      <meta property="og:site_name" content="Cvarchitect" data-rh="true" />
       <meta property="og:title" content={title} data-rh="true" />
       {description && <meta property="og:description" content={description} data-rh="true" />}
       <meta property="og:url" content={url} data-rh="true" />
@@ -72,14 +93,9 @@ export default function SEO({
       {description && <meta name="twitter:description" content={description} data-rh="true" />}
       <meta name="twitter:image" content={image} data-rh="true" />
 
-      {jsonLdArray.map((schema, index) => (
-        <script
-          // eslint-disable-next-line react/no-danger
-          key={index}
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-        />
-      ))}
+      {jsonLdPayload ? (
+        <script type="application/ld+json">{JSON.stringify(jsonLdPayload)}</script>
+      ) : null}
     </Helmet>
   );
 }

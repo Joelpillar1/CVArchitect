@@ -10,12 +10,14 @@ import EditorialCoverLetter from './cover-letters/EditorialCoverLetter';
 import MinimalCoverLetter from './cover-letters/MinimalCoverLetter';
 import AcademicCoverLetter from './cover-letters/AcademicCoverLetter';
 import TechnicalCoverLetter from './cover-letters/TechnicalCoverLetter';
+import CorporateCoverLetter from './cover-letters/CorporateCoverLetter';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { coverLetterService, SavedCoverLetter } from '../services/coverLetterService';
 import { exportElementToPdf, exportCoverLetterToPdf, sanitizeFilename } from '../utils/pdfExport';
 import { exportCoverLetterToDocx } from '../utils/coverLetterDocxExport';
 import { Loader } from './ui/Loader';
+import { CoverLetterTemplateType } from '../utils/coverLetterConfig';
 
 interface CoverLetterModalProps {
     isOpen: boolean;
@@ -36,7 +38,7 @@ export default function CoverLetterModal({ isOpen, onClose, resumeData, onDeduct
     const [generatedLetter, setGeneratedLetter] = useState<GeneratedCoverLetter | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
-    const [selectedTemplate, setSelectedTemplate] = useState<'classic' | 'editorial' | 'minimal' | 'academic' | 'technical' | 'modern' | 'bold' | 'structured'>('technical');
+    const [selectedTemplate, setSelectedTemplate] = useState<CoverLetterTemplateType>('corporate');
     const [isEditing, setIsEditing] = useState(false);
     const [editedText, setEditedText] = useState('');
     const [editMode, setEditMode] = useState<'text' | 'structured'>('text');
@@ -283,6 +285,13 @@ export default function CoverLetterModal({ isOpen, onClose, resumeData, onDeduct
                                 <div className="bg-white border-b border-gray-200 p-2 flex justify-center sticky top-0 z-10 shadow-sm gap-2">
                                     <div className="flex bg-gray-100 p-1 rounded-lg">
                                         <button
+                                            onClick={() => setSelectedTemplate('corporate')}
+                                            className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${selectedTemplate === 'corporate' ? 'bg-white text-brand-dark shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                                                }`}
+                                        >
+                                            <Building size={14} /> Corporate
+                                        </button>
+                                        <button
                                             onClick={() => setSelectedTemplate('modern')}
                                             className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${selectedTemplate === 'modern' ? 'bg-white text-brand-dark shadow-sm' : 'text-gray-500 hover:text-gray-700'
                                                 }`}
@@ -406,7 +415,14 @@ export default function CoverLetterModal({ isOpen, onClose, resumeData, onDeduct
                                 ) : (
                                     <div id="cover-letter-modal-preview" className="scale-[0.8] origin-top shadow-2xl transition-all duration-300 bg-white">
                                         {/* Preview Render */}
-                                        {selectedTemplate === 'technical' ? (
+                                        {selectedTemplate === 'corporate' ? (
+                                            <CorporateCoverLetter
+                                                data={resumeData}
+                                                content={generatedLetter}
+                                                companyName={companyName}
+                                                jobTitle={jobTitle}
+                                            />
+                                        ) : selectedTemplate === 'technical' ? (
                                             <TechnicalCoverLetter
                                                 data={resumeData}
                                                 content={generatedLetter}

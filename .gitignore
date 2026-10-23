@@ -45,6 +45,7 @@ dist-ssr
 !scripts/routes.mjs
 !scripts/prerender.mjs
 !scripts/verify-prerender.mjs
+!scripts/indexnow.mjs
 caret-*
 dump-*
 seed-check*

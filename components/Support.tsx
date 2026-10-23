@@ -49,10 +49,10 @@ const FAQS: FAQ[] = [
     {
         id: 'gs-1',
         category: 'getting-started',
-        question: 'How do I get started with CVArchitect?',
+        question: 'How do I get started with Cvarchitect?',
         answer: (
             <p>
-                Sign up for a free account at{' '}
+                {'Sign up for a free account at '}
                 <Link to="/signup" className="text-brand-green font-semibold hover:underline">
                     cvarchitect.app/signup
                 </Link>
@@ -76,7 +76,7 @@ const FAQS: FAQ[] = [
         question: 'Do I need to install anything?',
         answer: (
             <p>
-                No installation required. CVArchitect is a fully web-based platform  -  simply open your browser and start building. We also offer a Chrome Extension that lets you import job descriptions directly from LinkedIn and other job boards with one click.
+                No installation required. Cvarchitect is a fully web-based platform  -  simply open your browser and start building. We also offer a Chrome Extension that lets you import job descriptions directly from LinkedIn and other job boards with one click.
             </p>
         ),
     },
@@ -87,7 +87,7 @@ const FAQS: FAQ[] = [
         question: 'How many resume templates are available?',
         answer: (
             <p>
-                CVArchitect offers a growing library of professionally designed templates across several styles  -  modern, classic, minimal, and creative. All templates are ATS-friendly and fully customisable with your preferred fonts, colours, and layouts.
+                Cvarchitect offers a growing library of professionally designed templates across several styles  -  modern, classic, minimal, and creative. All templates are ATS-friendly and fully customisable with your preferred fonts, colours, and layouts.
             </p>
         ),
     },
@@ -111,7 +111,7 @@ const FAQS: FAQ[] = [
                     ATS (Applicant Tracking System) is software used by recruiters to automatically screen resumes before a human ever sees them. Resumes not optimised for ATS are often rejected instantly  -  even highly qualified candidates.
                 </p>
                 <p>
-                    CVArchitect analyses your resume against the job description and gives you an ATS score with actionable suggestions for keyword improvements, formatting fixes, and section enhancements.
+                    Cvarchitect analyses your resume against the job description and gives you an ATS score with actionable suggestions for keyword improvements, formatting fixes, and section enhancements.
                 </p>
             </>
         ),
@@ -143,11 +143,11 @@ const FAQS: FAQ[] = [
         question: 'Is my resume data used to train AI models?',
         answer: (
             <p>
-                No. Your resume content and job descriptions are processed solely to generate your optimised output. We do not use your data to train AI models, and we do not share it with third parties for marketing purposes. See our{' '}
+                {'No. Your resume content and job descriptions are processed solely to generate your optimised output. We do not use your data to train AI models, and we do not share it with third parties for marketing purposes. See our '}
                 <Link to="/privacy" className="text-brand-green font-semibold hover:underline">
                     Privacy Policy
-                </Link>{' '}
-                for full details.
+                </Link>
+                {' for full details.'}
             </p>
         ),
     },
@@ -168,7 +168,7 @@ const FAQS: FAQ[] = [
         question: 'What payment methods do you accept?',
         answer: (
             <p>
-                We accept standard card payments through our secure Dodo Payments checkout. We never store your full card details in CVArchitect.
+                We accept standard card payments through our secure Dodo Payments checkout. We never store your full card details in Cvarchitect.
             </p>
         ),
     },
@@ -188,11 +188,11 @@ const FAQS: FAQ[] = [
         question: 'Do you offer refunds?',
         answer: (
             <p>
-                Yes. Please see our{' '}
+                {'Yes. Please see our '}
                 <Link to="/refund-policy" className="text-brand-green font-semibold hover:underline">
                     Refund Policy
-                </Link>{' '}
-                for full details. In general, eligible subscription purchases can be refunded within the policy window. Credit purchases are non-refundable once used.
+                </Link>
+                {' for full details. In general, eligible subscription purchases can be refunded within the policy window. Credit purchases are non-refundable once used.'}
             </p>
         ),
     },
@@ -202,7 +202,7 @@ const FAQS: FAQ[] = [
         question: 'Is my payment information secure?',
         answer: (
             <p>
-                Absolutely. All payments are processed by Dodo Payments, and CVArchitect never stores your full card details on our servers.
+                Absolutely. All payments are processed by Dodo Payments, and Cvarchitect never stores your full card details on our servers.
             </p>
         ),
     },
@@ -213,11 +213,11 @@ const FAQS: FAQ[] = [
         question: 'How do I reset my password?',
         answer: (
             <p>
-                Visit{' '}
+                {'Visit '}
                 <Link to="/forgot-password" className="text-brand-green font-semibold hover:underline">
                     cvarchitect.app/forgot-password
-                </Link>{' '}
-                and enter your email address. You'll receive a secure password reset link within a few minutes. If you don't see the email, please check your spam folder.
+                </Link>
+                {' and enter your email address. You\'ll receive a secure password reset link within a few minutes. If you don\'t see the email, please check your spam folder.'}
             </p>
         ),
     },
@@ -227,7 +227,7 @@ const FAQS: FAQ[] = [
         question: 'How do I delete my account?',
         answer: (
             <p>
-                You can permanently delete your account and all associated data from <strong>Dashboard → Settings → Account → Delete Account</strong>. This action is irreversible. If you'd like help before deleting, please{' '}
+                You can permanently delete your account and all associated data from <strong>Dashboard → Settings → Account → Delete Account</strong>{`. This action is irreversible. If you'd like help before deleting, please `}
                 <Link to="/contact" className="text-brand-green font-semibold hover:underline">
                     contact our support team
                 </Link>
@@ -252,7 +252,7 @@ const FAQS: FAQ[] = [
         question: 'What formats can I export my resume in?',
         answer: (
             <p>
-                CVArchitect exports your resume as a high-quality <strong>PDF</strong> with pixel-perfect formatting. We use a print-optimised renderer to ensure your resume looks exactly right for recruiters and ATS systems.
+                Cvarchitect exports your resume as a high-quality <strong>PDF</strong> with pixel-perfect formatting. We use a print-optimised renderer to ensure your resume looks exactly right for recruiters and ATS systems.
             </p>
         ),
     },
@@ -271,11 +271,11 @@ const FAQS: FAQ[] = [
                     <li>Disable browser extensions that may interfere with rendering.</li>
                 </ol>
                 <p className="mt-2">
-                    If the issue persists, please{' '}
+                    {'If the issue persists, please '}
                     <Link to="/contact" className="text-brand-green font-semibold hover:underline">
                         contact support
-                    </Link>{' '}
-                    with a screenshot.
+                    </Link>
+                    {' with a screenshot.'}
                 </p>
             </>
         ),
@@ -367,8 +367,8 @@ export default function Support() {
     return (
         <div className="min-h-screen bg-white">
             <SEO
-                title="Support Center  -  CVArchitect"
-                description="Find answers to common questions about CVArchitect's AI resume builder, billing, and account management. Contact our support team for help."
+                title="Support Center  -  Cvarchitect"
+                description="Find answers to common questions about Cvarchitect's AI resume builder, billing, and account management. Contact our support team for help."
                 canonicalPath="/support"
             />
             <PublicHeader />

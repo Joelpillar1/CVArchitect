@@ -32,6 +32,7 @@ import { Loader } from './ui/Loader';
 import { normalizeResumeData } from '../pages/ResumeAgentPage';
 import NotchHeroPreview from './NotchHeroPreview';
 import EditorHeroPreview from './EditorHeroPreview';
+import { HOME_FAQ_SCHEMA, HOME_HOWTO_SCHEMA } from '../utils/homeSchema';
 import { parseResume } from '../utils/resumeParser';
 import { ResumeData, INITIAL_DATA, createEmptyResume } from '../types';
 import { useStreamingPlaceholder } from '../utils/useStreamingPlaceholder';
@@ -896,9 +897,10 @@ export default function AgentLandingPage() {
   return (
     <div className="relative min-h-screen bg-brand-bg text-brand-dark flex flex-col font-sans selection:bg-brand-green selection:text-brand-dark overflow-x-clip">
       <SEO
-        title="CVArchitect AI Resume Agent: Turn Job Postings into Precision AI Resumes"
+        title="Cvarchitect AI Resume Agent: Turn Job Postings into Precision AI Resumes"
         description="Autonomous AI Agent middleware for job seekers. Analyze job descriptions, bridge skill gaps with grounded evidence, and optimize ATS scores automatically."
         canonicalPath="/"
+        jsonLd={[HOME_FAQ_SCHEMA, HOME_HOWTO_SCHEMA]}
       />
 
       {/* NAV  -  logo, centered links, dark Launch Agent CTA */}
@@ -906,9 +908,9 @@ export default function AgentLandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3 cursor-pointer" onClick={() => navigate('/')}>
             <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-brand-dark flex items-center justify-center p-1 shadow-sm shrink-0">
-              <img src="/images/logo icon.png" alt="CVArchitect Logo" className="w-full h-full object-contain" />
+              <img src="/images/logo icon.png" alt="Cvarchitect Logo" className="w-full h-full object-contain" />
             </div>
-            <span className="text-base sm:text-xl font-extrabold tracking-tight text-brand-dark">CVArchitect</span>
+            <span className="text-base sm:text-xl font-extrabold tracking-tight text-brand-dark">Cvarchitect</span>
           </div>
 
           <nav className="hidden md:flex items-center gap-7">
@@ -1430,7 +1432,7 @@ export default function AgentLandingPage() {
                 See what separates rejected resumes from interview-winners
               </h2>
               <p className="text-base text-brand-dark/60 mt-5 max-w-2xl mx-auto">
-                75% of resumes are dropped by ATS filters before a recruiter opens them. CVArchitect fixes formatting flaws and keyword gaps automatically.
+                75% of resumes are dropped by ATS filters before a recruiter opens them. Cvarchitect fixes formatting flaws and keyword gaps automatically.
               </p>
             </motion.div>
 
@@ -1504,7 +1506,7 @@ export default function AgentLandingPage() {
                 <div className="relative bg-brand-dark p-4 pb-0 rounded-2xl shadow-2xl mb-8 hover:transform hover:-translate-y-1 transition-transform duration-300 group">
                   <img
                     src="/images/Section 4 illustration - ATS Optimized.png"
-                    alt="ATS-optimized resume created with CVArchitect AI builder"
+                    alt="ATS-optimized resume created with Cvarchitect AI builder"
                     loading="lazy"
                     className="w-full h-auto rounded-t-xl block"
                   />

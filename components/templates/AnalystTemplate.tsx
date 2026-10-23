@@ -787,7 +787,7 @@ export default function AnalystTemplate({ data }: { data: ResumeData }) {
     >
       {/* Header */}
       <header className="break-inside-avoid w-full" style={{ marginBottom: `${getHeaderGapIn(data)}in`, width: '100%' }}>
-        <h1
+        <div data-resume-name
           data-path="fullName"
           className={`font-bold tracking-normal w-full ${alignmentClass}`}
           style={{
@@ -799,7 +799,7 @@ export default function AnalystTemplate({ data }: { data: ResumeData }) {
           }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase || 'uppercase')} />
-        </h1>
+        </div>
 
         {/* Contact line: phone | email | LinkedIn | GitHub — plain text under
             the name; LinkedIn and GitHub underlined label links. (No job-title

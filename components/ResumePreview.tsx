@@ -1,5 +1,6 @@
 import React, { useRef, useState, useLayoutEffect, useMemo, useEffect } from 'react';
 import { ResumeData, TemplateType } from '../types';
+import { useHydrating } from '../contexts/HydrationContext';
 import { getPageSizeConfig } from '../utils/pageSizeConfig';
 import { getSheetVerticalMarginPx, formatSkillCase, readSkillsGrid, placeCaretInSkillCell, appendEmptySkillCell } from '../utils/templateUtils';
 import VanguardTemplate from './templates/VanguardTemplate';
@@ -132,6 +133,22 @@ export default function ResumePreview({ data, template, onChangeData, editable =
 
   const isViewAsPages = dataToRender.viewAsPages ?? true;
 
+  // During prerender and the hydration pass, render the deterministic single
+  // sheet first. Pagination needs live measurements, so it is deferred until
+  // after mount; otherwise the static HTML and the client's first render
+  // disagree and React throws away the hydration.
+  const hydrating = useHydrating();
+  const deferPagination =
+    hydrating ||
+    (typeof window !== 'undefined' && (window as any).__PRERENDER_HYDRATION__ === true);
+  const [paginationReady, setPaginationReady] = useState(!deferPagination);
+
+  useEffect(() => {
+    // The prerender snapshot must stay on the deterministic single sheet.
+    if (typeof window !== 'undefined' && (window as any).__PRERENDER_HYDRATION__ === true) return;
+    if (!paginationReady) setPaginationReady(true);
+  }, [paginationReady]);
+
   // Vertical page margin in CSS px — drives the sheet's top/bottom padding so
   // content always stops at the same distance from the page edge (like Word's
   // page margins) and never creeps to the bottom before paginating.
@@ -179,6 +196,7 @@ export default function ResumePreview({ data, template, onChangeData, editable =
   }, [data.font]);
 
   useLayoutEffect(() => {
+    if (!paginationReady) return;
     if (!measureRef.current) return;
 
     const root = (measureRef.current.firstElementChild || measureRef.current) as HTMLElement;
@@ -188,7 +206,7 @@ export default function ResumePreview({ data, template, onChangeData, editable =
     try {
       const header = root.querySelector('header') || root.firstElementChild;
       if (header) {
-        const h1 = header.querySelector('h1, .name-title');
+        const h1 = header.querySelector('h1, [data-resume-name], .name-title');
         if (h1 && !h1.getAttribute('data-path')) h1.setAttribute('data-path', 'fullName');
         const jobP = header.querySelector('p, .job-title');
         if (jobP && !jobP.getAttribute('data-path')) jobP.setAttribute('data-path', 'jobTitle');
@@ -345,7 +363,7 @@ export default function ResumePreview({ data, template, onChangeData, editable =
     const sectionDivs = topChildren.filter((child): child is HTMLElement => {
       if (sections.includes(child)) return false;
       if (child.tagName.toLowerCase() === 'header') return false;
-      if (child.querySelector('h1')) return false; // header-like (the name)
+      if (child.querySelector('h1, [data-resume-name], .name-title')) return false; // header-like (the name)
       if (child.querySelector('section')) return false; // container of real sections
       return !!child.querySelector('h2, h3, h4') || !!child.querySelector('ul, ol');
     });
@@ -695,7 +713,7 @@ export default function ResumePreview({ data, template, onChangeData, editable =
     }
     pendingPagesRef.current = null;
     setPagesHtml(formattedPages);
-  }, [data, template, pageSizeId, heightMm, editHold, fontsLoaded]);
+  }, [data, template, pageSizeId, heightMm, editHold, fontsLoaded, paginationReady]);
 
   // The sheets were just re-injected (or initially built) from `pagesHtml` —
   // tell the caller synchronously, in this same layout pass, so it can rebuild

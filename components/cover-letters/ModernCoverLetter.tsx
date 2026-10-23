@@ -44,9 +44,9 @@ export default function ModernCoverLetter({
             <div>
                 {/* Header Section */}
                 <header className="text-center mb-6">
-                    <h1 className="text-4xl font-light tracking-wider uppercase mb-1.5 font-serif text-slate-900 layer-name">
+                    <div data-resume-name className="text-4xl font-light tracking-wider uppercase mb-1.5 font-serif text-slate-900 layer-name">
                         {data.fullName}
-                    </h1>
+                    </div>
                     <div className="text-xs font-semibold tracking-[0.25em] uppercase text-slate-500 mb-3 layer-title">
                         {data.jobTitle || jobTitle || 'Professional Application'}
                     </div>

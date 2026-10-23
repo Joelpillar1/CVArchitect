@@ -210,7 +210,7 @@ export async function fetchWiseJobs(
 ): Promise<NormalizedJob[]> {
   const response = await fetchImpl(SITEMAP_URL, {
     headers: {
-      'User-Agent': 'CVArchitect-JobBot/1.0 (+https://cvarchitect.com/bot)',
+      'User-Agent': 'Cvarchitect-JobBot/1.0 (+https://cvarchitect.com/bot)',
       Accept: 'application/xml,text/xml,*/*',
     },
   });

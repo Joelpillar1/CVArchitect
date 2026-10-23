@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useHydrating } from '../contexts/HydrationContext';
 import {
   ArrowRight,
   Check,
@@ -12,6 +13,7 @@ import {
 } from 'lucide-react';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
+import { PublicVisualCta } from './PublicVisualCta';
 import SEO from './SEO';
 import { useAuth } from '../contexts/AuthContext';
 import CoverLetterPreview from './cover-letters/CoverLetterPreview';
@@ -113,15 +115,19 @@ const STEPS = [
 ];
 
 export default function CoverLetterLandingPage() {
+  const hydrating = useHydrating();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [template, setTemplate] = useState<CoverLetterTemplateType>('modern');
   const templateRows = useRef<Record<string, HTMLButtonElement | null>>({});
   const manualLock = useRef(0);
+  const prerendering =
+    typeof window !== 'undefined' && (window as any).__PRERENDER_HYDRATION__ === true;
 
   // Scroll-driven selection: whichever template row crosses the viewport
   // centre becomes the active preview.
   useEffect(() => {
+    if (prerendering) return;
     const rows = Object.values(templateRows.current).filter(Boolean) as HTMLButtonElement[];
     if (!rows.length || typeof IntersectionObserver === 'undefined') return;
 
@@ -137,7 +143,7 @@ export default function CoverLetterLandingPage() {
 
     rows.forEach((row) => observer.observe(row));
     return () => observer.disconnect();
-  }, []);
+  }, [prerendering]);
 
   const startPath = user ? '/dashboard/cover-letter' : '/signup?redirect=/dashboard/cover-letter';
   const scrollToTemplates = () => {
@@ -148,7 +154,7 @@ export default function CoverLetterLandingPage() {
   return (
     <div className="min-h-screen bg-brand-bg text-brand-dark flex flex-col font-sans selection:bg-brand-green selection:text-brand-dark">
       <SEO
-        title="AI Cover Letter Generator | Tailored to Every Job | CVArchitect"
+        title="AI Cover Letter Generator | Tailored to Every Job | Cvarchitect"
         description="Write a cover letter that matches the job and your real experience. AI-drafted, editable, ATS-safe, and exportable to PDF or DOCX."
         canonicalPath="/cover-letter"
       />
@@ -158,13 +164,13 @@ export default function CoverLetterLandingPage() {
         {/* ─── HERO ─── */}
         <section className="relative pb-16 md:pb-24">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <motion.div initial="hidden" animate="visible" variants={fadeInUp} className="flex flex-col items-center">
+            <motion.div initial={hydrating ? false : 'hidden'} animate="visible" variants={fadeInUp} className="flex flex-col items-center">
               <div className="mb-6">
                 <Badge chip="Cover Letters">Tailored to the job</Badge>
               </div>
 
               <h1 className="text-[clamp(2.1rem,4.8vw,3.9rem)] font-bold tracking-[-0.03em] leading-[1.05] text-brand-dark mb-6 max-w-3xl">
-                A cover letter that{' '}
+                {'A cover letter that '}
                 <br />
                 <span className="underline decoration-brand-green decoration-[6px] underline-offset-[10px]">
                   sounds like you
@@ -210,7 +216,7 @@ export default function CoverLetterLandingPage() {
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
               <motion.div
-                initial="hidden"
+                initial={hydrating ? false : 'hidden'}
                 whileInView="visible"
                 viewport={{ once: true, margin: '-60px' }}
                 variants={fadeInUp}
@@ -253,7 +259,7 @@ export default function CoverLetterLandingPage() {
               </motion.div>
 
               <motion.div
-                initial={{ opacity: 0, y: 24 }}
+                initial={hydrating ? false : { opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-60px' }}
                 transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
@@ -271,7 +277,7 @@ export default function CoverLetterLandingPage() {
         <section className="relative py-24 md:py-32 bg-brand-bg border-t border-brand-border">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
-              initial="hidden"
+              initial={hydrating ? false : 'hidden'}
               whileInView="visible"
               viewport={{ once: true, margin: '-60px' }}
               variants={fadeInUp}
@@ -287,7 +293,7 @@ export default function CoverLetterLandingPage() {
               {FEATURES.map((feature, i) => (
                 <motion.div
                   key={feature.title}
-                  initial="hidden"
+                  initial={hydrating ? false : 'hidden'}
                   whileInView="visible"
                   viewport={{ once: true, margin: '-60px' }}
                   variants={fadeInUp}
@@ -315,7 +321,7 @@ export default function CoverLetterLandingPage() {
         <section id="cover-letter-templates" className="relative py-24 md:py-32 bg-white border-t border-brand-border scroll-mt-24">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
-              initial="hidden"
+              initial={hydrating ? false : 'hidden'}
               whileInView="visible"
               viewport={{ once: true, margin: '-60px' }}
               variants={fadeInUp}
@@ -385,6 +391,7 @@ export default function CoverLetterLandingPage() {
                         {isActive && (
                           <motion.span
                             layoutId="template-rail"
+                            initial={false}
                             className="absolute left-0 top-0 bottom-0 w-[2px] bg-brand-green"
                             transition={{ type: 'spring', stiffness: 420, damping: 38 }}
                           />
@@ -413,7 +420,7 @@ export default function CoverLetterLandingPage() {
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={template}
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={hydrating ? false : { opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
@@ -455,7 +462,7 @@ export default function CoverLetterLandingPage() {
         <section className="relative py-24 md:py-32 bg-brand-bg border-t border-brand-border">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
-              initial="hidden"
+              initial={hydrating ? false : 'hidden'}
               whileInView="visible"
               viewport={{ once: true, margin: '-60px' }}
               variants={fadeInUp}
@@ -471,7 +478,7 @@ export default function CoverLetterLandingPage() {
               {STEPS.map((step, i) => (
                 <motion.div
                   key={step.title}
-                  initial="hidden"
+                  initial={hydrating ? false : 'hidden'}
                   whileInView="visible"
                   viewport={{ once: true, margin: '-60px' }}
                   variants={fadeInUp}
@@ -481,10 +488,10 @@ export default function CoverLetterLandingPage() {
                   <div className="flex items-center justify-between">
                     <span className="inline-flex w-fit items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-dark/70 bg-brand-bg border border-brand-border px-2.5 py-1 rounded-lg">
                       {step.icon}
-                      Step {i + 1}
+                      {`Step ${i + 1}`}
                     </span>
                     <span className="text-[30px] font-bold leading-none text-brand-dark/10 tabular-nums">
-                      0{i + 1}
+                      {`0${i + 1}`}
                     </span>
                   </div>
                   <h3 className="text-lg font-bold tracking-tight text-brand-dark mt-4">{step.title}</h3>
@@ -496,25 +503,19 @@ export default function CoverLetterLandingPage() {
         </section>
 
         {/* ─── CTA ─── */}
-        <section className="relative py-20 md:py-28 bg-brand-dark text-white overflow-hidden">
-          <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-[clamp(2rem,4.2vw,3.2rem)] font-bold tracking-[-0.03em] leading-[1.05]">
-              Your next application deserves a better letter.
-            </h2>
-            <p className="text-sm sm:text-base text-white/60 mt-4 max-w-xl mx-auto">
-              Start free, write your first letter in minutes, and export it whenever you are ready.
-            </p>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => navigate(startPath)}
-              className="mt-8 inline-flex items-center gap-2 rounded-xl bg-brand-green px-6 py-3.5 text-sm sm:text-base font-bold text-brand-dark shadow-sm transition-colors hover:bg-brand-greenHover cursor-pointer"
-            >
-              Write my cover letter
-              <ArrowRight className="w-4 h-4" />
-            </motion.button>
-          </div>
-        </section>
+        <PublicVisualCta
+          badge="JD-Matched Cover Letters"
+          badgeIcon={<Sparkles className="w-3.5 h-3.5 text-brand-green" />}
+          headline={<>Your next application<br className="hidden sm:inline" /> deserves a better letter.</>}
+          sub={<>Start free, write a compelling, tailored letter in minutes,<br className="hidden sm:inline" /> and export in PDF or Word whenever you are ready.</>}
+          ctaLabel="Write my cover letter"
+          onCta={() => navigate(startPath)}
+          trustBullets={[
+            'Tuned to exact JD keywords',
+            'PDF & DOCX download',
+            'Executive & modern templates'
+          ]}
+        />
       </main>
 
       <PublicFooter />

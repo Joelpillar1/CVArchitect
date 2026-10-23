@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Menu, X, User } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useHydrating } from '../contexts/HydrationContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import ToolsDropdown from './ToolsDropdown';
 
@@ -12,6 +13,7 @@ interface PublicHeaderProps {
 export default function PublicHeader({ variant = 'default' }: PublicHeaderProps) {
     const navigate = useNavigate();
     const { user, signInWithGoogle } = useAuth();
+    const hydrating = useHydrating();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const handleGetStarted = () => {
@@ -58,8 +60,8 @@ export default function PublicHeader({ variant = 'default' }: PublicHeaderProps)
     const navContent = (
         <>
             <button onClick={() => navigate('/')} className="flex shrink-0 items-center gap-2 hover:opacity-80 transition-opacity">
-                <img src="/images/logo icon.png" alt="CVArchitect Logo" className="w-8 h-8 object-contain" />
-                <span className="text-lg font-bold tracking-tight text-brand-dark md:text-xl">CVArchitect</span>
+                <img src="/images/logo icon.png" alt="Cvarchitect Logo" className="w-8 h-8 object-contain" />
+                <span className="text-lg font-bold tracking-tight text-brand-dark md:text-xl">Cvarchitect</span>
             </button>
 
             <div className={`hidden items-center gap-6 lg:flex ${isFloating ? 'flex-1 justify-center' : 'absolute left-1/2 -translate-x-1/2'}`}>
@@ -145,7 +147,7 @@ export default function PublicHeader({ variant = 'default' }: PublicHeaderProps)
         return (
             <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-4">
                 <motion.nav
-                    initial={{ y: -24, opacity: 0 }}
+                    initial={hydrating ? false : { y: -24, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ duration: 0.45, ease: 'easeOut' }}
                     className="w-full max-w-6xl"
@@ -221,7 +223,7 @@ export default function PublicHeader({ variant = 'default' }: PublicHeaderProps)
 
     return (
         <motion.nav
-            initial={{ y: -100 }}
+            initial={hydrating ? false : { y: -100 }}
             animate={{ y: 0 }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
             className="fixed z-50 w-full border-b border-gray-100 bg-white/80 backdrop-blur-md"

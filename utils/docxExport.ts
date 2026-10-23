@@ -1,7 +1,7 @@
 /**
  * docxExport.ts
  *
- * High-performance client-side Word (.docx) export for CVArchitect resumes.
+ * High-performance client-side Word (.docx) export for Cvarchitect resumes.
  * Built using the official 'docx' package with 100% browser-native generation (0 backend required).
  *
  * Features:
@@ -14,7 +14,7 @@
  * - Template-aware header alignments (Centered Harvard/Times/Academic vs. Left Modern/Dev/Exec).
  * - Right-aligned date/location alignment using native Word right-tab stops.
  * - Rich-text HTML parser (converts <b>, <strong>, <i>, <em>, <a> into native TextRuns & ExternalHyperlinks).
- * - Full support for all CVArchitect sections: Personal Info, Summary, Experience, Education, Skills,
+ * - Full support for all Cvarchitect sections: Personal Info, Summary, Experience, Education, Skills,
  *   Expert Skills, Technical Skills, Core Competencies, Projects, Certifications, Leadership,
  *   Volunteering, Coursework, Publications, Awards, Languages, Additional Info, and Custom Sections.
  * - Instant memory-safe browser download.
@@ -1999,7 +1999,7 @@ export async function exportResumeToDocx(
   const doc = buildResumeDocxDocument(data, templateOverride);
   const blob = await Packer.toBlob(doc);
   const safeName = sanitizeFilename(
-    filename || `${data.fullName || 'Resume'}_CVArchitect`,
+    filename || `${data.fullName || 'Resume'}_Cvarchitect`,
     'Resume'
   );
   downloadFile(blob, `${safeName}.docx`);

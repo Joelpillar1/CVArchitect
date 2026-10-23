@@ -483,7 +483,7 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
     >
       {/* Header */}
       <header className="break-inside-avoid w-full" style={{ marginBottom: headerGap, width: '100%' }}>
-        <h1
+        <div data-resume-name
           data-path="fullName"
           className={`font-bold tracking-tight leading-none text-gray-900 w-full ${
             data.headerAlignment === 'left' ? 'text-left' :
@@ -497,7 +497,7 @@ export default function ElegantTemplate({ data }: ElegantTemplateProps) {
           }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase)} />
-        </h1>
+        </div>
 
         {/* Job Title (if Title First) */}
         {isTitleFirst(data, false) && data.jobTitle && (

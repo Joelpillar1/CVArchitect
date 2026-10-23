@@ -2470,7 +2470,7 @@ Return 3-4 bullet points starting with '• '. Output ONLY the bullet points.`;
                 if (/^(hi|hello|hey|greetings|hola|good\s*(morning|afternoon|evening)|who are you|what can you do|help|how does this work)/i.test(lower)) {
                     streamAssistantMessage(
                         { id: `agent-${Date.now()}`, type: 'text' },
-                        `Welcome to the **CVArchitect Live AI Preview**! I am your Executive Resume Architect.\n\nHere is what you can test right now in this interactive preview:\n1. **Paste any Job Description** into the chat below to trigger real-time ATS match scoring and keyword gap analysis.\n2. Ask me to **strengthen bullets**, **harmonize skills**, or **align your summary**.\n3. Click **1-Click AI Tailor** above or step through each role to see instant Google XYZ transformations!`
+                        `Welcome to the **Cvarchitect Live AI Preview**! I am your Executive Resume Architect.\n\nHere is what you can test right now in this interactive preview:\n1. **Paste any Job Description** into the chat below to trigger real-time ATS match scoring and keyword gap analysis.\n2. Ask me to **strengthen bullets**, **harmonize skills**, or **align your summary**.\n3. Click **1-Click AI Tailor** above or step through each role to see instant Google XYZ transformations!`
                     );
                     return;
                 }
@@ -2479,7 +2479,7 @@ Return 3-4 bullet points starting with '• '. Output ONLY the bullet points.`;
                 if (lower.includes('add section') || lower.includes('how do i add') || lower.includes('add certification') || lower.includes('add custom section') || lower.includes('add publication') || lower.includes('add volunteer')) {
                     streamAssistantMessage(
                         { id: `agent-${Date.now()}`, type: 'text' },
-                        `To add a new section in CVArchitect:\n\n1. In the **Left Editor Sidebar** (or via the **+ Add Section** button at the bottom of the live resume canvas), click **+ Add Section**.\n2. Select your desired section (*Key Achievements, Projects, Leadership, Certifications, Publications, Languages, Coursework, Awards, Volunteer*) or choose *Custom Section*.\n3. Once added, you can edit the text directly or ask me to draft tailored Google XYZ impact bullets for you!`
+                        `To add a new section in Cvarchitect:\n\n1. In the **Left Editor Sidebar** (or via the **+ Add Section** button at the bottom of the live resume canvas), click **+ Add Section**.\n2. Select your desired section (*Key Achievements, Projects, Leadership, Certifications, Publications, Languages, Coursework, Awards, Volunteer*) or choose *Custom Section*.\n3. Once added, you can edit the text directly or ask me to draft tailored Google XYZ impact bullets for you!`
                     );
                     return;
                 }
@@ -2598,7 +2598,7 @@ ${data.experience.map((e, idx) => `[Role Index ${idx}] "${e.role || 'Role'}" at 
 ${e.description || 'No bullets'}`).join('\n\n')}
 ${data.jobDescription ? `Target Job Description:\n${data.jobDescription.slice(0, 600)}...` : ''}`;
 
-            const prompt = `You are CVArchitect AI, an elite Senior Executive Recruiter and Talent Strategist with 15+ years of experience hiring for top tech, fintech, finance, and enterprise companies.
+            const prompt = `You are Cvarchitect AI, an elite Senior Executive Recruiter and Talent Strategist with 15+ years of experience hiring for top tech, fintech, finance, and enterprise companies.
 You evaluate resumes through the eyes of hiring managers and modern ATS algorithms (Workday, Greenhouse, Lever).
 
 CONVERSATION HISTORY:

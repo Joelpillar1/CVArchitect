@@ -99,7 +99,7 @@ describe('JakeTemplate', () => {
     expect(html).not.toContain('#D32020');
     expect(html).not.toContain('color:#FFFFFF');
     // contact div follows the name directly — no banner element between them
-    expect(html).toMatch(/<\/h1><div class="flex flex-wrap items-center w-full mx-auto text-gray-900/);
+    expect(html).toMatch(/data-resume-name[^>]*>[\s\S]*?<\/div><div class="flex flex-wrap items-center w-full mx-auto text-gray-900/);
     // name uses the template's serif font — no sans-serif override anywhere
     expect(html).not.toContain('Arial');
     expect(html).toContain('Times New Roman');

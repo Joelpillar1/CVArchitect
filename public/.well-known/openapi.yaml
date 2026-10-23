@@ -1,0 +1,61 @@
+openapi: 3.1.0
+info:
+  title: Cvarchitect Public AI Manifest
+  version: 1.0.0
+  description: Read-only machine-readable endpoints for AI agents and LLM crawlers. These endpoints describe the public site, product capabilities, and canonical URLs. No authentication is required.
+  contact:
+    name: Cvarchitect Support
+    email: support@cvarchitect.app
+    url: https://cvarchitect.app/support
+servers:
+  - url: https://cvarchitect.app
+    description: Production
+paths:
+  /llms.txt:
+    get:
+      operationId: getLlmsTxt
+      summary: Short LLM manifest
+      description: Concise list of canonical Cvarchitect pages, comparisons, role templates, and guides for AI answer engines.
+      responses:
+        '200':
+          description: Plain-text LLM manifest
+          content:
+            text/plain:
+              schema:
+                type: string
+  /llms-full.txt:
+    get:
+      operationId: getLlmsFullTxt
+      summary: Full LLM knowledge base
+      description: Expanded product, pricing, ATS, and resume-writing knowledge base for retrieval-augmented answer engines.
+      responses:
+        '200':
+          description: Plain-text full knowledge base
+          content:
+            text/plain:
+              schema:
+                type: string
+  /ai.txt:
+    get:
+      operationId: getAiTxt
+      summary: AI agent manifest
+      description: Machine-readable summary of Cvarchitect capabilities, canonical product URLs, and crawl directives.
+      responses:
+        '200':
+          description: Plain-text AI agent manifest
+          content:
+            text/plain:
+              schema:
+                type: string
+  /sitemap.xml:
+    get:
+      operationId: getSitemap
+      summary: Canonical public sitemap
+      description: XML sitemap covering the public marketing site, comparisons, and role template pages.
+      responses:
+        '200':
+          description: XML sitemap
+          content:
+            application/xml:
+              schema:
+                type: string

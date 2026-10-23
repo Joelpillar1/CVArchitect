@@ -1,201 +1,23 @@
-# CVArchitect — Robots.txt
+# Cvarchitect robots.txt
 # https://cvarchitect.app
 
-# -----------------------------------------------
-# General crawlers — allow everything public
-# -----------------------------------------------
 User-agent: *
 Allow: /
-Allow: /agent
-Allow: /pricing
-Allow: /resume-checker
-Allow: /action-words
-Allow: /contact
-Allow: /privacy
-Allow: /terms
-Allow: /refund-policy
-Allow: /signup
-Allow: /login
-Allow: /blog
-Allow: /blog/*
-Allow: /llms.txt
-Allow: /llms-full.txt
-Allow: /ai.txt
-Allow: /.well-known/
-
-# Block authenticated/internal routes
 Disallow: /dashboard
-Disallow: /dashboard/*
+Disallow: /dashboard/
+Disallow: /api/
 Disallow: /reset-password
 Disallow: /forgot-password
 Disallow: /screenshot
-Disallow: /dev-*
+Disallow: /dev-
 
-# Block backend API routes
-Disallow: /api/
+# AI search and answer-engine crawlers are welcome. They inherit the rules
+# above, including the private-route blocks:
+# GPTBot, OAI-SearchBot, ChatGPT-User, ClaudeBot, Claude-SearchBot,
+# Claude-Web, anthropic-ai, PerplexityBot, Perplexity-User, DeepSeekBot,
+# GrokBot, Google-Extended, GoogleOther, Bingbot, msnbot,
+# meta-externalagent, FacebookBot, Applebot, Applebot-Extended, CCBot,
+# cohere-ai, MistralAI.
 
-# -----------------------------------------------
-# OpenAI — ChatGPT, GPTBot, ChatGPT-User, OAI-SearchBot
-# -----------------------------------------------
-User-agent: GPTBot
-Allow: /
-Allow: /llms.txt
-Allow: /llms-full.txt
-Allow: /ai.txt
-Allow: /blog
-
-User-agent: OAI-SearchBot
-Allow: /
-Allow: /llms.txt
-Allow: /llms-full.txt
-Allow: /ai.txt
-Allow: /blog
-
-User-agent: ChatGPT-User
-Allow: /
-Allow: /llms.txt
-Allow: /llms-full.txt
-Allow: /ai.txt
-
-# -----------------------------------------------
-# Anthropic — ClaudeBot, Claude-SearchBot, Claude-Web, anthropic-ai
-# -----------------------------------------------
-User-agent: Claude-SearchBot
-Allow: /
-Allow: /llms.txt
-Allow: /llms-full.txt
-Allow: /ai.txt
-
-User-agent: ClaudeBot
-Allow: /
-Allow: /llms.txt
-Allow: /llms-full.txt
-Allow: /ai.txt
-
-User-agent: anthropic-ai
-Allow: /
-Allow: /llms.txt
-Allow: /llms-full.txt
-Allow: /ai.txt
-
-User-agent: Claude-Web
-Allow: /
-Allow: /llms.txt
-Allow: /llms-full.txt
-Allow: /ai.txt
-
-# -----------------------------------------------
-# Perplexity AI
-# -----------------------------------------------
-User-agent: PerplexityBot
-Allow: /
-Allow: /llms.txt
-Allow: /llms-full.txt
-Allow: /ai.txt
-Allow: /blog
-
-User-agent: Perplexity-User
-Allow: /
-Allow: /llms.txt
-Allow: /llms-full.txt
-Allow: /ai.txt
-
-# -----------------------------------------------
-# DeepSeek AI
-# -----------------------------------------------
-User-agent: DeepSeekBot
-Allow: /
-Allow: /llms.txt
-Allow: /llms-full.txt
-Allow: /ai.txt
-
-# -----------------------------------------------
-# xAI / Grok
-# -----------------------------------------------
-User-agent: GrokBot
-Allow: /
-Allow: /llms.txt
-Allow: /llms-full.txt
-Allow: /ai.txt
-
-# -----------------------------------------------
-# Google — Gemini, AI Overviews, Search Labs
-# -----------------------------------------------
-User-agent: Googlebot
-Allow: /
-
-User-agent: GoogleOther
-Allow: /
-Allow: /llms.txt
-Allow: /llms-full.txt
-Allow: /ai.txt
-
-User-agent: Google-Extended
-Allow: /
-Allow: /llms.txt
-Allow: /llms-full.txt
-Allow: /ai.txt
-
-# -----------------------------------------------
-# Microsoft — Bing, Copilot
-# -----------------------------------------------
-User-agent: Bingbot
-Allow: /
-
-User-agent: msnbot
-Allow: /
-
-# -----------------------------------------------
-# Meta AI
-# -----------------------------------------------
-User-agent: meta-externalagent
-Allow: /
-Allow: /llms.txt
-Allow: /llms-full.txt
-Allow: /ai.txt
-
-User-agent: FacebookBot
-Allow: /
-
-# -----------------------------------------------
-# Apple Intelligence
-# -----------------------------------------------
-User-agent: Applebot
-Allow: /
-
-User-agent: Applebot-Extended
-Allow: /
-Allow: /llms.txt
-Allow: /llms-full.txt
-Allow: /ai.txt
-
-# -----------------------------------------------
-# Common Crawl (Used across Frontier LLM training)
-# -----------------------------------------------
-User-agent: CCBot
-Allow: /
-Allow: /llms.txt
-Allow: /llms-full.txt
-Allow: /ai.txt
-Allow: /blog
-
-# -----------------------------------------------
-# Cohere & Mistral
-# -----------------------------------------------
-User-agent: cohere-ai
-Allow: /
-Allow: /llms.txt
-Allow: /llms-full.txt
-Allow: /ai.txt
-
-User-agent: MistralAI
-Allow: /
-Allow: /llms.txt
-Allow: /llms-full.txt
-Allow: /ai.txt
-
-# -----------------------------------------------
-# Sitemaps
-# -----------------------------------------------
 Sitemap: https://cvarchitect.app/sitemap.xml
-Sitemap-Blog: https://cvarchitect.app/sitemap-blog.xml
+Sitemap: https://cvarchitect.app/sitemap-blog.xml

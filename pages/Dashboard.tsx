@@ -708,16 +708,16 @@ export default function Dashboard() {
                         <button
                             onClick={() => navigate('/dashboard')}
                             className="flex items-center gap-2.5 hover:opacity-85 transition-opacity text-left min-w-0"
-                            title="CVArchitect Dashboard"
+                            title="Cvarchitect Dashboard"
                         >
                             <img
                                 src="/images/logo icon.png"
-                                alt="CVArchitect Logo"
+                                alt="Cvarchitect Logo"
                                 className="w-8 h-8 rounded-lg object-contain shrink-0"
                             />
                             {!isSidebarCollapsed && (
                                 <span className="font-bold text-lg text-gray-900 tracking-tight whitespace-nowrap">
-                                    CVArchitect
+                                    Cvarchitect
                                 </span>
                             )}
                         </button>

@@ -677,7 +677,7 @@ export default function ClassicTemplate({ data, fontSizes }: ClassicTemplateProp
         className="break-inside-avoid w-full"
         style={{ marginBottom: `${getHeaderGapIn(data)}in`, width: '100%' }}
       >
-        <h1
+        <div data-resume-name
           data-path="fullName"
           className={`text-5xl font-bold w-full ${
             data.headerAlignment === 'left' ? 'text-left' :
@@ -687,7 +687,7 @@ export default function ClassicTemplate({ data, fontSizes }: ClassicTemplateProp
           style={{ fontSize: `${fontSizes?.header || 18}pt`, marginBottom: `${getHeaderItemGapIn(data)}in`, lineHeight: 1.15, width: '100%' }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase)} />
-        </h1>
+        </div>
         {titleFirst && jobTitleBlock}
         {contactItems.length > 0 && (
           <div

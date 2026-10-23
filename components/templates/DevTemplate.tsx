@@ -478,7 +478,7 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
         className="break-inside-avoid w-full"
         style={{ marginBottom: `${getHeaderGapIn(data)}in`, width: '100%' }}
       >
-        <h1
+        <div data-resume-name
           data-path="fullName"
           className={`font-bold tracking-tight w-full ${
             data.headerAlignment === 'left' ? 'text-left' :
@@ -493,7 +493,7 @@ export default function DevTemplate({ data }: { data: ResumeData }) {
           }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase)} />
-        </h1>
+        </div>
 
         {/* Contact Information */}
         {(() => {

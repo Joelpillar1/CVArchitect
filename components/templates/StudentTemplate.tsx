@@ -546,7 +546,7 @@ const StudentTemplate: React.FC<StudentTemplateProps> = ({ data }) => {
         className="break-inside-avoid w-full"
         style={{ marginBottom: `${getHeaderGapIn(data)}in`, width: '100%' }}
       >
-        <h1
+        <div data-resume-name
           data-path="fullName"
           className={`font-bold tracking-normal w-full ${
             data.headerAlignment === 'left' ? 'text-left' :
@@ -561,7 +561,7 @@ const StudentTemplate: React.FC<StudentTemplateProps> = ({ data }) => {
           }}
         >
           <RichText text={formatNameDisplay(data.fullName, data.headerCase)} />
-        </h1>
+        </div>
 
         {/* Job Title (if Title First) */}
         {isTitleFirst(data, false) && data.jobTitle && (

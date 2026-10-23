@@ -8,6 +8,8 @@ export interface ClassicCoverLetterProps {
     content: GeneratedCoverLetter | string;
     companyName?: string;
     jobTitle?: string;
+    signatureUrl?: string | null;
+    onUploadSignature?: () => void;
     fontSize?: number;
     lineSpacing?: number;
     spacing?: 'compact' | 'normal' | 'spacious';
@@ -20,6 +22,8 @@ export default function ClassicCoverLetter({
     content,
     companyName,
     jobTitle,
+    signatureUrl,
+    onUploadSignature,
     fontSize,
     lineSpacing,
     spacing = 'normal',
@@ -63,9 +67,9 @@ export default function ClassicCoverLetter({
             <div>
                 {/* 1. Header: Left-Aligned Candidate Info */}
                 <header className="mb-6">
-                    <h1 className="text-2xl font-bold tracking-tight text-gray-950 mb-2 font-serif">
+                    <div data-resume-name className="text-2xl font-bold tracking-tight text-gray-950 mb-2 font-serif">
                         {data.fullName}
-                    </h1>
+                    </div>
 
                     <div className="text-xs text-gray-700 space-y-0.5 leading-relaxed font-serif">
                         {(data.location || data.address) && <p>{data.location || data.address}</p>}
@@ -107,6 +111,8 @@ export default function ClassicCoverLetter({
                                         lineSpacing={lineSpacing}
                                         isStreaming={isStreaming && (!structured?.skills || structured.skills.length === 0)}
                                         serifName={true}
+                                        signatureUrl={signatureUrl}
+                                        onUploadSignature={onUploadSignature}
                                     />
                                 )}
 
@@ -118,7 +124,7 @@ export default function ClassicCoverLetter({
                                         <ul className="space-y-1.5 pl-4 list-disc text-gray-800 text-[13px]">
                                             {structured.skills.map((item, idx) => (
                                                 <li key={idx} className="leading-relaxed">
-                                                    <span className="font-semibold text-gray-950">{item.skill}:</span>{' '}
+                                                    <span className="font-semibold text-gray-950">{`${item.skill}:`}</span>{' '}
                                                     <span>{item.description}</span>
                                                 </li>
                                             ))}
@@ -132,6 +138,8 @@ export default function ClassicCoverLetter({
                                         lineSpacing={lineSpacing}
                                         isStreaming={isStreaming}
                                         serifName={true}
+                                        signatureUrl={signatureUrl}
+                                        onUploadSignature={onUploadSignature}
                                     />
                                 )}
                             </>
@@ -142,6 +150,8 @@ export default function ClassicCoverLetter({
                                 lineSpacing={lineSpacing}
                                 isStreaming={isStreaming}
                                 serifName={true}
+                                signatureUrl={signatureUrl}
+                                onUploadSignature={onUploadSignature}
                             />
                         )
                     ) : isStreaming ? (

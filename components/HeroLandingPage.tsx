@@ -41,8 +41,8 @@ export default function HeroLandingPage() {
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col selection:bg-brand-green selection:text-brand-dark overflow-x-hidden font-sans">
       <SEO 
-        title="AI Resume Optimization & Job Matching System | CVArchitect"
-        description="Create an ATS-proof resume with CVArchitect AI. Instant job description matching, precision rewriting, and modern designer templates."
+        title="AI Resume Optimization & Job Matching System | Cvarchitect"
+        description="Create an ATS-proof resume with Cvarchitect AI. Instant job description matching, precision rewriting, and modern designer templates."
         canonicalPath="/landingpage"
       />
       
@@ -130,7 +130,7 @@ export default function HeroLandingPage() {
                 <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 mb-3">
                   <FileText className="w-5 h-5" />
                 </div>
-                <h3 className="font-semibold text-slate-900 text-base mb-1">30+ Templates</h3>
+                <h3 className="font-semibold text-slate-900 text-base mb-1">Resume Templates</h3>
                 <p className="text-xs text-slate-500 leading-relaxed">
                   Professional, ATS-formatted resume layouts designed for recruiters.
                 </p>

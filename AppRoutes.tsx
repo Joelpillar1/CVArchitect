@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
+import { useHydrating } from './contexts/HydrationContext';
 import { applyPendingPlanFromSearch, getPendingCheckoutPlan } from './utils/pendingCheckout';
 
 // Page Components
@@ -20,6 +21,13 @@ import BlogPost from './components/BlogPost';
 import Support from './components/Support';
 import ResumeMatchChecker from './components/ResumeMatchChecker';
 import ActionVerbs from './components/ActionVerbs';
+import CompareHubPage from './components/CompareHubPage';
+import RoleTemplatePage from './components/RoleTemplatePage';
+import ComparisonPage from './components/ComparisonPage';
+import BestResumeBuildersPage from './components/BestResumeBuildersPage';
+import BestCoverLetterBuildersPage from './components/BestCoverLetterBuildersPage';
+import BestAtsResumeCheckersPage from './components/BestAtsResumeCheckersPage';
+import BestFirstTimeResumeBuildersPage from './components/BestFirstTimeResumeBuildersPage';
 import AgentLandingPage from './components/AgentLandingPage';
 import PrintResumePage from './pages/PrintResumePage';
 
@@ -70,6 +78,7 @@ interface PublicRouteProps {
 
 function PublicRoute({ children, redirectIfAuthenticated = true }: PublicRouteProps) {
     const { user, loading } = useAuth();
+    const hydrating = useHydrating();
     const location = useLocation();
 
     const hasOAuthParams =
@@ -83,7 +92,7 @@ function PublicRoute({ children, redirectIfAuthenticated = true }: PublicRoutePr
         return <>{children}</>;
     }
 
-    if (loading || (hasOAuthParams && !user)) {
+    if ((loading && !hydrating) || (hasOAuthParams && !user)) {
         return <LoadingScreen />;
     }
 
@@ -200,9 +209,18 @@ export default function AppRoutes() {
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/cover-letter" element={<CoverLetterLandingPage />} />
             <Route path="/resume-templates" element={<ResumeTemplatesPage />} />
+            <Route path="/resume-templates/:role" element={<RoleTemplatePage />} />
             <Route path="/support" element={<Support />} />
             <Route path="/resume-checker" element={<ResumeMatchChecker />} />
             <Route path="/action-words" element={<ActionVerbs />} />
+
+            {/* Comparisons (AEO) */}
+            <Route path="/compare" element={<CompareHubPage />} />
+            <Route path="/compare/:slug" element={<ComparisonPage />} />
+            <Route path="/best-ai-resume-builders" element={<BestResumeBuildersPage />} />
+            <Route path="/best-cover-letter-builders" element={<BestCoverLetterBuildersPage />} />
+            <Route path="/best-ats-resume-checkers" element={<BestAtsResumeCheckersPage />} />
+            <Route path="/best-resume-builders-for-first-time-writers" element={<BestFirstTimeResumeBuildersPage />} />
 
             {/* Blog */}
             <Route path="/blog" element={<BlogPage />} />

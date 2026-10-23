@@ -7,26 +7,13 @@
  */
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
+import { getPrerenderRoutes } from './routes.mjs';
 
 const DIST = path.resolve('dist');
 const SITE = 'https://cvarchitect.app';
 
-const EXPECTED = [
-  '/',
-  '/pricing',
-  '/resume-templates',
-  '/cover-letter',
-  '/resume-checker',
-  '/action-words',
-  '/blog',
-  '/support',
-  '/contact',
-  '/privacy',
-  '/terms',
-  '/refund-policy',
-  '/signup',
-  '/login',
-];
+/** Expected pages come from the route manifest, so this gate cannot drift. */
+const EXPECTED = getPrerenderRoutes().map((route) => route.path);
 
 function fileFor(routePath) {
   if (routePath === '/') return path.join(DIST, 'index.html');
@@ -51,7 +38,9 @@ async function blogRoutes() {
 const problems = [];
 const rows = [];
 
-for (const route of [...EXPECTED, ...(await blogRoutes())]) {
+const allRoutes = [...new Set([...EXPECTED, ...(await blogRoutes())])];
+
+for (const route of allRoutes) {
   const file = fileFor(route);
   let html;
   try {

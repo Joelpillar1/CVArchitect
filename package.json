@@ -10,6 +10,8 @@
     "prerender": "node scripts/prerender.mjs",
     "verify:prerender": "node scripts/verify-prerender.mjs",
     "preview": "vite preview",
+    "content:stale": "node scripts/content-stale.mjs",
+    "indexnow": "node scripts/indexnow.mjs",
     "test": "vitest"
   },
   "dependencies": {

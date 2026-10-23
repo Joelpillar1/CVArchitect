@@ -74,7 +74,7 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
                 className="w-full py-6 px-8 flex flex-col break-inside-avoid"
                 style={{ backgroundColor: headerBgColor, width: '100%' }}
             >
-                <h1
+                <div data-resume-name
                     data-path="fullName"
                     className={`font-bold text-gray-900 w-full ${
                         data.headerAlignment === 'left' ? 'text-left' :
@@ -89,7 +89,7 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
                     }}
                 >
                     <RichText text={formatNameDisplay(data.fullName, data.headerCase) || 'Name'} />
-                </h1>
+                </div>
                 {(() => {
                     const showIcons = data.showContactIcons ?? true;
                     const items: React.ReactNode[] = [];

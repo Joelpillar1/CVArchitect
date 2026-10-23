@@ -76,9 +76,9 @@ export default function EditorialCoverLetter({
             <div>
                 {/* 1. Header: Left-Aligned Candidate Name */}
                 <header className="mb-6">
-                    <h1 className="text-[26px] font-bold tracking-tight text-gray-950 mb-2 font-serif">
+                    <div data-resume-name className="text-[26px] font-bold tracking-tight text-gray-950 mb-2 font-serif">
                         {data.fullName || 'Charles Bloomberg'}
-                    </h1>
+                    </div>
 
                     {/* Integrated Contact Block (Location -> Date -> Email -> Links) */}
                     <div className="text-[13px] text-gray-700 space-y-0.5 leading-relaxed font-serif">

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useHydrating } from '../../contexts/HydrationContext';
 
 /**
  * Realistic Resume Preview Skeleton that mimics an actual A4 resume sheet
@@ -215,15 +216,21 @@ export function TemplateCardPreviewCanvas({
   overlay?: React.ReactNode;
   scaleClass?: string;
 }) {
-  const [isRendered, setIsRendered] = useState(false);
+  const hydrating = useHydrating();
+  // Prerendered HTML already contains the live preview, so hydration must start
+  // there too instead of flashing the skeleton back in.
+  const prerendering =
+    typeof window !== 'undefined' && (window as any).__PRERENDER_HYDRATION__ === true;
+  const [isRendered, setIsRendered] = useState(hydrating || prerendering);
 
   useEffect(() => {
+    if (isRendered) return;
     // Reveal real template preview on next render frame to eliminate blank flashes
     const timer = requestAnimationFrame(() => {
       setIsRendered(true);
     });
     return () => cancelAnimationFrame(timer);
-  }, []);
+  }, [isRendered]);
 
   return (
     <div data-resume-preview className="relative w-full aspect-[4/3] bg-white rounded-xl border border-gray-200/70 overflow-hidden shadow-2xs flex items-center justify-center">

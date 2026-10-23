@@ -1,15 +1,16 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useMemo } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Check } from 'lucide-react';
+import { useHydrating } from '../contexts/HydrationContext';
+import { ArrowRight, Check, LayoutTemplate } from 'lucide-react';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
+import { PublicVisualCta } from './PublicVisualCta';
 import SEO from './SEO';
 import { useAuth } from '../contexts/AuthContext';
-import ResumePreview from './ResumePreview';
-import { TemplateCardPreviewCanvas } from './ui/TemplateSkeleton';
+import { TemplateGalleryCard } from './TemplateGalleryCard';
 import { TEMPLATE_CONFIG, getTemplateCategory } from '../utils/templateConfig';
-import { getTemplatePreviewData } from '../utils/sampleResumeData';
+import { ROLE_GUIDES } from '../utils/roleTemplates';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 24 },
@@ -27,86 +28,15 @@ function Badge({ chip, children }: { chip: string; children: React.ReactNode }) 
   );
 }
 
-type TemplateItem = (typeof TEMPLATE_CONFIG)[number];
-
-/* Gallery card: mounts its resume preview only once it approaches the viewport. */
-function TemplateCard({ template, index, onUse }: { template: TemplateItem; index: number; onUse: () => void }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    if (visible) return;
-    const el = ref.current;
-    if (!el || typeof IntersectionObserver === 'undefined') {
-      setVisible(true);
-      return;
-    }
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: '400px' }
-    );
-    observer.observe(el);
-    // Fallback so previews always mount, even if the observer never reports.
-    const fallback = window.setTimeout(() => setVisible(true), 1500 + index * 60);
-    return () => {
-      observer.disconnect();
-      window.clearTimeout(fallback);
-    };
-  }, [visible, index]);
-
-  const previewData = useMemo(
-    () => ({ ...getTemplatePreviewData(template.id), font: 'Merriweather, serif' }),
-    [template.id]
-  );
-
-  return (
-    <div
-      ref={ref}
-      className="group flex flex-col rounded-xl border border-brand-border bg-white p-3 transition-shadow hover:shadow-md cursor-pointer"
-      onClick={onUse}
-    >
-      <div className="relative overflow-hidden rounded-lg">
-        {visible ? (
-          <TemplateCardPreviewCanvas scaleClass="scale-[0.47] sm:scale-[0.32] lg:scale-[0.34] xl:scale-[0.40]">
-            <ResumePreview data={previewData} template={template.id} editable={false} />
-          </TemplateCardPreviewCanvas>
-        ) : (
-          <div className="aspect-[4/3] w-full rounded-lg bg-brand-secondary" />
-        )}
-
-        <div className="pointer-events-none absolute inset-0 flex items-end justify-center bg-brand-dark/0 p-3 opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:bg-brand-dark/25 group-hover:opacity-100">
-          <button
-            onClick={(e) => { e.stopPropagation(); onUse(); }}
-            className="w-full rounded-lg bg-brand-green px-3 py-2 text-xs font-bold text-brand-dark shadow-lg transition-colors hover:bg-brand-greenHover cursor-pointer"
-          >
-            Use this template
-          </button>
-        </div>
-      </div>
-
-      <div className="mt-3 flex items-start justify-between gap-2 px-0.5">
-        <div className="min-w-0">
-          <h3 className="truncate text-sm font-bold text-brand-dark">{template.name}</h3>
-          <p className="mt-0.5 truncate text-[11px] text-brand-dark/45">{getTemplateCategory(template)}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function ResumeTemplatesPage() {
+  const hydrating = useHydrating();
   const navigate = useNavigate();
   const { user } = useAuth();
 
   const startPath = user ? '/dashboard/templates' : '/signup?redirect=/dashboard/templates';
 
   /* Templates grouped by category, in the order the categories appear in the config. */
-  const groups = useMemo(() => {
+  const groups = useMemo<Array<{ category: string; templates: Array<{ template: (typeof TEMPLATE_CONFIG)[number]; index: number }> }>>(() => {
     const order = Array.from(new Set(TEMPLATE_CONFIG.map((t) => getTemplateCategory(t))));
     let index = 0;
     return order.map((category) => ({
@@ -131,7 +61,7 @@ export default function ResumeTemplatesPage() {
   return (
     <div className="min-h-screen bg-brand-bg text-brand-dark flex flex-col font-sans selection:bg-brand-green selection:text-brand-dark">
       <SEO
-        title="Resume Templates | ATS-Ready Designs | CVArchitect"
+        title="Resume Templates | ATS-Ready Designs | Cvarchitect"
         description="Browse ATS-tested resume templates. Pick a layout, add your details, and export a recruiter-ready PDF or DOCX in minutes."
         canonicalPath="/resume-templates"
       />
@@ -141,13 +71,13 @@ export default function ResumeTemplatesPage() {
         {/* ─── HERO ─── */}
         <section className="relative pb-14 md:pb-20">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <motion.div initial="hidden" animate="visible" variants={fadeInUp} className="flex flex-col items-center">
+            <motion.div initial={hydrating ? false : 'hidden'} animate="visible" variants={fadeInUp} className="flex flex-col items-center">
               <div className="mb-6">
                 <Badge chip="Templates">ATS-ready designs</Badge>
               </div>
 
               <h1 className="text-[clamp(2.1rem,4.8vw,3.9rem)] font-bold tracking-[-0.03em] leading-[1.05] text-brand-dark mb-6 max-w-3xl">
-                Resume templates{' '}
+                {'Resume templates '}
                 <br />
                 <span className="underline decoration-brand-green decoration-[6px] underline-offset-[10px]">
                   that get read
@@ -219,7 +149,7 @@ export default function ResumeTemplatesPage() {
                 <div key={group.category} id={groupId(group.category)} className="scroll-mt-28">
                   <div className="flex items-center gap-4 mb-5">
                     <h3 className="text-lg sm:text-xl font-bold tracking-[-0.01em] text-brand-dark">
-                      {group.category} templates
+                      {`${group.category} templates`}
                     </h3>
                     <span className="h-px flex-1 bg-brand-border" aria-hidden="true" />
                     {group.templates.length > 3 && (
@@ -235,7 +165,7 @@ export default function ResumeTemplatesPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
                     {group.templates.slice(0, 3).map(({ template, index }) => (
-                      <TemplateCard
+                      <TemplateGalleryCard
                         key={template.id}
                         template={template}
                         index={index}
@@ -249,26 +179,63 @@ export default function ResumeTemplatesPage() {
           </div>
         </section>
 
-        {/* ─── CTA ─── */}
-        <section className="relative py-20 md:py-28 bg-brand-dark text-white overflow-hidden">
-          <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-[clamp(2rem,4.2vw,3.2rem)] font-bold tracking-[-0.03em] leading-[1.05]">
-              Your experience deserves a better layout.
-            </h2>
-            <p className="text-sm sm:text-base text-white/60 mt-4 max-w-xl mx-auto">
-              Start free, pick a template, and export your first resume in minutes.
-            </p>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => navigate(startPath)}
-              className="mt-8 inline-flex items-center gap-2 rounded-xl bg-brand-green px-6 py-3.5 text-sm sm:text-base font-bold text-brand-dark shadow-sm transition-colors hover:bg-brand-greenHover cursor-pointer"
-            >
-              Build my resume
-              <ArrowRight className="w-4 h-4" />
-            </motion.button>
+        {/* ─── BY ROLE ─── */}
+        <section aria-labelledby="templates-by-role" className="relative py-14 md:py-16 bg-brand-bg border-t border-brand-border">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+              <div>
+                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-brand-dark/45 mb-3">
+                  By role
+                </p>
+                <h2 id="templates-by-role" className="text-2xl sm:text-3xl font-bold tracking-[-0.02em] text-brand-dark">
+                  Start from your job title
+                </h2>
+                <p className="text-sm text-brand-dark/55 mt-2 max-w-xl leading-relaxed">
+                  Each guide pairs three layouts with the experience, keywords, and bullets hiring managers scan for.
+                </p>
+              </div>
+              <Link
+                to="/blog/resume-examples-by-industry-2026"
+                className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-brand-dark/60 transition-colors hover:text-brand-dark"
+              >
+                Examples by industry
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+              {ROLE_GUIDES.map((guide) => (
+                <Link
+                  key={guide.slug}
+                  to={`/resume-templates/${guide.slug}`}
+                  className="group flex flex-col rounded-xl border border-brand-border bg-white p-5 transition-colors hover:border-brand-dark/25"
+                >
+                  <h3 className="text-base font-bold text-brand-dark">{guide.role}</h3>
+                  <p className="mt-1.5 text-xs leading-relaxed text-brand-dark/55">{guide.summary}</p>
+                  <span className="mt-auto pt-4 inline-flex items-center gap-1.5 text-xs font-bold text-brand-dark">
+                    View guide
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                  </span>
+                </Link>
+              ))}
+            </div>
           </div>
         </section>
+
+        {/* ─── CTA ─── */}
+        <PublicVisualCta
+          badge="ATS-Optimized Formats"
+          badgeIcon={<LayoutTemplate className="w-3.5 h-3.5 text-brand-green" />}
+          headline={<>Your experience deserves<br className="hidden sm:inline" /> a better layout.</>}
+          sub={<>Start free, customize your favorite template,<br className="hidden sm:inline" /> and export a recruiter-approved resume in minutes.</>}
+          ctaLabel="Build my resume"
+          onCta={() => navigate(startPath)}
+          trustBullets={[
+            'ATS-friendly & parser tested',
+            '3 free exports included',
+            'One-click typography styling'
+          ]}
+        />
       </main>
 
       <PublicFooter />

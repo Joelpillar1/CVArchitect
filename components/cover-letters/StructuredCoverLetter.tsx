@@ -55,9 +55,9 @@ export default function StructuredCoverLetter({
             <div>
                 {/* Header */}
                 <header className="text-center mb-6">
-                    <h1 className="text-3xl font-extrabold uppercase mb-2 text-black font-sans tracking-wider">
+                    <div data-resume-name className="text-3xl font-extrabold uppercase mb-2 text-black font-sans tracking-wider">
                         {data.fullName}
-                    </h1>
+                    </div>
 
                     <div className="flex justify-center items-center flex-wrap gap-x-3 text-xs text-gray-700 mb-3.5">
                         {data.phone && <span>{data.phone}</span>}

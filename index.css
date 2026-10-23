@@ -1,10 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700&family=Alex+Brush&family=Caveat:wght@400;600&family=Dancing+Script:wght@500;700&display=swap');
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.font-signature {
+    font-family: 'Alex Brush', 'Dancing Script', 'Caveat', 'Brush Script MT', cursive;
+}
 
 /* Global responsive utilities */
 * {
@@ -272,7 +276,7 @@ body {
 
 .public-footer__columns {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     gap: 32px;
 }
 
@@ -475,13 +479,14 @@ body {
     --resume-line-height: 1.5;
     --resume-bullet-indent: 0px;
 }
-.resume-preview-root *:not(h1):not(h2):not(h3):not(.section-header):not(svg):not(svg *) {
+.resume-preview-root *:not(h1):not(h2):not(h3):not(.section-header):not([data-resume-name]):not(svg):not(svg *) {
     line-height: var(--resume-line-height, 1.5) !important;
 }
 .resume-preview-root h1,
 .resume-preview-root h2,
 .resume-preview-root h3,
-.resume-preview-root .section-header {
+.resume-preview-root .section-header,
+.resume-preview-root [data-resume-name] {
     line-height: 1.25 !important;
 }
 
@@ -989,7 +994,11 @@ body.print-resume-mode #print-resume-root {
   .resume-page-sheet header > h1,
   .resume-page header > h1,
   .print-resume header > h1,
-  .resume-preview-root header > h1 {
+  .resume-preview-root header > h1,
+  .resume-page-sheet header > [data-resume-name],
+  .resume-page header > [data-resume-name],
+  .print-resume header > [data-resume-name],
+  .resume-preview-root header > [data-resume-name] {
     display: block !important;
     width: 100% !important;
     clear: both !important;

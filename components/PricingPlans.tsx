@@ -211,7 +211,7 @@ export default function PricingPlans({ onFreeClick, compact = false, showLifetim
                     onClick={() => setShowComparison(!showComparison)}
                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-brand-border text-brand-dark font-bold text-xs sm:text-sm hover:border-brand-green/60 hover:bg-brand-secondary/50 transition-all cursor-pointer"
                 >
-                    <span>{showComparison ? 'Hide' : 'View'} Detailed Feature Comparison Matrix</span>
+                    <span>{`${showComparison ? 'Hide' : 'View'} Detailed Feature Comparison Matrix`}</span>
                     {showComparison ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
             </div>

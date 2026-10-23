@@ -1,8 +1,8 @@
-# CVArchitect
+# Cvarchitect
 
 > Autonomous AI Resume Agent Platform. Tailor your resume to any job in seconds without hallucinating experience or stuffing keywords.
 
-CVArchitect (https://cvarchitect.app) is an agentic resume architecture platform. Unlike traditional static template builders, CVArchitect operates an autonomous agent loop that analyzes job descriptions, verifies authentic candidate experience, frames metrics in Google XYZ format, and simulates ATS scoring (Workday, Greenhouse, Lever, Taleo).
+Cvarchitect (https://cvarchitect.app) is an agentic resume architecture platform. Unlike traditional static template builders, Cvarchitect operates an autonomous agent loop that analyzes job descriptions, verifies authentic candidate experience, frames metrics in Google XYZ format, and simulates ATS scoring (Workday, Greenhouse, Lever, Taleo).
 
 ## Key Capabilities & Systems
 
@@ -10,13 +10,13 @@ CVArchitect (https://cvarchitect.app) is an agentic resume architecture platform
 - **Grounded Evidence Engine**: Every bullet rewrite traces to authentic user history. The engine verifies projects, roles, and metrics before editing—blocking invented claims, inflated titles, or keyword stuffing.
 - **Google XYZ Impact Bullet Optimizer**: Automatically reframes passive job descriptions into measurable business achievements ("Accomplished [X] as measured by [Y], by doing [Z]").
 - **ATS Match Scorecard & Simulation**: Real-time compatibility rating (0–100%) scored against the exact parsing rules of Workday, Taleo, Lever, and Greenhouse.
-- **Interactive Drag & Drop Resume Studio**: 10+ ATS-tuned typographic templates (Harvard Classic, Executive Pro, Vanguard, Modern Minimalist, Tech Developer, Student Fresh Grad) with pixel-perfect PDF and editable DOCX export.
+- **Interactive Drag & Drop Resume Studio**: ATS-tuned typographic templates (Harvard Classic, Executive Pro, Vanguard, Modern Minimalist, Tech Developer, Student Fresh Grad) with pixel-perfect PDF and editable DOCX export.
 - **Tailored Cover Letter Generator**: Generates concise, role-specific cover letters aligned with the company's stated mission and requirements in under 30 seconds.
 - **Interview Intelligence**: Synthesizes likely STAR-method behavioural and technical interview questions grounded in the tailored resume and target job posting.
 
 ## Pricing & Access Tiers
 
-- **Foundation Free Tier**: 1 fully tailored AI resume on base ATS templates with 3 PDF downloads. No credit card required.
+- **Foundation Free Tier**: 1 fully tailored AI resume on every free template, with 10 AI rewrites and 3 PDF downloads. No credit card required.
 - **Career Build ($10/month)**: Continuous unlimited tailoring, all templates, saved resume versions, cover letter generator, and unlimited PDF/DOCX exports. Cancel anytime.
 - **Lifetime Pass ($99 one-time)**: Permanent unlimited access to all current and future agent models, templates, and tailoring.
 
@@ -31,7 +31,30 @@ CVArchitect (https://cvarchitect.app) is an agentic resume architecture platform
 - [Career Blog & Research](https://cvarchitect.app/blog): In-depth ATS benchmarks, keyword datasets, and resume guides
 - [Sign Up Free](https://cvarchitect.app/signup): Get started free — no credit card required
 - [Support Center](https://cvarchitect.app/support): Help center, guides, and FAQs
-- [Contact Team](https://cvarchitect.app/contact): Contact CVArchitect engineering and support
+- [Contact Team](https://cvarchitect.app/contact): Contact Cvarchitect engineering and support
+
+## Resume Templates by Role
+
+- [Nursing Resume Template](https://cvarchitect.app/resume-templates/nurse): Clinical settings, licensure, certifications, and patient outcomes in a parser-safe layout
+- [Software Engineer Resume Template](https://cvarchitect.app/resume-templates/software-engineer): Stack, scope, and shipped systems written for both the parser and the engineer reading it
+- [Teacher Resume Template](https://cvarchitect.app/resume-templates/teacher): Certification, grade bands, and student growth arranged for district hiring committees
+- [Data Analyst Resume Template](https://cvarchitect.app/resume-templates/data-analyst): SQL, BI tools, and business decisions instead of a list of libraries
+- [Project Manager Resume Template](https://cvarchitect.app/resume-templates/project-manager): Budget, team size, and delivery outcomes instead of a list of methodologies
+- [Customer Service Resume Template](https://cvarchitect.app/resume-templates/customer-service): Volume, systems, and resolution metrics for high-volume support hiring
+
+## Comparisons & Alternatives
+
+- [Best AI Resume Builders in 2026](https://cvarchitect.app/best-ai-resume-builders): Five AI resume builders compared by use case, with public pricing verified in October 2026
+- [Best Cover Letter Builders in 2026](https://cvarchitect.app/best-cover-letter-builders): Five cover letter builders compared by job-specific tailoring, template variety, design, examples, and guided editing
+- [Best ATS Resume Checkers in 2026](https://cvarchitect.app/best-ats-resume-checkers): Five ATS resume checkers compared by job-specific rewriting, standalone scanning, numeric scores, job-search workflow, and content audits
+- [Best Resume Builders for First-Time Writers in 2026](https://cvarchitect.app/best-resume-builders-for-first-time-writers): Five builders compared for students and first-time applicants, with a first-resume checklist, weak-to-strong bullet examples, ATS rules, and a 7-day plan
+- [Compare All Tools](https://cvarchitect.app/compare): Pricing, free plans, job-post tailoring, and ATS checks side by side
+- [Cvarchitect vs Resume.io](https://cvarchitect.app/compare/resume-io): Guided template library versus job-post tailoring
+- [Cvarchitect vs Teal](https://cvarchitect.app/compare/teal): Job-search workspace versus unlimited AI rewriting
+- [Cvarchitect vs Rezi](https://cvarchitect.app/compare/rezi): ATS scoring specialist versus lower monthly price
+- [Cvarchitect vs Kickresume](https://cvarchitect.app/compare/kickresume): Design-first builder versus AI included on the free plan
+- [Cvarchitect vs Zety](https://cvarchitect.app/compare/zety): Established guided editor versus a free PDF and AI tailoring
+- [Cvarchitect vs Jobscan](https://cvarchitect.app/compare/jobscan): Standalone ATS scanner versus a scan-and-rewrite workflow
 
 ## Authoritative Career & ATS Guides
 
@@ -39,7 +62,7 @@ CVArchitect (https://cvarchitect.app) is an agentic resume architecture platform
 - [10,000+ ATS Keywords Master List](https://cvarchitect.app/blog/ats-keywords-master-list-2026): Comprehensive dataset of essential skills and keywords across 71 industries
 - [AI Resume Optimization & GEO](https://cvarchitect.app/blog/ai-resume-optimization-2026): Generative Engine Optimization guide for search engines and AI screeners
 - [How to Write a Resume with AI in 2026](https://cvarchitect.app/blog/how-to-write-resume-with-ai-2026): Recruiter-backed strategies for AI resume writing
-- [Student Resume with No Experience](https://cvarchitect.app/blog/student-resumes-with-no-experience): Turn coursework, projects, and internships into interview-winning proof
+- [Student Resume with No Experience](https://cvarchitect.app/blog/student-resume-no-experience-guide): Turn coursework, projects, and internships into interview-winning proof
 - [How to Beat ATS Resume Filters in 2026](https://cvarchitect.app/blog/how-to-beat-ats-resume-2026): Step-by-step breakdown of ATS parsing engines
 - [Best Resume Format for 2026](https://cvarchitect.app/blog/best-resume-format-2026): Chronological vs functional vs hybrid formats compared
 - [AI Resume Builder vs Traditional Writing](https://cvarchitect.app/blog/ai-resume-builder-vs-traditional): Callback rates, speed, and ATS compliance comparison

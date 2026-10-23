@@ -61,7 +61,7 @@
       ]
     },
     {
-      "source": "/(blog|pricing|contact|privacy|terms|refund-policy|signup|action-words|resume-checker|cover-letter|resume-templates)(.*)",
+      "source": "/(blog|pricing|contact|privacy|terms|refund-policy|signup|action-words|resume-checker|cover-letter|resume-templates|compare|best-ai-resume-builders|best-cover-letter-builders|best-ats-resume-checkers|best-resume-builders-for-first-time-writers)(.*)",
       "headers": [
         { "key": "X-Robots-Tag", "value": "index, follow" },
         { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
@@ -106,6 +106,13 @@
     {
       "source": "/robots.txt",
       "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400" }
+      ]
+    },
+    {
+      "source": "/9cb8363c4e6c421c87e12edf72afa7e9.txt",
+      "headers": [
+        { "key": "Content-Type", "value": "text/plain; charset=utf-8" },
         { "key": "Cache-Control", "value": "public, max-age=86400" }
       ]
     },

@@ -91,9 +91,9 @@ export default function ResumeAgentHeader({
           className="flex items-center gap-2 hover:opacity-90 transition-opacity"
           title="Back to Dashboard"
         >
-          <img src="/images/logo icon.png" alt="CVArchitect Logo" className="w-8 h-8 object-contain" />
+          <img src="/images/logo icon.png" alt="Cvarchitect Logo" className="w-8 h-8 object-contain" />
           <span className="text-base font-extrabold tracking-tight text-brand-dark hidden sm:inline-block">
-            CVArchitect
+            Cvarchitect
           </span>
         </Link>
 
