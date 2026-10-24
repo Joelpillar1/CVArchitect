@@ -62,7 +62,7 @@ const rawBlogPosts: BlogPost[] = [
         content: [
             {
                 type: 'paragraph',
-                content: 'Over **98% of Fortune 500 companies** and more than **75% of mid-sized employers** now filter applications through automated Applicant Tracking Systems (ATS) before a human recruiter ever sees them. In this landscape, knowing how to **build your resume** properly is no longer just about clean formatting—it is the difference between an immediate interview invitation and an automated rejection email.'
+                content: 'Over **98% of Fortune 500 companies** and more than **75% of mid-sized employers** now filter applications through automated Applicant Tracking Systems (ATS) before a human recruiter ever sees them. In this landscape, knowing how to **build your resume** properly is no longer just about clean formatting. It is the difference between an immediate interview invitation and an automated rejection email.'
             },
             {
                 type: 'paragraph',
@@ -166,7 +166,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: '**Subject:** Senior Backend Engineer Application – Alex Mercer\n\nDear CloudScale Hiring Team,\n\nI have followed CloudScale’s recent open-sourcing of your distributed caching layer with great interest. When I saw the opening for Senior Backend Engineer on your Core Infrastructure team, I immediately recognized an exact match with my background in high-throughput microservices and distributed consensus systems.\n\nOver the past five years at Hyperion Systems, I led the re-architecture of our core transaction ingestion pipeline handling over 18,000 transactions per second. By migrating legacy monolithic services to Go and Apache Kafka, my team reduced end-to-end processing latency by 62% and eliminated downstream transaction dropouts during peak Q4 traffic. Additionally, I introduced automated chaos testing protocols that improved platform availability to 99.995% across three multi-region Kubernetes clusters.\n\nCloudScale’s mission to deliver zero-latency edge compute mirrors the technical challenges I enjoy solving most. I would welcome the opportunity to discuss how my hands-on background in distributed state management and system reliability can accelerate your 2027 infrastructure roadmap.\n\nSincerely,\nAlex Mercer'
+                content: '**Subject:** Senior Backend Engineer Application: Alex Mercer\n\nDear CloudScale Hiring Team,\n\nI have followed CloudScale’s recent open-sourcing of your distributed caching layer with great interest. When I saw the opening for Senior Backend Engineer on your Core Infrastructure team, I immediately recognized an exact match with my background in high-throughput microservices and distributed consensus systems.\n\nOver the past five years at Hyperion Systems, I led the re-architecture of our core transaction ingestion pipeline handling over 18,000 transactions per second. By migrating legacy monolithic services to Go and Apache Kafka, my team reduced end-to-end processing latency by 62% and eliminated downstream transaction dropouts during peak Q4 traffic. Additionally, I introduced automated chaos testing protocols that improved platform availability to 99.995% across three multi-region Kubernetes clusters.\n\nCloudScale’s mission to deliver zero-latency edge compute mirrors the technical challenges I enjoy solving most. I would welcome the opportunity to discuss how my hands-on background in distributed state management and system reliability can accelerate your 2027 infrastructure roadmap.\n\nSincerely,\nAlex Mercer'
             },
             {
                 type: 'subheading',
@@ -174,7 +174,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: '**Subject:** Growth Marketing Manager Application – Elena Rostova\n\nDear Marcus Vance,\n\nApex’s recent omni-channel expansion into direct-to-consumer sustainable apparel has set a new benchmark for brand storytelling in retail. Having spent the last six years scaling performance marketing and customer retention funnels for DTC lifestyle brands, I am excited to apply for the Senior Growth Marketing Manager role at Apex.\n\nIn my current role as Growth Lead at Solace Goods, I managed an annual $1.8M paid acquisition budget across Meta, Google Search, and TikTok. By implementing granular audience cohort testing and redesigning our post-purchase email onboarding flows, I decreased customer acquisition costs (CAC) by 28% while lifting 60-day repeat purchase rates from 14% to 31%. This direct optimization drove a 2.4x increase in quarterly organic referral revenue over an 18-month span.\n\nApex’s focus on authentic community engagement and data-driven customer loyalty presents the ideal environment for my performance toolkit. I look forward to connecting and sharing specific strategies to scale Apex’s retention metrics and lifetime value (LTV).\n\nSincerely,\nElena Rostova'
+                content: '**Subject:** Growth Marketing Manager Application: Elena Rostova\n\nDear Marcus Vance,\n\nApex’s recent omni-channel expansion into direct-to-consumer sustainable apparel has set a new benchmark for brand storytelling in retail. Having spent the last six years scaling performance marketing and customer retention funnels for DTC lifestyle brands, I am excited to apply for the Senior Growth Marketing Manager role at Apex.\n\nIn my current role as Growth Lead at Solace Goods, I managed an annual $1.8M paid acquisition budget across Meta, Google Search, and TikTok. By implementing granular audience cohort testing and redesigning our post-purchase email onboarding flows, I decreased customer acquisition costs (CAC) by 28% while lifting 60-day repeat purchase rates from 14% to 31%. This direct optimization drove a 2.4x increase in quarterly organic referral revenue over an 18-month span.\n\nApex’s focus on authentic community engagement and data-driven customer loyalty presents the ideal environment for my performance toolkit. I look forward to connecting and sharing specific strategies to scale Apex’s retention metrics and lifetime value (LTV).\n\nSincerely,\nElena Rostova'
             },
             {
                 type: 'subheading',
@@ -182,7 +182,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: '**Subject:** Operations Project Manager Application – David Kim, PMP\n\nDear Vanguard Logistics Team,\n\nManaging complex cross-functional supply chain programs requires meticulous risk mitigation, transparent stakeholder alignment, and agile adaptability. As a certified PMP with seven years of experience delivering multi-million-dollar logistics overhauls, I am writing to express my strong candidacy for the Operations Project Manager position at Vanguard.\n\nAt Beacon Global Logistics, I directed a $4.5M warehouse automation program spanning four regional fulfillment hubs. By standardizing Agile Kanban workflows across engineering, procurement, and vendor teams, we deployed automated sorting systems two weeks ahead of schedule and 8% under budget, resulting in a 35% increase in daily order throughput and $480,000 in recurring annual labor savings.\n\nVanguard’s commitment to tech-enabled supply chain resilience is inspiring. I would appreciate the opportunity to discuss how my track record in process automation and cross-departmental delivery can support your upcoming distribution center rollouts.\n\nWarm regards,\nDavid Kim, PMP'
+                content: '**Subject:** Operations Project Manager Application: David Kim, PMP\n\nDear Vanguard Logistics Team,\n\nManaging complex cross-functional supply chain programs requires meticulous risk mitigation, transparent stakeholder alignment, and agile adaptability. As a certified PMP with seven years of experience delivering multi-million-dollar logistics overhauls, I am writing to express my strong candidacy for the Operations Project Manager position at Vanguard.\n\nAt Beacon Global Logistics, I directed a $4.5M warehouse automation program spanning four regional fulfillment hubs. By standardizing Agile Kanban workflows across engineering, procurement, and vendor teams, we deployed automated sorting systems two weeks ahead of schedule and 8% under budget, resulting in a 35% increase in daily order throughput and $480,000 in recurring annual labor savings.\n\nVanguard’s commitment to tech-enabled supply chain resilience is inspiring. I would appreciate the opportunity to discuss how my track record in process automation and cross-departmental delivery can support your upcoming distribution center rollouts.\n\nWarm regards,\nDavid Kim, PMP'
             },
             {
                 type: 'heading',
@@ -268,7 +268,7 @@ const rawBlogPosts: BlogPost[] = [
         content: [
             {
                 type: 'paragraph',
-                content: 'I’ve spent the last 15 years in the trenches of high-stakes recruiting, most recently at **Google**. I’ve seen it all—from the "Product Ninjas" to the "Guru of Operations." But through the noise of over **250,000 resumes**, one thing remains constant: **The best candidates are the ones who can articulate their impact.**'
+                content: 'I’ve spent the last 15 years in the trenches of high-stakes recruiting, most recently at **Google**. I’ve seen it all, from the "Product Ninjas" to the "Guru of Operations." But through the noise of over **250,000 resumes**, one thing remains constant: **The best candidates are the ones who can articulate their impact.**'
             },
             {
                 type: 'paragraph',
@@ -288,7 +288,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'Compare that to verbs like **Spearheaded**, **Architected**, **Orchestrated**, or **Transformed**. These verbs imply **ownership**, **agency**, and **leadership**. They suggest that you didn\'t just perform a task—you drove a result.'
+                content: 'Compare that to verbs like **Spearheaded**, **Architected**, **Orchestrated**, or **Transformed**. These verbs imply **ownership**, **agency**, and **leadership**. They suggest that you didn\'t just perform a task; you drove a result.'
             },
             {
                 type: 'tip',
@@ -449,7 +449,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'Don’t just copy these bullets. Use them as a lens to look at your own work. What have you truly achieved? What numbers can you put to your name? When you find that answer, you won’t just have a better resume—you’ll have the confidence to land the job.'
+                content: 'Don’t just copy these bullets. Use them as a lens to look at your own work. What have you truly achieved? What numbers can you put to your name? When you find that answer, you won’t just have a better resume; you’ll have the confidence to land the job.'
             },
             {
                 type: 'templatePreview',
@@ -483,7 +483,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'At Cvarchitect, we decided to solve this problem once and for all. We spent the last six months analyzing over 250,000 job descriptions across 71 different industries and 500 unique job roles. The result is our **ATS Keyword Dataset 10k+** — a master repository of the exact terms, tools, and skills that modern hiring systems like [Workday](https://www.workday.com/) and Greenhouse are programmed to find.'
+                content: 'At Cvarchitect, we decided to solve this problem once and for all. We spent the last six months analyzing over 250,000 job descriptions across 71 different industries and 500 unique job roles. The result is our **ATS Keyword Dataset 10k+**, a master repository of the exact terms, tools, and skills that modern hiring systems like [Workday](https://www.workday.com/) and Greenhouse are programmed to find.'
             },
             {
                 type: 'paragraph',
@@ -507,7 +507,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'Our data shows that Core Industry Keywords carry the most weight in ATS scoring—often accounting for up to 60% of your total match percentage. These are the terms recruiters type into the search bar when they are filtering through thousands of applications.'
+                content: 'Our data shows that Core Industry Keywords carry the most weight in ATS scoring, often accounting for up to 60% of your total match percentage. These are the terms recruiters type into the search bar when they are filtering through thousands of applications.'
             },
             {
                 type: 'subheading',
@@ -659,7 +659,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'The job market in 2026 is noisier than ever. But noise creates opportunity for those who speak the right language. By using these 10,000+ keywords as your guide, you aren\'t just "guessing" what a recruiter wants—you are providing the exact data the system is programmed to find.'
+                content: 'The job market in 2026 is noisier than ever. But noise creates opportunity for those who speak the right language. By using these 10,000+ keywords as your guide, you aren\'t just "guessing" what a recruiter wants; you are providing the exact data the system is programmed to find.'
             },
             {
                 type: 'paragraph',
@@ -769,7 +769,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'The era of traditional keyword searching is ending. We are moving into a world of synthesized, AI-driven recommendations. By applying GEO principles today, you aren\'t just preparing for your next interview—you are future-proofing your entire career.'
+                content: 'The era of traditional keyword searching is ending. We are moving into a world of synthesized, AI-driven recommendations. By applying GEO principles today, you aren\'t just preparing for your next interview; you are future-proofing your entire career.'
             },
             {
                 type: 'paragraph',
@@ -803,7 +803,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'The secret isn\'t to avoid AI—it is to use it as a **Co-pilot**, not an **Auto-pilot**. In this playbook, I will walk you through every section of a modern resume and show you how to use AI to enhance your story, not replace it.'
+                content: 'The secret isn\'t to avoid AI; it is to use it as a **Co-pilot**, not an **Auto-pilot**. In this playbook, I will walk you through every section of a modern resume and show you how to use AI to enhance your story, not replace it.'
             },
             {
                 type: 'heading',
@@ -894,7 +894,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'AI is a tool, and like any tool, its effectiveness depends on the person using it. By following this recruiter-backed playbook, you aren\'t just using AI to "write a resume"—you are using it to build a strategic marketing document for your career.'
+                content: 'AI is a tool, and like any tool, its effectiveness depends on the person using it. By following this recruiter-backed playbook, you aren\'t just using AI to "write a resume"; you are using it to build a strategic marketing document for your career.'
             },
             {
                 type: 'paragraph',
@@ -980,7 +980,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'quote',
-                content: 'Sample:\nUniversity of California, Berkeley — Berkeley, CA\nBachelor of Science in Business Administration\nExpected Graduation: May 2027 | GPA: 3.9/4.0\nRelevant Coursework: Strategic Marketing, Financial Accounting, Data Analytics for Business, Project Management'
+                content: 'Sample:\nUniversity of California, Berkeley | Berkeley, CA\nBachelor of Science in Business Administration\nExpected Graduation: May 2027 | GPA: 3.9/4.0\nRelevant Coursework: Strategic Marketing, Financial Accounting, Data Analytics for Business, Project Management'
             },
             {
                 type: 'image',
@@ -1335,7 +1335,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'Before diving deep into each format, here is the 30-second summary. There are three primary resume formats: reverse chronological (lists jobs from most recent to oldest — best for 90%+ of candidates), functional (organizes experience by skill category — rarely recommended), and hybrid/combination (leads with a skills section, then includes chronological work history — great for career changers). Each format presents the same information differently. The right choice depends on your career stage, work history, and the type of role you are targeting.'
+                content: 'Before diving deep into each format, here is the 30-second summary. There are three primary resume formats: reverse chronological (lists jobs from most recent to oldest, best for 90%+ of candidates), functional (organizes experience by skill category, rarely recommended), and hybrid/combination (leads with a skills section, then includes chronological work history, great for career changers). Each format presents the same information differently. The right choice depends on your career stage, work history, and the type of role you are targeting.'
             },
             {
                 type: 'comparisonTable',
@@ -1351,7 +1351,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'heading',
-                content: 'Format 1: Reverse Chronological — The Gold Standard'
+                content: 'Format 1: Reverse Chronological (the Gold Standard)'
             },
             {
                 type: 'paragraph',
@@ -1372,12 +1372,12 @@ const rawBlogPosts: BlogPost[] = [
             {
                 type: 'list',
                 items: [
-                    '1. Contact Information — Name, phone, email, LinkedIn, location',
-                    '2. Professional Summary — 2-4 sentences highlighting your title, years of experience, key achievement, and core skills',
-                    '3. Work Experience — Most recent job first, with 3-5 achievement bullets per role',
-                    '4. Education — Degree, school name, graduation year (move above work experience if you are a recent graduate)',
-                    '5. Skills — Technical skills, tools, certifications grouped by category',
-                    '6. Additional Sections (optional) — Certifications, projects, volunteer work, languages, publications'
+                    '1. Contact Information: Name, phone, email, LinkedIn, location',
+                    '2. Professional Summary: 2-4 sentences highlighting your title, years of experience, key achievement, and core skills',
+                    '3. Work Experience: Most recent job first, with 3-5 achievement bullets per role',
+                    '4. Education: Degree, school name, graduation year (move above work experience if you are a recent graduate)',
+                    '5. Skills: Technical skills, tools, certifications grouped by category',
+                    '6. Additional Sections (optional): Certifications, projects, volunteer work, languages, publications'
                 ]
             },
             {
@@ -1401,7 +1401,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'Every major ATS platform — Workday, Greenhouse, Lever, iCIMS, Taleo, SmartRecruiters, and BambooHR — is designed to parse the reverse chronological format. The system can correctly extract job titles, company names, employment dates, and associate your bullet points with the right employer. This is the format ATS was built for.'
+                content: 'Every major ATS platform (Workday, Greenhouse, Lever, iCIMS, Taleo, SmartRecruiters, and BambooHR) is designed to parse the reverse chronological format. The system can correctly extract job titles, company names, employment dates, and associate your bullet points with the right employer. This is the format ATS was built for.'
             },
             {
                 type: 'subheading',
@@ -1423,7 +1423,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'heading',
-                content: 'Format 2: Functional Resume — Why Most Hiring Managers Distrust It'
+                content: 'Format 2: Functional Resume (and Why Most Hiring Managers Distrust It)'
             },
             {
                 type: 'paragraph',
@@ -1446,8 +1446,8 @@ const rawBlogPosts: BlogPost[] = [
                 items: [
                     '1. Contact Information',
                     '2. Professional Summary or Objective',
-                    '3. Skills Categories — Each category has 3-5 bullets drawn from various positions (e.g., "Project Management," "Data Analysis," "Client Relations")',
-                    '4. Work History — Brief list of employers, titles, and dates with no or minimal bullet points',
+                    '3. Skills Categories: Each category has 3-5 bullets drawn from various positions (e.g., "Project Management," "Data Analysis," "Client Relations")',
+                    '4. Work History: Brief list of employers, titles, and dates with no or minimal bullet points',
                     '5. Education'
                 ]
             },
@@ -1487,7 +1487,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'heading',
-                content: 'Format 3: Hybrid (Combination) — The Best of Both Worlds'
+                content: 'Format 3: Hybrid or Combination (the Best of Both Worlds)'
             },
             {
                 type: 'paragraph',
@@ -1505,11 +1505,11 @@ const rawBlogPosts: BlogPost[] = [
                 type: 'list',
                 items: [
                     '1. Contact Information',
-                    '2. Professional Summary — 2-4 sentences targeting the specific role',
-                    '3. Core Competencies / Key Qualifications — A detailed skills section organized by category, highlighting your most impressive capabilities with quantified context',
-                    '4. Work Experience — Standard reverse chronological format with 2-4 achievement bullets per role',
+                    '2. Professional Summary: 2-4 sentences targeting the specific role',
+                    '3. Core Competencies / Key Qualifications: A detailed skills section organized by category, highlighting your most impressive capabilities with quantified context',
+                    '4. Work Experience: Standard reverse chronological format with 2-4 achievement bullets per role',
                     '5. Education',
-                    '6. Additional Sections (optional) — Certifications, projects, volunteer work'
+                    '6. Additional Sections (optional): Certifications, projects, volunteer work'
                 ]
             },
             {
@@ -1616,16 +1616,16 @@ const rawBlogPosts: BlogPost[] = [
             {
                 type: 'list',
                 items: [
-                    'Technology / Software Engineering — Reverse chronological. Recruiters want to see your tech stack evolution and career progression. Your GitHub/portfolio supplements this.',
-                    'Healthcare / Nursing — Reverse chronological. Certifications, licenses, and facility types are tied to specific employment periods. Chronological order is essential.',
-                    'Finance / Accounting — Reverse chronological. CPA, CFA, and other certifications are time-bound. Employers want to see where you used each financial skill.',
-                    'Marketing / Creative — Hybrid works well here. Lead with campaign results and tools expertise, then show where you did it.',
-                    'Sales — Reverse chronological. Quota attainment, territory, and deal sizes are always tied to specific roles. Recruiters want to see your sales trajectory.',
-                    'Education / Teaching — Reverse chronological. Schools, grade levels, and certifications are tied to specific positions.',
-                    'Military to Civilian — Hybrid recommended. Lead with translated skills and competencies, then list military service history with civilian-friendly descriptions.',
-                    'Career Changers — Hybrid. Lead with transferable skills that match the target role, then provide your chronological history.',
-                    'Freelancers / Consultants — Hybrid. Lead with areas of expertise and notable client outcomes, then list key engagements chronologically.',
-                    'Recent Graduates — Reverse chronological (with education section moved above work experience).'
+                    'Technology / Software Engineering: Reverse chronological. Recruiters want to see your tech stack evolution and career progression. Your GitHub/portfolio supplements this.',
+                    'Healthcare / Nursing: Reverse chronological. Certifications, licenses, and facility types are tied to specific employment periods. Chronological order is essential.',
+                    'Finance / Accounting: Reverse chronological. CPA, CFA, and other certifications are time-bound. Employers want to see where you used each financial skill.',
+                    'Marketing / Creative: Hybrid works well here. Lead with campaign results and tools expertise, then show where you did it.',
+                    'Sales: Reverse chronological. Quota attainment, territory, and deal sizes are always tied to specific roles. Recruiters want to see your sales trajectory.',
+                    'Education / Teaching: Reverse chronological. Schools, grade levels, and certifications are tied to specific positions.',
+                    'Military to Civilian: Hybrid recommended. Lead with translated skills and competencies, then list military service history with civilian-friendly descriptions.',
+                    'Career Changers: Hybrid. Lead with transferable skills that match the target role, then provide your chronological history.',
+                    'Freelancers / Consultants: Hybrid. Lead with areas of expertise and notable client outcomes, then list key engagements chronologically.',
+                    'Recent Graduates: Reverse chronological (with education section moved above work experience).'
                 ]
             },
             {
@@ -1716,9 +1716,9 @@ const rawBlogPosts: BlogPost[] = [
             {
                 type: 'list',
                 items: [
-                    'Reverse Chronological — 10/10 compatibility. Every ATS is built to parse this format. Standard section headers, clear job-title-company-date structure, and linear reading order make parsing straightforward.',
-                    'Hybrid/Combination — 8/10 compatibility. The work experience section parses correctly. The prominent skills section helps keyword matching. Minor risk only if the "Core Competencies" section uses non-standard formatting.',
-                    'Functional — 3/10 compatibility. Most ATS platforms struggle. Skills sections without employer context confuse the parser. Work history with no bullets gets minimal data extraction. High risk of being scored as having zero relevant experience.'
+                    'Reverse Chronological: 10/10 compatibility. Every ATS is built to parse this format. Standard section headers, clear job-title-company-date structure, and linear reading order make parsing straightforward.',
+                    'Hybrid/Combination: 8/10 compatibility. The work experience section parses correctly. The prominent skills section helps keyword matching. Minor risk only if the "Core Competencies" section uses non-standard formatting.',
+                    'Functional: 3/10 compatibility. Most ATS platforms struggle. Skills sections without employer context confuse the parser. Work history with no bullets gets minimal data extraction. High risk of being scored as having zero relevant experience.'
                 ]
             },
             {
@@ -1732,12 +1732,12 @@ const rawBlogPosts: BlogPost[] = [
             {
                 type: 'list',
                 items: [
-                    'United States, Canada, UK, Australia — No photo, no personal details (age, marital status), 1-2 pages, reverse chronological preferred.',
-                    'Germany, Austria, Switzerland — Photo is standard. Personal details (date of birth, nationality) are often included. Called "Lebenslauf." Reverse chronological format.',
-                    'Japan — Photo required. Very structured format with standardized templates (rirekisho). Handwritten versions are still used in some traditional companies.',
-                    'Middle East (UAE, Saudi Arabia) — Photo often expected. May include nationality, visa status, and religion. Chronological format.',
-                    'India — Photo sometimes included. Personal details and "declaration" section are common. Reverse chronological format.',
-                    'European Union (Europass) — The EU has a standardized resume format called Europass. While not required, it is widely recognized for cross-border applications within the EU.'
+                    'United States, Canada, UK, Australia: No photo, no personal details (age, marital status), 1-2 pages, reverse chronological preferred.',
+                    'Germany, Austria, Switzerland: Photo is standard. Personal details (date of birth, nationality) are often included. Called "Lebenslauf." Reverse chronological format.',
+                    'Japan: Photo required. Very structured format with standardized templates (rirekisho). Handwritten versions are still used in some traditional companies.',
+                    'Middle East (UAE, Saudi Arabia): Photo often expected. May include nationality, visa status, and religion. Chronological format.',
+                    'India: Photo sometimes included. Personal details and "declaration" section are common. Reverse chronological format.',
+                    'European Union (Europass): The EU has a standardized resume format called Europass. While not required, it is widely recognized for cross-border applications within the EU.'
                 ]
             },
             {
@@ -1753,7 +1753,7 @@ const rawBlogPosts: BlogPost[] = [
                 items: [
                     'Question 1: Is your most recent job relevant to the role you are applying for? → YES: Use reverse chronological. → NO: Continue to question 2.',
                     'Question 2: Do you have transferable skills from your current/recent roles that apply to the target job? → YES: Use hybrid format (lead with skills, then show chronological history). → NO: Continue to question 3.',
-                    'Question 3: Are you a recent graduate, military veteran transitioning to civilian work, or someone re-entering the workforce after 3+ years? → YES: Use hybrid format with a strong skills section and education/certifications prominently positioned. → NO: Use reverse chronological — it is the safest default.',
+                    'Question 3: Are you a recent graduate, military veteran transitioning to civilian work, or someone re-entering the workforce after 3+ years? → YES: Use hybrid format with a strong skills section and education/certifications prominently positioned. → NO: Use reverse chronological. It is the safest default.',
                     'Universal rule: If applying through an online ATS portal, always ensure your resume has a standard chronological work experience section somewhere, even if you use the hybrid format. Never submit a purely functional resume to an ATS.'
                 ]
             },
@@ -1997,10 +1997,10 @@ const rawBlogPosts: BlogPost[] = [
             {
                 type: 'list',
                 items: [
-                    'AND — Both terms must appear. "Project management AND Agile" returns only candidates with both terms. This is the most restrictive operator.',
-                    'OR — Either term can appear. "React OR Angular OR Vue" returns candidates with any of these frameworks. Used to broaden searches for similar skills.',
-                    'NOT — Excludes candidates with a specific term. "Marketing NOT intern" excludes entry-level candidates. Used to filter out irrelevant results.',
-                    'Quotation marks — Searches for an exact phrase. "Machine Learning" (in quotes) finds that exact phrase, not pages that mention "machine" and "learning" separately.'
+                    'AND: Both terms must appear. "Project management AND Agile" returns only candidates with both terms. This is the most restrictive operator.',
+                    'OR: Either term can appear. "React OR Angular OR Vue" returns candidates with any of these frameworks. Used to broaden searches for similar skills.',
+                    'NOT: Excludes candidates with a specific term. "Marketing NOT intern" excludes entry-level candidates. Used to filter out irrelevant results.',
+                    'Quotation marks: Searches for an exact phrase. "Machine Learning" (in quotes) finds that exact phrase, not pages that mention "machine" and "learning" separately.'
                 ]
             },
             {
@@ -2186,11 +2186,11 @@ const rawBlogPosts: BlogPost[] = [
             {
                 type: 'list',
                 items: [
-                    'Zone 1: Professional Summary — This is the first thing both the ATS and the recruiter read. Include your 4-6 most important keywords here. Example: "Product Marketing Manager with 7 years of experience in SaaS go-to-market strategy, demand generation, and competitive analysis."',
-                    'Zone 2: Skills Section — Your dedicated keyword section. Group skills by category and include 15-20 relevant terms. Mirror the exact language from the job description.',
-                    'Zone 3: Job Title and Company Lines — If your actual job title matches the keyword (e.g., "Product Marketing Manager"), it carries extra weight. Some candidates add the target role in their professional summary even if their exact title was slightly different.',
-                    'Zone 4: Achievement Bullet Points — Weave keywords naturally into your accomplishments. "Launched Google Ads campaigns" is better than "launched online advertising" because "Google Ads" is the searchable keyword.',
-                    'Zone 5: Education and Certifications — Certification abbreviations (PMP, CPA, AWS Solutions Architect) are high-frequency search terms. List them with both short and long forms.'
+                    'Zone 1: Professional Summary. This is the first thing both the ATS and the recruiter read. Include your 4-6 most important keywords here. Example: "Product Marketing Manager with 7 years of experience in SaaS go-to-market strategy, demand generation, and competitive analysis."',
+                    'Zone 2: Skills Section, your dedicated keyword section. Group skills by category and include 15-20 relevant terms. Mirror the exact language from the job description.',
+                    'Zone 3: Job Title and Company Lines. If your actual job title matches the keyword (e.g., "Product Marketing Manager"), it carries extra weight. Some candidates add the target role in their professional summary even if their exact title was slightly different.',
+                    'Zone 4: Achievement Bullet Points. Weave keywords naturally into your accomplishments. "Launched Google Ads campaigns" is better than "launched online advertising" because "Google Ads" is the searchable keyword.',
+                    'Zone 5: Education and Certifications. Certification abbreviations (PMP, CPA, AWS Solutions Architect) are high-frequency search terms. List them with both short and long forms.'
                 ]
             },
             {
@@ -2200,12 +2200,12 @@ const rawBlogPosts: BlogPost[] = [
             {
                 type: 'list',
                 items: [
-                    'Keyword stuffing — Repeating the same keyword 15 times does not improve your ATS score with modern systems. In fact, some ATS platforms flag keyword-stuffed resumes as spam. Use each keyword 2-3 times naturally.',
-                    'Using only abbreviations — If you write "ML" but never write "machine learning," you will miss searches for the full term. Always include both the abbreviation and the spelled-out version at least once.',
-                    'Using outdated terms — Searching for "Webmaster" or "SEO link farm" signals that your skills are outdated. Use current industry terminology.',
-                    'Generic terms instead of specific tools — "Database management" tells me nothing. "PostgreSQL, MongoDB, Redis" tells me exactly what you know. Be specific.',
-                    'White text keyword stuffing — Some candidates hide keywords in white text (invisible to the eye but readable by ATS). Modern ATS platforms detect this and flag or reject your resume. Never do this.',
-                    'Ignoring the job description — The single best source of keywords is the specific job description you are applying for. If you are not customizing your keywords for each application, you are leaving matches on the table.'
+                    'Keyword stuffing. Repeating the same keyword 15 times does not improve your ATS score with modern systems. In fact, some ATS platforms flag keyword-stuffed resumes as spam. Use each keyword 2-3 times naturally.',
+                    'Using only abbreviations. If you write "ML" but never write "machine learning," you will miss searches for the full term. Always include both the abbreviation and the spelled-out version at least once.',
+                    'Using outdated terms. Searching for "Webmaster" or "SEO link farm" signals that your skills are outdated. Use current industry terminology.',
+                    'Generic terms instead of specific tools. "Database management" tells me nothing. "PostgreSQL, MongoDB, Redis" tells me exactly what you know. Be specific.',
+                    'White text keyword stuffing. Some candidates hide keywords in white text (invisible to the eye but readable by ATS). Modern ATS platforms detect this and flag or reject your resume. Never do this.',
+                    'Ignoring the job description. The single best source of keywords is the specific job description you are applying for. If you are not customizing your keywords for each application, you are leaving matches on the table.'
                 ]
             },
             {
@@ -2223,7 +2223,7 @@ const rawBlogPosts: BlogPost[] = [
                     'Step 2: Paste all job descriptions into a word frequency tool (or simply read them carefully and highlight repeated terms). Look for terms that appear in 3+ of the 5 postings.',
                     'Step 3: Create a list of the 20-30 most frequently mentioned skills, tools, and qualifications across all postings. These are your priority keywords.',
                     'Step 4: Compare this list against your current resume. Highlight every keyword that is already present in your resume.',
-                    'Step 5: For each missing keyword that you genuinely possess, add it to your resume — either in your skills section or naturally woven into an achievement bullet.',
+                    'Step 5: For each missing keyword that you genuinely possess, add it to your resume, either in your skills section or naturally woven into an achievement bullet.',
                     'Step 6: For keywords you do not currently have, consider whether they represent a skill gap worth addressing (through a certification, online course, or side project).'
                 ]
             },
@@ -2257,7 +2257,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'tip',
-                content: 'Not sure which keywords matter most for your target role? Cvarchitect analyzes the job description you paste in and identifies every keyword gap in your resume automatically. It then suggests exactly where and how to add missing keywords — woven naturally into your achievement bullets, not dumped into a keyword list. Save yourself hours of manual keyword analysis.'
+                content: 'Not sure which keywords matter most for your target role? Cvarchitect analyzes the job description you paste in and identifies every keyword gap in your resume automatically. It then suggests exactly where and how to add missing keywords, woven naturally into your achievement bullets, not dumped into a keyword list. Save yourself hours of manual keyword analysis.'
             },
             {
                 type: 'templatePreview',
@@ -2880,7 +2880,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'The more common mistake I see is resumes that are too long. A recent graduate with a two-page resume is padding. I have seen junior candidates list every college course they took, every club they joined, and every "skill" they can claim — including things like "time management" and "teamwork." Cut ruthlessly. If a piece of information does not directly help you get an interview for this specific role, it does not belong on your resume.'
+                content: 'The more common mistake I see is resumes that are too long. A recent graduate with a two-page resume is padding. I have seen junior candidates list every college course they took, every club they joined, and every "skill" they can claim, including things like "time management" and "teamwork." Cut ruthlessly. If a piece of information does not directly help you get an interview for this specific role, it does not belong on your resume.'
             },
             {
                 type: 'heading',
@@ -2904,7 +2904,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'PDFs lock your formatting in place. They look identical on every device. They cannot be accidentally edited. And they work with virtually every modern ATS. The only exception is if the application portal explicitly says "Please upload a .doc or .docx file" — some older ATS systems parse Word documents more reliably than PDFs. In that case, follow their instructions. Otherwise, PDF every time.'
+                content: 'PDFs lock your formatting in place. They look identical on every device. They cannot be accidentally edited. And they work with virtually every modern ATS. The only exception is if the application portal explicitly says "Please upload a .doc or .docx file". Some older ATS systems parse Word documents more reliably than PDFs. In that case, follow their instructions. Otherwise, PDF every time.'
             },
             {
                 type: 'heading',
@@ -2912,11 +2912,11 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'Over 80% of recruiters will check your LinkedIn profile after reviewing your resume. If your LinkedIn URL is not on your resume, you are making them search for you, which is an unnecessary friction point. Worse, if your LinkedIn profile tells a different story than your resume — different job titles, different dates, different companies — it raises immediate red flags. I have personally disqualified candidates because their resume said "Senior Marketing Manager" but their LinkedIn said "Marketing Coordinator" for the same role and time period.'
+                content: 'Over 80% of recruiters will check your LinkedIn profile after reviewing your resume. If your LinkedIn URL is not on your resume, you are making them search for you, which is an unnecessary friction point. Worse, if your LinkedIn profile tells a different story than your resume (different job titles, different dates, different companies), it raises immediate red flags. I have personally disqualified candidates because their resume said "Senior Marketing Manager" but their LinkedIn said "Marketing Coordinator" for the same role and time period.'
             },
             {
                 type: 'paragraph',
-                content: 'Customize your LinkedIn URL (Settings > Public Profile > Edit URL) to something clean like linkedin.com/in/firstname-lastname. Add it to your resume header alongside your phone number and email. And make sure your LinkedIn profile matches your resume perfectly — same job titles, same companies, same dates. Discrepancies will cost you.'
+                content: 'Customize your LinkedIn URL (Settings > Public Profile > Edit URL) to something clean like linkedin.com/in/firstname-lastname. Add it to your resume header alongside your phone number and email. And make sure your LinkedIn profile matches your resume perfectly: same job titles, same companies, same dates. Discrepancies will cost you.'
             },
             {
                 type: 'image',
@@ -2944,7 +2944,7 @@ const rawBlogPosts: BlogPost[] = [
                     'Length check: Is the resume the appropriate length for your experience level? Can you remove anything that does not directly support your candidacy?',
                     'ATS test: Copy your resume text into a plain text editor. Does it read cleanly, or is the formatting garbled? If the plain text is messy, the ATS will struggle too.',
                     'Spell check: Run a spell checker. Then read the resume out loud. Then have someone else read it. Typos on resumes are inexcusable.',
-                    'File naming: Is the file named professionally? FirstName_LastName_Resume.pdf — not "resume (1).docx" or "FINAL_resume_v7_updated.pdf."'
+                    'File naming: Is the file named professionally? FirstName_LastName_Resume.pdf, not "resume (1).docx" or "FINAL_resume_v7_updated.pdf."'
                 ]
             },
             {
@@ -2962,7 +2962,7 @@ const rawBlogPosts: BlogPost[] = [
             {
                 type: 'list',
                 items: [
-                    'Listing programming languages without context. "Python" on its own tells me nothing. "Python (Django, Flask, pandas, scikit-learn — 5 years production experience)" tells me everything.',
+                    'Listing programming languages without context. "Python" on its own tells me nothing. "Python (Django, Flask, pandas, scikit-learn, 5 years production experience)" tells me everything.',
                     'Omitting system scale. "Built a microservices architecture" is vague. "Designed and deployed a 23-service microservices architecture handling 4M daily API requests with 99.97% uptime" is compelling.',
                     'Not including a GitHub link or portfolio. For software engineers, a GitHub profile with active contributions is almost as important as the resume itself. If you have one, include it.',
                     'Listing every technology you have ever touched. Focus on the stack relevant to the target role. A full-stack developer applying for a React role does not need to list COBOL.'
@@ -2977,7 +2977,7 @@ const rawBlogPosts: BlogPost[] = [
                 items: [
                     'Not quantifying deal sizes, portfolio values, or cost savings. Finance professionals have access to the most impressive numbers of any industry. Use them.',
                     'Using informal language. Finance and consulting resumes should be polished, precise, and formal. Save the casual tone for tech startups.',
-                    'Burying certifications. CFA, CPA, Series 7/63/66, PMP — these belong prominently on your resume, typically in the header or a dedicated certifications section near the top.',
+                    'Burying certifications. CFA, CPA, Series 7/63/66, PMP. These belong prominently on your resume, typically in the header or a dedicated certifications section near the top.',
                     'Leaving out client-facing experience. If you have presented to C-suite executives, advised boards, or managed client relationships, that belongs front and center.'
                 ]
             },
@@ -2988,9 +2988,9 @@ const rawBlogPosts: BlogPost[] = [
             {
                 type: 'list',
                 items: [
-                    'Not listing licensure and certifications prominently. RN, BSN, ACLS, BLS, NRP — these credentials should appear in your resume header, not buried in a skills section.',
-                    'Forgetting patient-to-nurse ratios and unit census data. "Provided patient care on a med-surg unit" vs. "Managed care for 6-8 patients per shift on a 32-bed med-surg unit with 94% patient satisfaction scores" — the second one gets noticed.',
-                    'Omitting EHR systems. Epic, Cerner, Meditech — recruiters search for these systems by name. Include every clinical software platform you have used.',
+                    'Not listing licensure and certifications prominently. RN, BSN, ACLS, BLS, NRP. These credentials should appear in your resume header, not buried in a skills section.',
+                    'Forgetting patient-to-nurse ratios and unit census data. "Provided patient care on a med-surg unit" vs. "Managed care for 6-8 patients per shift on a 32-bed med-surg unit with 94% patient satisfaction scores". The second one gets noticed.',
+                    'Omitting EHR systems. Epic, Cerner, Meditech. Recruiters search for these systems by name. Include every clinical software platform you have used.',
                     'Not mentioning specializations. If you are certified in critical care, oncology, pediatrics, or any specialty, that information needs to be visible immediately.'
                 ]
             },
@@ -3003,7 +3003,7 @@ const rawBlogPosts: BlogPost[] = [
                 items: [
                     'Not including quota attainment. "Managed enterprise accounts" tells me nothing. "Consistently exceeded quota: 127% (2023), 143% (2024), 118% (2025) against targets of $1.8M-$2.4M ARR" tells me everything.',
                     'Omitting deal cycle length and deal sizes. These metrics help hiring managers understand the complexity and scale of your sales experience.',
-                    'Leaving out the sales tools you use. Salesforce, HubSpot, Outreach, Gong, LinkedIn Sales Navigator — these are all ATS searchable terms.',
+                    'Leaving out the sales tools you use. Salesforce, HubSpot, Outreach, Gong, LinkedIn Sales Navigator. These are all ATS searchable terms.',
                     'Not differentiating between hunting and farming. If you excel at new business development, say so explicitly. If you are an account management specialist, make that clear. The skills are different, and recruiters search for them differently.'
                 ]
             },
@@ -3057,7 +3057,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'Generally, no. The space on your resume is too valuable to spend on hobbies unless they are directly relevant to the role (for example, "competitive programming" on a software engineering resume, or "marathon running" if you are applying to a fitness company). The one exception is if you are early in your career and need to fill space — in that case, interesting hobbies can serve as conversation starters in interviews. But never include generic interests like "reading" or "traveling."'
+                content: 'Generally, no. The space on your resume is too valuable to spend on hobbies unless they are directly relevant to the role (for example, "competitive programming" on a software engineering resume, or "marathon running" if you are applying to a fitness company). The one exception is if you are early in your career and need to fill space. In that case, interesting hobbies can serve as conversation starters in interviews. But never include generic interests like "reading" or "traveling."'
             },
             {
                 type: 'subheading',
@@ -3065,7 +3065,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'Update your resume every time you have a significant accomplishment, not just when you are job searching. Set a quarterly reminder to add new achievements, certifications, skills, and metrics while they are fresh in your mind. The worst time to update your resume is when you urgently need it — you will forget important details, rush the formatting, and submit something that does not represent your best work. Keep a running document of wins and metrics, and fold them into your resume regularly.'
+                content: 'Update your resume every time you have a significant accomplishment, not just when you are job searching. Set a quarterly reminder to add new achievements, certifications, skills, and metrics while they are fresh in your mind. The worst time to update your resume is when you urgently need it; you will forget important details, rush the formatting, and submit something that does not represent your best work. Keep a running document of wins and metrics, and fold them into your resume regularly.'
             },
             {
                 type: 'tip',
@@ -3592,7 +3592,7 @@ const rawBlogPosts: BlogPost[] = [
         title: 'How to Write a Resume in 2026: The Complete A-to-Z Walkthrough (With Real Examples)',
         metaTitle: 'How to Write a Resume in 2026: Complete Step-by-Step Guide With Examples | Cvarchitect',
         metaDescription: 'Complete step-by-step resume writing guide for 2026. Learn section formatting, achievement bullet writing, ATS optimization, and best practices.',
-        excerpt: 'Forget everything you learned about resume writing in school. This is the only guide you need — 10 detailed steps from blank page to interview-ready resume, with real-world examples at every stage.',
+        excerpt: 'Forget everything you learned about resume writing in school. This is the only guide you need: 10 detailed steps from blank page to interview-ready resume, with real-world examples at every stage.',
         category: 'Resume Writing',
         author: 'Cvarchitect Team',
         publishDate: '2026-01-20',
@@ -3663,7 +3663,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'subheading',
-                content: 'Functional format (skills-based) — use with caution'
+                content: 'Functional format (skills-based): use with caution'
             },
             {
                 type: 'paragraph',
@@ -3701,7 +3701,7 @@ const rawBlogPosts: BlogPost[] = [
             {
                 type: 'list',
                 items: [
-                    'Location — City and state (or city and country) are sufficient. You do not need to include your full street address. Many applicants just write "New York, NY" or "Remote — Based in London, UK."'
+                    'Location: City and state (or city and country) are sufficient. You do not need to include your full street address. Many applicants just write "New York, NY" or "Remote, based in London, UK."'
                 ]
             },
             {
@@ -3729,16 +3729,16 @@ const rawBlogPosts: BlogPost[] = [
             {
                 type: 'list',
                 items: [
-                    'Date of birth or age — Not relevant in most countries and can trigger bias.',
-                    'Photo — Unless applying in countries where it is standard (Germany, parts of Asia), leave it off. In the US, UK, Canada, and Australia, photos are not recommended.',
-                    'Full home address — No recruiter needs your street address at the resume stage.',
-                    'Social media handles — Unless you are applying for a social media role, do not include Instagram or Twitter.',
-                    'Marital status or nationality — Irrelevant at this stage and potentially problematic.'
+                    'Date of birth or age: Not relevant in most countries and can trigger bias.',
+                    'Photo: Unless applying in countries where it is standard (Germany, parts of Asia), leave it off. In the US, UK, Canada, and Australia, photos are not recommended.',
+                    'Full home address: No recruiter needs your street address at the resume stage.',
+                    'Social media handles: Unless you are applying for a social media role, do not include Instagram or Twitter.',
+                    'Marital status or nationality: Irrelevant at this stage and potentially problematic.'
                 ]
             },
             {
                 type: 'paragraph',
-                content: 'Your contact section should be clean and scannable. Name, phone, email, LinkedIn, location — nothing more.'
+                content: 'Your contact section should be clean and scannable. Name, phone, email, LinkedIn, location. Nothing more.'
             },
             {
                 type: 'heading',
@@ -3762,19 +3762,19 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'BAD: "Hardworking professional seeking a challenging role where I can utilize my skills and grow with the company." — This says absolutely nothing specific. It could be written by anyone for any job. There are no numbers, no skills, no industry focus. It communicates zero value.'
+                content: 'BAD: "Hardworking professional seeking a challenging role where I can utilize my skills and grow with the company." This says absolutely nothing specific. It could be written by anyone for any job. There are no numbers, no skills, no industry focus. It communicates zero value.'
             },
             {
                 type: 'paragraph',
-                content: 'GOOD: "Operations Manager with 8 years of experience optimizing supply chain processes for mid-market retail companies. Reduced logistics costs by 23% ($1.2M annually) at Acme Corp through vendor renegotiation and route optimization. Specialize in Lean Six Sigma implementation, team leadership (12-15 direct reports), and ERP system migrations (SAP, Oracle)." — This tells the recruiter exactly what you do, how well you do it, and what tools you use.'
+                content: 'GOOD: "Operations Manager with 8 years of experience optimizing supply chain processes for mid-market retail companies. Reduced logistics costs by 23% ($1.2M annually) at Acme Corp through vendor renegotiation and route optimization. Specialize in Lean Six Sigma implementation, team leadership (12-15 direct reports), and ERP system migrations (SAP, Oracle)." This tells the recruiter exactly what you do, how well you do it, and what tools you use.'
             },
             {
                 type: 'paragraph',
-                content: 'BAD: "Recent graduate looking for an entry-level position in marketing." — Wastes space stating the obvious.'
+                content: 'BAD: "Recent graduate looking for an entry-level position in marketing." Wastes space stating the obvious.'
             },
             {
                 type: 'paragraph',
-                content: 'GOOD: "Marketing graduate from NYU with hands-on experience managing $15K social media ad budgets through internship at FinTech startup. Created content campaigns that grew Instagram following from 2K to 18K in 4 months. Proficient in Google Analytics, Meta Ads Manager, Canva, and HubSpot." — Even with limited experience, this is compelling because it shows real results.'
+                content: 'GOOD: "Marketing graduate from NYU with hands-on experience managing $15K social media ad budgets through internship at FinTech startup. Created content campaigns that grew Instagram following from 2K to 18K in 4 months. Proficient in Google Analytics, Meta Ads Manager, Canva, and HubSpot." Even with limited experience, this is compelling because it shows real results.'
             },
             {
                 type: 'image',
@@ -3804,11 +3804,11 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'heading',
-                content: 'Step 4: Build Your Work Experience Section — The Core of Your Resume'
+                content: 'Step 4: Build Your Work Experience Section (the Core of Your Resume)'
             },
             {
                 type: 'paragraph',
-                content: 'The work experience section is the most important part of your resume. This is where recruiters spend the most time and where ATS systems extract the most data. Each position should include: Job Title (bolded), Company Name, City/State, Employment Dates (Month Year — Month Year), followed by 3-5 bullet points describing your key achievements.'
+                content: 'The work experience section is the most important part of your resume. This is where recruiters spend the most time and where ATS systems extract the most data. Each position should include: Job Title (bolded), Company Name, City/State, Employment Dates (Month Year – Month Year), followed by 3-5 bullet points describing your key achievements.'
             },
             {
                 type: 'paragraph',
@@ -3925,7 +3925,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'Your education section should be more prominent — move it above your work experience. Include: Degree Title, University Name, Expected or Actual Graduation Date, GPA (if 3.0+ on a 4.0 scale), Relevant Coursework (3-5 courses directly related to the target role), Academic Honors (Dean List, Cum Laude, scholarships), and Thesis or Capstone Projects (if relevant).'
+                content: 'Your education section should be more prominent. Move it above your work experience. Include: Degree Title, University Name, Expected or Actual Graduation Date, GPA (if 3.0+ on a 4.0 scale), Relevant Coursework (3-5 courses directly related to the target role), Academic Honors (Dean List, Cum Laude, scholarships), and Thesis or Capstone Projects (if relevant).'
             },
             {
                 type: 'subheading',
@@ -3934,7 +3934,7 @@ const rawBlogPosts: BlogPost[] = [
             {
                 type: 'list',
                 items: [
-                    'Forgetting certifications — Industry certifications (PMP, CPA, AWS, Google Analytics) often matter more than your degree. List them prominently.'
+                    'Forgetting certifications: Industry certifications (PMP, CPA, AWS, Google Analytics) often matter more than your degree. List them prominently.'
                 ]
             },
             {
@@ -3985,8 +3985,8 @@ const rawBlogPosts: BlogPost[] = [
                 type: 'list',
                 items: [
                     'DO include: Technical skills, software tools, programming languages, industry-specific methodologies, certifications, languages spoken.',
-                    'DO NOT include: Generic soft skills (team player, communicator, problem solver) — these belong in your bullet points, demonstrated through actions, not listed as skills.',
-                    'DO NOT include: Microsoft Office (unless the job specifically asks for it) — it is assumed in 2026.',
+                    'DO NOT include: Generic soft skills (team player, communicator, problem solver). These belong in your bullet points, demonstrated through actions, not listed as skills.',
+                    'DO NOT include: Microsoft Office (unless the job specifically asks for it). It is assumed in 2026.',
                     'DO include: Skills that appear in the job description you are applying for. Mirror their exact terminology.'
                 ]
             },
@@ -4001,12 +4001,12 @@ const rawBlogPosts: BlogPost[] = [
             {
                 type: 'list',
                 items: [
-                    'Certifications and Licenses — Industry certifications (AWS Solutions Architect, PMP, CPA, Series 7, teaching license). These are often ATS keywords that hiring managers specifically filter for.',
-                    'Projects — Relevant personal or professional projects that demonstrate skills not covered in your work experience. Especially valuable for career changers and students.',
-                    'Publications and Speaking — If you have published articles, research papers, or spoken at conferences, this establishes you as a subject matter expert.',
-                    'Volunteer Work — Demonstrates leadership and values. Particularly useful for students or professionals with limited work experience.',
-                    'Languages — If you speak multiple languages, list them with proficiency levels (Native, Fluent, Conversational, Basic).',
-                    'Awards and Honors — Industry awards, sales performance awards, employee of the month/quarter/year.'
+                    'Certifications and Licenses: Industry certifications (AWS Solutions Architect, PMP, CPA, Series 7, teaching license). These are often ATS keywords that hiring managers specifically filter for.',
+                    'Projects: Relevant personal or professional projects that demonstrate skills not covered in your work experience. Especially valuable for career changers and students.',
+                    'Publications and Speaking: If you have published articles, research papers, or spoken at conferences, this establishes you as a subject matter expert.',
+                    'Volunteer Work: Demonstrates leadership and values. Particularly useful for students or professionals with limited work experience.',
+                    'Languages: If you speak multiple languages, list them with proficiency levels (Native, Fluent, Conversational, Basic).',
+                    'Awards and Honors: Industry awards, sales performance awards, employee of the month/quarter/year.'
                 ]
             },
             {
@@ -4052,13 +4052,13 @@ const rawBlogPosts: BlogPost[] = [
             {
                 type: 'list',
                 items: [
-                    'Use a single-column layout — No sidebars, no multi-column designs. ATS parsers read left-to-right, top-to-bottom.',
-                    'Use standard section headings — "Work Experience" not "My Professional Journey." "Education" not "Academic Background." "Skills" not "My Toolkit." ATS systems look for standard labels.',
-                    'Do not use text boxes, tables, or graphics — Text inside these elements is often invisible to ATS parsers.',
-                    'Do not put critical information in headers or footers — Many ATS systems skip header/footer content entirely. Your name and contact info must be in the document body.',
-                    'Use standard fonts — Calibri, Arial, Helvetica, Inter, or Garamond. Avoid decorative or custom fonts.',
-                    'Save as .docx for maximum compatibility — PDF works too, but ensure the text is selectable (not a scanned image).',
-                    'Do not use abbreviations without spelling out the full term — Write "Search Engine Optimization (SEO)" the first time to match both versions.'
+                    'Use a single-column layout. No sidebars, no multi-column designs. ATS parsers read left-to-right, top-to-bottom.',
+                    'Use standard section headings. "Work Experience" not "My Professional Journey." "Education" not "Academic Background." "Skills" not "My Toolkit." ATS systems look for standard labels.',
+                    'Do not use text boxes, tables, or graphics. Text inside these elements is often invisible to ATS parsers.',
+                    'Do not put critical information in headers or footers. Many ATS systems skip header/footer content entirely. Your name and contact info must be in the document body.',
+                    'Use standard fonts: Calibri, Arial, Helvetica, Inter, or Garamond. Avoid decorative or custom fonts.',
+                    'Save as .docx for maximum compatibility. PDF works too, but ensure the text is selectable (not a scanned image).',
+                    'Do not use abbreviations without spelling out the full term. Write "Search Engine Optimization (SEO)" the first time to match both versions.'
                 ]
             },
             {
@@ -4067,7 +4067,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'Read the job description carefully and identify the key skills, tools, certifications, and qualifications mentioned. Then ensure those exact terms appear in your resume. If the job asks for "project management" and you wrote "managing projects," you might miss the keyword match. Use their exact phrasing. If a skill appears multiple times in the job description, it is a priority keyword — make sure it appears prominently in your resume.'
+                content: 'Read the job description carefully and identify the key skills, tools, certifications, and qualifications mentioned. Then ensure those exact terms appear in your resume. If the job asks for "project management" and you wrote "managing projects," you might miss the keyword match. Use their exact phrasing. If a skill appears multiple times in the job description, it is a priority keyword. Make sure it appears prominently in your resume.'
             },
             {
                 type: 'heading',
@@ -4084,12 +4084,12 @@ const rawBlogPosts: BlogPost[] = [
             {
                 type: 'list',
                 items: [
-                    'Keep a master resume — One comprehensive document with all your experience, skills, and achievements. This is your source document. It should be 3-4 pages and include everything.',
-                    'Create a tailored version for each application — Copy your master resume, then cut and rearrange to match the specific job. Move the most relevant experience and skills to the top.',
-                    'Adjust your professional summary — Rewrite the 2-4 sentences to directly address the job requirements. If the role emphasizes team leadership, lead with your leadership experience.',
-                    'Rearrange bullet points — Move the most relevant achievements to the top of each work experience section. Delete bullets that are not relevant to this specific role.',
-                    'Mirror their language — If the job posting says "stakeholder management," use that exact phrase. If they say "cross-functional collaboration," use that term.',
-                    'Update your skills section — Prioritize skills mentioned in the job description. Move matching skills to the top of your list.'
+                    'Keep a master resume. One comprehensive document with all your experience, skills, and achievements. This is your source document. It should be 3-4 pages and include everything.',
+                    'Create a tailored version for each application. Copy your master resume, then cut and rearrange to match the specific job. Move the most relevant experience and skills to the top.',
+                    'Adjust your professional summary. Rewrite the 2-4 sentences to directly address the job requirements. If the role emphasizes team leadership, lead with your leadership experience.',
+                    'Rearrange bullet points. Move the most relevant achievements to the top of each work experience section. Delete bullets that are not relevant to this specific role.',
+                    'Mirror their language. If the job posting says "stakeholder management," use that exact phrase. If they say "cross-functional collaboration," use that term.',
+                    'Update your skills section. Prioritize skills mentioned in the job description. Move matching skills to the top of your list.'
                 ]
             },
             {
@@ -4111,13 +4111,13 @@ const rawBlogPosts: BlogPost[] = [
             {
                 type: 'list',
                 items: [
-                    'Run spell check in your word processor (but do not rely on it alone — it misses context errors).',
+                    'Run spell check in your word processor (but do not rely on it alone; it misses context errors).',
                     'Read your resume out loud. Your ear catches errors your eye misses.',
                     'Check for consistency: Are all dates in the same format? Are all bullet points punctuated the same way? Are all job titles formatted consistently?',
                     'Verify all company names and job titles are spelled correctly.',
                     'Ask someone else to read it. A fresh pair of eyes catches mistakes you will miss because you are too close to the content.',
                     'Print it out. Errors are easier to spot on paper than on screen.',
-                    'Check for orphan lines — a single word or line on a page by itself looks sloppy.'
+                    'Check for orphan lines: a single word or line on a page by itself looks sloppy.'
                 ]
             },
             {
@@ -4157,12 +4157,12 @@ const rawBlogPosts: BlogPost[] = [
             {
                 type: 'list',
                 items: [
-                    '1. Contact Information — Full name, phone, email, LinkedIn URL, location (city/state)',
-                    '2. Professional Summary — 2-4 sentences using the formula: [Title] + [Years] + [Specialization] + [Key Achievement] + [Core Skills/Tools]',
-                    '3. Work Experience — 2-4 positions, each with 3-5 achievement-focused bullet points using the Action Verb + Task + Result formula',
-                    '4. Education — Degree, university, graduation year (plus GPA, coursework, and honors for recent graduates)',
-                    '5. Skills — Grouped by category, mirroring keywords from the target job description',
-                    '6. Additional Sections (optional) — Certifications, Projects, Languages, Publications, Volunteer Work, Awards'
+                    '1. Contact Information: Full name, phone, email, LinkedIn URL, location (city/state)',
+                    '2. Professional Summary: 2-4 sentences using the formula: [Title] + [Years] + [Specialization] + [Key Achievement] + [Core Skills/Tools]',
+                    '3. Work Experience: 2-4 positions, each with 3-5 achievement-focused bullet points using the Action Verb + Task + Result formula',
+                    '4. Education: Degree, university, graduation year (plus GPA, coursework, and honors for recent graduates)',
+                    '5. Skills: Grouped by category, mirroring keywords from the target job description',
+                    '6. Additional Sections (optional): Certifications, Projects, Languages, Publications, Volunteer Work, Awards'
                 ]
             },
             {
@@ -4203,7 +4203,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'paragraph',
-                content: 'Focus on what you do have: academic projects (framed as professional achievements), volunteer work, club leadership, freelance or personal projects, internships, and relevant coursework. Use the same achievement formula — Action Verb + What You Did + Result — applied to academic and extracurricular accomplishments. "Organized a campus fundraiser that raised $3,200 for local food bank through social media promotion and 15-vendor coordination" is a perfectly strong bullet point.'
+                content: 'Focus on what you do have: academic projects (framed as professional achievements), volunteer work, club leadership, freelance or personal projects, internships, and relevant coursework. Use the same achievement formula (Action Verb + What You Did + Result) applied to academic and extracurricular accomplishments. "Organized a campus fundraiser that raised $3,200 for local food bank through social media promotion and 15-vendor coordination" is a perfectly strong bullet point.'
             },
             {
                 type: 'subheading',
@@ -4215,7 +4215,7 @@ const rawBlogPosts: BlogPost[] = [
             },
             {
                 type: 'tip',
-                content: 'Cvarchitect walks you through each section of your resume step by step, using AI to help you transform generic duty descriptions into powerful achievement statements with quantified results. It follows the exact resume outline and format recommended in this guide, and automatically tailors your resume to specific job descriptions — saving you hours of manual tailoring work.'
+                content: 'Cvarchitect walks you through each section of your resume step by step, using AI to help you transform generic duty descriptions into powerful achievement statements with quantified results. It follows the exact resume outline and format recommended in this guide, and automatically tailors your resume to specific job descriptions, saving you hours of manual tailoring work.'
             },
             {
                 type: 'templatePreview',
