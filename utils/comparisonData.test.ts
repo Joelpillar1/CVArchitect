@@ -44,6 +44,18 @@ describe('comparison data', () => {
     expect(jobscan?.rows.some((row) => row.label === 'Job tracker')).toBe(true);
   });
 
+  it('keeps the Kickresume pricing aligned with its public pricing page', () => {
+    const kickresume = getCompetitor('kickresume');
+    expect(kickresume).toBeDefined();
+    expect(kickresume?.name).toBe('Kickresume');
+    expect(kickresume?.entryPrice).toContain('$24 per month');
+    expect(kickresume?.entryPrice).toContain('$18 per month quarterly');
+    expect(kickresume?.entryPrice).toContain('$8 per month yearly');
+    // The old $19 / $9 / $4.50 figures were read from a stale page and must not return.
+    expect(kickresume?.entryPrice).not.toContain('$4.50');
+    expect(kickresume?.entryPrice).not.toContain('$19');
+  });
+
   it('gives every competitor enough content for a complete page', () => {
     for (const competitor of COMPETITORS) {
       expect(competitor.shortAnswer.length, competitor.slug).toBeGreaterThan(80);

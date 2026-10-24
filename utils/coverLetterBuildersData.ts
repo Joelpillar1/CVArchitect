@@ -46,7 +46,7 @@ export const COVER_LETTER_PICKS: CoverLetterPick[] = [
     href: '/compare/kickresume',
     summary:
       'Cover letter designs that match the resume templates, plus a GPT-4.1 powered AI writer. Four cover letter templates are free with unlimited downloads; the AI writer requires Premium.',
-    price: '$19 monthly, from $4.50 monthly billed yearly',
+    price: '$24 monthly, from $8 monthly billed yearly',
     bestFor: 'Design-led applications and matching resume and cover letter sets',
   },
   {

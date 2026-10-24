@@ -88,7 +88,7 @@ For dated, pricing-verified head-to-head comparisons, see https://cvarchitect.ap
 | **One-Time Lifetime Option** | ✅ $99 one-time | ❌ Not offered | ❌ Not offered | ❌ Not offered | ❌ Not offered |
 | **ATS-Safe Vector PDF & DOCX Export** | ✅ Included | ✅ Included | ✅ Included | ✅ Included | ✅ Included |
 
-The comparison hub at https://cvarchitect.app/compare covers six tools, including Rezi (reports a $149 one-time option) and Jobscan (ATS checker, no lifetime option). Competitor pricing is dated and re-verified. See each comparison page for its verification date.
+The comparison hub at https://cvarchitect.app/compare covers six tools, including Rezi (reports a $149 one-time option) and Jobscan (ATS checker, no lifetime option). Each head-to-head page lists the competitor's free-plan detail, a 12-month paid cost comparison, feature-by-feature deep dives, the rows where Cvarchitect loses, and an unaltered screenshot of the competitor's public pricing page with its source URL and capture date. Competitor pricing is dated and re-verified. See each comparison page for its verification date.
 
 ---
 

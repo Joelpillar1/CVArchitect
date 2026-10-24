@@ -25,7 +25,7 @@ export const COMPARISON_VERIFIED = 'October 2026';
  * visibly fresher to crawlers instead of looking untouched since launch.
  * Bump both constants together after re-reading every competitor pricing page.
  */
-export const COMPARISON_VERIFIED_ISO = '2026-10-22';
+export const COMPARISON_VERIFIED_ISO = '2026-10-24';
 
 export type Edge = 'us' | 'them' | 'tie';
 
@@ -412,9 +412,9 @@ export const COMPETITORS: Competitor[] = [
     category: 'The design-first builder',
     verdict: 'Better looking documents. Weaker free AI.',
     shortAnswer:
-      'Kickresume is the better choice if design matters to you, you want matching resume and cover letter templates, or you are a student who qualifies for free premium. Cvarchitect is the better choice if you want AI tailoring included without a premium upgrade and a free plan that is not limited to four templates. Kickresume Premium starts at $4.50 per month billed yearly.',
+      'Kickresume is the better choice if design matters to you, you want matching resume and cover letter templates, or you are a student who qualifies for free premium. Cvarchitect is the better choice if you want AI tailoring included without a premium upgrade and a free plan that is not limited to four templates. Kickresume Premium starts at $8 per month billed yearly.',
     freePlan: '4 resume templates, 4 cover letter templates, unlimited downloads',
-    entryPrice: '$19 per month, $9 per month quarterly, $4.50 per month yearly',
+    entryPrice: '$24 per month, $18 per month quarterly, $8 per month yearly',
     billing: 'Monthly, quarterly, or yearly',
     lifetime: 'Not offered',
     bestFor: 'Design-led industries and students',
@@ -428,7 +428,7 @@ export const COMPETITORS: Competitor[] = [
       {
         label: 'Paid entry price',
         us: '$10 per month, or $99 once',
-        them: '$19 monthly, $9 monthly on quarterly, $4.50 monthly on yearly',
+        them: '$24 monthly, $18 monthly on quarterly, $8 monthly on yearly',
         edge: 'us',
       },
       {
@@ -477,7 +477,7 @@ export const COMPETITORS: Competitor[] = [
     theyWin: [
       'Design is the product. A large template library, matching cover letters, and deep type and color controls produce documents that look considered.',
       'The free plan allows unlimited downloads, which is rare.',
-      'Students and teachers can get Premium free with ISIC, ITIC, or UNiDAYS verification.',
+      'Students and teachers can get Premium free, which makes it a strong pick for a first design-led resume.',
     ],
     weWin: [
       'AI is in the free plan, not behind a Premium upgrade.',
@@ -497,11 +497,11 @@ export const COMPETITORS: Competitor[] = [
     faqs: [
       {
         q: 'Is Kickresume free?',
-        a: 'Kickresume has a free plan with four resume templates, four cover letter templates, and unlimited downloads. AI writing, the ATS checker, and the full template library require Premium. Students and teachers can get Premium free with ISIC, ITIC, or UNiDAYS verification.',
+        a: 'Kickresume has a free plan with four resume templates, four matching cover letter templates, one basic website template, 20,000 pre-written phrases, 1,500+ resume examples, and unlimited downloads. AI writing, the ATS checker, and the full template library require Premium. Students and teachers can get Premium free.',
       },
       {
         q: 'How much does Kickresume Premium cost?',
-        a: 'Kickresume Premium is $19 per month, $9 per month billed quarterly, or $4.50 per month billed yearly. There is a 14-day money-back guarantee.',
+        a: 'Kickresume Premium is $24 per month, $18 per month billed quarterly, or $8 per month billed yearly. There is a 14-day money-back guarantee.',
       },
       {
         q: 'Does Kickresume include AI resume writing on the free plan?',
@@ -801,7 +801,7 @@ export const BEST_PICKS = [
     href: '/compare/kickresume',
     summary:
       'The best-looking output of the four, with a large template library, matching cover letters, and deep design controls.',
-    price: '$19 monthly, from $4.50 monthly billed yearly',
+    price: '$24 monthly, from $8 monthly billed yearly',
     bestFor: 'Design-led industries and students',
   },
   {
