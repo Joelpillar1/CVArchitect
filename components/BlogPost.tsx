@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Clock, ArrowLeft, ArrowRight, User, Calendar, Tag, Maximize2, Check, Copy, Sparkles, Search } from 'lucide-react';
+import { Clock, ArrowLeft, ArrowRight, User, Calendar, Tag, Maximize2, Check, CheckCircle2, ListChecks, ChevronRight, Copy, Sparkles, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getPostBySlug, blogPosts, BlogSection } from '../utils/blogData';
 import { getRelatedLinks } from '../utils/relatedLinks';
 import { useHydrating } from '../contexts/HydrationContext';
+import { useAuth } from '../contexts/AuthContext';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
 import SEO from './SEO';
@@ -12,6 +13,28 @@ import ResumePreview from './ResumePreview';
 import { TemplateType } from '../types';
 import { SAMPLE_RESUME_DATA, STUDENT_RESUME_DATA } from '../utils/sampleResumeData';
 import { JUNIOR_ACCOUNTANT_RESUME_DATA } from '../utils/juniorAccountantData';
+import { getTemplateMetadata } from '../utils/templateConfig';
+
+/**
+ * One-line descriptions for templates shown inside articles.
+ * Names are pulled from the public template config so they always match
+ * the /resume-templates gallery.
+ */
+const TEMPLATE_BLURBS: Record<string, string> = {
+    styled: 'A clean single-column layout with a bold, dark accent header.',
+    wonsulting: 'A traditional, recruiter-familiar format built for clarity.',
+    sage: 'Wide, well-spaced sections that keep a long career readable.',
+    student: 'Leads with education, projects, and skills for early-career applicants.',
+};
+
+const DEFAULT_TEMPLATE_BENEFIT = 'Single-column, ATS-friendly layout you can edit in minutes.';
+
+const toPlainText = (text: string) =>
+    text
+        .replace(/\*\*(.*?)\*\*/g, '$1')
+        .replace(/\[(.*?)\]\((.*?)\)/g, '$1')
+        .replace(/\s+/g, ' ')
+        .trim();
 
 const fadeUp = {
     hidden: { opacity: 0, y: 20 },
@@ -80,11 +103,11 @@ function renderText(text: string) {
     });
 }
 
-function renderSection(section: BlogSection, index: number) {
+function renderSection(section: BlogSection, index: number, options: { startPath: string }) {
     switch (section.type) {
         case 'heading':
             return (
-                <h2 key={index} className="text-2xl md:text-3xl font-bold text-brand-dark mt-10 mb-4 leading-tight">
+                <h2 key={index} id={`section-${index}`} className="text-2xl md:text-3xl font-bold text-brand-dark mt-10 mb-4 leading-tight scroll-mt-28">
                     {renderText(section.content || '')}
                 </h2>
             );
@@ -156,20 +179,37 @@ function renderSection(section: BlogSection, index: number) {
                     )}
                 </figure>
             );
-        case 'templatePreview':
+        case 'templatePreview': {
             const isStudent = section.templateId === 'student';
-            // Use Accountant data for most previews except student specific ones
+            // Accountant data suits most layouts; student data suits the student layout.
             const resumeData = isStudent ? STUDENT_RESUME_DATA : JUNIOR_ACCOUNTANT_RESUME_DATA;
+            const templateName = section.templateId
+                ? getTemplateMetadata(section.templateId as TemplateType).name
+                : 'Cvarchitect template';
+            const blurb = section.templateId ? TEMPLATE_BLURBS[section.templateId] : undefined;
+            const benefits = section.benefits?.length
+                ? section.benefits
+                : [blurb || DEFAULT_TEMPLATE_BENEFIT, 'Edit every line, then export a clean ATS-friendly PDF.'];
 
             return (
                 <div key={index} className="my-16 flex flex-col items-center w-full">
                     <div className="relative w-full max-w-[850px] bg-white rounded-3xl overflow-hidden shadow-[0_20px_80px_rgba(112,224,152,0.25)] border-[3px] border-brand-green/40 group/preview transition-all hover:border-brand-green/70">
+                        {/* Template identity */}
+                        <div className="flex items-center justify-between gap-3 px-6 pt-6">
+                            <span className="inline-flex items-center gap-2 rounded-full bg-brand-dark px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-white">
+                                {templateName}
+                            </span>
+                            <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-brand-green/15 px-3 py-1.5 text-xs font-bold text-brand-dark">
+                                <Check size={13} /> ATS-ready
+                            </span>
+                        </div>
+
                         {/* Resume Preview Container */}
                         <div className="relative w-full bg-white overflow-hidden" style={{ height: '640px' }}>
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[210mm] origin-top transform scale-[0.68] pointer-events-none select-none mt-12 mb-20 shadow-2xl">
                                 <ResumePreview data={resumeData} template={section.templateId as TemplateType} />
                             </div>
-                            
+
                             {/* Fade effect at the bottom to transition into CTA */}
                             <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-white via-white/95 to-transparent z-10" />
                         </div>
@@ -177,17 +217,131 @@ function renderSection(section: BlogSection, index: number) {
                         {/* Call to Action Section Overlay/Bottom */}
                         <div className="relative z-20 -mt-32 pb-14 px-8 flex flex-col items-center text-center">
                             {section.content && (
-                                <p className="text-gray-500 font-light italic text-xl mb-10 max-w-xl drop-shadow-sm">
+                                <p className="text-gray-600 text-lg mb-6 max-w-xl">
                                     {renderText(section.content)}
                                 </p>
                             )}
-                            <a
-                                href="/signup"
-                                className="inline-flex items-center gap-2 bg-brand-green text-brand-dark px-12 py-4 rounded-xl font-semibold text-lg hover:bg-brand-greenHover hover:scale-105 active:scale-95 transition-all shadow-[0_15px_30px_rgba(112,224,152,0.35)]"
-                            >
-                                Use This Template
-                            </a>
+                            <ul className="mb-8 flex flex-col items-start gap-2 text-left">
+                                {benefits.map((benefit) => (
+                                    <li key={benefit} className="flex items-start gap-2 text-sm text-gray-600">
+                                        <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-brand-green" />
+                                        <span>{benefit}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                                <a
+                                    href={options.startPath}
+                                    className="inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-brand-green text-brand-dark px-9 py-4 rounded-xl font-bold text-base hover:bg-brand-greenHover hover:scale-[1.02] active:scale-95 transition-all shadow-[0_15px_30px_rgba(112,224,152,0.35)]"
+                                >
+                                    Use this template free
+                                    <ArrowRight size={18} />
+                                </a>
+                                <a
+                                    href="/resume-templates"
+                                    className="inline-flex w-full sm:w-auto items-center justify-center gap-2 border border-gray-200 bg-white px-9 py-4 rounded-xl font-semibold text-base text-brand-dark hover:border-gray-300 transition-all"
+                                >
+                                    See all templates
+                                </a>
+                            </div>
+                            <p className="mt-4 text-xs text-gray-400">Free to start. No credit card required.</p>
                         </div>
+                    </div>
+                </div>
+            );
+        }
+        case 'keyTakeaways':
+            return (
+                <div key={index} className="my-10 rounded-2xl bg-brand-dark p-6 sm:p-8">
+                    <div className="flex items-center gap-2 mb-4">
+                        <ListChecks size={20} className="text-brand-green" />
+                        <h2 className="text-lg font-bold text-white">{section.heading || 'The short version'}</h2>
+                    </div>
+                    <ul className="space-y-3">
+                        {(section.items || []).map((item, i) => (
+                            <li key={i} className="flex items-start gap-2.5 text-[15px] leading-relaxed text-white/80">
+                                <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-brand-green" />
+                                <span>{renderText(item)}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            );
+        case 'comparisonTable':
+            return (
+                <figure key={index} className="my-10">
+                    <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+                        <table className="w-full min-w-[640px] border-collapse text-left text-sm">
+                            {section.content && (
+                                <caption className="mb-3 text-left text-sm text-gray-500">{section.content}</caption>
+                            )}
+                            <thead>
+                                <tr className="border-b border-gray-200">
+                                    {(section.columns || []).map((col, i) => (
+                                        <th
+                                            key={col}
+                                            scope="col"
+                                            className={`py-3 px-3 text-xs font-bold uppercase tracking-wider ${i === 0 ? 'text-gray-400' : 'text-brand-dark'}`}
+                                        >
+                                            {col}
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {(section.rows || []).map((row, r) => (
+                                    <tr key={r} className="border-b border-gray-100 align-top">
+                                        {row.map((cell, c) =>
+                                            c === 0 ? (
+                                                <th key={c} scope="row" className="py-3 px-3 font-semibold text-gray-700">{cell}</th>
+                                            ) : (
+                                                <td key={c} className="py-3 px-3 text-gray-600">{cell}</td>
+                                            )
+                                        )}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </figure>
+            );
+        case 'faq':
+            return (
+                <div key={index} className="my-10">
+                    <div className="divide-y divide-gray-100 border-y border-gray-100">
+                        {(section.faqs || []).map((faq) => (
+                            <details key={faq.q} className="group py-5">
+                                <summary className="flex cursor-pointer list-none items-start justify-between gap-4 text-[17px] font-semibold text-brand-dark">
+                                    {faq.q}
+                                    <span className="mt-0.5 shrink-0 text-xl font-light text-gray-400 transition-transform group-open:rotate-45" aria-hidden="true">+</span>
+                                </summary>
+                                <p className="mt-3 max-w-3xl text-[15px] leading-relaxed text-gray-600">{renderText(faq.a)}</p>
+                            </details>
+                        ))}
+                    </div>
+                </div>
+            );
+        case 'callToAction':
+            return (
+                <div key={index} className="my-12 rounded-2xl border border-brand-green/30 bg-gradient-to-br from-brand-green/10 to-brand-green/5 p-6 sm:p-8 text-center">
+                    <h2 className="text-xl sm:text-2xl font-bold text-brand-dark">{section.heading || 'Ready to build yours?'}</h2>
+                    {section.body && (
+                        <p className="mt-2 max-w-xl mx-auto text-[15px] leading-relaxed text-gray-600">{renderText(section.body)}</p>
+                    )}
+                    <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+                        <a
+                            href={options.startPath}
+                            className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-brand-dark px-7 py-3.5 text-sm font-bold text-white hover:bg-brand-dark/90 transition-colors"
+                        >
+                            {section.ctaLabel || 'Start free'}
+                            <ArrowRight size={16} />
+                        </a>
+                        <a
+                            href="/resume-templates"
+                            className="inline-flex w-full sm:w-auto items-center justify-center rounded-xl border border-gray-200 bg-white px-7 py-3.5 text-sm font-semibold text-brand-dark hover:border-gray-300 transition-colors"
+                        >
+                            Browse templates
+                        </a>
                     </div>
                 </div>
             );
@@ -200,6 +354,8 @@ function renderSection(section: BlogSection, index: number) {
 
 const BulletShowcase = ({ bullets, categories }: { bullets: { category: string; text: string }[], categories: string[] }) => {
     const hydrating = useHydrating();
+    const { user } = useAuth();
+    const startPath = user ? '/dashboard/templates' : '/signup?redirect=/dashboard/templates';
     const [activeCategory, setActiveCategory] = React.useState(categories[0] || 'All');
     const [copiedIndex, setCopiedIndex] = React.useState<number | null>(null);
     const [searchQuery, setSearchQuery] = React.useState('');
@@ -306,7 +462,7 @@ const BulletShowcase = ({ bullets, categories }: { bullets: { category: string; 
                         <span className="font-bold text-brand-dark">Pro Tip:</span> Tap any card to copy the high-impact structure.
                     </p>
                 </div>
-                <a href="/signup" className="w-full md:w-auto bg-brand-dark text-white px-8 py-3 rounded-xl font-bold text-sm hover:scale-105 transition-all shadow-lg shadow-brand-dark/20 text-center">
+                <a href={startPath} className="w-full md:w-auto bg-brand-dark text-white px-8 py-3 rounded-xl font-bold text-sm hover:scale-105 transition-all shadow-lg shadow-brand-dark/20 text-center">
                     Optimize My Bullets Now
                 </a>
             </div>
@@ -318,6 +474,7 @@ export default function BlogPost() {
     const { slug } = useParams<{ slug: string }>();
     const navigate = useNavigate();
     const hydrating = useHydrating();
+    const { user } = useAuth();
     const post = slug ? getPostBySlug(slug) : undefined;
 
     useEffect(() => {
@@ -356,6 +513,65 @@ export default function BlogPost() {
     // Marketing pages that match this article's topic.
     const relatedLinks = getRelatedLinks(post);
 
+    // Signed-in readers go straight to the editor; guests sign up then land there.
+    const startPath = user ? '/dashboard/templates' : '/signup?redirect=/dashboard/templates';
+
+    // Section anchors for the "in this guide" table of contents.
+    const headings = post.content
+        .map((section, index) => ({ section, index }))
+        .filter(({ section }) => section.type === 'heading' && section.content)
+        .map(({ section, index }) => ({ index, text: toPlainText(section.content as string) }));
+
+    // FAQ blocks become FAQPage schema for answer engines.
+    const faqItems = post.content.flatMap((section) =>
+        section.type === 'faq' && section.faqs ? section.faqs : []
+    );
+
+    const articleSchema = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": post.title,
+        "description": post.metaDescription,
+        "image": `https://cvarchitect.app${post.coverImage}`,
+        "datePublished": post.publishDate,
+        "dateModified": post.updatedDate ?? post.publishDate,
+        "author": {
+            "@type": "Organization",
+            "name": post.author,
+            "url": "https://cvarchitect.app"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "Cvarchitect",
+            "url": "https://cvarchitect.app",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://cvarchitect.app/images/logo icon.png"
+            }
+        },
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": `https://cvarchitect.app/blog/${post.slug}`
+        },
+        "keywords": post.tags.join(', ')
+    };
+
+    const jsonLd: unknown[] = [articleSchema];
+    if (faqItems.length > 0) {
+        jsonLd.push({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": faqItems.map((faq) => ({
+                "@type": "Question",
+                "name": faq.q,
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": toPlainText(faq.a)
+                }
+            }))
+        });
+    }
+
     const formatDate = (dateStr: string) => {
         return new Date(dateStr).toLocaleDateString('en-US', {
             year: 'numeric',
@@ -373,34 +589,7 @@ export default function BlogPost() {
                 description={post.metaDescription}
                 canonicalPath={`/blog/${post.slug}`}
                 ogImage={`https://cvarchitect.app${post.coverImage}`}
-                jsonLd={{
-                    "@context": "https://schema.org",
-                    "@type": "Article",
-                    "headline": post.title,
-                    "description": post.metaDescription,
-                    "image": `https://cvarchitect.app${post.coverImage}`,
-                    "datePublished": post.publishDate,
-                    "dateModified": post.updatedDate ?? post.publishDate,
-                    "author": {
-                        "@type": "Organization",
-                        "name": post.author,
-                        "url": "https://cvarchitect.app"
-                    },
-                    "publisher": {
-                        "@type": "Organization",
-                        "name": "Cvarchitect",
-                        "url": "https://cvarchitect.app",
-                        "logo": {
-                            "@type": "ImageObject",
-                            "url": "https://cvarchitect.app/images/logo icon.png"
-                        }
-                    },
-                    "mainEntityOfPage": {
-                        "@type": "WebPage",
-                        "@id": `https://cvarchitect.app/blog/${post.slug}`
-                    },
-                    "keywords": post.tags.join(', ')
-                }}
+                jsonLd={jsonLd}
             />
             <PublicHeader />
 
@@ -480,10 +669,32 @@ export default function BlogPost() {
                 </div>
             </div>
 
+            {/* Table of contents */}
+            {headings.length >= 3 && (
+                <nav aria-label="Table of contents" className="px-6 pb-8">
+                    <div className="max-w-3xl mx-auto rounded-2xl border border-gray-100 bg-slate-50/60 p-5 sm:p-6">
+                        <p className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-400">In this guide</p>
+                        <ol className="grid gap-2 sm:grid-cols-2">
+                            {headings.map((heading) => (
+                                <li key={heading.index}>
+                                    <a
+                                        href={`#section-${heading.index}`}
+                                        className="flex items-start gap-2 text-sm font-medium text-gray-700 hover:text-brand-dark"
+                                    >
+                                        <ChevronRight size={15} className="mt-0.5 shrink-0 text-brand-green" />
+                                        <span>{heading.text}</span>
+                                    </a>
+                                </li>
+                            ))}
+                        </ol>
+                    </div>
+                </nav>
+            )}
+
             {/* Article Body */}
             <article className="px-6 pb-16">
                 <div className="max-w-3xl mx-auto">
-                    {post.content.map((section, index) => renderSection(section, index))}
+                    {post.content.map((section, index) => renderSection(section, index, { startPath }))}
                 </div>
             </article>
 
@@ -608,11 +819,12 @@ export default function BlogPost() {
                         Build your ATS-optimized resume in minutes, not hours. Cvarchitect's AI handles the hard part.
                     </p>
                     <a
-                        href="/signup"
+                        href={startPath}
                         className="inline-block bg-brand-green text-brand-dark px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:opacity-90 transition-all"
                     >
-                        Start Building Your Resume
+                        Build My Resume Free
                     </a>
+                    <p className="mt-4 text-sm text-gray-400">Free to start. No credit card required.</p>
                 </div>
             </section>
 

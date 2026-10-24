@@ -88,7 +88,7 @@ export const JUNIOR_ACCOUNTANT_RESUME_DATA: ResumeData = {
     },
     currentTag: 'accountant-sample',
     language: 'en',
-    accentColor: '#0870b8',
+    accentColor: '#333C4D',
     headerAlignment: 'center',
     bodyHeaderAlignment: 'left',
     contentAlignment: 'left',

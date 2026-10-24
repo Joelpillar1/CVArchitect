@@ -58,6 +58,7 @@ Cvarchitect (https://cvarchitect.app) is an agentic resume architecture platform
 
 ## Authoritative Career & ATS Guides
 
+- [Best Resume Templates for 2026](https://cvarchitect.app/blog/best-resume-templates-2026): The templates that survive ATS parsing, the best free options, a platform comparison table, and a five-minute test
 - [100+ Result-Driven Resume Bullet Points](https://cvarchitect.app/blog/100-resume-bullet-points-industry-2026): Google XYZ action verbs, metrics, and examples by former tech recruiters
 - [10,000+ ATS Keywords Master List](https://cvarchitect.app/blog/ats-keywords-master-list-2026): Comprehensive dataset of essential skills and keywords across 71 industries
 - [AI Resume Optimization & GEO](https://cvarchitect.app/blog/ai-resume-optimization-2026): Generative Engine Optimization guide for search engines and AI screeners
