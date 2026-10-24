@@ -50,7 +50,18 @@
         }
       ],
       "destination": "https://cvarchitect.app/support",
-      "permanent": false
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "contact.cvarchitect.app"
+        }
+      ],
+      "destination": "https://cvarchitect.app/$1",
+      "permanent": true
     }
   ],
   "headers": [
