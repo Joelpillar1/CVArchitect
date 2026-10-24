@@ -46,6 +46,12 @@ dist-ssr
 !scripts/prerender.mjs
 !scripts/verify-prerender.mjs
 !scripts/indexnow.mjs
+# SEO metadata limits are imported by the build gate and the test suite
+!scripts/seoLimits.mjs
+# Custom 404 (served with a real 404 status for unknown paths)
+!public/404.html
+# SEO metadata rule reference doc
+!SEO_METADATA_RULES.md
 caret-*
 dump-*
 seed-check*

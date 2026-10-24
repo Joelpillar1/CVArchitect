@@ -8,6 +8,7 @@
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { getPrerenderRoutes } from './routes.mjs';
+import { seoMetadataProblems } from './seoLimits.mjs';
 
 const DIST = path.resolve('dist');
 const SITE = 'https://cvarchitect.app';
@@ -51,13 +52,14 @@ for (const route of allRoutes) {
   }
 
   const title = (html.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1]?.trim() || '';
+  const description = (html.match(/<meta name="description"[^>]*content="([^"]*)"/i) || [])[1] || '';
   const canonical = (html.match(/rel="canonical"[^>]*href="([^"]+)"/i) || [])[1] || '';
   const text = textOf(html);
   const pageH1s = (html.match(/<h1[\s>]/gi) || []).length;
   const hiddenOpacity = (html.match(/opacity:\s*0(?:;|"|')/g) || []).length;
   const expectedCanonical = `${SITE}${route}`;
 
-  if (!title) problems.push(`${route}: missing title`);
+  problems.push(...seoMetadataProblems({ path: route, title, description }));
   if (text.length < 400) problems.push(`${route}: thin text (${text.length})`);
   if (!canonical) problems.push(`${route}: missing canonical`);
   else if (canonical.replace(/\/$/, '') !== expectedCanonical.replace(/\/$/, '')) {
