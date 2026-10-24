@@ -67,7 +67,7 @@ async function sendWelcomeEmail(name: string, email: string) {
                 <td width="40" valign="top"><div style="width:32px;height:32px;background:#70e098;border-radius:50%;text-align:center;line-height:32px;font-weight:800;font-size:14px;color:#333c4d;">1</div></td>
                 <td style="padding-left:12px;">
                   <p style="margin:0;font-weight:700;color:#333c4d;font-size:15px;">Choose a template</p>
-                  <p style="margin:4px 0 0;color:#6b7280;font-size:14px;">Pick from our ATS-friendly designs — modern, classic or minimal.</p>
+                  <p style="margin:4px 0 0;color:#6b7280;font-size:14px;">Pick from our ATS-friendly designs: modern, classic or minimal.</p>
                 </td>
               </tr>
             </table>
@@ -109,7 +109,7 @@ async function sendWelcomeEmail(name: string, email: string) {
         <tr>
           <td style="background:#f0fdf4;border:1px solid #bbf7d0;padding:20px 40px;">
             <p style="margin:0;font-weight:700;color:#15803d;font-size:15px;">🎁 Your free credits are ready</p>
-            <p style="margin:6px 0 0;color:#166534;font-size:14px;line-height:1.5;">You have free AI credits waiting — enough to rewrite your resume and generate a cover letter. No credit card needed.</p>
+            <p style="margin:6px 0 0;color:#166534;font-size:14px;line-height:1.5;">You have free AI credits waiting, enough to rewrite your resume and generate a cover letter. No credit card needed.</p>
           </td>
         </tr>
 
@@ -131,7 +131,7 @@ async function sendWelcomeEmail(name: string, email: string) {
 
   if (!res.ok) {
     const err = await res.text();
-    throw new Error(`Resend error: ${res.status} — ${err}`);
+    throw new Error(`Resend error: ${res.status} ${err}`);
   }
   return res.json();
 }
@@ -140,7 +140,7 @@ async function sendWelcomeEmail(name: string, email: string) {
 
 async function addToLoops(name: string, email: string) {
   if (!LOOPS_API_KEY) {
-    console.log('LOOPS_API_KEY not set — skipping Loops integration');
+    console.log('LOOPS_API_KEY not set, skipping Loops integration');
     return;
   }
 

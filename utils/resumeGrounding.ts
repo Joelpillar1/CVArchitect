@@ -476,7 +476,7 @@ export function formatResumeEvidenceBlock(snapshot: ResumeEvidenceSnapshot | nul
   if (snapshot.education && snapshot.education.length > 0) {
     lines.push('\nEDUCATION:');
     for (const edu of snapshot.education) {
-      lines.push(`- [${edu.itemId}] ${edu.degree} — ${edu.school} (${edu.year})`);
+      lines.push(`- [${edu.itemId}] ${edu.degree}, ${edu.school} (${edu.year})`);
     }
   }
 

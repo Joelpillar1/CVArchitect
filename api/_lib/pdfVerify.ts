@@ -86,7 +86,7 @@ export async function verifyPdfBuffer(buf: Buffer, opts: PdfGateOptions = {}): P
         pages,
         chars,
         status: 'failed',
-        reason: `PDF rendered ${pages} pages (ceiling ${maxPages}) — pagination likely ran away.`,
+        reason: `PDF rendered ${pages} pages (ceiling ${maxPages}). Pagination likely ran away.`,
       };
     }
     if (chars < minChars) {
@@ -95,7 +95,7 @@ export async function verifyPdfBuffer(buf: Buffer, opts: PdfGateOptions = {}): P
         pages,
         chars,
         status: 'failed',
-        reason: `PDF text layer has only ${chars} characters (minimum ${minChars}) — likely image-only or blank.`,
+        reason: `PDF text layer has only ${chars} characters (minimum ${minChars}), likely image-only or blank.`,
       };
     }
 

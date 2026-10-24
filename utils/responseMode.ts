@@ -55,7 +55,7 @@ export function getResponseModeDirectives(mode: AgentResponseMode): string {
     case 'ACT':
       return `RESPONSE_MODE: ACT
 - Direct tool execution is MANDATORY. Execute the required resume operation ('propose_operation') immediately.
-- After the operation applies successfully, return EXACTLY ONE short confirmation sentence (e.g., "Done — I rewrote your summary.", "Added your role at Google to Experience.").
+- After the operation applies successfully, return EXACTLY ONE short confirmation sentence (e.g., "Done, I rewrote your summary.", "Added your role at Google to Experience.").
 - DO NOT explain your reasoning, methodology, or ATS strategy.
 - DO NOT summarize the resume or list bullet points of what you changed.`;
 
@@ -78,7 +78,7 @@ export function getResponseModeDirectives(mode: AgentResponseMode): string {
 
     case 'CONFIRM':
       return `RESPONSE_MODE: CONFIRM
-- Output an ultra-short confirmation (e.g., "Done.", "Applied.", "Yes — applied the changes.").
+- Output an ultra-short confirmation (e.g., "Done.", "Applied.", "Yes, applied the changes.").
 - Zero explanation.`;
 
     default:

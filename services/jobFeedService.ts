@@ -113,12 +113,38 @@ function asArray(value: unknown): string[] {
   return Array.isArray(value) ? (value.filter((v) => typeof v === 'string') as string[]) : [];
 }
 
+/**
+ * Job postings are scraped third-party text and often carry em dashes from the source posting.
+ * The product avoids em dashes in copy, so normalise them to a comma at the display boundary
+ * instead of rewriting the generated feed data.
+ */
+const EM_DASH = /\s*\u2014\s*/g;
+function cleanEmDashes(value: string): string {
+  return value.replace(EM_DASH, ', ').replace(/,\s*,/g, ', ');
+}
+
+/** Apply {@link cleanEmDashes} to every free-text field shown in the feed. */
+function cleanJobText(job: Job): Job {
+  return {
+    ...job,
+    title: cleanEmDashes(job.title),
+    company: cleanEmDashes(job.company),
+    location: cleanEmDashes(job.location),
+    salarySummary: job.salarySummary ? cleanEmDashes(job.salarySummary) : job.salarySummary,
+    description: cleanEmDashes(job.description),
+    responsibilities: job.responsibilities.map(cleanEmDashes),
+    requirements: job.requirements.map(cleanEmDashes),
+    benefits: job.benefits.map(cleanEmDashes),
+    skills: job.skills.map(cleanEmDashes),
+  };
+}
+
 /** Map a stored row onto the `Job` shape the existing job components consume. */
 export function mapRowToJob(row: JobRow): Job {
   const hasSalary =
     row.salary_min !== null || row.salary_max !== null || Boolean(row.salary_summary);
 
-  return {
+  const job: Job = {
     id: row.id,
     title: row.title,
     company: row.company,
@@ -150,6 +176,7 @@ export function mapRowToJob(row: JobRow): Job {
     postedAt: row.posted_at,
     firstSeenAt: row.first_seen_at,
   };
+  return cleanJobText(job);
 }
 
 /**
@@ -304,7 +331,7 @@ export async function fetchJobFeed(query: JobFeedQuery = {}): Promise<JobFeedRes
   }
 
   const total = filtered.length;
-  const pagedJobs = filtered.slice(from, to + 1);
+  const pagedJobs = filtered.slice(from, to + 1).map(cleanJobText);
 
   return {
     jobs: pagedJobs,
@@ -381,7 +408,7 @@ export async function fetchJobCompanies(): Promise<string[]> {
 
     if (!error && data && data.length > 0) {
       const unique = new Set((data || []).map((row) => row.company as string));
-      return [...unique].filter(Boolean);
+      return [...unique].filter(Boolean).map(cleanEmDashes);
     }
   } catch (err) {
     // fallback
@@ -389,5 +416,5 @@ export async function fetchJobCompanies(): Promise<string[]> {
 
   const jobs = await loadBundledJobs();
   const unique = new Set(jobs.map((row) => row.company));
-  return [...unique].filter(Boolean).sort();
+  return [...unique].filter(Boolean).map(cleanEmDashes).sort();
 }

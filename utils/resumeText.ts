@@ -30,7 +30,7 @@ export function serializeResumeToText(resume: ResumeData): string {
   // Experience + Leadership (same shape)
   const roles = [...(resume.experience ?? []), ...(resume.leadership ?? [])];
   for (const role of roles) {
-    push([role.role, role.company].filter(Boolean).join(' — '));
+    push([role.role, role.company].filter(Boolean).join(', '));
     push(role.roleSummary);
     for (const bullet of parseDescriptionBullets(role.description)) push(bullet);
   }
@@ -47,17 +47,17 @@ export function serializeResumeToText(resume: ResumeData): string {
 
   // Education
   for (const e of resume.education ?? []) {
-    push([e.degree, e.school, Array.isArray(e.relevantCourses) ? e.relevantCourses.join(', ') : e.relevantCourses].filter(Boolean).join(' — '));
+    push([e.degree, e.school, Array.isArray(e.relevantCourses) ? e.relevantCourses.join(', ') : e.relevantCourses].filter(Boolean).join(', '));
   }
 
   // Certifications
   for (const c of resume.certifications ?? []) {
-    push([c.name, c.issuer].filter(Boolean).join(' — '));
+    push([c.name, c.issuer].filter(Boolean).join(', '));
   }
 
   // Languages
   for (const l of resume.languages ?? []) {
-    push([l.language, l.proficiency].filter(Boolean).join(' — '));
+    push([l.language, l.proficiency].filter(Boolean).join(', '));
   }
 
   // Additional custom sections

@@ -102,7 +102,7 @@ serve(async (req) => {
       });
     }
   } else {
-    console.warn('Dodo webhook secret not set — skipping signature verification');
+    console.warn('Dodo webhook secret not set, skipping signature verification');
   }
 
   const eventType = (event.type as string) || '';

@@ -37,7 +37,7 @@ async function sendEmail(payload: ResendPayload) {
 
     if (!res.ok) {
         const error = await res.text();
-        throw new Error(`Resend API error: ${res.status} — ${error}`);
+        throw new Error(`Resend API error: ${res.status} ${error}`);
     }
 
     return res.json();
@@ -145,7 +145,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             `,
         });
 
-        console.log(`Contact form submitted by ${name} <${email}> — ${subjectLabel}`);
+        console.log(`Contact form submitted by ${name} <${email}>: ${subjectLabel}`);
         return res.status(200).json({ success: true });
 
     } catch (err: any) {

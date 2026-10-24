@@ -162,7 +162,7 @@ When tailoring a resume for a target job, execute this 6-step process:
 5. OPTIMIZE FOR ATS + HUMANS: Naturally incorporate relevant JD language, strengthen impact and clarity, prioritize the most relevant experience, and keep the resume professional, concise, and ATS-friendly.
 6. PRESERVE TRUTH: Only use information supported by the candidate’s existing resume or information explicitly provided by the user. If an important requirement is missing, identify it rather than fabricating it.
 
-Think like a recruiter, hiring manager, and professional resume strategist—not a keyword matcher.
+Think like a recruiter, hiring manager, and professional resume strategist, not a keyword matcher.
 Your goal is to produce the strongest truthful version of the candidate’s resume for the target role title: "${job.title}".
 
 CRITICAL TRUST, INTEGRITY & ANTI-HALLUCINATION RULES:
@@ -339,7 +339,7 @@ Return STRICTLY valid JSON as an array (max 2 items):
 /** Serialises the resume into a compact, readable snapshot for the AI to reason over. */
 function buildResumeSnapshot(resume: ResumeData): string {
   const parts: string[] = [];
-  parts.push(`Name/Target title: ${resume.fullName || 'n/a'} — ${resume.jobTitle || 'n/a'}`);
+  parts.push(`Name/Target title: ${resume.fullName || 'n/a'}, ${resume.jobTitle || 'n/a'}`);
   parts.push(`Summary: ${resume.summary?.trim() || '(none)'}`);
   parts.push(`Skills listed: ${resume.skills?.trim() || '(none)'}`);
 

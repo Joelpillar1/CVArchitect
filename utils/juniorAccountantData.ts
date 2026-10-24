@@ -48,7 +48,7 @@ export const JUNIOR_ACCOUNTANT_RESUME_DATA: ResumeData = {
             year: 'Apr 2018'
         }
     ],
-    skills: "Account Monitoring, Financial Modeling, Tax Planning, Accounts Payable, Cost Accounting, Financial Reporting, Account Analysis, Account Reconciliation, Financial Analysis, Accounts Receivable, Invoicing, Payroll, Auditing, Excel, QuickBooks, Organizational Skills, Problem-Solving, Communication Skills, Generally Accepted Accounting Principles (GAAP), Analytical Skills, Data Visualization, ADP Workforce Now, Expensify",
+    skills: "Accounts Payable, Accounts Receivable, Account Reconciliation, Financial Reporting, Financial Analysis, Tax Planning, Payroll, Invoicing, Auditing, GAAP, Excel, QuickBooks",
     certifications: [
         {
             id: '1',

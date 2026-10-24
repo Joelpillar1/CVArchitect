@@ -471,7 +471,7 @@ export const CandidateEvidenceSchema = z.object({
   claim: z.string().min(1).describe('Factual candidate statement, e.g. "Improved activation by 24%"'),
   context: z.string().optional().describe('Context/scope, e.g. "Onboarding funnel rewrite at Acme"'),
   topic: z.string().default('General').describe('Short topic label, e.g. "Activation Lift"'),
-  sourceType: EvidenceSourceEnum.default('resume').describe('Strict provenance source — AI cannot hallucinate a verified source'),
+  sourceType: EvidenceSourceEnum.default('resume').describe('Strict provenance source: AI cannot hallucinate a verified source'),
   source: EvidenceSourceEnum.optional().describe('Alias for sourceType for backward compatibility'),
   sourceId: z.string().min(1).describe('ID of the source question, document, or original bullet'),
   relatedResumeItemId: z.string().optional().describe('ID of related experience, project, education or skill item'),
