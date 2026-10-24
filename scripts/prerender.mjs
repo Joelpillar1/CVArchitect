@@ -219,8 +219,9 @@ async function main() {
   const routes = getPrerenderRoutes();
   console.log(`[prerender] ${routes.length} routes`);
 
-  // Preserve the untouched SPA shell for the catch-all rewrite, so private
-  // routes (dashboard, editor) do not flash the prerendered marketing page.
+  // Preserve the untouched SPA shell for the explicit client-route rewrites,
+  // so private routes (dashboard, editor, print-resume) do not flash the
+  // prerendered marketing page. Unknown paths fall through to 404.html.
   const shellHtml = await readFile(path.join(DIST, 'index.html'), 'utf8');
   if (/<div id="root">\s*<\/div>/.test(shellHtml)) {
     await writeFile(path.join(DIST, 'spa.html'), shellHtml, 'utf8');

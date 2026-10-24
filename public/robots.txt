@@ -9,6 +9,10 @@ Disallow: /api/
 Disallow: /reset-password
 Disallow: /forgot-password
 Disallow: /screenshot
+Disallow: /resume-agent
+Disallow: /print-resume
+Disallow: /auth/
+Disallow: /spa.html
 Disallow: /dev-
 
 # AI search and answer-engine crawlers are welcome. They inherit the rules

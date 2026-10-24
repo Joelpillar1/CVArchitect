@@ -6,6 +6,17 @@
   ],
   "redirects": [
     {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.cvarchitect.app"
+        }
+      ],
+      "destination": "https://cvarchitect.app/$1",
+      "permanent": true
+    },
+    {
       "source": "/cvarchitect",
       "destination": "/",
       "permanent": true
@@ -68,7 +79,7 @@
       ]
     },
     {
-      "source": "/(dashboard|admin|reset-password|forgot-password)(.*)",
+      "source": "/(dashboard|admin|reset-password|forgot-password|resume-agent|editor|print-resume|screenshot|auth)(.*)",
       "headers": [
         { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
       ]
@@ -137,7 +148,39 @@
   ],
   "rewrites": [
     {
-      "source": "/((?!api/).*)",
+      "source": "/dashboard/:path*",
+      "destination": "/spa.html"
+    },
+    {
+      "source": "/resume-agent",
+      "destination": "/spa.html"
+    },
+    {
+      "source": "/editor",
+      "destination": "/spa.html"
+    },
+    {
+      "source": "/print-resume",
+      "destination": "/spa.html"
+    },
+    {
+      "source": "/screenshot",
+      "destination": "/spa.html"
+    },
+    {
+      "source": "/auth/:path*",
+      "destination": "/spa.html"
+    },
+    {
+      "source": "/forgot-password",
+      "destination": "/spa.html"
+    },
+    {
+      "source": "/reset-password",
+      "destination": "/spa.html"
+    },
+    {
+      "source": "/dev-:name",
       "destination": "/spa.html"
     }
   ]

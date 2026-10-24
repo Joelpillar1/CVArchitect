@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, follow" />
+    <title>Page not found | Cvarchitect</title>
+    <style>
+      :root { --dark: #333c4d; --green: #70e098; --muted: #64748b; --border: #e2e8f0; }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8fafc;
+        color: var(--dark);
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+        padding: 32px 20px;
+      }
+      main { width: 100%; max-width: 640px; text-align: center; }
+      .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; margin-bottom: 28px; }
+      .dot { width: 28px; height: 28px; border-radius: 9px; background: var(--dark); display: inline-block; }
+      .code { font-size: 13px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green); }
+      h1 { font-size: clamp(28px, 5vw, 40px); line-height: 1.15; margin: 10px 0 12px; }
+      p { color: var(--muted); font-size: 16px; line-height: 1.6; margin: 0 auto 28px; max-width: 460px; }
+      .links { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; text-align: left; }
+      a.card {
+        display: block; padding: 16px 18px; background: #fff; border: 1px solid var(--border);
+        border-radius: 14px; text-decoration: none; color: var(--dark); transition: border-color .15s, transform .15s;
+      }
+      a.card:hover { border-color: var(--dark); transform: translateY(-1px); }
+      a.card span { display: block; font-weight: 700; font-size: 15px; }
+      a.card small { display: block; margin-top: 3px; color: var(--muted); font-size: 12.5px; line-height: 1.45; }
+      @media (max-width: 520px) { .links { grid-template-columns: 1fr; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <span class="brand"><span class="dot"></span>Cvarchitect</span>
+      <div class="code">Error 404</div>
+      <h1>We could not find that page</h1>
+      <p>
+        The link may be broken or the page may have moved. Everything below is one click away.
+      </p>
+      <nav class="links" aria-label="Popular pages">
+        <a class="card" href="/">
+          <span>Home</span>
+          <small>See how Cvarchitect tailors a resume to a job</small>
+        </a>
+        <a class="card" href="/resume-templates">
+          <span>Resume templates</span>
+          <small>ATS-ready layouts for every career stage</small>
+        </a>
+        <a class="card" href="/blog">
+          <span>Resume guides</span>
+          <small>Step-by-step writing, ATS, and keyword guides</small>
+        </a>
+        <a class="card" href="/compare">
+          <span>Compare resume builders</span>
+          <small>Pricing and free plans, verified side by side</small>
+        </a>
+      </nav>
+    </main>
+  </body>
+</html>
