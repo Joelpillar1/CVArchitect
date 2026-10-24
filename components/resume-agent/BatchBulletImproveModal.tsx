@@ -267,7 +267,7 @@ export default function BatchBulletImproveModal({
     try {
       const output = await batchImproveBullets(bulletsToImprove, {
         scopeType: activeGroup.type,
-        targetTitle: `${activeGroup.label} — ${activeGroup.subtitle}`,
+        targetTitle: `${activeGroup.label}: ${activeGroup.subtitle}`,
         actionType,
         customInstruction: customInstruction.trim() || undefined,
         jobData,

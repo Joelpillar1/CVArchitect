@@ -328,7 +328,7 @@ export default function ActionVerbs() {
                 badgeIcon={<Sparkles className="w-3.5 h-3.5 text-brand-green" />}
                 headline={<>Ready to build<br className="hidden sm:inline" /> your impact?</>}
                 sub={<>Don't just list your action verbs in isolation.<br className="hidden sm:inline" /> Use our builder to create a score-backed resume that lands interviews.</>}
-                ctaLabel="Start Building — It's Free"
+                ctaLabel="Start Building, It's Free"
                 onCta={() => navigate('/signup')}
                 secondary={
                     <button 

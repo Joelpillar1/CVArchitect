@@ -333,7 +333,7 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
                 </span>
                 {cert.issuer && (
                   <span className="text-gray-700 ml-2">
-                    — <span data-path={`${basePath}.${index}.issuer`}><RichText text={cert.issuer} /></span>
+                    , <span data-path={`${basePath}.${index}.issuer`}><RichText text={cert.issuer} /></span>
                   </span>
                 )}
               </div>

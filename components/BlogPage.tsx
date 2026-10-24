@@ -48,7 +48,7 @@ export default function BlogPage() {
     return (
         <div className="min-h-screen bg-white font-sans">
             <SEO
-                title="Cvarchitect Blog — Resume Tips, ATS Guides & Career Advice"
+                title="Cvarchitect Blog | Resume Tips, ATS Guides & Career Advice"
                 description="Expert resume writing tips, ATS optimization guides, and career advice to help you land more interviews. Resources from Cvarchitect's team of hiring experts."
                 canonicalPath="/blog"
                 jsonLd={{

@@ -1229,7 +1229,7 @@ export function renderCourseworkBlockHelper({
               className: 'font-normal italic text-gray-700 ml-1.5',
               style: defaultBodyStyle,
             },
-            item.courseName?.trim() ? ' — ' : '',
+            item.courseName?.trim() ? ', ' : '',
             React.createElement(
               'span',
               { 'data-path': `${basePath}.${index}.institution` },

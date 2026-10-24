@@ -831,7 +831,7 @@ export default function CoverLetterPage({
             } else {
                 await coverLetterService.createCoverLetter(
                     user.id,
-                    `${jobTitle || 'Role'} — ${companyName || 'Application'}`,
+                    `${jobTitle || 'Role'}, ${companyName || 'Application'}`,
                     letterToSave,
                     { jobTitle, companyName, jobDescription }
                 );

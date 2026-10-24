@@ -1293,7 +1293,7 @@ export const DEV_TEMPLATE_PREVIEW_DATA: ResumeData = {
     linkedin: "linkedin.com/in/alexander-williams",
     github: "",
     portfolio: "",
-    summary: "Software Developer with 4+ years of experience designing, building, and shipping scalable web applications and cloud-native services across the full stack. Proven record delivering production features in TypeScript, React, Go, and Node.js on AWS that serve hundreds of thousands of users while improving performance and reliability. Comfortable owning projects end to end — from architecture and implementation through automated testing, deployment, and mentorship of junior engineers.",
+    summary: "Software Developer with 4+ years of experience designing, building, and shipping scalable web applications and cloud-native services across the full stack. Proven record delivering production features in TypeScript, React, Go, and Node.js on AWS that serve hundreds of thousands of users while improving performance and reliability. Comfortable owning projects end to end, from architecture and implementation through automated testing, deployment, and mentorship of junior engineers.",
     education: [
         {
             id: 'edu-dev-1',
@@ -1359,7 +1359,7 @@ export const DEV_TEMPLATE_PREVIEW_DATA: ResumeData = {
     projects: [
         {
             id: 'proj-dev-1',
-            name: 'DevTrack — Open-Source Issue Tracker',
+            name: 'DevTrack: Open-Source Issue Tracker',
             technologies: 'React, Node.js, PostgreSQL, Docker',
             description: [
                 'Built and maintain a full-stack issue tracker with offline-first synchronization used by more than 2,400 GitHub users, featuring keyboard-first workflows designed for rapid triage of large backlogs.',

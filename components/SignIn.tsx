@@ -96,7 +96,7 @@ export default function SignIn() {
     return (
         <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-12 bg-white font-sans selection:bg-brand-green/30">
             <SEO
-                title="Sign In — Cvarchitect | AI Resume Builder"
+                title="Sign In | Cvarchitect | AI Resume Builder"
                 description="Sign in to your Cvarchitect account to continue building, editing, and tailoring your ATS-optimized resumes and cover letters."
                 canonicalPath="/login"
             />
@@ -144,7 +144,7 @@ export default function SignIn() {
                             <Zap size={16} className="text-brand-dark shrink-0 fill-brand-green" />
                             <div className="text-xs text-brand-dark text-left">
                                 <span className="font-bold">{selectedPlan.name}</span>
-                                <span className="text-gray-600"> — {selectedPlan.billingLabel}</span>
+                                <span className="text-gray-600">, {selectedPlan.billingLabel}</span>
                             </div>
                         </div>
                     )}

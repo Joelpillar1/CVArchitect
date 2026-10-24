@@ -339,7 +339,7 @@ export default function AnalystTemplate({ data }: { data: ResumeData }) {
                     )}
                     {exp.company && (
                       <>
-                        {' — '}
+                        {', '}
                         <span data-path={`${basePath}.${index}.company`}>
                           <RichText text={exp.company} />
                         </span>
@@ -408,7 +408,7 @@ export default function AnalystTemplate({ data }: { data: ResumeData }) {
                   )}
                   {edu.school && (
                     <>
-                      {' — '}
+                      {', '}
                       <span data-path={`${basePath}.${index}.school`}>
                         <RichText text={edu.school} />
                       </span>
@@ -454,7 +454,7 @@ export default function AnalystTemplate({ data }: { data: ResumeData }) {
                   </span>
                   {cert.issuer && (
                     <span>
-                      {' — '}
+                      {', '}
                       <span data-path={`${basePath}.${index}.issuer`}>
                         <RichText text={cert.issuer} />
                       </span>

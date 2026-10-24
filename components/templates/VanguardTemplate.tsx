@@ -495,7 +495,7 @@ export default function VanguardTemplate({ data }: { data: ResumeData }) {
                   )}
                   {item.institution?.trim() && (
                     <span className="font-normal italic text-gray-700 ml-1.5" style={bodyStyle}>
-                      {item.courseName?.trim() ? ' — ' : ''}
+                      {item.courseName?.trim() ? ', ' : ''}
                       <span data-path={`${basePath}.${index}.institution`}>
                         <RichText text={item.institution} />
                       </span>

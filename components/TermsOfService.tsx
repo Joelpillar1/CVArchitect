@@ -15,7 +15,7 @@ export default function TermsOfService({ onBack }: TermsOfServiceProps) {
     return (
         <div className="min-h-screen bg-white">
             <SEO
-                title="Terms of Service — Cvarchitect"
+                title="Terms of Service | Cvarchitect"
                 description="Read the Cvarchitect Terms of Service. Understand your user rights, account obligations, subscription policies, and AI platform usage rules."
                 canonicalPath="/terms"
             />

@@ -133,7 +133,7 @@ export default function SignUp() {
     return (
         <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-12 bg-white font-sans selection:bg-brand-green/30">
             <SEO
-                title="Create Account — Cvarchitect | AI Resume Builder"
+                title="Create Account | Cvarchitect | AI Resume Builder"
                 description="Create a Cvarchitect account to build ATS-optimized resumes and tailor cover letters with AI."
                 canonicalPath="/signup"
             />
@@ -181,7 +181,7 @@ export default function SignUp() {
                             <Zap size={16} className="text-brand-dark shrink-0 fill-brand-green" />
                             <div className="text-xs text-brand-dark text-left">
                                 <span className="font-bold">{selectedPlan.name}</span>
-                                <span className="text-gray-600"> — {selectedPlan.billingLabel}</span>
+                                <span className="text-gray-600">, {selectedPlan.billingLabel}</span>
                             </div>
                         </div>
                     )}

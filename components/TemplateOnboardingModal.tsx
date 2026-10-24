@@ -392,7 +392,7 @@ export default function TemplateOnboardingModal({
                                         />
                                     </div>
                                     <p className="text-[11px] text-gray-400 mt-1.5">
-                                        Separate with commas — email, phone, LinkedIn, GitHub, website, or city.
+                                        Separate with commas: email, phone, LinkedIn, GitHub, website, or city.
                                     </p>
                                 </div>
 

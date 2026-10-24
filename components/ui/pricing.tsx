@@ -88,7 +88,7 @@ const cvPlans: PricingPlanData[] = [
     ],
     includes: [
       'Everything in Build, plus:',
-      'One-time payment of $99 — no renewals',
+      'One-time payment of $99, no renewals',
       'Permanent access to all future models',
       'Unlimited saved versions forever',
       'Priority AI Agent processing',

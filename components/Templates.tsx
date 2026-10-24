@@ -169,7 +169,7 @@ export default function Templates({ onSelect, data, isPublic, userPlan = 'free',
                                             {!isPublic && !isAccessible && (
                                                 <div
                                                     className="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-2xs shrink-0"
-                                                    title="Pro Template — Requires Upgrade"
+                                                    title="Pro Template (Requires Upgrade)"
                                                 >
                                                     <Lock size={11} className="stroke-[2.5]" />
                                                 </div>

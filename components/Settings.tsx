@@ -783,7 +783,7 @@ export const Settings = ({ userSubscription, userProfile, userEmail, onProfileUp
                       <div className="min-w-0">
                         <p className="font-bold text-xl sm:text-2xl break-words">{plan?.name || 'Current Plan'}</p>
                         <p className={`text-sm break-words ${isPaid ? 'text-white/80' : 'text-brand-dark/70'}`}>
-                          {isFree ? 'Foundation — free tier' : (plan?.billingLabel ?? '')}
+                          {isFree ? 'Foundation (free tier)' : (plan?.billingLabel ?? '')}
                         </p>
                       </div>
                     </div>

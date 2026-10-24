@@ -1811,9 +1811,9 @@ export default function ResumeWorkspace({
         if (exp) {
           const role = exp.role?.trim();
           const company = exp.company?.trim();
-          if (role && company) return `Experience — ${role} at ${company}`;
-          if (role) return `Experience — ${role}`;
-          if (company) return `Experience — ${company}`;
+          if (role && company) return `Experience: ${role} at ${company}`;
+          if (role) return `Experience: ${role}`;
+          if (company) return `Experience: ${company}`;
         }
         return 'Experience';
       }

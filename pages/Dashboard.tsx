@@ -452,7 +452,7 @@ export default function Dashboard() {
                                 finishSuccess(refreshedSub);
                             } else if (dodoStatus === 'active') {
                                 showToast(
-                                    'Payment confirmed! Your plan may take a moment to appear — refresh if needed.',
+                                    'Payment confirmed! Your plan may take a moment to appear. Refresh if needed.',
                                     'info',
                                     8000
                                 );

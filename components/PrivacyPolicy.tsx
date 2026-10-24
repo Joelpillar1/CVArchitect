@@ -14,7 +14,7 @@ export default function PrivacyPolicy({ onBack }: PrivacyPolicyProps) {
     return (
         <div className="min-h-screen bg-white">
             <SEO
-                title="Privacy Policy — Cvarchitect"
+                title="Privacy Policy | Cvarchitect"
                 description="Learn how Cvarchitect collects, uses, and protects your personal data with industry-standard encryption and strict privacy safeguards."
                 canonicalPath="/privacy"
             />

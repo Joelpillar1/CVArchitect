@@ -52,7 +52,7 @@ export default function LifetimeUpgradeModal({
             <div className="flex items-start gap-2.5">
               <ShieldCheck className="text-emerald-700 shrink-0 mt-0.5" size={17} />
               <p className="text-xs text-emerald-950 leading-relaxed font-medium">
-                Pay <strong>$99 once</strong>. Your recurring <strong>$10/mo</strong> Build subscription will be cancelled automatically—no further renewals.
+                Pay <strong>$99 once</strong>. Your recurring <strong>$10/mo</strong> Build subscription will be cancelled automatically. No further renewals.
               </p>
             </div>
           </div>

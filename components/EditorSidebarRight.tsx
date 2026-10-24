@@ -620,7 +620,7 @@ export default function EditorSidebarRight({
                     },
                     strengths: matchAnalysis.strongMatches || ['Relevant work history', 'Core foundational skills'],
                     gaps: (!isPaidPlan(userSubscription.planId) && new SubscriptionManager(userSubscription).getUsageCount('job_match') > 0)
-                        ? ['Free plan tailoring pass completed — Upgrade to Build to re-tailor for this role', ...(matchAnalysis.gaps || [])]
+                        ? ['Free plan tailoring pass completed. Upgrade to Build to re-tailor for this role', ...(matchAnalysis.gaps || [])]
                         : (matchAnalysis.gaps || ['Target role title alignment', 'Quantified domain outcomes']),
                     jobData: parsedJob
                 }
@@ -923,7 +923,7 @@ CRITICAL RULES:
                         proposal: {
                             section: 'experience',
                             experienceIndex: expIndex,
-                            title: `Experience ${expIndex + 1} of ${totalExp} — ${currentExp.role || 'Role'} at ${currentExp.company || 'Company'}`,
+                            title: `Experience ${expIndex + 1} of ${totalExp}: ${currentExp.role || 'Role'} at ${currentExp.company || 'Company'}`,
                             proposed: previewText,
                             proposedTitle: currentExp.role,
                             proposedSummary: cleanBullets,
@@ -973,7 +973,7 @@ CRITICAL RULES:
                     proposal: {
                         section: 'experience',
                         experienceIndex: expIndex,
-                        title: `Experience ${expIndex + 1} of ${totalExp} — ${currentExp.role || 'Role'} at ${currentExp.company || 'Company'}`,
+                        title: `Experience ${expIndex + 1} of ${totalExp}: ${currentExp.role || 'Role'} at ${currentExp.company || 'Company'}`,
                         proposed: previewText,
                         proposedTitle: currentExp.role,
                         proposedSummary: cleanBullets,
@@ -1063,7 +1063,7 @@ CRITICAL RULES:
                     proposal: {
                         section: 'projects',
                         projectIndex: projIndex,
-                        title: `Project ${projIndex + 1} of ${totalProjects} — ${currentProj.name || 'Project'}`,
+                        title: `Project ${projIndex + 1} of ${totalProjects}: ${currentProj.name || 'Project'}`,
                         proposed: previewText,
                         proposedSummary: cleanBullets,
                         jobData: job
@@ -1152,7 +1152,7 @@ CRITICAL RULES:
                     proposal: {
                         section: 'leadership',
                         leadershipIndex: leadIndex,
-                        title: `Leadership ${leadIndex + 1} of ${totalLeadership} — ${currentLead.role || 'Role'} at ${currentLead.organization || currentLead.company || 'Organization'}`,
+                        title: `Leadership ${leadIndex + 1} of ${totalLeadership}: ${currentLead.role || 'Role'} at ${currentLead.organization || currentLead.company || 'Organization'}`,
                         proposed: previewText,
                         proposedSummary: cleanBullets,
                         jobData: job
@@ -2455,7 +2455,7 @@ Return 3-4 bullet points starting with '• '. Output ONLY the bullet points.`;
                             type: 'proposal',
                             proposal: {
                                 section: 'skills',
-                                title: 'Core Skills (12 Skills — 4-Row Layout)',
+                                title: 'Core Skills (12 Skills, 4-Row Layout)',
                                 proposed: proposedSkills,
                                 proposedSkills: proposedSkills,
                                 applied: false
@@ -2535,7 +2535,7 @@ Return 3-4 bullet points starting with '• '. Output ONLY the bullet points.`;
                             type: 'proposal',
                             proposal: {
                                 section: 'skills',
-                                title: 'Core Skills (12 Skills — 4-Row Layout)',
+                                title: 'Core Skills (12 Skills, 4-Row Layout)',
                                 proposed: proposedSkills,
                                 proposedSkills: proposedSkills,
                                 applied: false
@@ -2559,7 +2559,7 @@ Return 3-4 bullet points starting with '• '. Output ONLY the bullet points.`;
                 if (lower.includes('weather') || lower.includes('recipe') || lower.includes('poem') || lower.includes('joke') || lower.includes('song') || lower.includes('capital of') || lower.includes('president')) {
                     streamAssistantMessage(
                         { id: `agent-${Date.now()}`, type: 'text' },
-                        `I specialize exclusively in resume architecture, ATS optimization, and career strategy—how can I assist with your resume or target job search today?`
+                        `I specialize exclusively in resume architecture, ATS optimization, and career strategy. How can I assist with your resume or target job search today?`
                     );
                     return;
                 }

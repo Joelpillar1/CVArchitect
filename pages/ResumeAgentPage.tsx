@@ -1453,7 +1453,7 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
         sender: 'user',
         timestamp: Date.now(),
         type: 'text',
-        text: isSkip ? `Skip — nothing to add on ${q.requirement}.` : trimmed,
+        text: isSkip ? `Skip: nothing to add on ${q.requirement}.` : trimmed,
       },
     ]);
 
@@ -2122,7 +2122,7 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
       }
       showToast(
         result?.verified && result.pages !== null
-          ? `Resume downloaded — ${result.pages} page${result.pages === 1 ? '' : 's'}, text layer verified.`
+          ? `Resume downloaded: ${result.pages} page${result.pages === 1 ? '' : 's'}, text layer verified.`
           : 'Resume downloaded successfully!',
         'success'
       );
@@ -2141,7 +2141,7 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
       } catch (fallbackError: any) {
         const message = fallbackError?.message || e?.message || 'Failed to export PDF. Please try again.';
         console.error('Client-side fallback also failed:', fallbackError);
-        showToast(`Download failed — ${message}. Tap Download to retry.`, 'error');
+        showToast(`Download failed: ${message}. Tap Download to retry.`, 'error');
       }
     } finally {
       setIsExporting(false);

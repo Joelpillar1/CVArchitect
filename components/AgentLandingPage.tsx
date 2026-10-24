@@ -1180,7 +1180,7 @@ export default function AgentLandingPage() {
               Every rewrite lands on real numbers
             </h2>
             <p className="text-base text-brand-dark/60 mt-4 max-w-2xl">
-              The agent rephrases only what you have truly done. Left and right stream up, center streams down — all grounded in verified commercial metrics.
+              The agent rephrases only what you have truly done. Left and right stream up, center streams down, all grounded in verified commercial metrics.
             </p>
           </motion.div>
 

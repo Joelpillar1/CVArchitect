@@ -15,7 +15,7 @@ export default function RefundPolicy({ onBack }: RefundPolicyProps) {
     return (
         <div className="min-h-screen bg-white">
             <SEO
-                title="Refund Policy — Cvarchitect | 14-Day Money-Back Guarantee"
+                title="Refund Policy | Cvarchitect | 14-Day Money-Back Guarantee"
                 description="Cvarchitect offers a 14-day money-back guarantee for first-time subscribers. Learn about our refund process, eligibility, and how to request a refund."
                 canonicalPath="/refund-policy"
             />

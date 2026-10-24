@@ -486,7 +486,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
 
       showToast(
         result.verified && result.pages !== null
-          ? `Resume downloaded — ${result.pages} page${result.pages === 1 ? '' : 's'}, text layer verified.${remainingNotice}`
+          ? `Resume downloaded: ${result.pages} page${result.pages === 1 ? '' : 's'}, text layer verified.${remainingNotice}`
           : `Resume downloaded.${remainingNotice}`,
         'success'
       );
@@ -500,7 +500,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
       } catch (fallbackError) {
         const message = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
         console.error('Client-side fallback also failed:', fallbackError);
-        showToast(`Download failed — ${message}. Tap Download to retry.`, 'error');
+        showToast(`Download failed: ${message}. Tap Download to retry.`, 'error');
       }
     } finally {
       setIsDownloading(false);
@@ -576,7 +576,7 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.error('Sample image export failed:', error);
-      showToast(`Sample image failed — ${message}`, 'error');
+      showToast(`Sample image failed: ${message}`, 'error');
     } finally {
       setIsDownloading(false);
     }
