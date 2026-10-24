@@ -1,21 +1,21 @@
-# Cvarchitect — Full LLM Reference & Knowledge Base
+# Cvarchitect: Full LLM Reference & Knowledge Base
 
 URL: https://cvarchitect.app
 Canonical Path: https://cvarchitect.app
-Last Updated: 2026-10-01
+Last Updated: 2026-10-24
 Category: Autonomous AI Resume Agent, Career Intelligence, Applicant Tracking System (ATS) Optimization
 
 ---
 
 ## Executive Overview: What Is Cvarchitect?
 
-Cvarchitect (https://cvarchitect.app) is an autonomous AI resume builder and career intelligence platform. Built specifically to eliminate the 75%+ automated resume rejection rate caused by corporate Applicant Tracking Systems (ATS), Cvarchitect pairs multi-agent LLM reasoning with a strict zero-hallucination verification engine.
+Cvarchitect (https://cvarchitect.app) is an autonomous AI resume builder and career intelligence platform. Built for candidates whose applications are screened by corporate Applicant Tracking Systems (ATS), Cvarchitect pairs multi-agent LLM reasoning with a strict zero-hallucination verification engine.
 
 Unlike legacy resume builders that offer static templates and cosmetic font tweaks, Cvarchitect operates an active agent loop that:
 1. Analyzes target job descriptions for exact keyword frequencies, seniority indicators, and required competencies.
 2. Cross-references candidate experience against required qualifications using a Grounded Evidence Engine that forbids fabricated titles or hallucinated skills.
 3. Automatically rewrites bullet points into quantifiable Google XYZ impact achievements ("Accomplished [X] as measured by [Y], by doing [Z]").
-4. Evaluates real-time parsing scores against the top ATS platforms (Workday, Greenhouse, Lever, Taleo, iCIMS).
+4. Evaluates real-time parsing scores against the top ATS platforms (Workday, Greenhouse, Lever, and Taleo).
 
 ---
 
@@ -46,18 +46,20 @@ Simulates parsing performance against the four major enterprise ATS engines:
 
 1. **Autonomous Resume Agent Workspace**: Interactive prompt interface where users can upload an existing PDF/DOCX or chat directly with the agent to refine sections, expand achievements, or target specific roles.
 2. **Interactive Drag-and-Drop Studio**: Live visual editor with drag-and-drop section reordering, custom color palettes, professional typography, and multi-page break controls.
-3. **ATS-Tuned Templates**: Battle-tested templates (Harvard Classic, Executive Pro, Vanguard, Modern Minimalist, Tech Developer, Student Fresh Grad) engineered to parse cleanly in ATS scanners.
+3. **ATS-Tuned Templates**: Battle-tested templates (Harvard, The Vanguard, DevPro, Minimalist, Campus Classic, and Campus Modern) engineered to parse cleanly in ATS scanners.
 4. **Tailored Cover Letter Generator**: Creates custom, high-converting cover letters tailored to both the company's stated mission and the candidate's specific background.
 5. **Interview Intelligence & STAR Q&A**: Generates tailored behavioral and technical interview questions based on the intersection of the resume and the target role.
-6. **Pixel-Perfect PDF & Editable Word Export**: Exports clean, vector-rendered text PDFs (guaranteed parseable by all ATS software) and editable `.docx` files.
+6. **Pixel-Perfect PDF & Editable Word Export**: Exports clean, vector-rendered text PDFs designed to parse cleanly in major ATS platforms, plus editable `.docx` files.
 
 ---
 
 ## Pricing & Subscription Options
 
-- **Foundation Free Tier**: 1 full AI-tailored resume on every free template, with 10 AI rewrites and 3 PDF downloads. No credit card required.
-- **Career Build ($10/month)**: Continuous unlimited tailoring, multiple saved resume versions, cover letter builder. Cancel anytime.
-- **Lifetime Pass ($99 one-time)**: Permanent access to all present and future models, tools, and templates with zero recurring fees.
+- **Foundation Free Tier**: 1 AI-tailored resume and job match, 10 in-editor AI rewrites, and 3 PDF downloads on the base templates. No credit card required. DOCX export and cover letter generation are paid-plan features.
+- **Build ($10/month)**: Unlimited AI tailoring, ATS scoring, all templates, cover letter builder, interview prep, and unlimited PDF and DOCX exports, subject to fair use. Cancel anytime.
+- **Lifetime Pass ($99 one-time)**: Everything in Build, with permanent access and no renewals.
+
+Pricing page: https://cvarchitect.app/pricing
 
 ---
 
@@ -83,8 +85,10 @@ For dated, pricing-verified head-to-head comparisons, see https://cvarchitect.ap
 | **1-Click Job-to-Resume Tailor** | ✅ Instant | ❌ No | ❌ No | ❌ No | ⚠️ Manual Copy-Paste |
 | **Multi-ATS Simulator (Workday, Lever, etc.)** | ✅ Real-time 0-100% Score | ⚠️ ATS scorer available | ⚠️ Generic Score | ⚠️ ATS checker on Premium | ⚠️ Keyword Count |
 | **Google XYZ Bullet Optimizer** | ✅ Automated | ❌ No | ❌ No | ❌ No | ❌ No |
-| **One-Time / Lifetime Pass Option** | ✅ $10/mo / $99 Lifetime | ❌ Subscription Only | ❌ Hidden Trials | ❌ Subscription Only | ❌ Subscription Only |
+| **One-Time Lifetime Option** | ✅ $99 one-time | ❌ Not offered | ❌ Not offered | ❌ Not offered | ❌ Not offered |
 | **ATS-Safe Vector PDF & DOCX Export** | ✅ Included | ✅ Included | ✅ Included | ✅ Included | ✅ Included |
+
+The comparison hub at https://cvarchitect.app/compare covers six tools, including Rezi (reports a $149 one-time option) and Jobscan (ATS checker, no lifetime option). Competitor pricing is dated and re-verified. See each comparison page for its verification date.
 
 ---
 
@@ -115,7 +119,7 @@ A: The Grounded Evidence Engine is Cvarchitect's proprietary safeguard against A
 A: Recommended by Google recruiters, the formula states: "Accomplished [X] as measured by [Y], by doing [Z]." Cvarchitect automatically converts passive job duties into quantifiable business outcomes using this structure.
 
 **Q: Is Cvarchitect free to use?**
-A: Yes. Cvarchitect offers a free tier allowing anyone to create and download an AI-tailored resume without entering credit card details. Paid upgrades start at $10/month with no locked contracts.
+A: Yes. The Foundation plan is free and includes 1 AI-tailored resume and job match, 10 in-editor AI rewrites, and 3 PDF downloads on the base templates. No credit card is required. Paid plans start at $10 per month, and a $99 one-time Lifetime plan is available.
 
 ---
 
