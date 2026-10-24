@@ -151,7 +151,7 @@ export default function ActionVerbs() {
     return (
         <div className="min-h-screen bg-white font-sans text-slate-900">
             <SEO 
-                title="150+ Action Verbs for Resume: The Ultimate Action Words Guide | Cvarchitect"
+                title="150+ Action Verbs for Resume (Free Word List)"
                 description="Power up your resume with 150+ recruiter-approved action verbs for resume. Find the perfect action words to show impact, beat ATS, and land more interviews."
                 canonicalPath="/action-words"
                 jsonLd={{

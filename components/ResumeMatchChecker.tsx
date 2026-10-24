@@ -69,7 +69,7 @@ export default function ResumeMatchChecker() {
     return (
         <div className="min-h-screen bg-brand-bg font-sans text-brand-dark overflow-x-hidden">
             <SEO 
-                title="Free Resume vs Job Description Match Checker (2026) | Beat the ATS"
+                title="Free Resume vs Job Match Checker (2026)"
                 description="Scan your resume against any job description to find missing keywords and check your ATS match score with our free AI resume scanner."
                 keywords="resume match checker, ats keyword optimizer, job description comparison, free resume scanner, resume keyword gap analysis"
                 canonicalPath="/resume-checker"

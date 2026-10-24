@@ -897,7 +897,7 @@ export default function AgentLandingPage() {
   return (
     <div className="relative min-h-screen bg-brand-bg text-brand-dark flex flex-col font-sans selection:bg-brand-green selection:text-brand-dark overflow-x-clip">
       <SEO
-        title="Cvarchitect AI Resume Agent: Turn Job Postings into Precision AI Resumes"
+        title="Cvarchitect: AI Resume Agent for Job-Tailored Resumes"
         description="Autonomous AI Agent middleware for job seekers. Analyze job descriptions, bridge skill gaps with grounded evidence, and optimize ATS scores automatically."
         canonicalPath="/"
         jsonLd={[HOME_FAQ_SCHEMA, HOME_HOWTO_SCHEMA]}

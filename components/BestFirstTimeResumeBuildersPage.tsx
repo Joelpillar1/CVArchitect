@@ -245,8 +245,8 @@ export default function BestFirstTimeResumeBuildersPage() {
   return (
     <div className="min-h-screen bg-brand-bg text-brand-dark flex flex-col font-sans selection:bg-brand-green selection:text-brand-dark">
       <SEO
-        title="Best Resume Builders for First-Time Writers in 2026: 5 Tools Compared"
-        description={`Five resume builders for first-time writers compared by guided drafting, student templates, step-by-step prompts, job-search workflow, and examples. Includes a first-resume checklist, weak-to-strong bullet examples, ATS rules, and a 7-day plan. Pricing verified ${COMPARISON_VERIFIED}.`}
+        title="Best Resume Builders for First-Time Writers (2026)"
+        description={`Five first-resume builders compared by guided drafting, student templates, and examples, plus a checklist, ATS rules, and a 7-day plan. Verified ${COMPARISON_VERIFIED}.`}
         canonicalPath="/best-resume-builders-for-first-time-writers"
         ogImage={`${BASE_URL}/images/Student/Reume%20Sample%20Feature.png`}
         jsonLd={jsonLd}

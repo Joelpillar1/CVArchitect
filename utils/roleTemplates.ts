@@ -42,7 +42,7 @@ export const ROLE_GUIDES: RoleTemplateGuide[] = [
     slug: 'nurse',
     role: 'Nurse',
     resumeLabel: 'nursing',
-    metaTitle: 'Nursing Resume Template (ATS-Friendly, 2026) | Cvarchitect',
+    metaTitle: 'Nursing Resume Template (ATS-Friendly, 2026)',
     metaDescription:
       'An ATS-friendly nursing resume template, plus the clinical experience, licenses, and keywords hiring managers scan for. Start free and export a PDF.',
     h1: ['Nursing resume template', 'that gets interviews'],
@@ -130,7 +130,7 @@ export const ROLE_GUIDES: RoleTemplateGuide[] = [
     slug: 'software-engineer',
     role: 'Software engineer',
     resumeLabel: 'software engineer',
-    metaTitle: 'Software Engineer Resume Template (ATS-Friendly, 2026) | Cvarchitect',
+    metaTitle: 'Software Engineer Resume Template (ATS-Friendly, 2026)',
     metaDescription:
       'An ATS-friendly software engineer resume template with scope, stack, and impact examples. Start free, tailor to the job post, and export a PDF.',
     h1: ['Software engineer resume', 'that passes the screen'],
@@ -219,7 +219,7 @@ export const ROLE_GUIDES: RoleTemplateGuide[] = [
     slug: 'teacher',
     role: 'Teacher',
     resumeLabel: 'teaching',
-    metaTitle: 'Teacher Resume Template (ATS-Friendly, 2026) | Cvarchitect',
+    metaTitle: 'Teacher Resume Template (ATS-Friendly, 2026)',
     metaDescription:
       'A teacher resume template built for district portals, with certification, grade level, and student growth examples. Start free and export a PDF.',
     h1: ['Teacher resume template', 'that gets read'],
@@ -305,7 +305,7 @@ export const ROLE_GUIDES: RoleTemplateGuide[] = [
     slug: 'data-analyst',
     role: 'Data analyst',
     resumeLabel: 'data analyst',
-    metaTitle: 'Data Analyst Resume Template (ATS-Friendly, 2026) | Cvarchitect',
+    metaTitle: 'Data Analyst Resume Template (ATS-Friendly, 2026)',
     metaDescription:
       'A data analyst resume template with SQL, BI, and business impact examples. ATS-friendly, free to start, and tailored to the job post.',
     h1: ['Data analyst resume', 'that proves impact'],
@@ -393,7 +393,7 @@ export const ROLE_GUIDES: RoleTemplateGuide[] = [
     slug: 'project-manager',
     role: 'Project manager',
     resumeLabel: 'project manager',
-    metaTitle: 'Project Manager Resume Template (ATS-Friendly, 2026) | Cvarchitect',
+    metaTitle: 'Project Manager Resume Template (ATS-Friendly, 2026)',
     metaDescription:
       'A project manager resume template focused on scope, budget, and delivery. ATS-friendly, free to start, with example bullets and FAQs.',
     h1: ['Project manager resume', 'that shows scope'],
@@ -480,7 +480,7 @@ export const ROLE_GUIDES: RoleTemplateGuide[] = [
     slug: 'customer-service',
     role: 'Customer service',
     resumeLabel: 'customer service',
-    metaTitle: 'Customer Service Resume Template (ATS-Friendly, 2026) | Cvarchitect',
+    metaTitle: 'Customer Service Resume Template (ATS-Friendly, 2026)',
     metaDescription:
       'A customer service resume template with volume, systems, and resolution metrics. ATS-friendly, free to start, and ready to export as a PDF.',
     h1: ['Customer service resume', 'that gets the call'],

@@ -97,8 +97,8 @@ export default function BestCoverLetterBuildersPage() {
   return (
     <div className="min-h-screen bg-brand-bg text-brand-dark flex flex-col font-sans selection:bg-brand-green selection:text-brand-dark">
       <SEO
-        title="Best Cover Letter Builders in 2026: 5 Tools Compared by Use Case"
-        description={`Five cover letter builders compared by what they are actually good at: job-specific tailoring, template variety, design, examples, and guided editing. Verified ${COMPARISON_VERIFIED}.`}
+        title="Best Cover Letter Builders in 2026: Compared"
+        description={`Five cover letter builders compared by job-specific tailoring, template variety, design, examples, and guided editing. Verified ${COMPARISON_VERIFIED}.`}
         canonicalPath="/best-cover-letter-builders"
         jsonLd={jsonLd}
       />

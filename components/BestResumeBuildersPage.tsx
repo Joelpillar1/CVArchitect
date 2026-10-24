@@ -92,7 +92,7 @@ export default function BestResumeBuildersPage() {
   return (
     <div className="min-h-screen bg-brand-bg text-brand-dark flex flex-col font-sans selection:bg-brand-green selection:text-brand-dark">
       <SEO
-        title="Best AI Resume Builders in 2026: 5 Tools Compared by Use Case"
+        title="Best AI Resume Builders in 2026: Compared"
         description={`Five AI resume builders compared by what they are actually good at: job-post tailoring, job tracking, ATS scoring, design, and examples. Verified ${COMPARISON_VERIFIED}.`}
         canonicalPath="/best-ai-resume-builders"
         jsonLd={jsonLd}

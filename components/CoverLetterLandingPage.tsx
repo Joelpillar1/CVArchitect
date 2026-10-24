@@ -154,7 +154,7 @@ export default function CoverLetterLandingPage() {
   return (
     <div className="min-h-screen bg-brand-bg text-brand-dark flex flex-col font-sans selection:bg-brand-green selection:text-brand-dark">
       <SEO
-        title="AI Cover Letter Generator | Tailored to Every Job | Cvarchitect"
+        title="AI Cover Letter Generator | Cvarchitect"
         description="Write a cover letter that matches the job and your real experience. AI-drafted, editable, ATS-safe, and exportable to PDF or DOCX."
         canonicalPath="/cover-letter"
       />

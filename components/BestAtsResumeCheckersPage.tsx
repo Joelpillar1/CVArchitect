@@ -109,8 +109,8 @@ export default function BestAtsResumeCheckersPage() {
   return (
     <div className="min-h-screen bg-brand-bg text-brand-dark flex flex-col font-sans selection:bg-brand-green selection:text-brand-dark">
       <SEO
-        title="Best ATS Resume Checkers in 2026: 5 Tools Compared by Use Case"
-        description={`Five ATS resume checkers compared by what they are actually good at: job-specific rewriting, standalone scanning, numeric scores, job-search workflow, and content audits. Verified ${COMPARISON_VERIFIED}.`}
+        title="Best ATS Resume Checkers in 2026: Compared"
+        description={`Five ATS resume checkers compared by what they do best: job-specific rewriting, scanning, numeric scores, and content audits. Verified ${COMPARISON_VERIFIED}.`}
         canonicalPath="/best-ats-resume-checkers"
         jsonLd={jsonLd}
       />

@@ -49,8 +49,8 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'build-resume-online-free-coverletter-guide',
         title: 'How to Build Your Resume Online for Free & Write Winning Cover Letters (With Full CV Letter Examples)',
-        metaTitle: 'Build a Resume Online Free: Step-by-Step Guide & CV Letter Examples',
-        metaDescription: 'Learn how to build a resume online free and write an interview-winning coverletter. Includes ATS formatting rules, step-by-step builder guides, and full CV letter examples.',
+        metaTitle: 'Build a Resume Online Free: Step-by-Step Guide',
+        metaDescription: 'Learn how to build a resume online for free, with ATS formatting rules, step-by-step builder guides, and cover letter examples.',
         excerpt: 'Step-by-step blueprint to build your resume online for free, bypass ATS filters, and craft high-converting cover letters with real-world CV letter examples.',
         category: 'Resume Writing',
         author: 'Cvarchitect Team',
@@ -255,7 +255,7 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: '100-resume-bullet-points-industry-2026',
         title: '100+ Result-Driven Resume Bullet Points: The Ultimate Industry-Specific Guide (From a Google Recruiter)',
-        metaTitle: '100+ Result-Driven Resume Bullet Points for Every Industry | Cvarchitect',
+        metaTitle: '100+ Resume Bullet Points for Every Industry',
         metaDescription: 'Show impact with 100+ recruiter-approved resume bullet points. Action verbs, quantified metrics, and industry-specific examples for 2026.',
         excerpt: 'I’ve spent 15 years recruiting at Google. Here is exactly how to structure your resume bullet points to move from "qualified candidate" to "must-hire."',
         category: 'Resume Writing',
@@ -462,7 +462,7 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'ats-keywords-master-list-2026',
         title: 'The Master List of 10,000+ ATS Keywords: How to Optimize Your Resume for Any Industry in 2026',
-        metaTitle: '10,000+ ATS Keywords Master List for 2026 | Industry-Specific Guide',
+        metaTitle: '10,000+ ATS Keywords Master List for 2026',
         metaDescription: 'Access our master list of 10,000+ ATS keywords. Learn how to optimize your resume for any industry with core skills, action verbs, and recruiter buzzwords.',
         excerpt: 'We analyzed 71 industries and 500 job roles to build the world\'s most comprehensive ATS keyword dataset. Here is exactly how to use it to land your next interview.',
         category: 'ATS Optimization',
@@ -786,7 +786,7 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'how-to-write-resume-with-ai-2026',
         title: 'The Recruiter\'s Playbook: How to Use AI to Write a High-Conversion Resume in 2026',
-        metaTitle: 'How to Write a Resume with AI 2026 | Recruiter Strategy Guide',
+        metaTitle: 'How to Write a Resume With AI (2026 Guide)',
         metaDescription: 'Master writing an ATS-beating resume with AI. Step-by-step recruiter guide on prompting, keyword placement, bullet optimization, and formatting.',
         excerpt: 'Most AI-generated resumes are rejected in seconds. Here is the insider strategy to using AI as a co-pilot to build a high-conversion resume that humans actually want to read.',
         category: 'AI Career Tools',
@@ -911,7 +911,7 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'student-resumes-with-no-experience',
         title: 'How to Write a Student Resume With No Experience: A Recruiter\'s Step-by-Step Guide',
-        metaTitle: 'Resume for Students with No Experience: Examples & Templates 2026',
+        metaTitle: 'Resume for Students With No Experience (2026)',
         metaDescription: 'Writing a student resume with no experience? Learn how to highlight coursework, projects, and skills to land your first job with full examples.',
         excerpt: 'Applying for your first job without prior work history can feel impossible. Here is exactly how recruiters read student resumes with no experience, plus the structure that proves your potential.',
         category: 'Resume Writing',
@@ -1103,7 +1103,7 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'how-to-beat-ats-resume-2026',
         title: 'I Reviewed 2,000+ Resumes as a Recruiter. Here Is Exactly Why ATS Keeps Rejecting Yours.',
-        metaTitle: 'How to Beat ATS in 2026 (From a Recruiter Who Has Seen It All) | Cvarchitect',
+        metaTitle: 'How to Beat ATS in 2026: Recruiter Tips',
         metaDescription: 'A recruiter reveals how ATS algorithms work, why resumes get filtered out, and the exact keyword and formatting fixes to land more interviews.',
         excerpt: 'After reviewing thousands of resumes and watching great candidates get auto-rejected, I decided to write the ATS guide I wish every job seeker had before they hit "submit."',
         category: 'ATS Optimization',
@@ -1294,7 +1294,7 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'best-resume-format-2026',
         title: 'Chronological vs. Functional vs. Hybrid Resume Format: Which One Gets You Hired in 2026?',
-        metaTitle: 'Best Resume Format for 2026: Chronological vs. Functional vs. Hybrid | Cvarchitect',
+        metaTitle: 'Best Resume Format for 2026: 3 Formats Compared',
         metaDescription: 'Compare chronological, functional, and hybrid resume formats with real resume samples, side-by-side examples, ATS compatibility scores, and exact layout specs.',
         excerpt: 'I have rejected functional resumes on sight. Here is why, plus a complete breakdown of every format with real resume samples, who should use each, ATS compatibility, and layout specs.',
         category: 'Resume Writing',
@@ -1803,7 +1803,7 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'ai-resume-builder-vs-traditional',
         title: 'I Tested 8 AI Resume Builders So You Do Not Have To. Here Is What Actually Works.',
-        metaTitle: 'AI Resume Builder vs Traditional Resume Writing: Honest Comparison (2026) | Cvarchitect',
+        metaTitle: 'AI Resume Builder vs Traditional Writing (2026)',
         metaDescription: 'An honest comparison of AI resume builders vs traditional resume writers. Real results, pricing breakdown, and interview callback rates for 2026.',
         excerpt: 'I spent a week testing every major AI resume builder on the market with the same work history. Some were genuinely impressive. Others were expensive autofill tools. Here is what I found.',
         category: 'AI & Technology',
@@ -1955,7 +1955,7 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'resume-keywords-that-get-you-hired',
         title: 'The Complete Resume Keywords Guide: 300+ Terms Recruiters Actually Search For, Industry by Industry',
-        metaTitle: 'Resume Keywords by Industry: 300+ Terms Recruiters Search For (2026 Guide) | Cvarchitect',
+        metaTitle: 'Resume Keywords by Industry: 300+ Terms (2026)',
         metaDescription: 'Discover 300+ resume keywords recruiters search for in tech, finance, marketing, and healthcare. Includes Boolean tips and ATS placement rules.',
         excerpt: 'Recruiters do not read every resume. They search for keywords. Here are the exact terms we type into the ATS search bar, broken down by 8 industries, plus the Boolean search strategies we use and how to place keywords for maximum impact.',
         category: 'ATS Optimization',
@@ -2269,7 +2269,7 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'cover-letter-guide-2026',
         title: 'Stop Writing Cover Letters Nobody Reads. Here Is the Format That Actually Gets Opened.',
-        metaTitle: 'How to Write a Cover Letter That Gets Read (2026 Guide) | Cvarchitect',
+        metaTitle: 'How to Write a Cover Letter That Gets Read',
         metaDescription: 'A hiring manager shares the exact structure, opening hooks, and tailored formatting that make cover letters get read. With before/after examples.',
         excerpt: 'I read roughly 4,000 cover letters a year. About 3,900 of them are a waste of time. Here is what the other 100 do differently, and how you can copy their approach.',
         category: 'Career Advice',
@@ -2671,7 +2671,7 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'resume-mistakes-to-avoid',
         title: '12 Resume Mistakes I See Every Single Week (And the Fixes That Take 5 Minutes Each)',
-        metaTitle: '12 Resume Mistakes to Avoid in 2026 (From a Recruiter) | Cvarchitect',
+        metaTitle: '12 Resume Mistakes to Avoid in 2026',
         metaDescription: 'A recruiter shares 12 common resume mistakes seen every week, with real-world examples and step-by-step instructions to fix each one fast.',
         excerpt: 'These are not obscure edge cases. These are the mistakes I see on 70%+ of the resumes that land on my desk, and each one is costing candidates interviews they should be getting.',
         category: 'Resume Writing',
@@ -3081,7 +3081,7 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'best-resume-templates-2026',
         title: 'I Reviewed 200+ Resume Templates So You Do Not Have To. These Are the Only Ones Worth Using.',
-        metaTitle: 'Best Resume Templates for 2026 (Free & ATS-Friendly) | Cvarchitect',
+        metaTitle: 'Best Resume Templates for 2026 (Free, ATS-Ready)',
         metaDescription: 'I tested 200+ resume templates through ATS parsing software. See which pass, the best free options, and how to pick a template that lands interviews in 2026.',
         excerpt: 'Most resume templates online are designed to look pretty, not to pass ATS screening. Here is how to pick a professional resume template that actually works.',
         category: 'Resume Writing',
@@ -3405,7 +3405,7 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'student-resume-no-experience-guide',
         title: 'How to Write a Student Resume With No Work Experience (And Still Get Hired)',
-        metaTitle: 'Student Resume With No Experience: Complete Guide & Examples (2026) | Cvarchitect',
+        metaTitle: 'Student Resume With No Experience: 2026 Guide',
         metaDescription: 'Step-by-step guide to writing a student resume with no work experience. Real examples, templates, and actionable tips to land your first role.',
         excerpt: 'Everyone needs experience to get hired, but you need a job to get experience. Here is how to break out of that loop with a student resume that actually lands interviews.',
         category: 'Career Advice',
@@ -3590,7 +3590,7 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'how-to-write-resume-step-by-step',
         title: 'How to Write a Resume in 2026: The Complete A-to-Z Walkthrough (With Real Examples)',
-        metaTitle: 'How to Write a Resume in 2026: Complete Step-by-Step Guide With Examples | Cvarchitect',
+        metaTitle: 'How to Write a Resume Step by Step (2026 Guide)',
         metaDescription: 'Complete step-by-step resume writing guide for 2026. Learn section formatting, achievement bullet writing, ATS optimization, and best practices.',
         excerpt: 'Forget everything you learned about resume writing in school. This is the only guide you need: 10 detailed steps from blank page to interview-ready resume, with real-world examples at every stage.',
         category: 'Resume Writing',
@@ -4227,7 +4227,7 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'free-resume-builder-comparison-2026',
         title: 'Every Free Resume Builder Ranked: What You Actually Get Without Paying',
-        metaTitle: 'Best Free Resume Builders in 2026: Honest Comparison (No Hidden Costs) | Cvarchitect',
+        metaTitle: 'Best Free Resume Builders in 2026: Compared',
         metaDescription: 'We tested top free resume builders to see what you actually get without paying. Compare Canva, Google Docs, Indeed, and AI resume tools.',
         excerpt: '"Free" in the resume builder world usually means "free until you try to download your resume." I tested every major free option so you know exactly what you are getting.',
         category: 'AI & Technology',
@@ -4386,7 +4386,7 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'resume-examples-by-industry-2026',
         title: 'Resume Examples That Actually Got People Hired: 10 Industries, Real Results',
-        metaTitle: 'Resume Examples by Industry (2026): Nursing, Teacher, Engineering, IT & More | Cvarchitect',
+        metaTitle: 'Resume Examples by Industry: Nursing to IT (2026)',
         metaDescription: 'Real resume examples from 10 industries including nursing, teaching, engineering, software development, customer service, and more. See what works and why.',
         excerpt: 'Generic resume advice is useless because every industry has different expectations. Here are real resume examples from 10 industries, with analysis of why each one works.',
         category: 'Resume Writing',
@@ -4569,7 +4569,7 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'build-your-resume-ats-friendly-resume-template-2026',
         title: 'Build Your Resume With an ATS Friendly Resume Template (That Recruiters Actually Read)',
-        metaTitle: 'Build Your Resume: ATS Friendly Resume Template Guide (2026) | Cvarchitect',
+        metaTitle: 'Build Your Resume: ATS-Friendly Template (2026)',
         metaDescription: 'Learn how to build your resume using an ATS friendly resume template. Step-by-step guide to improve callback rates with optimal structure and keywords.',
         excerpt: 'If you want more interviews, you need to build your resume for both ATS software and human recruiters. This guide shows exactly how to do it.',
         category: 'Resume Writing',
@@ -4804,7 +4804,7 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'ats-friendly-resume-template-online-builder-guide-2026',
         title: 'ATS Friendly Resume Template: How to Choose One and Build Your Resume Online',
-        metaTitle: 'ATS Friendly Resume Template + Online Resume Builder Guide | Cvarchitect',
+        metaTitle: 'ATS-Friendly Resume Template & Builder Guide',
         metaDescription: 'Choose an ATS friendly resume template and build your resume online. Learn what scanners look for and how to format each section for top rankings.',
         excerpt: 'Not every good-looking resume template is ATS friendly. Learn how to choose a clean template, build your resume online, and avoid formatting mistakes that block interviews.',
         category: 'Resume Templates',
@@ -4991,7 +4991,7 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'how-to-write-a-cv-with-no-experience-2026',
         title: 'How to Write a CV With No Experience: A Practical Guide for Your First Real Application',
-        metaTitle: 'How to Write a CV With No Experience (Step-by-Step Guide) | Cvarchitect',
+        metaTitle: 'How to Write a CV With No Experience (2026)',
         metaDescription: 'Learn how to write a CV with no experience using coursework, projects, volunteer roles, and skills. Practical guide for graduates and entry-level jobs.',
         excerpt: 'No work experience does not mean you have nothing to write. This guide shows how to build a strong CV from education, projects, skills, volunteering, and everyday proof of responsibility.',
         category: 'Career Advice',
@@ -5395,7 +5395,7 @@ const rawBlogPosts: BlogPost[] = [
     {
         slug: 'how-to-make-a-resume-for-your-first-job-2026',
         title: 'How to Make a Resume for Your First Job: A Simple Step-by-Step Guide',
-        metaTitle: 'How to Make a Resume for Your First Job (Examples + Guide) | Cvarchitect',
+        metaTitle: 'How to Make a Resume for Your First Job (2026)',
         metaDescription: 'Learn how to make a resume for your first job with no work history. Step-by-step guide with examples for retail, customer service, and internships.',
         excerpt: 'Making a resume for your first job is easier when you know what employers actually want to see. This guide shows what to include, how to write it, and how to apply with confidence.',
         category: 'Career Advice',

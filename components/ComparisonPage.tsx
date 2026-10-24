@@ -80,7 +80,7 @@ export default function ComparisonPage() {
   const allFaqs = [...competitor.faqs, ...deep.deepFaqs];
   const startPath = user ? '/dashboard' : '/signup';
   const path = `/compare/${competitor.slug}`;
-  const title = `Cvarchitect vs ${competitor.name} (2026): Pricing, Free Plan, and Features`;
+  const title = `Cvarchitect vs ${competitor.name} (2026): Pricing & Free Plan`;
   const description = `${competitor.name} vs Cvarchitect, compared in depth. Free plan limits, 12-month cost, job-post tailoring, ATS checks, and who each one is for. Verified ${COMPARISON_VERIFIED}.`;
 
   const others = COMPETITORS.filter((item) => item.slug !== competitor.slug);
