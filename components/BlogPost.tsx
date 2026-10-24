@@ -182,7 +182,12 @@ function renderSection(section: BlogSection, index: number, options: { startPath
         case 'templatePreview': {
             const isStudent = section.templateId === 'student';
             // Accountant data suits most layouts; student data suits the student layout.
-            const resumeData = isStudent ? STUDENT_RESUME_DATA : JUNIOR_ACCOUNTANT_RESUME_DATA;
+            const baseData = isStudent ? STUDENT_RESUME_DATA : JUNIOR_ACCOUNTANT_RESUME_DATA;
+            // Optional per-reference order lets one dataset demonstrate different
+            // formats, for example skills-forward for a hybrid sample.
+            const resumeData = section.sectionOrder?.length
+                ? { ...baseData, sectionOrder: section.sectionOrder }
+                : baseData;
             const templateName = section.templateId
                 ? getTemplateMetadata(section.templateId as TemplateType).name
                 : 'Cvarchitect template';

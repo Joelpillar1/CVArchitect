@@ -91,3 +91,49 @@ describe('blog template previews render dark, not brand blue', () => {
         expect(JUNIOR_ACCOUNTANT_RESUME_DATA.accentColor).not.toBe('#0870b8');
     });
 });
+
+describe('best-resume-format-2026 blog post', () => {
+    const post = getPostBySlug('best-resume-format-2026');
+
+    it('exists and is flagged as materially revised', () => {
+        expect(post).toBeDefined();
+        expect(post?.updatedDate).toBe('2026-10-24');
+    });
+
+    it('shows real resume samples instead of stock photos', () => {
+        const content = post?.content ?? [];
+        const samples = content.filter((section) => section.type === 'templatePreview');
+        expect(samples.length).toBeGreaterThanOrEqual(2);
+        for (const sample of samples) {
+            expect(sample.templateId).toBeTruthy();
+            expect((sample.benefits ?? []).length).toBeGreaterThanOrEqual(2);
+        }
+        const stockPhotos = content.filter(
+            (section) => section.type === 'image' && (section.src ?? '').includes('unsplash')
+        );
+        expect(stockPhotos.length).toBe(0);
+    });
+
+    it('demonstrates the hybrid format with a skills-forward section order', () => {
+        const hybrid = (post?.content ?? []).find((section) =>
+            section.type === 'templatePreview' && (section.sectionOrder ?? []).includes('skills')
+        );
+        expect(hybrid).toBeDefined();
+        expect(hybrid?.sectionOrder?.[0]).toBe('summary');
+        expect(hybrid?.sectionOrder?.indexOf('skills')).toBeLessThan(
+            hybrid?.sectionOrder?.indexOf('experience') ?? -1
+        );
+    });
+
+    it('ships comparison tables, key takeaways, a CTA, and a schema FAQ', () => {
+        const content = post?.content ?? [];
+        const types = content.map((section) => section.type);
+        expect(types).toContain('comparisonTable');
+        expect(types).toContain('keyTakeaways');
+        expect(types).toContain('callToAction');
+        expect(types).toContain('faq');
+        const faqs = content.flatMap((section) => (section.type === 'faq' ? section.faqs ?? [] : []));
+        expect(faqs.length).toBeGreaterThanOrEqual(5);
+    });
+});
+
