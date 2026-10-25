@@ -201,7 +201,7 @@ export default function PricingSection({
               className={cn(
                 'relative rounded-xl border transition-all flex flex-col w-full h-full overflow-hidden',
                 isDark
-                  ? 'bg-brand-dark text-white border-brand-green/25 ring-1 ring-brand-green/15 shadow-[0_0_60px_-22px_rgba(166,255,0,0.5)]'
+                  ? 'bg-brand-dark text-white border-brand-green/25 ring-1 ring-brand-green/15'
                   : 'bg-white text-brand-dark border-brand-border hover:border-brand-dark/30'
               )}
             >
