@@ -11,6 +11,8 @@ import {
   COMPARISON_VERIFIED,
   COMPARISON_VERIFIED_ISO,
   COMPETITORS,
+  comparisonMetaDescription,
+  comparisonMetaTitle,
   getCompetitor,
 } from '../utils/comparisonData';
 import {
@@ -80,8 +82,8 @@ export default function ComparisonPage() {
   const allFaqs = [...competitor.faqs, ...deep.deepFaqs];
   const startPath = user ? '/dashboard' : '/signup';
   const path = `/compare/${competitor.slug}`;
-  const title = `Cvarchitect vs ${competitor.name} (2026): Pricing & Free Plan`;
-  const description = `${competitor.name} vs Cvarchitect, compared in depth. Free plan limits, 12-month cost, job-post tailoring, ATS checks, and who each one is for. Verified ${COMPARISON_VERIFIED}.`;
+  const title = comparisonMetaTitle(competitor);
+  const description = comparisonMetaDescription(competitor);
 
   const others = COMPETITORS.filter((item) => item.slug !== competitor.slug);
 
@@ -186,8 +188,8 @@ export default function ComparisonPage() {
                 <img
                   src={deep.screenshot.src}
                   alt={deep.screenshot.alt}
-                  width={1440}
-                  height={1000}
+                  width={deep.screenshot.width ?? 1440}
+                  height={deep.screenshot.height ?? 1000}
                   loading="eager"
                   decoding="async"
                   className="h-auto w-full rounded-xl border border-brand-border/60 object-cover"

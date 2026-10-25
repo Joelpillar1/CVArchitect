@@ -48,6 +48,10 @@ Best-ATS-Resume-Checkers: https://cvarchitect.app/best-ats-resume-checkers
 Best-Resume-Builders-First-Time-Writers: https://cvarchitect.app/best-resume-builders-for-first-time-writers
 Compare-All-Tools: https://cvarchitect.app/compare
 Compare-Jobscan: https://cvarchitect.app/compare/jobscan
+Compare-Novoresume: https://cvarchitect.app/compare/novoresume
+Compare-Resume-Genius: https://cvarchitect.app/compare/resume-genius
+Compare-Enhancv: https://cvarchitect.app/compare/enhancv
+Pricing-Index: https://cvarchitect.app/resume-builder-pricing-index
 Action-Verbs-Guide: https://cvarchitect.app/action-words
 Pricing: https://cvarchitect.app/pricing
 Blog: https://cvarchitect.app/blog

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { ROLE_GUIDES, getRoleGuide, getRelatedRoleGuides } from '../utils/roleTemplates';
 import { ROLE_PREVIEWS_BY_SLUG } from '../utils/rolePreviewData';
 import { TEMPLATE_CONFIG } from '../utils/templateConfig';
+import { seoMetadataProblems } from '../scripts/seoLimits.mjs';
 
 const REQUIRED_SLUGS = [
   'nurse',
@@ -73,8 +74,12 @@ describe('Role template guides', () => {
       expect(guide.keywords.length).toBeGreaterThanOrEqual(10);
       expect(guide.mistakes.length).toBeGreaterThanOrEqual(3);
       expect(guide.faqs.length).toBeGreaterThanOrEqual(4);
-      expect(guide.metaTitle).toContain('Cvarchitect');
-      expect(guide.metaDescription.length).toBeLessThanOrEqual(160);
+      // Strict SEO limits: 15-60 chars title, 70-160 description. The brand
+      // suffix is dropped when it does not fit, so it is not required here.
+      expect(
+        seoMetadataProblems({ title: guide.metaTitle, description: guide.metaDescription }),
+        guide.slug,
+      ).toEqual([]);
     }
   });
 

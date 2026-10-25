@@ -178,7 +178,7 @@ export default defineConfig(({ mode }) => {
     },
     test: {
       globals: true,
-      exclude: ['**/node_modules/**', '**/dist/**', '**/reactive-resume-main/**', '**/bentopdf-main/**'],
+      exclude: ['**/node_modules/**', '**/dist/**', '**/reactive-resume-main/**', '**/bentopdf-main/**', '**/ai-job-search-master/**'],
     }
   };
 });

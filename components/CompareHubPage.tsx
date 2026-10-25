@@ -62,7 +62,7 @@ export default function CompareHubPage() {
     <div className="min-h-screen bg-brand-bg text-brand-dark flex flex-col font-sans selection:bg-brand-green selection:text-brand-dark">
       <SEO
         title={`Compare Cvarchitect vs ${COMPETITOR_COUNT} resume and ATS tools`}
-        description={`Side-by-side comparisons of Cvarchitect, ${COMPETITOR_NAME_LIST}. Free plans, pricing, and ATS checks, verified ${COMPARISON_VERIFIED}.`}
+        description={`Side-by-side comparisons of Cvarchitect and ${COMPETITOR_COUNT} resume and ATS tools. Free plans, pricing, and ATS checks, verified ${COMPARISON_VERIFIED}.`}
         canonicalPath="/compare"
         jsonLd={jsonLd}
       />

@@ -88,15 +88,15 @@ For dated, pricing-verified head-to-head comparisons, see https://cvarchitect.ap
 | **One-Time Lifetime Option** | ✅ $99 one-time | ❌ Not offered | ❌ Not offered | ❌ Not offered | ❌ Not offered |
 | **ATS-Safe Vector PDF & DOCX Export** | ✅ Included | ✅ Included | ✅ Included | ✅ Included | ✅ Included |
 
-The comparison hub at https://cvarchitect.app/compare covers six tools, including Rezi (reports a $149 one-time option) and Jobscan (ATS checker, no lifetime option). Each head-to-head page lists the competitor's free-plan detail, a 12-month paid cost comparison, feature-by-feature deep dives, the rows where Cvarchitect loses, and an unaltered screenshot of the competitor's public pricing page with its source URL and capture date. Competitor pricing is dated and re-verified. See each comparison page for its verification date.
+The comparison hub at https://cvarchitect.app/compare covers nine tools, including Rezi (reports a $149 one-time option), Jobscan (ATS checker, no lifetime option), Novoresume (prepaid periods with no auto-renewal), Resume Genius, and Enhancv. Each head-to-head page lists the competitor's free-plan detail, a 12-month paid cost comparison, feature-by-feature deep dives, the rows where Cvarchitect loses, and an unaltered screenshot of the competitor's public pricing page with its source URL and capture date. Competitor pricing is dated and re-verified. See each comparison page for its verification date.
 
 ---
 
 ## Resume Builder Pricing Index (Dated Dataset)
 
-For a single dated dataset instead of prose comparisons, see https://cvarchitect.app/resume-builder-pricing-index. It records, for seven resume and ATS tools, the free-plan limits, the paid entry price, and the cheapest way to keep paid access for 12 months, with the source URL for every row. Verified 24 October 2026.
+For a single dated dataset instead of prose comparisons, see https://cvarchitect.app/resume-builder-pricing-index. It records, for ten resume and ATS tools, the free-plan limits, the paid entry price, and the cheapest way to keep paid access for 12 months, with the source URL for every row. Verified 24 October 2026.
 
-Cheapest 12 months of paid access: Zety at $71.40 ($5.95 per month billed yearly), then Kickresume at $96 ($8 per month billed yearly). Cvarchitect is $99 paid once, which ranks third and is the only sub-$100 price that never renews. The most expensive 12-month path is Jobscan at $359.80 ($89.95 per quarter), followed by Teal at $320.39 ($79 per 90 days). Only two of the seven tools sell a one-time plan: Cvarchitect at $99 and Rezi at $149. Resume.io and Zety free plans export TXT only.
+Cheapest 12 months of paid access: Zety at $71.40 ($5.95 per month billed yearly), then Resume Genius at $95.40 ($7.95 per month billed yearly) and Kickresume at $96 ($8 per month billed yearly). Cvarchitect is $99 paid once, which ranks fourth of ten and is the cheapest option that never renews. The most expensive 12-month path is Jobscan at $359.80 ($89.95 per quarter), followed by Teal at $320.39 ($79 per 90 days). Only two of the ten tools sell a lifetime plan: Cvarchitect at $99 and Rezi at $149. Novoresume prepays a year without auto-renewal. Resume.io and Zety free plans export TXT only.
 
 ---
 

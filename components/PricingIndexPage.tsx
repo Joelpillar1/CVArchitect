@@ -14,6 +14,7 @@ import { COST_12_MONTHS, DEEP_VERIFIED } from '../utils/comparisonDeepData';
 import {
   PRICING_INDEX_CHEAPEST,
   PRICING_INDEX_CVARCHITECT,
+  PRICING_INDEX_CVARCHITECT_RANK,
   PRICING_INDEX_FAQS,
   PRICING_INDEX_FINDINGS,
   PRICING_INDEX_FULL_TITLE,
@@ -26,6 +27,7 @@ import {
   PRICING_INDEX_SPREAD,
   PRICING_INDEX_TOOL_COUNT,
   formatUsd,
+  ordinalWord,
 } from '../utils/pricingIndexData';
 
 const BASE_URL = 'https://cvarchitect.app';
@@ -53,8 +55,7 @@ export default function PricingIndexPage() {
       '@id': `${PAGE_URL}#dataset`,
       name: PRICING_INDEX_FULL_TITLE,
       alternateName: 'Resume builder and ATS checker cost dataset 2026',
-      description:
-        "Free-plan limits, paid entry prices, and the cheapest 12-month paid cost for seven resume and ATS tools, read from each provider's own public pricing page.",
+      description: PRICING_INDEX_META_DESCRIPTION,
       url: PAGE_URL,
       creator: { '@id': `${BASE_URL}/#organization` },
       publisher: { '@id': `${BASE_URL}/#organization` },
@@ -310,7 +311,7 @@ export default function PricingIndexPage() {
                 {`We read each provider's public pricing page on ${DEEP_VERIFIED} and recorded three things: what the free plan includes, the cheapest paid entry price, and the cheapest way to keep paid access for 12 months. The 12-month figure uses the provider's lowest ongoing price, not a one-off trial, and switches to a one-time plan where the provider sells one and it is cheaper. Prices are in US dollars and exclude taxes and promotions.`}
               </p>
               <p className="mt-3 text-sm leading-relaxed text-brand-dark/65">
-                We do not accept payment for placement. Cvarchitect appears in this index as one of the tools, and it does not rank first: on 12-month cost it is third. We publish the ranking we computed.
+                We do not accept payment for placement. Cvarchitect appears in this index as one of the tools, and it does not rank first: on 12-month cost it is {ordinalWord(PRICING_INDEX_CVARCHITECT_RANK)} of {PRICING_INDEX_TOOL_COUNT}. We publish the ranking we computed.
               </p>
               <p className="mt-3 text-xs leading-relaxed text-brand-dark/45">
                 Prices and plans change. Confirm on the provider's site before you buy.

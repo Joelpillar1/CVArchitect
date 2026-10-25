@@ -56,6 +56,9 @@ Cvarchitect (https://cvarchitect.app) is an agentic resume architecture platform
 - [Cvarchitect vs Kickresume](https://cvarchitect.app/compare/kickresume): Design-first builder versus AI included on the free plan
 - [Cvarchitect vs Zety](https://cvarchitect.app/compare/zety): Established guided editor versus a free PDF and AI tailoring
 - [Cvarchitect vs Jobscan](https://cvarchitect.app/compare/jobscan): Standalone ATS scanner versus a scan-and-rewrite workflow
+- [Cvarchitect vs Novoresume](https://cvarchitect.app/compare/novoresume): Design-led prepaid builder versus a free plan with no page cap
+- [Cvarchitect vs Resume Genius](https://cvarchitect.app/compare/resume-genius): Free Word and Google Docs templates versus a free PDF resume
+- [Cvarchitect vs Enhancv](https://cvarchitect.app/compare/enhancv): Design-led editor with a 7-day free plan versus an open free plan
 
 ## Authoritative Career & ATS Guides
 

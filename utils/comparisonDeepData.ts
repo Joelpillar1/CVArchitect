@@ -42,6 +42,9 @@ export interface EvidenceShot {
   caption: string;
   sourceUrl: string;
   captured: string;
+  /** Intrinsic pixel size, used to reserve layout space. Defaults to 1440x1000. */
+  width?: number;
+  height?: number;
 }
 
 export interface RelatedLink {
@@ -95,10 +98,13 @@ export interface CostBar {
  */
 export const COST_12_MONTHS: CostBar[] = [
   { name: 'Zety', amount: 71.4, note: '$5.95/mo billed yearly', slug: 'zety', us: false },
+  { name: 'Resume Genius', amount: 95.4, note: '$7.95/mo billed yearly', slug: 'resume-genius', us: false },
   { name: 'Kickresume', amount: 96, note: '$8/mo billed yearly', slug: 'kickresume', us: false },
   { name: 'Cvarchitect', amount: 99, note: '$99 once, no renewal', slug: null, us: true },
   { name: 'Rezi', amount: 149, note: '$149 once', slug: 'rezi', us: false },
+  { name: 'Enhancv', amount: 198, note: '$99 per 6 months', slug: 'enhancv', us: false },
   { name: 'Resume.io', amount: 199.8, note: '$49.95 per quarter', slug: 'resume-io', us: false },
+  { name: 'Novoresume', amount: 199.99, note: '$199.99 per year, no renewal', slug: 'novoresume', us: false },
   { name: 'Teal', amount: 320.39, note: '$79 per 90 days', slug: 'teal', us: false },
   { name: 'Jobscan', amount: 359.8, note: '$89.95 per quarter', slug: 'jobscan', us: false },
 ];
@@ -887,6 +893,395 @@ export const COMPETITOR_DEEP: CompetitorDeep[] = [
         href: '/best-ai-resume-builders',
         title: 'Best AI resume builders',
         detail: 'The wider market comparison.',
+      },
+      {
+        href: '/compare',
+        title: 'All comparisons',
+        detail: 'Every head-to-head we publish.',
+      },
+    ],
+  },
+  {
+    slug: 'novoresume',
+    headline:
+      'Novoresume is the more polished designer and it never charges you twice without asking. Cvarchitect is the free plan you can finish on, and the one that rewrites for a specific job.',
+    bestForDetail:
+      'Novoresume suits people who care how the resume looks and want to pay for a fixed period instead of holding a subscription. Premium unlocks custom layouts, 74 color themes, creative backgrounds, picture styles, a matching cover letter, and a ten-page limit. The free Basic account is genuinely free indefinitely, which is more than most competitors offer.',
+    notFor: [
+      'You need more than one page without paying. Basic is capped at one page.',
+      'You want a cover letter on the free plan. Novoresume includes one only with premium.',
+      'You want the resume rewritten against a specific job posting.',
+    ],
+    freePlanLines: [
+      'One resume version',
+      'Capped at one page',
+      'Predefined layouts only',
+      '3 fonts and 30 color themes',
+      'No cover letter',
+    ],
+    freePlanTraps: [
+      {
+        title: 'One page is a hard cap',
+        detail:
+          'Basic accounts cannot go past a single page. If your experience needs two pages, you are upgrading before you can export.',
+      },
+      {
+        title: 'The design tools are the paid product',
+        detail:
+          'Custom layouts, 74 color themes, creative backgrounds, and picture styles are premium only. Basic gets predefined layouts, 3 fonts, and 30 color themes.',
+      },
+      {
+        title: 'A whole year is due at once',
+        detail:
+          'The $199.99 yearly price is the cheapest rate, but it is prepaid. The $23.99 monthly option is the flexible one.',
+      },
+    ],
+    deepDives: [
+      {
+        dimension: 'Design controls',
+        us: 'Templates by career stage, tuned for ATS parsing.',
+        them: 'Custom layout, 12 fonts, 74 color themes, creative backgrounds, 4 picture styles.',
+        edge: 'them',
+      },
+      {
+        dimension: 'Free plan ceiling',
+        us: 'Three PDF exports with no page cap.',
+        them: 'One page, predefined layouts, 3 fonts.',
+        edge: 'us',
+      },
+      {
+        dimension: 'Cover letters',
+        us: 'Paid plans only.',
+        them: 'Matching cover letter with premium, none on Basic.',
+        edge: 'them',
+      },
+      {
+        dimension: 'Billing',
+        us: '$10 monthly, or $99 once.',
+        them: '$23.99 monthly, $49.99 quarterly, or $199.99 yearly, prepaid.',
+        edge: 'tie',
+      },
+      {
+        dimension: 'Job posting tailoring',
+        us: 'Paste the posting and the agent rewrites the resume around it.',
+        them: 'Not described on the pricing page.',
+        edge: 'us',
+      },
+      {
+        dimension: 'Cost over 12 months',
+        us: '$99 once.',
+        them: '$199.99 prepaid for a year.',
+        edge: 'us',
+      },
+      {
+        dimension: 'Page length on premium',
+        us: 'No stated cap.',
+        them: 'Up to ten pages.',
+        edge: 'them',
+      },
+    ],
+    cost: {
+      them12: 199.99,
+      themLabel: '$199.99 prepaid for 12 months',
+      note: 'Novoresume does not auto-renew, so the year is paid up front. Cvarchitect is $99 once, and that plan never renews either.',
+    },
+    screenshot: {
+      src: '/images/compare/novoresume-pricing-2026-10.png',
+      alt: 'Novoresume pricing page showing a free Basic plan, and Premium at 199.99 USD per year, 49.99 USD per quarter, and 23.99 USD per month',
+      caption:
+        'Novoresume pricing on 24 October 2026, served to a US visitor. Basic is free indefinitely but capped at one page. Premium is prepaid with no recurring billing.',
+      sourceUrl: 'https://novoresume.com/pricing',
+      captured: '24 October 2026',
+      width: 1280,
+      height: 1280,
+    },
+    deepFaqs: [
+      {
+        q: 'Is Novoresume cheaper than Cvarchitect over a year?',
+        a: 'No. Novoresume is $199.99 for a prepaid year, or $49.99 a quarter. Cvarchitect is $99 once, or $10 a month.',
+      },
+      {
+        q: 'Does Novoresume auto-renew?',
+        a: 'No. Novoresume says its pricing is not subscription based and it will not charge you again without consent. The trade-off is that the cheapest yearly rate is paid up front.',
+      },
+      {
+        q: 'What does the Novoresume free plan include?',
+        a: 'One resume version capped at one page, predefined layouts, 3 fonts, 30 color themes, and no cover letter. Custom layouts, 74 color themes, backgrounds, and picture styles need premium.',
+      },
+    ],
+    related: [
+      {
+        href: '/resume-builder-pricing-index',
+        title: 'Resume Builder Pricing Index 2026',
+        detail: 'Every tool in this comparison, ranked by 12-month cost.',
+      },
+      {
+        href: '/best-ai-resume-builders',
+        title: 'Best AI resume builders',
+        detail: 'The wider market comparison if you are still shortlisting.',
+      },
+      {
+        href: '/resume-templates',
+        title: 'Resume templates',
+        detail: 'ATS-ready layouts by career stage.',
+      },
+      {
+        href: '/compare',
+        title: 'All comparisons',
+        detail: 'Every head-to-head we publish.',
+      },
+    ],
+  },
+  {
+    slug: 'resume-genius',
+    headline:
+      'Resume Genius gives away more templates and a free cover letter. Cvarchitect gives away a PDF of the resume itself and rewrites it for the job.',
+    bestForDetail:
+      'Resume Genius is a content library as much as a builder. Free accounts get Word and Google Docs templates, a cover letter builder that exports in three formats, an AI summary generator, a resume checker, an expert review, and job board access. The resume builder itself is the weak spot on the free plan, because it exports TXT only.',
+    notFor: [
+      'You need a PDF of your resume without paying.',
+      'You want the resume rewritten against a specific posting rather than summarised.',
+      'You want to pay once. Resume Genius renews monthly or annually.',
+    ],
+    freePlanLines: [
+      'Resume builder with TXT downloads only',
+      'Cover letter builder with PDF, Word, and TXT',
+      'Word and Google Docs templates',
+      'AI (GPT-4) summary generator',
+      'Resume checker, expert review, and job board access',
+    ],
+    freePlanTraps: [
+      {
+        title: 'The resume downloads as TXT',
+        detail:
+          'Free accounts can build a full resume, but the export is plain text. The cover letter builder is the part that exports a real document.',
+      },
+      {
+        title: 'The trial converts',
+        detail:
+          'The $2.95 price covers 14 days. After that it renews at $23.95 every four weeks unless you cancel.',
+      },
+      {
+        title: 'The annual plan renews too',
+        detail:
+          'The $95.40 annual price is the cheapest rate, and it renews automatically every year.',
+      },
+    ],
+    deepDives: [
+      {
+        dimension: 'Free resume export',
+        us: 'PDF, 3 exports, no watermark.',
+        them: 'TXT only.',
+        edge: 'us',
+      },
+      {
+        dimension: 'Free cover letter export',
+        us: 'Paid plans only.',
+        them: 'PDF, Word, and TXT.',
+        edge: 'them',
+      },
+      {
+        dimension: 'Template files',
+        us: 'Builder templates only.',
+        them: 'Word and Google Docs templates, free.',
+        edge: 'them',
+      },
+      {
+        dimension: 'Expert review',
+        us: 'Free resume vs job description checker.',
+        them: 'Expert resume review included.',
+        edge: 'them',
+      },
+      {
+        dimension: 'Job posting tailoring',
+        us: 'Paste the posting and the agent rewrites the resume.',
+        them: 'AI summary generator; posting rewriting is not described on the pricing page.',
+        edge: 'us',
+      },
+      {
+        dimension: 'Cost over 12 months',
+        us: '$99 once, no renewal.',
+        them: '$95.40 a year, renews annually.',
+        edge: 'them',
+      },
+      {
+        dimension: 'One-time payment',
+        us: '$99 lifetime.',
+        them: 'Not offered.',
+        edge: 'us',
+      },
+    ],
+    cost: {
+      them12: 95.4,
+      themLabel: '$95.40 for 12 months, renews annually',
+      note: 'Resume Genius is $3.60 cheaper than Cvarchitect in year one, then renews at $95.40 a year. Cvarchitect is $99 once, so it is cheaper from year two.',
+    },
+    screenshot: {
+      src: '/images/compare/resume-genius-pricing-2026-10.png',
+      alt: 'Resume Genius pricing page showing a $0 free plan with TXT only resume downloads, a $2.95 14-day trial, and a $7.95 per month annual plan',
+      caption:
+        'Resume Genius pricing on 24 October 2026. The free resume builder exports TXT only. The $2.95 trial renews at $23.95 every 4 weeks, and the annual plan is $95.40.',
+      sourceUrl: 'https://resumegenius.com/pricing',
+      captured: '24 October 2026',
+    },
+    deepFaqs: [
+      {
+        q: 'Is Resume Genius cheaper than Cvarchitect over a year?',
+        a: 'By $3.60 in the first year. Resume Genius is $95.40 a year and renews annually. Cvarchitect is $99 once, so from year two Cvarchitect costs nothing while Resume Genius renews at $95.40.',
+      },
+      {
+        q: 'Can I download a PDF resume for free on Resume Genius?',
+        a: 'No. The free resume builder exports TXT only. The free cover letter builder does export PDF, Word, and TXT. Cvarchitect free accounts export three PDF resumes.',
+      },
+      {
+        q: 'Does Resume Genius have a one-time payment?',
+        a: 'No. It sells a 14-day trial at $2.95 that renews at $23.95 every four weeks, or an annual plan at $95.40 that renews yearly. Cvarchitect offers a $99 one-time plan.',
+      },
+    ],
+    related: [
+      {
+        href: '/resume-builder-pricing-index',
+        title: 'Resume Builder Pricing Index 2026',
+        detail: 'Every tool in this comparison, ranked by 12-month cost.',
+      },
+      {
+        href: '/best-resume-builders-for-first-time-writers',
+        title: 'Best resume builders for first-time writers',
+        detail: 'Picks for people writing a resume for the first time.',
+      },
+      {
+        href: '/resume-templates',
+        title: 'Resume templates',
+        detail: 'ATS-ready layouts by career stage.',
+      },
+      {
+        href: '/compare',
+        title: 'All comparisons',
+        detail: 'Every head-to-head we publish.',
+      },
+    ],
+  },
+  {
+    slug: 'enhancv',
+    headline:
+      'Enhancv makes the better-looking document and coaches you while you write it. Cvarchitect keeps the free plan open and charges once.',
+    bestForDetail:
+      'Enhancv is for people who want the resume to look designed rather than templated. Pro includes thousands of design options, pro sections, unlimited section items, real-time content suggestions, an ATS check, resume translation, and a job application tracker. The catch is the free plan: seven days, basic sections, Enhancv branding, and a 12 item ceiling.',
+    notFor: [
+      'You need more than seven days to finish a resume without paying.',
+      'You want an unbranded export from the free plan.',
+      'You want to pay once rather than renew every month or six months.',
+    ],
+    freePlanLines: [
+      'Seven-day free plan',
+      'All resume templates',
+      'Basic resume sections only',
+      'Enhancv branding on the document',
+      'Maximum 12 section items',
+    ],
+    freePlanTraps: [
+      {
+        title: 'Seven days, then it stops',
+        detail:
+          'The free plan is a trial, not a permanent tier. If you do not finish and export inside the week, you are paying to continue.',
+      },
+      {
+        title: 'Branding stays on the document',
+        detail:
+          'Free documents carry Enhancv branding. Removing it needs Pro.',
+      },
+      {
+        title: '12 section items is a low ceiling',
+        detail:
+          'A career changer with several roles, projects, and certifications can hit the 12 item limit before the resume is finished.',
+      },
+    ],
+    deepDives: [
+      {
+        dimension: 'Design and customization',
+        us: 'Templates by career stage, tuned for ATS parsing.',
+        them: 'Thousands of design options, pro sections, unlimited section items.',
+        edge: 'them',
+      },
+      {
+        dimension: 'Free plan duration',
+        us: 'Ongoing, no expiry.',
+        them: 'Seven days.',
+        edge: 'us',
+      },
+      {
+        dimension: 'Free plan branding',
+        us: 'No watermark, 3 PDF exports.',
+        them: 'Enhancv branding on free documents.',
+        edge: 'us',
+      },
+      {
+        dimension: 'Content suggestions',
+        us: '10 AI rewrites on free, unlimited on paid.',
+        them: 'Real-time suggestions inside the editor on Pro.',
+        edge: 'tie',
+      },
+      {
+        dimension: 'Job description tailoring',
+        us: 'Paste the posting and the agent rewrites the resume.',
+        them: 'Paste the job ad and Enhancv shows what to include.',
+        edge: 'tie',
+      },
+      {
+        dimension: 'ATS check',
+        us: 'Free resume vs job description checker.',
+        them: 'ATS check included on Pro.',
+        edge: 'tie',
+      },
+      {
+        dimension: 'Cost over 12 months',
+        us: '$99 once.',
+        them: '$198, two six-month payments.',
+        edge: 'us',
+      },
+    ],
+    cost: {
+      them12: 198,
+      themLabel: '$99 every 6 months, about $198 a year',
+      note: 'Enhancv list prices are $39 a month, $69 a quarter, and $99 every six months. Cvarchitect is $99 once. Enhancv runs frequent discounts, so the page can show less than list price.',
+    },
+    screenshot: {
+      src: '/images/compare/enhancv-pricing-2026-10.png',
+      alt: 'Enhancv pricing page showing a seven-day free plan and a Pro quarterly plan displayed at a promotional rate',
+      caption:
+        'Enhancv pricing on 24 October 2026. The page showed a limited-time discount at capture time: $9.15 per month on the quarterly plan, or $27.46 every 3 months. Enhancv list prices are $39 per month, $69 per quarter, and $99 every 6 months.',
+      sourceUrl: 'https://enhancv.com/pricing/',
+      captured: '24 October 2026',
+    },
+    deepFaqs: [
+      {
+        q: 'Is Enhancv cheaper than Cvarchitect?',
+        a: 'At list price, no. Enhancv is $99 every six months, about $198 a year. Cvarchitect is $99 once. Enhancv runs frequent discounts, so check the page before you decide.',
+      },
+      {
+        q: 'How long does the Enhancv free plan last?',
+        a: 'Seven days. After that you need Pro to keep editing and downloading. Cvarchitect free access does not expire.',
+      },
+      {
+        q: 'Does Enhancv download Word files?',
+        a: 'No. Enhancv exports PDF only, which keeps the layout fixed. Cvarchitect includes DOCX on paid plans.',
+      },
+    ],
+    related: [
+      {
+        href: '/resume-builder-pricing-index',
+        title: 'Resume Builder Pricing Index 2026',
+        detail: 'Every tool in this comparison, ranked by 12-month cost.',
+      },
+      {
+        href: '/best-ai-resume-builders',
+        title: 'Best AI resume builders',
+        detail: 'The wider market comparison if you are still shortlisting.',
+      },
+      {
+        href: '/resume-templates',
+        title: 'Resume templates',
+        detail: 'ATS-ready layouts by career stage.',
       },
       {
         href: '/compare',
