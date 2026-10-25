@@ -21,10 +21,13 @@ import {
   PRICING_INDEX_META_DESCRIPTION,
   PRICING_INDEX_META_TITLE,
   PRICING_INDEX_MOST_EXPENSIVE,
+  PRICING_INDEX_ONE_TIME_ROWS,
   PRICING_INDEX_PATH,
+  PRICING_INDEX_PREPAID_ROWS,
   PRICING_INDEX_ROWS,
   PRICING_INDEX_SHORT_ANSWER,
   PRICING_INDEX_SPREAD,
+  PRICING_INDEX_SUBSCRIPTION_ONLY,
   PRICING_INDEX_TOOL_COUNT,
   formatUsd,
   ordinalWord,
@@ -286,9 +289,11 @@ export default function PricingIndexPage() {
             </div>
 
             <p className="mt-6 text-xs leading-relaxed text-brand-dark/45">
-              {`One-time plans: ${PRICING_INDEX_ROWS.filter((row) => /one-time|lifetime/i.test(row.lifetime))
-                .map((row) => `${row.name} at ${formatUsd(row.twelveMonthCost)}`)
-                .join(', ')}. All other tools renew on the cadence shown.`}
+              {`One-time plans: ${PRICING_INDEX_ONE_TIME_ROWS.map(
+                (row) => `${row.name} at ${formatUsd(row.twelveMonthCost)}`,
+              ).join(', ')}. Prepaid with no auto-renewal: ${PRICING_INDEX_PREPAID_ROWS.map(
+                (row) => `${row.name} at ${formatUsd(row.twelveMonthCost)}`,
+              ).join(', ')}. The other ${PRICING_INDEX_SUBSCRIPTION_ONLY} renew on the cadence shown.`}
             </p>
           </div>
         </section>
