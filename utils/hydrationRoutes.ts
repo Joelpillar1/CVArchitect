@@ -22,6 +22,7 @@ export const HYDRATION_EXACT_ROUTES = [
   '/signup',
   '/action-words',
   '/resume-checker',
+  '/resume-builder-pricing-index',
 ];
 
 export const HYDRATION_ROUTE_PREFIXES = ['/blog/', '/resume-templates', '/compare'];

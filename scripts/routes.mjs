@@ -23,6 +23,12 @@ export const STATIC_ROUTES = [
   { path: '/resume-checker', priority: '0.9', changefreq: 'monthly' },
   { path: '/action-words', priority: '0.8', changefreq: 'monthly' },
   { path: '/compare', priority: '0.8', changefreq: 'monthly', lastmod: COMPARISON_VERIFIED_ISO },
+  {
+    path: '/resume-builder-pricing-index',
+    priority: '0.9',
+    changefreq: 'monthly',
+    lastmod: COMPARISON_VERIFIED_ISO,
+  },
   { path: '/best-ai-resume-builders', priority: '0.9', changefreq: 'monthly', lastmod: COMPARISON_VERIFIED_ISO },
   {
     path: '/best-cover-letter-builders',

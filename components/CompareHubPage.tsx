@@ -178,6 +178,32 @@ export default function CompareHubPage() {
           </div>
         </section>
 
+        {/* ─── PRICING INDEX ─── */}
+        <section aria-label="Resume builder pricing index" className="relative pb-14 md:pb-20">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Link
+              to="/resume-builder-pricing-index"
+              className="group flex flex-col md:flex-row md:items-center md:justify-between gap-5 rounded-2xl border border-brand-border bg-white p-6 sm:p-7 transition-colors hover:border-brand-dark/25"
+            >
+              <div className="max-w-2xl">
+                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-brand-dark/40 mb-2">
+                  Original data
+                </p>
+                <h3 className="text-xl sm:text-2xl font-bold tracking-[-0.02em] text-brand-dark">
+                  Resume Builder Pricing Index 2026
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-brand-dark/60">
+                  {`One dated dataset: free-plan limits, paid entry prices, and the cheapest 12-month cost for ${COMPETITOR_COUNT + 1} tools, every row sourced to the provider's own pricing page.`}
+                </p>
+              </div>
+              <span className="inline-flex shrink-0 items-center gap-1.5 text-sm font-bold text-brand-dark">
+                Read the index
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+              </span>
+            </Link>
+          </div>
+        </section>
+
         <CtaBand
           headline={<>Start with the<br className="hidden sm:inline" /> free plan.</>}
           sub={<>10 AI rewrites, 3 PDF exports, no credit card.<br className="hidden sm:inline" /> Compare the output before you compare the pricing.</>}

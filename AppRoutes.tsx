@@ -24,6 +24,7 @@ import ActionVerbs from './components/ActionVerbs';
 import CompareHubPage from './components/CompareHubPage';
 import RoleTemplatePage from './components/RoleTemplatePage';
 import ComparisonPage from './components/ComparisonPage';
+import PricingIndexPage from './components/PricingIndexPage';
 import BestResumeBuildersPage from './components/BestResumeBuildersPage';
 import BestCoverLetterBuildersPage from './components/BestCoverLetterBuildersPage';
 import BestAtsResumeCheckersPage from './components/BestAtsResumeCheckersPage';
@@ -217,6 +218,7 @@ export default function AppRoutes() {
             {/* Comparisons (AEO) */}
             <Route path="/compare" element={<CompareHubPage />} />
             <Route path="/compare/:slug" element={<ComparisonPage />} />
+            <Route path="/resume-builder-pricing-index" element={<PricingIndexPage />} />
             <Route path="/best-ai-resume-builders" element={<BestResumeBuildersPage />} />
             <Route path="/best-cover-letter-builders" element={<BestCoverLetterBuildersPage />} />
             <Route path="/best-ats-resume-checkers" element={<BestAtsResumeCheckersPage />} />

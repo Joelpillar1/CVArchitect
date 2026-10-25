@@ -91,6 +91,7 @@ export default function PublicFooter() {
             title: 'Compare',
             links: [
                 { label: 'All Comparisons', href: '/compare' },
+                { label: 'Pricing Index 2026', href: '/resume-builder-pricing-index' },
                 { label: 'vs Resume.io', href: '/compare/resume-io' },
                 { label: 'vs Teal', href: '/compare/teal' },
                 { label: 'vs Rezi', href: '/compare/rezi' },
