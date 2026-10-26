@@ -12,6 +12,8 @@ interface AnalyticsScript {
   src: string;
   /** Attributes that must be present verbatim, so a tracking ID cannot drift. */
   attrs: string[];
+  /** Set to false when the script intentionally reuses another tracker's website ID. */
+  uniqueId?: boolean;
 }
 
 const SCRIPTS: AnalyticsScript[] = [
@@ -24,6 +26,12 @@ const SCRIPTS: AnalyticsScript[] = [
     name: 'TrackKit',
     src: 'https://trackkit-self.vercel.app/script.js',
     attrs: ['data-website-id="f7563ccb-892d-496d-97fa-32a92a6e5468"'],
+  },
+  {
+    name: 'TrackKit Replay',
+    src: 'https://trackkit-self.vercel.app/recorder.js',
+    attrs: ['data-website-id="f7563ccb-892d-496d-97fa-32a92a6e5468"'],
+    uniqueId: false,
   },
 ];
 
@@ -65,8 +73,10 @@ describe('analytics scripts', () => {
     }
   });
 
-  it('keep distinct website IDs', () => {
-    const ids = SCRIPTS.map((script) => script.attrs.find((attr) => attr.startsWith('data-website-id=')));
-    expect(new Set(ids).size).toBe(SCRIPTS.length);
+  it('keep distinct tracker website IDs', () => {
+    const ids = SCRIPTS.filter((script) => script.uniqueId !== false).map((script) =>
+      script.attrs.find((attr) => attr.startsWith('data-website-id=')),
+    );
+    expect(new Set(ids).size).toBe(ids.length);
   });
 });

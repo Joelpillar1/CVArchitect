@@ -710,6 +710,13 @@
 
   <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
+  <!-- TrackKit session replay & heatmaps: loads after the app (deferred, non-blocking) -->
+  <script
+    defer
+    src="https://trackkit-self.vercel.app/recorder.js"
+    data-website-id="f7563ccb-892d-496d-97fa-32a92a6e5468">
+  </script>
+  <!-- End TrackKit session replay & heatmaps -->
 </body>
 
 </html>
