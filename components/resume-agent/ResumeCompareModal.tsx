@@ -638,7 +638,6 @@ export default function ResumeCompareModal({
                 maxWidth: '820px',
                 backgroundColor: '#FFFFFF',
                 borderRadius: '4px',
-                boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.08)',
               }}
             >
               <ResumePreview data={initialResume} template={template} editable={false} />
@@ -652,7 +651,6 @@ export default function ResumeCompareModal({
                 maxWidth: '820px',
                 backgroundColor: '#FFFFFF',
                 borderRadius: '4px',
-                boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.08)',
               }}
             >
               <ResumePreview data={tailoredResume} template={template} editable={false} />
