@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Download, ChevronDown, Layout, Check, Loader2, Save, ZoomIn, ZoomOut, Maximize2, Printer, FileText, Code } from 'lucide-react';
+import { Download, ChevronDown, Layout, Check, Loader2, Save, ZoomIn, ZoomOut, Maximize2, Printer, FileText, Code, Sparkles, Columns } from 'lucide-react';
 import { JobMatchAnalysis } from '../../types/resumeAgent';
 import { TemplateType } from '../../types';
 import TemplateDropdown from './TemplateDropdown';
@@ -32,6 +32,8 @@ interface ResumeAgentHeaderProps {
   onNavigateDashboard?: () => void;
   userPlan?: string;
   onShowPaywall?: (feature: 'templates') => void;
+  onOpenCompare?: () => void;
+  hasTailoringBaseline?: boolean;
 }
 
 export default function ResumeAgentHeader({
@@ -60,6 +62,8 @@ export default function ResumeAgentHeader({
   onNavigateDashboard,
   userPlan = 'free',
   onShowPaywall,
+  onOpenCompare,
+  hasTailoringBaseline = false,
 }: ResumeAgentHeaderProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isDownloadMenuOpen, setIsDownloadMenuOpen] = useState(false);
@@ -132,6 +136,22 @@ export default function ResumeAgentHeader({
 
       {/* Right Actions: Save, Zoom, Fullscreen, and Download PDF */}
       <div className="flex items-center gap-2 md:gap-3">
+        {/* Compare Before & After Button */}
+        {onOpenCompare && (
+          <button
+            onClick={onOpenCompare}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors uppercase tracking-tight shadow-xs cursor-pointer ${
+              hasTailoringBaseline
+                ? 'text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300/80'
+                : 'text-brand-dark bg-brand-secondary hover:bg-gray-200 border border-brand-border'
+            }`}
+            title="Compare tailored resume with original baseline"
+          >
+            <Sparkles className={`w-3.5 h-3.5 ${hasTailoringBaseline ? 'text-emerald-600' : 'text-brand-dark/70'}`} />
+            <span>Compare</span>
+          </button>
+        )}
+
         {/* Save Button */}
         <button
           onClick={onSave}
@@ -237,6 +257,26 @@ export default function ResumeAgentHeader({
               <div className="px-2.5 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                 Export Options
               </div>
+
+              {/* Compare / Transformation Report Image */}
+              {onOpenCompare && (
+                <button
+                  onClick={() => {
+                    setIsDownloadMenuOpen(false);
+                    onOpenCompare();
+                  }}
+                  className="w-full flex items-start gap-2.5 px-2.5 py-2 text-left rounded-lg bg-emerald-50/70 hover:bg-emerald-100/70 text-emerald-950 transition-colors cursor-pointer group mb-1 border border-emerald-200/60"
+                >
+                  <Sparkles className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0 group-hover:scale-110 transition-all" />
+                  <div>
+                    <div className="text-xs font-bold text-emerald-950 flex items-center gap-1.5">
+                      Comparison Image (.png)
+                      <span className="text-[10px] bg-emerald-200 text-emerald-900 font-bold px-1.5 py-0.2 rounded">Share</span>
+                    </div>
+                    <div className="text-[11px] text-emerald-700 font-normal">Side-by-side Before & After card</div>
+                  </div>
+                </button>
+              )}
 
               {/* 1. Direct PDF Download */}
               <button

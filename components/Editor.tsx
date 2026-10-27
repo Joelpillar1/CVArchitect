@@ -4,13 +4,14 @@ import { ResumeData, TemplateType } from '../types';
 import { UserSubscription } from '../types/pricing';
 import { SubscriptionManager } from '../utils/subscriptionManager';
 import { canAccessTemplate, isPaidPlan } from '../utils/pricingConfig';
-import { ChevronLeft, ChevronDown, Maximize2, Minimize2, Download, User, Briefcase, GraduationCap, Award, Layout as LayoutIcon, Target, CheckCircle, Monitor, Edit3, Palette, ShoppingCart, Save, Check, Loader2, PanelLeftOpen, ZoomIn, ZoomOut, Pencil, Printer, FileText, FileText as FileTextIcon, Code, Image as ImageIcon } from 'lucide-react';
+import { ChevronLeft, ChevronDown, Maximize2, Minimize2, Download, User, Briefcase, GraduationCap, Award, Layout as LayoutIcon, Target, CheckCircle, Monitor, Edit3, Palette, ShoppingCart, Save, Check, Loader2, PanelLeftOpen, ZoomIn, ZoomOut, Pencil, Printer, FileText, FileText as FileTextIcon, Code, Image as ImageIcon, Sparkles } from 'lucide-react';
 import { Loader } from './ui/Loader';
 import ResumePreview from './ResumePreview';
 import ResumeWorkspace from './resume-agent/ResumeWorkspace';
 import EditorSidebarRight from './EditorSidebarRight';
 import EditorSidebarLeft from './EditorSidebarLeft';
 import DesignCustomizationModal from './resume-agent/DesignCustomizationModal';
+import ResumeCompareModal from './resume-agent/ResumeCompareModal';
 import VanguardTemplate from './templates/VanguardTemplate';
 import ElevateResume from './templates/ElevateResume';
 import PrimeProfile from './templates/PrimeProfile';
@@ -120,6 +121,33 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
   const [titleInputValue, setTitleInputValue] = useState(
     data.resumeTitle || data.currentTag || (data.fullName ? `${data.fullName}'s Resume` : 'Untitled Resume')
   );
+
+  // Tailoring Comparison State (stores snapshot before tailoring began)
+  const [initialTailoringResume, setInitialTailoringResume] = useState<ResumeData | null>(() => {
+    return loadFromStorage<ResumeData | null>(`cv_tailoring_baseline_${currentResumeId || 'draft'}`, null);
+  });
+  const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
+
+  useEffect(() => {
+    const handleTailoringDone = (e: any) => {
+      if (e?.detail?.baseline) {
+        setInitialTailoringResume(e.detail.baseline);
+        saveToStorage(`cv_tailoring_baseline_${currentResumeId || 'draft'}`, e.detail.baseline);
+        setIsCompareModalOpen(true);
+      }
+    };
+    window.addEventListener('cv_tailoring_completed', handleTailoringDone);
+    return () => window.removeEventListener('cv_tailoring_completed', handleTailoringDone);
+  }, [currentResumeId]);
+
+  const handleOpenCompare = () => {
+    if (!initialTailoringResume) {
+      const snap = JSON.parse(JSON.stringify(data));
+      setInitialTailoringResume(snap);
+      saveToStorage(`cv_tailoring_baseline_${currentResumeId || 'draft'}`, snap);
+    }
+    setIsCompareModalOpen(true);
+  };
 
   // Close download menu on outside click
   useEffect(() => {
@@ -842,6 +870,21 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
             <span className="hidden sm:inline">{saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : 'Save'}</span>
           </button>
 
+          {/* Compare Before & After Button */}
+          <button
+            type="button"
+            onClick={handleOpenCompare}
+            className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-2xs border ${
+              initialTailoringResume
+                ? 'border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800'
+                : 'border-brand-border bg-brand-secondary hover:bg-gray-200 text-brand-dark'
+            }`}
+            title="Compare tailored resume with initial baseline"
+          >
+            <Sparkles size={14} className={initialTailoringResume ? 'text-emerald-600' : 'text-brand-dark/70'} />
+            <span className="hidden sm:inline">Compare</span>
+          </button>
+
           <button
             type="button"
             onClick={handleOpenCoverLetter}
@@ -889,6 +932,24 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
                   <div className="px-2.5 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                     Export Options
                   </div>
+
+                  {/* Comparison Image (.PNG) */}
+                  <button
+                    onClick={() => {
+                      setIsDownloadMenuOpen(false);
+                      handleOpenCompare();
+                    }}
+                    className="w-full flex items-start gap-2.5 px-2.5 py-2 text-left rounded-lg bg-emerald-50/70 hover:bg-emerald-100/70 text-emerald-950 transition-colors cursor-pointer group mb-1 border border-emerald-200/60"
+                  >
+                    <Sparkles className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0 group-hover:scale-110 transition-all" />
+                    <div>
+                      <div className="text-xs font-bold text-emerald-950 flex items-center gap-1.5">
+                        Comparison Image (.png)
+                        <span className="text-[10px] bg-emerald-200 text-emerald-900 font-bold px-1.5 py-0.2 rounded">Share</span>
+                      </div>
+                      <div className="text-[11px] text-emerald-700 font-normal">Side-by-side Before & After card</div>
+                    </div>
+                  </button>
 
                   {/* 1. Direct PDF Download */}
                   <button
@@ -1240,6 +1301,22 @@ export default function Editor({ data, onChange, template, onTemplateChange, onB
         isSaving={isSavingFromModal}
         actionType={pendingNavigationAction}
         resumeTitle={data.resumeTitle || data.currentTag || (data.fullName ? `${data.fullName}'s Resume` : 'Untitled Resume')}
+      />
+
+      {/* Before & After Tailoring Comparison Popup & High-Res Image Generator */}
+      <ResumeCompareModal
+        isOpen={isCompareModalOpen}
+        onClose={() => setIsCompareModalOpen(false)}
+        initialResume={initialTailoringResume || data}
+        tailoredResume={data}
+        template={effectiveTemplate}
+        jobData={data.jobDescription ? { title: data.jobTitle || 'Target Role', company: '', description: data.jobDescription } : null}
+        onRevertToOriginal={() => {
+          if (initialTailoringResume) {
+            onChange(initialTailoringResume);
+            setIsCompareModalOpen(false);
+          }
+        }}
       />
 
     </div>

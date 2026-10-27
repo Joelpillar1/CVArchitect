@@ -1394,6 +1394,13 @@ RULES:
 • Conducted over 100+ user interviews to identify pain points, resulting in a roadmap pivot that reduced customer churn by 18%.`;
                 }
                 onChange(tailoredData);
+                if (typeof window !== 'undefined') {
+                    window.dispatchEvent(
+                        new CustomEvent('cv_tailoring_completed', {
+                            detail: { baseline: data, tailored: tailoredData }
+                        })
+                    );
+                }
 
                 setMessages(prev => prev.filter(m => m.id !== loadingMsgId).concat({
                     id: `success-${Date.now()}`,
@@ -1450,6 +1457,13 @@ RULES:
             }
 
             onChange(tailoredData);
+            if (typeof window !== 'undefined') {
+                window.dispatchEvent(
+                    new CustomEvent('cv_tailoring_completed', {
+                        detail: { baseline: data, tailored: tailoredData }
+                    })
+                );
+            }
 
             // Replace loading message with success message
             setMessages(prev => prev.filter(m => m.id !== loadingMsgId).concat({

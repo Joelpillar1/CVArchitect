@@ -391,7 +391,8 @@ async function captureElementForeignObject(
   el: HTMLElement,
   w: number,
   h: number,
-  scale: number
+  scale: number,
+  background: string | null = '#ffffff'
 ): Promise<HTMLCanvasElement> {
   const css = await buildForeignObjectCss(el);
 
@@ -461,7 +462,7 @@ async function captureElementForeignObject(
     `width:${w}px`,
     `height:${h}px`,
     'overflow:hidden',
-    'background:#ffffff',
+    `background:${background ?? 'transparent'}`,
     'margin:0',
     'padding:0',
     'font-size:16px',
@@ -495,11 +496,29 @@ async function captureElementForeignObject(
   canvas.height = Math.round(h * scale);
   const ctx2d = canvas.getContext('2d');
   if (!ctx2d) throw new Error('2d canvas context unavailable');
-  ctx2d.fillStyle = '#ffffff';
-  ctx2d.fillRect(0, 0, canvas.width, canvas.height);
+  if (background) {
+    ctx2d.fillStyle = background;
+    ctx2d.fillRect(0, 0, canvas.width, canvas.height);
+  }
   // Crop the paper box out of the window-wide viewport and scale to target.
   ctx2d.drawImage(img, 0, 0, w, h, 0, 0, canvas.width, canvas.height);
   return canvas;
+}
+
+/**
+ * Wait for web fonts to settle, with a short timeout so an export can never
+ * hang on a slow font request.
+ */
+async function waitForWebFonts(): Promise<void> {
+  if (!document.fonts?.ready) return;
+  try {
+    await Promise.race([
+      document.fonts.ready,
+      new Promise((resolve) => setTimeout(resolve, 1500)),
+    ]);
+  } catch {
+    // Ignore font readiness errors
+  }
 }
 
 /**
@@ -526,16 +545,7 @@ export async function captureElement(
   pageSize: 'letter' | 'a4' = 'letter'
 ): Promise<HTMLCanvasElement> {
   // Wait for all web fonts to load with a 1.5-second timeout safety
-  if (document.fonts?.ready) {
-    try {
-      await Promise.race([
-        document.fonts.ready,
-        new Promise((resolve) => setTimeout(resolve, 1500)),
-      ]);
-    } catch {
-      // Ignore font readiness errors
-    }
-  }
+  await waitForWebFonts();
 
   const isA4 = pageSize === 'a4';
   const defaultW = isA4 ? 794 : 816;
@@ -559,6 +569,23 @@ export async function captureElement(
     }
   }
 
+  return captureElementWithHtml2Canvas(el, w, h, scale);
+}
+
+/**
+ * html2canvas fallback for an arbitrary `w` x `h` box.
+ *
+ * Only used when the foreignObject path fails. It carries the layout repairs
+ * html2canvas 1.4.1 needs (SVG margins, emulated flex gaps and grid tracks,
+ * locked heading geometry, `<hr>` as a painted block) so icons and rules stay
+ * attached to their text instead of scattering.
+ */
+async function captureElementWithHtml2Canvas(
+  el: HTMLElement,
+  w: number,
+  h: number,
+  scale: number
+): Promise<HTMLCanvasElement> {
   const host = document.createElement('div');
   host.style.cssText = [
     'position:fixed',
@@ -884,6 +911,44 @@ export async function captureElement(
       document.body.removeChild(host);
     }
   }
+}
+
+export interface CaptureBoxOptions {
+  /** Raster scale. 2 = 2x Retina output. */
+  scale?: number;
+  /** Canvas backdrop. `null` keeps transparent corners on rounded cards. */
+  background?: string | null;
+}
+
+/**
+ * Capture any DOM element at its own measured size (not a paper sheet).
+ *
+ * Used for composed layouts such as the before/after comparison card, where
+ * the element is wider than a resume page. It reuses the same capture pipeline
+ * as resume downloads, so SVG contact icons, flex gaps, grid tracks and section
+ * rules keep their real positions instead of scattering.
+ */
+export async function captureElementBox(
+  el: HTMLElement,
+  { scale = 2, background = '#ffffff' }: CaptureBoxOptions = {}
+): Promise<HTMLCanvasElement> {
+  await waitForWebFonts();
+
+  const rect = el.getBoundingClientRect();
+  const w = Math.max(1, Math.ceil(rect.width || el.offsetWidth || el.clientWidth));
+  const h = Math.max(1, Math.ceil(Math.max(rect.height, el.scrollHeight, el.offsetHeight)));
+
+  try {
+    return await captureElementForeignObject(el, w, h, scale, background);
+  } catch (foError) {
+    try {
+      console.warn('[cv] foreignObject capture failed; falling back to html2canvas', foError);
+    } catch {
+      // console unavailable
+    }
+  }
+
+  return captureElementWithHtml2Canvas(el, w, h, scale);
 }
 
 /**

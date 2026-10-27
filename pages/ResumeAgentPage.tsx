@@ -31,6 +31,7 @@ import PrintPortal from '../components/PrintPortal';
 import AgentPanel from '../components/resume-agent/AgentPanel';
 import AgentSidebar from '../components/resume-agent/AgentSidebar';
 import JobContextDrawer from '../components/resume-agent/JobContextDrawer';
+import ResumeCompareModal from '../components/resume-agent/ResumeCompareModal';
 import { parseResume } from '../utils/resumeParser';
 import { mapResumeToTemplate } from '../utils/templateResumeMapper';
 import {
@@ -487,6 +488,18 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
   const [analysis, setAnalysis] = useState<JobMatchAnalysis | null>(() => initialStored.history?.analysis || null);
   const [pendingChanges, setPendingChanges] = useState<ResumeChange[]>([]);
   const [acceptedHistory, setAcceptedHistory] = useState<{ change: ResumeChange; prevData: ResumeData }[]>([]);
+
+  // Tailoring Comparison State (stores snapshot before tailoring began)
+  const [initialTailoringResume, setInitialTailoringResume] = useState<ResumeData | null>(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const stored = localStorage.getItem(`cv_agent_tailoring_baseline_${savedResumeId || 'draft'}`);
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
 
   // Clarifying-question flow (derived from JD requirements missing from the resume)
   const [activeQuestion, setActiveQuestion] = useState<MissingEvidenceItem | null>(null);
@@ -1505,6 +1518,11 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
   ) => {
     if (!job) return;
 
+    // Snapshot pre-tailoring state so the user can compare and download Before vs After
+    if (!initialTailoringResume) {
+      setInitialTailoringResume(JSON.parse(JSON.stringify(resume)));
+    }
+
     setIsAgentRunning(true);
     setStatus(`Tailoring for ${job.title}...`);
     const loadingId = 'loading_' + Date.now();
@@ -1595,7 +1613,13 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
     });
 
     // Remove from pending
-    setPendingChanges((prev) => prev.filter((c) => c.id !== changeId));
+    setPendingChanges((prev) => {
+      const remaining = prev.filter((c) => c.id !== changeId);
+      if (remaining.length === 0 && initialTailoringResume) {
+        setTimeout(() => setIsCompareModalOpen(true), 350);
+      }
+      return remaining;
+    });
   };
 
   // Handler: Reject Single Change
@@ -1606,6 +1630,9 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
   // Handler: Accept All Changes
   const handleAcceptAllChanges = () => {
     pendingChanges.forEach((chg) => handleAcceptChange(chg.id));
+    if (initialTailoringResume) {
+      setTimeout(() => setIsCompareModalOpen(true), 350);
+    }
   };
 
 
@@ -1805,13 +1832,17 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
         if (!appliedAny) {
           appliedAny = true;
           lastAgentRunBaselineRef.current = baseline;
+          if (!initialTailoringResume) {
+            setInitialTailoringResume(JSON.parse(JSON.stringify(baseline)));
+          }
           setUndoStack((prev) => [...prev.slice(-30), baseline]);
           setRedoStack([]);
           setStatus('Editing your resume...');
-        }                working = next;
-                resumeDataRef.current = next;
-                setResumeData(next);
-                setPendingChanges([]);
+        }
+        working = next;
+        resumeDataRef.current = next;
+        setResumeData(next);
+        setPendingChanges([]);
 
         // Attach structured operation card to the live agent message feed
         setMessages((prev) =>
@@ -1866,6 +1897,10 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
         setIsAgentRunning(false);
         agentAbortRef.current = null;
         setStatus('Ready');
+
+        if (appliedAny && (jobData || /tailor|optimi|match|align/i.test(text))) {
+          setTimeout(() => setIsCompareModalOpen(true), 350);
+        }
 
         setMessages((prev) =>
           prev.map((m) => {
@@ -1934,6 +1969,8 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
     setUndoStack([]);
     setRedoStack([]);
     setPendingChanges([]);
+    setInitialTailoringResume(null);
+    setIsCompareModalOpen(false);
     lastAgentRunBaselineRef.current = null;
 
     try {
@@ -2068,6 +2105,8 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
     setUndoStack([]);
     setRedoStack([]);
     setPendingChanges([]);
+    setInitialTailoringResume(null);
+    setIsCompareModalOpen(false);
     setAnalysis(null);
     setJobData(null);
     lastAgentRunBaselineRef.current = null;
@@ -2655,6 +2694,13 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
         onOpenFullscreen={() => setIsFullscreen(true)}
         userPlan={userSubscription?.planId || 'free'}
         onShowPaywall={() => setShowPricingModal(true)}
+        hasTailoringBaseline={Boolean(initialTailoringResume)}
+        onOpenCompare={() => {
+          if (!initialTailoringResume) {
+            setInitialTailoringResume(JSON.parse(JSON.stringify(resumeData)));
+          }
+          setIsCompareModalOpen(true);
+        }}
         onNavigateDashboard={() => {
           if (hasUnsavedChangesRef.current) {
             setPendingNavigation({
@@ -2915,6 +2961,22 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
         currentPlanId={userSubscription?.planId || 'free'}
         title="Upgrade to Unlock Premium Templates"
         description="Choose a plan to unlock all premium ATS-optimized templates, unlimited AI rewrites, and PDF exports."
+      />
+
+      {/* Before & After Tailoring Comparison Popup & High-Res Image Generator */}
+      <ResumeCompareModal
+        isOpen={isCompareModalOpen}
+        onClose={() => setIsCompareModalOpen(false)}
+        initialResume={initialTailoringResume || resumeDataRef.current || resumeData}
+        tailoredResume={resumeDataRef.current || resumeData}
+        template={template}
+        jobData={jobData}
+        onRevertToOriginal={() => {
+          if (initialTailoringResume) {
+            handleUpdateResumeData(initialTailoringResume);
+            setIsCompareModalOpen(false);
+          }
+        }}
       />
     </div>
   );
