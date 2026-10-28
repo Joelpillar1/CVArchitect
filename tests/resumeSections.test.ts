@@ -8,6 +8,7 @@ import {
   getSectionContent,
   hasSectionContent,
   isSectionVisible,
+  applySectionVisibilityToggle,
   isSectionHiddenByTemplateDefault,
   isSectionExplicitlyAdded,
   getSectionTitle,
@@ -1130,3 +1131,61 @@ describe('isSectionExplicitlyAdded — explicit adds beat template design blocks
 });
 
 
+
+describe('Per-section eye toggle', () => {
+  it('hides a section with an explicit false and keeps it out of the preview', () => {
+    const data: ResumeData = {
+      ...INITIAL_DATA,
+      template: 'free',
+      sectionOrder: ['summary', 'experience', 'education', 'skills'],
+      sectionVisibility: { summary: true, experience: true, education: true, skills: true },
+      summary: 'Original summary',
+    };
+
+    const hidden = applySectionVisibilityToggle(data, 'summary');
+
+    expect(hidden.sectionVisibility?.summary).toBe(false);
+    expect(isSectionVisible(hidden, 'summary')).toBe(false);
+    expect(hidden.sectionOrder).toEqual(data.sectionOrder);
+  });
+
+  it('shows a hidden section and appends it when it is not in the order', () => {
+    const data: ResumeData = {
+      ...INITIAL_DATA,
+      template: 'free',
+      sectionOrder: ['summary', 'experience'],
+      sectionVisibility: { summary: true, experience: true, certifications: false },
+      certifications: [{ id: 'c1', name: 'AWS', issuer: 'Amazon', date: '2022' }],
+    };
+
+    const shown = applySectionVisibilityToggle(data, 'certifications');
+
+    expect(shown.sectionVisibility?.certifications).toBe(true);
+    expect(isSectionVisible(shown, 'certifications')).toBe(true);
+    expect(shown.sectionOrder).toEqual(['summary', 'experience', 'certifications']);
+    expect(shown.userAddedSections).toContain('certifications');
+  });
+
+  it('does not surface a legacy template-hidden section when hiding a different section', () => {
+    const student: ResumeData = {
+      ...INITIAL_DATA,
+      template: 'student',
+      summary: 'A legacy summary that the student template does not render',
+      sectionOrder: undefined,
+      sectionVisibility: undefined,
+      projects: [{ id: 'p1', name: 'Robot', description: ['Built a robot'] }],
+    };
+
+    expect(isSectionVisible(student, 'summary')).toBe(false);
+
+    const afterHidingProjects = applySectionVisibilityToggle(student, 'projects');
+
+    expect(afterHidingProjects.sectionVisibility?.projects).toBe(false);
+    expect(isSectionVisible(afterHidingProjects, 'summary')).toBe(false);
+  });
+
+  it('ignores contact because the header is always rendered', () => {
+    const data: ResumeData = { ...INITIAL_DATA, template: 'free' };
+    expect(applySectionVisibilityToggle(data, 'contact')).toBe(data);
+  });
+});

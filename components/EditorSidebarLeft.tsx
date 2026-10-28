@@ -7,7 +7,7 @@ import { canAccessTemplate, FREE_TEMPLATES } from '../utils/pricingConfig';
 import { TEMPLATE_CONFIG, getTemplateCategory } from '../utils/templateConfig';
 import { getTemplatePreviewData } from '../utils/sampleResumeData';
 import { ResumeSectionType } from '../types/resumeSections';
-import { SECTION_REGISTRY, createDefaultSectionOrder, getResolvedSectionOrder, isSectionVisible, hasSectionContent, normalizeSectionType } from '../utils/sectionRegistry';
+import { SECTION_REGISTRY, applySectionVisibilityToggle, createDefaultSectionOrder, getResolvedSectionOrder, isSectionVisible, hasSectionContent, normalizeSectionType } from '../utils/sectionRegistry';
 import { applySectionStarterContent, getCustomStarterContent } from '../utils/sectionStarterContent';
 import PersonalInfoForm from './PersonalInfoForm';
 import ExperienceForm from './ExperienceForm';
@@ -55,54 +55,9 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
         setActiveTab(activeTab === sectionId ? ('' as EditorTab) : (sectionId as EditorTab));
     };
 
-    /**
-     * Eye toggle for a section. Hiding writes an explicit false (the user's
-     * decision always wins). Showing writes true and, if the section is not in
-     * the current composition yet, appends it so the preview updates
-     * immediately. The canonical type is recorded too so aliases and template
-     * switches stay consistent.
-     */
     const toggleSectionVisibility = (sectionId: string) => {
-        if (!sectionId || sectionId === 'personal' || sectionId === 'contact') return;
-
-        const canonical = normalizeSectionType(sectionId) || sectionId;
-        // "Visible" here means actually rendered: in the resolved composition
-        // and not explicitly hidden. A section that is merely defaultVisible in
-        // the registry but absent from the order is still off until the eye is
-        // clicked, which appends it.
-        const renderedNow =
-            getResolvedSectionOrder(data).some(
-                (id) => id === sectionId || normalizeSectionType(id) === canonical
-            ) && isSectionVisible(data, sectionId);
-        const nextVisible = !renderedNow;
-
-        const currentOrder =
-            Array.isArray(data.sectionOrder) && data.sectionOrder.length > 0
-                ? data.sectionOrder
-                : createDefaultSectionOrder();
-
-        const nextVisibility: Record<string, boolean> = {
-            ...(data.sectionVisibility || {}),
-            [sectionId]: nextVisible,
-        };
-        if (canonical !== sectionId) nextVisibility[canonical] = nextVisible;
-
-        let nextOrder = currentOrder;
-        let nextUserAdded = data.userAddedSections || [];
-        if (nextVisible) {
-            const inOrder = currentOrder.some(
-                (id) => id === sectionId || normalizeSectionType(id) === canonical
-            );
-            if (!inOrder) nextOrder = [...currentOrder, sectionId];
-            nextUserAdded = Array.from(new Set([...nextUserAdded, sectionId, canonical]));
-        }
-
-        onChange({
-            ...data,
-            sectionOrder: nextOrder,
-            sectionVisibility: nextVisibility,
-            userAddedSections: nextUserAdded,
-        });
+        const next = applySectionVisibilityToggle(data, sectionId);
+        if (next !== data) onChange(next);
     };
 
     const handleAddSection = (

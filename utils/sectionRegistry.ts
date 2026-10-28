@@ -938,6 +938,59 @@ export function getResolvedSectionOrder(data: ResumeData): string[] {
 }
 
 /**
+ * Apply the per-section eye toggle to a resume document.
+ *
+ * Hiding writes an explicit `false` (the user's decision always wins). Showing
+ * writes `true` and, if the section is not in the current composition yet,
+ * appends it so the preview updates immediately. The canonical type is
+ * recorded too so aliases and template switches stay consistent.
+ *
+ * For documents without an explicit `sectionOrder`, the order we persist is the
+ * composition that is actually visible now, not the raw registry default. This
+ * preserves legacy template defaults: hiding one section must not surface a
+ * different section the template intentionally leaves out (for example the
+ * Student template's Professional Summary).
+ */
+export function applySectionVisibilityToggle(data: ResumeData, sectionId: string): ResumeData {
+  if (!data || !sectionId || sectionId === 'personal' || sectionId === 'contact') return data;
+
+  const canonical = normalizeSectionType(sectionId) || sectionId;
+  const renderedNow =
+    getResolvedSectionOrder(data).some(
+      (id) => id === sectionId || normalizeSectionType(id) === canonical
+    ) && isSectionVisible(data, sectionId);
+  const nextVisible = !renderedNow;
+
+  const currentOrder =
+    Array.isArray(data.sectionOrder) && data.sectionOrder.length > 0
+      ? data.sectionOrder
+      : getResolvedSectionOrder(data).filter((id) => isSectionVisible(data, id));
+
+  const nextVisibility: Record<string, boolean> = {
+    ...(data.sectionVisibility || {}),
+    [sectionId]: nextVisible,
+  };
+  if (canonical !== sectionId) nextVisibility[canonical] = nextVisible;
+
+  let nextOrder = currentOrder;
+  let nextUserAdded = data.userAddedSections || [];
+  if (nextVisible) {
+    const inOrder = currentOrder.some(
+      (id) => id === sectionId || normalizeSectionType(id) === canonical
+    );
+    if (!inOrder) nextOrder = [...currentOrder, sectionId];
+    nextUserAdded = Array.from(new Set([...nextUserAdded, sectionId, canonical]));
+  }
+
+  return {
+    ...data,
+    sectionOrder: nextOrder,
+    sectionVisibility: nextVisibility,
+    userAddedSections: nextUserAdded,
+  };
+}
+
+/**
  * The sections this document will actually render, in display order.
  *
  * Template-aware: a section the selected design does not include by default
