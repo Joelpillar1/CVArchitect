@@ -22,6 +22,7 @@ import { readSkillsGrid, placeCaretInSkillCell, appendEmptySkillCell } from '../
 import { rewriteTextInline, explainTextInline } from '../../services/resumeAgentService';
 import { ResumeSectionType } from '../../types/resumeSections';
 import { SECTION_REGISTRY, createDefaultSectionOrder } from '../../utils/sectionRegistry';
+import { resumeChangeSectionLabel } from '../../utils/resumeChangeApplier';
 import { findSectionsHiddenByDefaults, type HiddenContentSection } from '../../utils/templateSectionDefaults';
 import { applySectionStarterContent } from '../../utils/sectionStarterContent';
 import AddSectionModal from './AddSectionModal';
@@ -1818,7 +1819,8 @@ export default function ResumeWorkspace({
         return 'Experience';
       }
       default:
-        return change.section ? change.section.charAt(0).toUpperCase() + change.section.slice(1) : 'Resume';
+        // Honors sectionTitles overrides and custom section titles.
+        return resumeChangeSectionLabel(data, change.section);
     }
   };
 

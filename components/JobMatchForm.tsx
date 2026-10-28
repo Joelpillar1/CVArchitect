@@ -1,18 +1,20 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ResumeData } from '../types';
+import { ResumeData, TemplateType } from '../types';
 import { UserSubscription } from '../types/pricing';
 import { Loader } from './ui/Loader';
 import { tailorResumeToJob } from './utils/aiEnhancer';
 import { analyzeResume } from './utils/resumeAnalytics';
+import { applyResumeChange } from '../utils/resumeChangeApplier';
 
 interface JobMatchFormProps {
     data: ResumeData;
     onChange: (data: ResumeData) => void;
+    currentTemplate?: TemplateType;
     userSubscription?: UserSubscription;
     onAIAction?: (action: 'ai_rewrite' | 'cv_regeneration' | 'cover_letter' | 'bullet_optimization') => boolean;
 }
 
-export default function JobMatchForm({ data, onChange, onAIAction }: JobMatchFormProps) {
+export default function JobMatchForm({ data, onChange, currentTemplate, onAIAction }: JobMatchFormProps) {
     const [isRewriting, setIsRewriting] = useState(false);
     const [rewriteError, setRewriteError] = useState<string | null>(null);
     const [rewriteSuccess, setRewriteSuccess] = useState(false);
@@ -72,27 +74,28 @@ export default function JobMatchForm({ data, onChange, onAIAction }: JobMatchFor
         setRewriteError(null);
 
         try {
-            const result = await tailorResumeToJob(
-                {
-                    fullName: data.fullName,
-                    jobTitle: data.jobTitle,
-                    summary: data.summary,
-                    experience: data.experience,
-                    skills: data.skills,
-                    keyAchievements: data.keyAchievements || '',
-                },
-                data.jobDescription
-            );
+            // Fill in the template when the document has not persisted it yet,
+            // so tailoring only touches sections the design actually renders.
+            const tailoringInput: ResumeData =
+                data.template || !currentTemplate ? data : { ...data, template: currentTemplate };
+            const result = await tailorResumeToJob(tailoringInput, data.jobDescription);
 
-            const updatedData = { ...data, hasJobMatchRun: true };
-            updatedData.summary = result.summary;
-            updatedData.skills = result.skills;
-            updatedData.keyAchievements = result.keyAchievements;
+            let updatedData = { ...data, hasJobMatchRun: true, template: tailoringInput.template };
+            // Only apply what the selected template actually renders.
+            if (result.summary) updatedData.summary = result.summary;
+            if (result.skills) updatedData.skills = result.skills;
+            if (result.keyAchievements) updatedData.keyAchievements = result.keyAchievements;
 
-            result.experience.forEach((exp, index) => {
+            result.experience?.forEach((exp, index) => {
                 if (updatedData.experience[index]) {
                     updatedData.experience[index].description = exp.description;
                 }
+            });
+
+            // Education, certifications, languages, custom sections, and any
+            // other visible section the model improved.
+            result.changes?.forEach((change) => {
+                updatedData = applyResumeChange(updatedData, change);
             });
 
             onChange(updatedData);

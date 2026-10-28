@@ -416,8 +416,6 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
   const renderSection = (id: string) => {
     const resolved = resolveSection(data, id);
     if (!resolved || !resolved.visible || !resolved.hasContent) return null;
-    // The Finance template strictly renders only the core executive sections: Summary, Experience, Education, Skills
-    if (!['summary', 'experience', 'education', 'skills'].includes(resolved.type)) return null;
 
     let sectionTitle = resolved.title;
     if (resolved.type === 'summary') sectionTitle = data.sectionTitles?.summary || t.professionalSummary || 'Professional Summary';
@@ -455,6 +453,27 @@ export default function ModernTemplate({ data }: { data: ResumeData }) {
         return renderLanguagesBlock(sectionTitle, resolved.content as LanguageItem[], resolved.id);
       case 'key_value':
         return renderKeyValueBlock(sectionTitle, resolved.content as AdditionalInfoItem[], resolved.id);
+      case 'coursework': {
+        const raw = resolved.content as any;
+        const lines: string[] = Array.isArray(raw)
+          ? raw.flatMap((item: any) => {
+              if (typeof item === 'string') return [item];
+              return [
+                item?.courseName,
+                item?.institution,
+                item?.skills,
+                ...(Array.isArray(item?.description)
+                  ? item.description
+                  : item?.description
+                  ? [item.description]
+                  : []),
+              ].filter((v: any): v is string => typeof v === 'string' && v.trim().length > 0);
+            })
+          : typeof raw === 'string'
+          ? raw.split(/\n|,/).map((s) => s.trim()).filter(Boolean)
+          : [];
+        return renderBulletsBlock(sectionTitle, lines, resolved.id);
+      }
       case 'custom':
         return renderCustomBlock(sectionTitle, resolved.content as CustomSectionData, resolved.id);
       default:

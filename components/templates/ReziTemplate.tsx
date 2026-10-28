@@ -25,7 +25,7 @@ import {
   CONTACT_SEPARATOR,
   renderCourseworkBlockHelper,
 } from '../../utils/templateUtils';
-import { resolveSection, getResolvedSectionOrder, isSectionHiddenByTemplateDefault, isSectionExplicitlyAdded } from '../../utils/sectionRegistry';
+import { resolveSection, getResolvedSectionOrder } from '../../utils/sectionRegistry';
 import type { CustomSectionData } from '../../types/resumeSections';
 import { getTranslation, Language } from '../../i18n/translations';
 import { MapPin, Mail, Phone, Linkedin, Globe, Github } from 'lucide-react';
@@ -473,27 +473,6 @@ export default function ReziTemplate({ data }: { data: ResumeData }) {
     // (which previously kept a removed section visible in the preview).
     const resolved = resolveSection(data, id);
     if (!resolved || !resolved.visible || !resolved.hasContent) return null;
-
-    // Student templates do not have professional summary, key achievements, or references
-    // by default — but an explicit user add (sidebar, canvas + dock, or the
-    // hidden-content notice banner) still wins and renders the section.
-    if (
-      (resolved.type === 'summary' ||
-        resolved.type === 'achievements' ||
-        resolved.type === 'references' ||
-        id === 'summary' ||
-        id === 'keyAchievements' ||
-        id === 'achievements' ||
-        id === 'referee' ||
-        id === 'references') &&
-      !isSectionExplicitlyAdded(data, id)
-    ) {
-      return null;
-    }
-
-    // Sections not on the Harvard template (projects, certifications, etc.)
-    // are hidden by default unless explicitly opted in via sectionVisibility[id] = true.
-    if (isSectionHiddenByTemplateDefault('rezi', resolved.id, data.sectionVisibility)) return null;
 
     let sectionTitle = resolved.title;
     if (resolved.type === 'summary') sectionTitle = t.professionalSummary || resolved.title;

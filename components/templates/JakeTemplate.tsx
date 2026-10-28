@@ -27,7 +27,7 @@ import {
   renderExpertSkillsBlockHelper,
 } from '../../utils/templateUtils';
 import { parseSkillCategories } from '../../utils/skillCategorization';
-import { resolveSection, getResolvedSectionOrder, isSectionHiddenByTemplateDefault } from '../../utils/sectionRegistry';
+import { resolveSection, getResolvedSectionOrder } from '../../utils/sectionRegistry';
 import type { CustomSectionData } from '../../types/resumeSections';
 
 /**
@@ -514,13 +514,6 @@ export default function JakeTemplate({ data }: { data: ResumeData }) {
   const renderSection = (id: string) => {
     const resolved = resolveSection(data, id);
     if (!resolved || !resolved.visible || !resolved.hasContent) return null;
-
-    // Professional Summary, Key Achievements, Certifications, Additional
-    // Information, Leadership and References are hidden by default on this
-    // template (the source resume doesn't include them). Explicit opt-in via
-    // sectionVisibility[id] = true — set by Add Section and visibility
-    // toggles — renders them normally.
-    if (isSectionHiddenByTemplateDefault('jake', resolved.id, data.sectionVisibility)) return null;
 
     let sectionTitle = resolved.title;
     if (resolved.type === 'summary') sectionTitle = t.professionalSummary || resolved.title;

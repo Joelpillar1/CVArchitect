@@ -30,7 +30,7 @@ import {
   CONTACT_SEPARATOR,
   renderCourseworkBlockHelper,
 } from '../../utils/templateUtils';
-import { resolveSection, getResolvedSectionOrder, isSectionExplicitlyAdded } from '../../utils/sectionRegistry';
+import { resolveSection, getResolvedSectionOrder } from '../../utils/sectionRegistry';
 import type { CustomSectionData } from '../../types/resumeSections';
 
 export default function FreeTemplate({ data }: { data: ResumeData }) {
@@ -502,20 +502,6 @@ export default function FreeTemplate({ data }: { data: ResumeData }) {
   const renderSection = (id: string) => {
     const resolved = resolveSection(data, id);
     if (!resolved || !resolved.visible || !resolved.hasContent) return null;
-
-    // CareerCraft is an entry-level / student template: no professional summary
-    // or achievements by default — but an explicit user add (sidebar, canvas +
-    // dock, or the hidden-content notice banner) still wins and renders them.
-    if (
-      (resolved.type === 'summary' ||
-        resolved.type === 'achievements' ||
-        id === 'summary' ||
-        id === 'keyAchievements' ||
-        id === 'achievements') &&
-      !isSectionExplicitlyAdded(data, id)
-    ) {
-      return null;
-    }
 
     let sectionTitle = resolved.title;
     if (resolved.type === 'involvement' || resolved.id === 'involvement') {

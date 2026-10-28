@@ -15,6 +15,10 @@ const formatMonthYear = (dateString: string | null | undefined) => {
 };
 
 const FreshGradCSTemplate: React.FC<FreshGradCSTemplateProps> = ({ data }) => {
+  const isEducationVisible = isSectionVisible(data, 'education');
+  const isExperienceVisible = isSectionVisible(data, 'experience');
+  const isLeadershipVisible = isSectionVisible(data, 'leadership');
+  const isSkillsVisible = isSectionVisible(data, 'skills');
   const isAdditionalInfoVisible = isSectionVisible(data, 'additional_information');
   const isReferencesVisible = isSectionVisible(data, 'references');
   const { fontSizes } = data;
@@ -185,7 +189,7 @@ const FreshGradCSTemplate: React.FC<FreshGradCSTemplateProps> = ({ data }) => {
       </header>
 
       {/* EDUCATION */}
-      {data.education && data.education.length > 0 && (
+      {isEducationVisible && data.education && data.education.length > 0 && (
         <section
           className="break-inside-avoid"
           style={{ marginBottom: sectionGap }}
@@ -242,7 +246,7 @@ const FreshGradCSTemplate: React.FC<FreshGradCSTemplateProps> = ({ data }) => {
 
 
       {/* TECHNICAL SKILLS */}
-      {data.skills && data.skills.trim() && (
+      {isSkillsVisible && data.skills && data.skills.trim() && (
         <section
           className="break-inside-avoid"
           style={{ marginBottom: sectionGap }}
@@ -314,7 +318,7 @@ const FreshGradCSTemplate: React.FC<FreshGradCSTemplateProps> = ({ data }) => {
       )}
 
       {/* EXPERIENCE */}
-      {data.experience && data.experience.length > 0 && (
+      {isExperienceVisible && data.experience && data.experience.length > 0 && (
         <section
           className="break-inside-avoid"
           style={{ marginBottom: sectionGap }}
@@ -360,7 +364,7 @@ const FreshGradCSTemplate: React.FC<FreshGradCSTemplateProps> = ({ data }) => {
       )}
 
       {/* ATHLETICS / LEADERSHIP */}
-      {data.leadership && data.leadership.length > 0 && (
+      {isLeadershipVisible && data.leadership && data.leadership.length > 0 && (
         <section
           className="break-inside-avoid"
           style={{ marginBottom: sectionGap }}

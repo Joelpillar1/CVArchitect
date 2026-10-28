@@ -35,7 +35,7 @@ export default function FormSection({
     case 'achievements':
       return <AchievementsForm data={data} onChange={onChange} />;
     case 'job-match':
-      return <JobMatchForm data={data} onChange={onChange} />;
+      return <JobMatchForm data={data} onChange={onChange} currentTemplate={currentTemplate} />;
     case 'design':
       return (
         <DesignCustomization 

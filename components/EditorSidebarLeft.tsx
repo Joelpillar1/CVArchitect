@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Briefcase, GraduationCap, Award, Target, Layout as LayoutIcon, ChevronDown, ChevronRight, ChevronUp, Plus, Check, Users, Hash, Sparkles, FileText, Info, GripVertical, BarChart3, Lock, Crown, Layers, BookOpen, PanelLeftClose, ArrowRight, Eye } from 'lucide-react';
+import { User, Briefcase, GraduationCap, Award, Target, Layout as LayoutIcon, ChevronDown, ChevronRight, ChevronUp, Plus, Check, Users, Hash, Sparkles, FileText, Info, GripVertical, BarChart3, Lock, Crown, Layers, BookOpen, PanelLeftClose, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { ResumeData, TemplateType } from '../types';
 import { UserSubscription } from '../types/pricing';
 import { SubscriptionManager } from '../utils/subscriptionManager';
@@ -7,9 +7,8 @@ import { canAccessTemplate, FREE_TEMPLATES } from '../utils/pricingConfig';
 import { TEMPLATE_CONFIG, getTemplateCategory } from '../utils/templateConfig';
 import { getTemplatePreviewData } from '../utils/sampleResumeData';
 import { ResumeSectionType } from '../types/resumeSections';
-import { SECTION_REGISTRY, createDefaultSectionOrder, isSectionHiddenByTemplateDefault } from '../utils/sectionRegistry';
+import { SECTION_REGISTRY, createDefaultSectionOrder, getResolvedSectionOrder, isSectionVisible, hasSectionContent, normalizeSectionType } from '../utils/sectionRegistry';
 import { applySectionStarterContent, getCustomStarterContent } from '../utils/sectionStarterContent';
-import { templateSupportsSection } from '../utils/templateResumeMapper';
 import PersonalInfoForm from './PersonalInfoForm';
 import ExperienceForm from './ExperienceForm';
 import EducationForm from './EducationForm';
@@ -56,6 +55,56 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
         setActiveTab(activeTab === sectionId ? ('' as EditorTab) : (sectionId as EditorTab));
     };
 
+    /**
+     * Eye toggle for a section. Hiding writes an explicit false (the user's
+     * decision always wins). Showing writes true and, if the section is not in
+     * the current composition yet, appends it so the preview updates
+     * immediately. The canonical type is recorded too so aliases and template
+     * switches stay consistent.
+     */
+    const toggleSectionVisibility = (sectionId: string) => {
+        if (!sectionId || sectionId === 'personal' || sectionId === 'contact') return;
+
+        const canonical = normalizeSectionType(sectionId) || sectionId;
+        // "Visible" here means actually rendered: in the resolved composition
+        // and not explicitly hidden. A section that is merely defaultVisible in
+        // the registry but absent from the order is still off until the eye is
+        // clicked, which appends it.
+        const renderedNow =
+            getResolvedSectionOrder(data).some(
+                (id) => id === sectionId || normalizeSectionType(id) === canonical
+            ) && isSectionVisible(data, sectionId);
+        const nextVisible = !renderedNow;
+
+        const currentOrder =
+            Array.isArray(data.sectionOrder) && data.sectionOrder.length > 0
+                ? data.sectionOrder
+                : createDefaultSectionOrder();
+
+        const nextVisibility: Record<string, boolean> = {
+            ...(data.sectionVisibility || {}),
+            [sectionId]: nextVisible,
+        };
+        if (canonical !== sectionId) nextVisibility[canonical] = nextVisible;
+
+        let nextOrder = currentOrder;
+        let nextUserAdded = data.userAddedSections || [];
+        if (nextVisible) {
+            const inOrder = currentOrder.some(
+                (id) => id === sectionId || normalizeSectionType(id) === canonical
+            );
+            if (!inOrder) nextOrder = [...currentOrder, sectionId];
+            nextUserAdded = Array.from(new Set([...nextUserAdded, sectionId, canonical]));
+        }
+
+        onChange({
+            ...data,
+            sectionOrder: nextOrder,
+            sectionVisibility: nextVisibility,
+            userAddedSections: nextUserAdded,
+        });
+    };
+
     const handleAddSection = (
         sectionType: ResumeSectionType,
         customConfig?: { title: string; contentType: 'text' | 'bullets' | 'key_value' }
@@ -88,6 +137,9 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                 customSections: newCustomSections,
                 sectionOrder: newSectionOrder,
                 sectionVisibility: newVisibility,
+                userAddedSections: Array.from(
+                    new Set([...(updatedData.userAddedSections || []), customId])
+                ),
             };
             onChange(updatedData);
             setActiveTab(customId as EditorTab);
@@ -148,23 +200,33 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
         component: <CustomSectionForm customId={customId} data={data} onChange={onChange} />,
     }));
 
-    // Extended sections from SECTION_REGISTRY (coursework, volunteering, publications, languages, awards, research, etc.)
+    // Extended sections from SECTION_REGISTRY (coursework, volunteering,
+    // publications, languages, awards, research, etc.). A section stays in the
+    // list when it is in the composition, was explicitly added, has content, or
+    // was explicitly shown. Hidden sections stay listed so the eye can bring
+    // them back; only sections the document has never used live behind Add
+    // Section.
     const extendedSectionsList: Array<{ id: string; label: string; icon: React.ReactNode; component: React.ReactNode }> = [];
+    const currentOrderForList = Array.isArray(data.sectionOrder) ? data.sectionOrder : [];
+    const userAddedForList = Array.isArray(data.userAddedSections) ? data.userAddedSections : [];
+
     Object.entries(SECTION_REGISTRY).forEach(([secKey, def]) => {
         const secId = def.type;
         // Avoid duplicating core standard sections or deprecated expert_skills
         if (secId === 'expert_skills' || standardSections.some(s => s.id === secId || (secId === 'additional_information' && s.id === 'additionalInfo'))) {
             return;
         }
-        const isVisible = Boolean(data.sectionVisibility?.[secId] || (Array.isArray(data.sectionOrder) && data.sectionOrder.includes(secId)));
-        const val = (data as any)[def.dataField];
-        const hasData = Array.isArray(val)
-            ? val.length > 0
-            : typeof val === 'string'
-            ? val.trim().length > 0
-            : Boolean(val);
 
-        if (isVisible || hasData) {
+        const inOrder = currentOrderForList.some(
+            (id) => id === secId || normalizeSectionType(id) === secId
+        );
+        const isUserAdded = userAddedForList.some(
+            (id) => id === secId || normalizeSectionType(id) === secId
+        );
+        const explicitlyShown = data.sectionVisibility?.[secId] === true;
+        const hasData = hasSectionContent(data, secId);
+
+        if (inOrder || isUserAdded || explicitlyShown || hasData) {
             const sectionIcon = secId === 'coursework' ? <BookOpen size={18} /> : <FileText size={18} />;
             extendedSectionsList.push({
                 id: secId,
@@ -184,47 +246,37 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
     });
 
     const sections = [...standardSections, ...customSectionsList, ...extendedSectionsList];
+    // Include both the exact id and its canonical type so alias-based editor
+    // rows (additionalInfo, achievements, references) match an order that uses
+    // additional_information / keyAchievements / referee.
+    const resolvedSectionIds = React.useMemo(() => {
+        const ids = new Set<string>();
+        for (const id of getResolvedSectionOrder(data)) {
+            ids.add(id);
+            const canonical = normalizeSectionType(id);
+            if (canonical) ids.add(canonical);
+        }
+        return ids;
+    }, [data]);
 
-    const isSectionVisibleInSidebar = React.useCallback((secId: string): boolean => {
-        if (secId === 'personal') return true;
-        // Explicit user intent always wins: a section the user added/enabled in
-        // the editor (visibility flag written by the add flow) must stay
-        // editable even when the template doesn't natively support it
-        // (e.g. Summary on CareerCraft). expert_skills has no editor form,
-        // so it is excluded.
-        if (secId !== 'expert_skills' && data.sectionVisibility?.[secId] === true) {
-            return true;
-        }
-        if (currentTemplate === 'modern') {
-            // Finance template strictly supports only Summary, Experience, Education, Skills
-            return ['summary', 'experience', 'education', 'skills'].includes(secId);
-        }
-        if (!templateSupportsSection(currentTemplate, secId)) {
-            return false;
-        }
-        if (isSectionHiddenByTemplateDefault(currentTemplate, secId, data.sectionVisibility)) {
-            return false;
-        }
-        return true;
-    }, [currentTemplate, data.sectionVisibility]);
-
-    // Helper function to compute full section order consistently
-    // This ensures only sections supported and visible for the active template are shown
+    // Helper function to compute full section order consistently.
+    // Every section in the editor list is shown, including hidden ones (the eye
+    // marks them). The saved order leads; anything missing is appended.
     const computeFullSectionOrder = React.useCallback((sectionOrder: string[] | undefined): string[] => {
         const availableSectionIds = sections
-            .filter(s => s.id !== 'personal' && isSectionVisibleInSidebar(s.id))
+            .filter(s => s.id !== 'personal')
             .map(s => s.id);
 
         const savedOrder = sectionOrder || [];
 
-        // Filter out invalid or unsupported section IDs (defensive programming)
+        // Filter out ids that are no longer in the editor list.
         const validSavedOrder = savedOrder.filter(id => availableSectionIds.includes(id));
 
-        // Find sections that exist and are supported but aren't in saved order
+        // Sections that exist but are not in the saved order.
         const missingSections = availableSectionIds.filter(id => !validSavedOrder.includes(id));
 
         return [...validSavedOrder, ...missingSections];
-    }, [sections, isSectionVisibleInSidebar]);
+    }, [sections]);
 
     // Keep activeTab in sync with visible sections when switching templates
     React.useEffect(() => {
@@ -363,6 +415,7 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                                 const isDragging = draggedSection === section.id;
                                 const canMoveUp = index > 0;
                                 const canMoveDown = index < fullOrder.length - 1;
+                                const sectionIsVisible = resolvedSectionIds.has(section.id) && isSectionVisible(data, section.id);
 
                                 return (
                                     <div
@@ -462,15 +515,35 @@ export default function EditorSidebarLeft({ activeTab, setActiveTab, data, onCha
                                                     </button>
                                                 </div>
 
-                                                <div className="flex-1 text-left flex items-center gap-3">
-                                                    <span className={`text-xs font-bold uppercase tracking-wide ${isActive ? 'text-gray-900' : 'text-gray-500'}`}>{section.label}</span>
+                                                <div className="flex-1 text-left flex items-center gap-3 min-w-0">
+                                                    <span className={`text-xs font-bold uppercase tracking-wide truncate ${!sectionIsVisible ? 'text-gray-300' : isActive ? 'text-gray-900' : 'text-gray-500'}`}>{section.label}</span>
+                                                    {!sectionIsVisible && (
+                                                        <span className="text-[9px] font-bold uppercase tracking-wider text-gray-300 shrink-0">Hidden</span>
+                                                    )}
                                                 </div>
                                             </div>
-                                            <div
-                                                className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors"
-                                                aria-label={isActive ? "Collapse section" : "Expand section"}
-                                            >
-                                                {isActive ? <ChevronDown size={16} /> : <Plus size={16} />}
+                                            <div className="flex items-center gap-0.5 shrink-0">
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        toggleSectionVisibility(section.id);
+                                                    }}
+                                                    title={sectionIsVisible ? 'Hide section from resume' : 'Show section on resume'}
+                                                    aria-label={sectionIsVisible ? 'Hide section from resume' : 'Show section on resume'}
+                                                    aria-pressed={!sectionIsVisible}
+                                                    className={`p-1.5 rounded-md transition-colors cursor-pointer ${sectionIsVisible
+                                                        ? 'text-gray-400 hover:text-gray-700 hover:bg-gray-100'
+                                                        : 'text-gray-300 hover:text-emerald-700 hover:bg-emerald-50'}`}
+                                                >
+                                                    {sectionIsVisible ? <Eye size={15} /> : <EyeOff size={15} />}
+                                                </button>
+                                                <div
+                                                    className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors"
+                                                    aria-label={isActive ? "Collapse section" : "Expand section"}
+                                                >
+                                                    {isActive ? <ChevronDown size={16} /> : <Plus size={16} />}
+                                                </div>
                                             </div>
                                         </div>
                                         {isActive && (

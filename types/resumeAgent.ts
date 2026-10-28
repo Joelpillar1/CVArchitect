@@ -29,7 +29,8 @@ export interface JobMatchAnalysis {
     id: string;
     title: string;
     description: string;
-    section?: 'summary' | 'experience' | 'skills' | 'education' | 'projects' | 'keyAchievements';
+    /** Any section id in the document, including user-added and custom ids. */
+    section?: string;
   }[];
   scoreBefore?: number;
   scoreAfter?: number;
@@ -37,9 +38,15 @@ export interface JobMatchAnalysis {
 
 export interface ResumeChange {
   id: string;
-  section: 'summary' | 'experience' | 'skills' | 'education' | 'projects' | 'keyAchievements';
+  /**
+   * Any visible section id: a canonical registry type, an alias such as
+   * `keyAchievements`, or a custom section id. The applier normalizes aliases.
+   */
+  section: string;
   itemId?: string; // e.g. experience entry ID or bullet index key
   bulletIndex?: number;
+  /** Optional target field for structured sections (e.g. `degree`, `name`). */
+  field?: string;
   original: string;
   proposed: string;
   reason: string;

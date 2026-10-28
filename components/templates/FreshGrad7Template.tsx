@@ -15,6 +15,10 @@ const formatMonthYear = (dateString: string | null | undefined) => {
 };
 
 const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
+    const isEducationVisible = isSectionVisible(data, 'education');
+    const isExperienceVisible = isSectionVisible(data, 'experience');
+    const isLeadershipVisible = isSectionVisible(data, 'leadership');
+    const isSkillsVisible = isSectionVisible(data, 'skills');
     const isAdditionalInfoVisible = isSectionVisible(data, 'additional_information');
     const isReferencesVisible = isSectionVisible(data, 'references');
     const { fontSizes } = data;
@@ -202,7 +206,7 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
             >
 
                 {/* EDUCATION */}
-                {data.education && data.education.length > 0 && (
+                {isEducationVisible && data.education && data.education.length > 0 && (
                     <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         {renderSectionHeader('Education')}
                         <div className="flex flex-col" style={{ gap: `${Math.max(0.14, getSectionGapIn(data))}in` }}>
@@ -248,7 +252,7 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
                 )}
 
                 {/* EXPERIENCE */}
-                {data.experience && data.experience.length > 0 && (
+                {isExperienceVisible && data.experience && data.experience.length > 0 && (
                     <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         {renderSectionHeader('Experience')}
                         <div className="flex flex-col" style={{ gap: `${getItemGapIn(data)}in` }}>
@@ -282,7 +286,7 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
                 )}
 
                 {/* LEADERSHIP */}
-                {data.leadership && data.leadership.length > 0 && (
+                {isLeadershipVisible && data.leadership && data.leadership.length > 0 && (
                     <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         {renderSectionHeader('Leadership')}
                         <div className="flex flex-col" style={{ gap: `${getItemGapIn(data)}in` }}>
@@ -320,10 +324,10 @@ const FreshGrad7Template: React.FC<FreshGrad7TemplateProps> = ({ data }) => {
 
 
                 {/* SKILLS & INTERESTS */}
-                {((data.additionalInfo && data.additionalInfo.length > 0) || data.skills) && (
+                {((isSkillsVisible && data.skills) || (isAdditionalInfoVisible && data.additionalInfo && data.additionalInfo.length > 0)) && (
                     <section className="break-inside-avoid" style={{ marginBottom: `${getSectionGapIn(data)}in` }}>
                         {renderSectionHeader('Skills & Interests')}
-                        {data.skills && (() => {
+                        {isSkillsVisible && data.skills && (() => {
                             const skillsList = splitSkillsList(data.skills);
                             if (skillsList.length === 0) return null;
                             const columnCount = data.skillsColumnCount === 2 ? 2 : (data.skillsColumnCount === 4 ? 4 : 3);

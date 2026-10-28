@@ -9,6 +9,7 @@ import {
   parseAchievementBullets,
 } from '../../utils/templateUtils';
 import { serializeResumeToText } from '../../utils/resumeText';
+import { getVisibleSectionIds } from '../../utils/sectionRegistry';
 import { ATSEngine } from '../../utils/ats-engine/engine';
 import taxonomyData from '../../Bullets/ats_keyword_dataset_10k_plus.json';
 import {
@@ -114,9 +115,11 @@ function snapshotForModel(resume: ResumeData, jobData: JobDescriptionData | null
       proficiency: l.proficiency,
     })),
     referee: resume.referee ?? '',
+    template: resume.template ?? '',
     sectionOrder: resume.sectionOrder ?? [],
     sectionVisibility: resume.sectionVisibility ?? {},
     sectionTitles: resume.sectionTitles ?? {},
+    visibleSections: getVisibleSectionIds(resume),
     targetJob: jobData
       ? {
           title: jobData.title,
@@ -762,6 +765,14 @@ CRITICAL GROUNDING RULES:
 - Before generating or proposing any mutation to a section, inspect the actual current content in [CURRENT_RESUME_EVIDENCE].
 - If required evidence is missing, ask ONE targeted question or produce the strongest truthful version possible. Do NOT fabricate numbers, metrics, employers, job titles, or skills.
 - Be completely natural like ChatGPT: NEVER say "I have inspected your canonical resume..." or "According to memory...". Simply deliver the grounded result.
+
+# TEMPLATE SECTION SCOPE
+
+The resume snapshot's 'template' and 'visibleSections' fields list the sections the candidate's chosen resume design actually renders.
+- Edit, tailor, and propose content ONLY for the sections in 'visibleSections'.
+- Never create or write content for a section the design does not render, even when tailoring for a job that emphasizes it.
+- If 'visibleSections' does not include 'summary', do NOT write or propose a professional summary.
+- Only when the candidate explicitly asks to add a missing section (for example "add a summary") may you use 'show_section' and then fill it.
 
 # PRE-COMPUTED SITUATIONAL AWARENESS & PERSISTENT RESUME MEMORY
 

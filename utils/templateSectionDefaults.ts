@@ -82,7 +82,8 @@ function dedupeIds(ids: readonly (string | undefined | null)[]): string[] {
  */
 export function applyTemplateSectionDefaults(
   data: Partial<ResumeData> | null | undefined,
-  targetTemplateId: TemplateType
+  targetTemplateId: TemplateType,
+  options: { force?: boolean; preserveExtras?: boolean } = {}
 ): ResumeData {
   const source: Partial<ResumeData> = data || {};
   const defaults = getTemplateDefaultSectionOrder(targetTemplateId);
@@ -91,18 +92,60 @@ export function applyTemplateSectionDefaults(
     : [];
 
   // Re-selecting the active template with an explicit order: nothing to do.
-  if (source.template === targetTemplateId && currentOrder.length > 0) {
+  // Import passes force:true so a same-template upload still appends its extra
+  // content-bearing sections after the template defaults.
+  if (!options.force && source.template === targetTemplateId && currentOrder.length > 0) {
     return { ...source, template: targetTemplateId } as ResumeData;
   }
+
+  // A brand-new resume starts with exactly the template's default composition.
+  // Extra content is only preserved when this is a real switch (the document
+  // already had another template) or an upload (force:true). Otherwise the
+  // starter sample would leak sections the template does not default to.
+  const preserveExtras =
+    options.preserveExtras ??
+    Boolean(options.force || (source.template && source.template !== targetTemplateId));
 
   const defaultTitleMap = getTemplateDefaultSectionTitles(targetTemplateId);
   const norm = (id: string) => normalizeSectionType(id) || id;
   const defaultNorms = new Set(defaults.map(norm));
 
-  // Sections kept across the switch: user-added + custom. Compared by
-  // canonical type so aliases ('additionalInfo' vs 'additional_information')
-  // never duplicate a default section.
-  const candidateKeeps = dedupeIds([...(source.userAddedSections || []), ...Object.keys(source.customSections || {})]);
+  // Sections kept across the switch: user-added + custom + any content-bearing
+  // section that was visible in the previous composition. This is what makes a
+  // template switch lossless: a project stays a project and keeps rendering
+  // after the new template's defaults instead of disappearing into a notice.
+  //
+  // An upload is broader: the parsed document may not carry a sectionOrder, so
+  // every registered section with content is a candidate. A section the user
+  // explicitly hid is never re-surfaced.
+  const extraCandidates = options.force
+    ? [
+        ...currentOrder,
+        ...(Object.keys(SECTION_REGISTRY) as ResumeSectionType[]).filter(
+          (type) => type !== 'contact' && type !== 'custom' && type !== 'expert_skills'
+        ),
+        ...Object.keys(source.customSections || {}),
+      ]
+    : currentOrder;
+
+  const contentBearingKeeps = preserveExtras
+    ? dedupeIds(extraCandidates).filter((id) => {
+        if (defaultNorms.has(norm(id))) return false;
+        const type = normalizeSectionType(id) || id;
+        if (source.sectionVisibility?.[id] === false || source.sectionVisibility?.[type] === false) return false;
+        if (id.startsWith('custom_')) return true;
+        const canonical = normalizeSectionType(id);
+        return canonical ? hasSectionContent(source as ResumeData, canonical) : false;
+      })
+    : [];
+
+  // Compared by canonical type so aliases ('additionalInfo' vs
+  // 'additional_information') never duplicate a default section.
+  const candidateKeeps = dedupeIds([
+    ...(source.userAddedSections || []),
+    ...Object.keys(source.customSections || {}),
+    ...contentBearingKeeps,
+  ]);
   const preservedSet = new Set(candidateKeeps.filter((id) => !defaultNorms.has(norm(id))));
 
   // Keep the user's previous relative order for preserved sections, then any

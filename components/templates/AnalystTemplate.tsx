@@ -22,7 +22,7 @@ import {
   renderExpertSkillsBlockHelper,
 } from '../../utils/templateUtils';
 import { parseSkillCategories } from '../../utils/skillCategorization';
-import { resolveSection, getResolvedSectionOrder, isSectionHiddenByTemplateDefault } from '../../utils/sectionRegistry';
+import { resolveSection, getResolvedSectionOrder } from '../../utils/sectionRegistry';
 import type { CustomSectionData } from '../../types/resumeSections';
 
 /**
@@ -614,12 +614,6 @@ export default function AnalystTemplate({ data }: { data: ResumeData }) {
   const renderSection = (id: string) => {
     const resolved = resolveSection(data, id);
     if (!resolved || !resolved.visible || !resolved.hasContent) return null;
-
-    // Key Achievements, Leadership, top-level Projects, Additional Information
-    // and References are hidden by default on this template (the source resume
-    // doesn't include them — its project entries live nested under experience).
-    // Explicit opt-in via sectionVisibility[id] = true renders them normally.
-    if (isSectionHiddenByTemplateDefault('gaurav', resolved.id, data.sectionVisibility)) return null;
 
     // An explicit sectionTitles override (resolved.title) wins; otherwise
     // fall back to the translated label for well-known sections.

@@ -15,6 +15,10 @@ const formatMonthYear = (dateString: string | null | undefined) => {
 };
 
 const FreshGradMarketingTemplate: React.FC<FreshGradMarketingTemplateProps> = ({ data }) => {
+  const isEducationVisible = isSectionVisible(data, 'education');
+  const isExperienceVisible = isSectionVisible(data, 'experience');
+  const isLeadershipVisible = isSectionVisible(data, 'leadership');
+  const isSkillsVisible = isSectionVisible(data, 'skills');
   const isAdditionalInfoVisible = isSectionVisible(data, 'additional_information');
   const isReferencesVisible = isSectionVisible(data, 'references');
   const { fontSizes } = data;
@@ -185,7 +189,7 @@ const FreshGradMarketingTemplate: React.FC<FreshGradMarketingTemplateProps> = ({
       </header>
 
       {/* EDUCATION */}
-      {data.education && data.education.length > 0 && (
+      {isEducationVisible && data.education && data.education.length > 0 && (
         <section
           className="break-inside-avoid"
           style={{ marginBottom: sectionGap }}
@@ -219,7 +223,7 @@ const FreshGradMarketingTemplate: React.FC<FreshGradMarketingTemplateProps> = ({
       )}
 
       {/* PROFESSIONAL EXPERIENCE */}
-      {data.experience && data.experience.length > 0 && (
+      {isExperienceVisible && data.experience && data.experience.length > 0 && (
         <section
           className="break-inside-avoid"
           style={{ marginBottom: sectionGap }}
@@ -264,7 +268,7 @@ const FreshGradMarketingTemplate: React.FC<FreshGradMarketingTemplateProps> = ({
       )}
 
       {/* LEADERSHIP */}
-      {data.leadership && data.leadership.length > 0 && (
+      {isLeadershipVisible && data.leadership && data.leadership.length > 0 && (
         <section
           className="break-inside-avoid"
           style={{ marginBottom: sectionGap }}
@@ -305,11 +309,11 @@ const FreshGradMarketingTemplate: React.FC<FreshGradMarketingTemplateProps> = ({
 
 
       {/* ADDITIONAL INFORMATION */}
-      {(data.skills || (data.additionalInfo && data.additionalInfo.length > 0)) && (
+      {((isSkillsVisible && data.skills) || (isAdditionalInfoVisible && data.additionalInfo && data.additionalInfo.length > 0)) && (
         <section className="break-inside-avoid" style={{ marginBottom: sectionGap }}>
           {renderSectionHeader('Additional Information')}
 
-          {data.skills && (() => {
+          {isSkillsVisible && data.skills && (() => {
             const skillsList = splitSkillsList(data.skills);
             if (skillsList.length === 0) return null;
             const columnCount = data.skillsColumnCount === 2 ? 2 : (data.skillsColumnCount === 4 ? 4 : 3);

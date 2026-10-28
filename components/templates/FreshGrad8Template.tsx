@@ -28,7 +28,7 @@ import {
   renderCourseworkBlockHelper,
   renderExpertSkillsBlockHelper,
 } from '../../utils/templateUtils';
-import { resolveSection, getResolvedSectionOrder, isSectionHiddenByTemplateDefault, isSectionExplicitlyAdded } from '../../utils/sectionRegistry';
+import { resolveSection, getResolvedSectionOrder } from '../../utils/sectionRegistry';
 import type { CustomSectionData } from '../../types/resumeSections';
 import { getTranslation, Language } from '../../i18n/translations';
 import RichText from '../RichText';
@@ -448,22 +448,6 @@ const FreshGrad8Template: React.FC<FreshGrad8TemplateProps> = ({ data }) => {
   const renderSection = (id: string) => {
     const resolved = resolveSection(data, id);
     if (!resolved || !resolved.visible || !resolved.hasContent) return null;
-
-    // Hide sections that aren't part of this template's source document
-    // (e.g. Leadership) unless the user explicitly re-adds them via Add Section.
-    if (isSectionHiddenByTemplateDefault('freshgrad8', resolved.id, data.sectionVisibility)) return null;
-
-    // Student templates do not have key achievements by default — but an
-    // explicit user add (sidebar, canvas + dock, or the hidden-content notice
-    // banner) still wins and renders the section.
-    if (
-      (resolved.type === 'achievements' ||
-        id === 'keyAchievements' ||
-        id === 'achievements') &&
-      !isSectionExplicitlyAdded(data, id)
-    ) {
-      return null;
-    }
 
     let sectionTitle = resolved.title;
     if (resolved.type === 'summary') {

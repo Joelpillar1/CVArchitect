@@ -58,7 +58,7 @@ import {
   isTitleFirst,
   formatJobTitleDisplay,
 } from './templateUtils';
-import { isSectionHiddenByTemplateDefault, getResolvedSectionOrder } from './sectionRegistry';
+import { getResolvedSectionOrder } from './sectionRegistry';
 
 // --- Color & Unit Helpers ---
 
@@ -722,12 +722,9 @@ function generateSectionParagraphs(
     return paras;
   }
 
-  // Sections a template hides by default (its source resume omits them) stay
-  // out of the export too, unless the user explicitly opted them in via
-  // sectionVisibility — keeps DOCX output identical to the preview.
-  if (isSectionHiddenByTemplateDefault(data.template, sectionKey, data.sectionVisibility)) {
-    return paras;
-  }
+  // The export iterates getResolvedSectionOrder, so composition and template
+  // support are already settled. Only the user's explicit hide decision can
+  // remove a section from the document here.
 
   // Helper for section heading alignment
   const align =

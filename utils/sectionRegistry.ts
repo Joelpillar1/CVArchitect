@@ -742,7 +742,8 @@ export function isSectionVisible(data: ResumeData, id: string): boolean {
 
   const def = SECTION_REGISTRY[type];
 
-  // 1. Explicit sectionVisibility flag takes absolute precedence
+  // 1. Explicit sectionVisibility flag takes absolute precedence. The eye
+  // toggle is a user decision and always wins over the template default.
   if (data.sectionVisibility && id in data.sectionVisibility) {
     return Boolean(data.sectionVisibility[id]);
   }
@@ -750,17 +751,21 @@ export function isSectionVisible(data: ResumeData, id: string): boolean {
     return Boolean(data.sectionVisibility[type]);
   }
 
-  // 2. Sections hidden by template default (e.g. additional_information and references)
-  // are hidden unless explicitly opted in via sectionVisibility above
-  if (isSectionHiddenByTemplateDefault(data.template, id, data.sectionVisibility)) {
-    return false;
-  }
-
-  // 3. If present in sectionOrder, it is visible
+  // 2. sectionOrder is the document's composition. A section in the order is
+  // rendered unless the user explicitly hid it above. This is what lets any
+  // template render any section once it has been added, and what keeps a
+  // template's default sections visible even when the template's legacy
+  // hidden list still mentions them.
   if (Array.isArray(data.sectionOrder) && data.sectionOrder.length > 0) {
     if (data.sectionOrder.some((s) => s === id || normalizeSectionType(s) === type)) {
       return true;
     }
+  }
+
+  // 3. Legacy/no-order documents: a template's hidden list still describes
+  // which sections are outside its default composition.
+  if (isSectionHiddenByTemplateDefault(data.template, id, data.sectionVisibility)) {
+    return false;
   }
 
   // 4. If section contains non-empty user content and hasn't been explicitly hidden, treat as visible
@@ -930,6 +935,43 @@ export function getResolvedSectionOrder(data: ResumeData): string[] {
   }
 
   return [...normalizedBase, ...extraPopulated];
+}
+
+/**
+ * The sections this document will actually render, in display order.
+ *
+ * Template-aware: a section the selected design does not include by default
+ * (for example Professional Summary on the Student template) is reported as
+ * absent unless the user explicitly added it via `sectionVisibility`.
+ *
+ * AI tailoring uses this so it edits the sections that are on the resume
+ * instead of inventing sections the chosen design does not have.
+ */
+export function getVisibleSectionIds(data: ResumeData): string[] {
+  if (!data) return [];
+
+  // Exactly the sections the preview renders: resolved order, visible, and
+  // non-empty. Templates already skip empty sections, so the agent's scope must
+  // skip them too. This is also why a user-added section is picked up
+  // automatically on the next run.
+  return getResolvedSectionOrder(data).filter((id) => {
+    if (!id.startsWith('custom_') && normalizeSectionType(id) === 'contact') return false;
+    if (!isSectionVisible(data, id)) return false;
+    if (id.startsWith('custom_')) return hasSectionContent(data, 'custom', id);
+    const type = normalizeSectionType(id);
+    return type ? hasSectionContent(data, type) : false;
+  });
+}
+
+/**
+ * Human-readable titles for the sections the document renders, matching the
+ * order of `getVisibleSectionIds`. Custom sections use their own title.
+ */
+export function getVisibleSectionTitles(data: ResumeData): string[] {
+  if (!data) return [];
+  // Honor sectionTitles overrides so the agent sees the same heading the
+  // preview shows (for example a renamed "Work Experience").
+  return getVisibleSectionIds(data).map((id) => getSectionTitle(data, id));
 }
 
 /**

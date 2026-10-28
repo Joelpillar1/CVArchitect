@@ -562,7 +562,7 @@ export default function InternTemplate({ data }: InternTemplateProps) {
 
   const renderSection = (sectionId: string) => {
     const resolved = resolveSection(data, sectionId);
-    if (!resolved) return null;
+    if (!resolved || !resolved.visible || !resolved.hasContent) return null;
 
     const sectionTitle = resolved.title;
 

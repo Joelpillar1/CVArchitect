@@ -30,7 +30,7 @@ import {
   renderCourseworkBlockHelper,
   renderExpertSkillsBlockHelper,
 } from '../../utils/templateUtils';
-import { resolveSection, getResolvedSectionOrder, isSectionHiddenByTemplateDefault } from '../../utils/sectionRegistry';
+import { resolveSection, getResolvedSectionOrder } from '../../utils/sectionRegistry';
 import type { CustomSectionData } from '../../types/resumeSections';
 
 /**
@@ -739,15 +739,6 @@ export default function RegentTemplate({ data }: { data: ResumeData }) {
   const renderSection = (id: string) => {
     const resolved = resolveSection(data, id);
     if (!resolved || !resolved.visible || !resolved.hasContent) return null;
-
-    // Leadership, Projects, Additional Information, and References are hidden
-    // by default on Regent Serif unless explicitly opted in via sectionVisibility[id] = true.
-    if (
-      isSectionHiddenByTemplateDefault('regent', resolved.id, data.sectionVisibility) ||
-      isSectionHiddenByTemplateDefault('regent', resolved.type, data.sectionVisibility)
-    ) {
-      return null;
-    }
 
     let sectionTitle = resolved.title;
     if (resolved.type === 'summary') sectionTitle = t.professionalSummary || resolved.title;

@@ -118,7 +118,7 @@ describe('applyTemplateSectionDefaults (template switch / upload snap)', () => {
     template: 'vanguard',
   });
 
-  it('snaps order to the new template defaults and keeps content untouched', () => {
+  it('snaps the new template defaults first and keeps content untouched', () => {
     const doc = vanguardBase();
     const before = {
       summary: doc.summary,
@@ -131,7 +131,13 @@ describe('applyTemplateSectionDefaults (template switch / upload snap)', () => {
     const snapped = applyTemplateSectionDefaults(doc, 'dev');
 
     expect(snapped.template).toBe('dev');
-    expect(snapped.sectionOrder).toEqual(DEFAULT_SECTION_ORDERS.dev);
+    expect(snapped.sectionOrder.slice(0, DEFAULT_SECTION_ORDERS.dev.length)).toEqual(
+      DEFAULT_SECTION_ORDERS.dev
+    );
+    // Sections the new template does not default to, but which have content,
+    // follow the defaults instead of disappearing.
+    expect(snapped.sectionOrder).toContain('achievements');
+    expect(snapped.sectionOrder).toContain('certifications');
     // Nothing is ever deleted — content is byte-identical.
     expect(snapped.summary).toBe(before.summary);
     expect(snapped.experience).toEqual(before.experience);
@@ -140,15 +146,15 @@ describe('applyTemplateSectionDefaults (template switch / upload snap)', () => {
     expect(snapped.certifications).toEqual(before.certifications);
   });
 
-  it('drops template-owned sections the new template lacks (content stays, order does not)', () => {
+  it('keeps content-bearing sections the new template lacks after its defaults', () => {
     const doc: ResumeData = {
       ...vanguardBase(),
       // 'achievements' and 'additionalInfo' are in vanguard's defaults but not dev's.
       sectionOrder: ['summary', 'achievements', 'experience', 'additionalInfo', 'education', 'skills'],
     };
     const snapped = applyTemplateSectionDefaults(doc, 'dev');
-    expect(snapped.sectionOrder).not.toContain('achievements');
-    expect(snapped.sectionOrder).not.toContain('additionalInfo');
+    expect(snapped.sectionOrder).toContain('achievements');
+    expect(snapped.sectionOrder).toContain('additionalInfo');
     expect((snapped.additionalInfo || []).length).toBeGreaterThan(0); // content kept
   });
 
@@ -247,21 +253,25 @@ describe('mapResumeToTemplate (upload + switch enforcement point)', () => {
     certifications: [{ id: 'c1', name: 'AWS Solutions Architect', issuer: 'AWS', date: '2023' }],
   });
 
-  it('upload snaps strictly to the target template defaults (content outside them is stored, not shown)', () => {
+  it('upload starts with the target defaults, then keeps every content-bearing section', () => {
     const mapped = mapResumeToTemplate(parsedUpload() as Partial<ResumeData>, 'dev');
     expect(mapped.template).toBe('dev');
-    expect(mapped.sectionOrder).toEqual(DEFAULT_SECTION_ORDERS.dev);
-    // Stored, never deleted: 'dev' surfaces involvement natively, so the parsed
-    // leadership history lands there; certifications stay in their own field.
-    expect(mapped.involvement?.length).toBe(1);
+    expect(mapped.sectionOrder.slice(0, DEFAULT_SECTION_ORDERS.dev.length)).toEqual(
+      DEFAULT_SECTION_ORDERS.dev
+    );
+    // No merging: leadership stays leadership, certifications stay
+    // certifications, and both are appended after dev's defaults.
+    expect(mapped.leadership?.length).toBe(1);
+    expect(mapped.involvement?.length).toBe(0);
     expect(mapped.certifications?.length).toBe(1);
-    // ...and surfaced by the one-time notice instead of silently rendering:
+    expect(mapped.sectionOrder).toContain('leadership');
+    expect(mapped.sectionOrder).toContain('certifications');
+    // Nothing is left hidden behind the old notice: imported content renders.
     const hiddenIds = findSectionsHiddenByDefaults(mapped).map((s) => s.id);
-    expect(hiddenIds).toContain('certifications');
-    expect(hiddenIds).not.toContain('involvement'); // in dev's defaults — rendered
-    // Standard sections with content outside the order never render:
-    expect(getResolvedSectionOrder(mapped)).toContain('involvement');
-    expect(getResolvedSectionOrder(mapped)).not.toContain('certifications');
+    expect(hiddenIds).not.toContain('certifications');
+    expect(hiddenIds).not.toContain('leadership');
+    expect(getResolvedSectionOrder(mapped)).toContain('certifications');
+    expect(getResolvedSectionOrder(mapped)).toContain('leadership');
   });
 
   it('re-mapping an already-mapped document (same template) does not disturb the order', () => {
@@ -284,16 +294,18 @@ describe('mapResumeToTemplate (upload + switch enforcement point)', () => {
     expect(mapped.sectionOrder).toContain('references');
   });
 
-  it('Finance keeps its strict 4-section promise', () => {
+  it('Finance keeps its defaults first and preserves certifications as certifications', () => {
     const doc: ResumeData = {
       ...getTemplatePreviewData('vanguard'),
       template: 'vanguard',
       certifications: [{ id: 'c9', name: 'CFA Level III', issuer: 'CFA Institute', date: '2022' }],
     };
     const mapped = mapResumeToTemplate(doc, 'modern');
-    expect(mapped.sectionOrder).toEqual(['summary', 'experience', 'education', 'skills']);
-    // Finance folds certifications into education instead of dropping them.
-    expect(mapped.education.some((e) => /CFA/.test(e.degree || ''))).toBe(true);
+    expect(mapped.sectionOrder.slice(0, 4)).toEqual(['summary', 'experience', 'education', 'skills']);
+    // No disguise: the credential stays in the Certifications section.
+    expect(mapped.certifications.some((c) => /CFA/.test(c.name || ''))).toBe(true);
+    expect(mapped.education.some((e) => /CFA/.test(e.degree || ''))).toBe(false);
+    expect(mapped.sectionOrder).toContain('certifications');
   });
 });
 

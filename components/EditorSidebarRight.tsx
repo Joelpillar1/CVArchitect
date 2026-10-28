@@ -33,6 +33,7 @@ import { useStreamingPlaceholder } from '../utils/useStreamingPlaceholder';
 import { Loader } from './ui/Loader';
 import { analyzeResume, AnalyticsResult } from './utils/resumeAnalytics';
 import { tailorResumeToJob } from './utils/aiEnhancer';
+import { applyResumeChange } from '../utils/resumeChangeApplier';
 import { callAIText, callAIJSON } from '../services/aiService';
 import { parseJobDescription, analyzeJobMatch } from '../services/resumeAgentService';
 import { JobDescriptionData, JobMatchAnalysis } from '../types/resumeAgent';
@@ -485,7 +486,14 @@ export default function EditorSidebarRight({
         }
 
         // Update resume data job description
-        const updatedData = { ...data, jobDescription: cleanJobText, hasJobMatchRun: false };
+        const updatedData = {
+            ...data,
+            jobDescription: cleanJobText,
+            hasJobMatchRun: false,
+            // Keep the selected template on the document so section-scoped
+            // analysis knows which sections the design actually renders.
+            template: data.template || currentTemplate,
+        };
         onChange(updatedData);
 
         setProcessingStatus('Extracting target competencies & recruiter signals...');
@@ -1420,17 +1428,24 @@ RULES:
         }
 
         try {
+            // The editor keeps the selected template in its own state for
+            // unsaved resumes; fill it in so tailoring respects the sections
+            // that template actually renders.
+            const tailoringInput: ResumeData =
+                data.template || !currentTemplate ? data : { ...data, template: currentTemplate };
             const result = await tailorResumeToJob(
-                data,
+                tailoringInput,
                 data.jobDescription || ''
             );
 
-            const tailoredData = { ...data, hasJobMatchRun: true };
-            tailoredData.summary = result.summary;
-            tailoredData.skills = result.skills;
-            tailoredData.keyAchievements = result.keyAchievements;
+            let tailoredData = { ...data, hasJobMatchRun: true, template: tailoringInput.template };
+            // Only apply what the selected template actually renders. A missing
+            // field means tailoring deliberately skipped that section.
+            if (result.summary) tailoredData.summary = result.summary;
+            if (result.skills) tailoredData.skills = result.skills;
+            if (result.keyAchievements) tailoredData.keyAchievements = result.keyAchievements;
 
-            result.experience.forEach((exp, index) => {
+            result.experience?.forEach((exp, index) => {
                 if (tailoredData.experience[index]) {
                     tailoredData.experience[index].description = exp.description;
                 }
@@ -1456,6 +1471,12 @@ RULES:
                 tailoredData.additionalInfo = result.additionalInfo;
             }
 
+            // Education, certifications, languages, custom sections, and any
+            // other visible section the model improved.
+            result.changes?.forEach((change) => {
+                tailoredData = applyResumeChange(tailoredData, change);
+            });
+
             onChange(tailoredData);
             if (typeof window !== 'undefined') {
                 window.dispatchEvent(
@@ -1466,12 +1487,24 @@ RULES:
             }
 
             // Replace loading message with success message
+            const tailoredParts = [
+                result.summary ? 'professional summary' : null,
+                result.experience ? 'work experience bullets' : null,
+                result.skills ? 'core competencies' : null,
+                result.keyAchievements ? 'key achievements' : null,
+                result.changes?.length
+                    ? `${result.changes.length} additional section edit${result.changes.length === 1 ? '' : 's'}`
+                    : null,
+            ].filter(Boolean) as string[];
+
             setMessages(prev => prev.filter(m => m.id !== loadingMsgId).concat({
                 id: `success-${Date.now()}`,
                 sender: 'agent',
                 timestamp: Date.now(),
                 type: 'tailored_success',
-                text: 'Successfully tailored your entire resume! Aligned your professional summary, tailored work experience bullets with embedded keywords and Google XYZ impact metrics, and harmonized core competencies for ATS pass rates.',
+                text: tailoredParts.length
+                    ? `Successfully tailored your resume. Updated ${tailoredParts.join(', ')} for this job, using only the sections your selected template includes.`
+                    : 'Tailoring finished, but there were no template sections to update.',
                 suggestions: [
                     'Step 1: Align Title & Summary',
                     'Step 2: Tailor Experience Bullets',

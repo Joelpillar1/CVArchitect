@@ -29,7 +29,7 @@ import {
   renderCourseworkBlockHelper,
   renderExpertSkillsBlockHelper,
 } from '../../utils/templateUtils';
-import { resolveSection, getResolvedSectionOrder, isSectionHiddenByTemplateDefault } from '../../utils/sectionRegistry';
+import { resolveSection, getResolvedSectionOrder } from '../../utils/sectionRegistry';
 import type { CustomSectionData } from '../../types/resumeSections';
 import { getTranslation, Language } from '../../i18n/translations';
 
@@ -411,15 +411,6 @@ export default function SageTemplate({ data }: { data: ResumeData }) {
   const renderSection = (id: string) => {
     const resolved = resolveSection(data, id);
     if (!resolved || !resolved.visible || !resolved.hasContent) return null;
-
-    // Leadership, Projects, Additional Information, and References are hidden
-    // by default on Sage unless explicitly opted in via sectionVisibility[id] = true.
-    if (
-      isSectionHiddenByTemplateDefault('sage', resolved.id, data.sectionVisibility) ||
-      isSectionHiddenByTemplateDefault('sage', resolved.type, data.sectionVisibility)
-    ) {
-      return null;
-    }
 
     let sectionTitle = resolved.title;
     if (resolved.type === 'summary') sectionTitle = t.professionalSummary || resolved.title;

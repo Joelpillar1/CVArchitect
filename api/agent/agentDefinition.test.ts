@@ -4,6 +4,7 @@ import { INITIAL_DATA, type ResumeData } from '../../types';
 import type { JobDescriptionData } from '../../types/resumeAgent';
 import type { AgentSSEEvent } from '../../types/resumeOperations';
 import { getAgent, type AgentRunContext } from './_agentDefinition';
+import { applyTemplateSectionDefaults } from '../../utils/templateSectionDefaults';
 
 /**
  * Agent tool tests — instruction.md §36.
@@ -126,6 +127,25 @@ describe('get_resume_snapshot', () => {
       targetJob: { title: string; company: string };
     };
     expect(out.targetJob).toEqual({ title: 'Senior Product Manager', company: 'Stripe', requiredSkills: ['SQL'], keywords: ['A/B testing'] });
+  });
+
+  it('reports the sections the selected template actually renders', async () => {
+    // A real student resume is created with the student template's default
+    // composition, so summary is not in its sectionOrder. The raw fixture uses
+    // INITIAL_DATA's default order, which includes summary.
+    const student = applyTemplateSectionDefaults(
+      { ...fixture(), template: 'student' },
+      'student',
+      { force: true, preserveExtras: false }
+    );
+    const { ctx, rc } = makeContext(student);
+    const out = (await toolOf('get_resume_snapshot').invoke(rc, JSON.stringify({}))) as {
+      template: string;
+      visibleSections: string[];
+    };
+    expect(out.template).toBe('student');
+    expect(out.visibleSections).not.toContain('summary');
+    expect(out.visibleSections).toContain('experience');
   });
 });
 

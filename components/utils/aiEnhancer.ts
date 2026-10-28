@@ -1,6 +1,14 @@
 import { ResumeData } from '../../types';
+import type { ResumeChange } from '../../types/resumeAgent';
 import { callAIText, callAIJSON } from '../../services/aiService';
 import { ensureAllBulletsHaveUniqueVerbs, detectActionVerbDomain } from '../../utils/actionVerbs';
+import {
+    getVisibleSectionIds,
+    getVisibleSectionTitles,
+    normalizeSectionType,
+    resolveSection,
+} from '../../utils/sectionRegistry';
+import { stripMarkdown } from '../../utils/templateUtils';
 
 // No more direct OpenAI client - using secure Edge Functions instead
 
@@ -260,14 +268,75 @@ export const tailorResumeToJob = async (
     resumeData: ResumeData,
     jobDescription: string
 ): Promise<{
-    summary: string;
-    experience: { description: string }[];
-    skills: string;
-    keyAchievements: string;
+    summary?: string;
+    experience?: { description: string }[];
+    skills?: string;
+    keyAchievements?: string;
     projects?: { name?: string; role?: string; technologies?: string; description: string }[];
     leadership?: { role?: string; organization?: string; description: string }[];
     additionalInfo?: { id: string; label: string; value: string }[];
+    /** Edits for visible sections not covered by the top-level fields. */
+    changes?: ResumeChange[];
 }> => {
+    // Only touch the sections the selected template actually renders. A student
+    // template, for example, has no Professional Summary, so tailoring must not
+    // invent one.
+    const visibleSectionIds = getVisibleSectionIds(resumeData);
+    const visibleSectionTitles = getVisibleSectionTitles(resumeData);
+    const canTailorSummary = visibleSectionIds.some((id) => (normalizeSectionType(id) || id) === 'summary');
+    const canTailorExperience = visibleSectionIds.some((id) => (normalizeSectionType(id) || id) === 'experience');
+    const canTailorSkills = visibleSectionIds.some((id) => (normalizeSectionType(id) || id) === 'skills');
+    const canTailorAchievements = visibleSectionIds.some((id) => (normalizeSectionType(id) || id) === 'achievements');
+    const canTailorProjects = visibleSectionIds.some((id) => (normalizeSectionType(id) || id) === 'projects');
+    const canTailorLeadership = visibleSectionIds.some((id) => (normalizeSectionType(id) || id) === 'leadership');
+    const canTailorAdditionalInfo = visibleSectionIds.some((id) => (normalizeSectionType(id) || id) === 'additional_information');
+
+    const hasProjects = Boolean(canTailorProjects && resumeData.projects && resumeData.projects.length > 0);
+    const hasLeadership = Boolean(canTailorLeadership && resumeData.leadership && resumeData.leadership.length > 0);
+    const hasAdditionalInfo = Boolean(canTailorAdditionalInfo && resumeData.additionalInfo && resumeData.additionalInfo.length > 0);
+
+    const sectionInventory = visibleSectionIds.map((id, index) => {
+        const resolved = resolveSection(resumeData, id);
+        return {
+            id,
+            title: resolved?.title || visibleSectionTitles[index] || id,
+            kind: resolved?.rendererKind || 'text',
+            content: resolved?.content ?? null,
+        };
+    });
+
+    const coveredSections = new Set([
+        'summary',
+        'experience',
+        'skills',
+        'achievements',
+        'projects',
+        'leadership',
+        'additional_information',
+    ]);
+    const otherVisibleSections = sectionInventory.filter(
+        (section) => !coveredSections.has(normalizeSectionType(section.id) || section.id)
+    );
+
+    const canonicalToVisible = new Map<string, string>();
+    visibleSectionIds.forEach((id) => {
+        canonicalToVisible.set(id, id);
+        canonicalToVisible.set(normalizeSectionType(id) || id, id);
+    });
+
+    const jsonSections: string[] = [];
+    if (canTailorSummary) jsonSections.push('  "summary": "enhanced professional summary here"');
+    if (canTailorExperience) jsonSections.push('  "experience": [\n    {"description": "• Bullet 1\\n• Bullet 2\\n• Bullet 3"}\n  ]');
+    if (canTailorSkills) jsonSections.push('  "skills": "skill1, skill2, skill3, skill4, skill5, skill6, skill7, skill8"');
+    if (canTailorAchievements) jsonSections.push('  "keyAchievements": "• achievement 1\\n• achievement 2\\n• achievement 3"');
+    if (hasProjects) jsonSections.push('  "projects": [\n    {"description": "• Project bullet 1\\n• Project bullet 2"}\n  ]');
+    if (hasLeadership) jsonSections.push('  "leadership": [\n    {"description": "• Leadership bullet 1\\n• Leadership bullet 2"}\n  ]');
+    if (hasAdditionalInfo) jsonSections.push('  "additionalInfo": [\n    {"label": "Custom Section Label", "value": "Enhanced section content here"}\n  ]');
+    if (otherVisibleSections.length > 0) {
+        jsonSections.push(`  "changes": [\n    {"section": "${otherVisibleSections[0].id}", "itemId": "item id if applicable", "bulletIndex": 0, "field": "optional field", "original": "exact original text", "proposed": "tailored text", "reason": "why this helps", "evidence": ["fact from the resume"]}\n  ]`);
+    }
+    const jsonSchema = `{\n${jsonSections.join(',\n')}\n}`;
+
     try {
         const prompt = `You are a senior executive recruiter with 15+ years of experience across industries and markets globally. You understand what recruiters and hiring managers want to see, what they don't want to see, and how to craft resumes that get interviews. You have deep knowledge of different roles, industries, company sizes, and what metrics are appropriate and impressive for each context. You're helping a candidate tailor their resume to THIS SPECIFIC JOB. You HATE resumes that scream "AI-generated" with excessive metrics and generic buzzwords.
 
@@ -277,17 +346,28 @@ JOB DESCRIPTION:
 ${jobDescription.substring(0, 3000)}
 
 CURRENT RESUME:
-Summary: ${resumeData.summary}
+${canTailorSummary ? `Summary: ${resumeData.summary}` : 'Summary: (this template does not render a summary section)'}
 Skills: ${resumeData.skills}
 Experience: ${JSON.stringify((resumeData.experience || []).map(e => ({ role: e.role, company: e.company, desc: e.description })))}
-${resumeData.projects && resumeData.projects.length > 0 ? `Projects: ${JSON.stringify(resumeData.projects.map(p => ({ name: p.name, role: p.role, tech: p.technologies, desc: p.description })))}` : ''}
-${resumeData.leadership && resumeData.leadership.length > 0 ? `Leadership: ${JSON.stringify(resumeData.leadership.map(l => ({ role: l.role, org: l.organization || l.company, desc: l.description })))}` : ''}
-${resumeData.additionalInfo && resumeData.additionalInfo.length > 0 ? `Custom Sections: ${JSON.stringify(resumeData.additionalInfo.filter(a => a && (a.label || a.value)).map(a => ({ label: a.label, value: a.value })))}` : ''}
-${resumeData.keyAchievements ? `Key Achievements: ${JSON.stringify(resumeData.keyAchievements)}` : ''}
+${hasProjects ? `Projects: ${JSON.stringify(resumeData.projects!.map(p => ({ name: p.name, role: p.role, tech: p.technologies, desc: p.description })))}` : ''}
+${hasLeadership ? `Leadership: ${JSON.stringify(resumeData.leadership!.map(l => ({ role: l.role, org: l.organization || l.company, desc: l.description })))}` : ''}
+${hasAdditionalInfo ? `Custom Sections: ${JSON.stringify(resumeData.additionalInfo!.filter(a => a && (a.label || a.value)).map(a => ({ label: a.label, value: a.value })))}` : ''}
+${canTailorAchievements && resumeData.keyAchievements ? `Key Achievements: ${JSON.stringify(resumeData.keyAchievements)}` : ''}
+
+ALL VISIBLE SECTIONS (complete inventory):
+${JSON.stringify(sectionInventory, null, 2)}
+
+# SELECTED TEMPLATE SECTION SCOPE (ABSOLUTE)
+The candidate's chosen resume template renders ONLY these sections: ${visibleSectionTitles.join(', ') || 'none'}.
+- Return content ONLY for the sections in that list.
+- NEVER create, invent, or write content for a section the template does not render, even if the job description emphasizes it.
+- ${canTailorSummary ? 'A Professional Summary section is available.' : 'This design has NO Professional Summary section. Do not return a summary or summary text.'}
+- For visible sections not represented by the top-level JSON fields above (for example education, certifications, languages, awards, or custom sections), return edits in the "changes" array.
+- Each change must use the exact section id from the inventory, and include itemId / bulletIndex / field when the target is an item or a specific field.
 
 # YOUR MISSION: Make this resume PERFECTLY aligned with the job while sounding HUMAN, AUTHENTIC, and STRICTLY GROUNDED
 
-## 1. PROFESSIONAL SUMMARY (2-4 sentences):
+${canTailorSummary ? `## 1. PROFESSIONAL SUMMARY (2-4 sentences):
 - **DYNAMIC & PROFESSIONAL OPENING (STRICT BAN ON CLICHÉS)**:
   * NEVER start the summary with cliché buzzwords like "Dynamic", "Results-driven", "Results-oriented", "Passionate", "Dedicated", "Motivated", "Seasoned", "Hardworking", "Self-starter", "Proven track record", "Adept at", or "Accomplished".
   * Open authoritatively and dynamically with the candidate's professional title and functional specialization (e.g. "[Job Title] specializing in [Core Area]...", "[Job Title] with [X+] years architecting end-to-end [Discipline]...", "[Job Title] focused on [Core Discipline / Problem Domain]...").
@@ -297,7 +377,7 @@ ${resumeData.keyAchievements ? `Key Achievements: ${JSON.stringify(resumeData.ke
   * Do NOT claim past work or track records in specific niche industries from the JD (e.g. "FinCrime sector", "defense aviation", "biotech") unless clearly present in the candidate's existing work history. Focus on transferable functional expertise (e.g. UI/UX design, design systems, user research, scalable mobile/web platforms).
 - Mirror the target job title and top critical transferable skills from the JD.
 - Keep it natural, authentic, polished, and human.
-
+` : ''}
 ## 2. EXPERIENCE BULLETS (CRITICAL - READ CAREFULLY):
 
 ### STRATEGIC QUANTIFICATION & METRIC PRESERVATION RULES:
@@ -344,35 +424,70 @@ For EVERY bullet you write:
 - Use EXACT terminology from the JD
 - Order by relevance to THIS job
 
-## 4. KEY ACHIEVEMENTS (3-4 bullet points):
+${canTailorAchievements ? `## 4. KEY ACHIEVEMENTS (3-4 bullet points):
 - Impressive and relevant flagship achievements
 - STAR method in cohesive 2-line bullets
 - Start with strong unique action verbs
-
+` : ''}
 ## 5. PROJECTS, LEADERSHIP & CUSTOM SECTIONS (if provided):
 - Elevate tech stack, architecture, and governance outcomes in 2-3 Google XYZ bullets per item.
 - Do NOT fabricate credentials or claims; elevate wording and keyword alignment.
 
+## 6. OTHER VISIBLE SECTIONS:
+- Review education, certifications, languages, awards, publications, and custom sections too.
+- Only propose a change when the existing content can be truthfully aligned with the job; return those edits in "changes".
+- Do not rewrite a section just to fill a quota.
+
 Return ONLY valid JSON in this EXACT format:
-{
-  "summary": "enhanced professional summary here",
-  "experience": [
-    {"description": "• Bullet 1\\n• Bullet 2\\n• Bullet 3"}
-  ],
-  "skills": "skill1, skill2, skill3, skill4, skill5, skill6, skill7, skill8",
-  "keyAchievements": "• achievement 1\\n• achievement 2\\n• achievement 3"${resumeData.projects && resumeData.projects.length > 0 ? `,
-  "projects": [
-    {"description": "• Project bullet 1\\n• Project bullet 2"}
-  ]` : ''}${resumeData.leadership && resumeData.leadership.length > 0 ? `,
-  "leadership": [
-    {"description": "• Leadership bullet 1\\n• Leadership bullet 2"}
-  ]` : ''}${resumeData.additionalInfo && resumeData.additionalInfo.length > 0 ? `,
-  "additionalInfo": [
-    {"label": "Custom Section Label", "value": "Enhanced section content here"}
-  ]` : ''}
-}`;
+${jsonSchema}`;
 
         const parsed = await callAIJSON(prompt, 'gpt-4o', 0.8);
+
+        // Defense in depth: never return content for a section the selected
+        // template does not render, even if the model ignores the scope block.
+        if (!canTailorSummary) delete parsed.summary;
+        if (!canTailorExperience) delete parsed.experience;
+        if (!canTailorSkills) delete parsed.skills;
+        if (!canTailorAchievements) delete parsed.keyAchievements;
+        if (!hasProjects) delete parsed.projects;
+        if (!hasLeadership) delete parsed.leadership;
+        if (!hasAdditionalInfo) delete parsed.additionalInfo;
+
+        // Edits for sections outside the top-level fields. Scope and alias
+        // checks mirror the change-by-change agent so the full-rewrite path can
+        // tailor education, certifications, languages, custom sections, and so
+        // on without inventing a section.
+        if (Array.isArray(parsed.changes)) {
+            parsed.changes = parsed.changes
+                .map((chg: any) => {
+                    const raw = String(chg?.section || '').trim();
+                    const target =
+                        canonicalToVisible.get(raw) ||
+                        canonicalToVisible.get(normalizeSectionType(raw) || '');
+                    if (!target) return null;
+                    const canonical = normalizeSectionType(target) || target;
+                    if (coveredSections.has(canonical)) return null;
+                    const proposed = stripMarkdown(String(chg?.proposed || '')).trim();
+                    if (!proposed) return null;
+                    return {
+                        id: `tailor_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+                        section: target,
+                        itemId: typeof chg.itemId === 'string' ? chg.itemId : undefined,
+                        bulletIndex: typeof chg.bulletIndex === 'number' ? chg.bulletIndex : undefined,
+                        field: typeof chg.field === 'string' && chg.field.trim() ? chg.field.trim() : undefined,
+                        original: stripMarkdown(String(chg.original || '')),
+                        proposed,
+                        reason: String(chg.reason || 'Better aligns this section with the job.'),
+                        evidence: Array.isArray(chg.evidence) ? chg.evidence.map(String) : [],
+                        status: 'pending' as const,
+                        timestamp: Date.now(),
+                    };
+                })
+                .filter(Boolean);
+        } else {
+            parsed.changes = [];
+        }
+
         const usedVerbsAcrossResume = new Set<string>();
 
         if (Array.isArray(parsed.experience)) {

@@ -25,7 +25,7 @@ import {
   renderExpertSkillsBlockHelper,
 } from '../../utils/templateUtils';
 import { parseSkillCategories } from '../../utils/skillCategorization';
-import { resolveSection, getResolvedSectionOrder, isSectionHiddenByTemplateDefault } from '../../utils/sectionRegistry';
+import { resolveSection, getResolvedSectionOrder } from '../../utils/sectionRegistry';
 import type { CustomSectionData } from '../../types/resumeSections';
 
 /**
@@ -483,15 +483,6 @@ export default function ScholarTemplate({ data }: { data: ResumeData }) {
   const renderSection = (id: string) => {
     const resolved = resolveSection(data, id);
     if (!resolved || !resolved.visible || !resolved.hasContent) return null;
-
-    // Professional Summary, Key Achievements, Leadership, Additional Information
-    // and References are hidden by default on this template (the source resume
-    // doesn't include them). Explicit opt-in via sectionVisibility[id] = true —
-    // set by Add Section and visibility toggles — renders them normally.
-    if (
-      isSectionHiddenByTemplateDefault('scholar', resolved.id, data.sectionVisibility) ||
-      isSectionHiddenByTemplateDefault('scholar', resolved.type, data.sectionVisibility)
-    ) return null;
 
     // Explicit sectionTitles[] overrides (e.g. the reference's "Certifications
     // & Online Courses") win; only fall back to the translated defaults when

@@ -3,6 +3,12 @@ import { JobDescriptionData, JobMatchAnalysis, ResumeChange, MissingEvidenceItem
 import { callAIJSON, callAIText } from './aiService';
 import { stripMarkdown } from '../utils/templateUtils';
 import {
+  getVisibleSectionIds,
+  getVisibleSectionTitles,
+  normalizeSectionType,
+  resolveSection,
+} from '../utils/sectionRegistry';
+import {
   buildVerbDiversityPromptContext,
   ensureUniqueActionVerb,
   ensureAllBulletsHaveUniqueVerbs,
@@ -19,6 +25,27 @@ import {
 
 // Utility to create unique IDs
 const createId = () => Math.random().toString(36).substring(2, 9);
+
+/**
+ * The exact set of sections the preview renders, with titles, renderer kinds,
+ * and content. Used by both match analysis and tailoring so the agent reasons
+ * over the whole document instead of a hardcoded summary/skills/experience
+ * subset.
+ */
+function buildVisibleSectionInventory(resume: ResumeData) {
+  const visibleSectionIds = getVisibleSectionIds(resume);
+  const visibleSectionTitles = getVisibleSectionTitles(resume);
+  const sectionInventory = visibleSectionIds.map((id, index) => {
+    const resolved = resolveSection(resume, id);
+    return {
+      id,
+      title: resolved?.title || visibleSectionTitles[index] || id,
+      kind: resolved?.rendererKind || 'text',
+      content: resolved?.content ?? null,
+    };
+  });
+  return { visibleSectionIds, visibleSectionTitles, sectionInventory };
+}
 
 /**
  * Parses raw job description text into structured JobDescriptionData
@@ -77,6 +104,13 @@ Return strictly valid JSON with this exact shape:
  * Analyzes fit between user's current ResumeData and JobDescriptionData
  */
 export async function analyzeJobMatch(resume: ResumeData, job: JobDescriptionData): Promise<JobMatchAnalysis> {
+  const { visibleSectionIds, sectionInventory } = buildVisibleSectionInventory(resume);
+  const canonicalToVisible = new Map<string, string>();
+  visibleSectionIds.forEach((id) => {
+    canonicalToVisible.set(id, id);
+    canonicalToVisible.set(normalizeSectionType(id) || id, id);
+  });
+
   const prompt = `
 You are an elite Senior Executive Recruiter and ATS Evaluator.
 Analyze the alignment between this Candidate Resume and the Target Job Description.
@@ -88,12 +122,13 @@ Required Skills: ${job.requiredSkills.join(', ')}
 Keywords: ${job.keywords.join(', ')}
 Responsibilities: ${job.responsibilities.join('; ')}
 
-Candidate Resume:
-Title: ${resume.jobTitle}
-Summary: ${resume.summary}
-Skills: ${resume.skills}
-Experience:
-${resume.experience.map(e => `- ${e.role} at ${e.company}: ${Array.isArray(e.description) ? e.description.join(' ') : e.description}`).join('\n')}
+Candidate Resume (only the sections the preview renders):
+${JSON.stringify(sectionInventory, null, 2)}
+
+SECTION SCOPE (ABSOLUTE):
+- Recommend opportunities only for these section ids: ${visibleSectionIds.join(', ') || 'none'}.
+- Use the exact id in the "section" field.
+- Do not recommend a section that is not in that list.
 
 Evaluate realistic alignment and return strictly valid JSON matching this schema:
 {
@@ -120,6 +155,12 @@ Evaluate realistic alignment and return strictly valid JSON matching this schema
 
   try {
     const result = await callAIJSON(prompt, 'gpt-4o', 0.3);
+    const opportunities = Array.isArray(result.topOpportunities)
+      ? result.topOpportunities
+      : [
+          { id: 'opp_1', title: 'Align summary keywords with job title', description: 'Incorporate target domain terminology into summary', section: 'summary' },
+          { id: 'opp_2', title: 'Quantify impact in experience bullet points', description: 'Add metric outcomes to bullet points where relevant', section: 'experience' }
+        ];
     return {
       matchScore: Math.min(100, Math.max(30, result.matchScore || 80)),
       categoryScores: {
@@ -131,10 +172,15 @@ Evaluate realistic alignment and return strictly valid JSON matching this schema
       },
       strongMatches: Array.isArray(result.strongMatches) ? result.strongMatches : ['Relevant job role history', 'Core domain tools'],
       gaps: Array.isArray(result.gaps) ? result.gaps : ['Specific target metrics', 'Industry term alignment'],
-      topOpportunities: Array.isArray(result.topOpportunities) ? result.topOpportunities : [
-        { id: 'opp_1', title: 'Align summary keywords with job title', description: 'Incorporate target domain terminology into summary', section: 'summary' },
-        { id: 'opp_2', title: 'Quantify impact in experience bullet points', description: 'Add metric outcomes to bullet points where relevant', section: 'experience' }
-      ]
+      topOpportunities: (opportunities as Array<{ id: string; title: string; description: string; section?: string }>)
+        .map((opp) => {
+          const raw = String(opp?.section || '');
+          const target =
+            canonicalToVisible.get(raw) ||
+            canonicalToVisible.get(normalizeSectionType(raw) || '');
+          return target ? { ...opp, section: target } : null;
+        })
+        .filter((opp): opp is { id: string; title: string; description: string; section: string } => Boolean(opp)),
     };
   } catch (err) {
     console.warn('AI match analysis failed, using fallback match evaluator:', err);
@@ -151,6 +197,51 @@ export async function generateTailoredChanges(
   job: JobDescriptionData,
   extraContext?: string
 ): Promise<ResumeChange[]> {
+  // Every section the preview actually renders is in scope: the template's
+  // defaults plus any user-added or custom section, minus hidden/empty ones.
+  const { visibleSectionIds, visibleSectionTitles, sectionInventory } =
+    buildVisibleSectionInventory(resume);
+  const canTailorSummary = visibleSectionIds.some(
+    (id) => (normalizeSectionType(id) || id) === 'summary'
+  );
+
+  // The model may echo the id it sees, a canonical registry type, or a legacy
+  // alias. Map every accepted spelling back to the visible section id.
+  const allowedMap = new Map<string, string>();
+  visibleSectionIds.forEach((id) => {
+    const canonical = normalizeSectionType(id) || id;
+    allowedMap.set(id, id);
+    allowedMap.set(canonical, id);
+    if (canonical === 'achievements') {
+      allowedMap.set('keyAchievements', id);
+      allowedMap.set('key_achievements', id);
+    }
+    if (canonical === 'additional_information') allowedMap.set('additionalInfo', id);
+    if (canonical === 'references') allowedMap.set('referee', id);
+  });
+
+  const allowedChangeSections = visibleSectionIds;
+
+  const bulletSections = new Set([
+    'experience',
+    'leadership',
+    'involvement',
+    'volunteering',
+    'research',
+    'teaching',
+    'military',
+    'clinical_experience',
+    'projects',
+    'portfolio',
+    'case_studies',
+    'selected_work',
+    'achievements',
+    'awards',
+    'publications',
+    'conferences_speaking',
+    'academic_achievements',
+  ]);
+
   const prompt = `
 You are CVArchitect’s expert Resume Tailoring Agent.
 
@@ -164,6 +255,18 @@ When tailoring a resume for a target job, execute this 6-step process:
 
 Think like a recruiter, hiring manager, and professional resume strategist, not a keyword matcher.
 Your goal is to produce the strongest truthful version of the candidate’s resume for the target role title: "${job.title}".
+
+SELECTED TEMPLATE SECTION SCOPE (ABSOLUTE):
+The candidate's chosen resume template renders exactly these sections:
+${sectionInventory.length > 0
+  ? sectionInventory.map((section) => `- id: "${section.id}" | title: "${section.title}" | renderer: ${section.kind}`).join('\n')
+  : '- none'}
+- Propose changes ONLY for those section ids.
+- NEVER create, invent, or write content for a section that is not in that list, even if the job description emphasizes it.
+- ${canTailorSummary ? 'A Professional Summary section is available.' : 'This design has NO Professional Summary section. Do not generate a summary, do not propose summary text, and do not tell the candidate their summary was improved.'}
+- For experience-like and project sections, include "itemId" and "bulletIndex" when rewriting a bullet.
+- For structured items (education, certifications, languages, key-value, etc.), include "field" when rewriting a specific field (for example "degree", "name", "proficiency", "value", or "roleSummary").
+- For scalar sections (summary, skills, coursework, thesis, interests, references), omit itemId, bulletIndex, and field.
 
 CRITICAL TRUST, INTEGRITY & ANTI-HALLUCINATION RULES:
 1. NEVER MENTION THE TARGET HIRING COMPANY AS A PAST EMPLOYER:
@@ -207,31 +310,32 @@ ONE VERB MUST NEVER APPEAR TWICE across any bullets anywhere on the resume.
 Never repeat the same starting verb root (e.g., Spearheaded, Engineered, Orchestrated, Accelerated).
 
 CRITICAL STEP-BY-STEP ORDER:
-Always include a proposed rewrite for the "summary" section as the FIRST item in the array to position the candidate's executive title and value proposition for the target role. Then follow with 2-4 high-impact experience bullet improvements and core skills.
+${canTailorSummary
+  ? 'Start with a proposed rewrite for the "summary" section to position the candidate\'s title and value proposition for the target role. Then review every other visible section and propose only the highest-impact, truthful improvements (experience bullets, skills, projects, education, certifications, leadership, languages, custom sections, and so on).'
+  : 'This template has no summary section, so start with the strongest visible section and review every other visible section. Propose only the highest-impact, truthful improvements (experience bullets, skills, projects, education, certifications, leadership, languages, custom sections, and so on). Do not propose a summary.'}
+Do not rewrite a section just to fill a quota. If a section already aligns with the role, leave it alone.
 
 Target Job Keywords: ${job.keywords.join(', ')}
 Target Job Responsibilities: ${job.responsibilities.join('; ')}
 Active Starting Verbs Already Used on Resume: ${Array.from(getUsedStartingVerbs(resume)).join(', ') || 'None'}
 
-Current Resume Data:
-Summary: "${resume.summary}"
-Skills: "${resume.skills}"
-Experience:
-${JSON.stringify(resume.experience, null, 2)}
+Current Resume Data (only the visible sections; this is the complete set of content you may edit):
+${JSON.stringify(sectionInventory, null, 2)}
 ${extraContext ? `\nAdditional context the candidate confirmed is TRUE (you may ground rewrites in these facts):\n${extraContext}\n` : ''}
-Return strictly valid JSON as an array of proposed changes (Summary first):
+Return strictly valid JSON as an array of proposed changes${canTailorSummary ? ' (Summary first)' : ''}:
 [
   {
-    "section": "summary" | "experience" | "skills" | "keyAchievements",
-    "itemId": "experience_id if experience section",
-    "bulletIndex": 0, // index of bullet if experience description array
+    "section": ${allowedChangeSections.map((section) => `"${section}"`).join(' | ') || '"experience"'},
+    "itemId": "id of the item when targeting an experience/project/education/certification entry; omit otherwise",
+    "bulletIndex": 0, // index of the bullet within that item's description; omit for scalar or whole-item rewrites
+    "field": "optional field name for a structured item, e.g. degree, name, proficiency, value, roleSummary",
     "original": "exact original text being modified",
     "proposed": "tailored plain text featuring relevant job keywords (no **bold** asterisks)",
     "reason": "Clear explanation why this edit improves alignment with the target role",
     "evidence": ["Exact quote or fact from original resume supporting this change"]
   }
 ]
-Generate 3 to 5 high-impact, targeted suggestions (Summary first).
+Generate 4 to 6 high-impact, targeted suggestions across the visible sections${canTailorSummary ? ' (Summary first)' : ''}.
 `;
 
   try {
@@ -239,34 +343,53 @@ Generate 3 to 5 high-impact, targeted suggestions (Summary first).
     if (Array.isArray(rawChanges) && rawChanges.length > 0) {
       const usedVerbs = getUsedStartingVerbs(resume);
       const domain = detectActionVerbDomain(job.title + ' ' + (job.domain || ''));
-      return rawChanges.map((chg: any) => {
-        let proposed = stripMarkdown(chg.proposed || '');
-        if (chg.section === 'experience' || chg.section === 'keyAchievements') {
-          if (proposed.includes('\n') || proposed.startsWith('•') || proposed.startsWith('-')) {
-            proposed = ensureAllBulletsHaveUniqueVerbs(proposed, usedVerbs, domain);
-          } else {
-            proposed = ensureUniqueActionVerb(proposed, usedVerbs, domain);
+
+      // Defense in depth: even if the model ignores the scope block, never
+      // surface a change for a section the preview does not render. Aliases are
+      // mapped back to the exact visible id.
+      const scopedChanges = rawChanges
+        .map((chg: any) => {
+          const raw = String(chg.section || '').trim();
+          const target =
+            allowedMap.get(raw) ||
+            allowedMap.get(normalizeSectionType(raw) || '');
+          if (!target) return null;
+          return { ...chg, section: target };
+        })
+        .filter(Boolean) as any[];
+
+      if (scopedChanges.length > 0) {
+        return scopedChanges.map((chg: any) => {
+          let proposed = stripMarkdown(chg.proposed || '');
+          const canonical = normalizeSectionType(chg.section) || chg.section;
+          if (bulletSections.has(canonical)) {
+            if (proposed.includes('\n') || proposed.startsWith('•') || proposed.startsWith('-')) {
+              proposed = ensureAllBulletsHaveUniqueVerbs(proposed, usedVerbs, domain);
+            } else {
+              proposed = ensureUniqueActionVerb(proposed, usedVerbs, domain);
+            }
           }
-        }
-        return {
-          id: createId(),
-          section: chg.section || 'experience',
-          itemId: chg.itemId,
-          bulletIndex: typeof chg.bulletIndex === 'number' ? chg.bulletIndex : undefined,
-          original: stripMarkdown(chg.original || ''),
-          proposed,
-          reason: chg.reason || 'Better aligns wording with job requirements.',
-          evidence: Array.isArray(chg.evidence) ? chg.evidence : [chg.original || 'User resume history'],
-          status: 'pending',
-          timestamp: Date.now(),
-        };
-      });
+          return {
+            id: createId(),
+            section: chg.section,
+            itemId: chg.itemId,
+            bulletIndex: typeof chg.bulletIndex === 'number' ? chg.bulletIndex : undefined,
+            field: typeof chg.field === 'string' && chg.field.trim() ? chg.field.trim() : undefined,
+            original: stripMarkdown(chg.original || ''),
+            proposed,
+            reason: chg.reason || 'Better aligns wording with job requirements.',
+            evidence: Array.isArray(chg.evidence) ? chg.evidence : [chg.original || 'User resume history'],
+            status: 'pending',
+            timestamp: Date.now(),
+          };
+        });
+      }
     }
   } catch (err) {
     console.warn('AI tailored generation failed, using fallback tailored change generator:', err);
   }
 
-  return fallbackTailoredChanges(resume, job);
+  return fallbackTailoredChanges(resume, job, allowedChangeSections);
 }
 
 /**
@@ -277,6 +400,7 @@ Generate 3 to 5 high-impact, targeted suggestions (Summary first).
  */
 export async function detectMissingEvidence(resume: ResumeData, job: JobDescriptionData): Promise<MissingEvidenceItem[]> {
   const resumeSnapshot = buildResumeSnapshot(resume);
+  const { sectionInventory } = buildVisibleSectionInventory(resume);
 
   const prompt = `
 You are a concise senior technical recruiter interviewing a candidate before tailoring their resume.
@@ -290,6 +414,12 @@ Key responsibilities: ${job.responsibilities.join('; ') || 'n/a'}
 
 CANDIDATE RESUME IN WORKSPACE
 ${resumeSnapshot}
+
+FULL VISIBLE SECTION INVENTORY
+${JSON.stringify(sectionInventory, null, 2)}
+
+The candidate's chosen resume template renders ONLY these sections: ${getVisibleSectionTitles(resume).join(', ') || 'none'}.
+Do not ask about, or collect evidence for, a section that is not in that list.
 
 RULES:
 1. GROUND EVERY QUESTION IN THE RESUME. Reference the candidate's real companies or roles.
@@ -417,6 +547,21 @@ function fallbackJobParse(jdText: string): JobDescriptionData {
 }
 
 function fallbackMatchAnalysis(resume: ResumeData, job: JobDescriptionData): JobMatchAnalysis {
+  const visible = getVisibleSectionIds(resume);
+  const has = (type: string) => visible.some((id) => (normalizeSectionType(id) || id) === type);
+  const opportunities: JobMatchAnalysis['topOpportunities'] = [];
+  if (has('summary')) {
+    opportunities.push({ id: 'opp_1', title: 'Strengthen Professional Summary', description: 'Incorporate target role title and domain keywords.', section: 'summary' });
+  }
+  if (has('experience')) {
+    opportunities.push({ id: 'opp_2', title: 'Highlight Design System & Metrics', description: 'Rephrase bullet points to highlight cross-functional impact.', section: 'experience' });
+  }
+  if (has('skills')) {
+    opportunities.push({ id: 'opp_3', title: 'Prioritize Target Skills', description: 'Move the most relevant job keywords to the front of the skills section.', section: 'skills' });
+  }
+  if (has('projects')) {
+    opportunities.push({ id: 'opp_4', title: 'Connect Projects to the Role', description: 'Surface the project outcomes that best match the target responsibilities.', section: 'projects' });
+  }
   return {
     matchScore: 82,
     categoryScores: {
@@ -436,18 +581,20 @@ function fallbackMatchAnalysis(resume: ResumeData, job: JobDescriptionData): Job
       'Explicit metric outcomes in recent roles',
       'Specific tool keyword placement for ATS optimization'
     ],
-    topOpportunities: [
-      { id: 'opp_1', title: 'Strengthen Professional Summary', description: 'Incorporate target role title and domain keywords.', section: 'summary' },
-      { id: 'opp_2', title: 'Highlight Design System & Metrics', description: 'Rephrase bullet points to highlight cross-functional impact.', section: 'experience' }
-    ]
+    topOpportunities: opportunities,
   };
 }
 
-function fallbackTailoredChanges(resume: ResumeData, job: JobDescriptionData): ResumeChange[] {
+function fallbackTailoredChanges(
+  resume: ResumeData,
+  job: JobDescriptionData,
+  allowedSections: string[] = ['summary', 'experience', 'skills']
+): ResumeChange[] {
   const changes: ResumeChange[] = [];
+  const allowed = new Set(allowedSections);
 
-  // Summary recommendation
-  if (resume.summary) {
+  // Summary recommendation (only when the template renders a summary)
+  if (allowed.has('summary') && resume.summary) {
     changes.push({
       id: createId(),
       section: 'summary',
@@ -461,7 +608,7 @@ function fallbackTailoredChanges(resume: ResumeData, job: JobDescriptionData): R
   }
 
   // Experience bullet recommendation if available
-  if (resume.experience && resume.experience.length > 0) {
+  if (allowed.has('experience') && resume.experience && resume.experience.length > 0) {
     const exp = resume.experience[0];
     const descArr = Array.isArray(exp.description) ? exp.description : [exp.description];
     if (descArr.length > 0) {
@@ -481,7 +628,7 @@ function fallbackTailoredChanges(resume: ResumeData, job: JobDescriptionData): R
   }
 
   // Skills recommendation
-  if (resume.skills) {
+  if (allowed.has('skills') && resume.skills) {
     const currentSkills = resume.skills.split(',').map(s => s.trim());
     const additionalTargetSkills = job.requiredSkills.filter(s => !currentSkills.some(cs => cs.toLowerCase() === s.toLowerCase()));
     if (additionalTargetSkills.length > 0) {

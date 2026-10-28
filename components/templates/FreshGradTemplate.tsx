@@ -30,7 +30,7 @@ import {
   renderCourseworkBlockHelper,
   renderExpertSkillsBlockHelper,
 } from '../../utils/templateUtils';
-import { resolveSection, getResolvedSectionOrder, isSectionExplicitlyAdded } from '../../utils/sectionRegistry';
+import { resolveSection, getResolvedSectionOrder } from '../../utils/sectionRegistry';
 import type { CustomSectionData } from '../../types/resumeSections';
 import { getTranslation, Language } from '../../i18n/translations';
 
@@ -442,20 +442,6 @@ const FreshGradTemplate: React.FC<FreshGradTemplateProps> = ({ data }) => {
   const renderSection = (id: string) => {
     const resolved = resolveSection(data, id);
     if (!resolved || !resolved.visible || !resolved.hasContent) return null;
-
-    // Student templates do not have professional summary or key achievements by
-    // default — but an explicit user add (sidebar, canvas + dock, or the
-    // hidden-content notice banner) still wins and renders the section.
-    if (
-      (resolved.type === 'summary' ||
-        resolved.type === 'achievements' ||
-        id === 'summary' ||
-        id === 'keyAchievements' ||
-        id === 'achievements') &&
-      !isSectionExplicitlyAdded(data, id)
-    ) {
-      return null;
-    }
 
     let sectionTitle = resolved.title;
     if (resolved.type === 'skills') {

@@ -18,6 +18,7 @@ import {
 } from '../services/resumeAgentService';
 import { runAgent, type AgentHistoryTurn } from '../services/agentClient';
 import { applyOperation, OperationError } from '../utils/resumeOperations';
+import { applyResumeChange, resumeChangeSectionLabel } from '../utils/resumeChangeApplier';
 import { type ResumeOperation } from '../types/resumeOperations';
 import { type ResumeSectionType } from '../types/resumeSections';
 import { SECTION_REGISTRY, createDefaultSectionOrder } from '../utils/sectionRegistry';
@@ -1538,6 +1539,18 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
       const proposedChanges = await generateTailoredChanges(resume, job, extraContext);
       setPendingChanges(proposedChanges);
 
+      // Report every section that actually received a change, using the same
+      // title the preview shows (including custom and user-added sections).
+      const tailoredSections = Array.from(
+        new Set(
+          proposedChanges.map((change) => resumeChangeSectionLabel(resume, change.section))
+        )
+      );
+
+      const stepText = tailoredSections.length
+        ? `**Step 1: Tailored ${tailoredSections.join(' & ')}**\n\nI've tailored ${tailoredSections.join(', ').toLowerCase()} for **${job.title} at ${job.company}**, using only the sections your selected template includes. Review and approve the edits directly on your resume.`
+        : `**Nothing to tailor yet**\n\nI couldn't find sections on this resume that I can safely tailor for **${job.title} at ${job.company}**. Add your experience or skills, then try again.`;
+
       setMessages((prev) => [
         ...prev.filter((m) => m.id !== loadingId),
         {
@@ -1545,7 +1558,7 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
           sender: 'agent',
           timestamp: Date.now(),
           type: 'text',
-          text: `**Step 1: Tailored Executive Summary & Key Highlights**\n\nI've tailored your Professional Summary first to position you directly for **${job.title} at ${job.company}**, followed by targeted experience bullets. Review and approve the edits directly on your resume.`,
+          text: stepText,
         },
       ]);
 
@@ -1569,48 +1582,15 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
     const target = pendingChanges.find((c) => c.id === changeId);
     if (!target) return;
 
-    // Save previous state for undo
-    setAcceptedHistory((prev) => [{ change: target, prevData: { ...resumeData } }, ...prev]);
+    // Save previous state for the comparison baseline and undo stack.
+    const previousData = resumeDataRef.current || resumeData;
+    setAcceptedHistory((prev) => [{ change: target, prevData: { ...previousData } }, ...prev]);
 
-    // Apply change to structured resume model
-    setResumeData((prevData) => {
-      const updated = { ...prevData };
-
-      if (target.section === 'summary') {
-        updated.summary = target.proposed;
-      } else if (target.section === 'skills') {
-        updated.skills = target.proposed;
-      } else if (target.section === 'keyAchievements') {
-        if (Array.isArray(updated.keyAchievements)) {
-          const arr = [...updated.keyAchievements];
-          if (typeof target.bulletIndex === 'number' && arr[target.bulletIndex] !== undefined) {
-            arr[target.bulletIndex] = target.proposed;
-          } else if (target.original && arr.includes(target.original)) {
-            arr[arr.indexOf(target.original)] = target.proposed;
-          } else {
-            arr.push(target.proposed);
-          }
-          updated.keyAchievements = arr;
-        } else {
-          updated.keyAchievements = target.proposed;
-        }
-      } else if (target.section === 'experience' && target.itemId) {
-        updated.experience = updated.experience.map((exp) => {
-          if (exp.id === target.itemId) {
-            let descArr = Array.isArray(exp.description) ? [...exp.description] : [exp.description];
-            if (typeof target.bulletIndex === 'number' && descArr[target.bulletIndex] !== undefined) {
-              descArr[target.bulletIndex] = target.proposed;
-            } else if (descArr.length > 0) {
-              descArr[0] = target.proposed;
-            }
-            return { ...exp, description: descArr };
-          }
-          return exp;
-        });
-      }
-
-      return updated;
-    });
+    // Apply the change through the renderer-aware applier. It handles scalar
+    // sections, root bullet lists, experience-like arrays, structured items,
+    // and custom sections. handleUpdateResumeData keeps resumeDataRef and the
+    // undo stack in sync so accepting several changes in a row is lossless.
+    handleUpdateResumeData(applyResumeChange(previousData, target));
 
     // Remove from pending
     setPendingChanges((prev) => {
