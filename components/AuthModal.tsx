@@ -148,6 +148,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                     <button
                         type="submit"
                         disabled={loading}
+                        data-ml-goal={mode === 'signup' ? 'signup_click' : undefined}
                         className="w-full bg-gradient-to-r from-brand-green to-emerald-500 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
                     >
                         {loading ? (

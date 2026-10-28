@@ -146,6 +146,8 @@ export default function PricingModal({
                                     type="button"
                                     onClick={() => !loadingPlanId && handlePlanSelect('build')}
                                     disabled={!!loadingPlanId || normalizedCurrentPlan === 'build' || normalizedCurrentPlan === 'lifetime'}
+                                    data-ml-goal="checkout_click"
+                                    data-ml-goal-plan="build"
                                     className="w-full py-2.5 sm:py-3 px-3 rounded-lg bg-brand-green hover:bg-brand-greenHover text-brand-dark font-extrabold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
                                 >
                                     {loadingPlanId === 'build' ? (
@@ -240,6 +242,8 @@ export default function PricingModal({
                                     type="button"
                                     onClick={() => !loadingPlanId && handlePlanSelect('lifetime')}
                                     disabled={!!loadingPlanId || currentPlanId === 'lifetime'}
+                                    data-ml-goal="checkout_click"
+                                    data-ml-goal-plan="lifetime"
                                     className="w-full py-2.5 sm:py-3 px-3 rounded-lg bg-brand-green hover:bg-brand-greenHover text-brand-dark font-extrabold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] disabled:opacity-60"
                                 >
                                     {loadingPlanId === 'lifetime' ? (

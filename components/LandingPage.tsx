@@ -238,6 +238,7 @@ export default function LandingPage() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleGetStarted}
+              data-ml-goal={user ? undefined : 'signup_click'}
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-green px-8 py-4 text-base font-bold text-brand-dark transition-colors hover:bg-brand-greenHover"
             >
               {user ? 'Go to Dashboard' : 'Try it free'}
@@ -249,6 +250,7 @@ export default function LandingPage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleGoogleSignIn}
+                data-ml-goal="signup_click"
                 className="inline-flex items-center justify-center gap-3 rounded-lg border border-brand-border bg-white px-8 py-4 text-base font-semibold text-brand-dark transition-colors hover:bg-brand-secondary"
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -420,6 +422,7 @@ export default function LandingPage() {
               whileHover={{ scale: 1.05, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
               whileTap={{ scale: 0.95 }}
               onClick={handleGetStarted}
+              data-ml-goal={user ? undefined : 'signup_click'}
               className="bg-brand-green hover:opacity-90 text-brand-dark px-10 py-4 rounded-full font-bold text-lg shadow-xl transition-all relative overflow-hidden group"
             >
               <span className="relative z-10">Try it for free</span>
@@ -594,6 +597,7 @@ export default function LandingPage() {
               whileHover={{ scale: 1.05, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
               whileTap={{ scale: 0.95 }}
               onClick={handleGetStarted}
+              data-ml-goal={user ? undefined : 'signup_click'}
               className="bg-brand-green hover:opacity-90 text-brand-dark px-10 py-4 rounded-full font-bold text-lg shadow-xl transition-all hidden md:block relative overflow-hidden group"
             >
               <span className="relative z-10">Try it for free</span>

@@ -109,6 +109,7 @@ export default function PublicHeader({ variant = 'default' }: PublicHeaderProps)
                         {isFloating && (
                             <button
                                 onClick={handleGoogleSignIn}
+                                data-ml-goal="signup_click"
                                 className="flex items-center gap-2 rounded-lg border border-brand-border bg-white px-3 py-2.5 text-sm font-semibold text-brand-dark transition-colors hover:bg-brand-secondary whitespace-nowrap"
                             >
                                 <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24">
@@ -125,6 +126,7 @@ export default function PublicHeader({ variant = 'default' }: PublicHeaderProps)
                             whileHover={{ scale: 1.03 }}
                             whileTap={{ scale: 0.97 }}
                             onClick={handleGetStarted}
+                            data-ml-goal={user ? undefined : 'signup_click'}
                             className="rounded-lg bg-brand-green px-4 py-2.5 text-sm font-bold text-brand-dark shadow-sm transition-colors hover:bg-brand-greenHover whitespace-nowrap"
                         >
                             {isFloating ? 'Try it free →' : 'Get Started'}
@@ -199,12 +201,14 @@ export default function PublicHeader({ variant = 'default' }: PublicHeaderProps)
                                             <>
                                                 <button
                                                     onClick={handleGoogleSignIn}
+                                                    data-ml-goal="signup_click"
                                                     className="flex w-full items-center justify-center gap-2 rounded-lg border border-brand-border py-3 font-semibold text-brand-dark hover:bg-brand-secondary"
                                                 >
                                                     Join with Google
                                                 </button>
                                                 <button
                                                     onClick={handleGetStarted}
+                                                    data-ml-goal="signup_click"
                                                     className="w-full rounded-lg bg-brand-green py-3 font-bold text-brand-dark shadow-sm hover:bg-brand-greenHover"
                                                 >
                                                     Try it free →
@@ -276,6 +280,7 @@ export default function PublicHeader({ variant = 'default' }: PublicHeaderProps)
                                     <>
                                         <button
                                             onClick={handleGoogleSignIn}
+                                            data-ml-goal="signup_click"
                                             className="w-full flex items-center justify-center gap-2 border border-brand-border text-brand-dark py-3 rounded-lg font-semibold hover:bg-brand-secondary"
                                         >
                                             <svg className="h-4 w-4" viewBox="0 0 24 24">
@@ -288,6 +293,7 @@ export default function PublicHeader({ variant = 'default' }: PublicHeaderProps)
                                         </button>
                                         <button
                                             onClick={handleGetStarted}
+                                            data-ml-goal="signup_click"
                                             className="w-full bg-brand-green text-brand-dark py-3 rounded-lg font-bold shadow-sm hover:bg-brand-greenHover"
                                         >
                                             Try it free →

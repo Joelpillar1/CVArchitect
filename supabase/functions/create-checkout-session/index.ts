@@ -8,6 +8,7 @@ import {
 } from './_shared/creemConfig.ts';
 import { normalizePlanId } from './_shared/creemSubscriptionActivation.ts';
 import { resolveReturnOrigin } from './_shared/resolveReturnOrigin.ts';
+import { getMinilyticsAttribution } from './_shared/minilyticsAttribution.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -48,7 +49,9 @@ serve(async (req) => {
     });
   }
 
-  const { planId: rawPlanId, returnOrigin } = await req.json().catch(() => ({}));
+  const body = await req.json().catch(() => ({}));
+  const { planId: rawPlanId, returnOrigin } = body;
+  const minilytics = getMinilyticsAttribution(req.headers.get('cookie') || undefined, body);
   const planId = normalizePlanId(rawPlanId || '');
 
   if (!planId) {
@@ -133,6 +136,8 @@ serve(async (req) => {
           userId: user.id,
           planId: planId,
           email: user.email,
+          ml_visitor_id: minilytics.visitorId,
+          ml_session_id: minilytics.sessionId,
         },
       }),
     });

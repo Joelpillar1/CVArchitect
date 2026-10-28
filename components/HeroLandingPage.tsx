@@ -86,6 +86,7 @@ export default function HeroLandingPage() {
             <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
               <button
                 onClick={handleCTA}
+                data-ml-goal={user ? undefined : 'signup_click'}
                 className="w-full sm:w-auto px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-3 text-base cursor-pointer"
               >
                 <span>{user ? 'Go to Dashboard' : 'Build Your Resume Free'}</span>

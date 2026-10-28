@@ -254,7 +254,7 @@ async function main() {
   page.on('request', (request) => {
     const url = request.url();
     // Third-party analytics must not run during prerender.
-    if (/googletagmanager|google-analytics|clarity|hotjar|facebook|doubleclick/i.test(url)) {
+    if (/googletagmanager|google-analytics|clarity|hotjar|facebook|doubleclick|minilytics/i.test(url)) {
       request.abort();
       return;
     }

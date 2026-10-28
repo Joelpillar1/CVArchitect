@@ -152,6 +152,7 @@ export function PublicVisualCta({
                 whileHover={{ scale: 1.02, y: -1 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={onCta}
+                data-ml-goal="signup_click"
                 className="inline-flex items-center justify-center gap-2.5 rounded-xl bg-brand-green px-6 py-3 text-sm sm:text-base font-bold text-brand-dark shadow-[0_10px_20px_rgba(112,224,152,0.22)] transition-all hover:bg-brand-greenHover cursor-pointer"
               >
                 <span>{ctaLabel}</span>

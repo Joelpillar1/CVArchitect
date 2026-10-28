@@ -33,6 +33,11 @@ const SCRIPTS: AnalyticsScript[] = [
     attrs: ['data-website-id="f7563ccb-892d-496d-97fa-32a92a6e5468"'],
     uniqueId: false,
   },
+  {
+    name: 'Minilytics',
+    src: 'https://minilytics.trackkit.workers.dev/js/script.js',
+    attrs: ['data-website-id="356o4a4v4p576t1e"'],
+  },
 ];
 
 function read(file: string): string {

@@ -2,6 +2,7 @@ import { FunctionsHttpError, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { PlanId } from '../types/pricing';
 import { getAppOrigin } from '../utils/appUrl';
+import { getMinilyticsAttribution } from '../utils/minilytics';
 
 interface CheckoutSessionResponse {
   checkoutUrl?: string;
@@ -51,7 +52,7 @@ async function invokeEdgeCheckout(planId: PlanId, returnOrigin: string): Promise
   const { data, error } = await supabase.functions.invoke<CheckoutSessionResponse>(
     'create-checkout-session',
     {
-      body: { planId, returnOrigin },
+      body: { planId, returnOrigin, ...getMinilyticsAttribution() },
     }
   );
 
@@ -91,7 +92,7 @@ async function fetchDirectEdgeCheckout(
         Authorization: `Bearer ${session.access_token}`,
         apikey,
       },
-      body: JSON.stringify({ planId, returnOrigin }),
+      body: JSON.stringify({ planId, returnOrigin, ...getMinilyticsAttribution() }),
     });
 
     const data: CheckoutSessionResponse = await response.json().catch(() => ({}));
@@ -130,7 +131,7 @@ async function fetchVercelCheckout(
         'Content-Type': 'application/json',
         Authorization: `Bearer ${session.access_token}`,
       },
-      body: JSON.stringify({ planId, returnOrigin }),
+      body: JSON.stringify({ planId, returnOrigin, ...getMinilyticsAttribution() }),
     });
 
     const data: CheckoutSessionResponse = await response.json().catch(() => ({}));

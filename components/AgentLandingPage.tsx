@@ -938,6 +938,7 @@ export default function AgentLandingPage() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleGoogleSignIn}
+                  data-ml-goal="signup_click"
                   className="flex items-center gap-2 rounded-lg border border-brand-border bg-white px-3.5 py-2 text-sm font-semibold text-brand-dark shadow-xs hover:bg-brand-secondary transition-colors cursor-pointer whitespace-nowrap"
                 >
                   <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24">
@@ -953,6 +954,7 @@ export default function AgentLandingPage() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => navigate('/signup')}
+                  data-ml-goal="signup_click"
                   className="hidden sm:inline-flex rounded-xl bg-brand-green px-4 py-2 text-sm font-bold text-brand-dark shadow-xs transition-colors hover:bg-brand-greenHover cursor-pointer whitespace-nowrap"
                 >
                   Try it free →
@@ -1133,6 +1135,7 @@ export default function AgentLandingPage() {
                       type="submit"
                       disabled={!promptInput.trim() && !stagedResume}
                       aria-label="Send"
+                      data-ml-goal={user ? undefined : 'signup_click'}
                       className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm transition-all ${
                         !promptInput.trim() && !stagedResume
                           ? 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300/40'
@@ -1629,6 +1632,7 @@ export default function AgentLandingPage() {
                 whileHover={{ scale: 1.03, y: -2, transition: { duration: 0.2 } }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleGoToDashboard}
+                data-ml-goal={user ? undefined : 'signup_click'}
                 className="inline-flex items-center gap-2 px-8 py-4 rounded-lg bg-brand-green hover:bg-brand-greenHover text-brand-dark font-medium text-sm shadow-xl transition-colors cursor-pointer"
               >
                 <span>Launch the Agent</span>

@@ -198,6 +198,7 @@ export default function SignUp() {
                             type="button"
                             onClick={handleGoogleSignIn}
                             disabled={loading}
+                            data-ml-goal="signup_click"
                             className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-brand-dark py-3 px-4 rounded-lg font-semibold text-sm shadow-xs transition-all cursor-pointer active:scale-[0.99] disabled:opacity-50"
                         >
                             <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -310,6 +311,7 @@ export default function SignUp() {
                         <button
                             type="submit"
                             disabled={loading}
+                            data-ml-goal="signup_click"
                             className="w-full mt-2 bg-brand-green hover:bg-brand-greenHover active:scale-[0.99] text-brand-dark py-3.5 px-4 rounded-lg font-bold text-sm shadow-sm hover:shadow-md transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
                         >
                             {loading && <Loader size="xs" variant="default" />}

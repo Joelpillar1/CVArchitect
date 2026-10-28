@@ -381,19 +381,31 @@ export default function Dashboard() {
         if (paymentStatus !== 'success' && paymentStatus !== 'cancelled') return;
         if (paymentReturnHandledRef.current) return;
 
+        const cleanPaymentReturnUrl = () => {
+            const retained = new URLSearchParams();
+            if (planParam) retained.set('plan', planParam);
+            ['payment_id', 'subscription_id', 'session_id', 'checkout_id'].forEach((key) => {
+                const value = params.get(key);
+                if (value) retained.set(key, value);
+            });
+            const query = retained.toString();
+            window.history.replaceState({}, '', query ? `/dashboard?${query}` : '/dashboard');
+        };
+
         const returnKey = `${user.id}:${subscriptionId || planParam || paymentStatus}`;
         const handledKey = 'cvarchitect_payment_return_handled';
         if (sessionStorage.getItem(handledKey) === returnKey) {
             paymentReturnHandledRef.current = true;
-            window.history.replaceState({}, '', planParam ? `/dashboard?plan=${planParam}` : '/dashboard');
+            cleanPaymentReturnUrl();
             return;
         }
 
         paymentReturnHandledRef.current = true;
         sessionStorage.setItem(handledKey, returnKey);
 
-        // Strip Dodo return params immediately so this effect cannot retrigger.
-        window.history.replaceState({}, '', planParam ? `/dashboard?plan=${planParam}` : '/dashboard');
+        // Strip the payment status so this effect cannot retrigger, but keep the
+        // provider ids Minilytics reads to link the payment to the visitor.
+        cleanPaymentReturnUrl();
 
         let isPolling = false;
 

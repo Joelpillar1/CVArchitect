@@ -91,6 +91,8 @@ export default function LifetimeUpgradeModal({
               type="button"
               onClick={onConfirm}
               disabled={isLoading}
+              data-ml-goal="checkout_click"
+              data-ml-goal-plan="lifetime"
               className="w-full py-3 sm:py-3.5 bg-gradient-to-r from-brand-green to-emerald-500 hover:from-emerald-400 hover:to-emerald-600 text-brand-dark font-extrabold text-sm rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 active:scale-[0.99]"
             >
               {isLoading ? (

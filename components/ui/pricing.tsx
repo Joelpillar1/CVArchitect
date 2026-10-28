@@ -270,6 +270,8 @@ export default function PricingSection({
                 <button
                   onClick={() => onSelectPlan?.(plan.id)}
                   disabled={isLoading || isCurrent || isIncludedInLifetime}
+                  data-ml-goal={plan.id === 'free' ? 'pricing_cta' : 'checkout_click'}
+                  data-ml-goal-plan={plan.id}
                   className={cn(
                     'w-full mb-6 py-3 px-4 text-sm sm:text-base font-extrabold rounded-lg transition-all flex items-center justify-center gap-2',
                     isCurrent || isIncludedInLifetime

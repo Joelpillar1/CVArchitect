@@ -8,6 +8,7 @@ import {
   isCreemCheckoutConfigured,
 } from './_lib/creemConfig';
 import { resolveReturnOrigin } from './_lib/resolveReturnOrigin';
+import { getMinilyticsAttribution } from './_lib/minilyticsAttribution';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -32,6 +33,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const { planId: rawPlanId, returnOrigin } = req.body || {};
+  const minilytics = getMinilyticsAttribution(req.headers.cookie, req.body);
   const planId = normalizePlanId(rawPlanId || '');
   if (!planId) {
     return res.status(400).json({ error: 'Invalid plan selected.' });
@@ -87,6 +89,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           userId: user.id,
           planId: planId,
           email: user.email,
+          ml_visitor_id: minilytics.visitorId,
+          ml_session_id: minilytics.sessionId,
         },
       }),
     });

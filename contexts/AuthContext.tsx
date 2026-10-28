@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { getPendingCheckoutPlan } from '../utils/pendingCheckout';
 import { getAppUrl } from '../utils/appUrl';
 import { getAttributionMetadata, trackSignupAttribution } from '../utils/attribution';
+import { identifyMinilyticsUser, trackMinilyticsGoal } from '../utils/minilytics';
 
 interface AuthContextType {
     user: User | null;
@@ -30,6 +31,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [user, setUser] = useState<User | null>(null);
     const [session, setSession] = useState<Session | null>(null);
     const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!user) return;
+
+        identifyMinilyticsUser({
+            id: user.id,
+            email: user.email,
+            name:
+                (user.user_metadata?.full_name as string | undefined) ||
+                (user.user_metadata?.name as string | undefined) ||
+                null,
+        });
+    }, [user]);
 
     useEffect(() => {
         let isMounted = true;
@@ -134,6 +148,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         }
                     }
                     trackSignupAttribution('google');
+                    trackMinilyticsGoal('signup_completed', { method: 'google' });
                 }
             }
         });
@@ -169,6 +184,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
 
             trackSignupAttribution('email');
+            trackMinilyticsGoal('signup_completed', { method: 'email' });
 
             // Fire-and-forget welcome email via Supabase Edge Function + Resend.
             // Any failure here is logged but never blocks signup.
