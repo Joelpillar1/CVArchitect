@@ -1,8 +1,15 @@
-import { next } from '@vercel/edge';
+import { next, type RequestContext } from '@vercel/edge';
+import { trackAICrawlerRequest } from '@datafast/ai-crawl';
 
 const AI_BOT_RE = /chatgpt-user|gptbot|claudebot|claude-web|perplexitybot|google-extended|deepseek|bytespider|applebot/i;
 
-export default function middleware(req: Request) {
+export default function middleware(req: Request, event: RequestContext) {
+  // DataFast AI crawler tracking. The package uses event.waitUntil so the
+  // tracking request never delays the page response.
+  trackAICrawlerRequest(req, event, {
+    websiteId: 'dfid_uuo5wQV0LNgIEGIq31PAC',
+  });
+
   const ua = req.headers.get('user-agent') || '';
   const url = new URL(req.url);
 
@@ -19,5 +26,7 @@ export default function middleware(req: Request) {
 }
 
 export const config = {
-  matcher: ['/((?!assets/|images/|favicon.ico).*)'],
+  // Skip API routes and obvious static assets. Crawler-facing files such as
+  // robots.txt, llms.txt, and sitemap XML remain tracked.
+  matcher: ['/((?!api|assets/|images/|favicon.ico).*)'],
 };
