@@ -14,7 +14,7 @@
         }
       ],
       "destination": "https://cvarchitect.app/$1",
-      "permanent": true
+      "statusCode": 301
     },
     {
       "source": "/cvarchitect",
