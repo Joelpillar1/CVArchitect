@@ -13,6 +13,16 @@ export default function middleware(req: Request, event: RequestContext) {
   const ua = req.headers.get('user-agent') || '';
   const url = new URL(req.url);
 
+  // The Vercel domain setting answers www with a 308 and an empty body. Bing's
+  // site scan can treat that redirect response as the page and report the H1
+  // as missing, so send a 301 to the canonical apex URL here instead.
+  if (url.hostname === 'www.cvarchitect.app') {
+    return Response.redirect(
+      `https://cvarchitect.app${url.pathname}${url.search}`,
+      301,
+    );
+  }
+
   // Asynchronously record bot request without delaying your page response
   if (AI_BOT_RE.test(ua)) {
     event.waitUntil(

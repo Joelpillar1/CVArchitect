@@ -57,6 +57,21 @@ describe('DataFast AI crawler middleware', () => {
     expect(event.waitUntil).toHaveBeenCalledOnce();
   });
 
+  it('sends www to the apex with a 301 and preserves the path and query', () => {
+    const request = new Request(
+      'https://www.cvarchitect.app/resume-checker?utm_source=bing',
+      { headers: { 'user-agent': 'Mozilla/5.0' } },
+    );
+    const event = { waitUntil: vi.fn() };
+
+    const response = middleware(request, event);
+
+    expect(response.status).toBe(301);
+    expect(response.headers.get('location')).toBe(
+      'https://cvarchitect.app/resume-checker?utm_source=bing',
+    );
+  });
+
   it('keeps crawler discovery files trackable while skipping API routes', () => {
     expect(config.matcher).toEqual(['/((?!api|assets/|images/|favicon.ico).*)']);
   });
