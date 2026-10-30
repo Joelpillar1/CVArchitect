@@ -249,7 +249,10 @@ export default function Templates({ onSelect, data, isPublic, userPlan = 'free',
                     >
                         <div>
                             <h3 className="text-base sm:text-lg font-bold text-white drop-shadow-sm">
-                                {sortedTemplates.find(t => t.id === previewTemplate)?.name} Template Preview
+                                {(() => {
+                                    const name = sortedTemplates.find(t => t.id === previewTemplate)?.name ?? '';
+                                    return `${name}${name.toLowerCase().endsWith('template') ? '' : ' Template'} Preview`;
+                                })()}
                             </h3>
                         </div>
 
