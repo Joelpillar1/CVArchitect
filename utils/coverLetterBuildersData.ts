@@ -25,7 +25,7 @@ export const COVER_LETTER_PICKS: CoverLetterPick[] = [
     slug: null,
     href: '/cover-letter',
     summary:
-      'Paste the job posting and your resume. The agent drafts a letter that matches the role and your real experience, then lets you edit it before export. Cover letters are included on paid plans.',
+      'Paste the job posting and your resume. Cvarchitect drafts a letter that matches the role and your real experience, then lets you edit it before export. Cover letters are included on paid plans.',
     price: 'Cover letters on paid plans, $10 per month or $99 once',
     bestFor: 'First-time writers and anyone targeting a specific posting',
   },
@@ -90,7 +90,7 @@ export const COVER_LETTER_FAQS = [
   },
   {
     q: 'Is Cvarchitect good for first-time cover letter writers?',
-    a: 'Yes. You start with the job posting and your existing experience, and the agent drafts a structured letter before you edit it. That gives a first-time writer a complete example grounded in their own background, instead of a blank page or a generic template. Cover letter generation is included on paid plans.',
+    a: 'Yes. You start with the job posting and your existing experience, and Cvarchitect drafts a structured letter before you edit it. That gives a first-time writer a complete example grounded in their own background, instead of a blank page or a generic template. Cover letter generation is included on paid plans.',
   },
   {
     q: 'Do cover letter builders pass ATS screening?',

@@ -1631,7 +1631,7 @@ const rawBlogPosts: BlogPost[] = [
             {
                 type: 'callToAction',
                 heading: 'Not sure which format fits your career?',
-                body: 'Cvarchitect templates are built on the chronological and hybrid formats that recruiters actually read. Start free, paste a job post, and the agent tailors the content for you.',
+                body: 'Cvarchitect templates are built on the chronological and hybrid formats that recruiters actually read. Start free, paste a job post, and Cvarchitect tailors the content for you.',
                 ctaLabel: 'Build my resume free',
             },
             {

@@ -780,7 +780,7 @@ export default function AgentPanel({
                     <button
                       type="button"
                       onClick={() => onStopAgent?.()}
-                      title="Stop the agent"
+                      title="Stop generating"
                       className="w-7 h-7 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-colors shrink-0"
                     >
                       <Square className="w-3.5 h-3.5" fill="currentColor" />

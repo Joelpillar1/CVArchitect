@@ -53,7 +53,7 @@ export const FIRST_TIME_PICKS: FirstTimePick[] = [
       'Start with the material you already have: coursework, part-time jobs, volunteering, projects, and activities. Cvarchitect turns those details into a job-specific first resume, scores the match against the posting, and rewrites weak bullets without inventing experience.',
     bestFor: 'First-time writers who want a guided first draft and a job-specific rewrite',
     whyItWorks:
-      'The agent asks for evidence before it writes. That matters when you have no formal job history, because the hard part is deciding what counts as experience and how to describe it.',
+      'Cvarchitect asks for evidence before it writes. That matters when you have no formal job history, because the hard part is deciding what counts as experience and how to describe it.',
     watchOut:
       'Cvarchitect is our product. The free plan includes one resume analysis, so use it on the job you care about most.',
   },
