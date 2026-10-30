@@ -44,7 +44,7 @@ const DEFAULT_SECTION_ORDERS: Record<string, string[]> = {
   minimalist: ['education', 'experience', 'projects', 'leadership', 'skills'],
   professional: ['summary', 'skills', 'achievements', 'experience', 'leadership', 'projects', 'education', 'certifications', 'additionalInfo'],
   times: ['summary', 'skills', 'achievements', 'experience', 'leadership', 'projects', 'education', 'certifications', 'additionalInfo'],
-  jake: ['summary', 'skills', 'achievements', 'experience', 'projects', 'education', 'certifications', 'additionalInfo'],
+  jake: ['education', 'experience', 'projects', 'skills'],
   scholar: ['education', 'skills', 'projects', 'experience', 'certifications'],
   gaurav: ['summary', 'skills', 'experience', 'education', 'certifications'],
   regent: ['summary', 'skills', 'achievements', 'experience', 'leadership', 'projects', 'education', 'certifications', 'additionalInfo'],

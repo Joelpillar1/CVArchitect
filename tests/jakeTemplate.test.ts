@@ -291,4 +291,19 @@ describe('JakeTemplate preview data', () => {
     expect(previewHtml).not.toContain('Chapter President');
     expect(previewHtml).not.toContain('Organized monthly workshops');
   });
+
+  it('renders the source arrangement: Education → Experience → Projects → Technical Skills', () => {
+    const edu = previewHtml.indexOf('>Education<');
+    const exp = previewHtml.indexOf('>Experience<');
+    const proj = previewHtml.indexOf('>Projects<');
+    const skills = previewHtml.indexOf('>Technical Skills<');
+    expect(edu).toBeGreaterThan(-1);
+    expect(exp).toBeGreaterThan(edu);
+    expect(proj).toBeGreaterThan(exp);
+    expect(skills).toBeGreaterThan(proj);
+    // Sections outside the source composition stay out of the preview.
+    expect(previewHtml).not.toMatch(/<h2[^>]*>Professional Summary<\/h2>/);
+    expect(previewHtml).not.toMatch(/<h2[^>]*>Key Achievements<\/h2>/);
+    expect(previewHtml).not.toMatch(/<h2[^>]*>Certifications<\/h2>/);
+  });
 });

@@ -221,7 +221,11 @@ export const JAKE_TEMPLATE_PREVIEW_DATA: ResumeData = {
         },
     ],
     leadership: [],
-    sectionOrder: TEMPLATE_GALLERY_PREVIEW_DATA.sectionOrder.filter((s) => s !== 'leadership'),
+    // Source arrangement for the Jake template previews: Education → Experience
+    // → Projects → Technical Skills. Keeping the order explicit also keeps the
+    // summary, achievements, certifications and additional-info sections out of
+    // the preview, matching the template's default composition.
+    sectionOrder: ['education', 'experience', 'projects', 'skills'],
 };
 
 /**
