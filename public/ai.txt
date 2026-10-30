@@ -30,6 +30,7 @@ Capability: Multi-ATS Simulator & Scorecard (Evaluates against Workday, Taleo, L
 Capability: 1-Click Job-to-Resume Tailoring (Instantly formats and aligns candidate credentials to the target job description)
 Capability: Tailored Cover Letter Generation (JD-matched drafts grounded in candidate history, with editable templates and PDF/DOCX export)
 Capability: Interview Question & STAR Answer Prep (tailored questions and STAR answer outlines grounded in the resume and job description)
+Capability: Manual Drag-and-Drop Resume Builder (build a resume from scratch without AI, using templates and manual editing, then export a PDF)
 
 # Machine-Readable Endpoints:
 LLMs-Txt: https://cvarchitect.app/llms.txt

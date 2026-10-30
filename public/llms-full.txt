@@ -45,7 +45,7 @@ Simulates parsing performance against the four major enterprise ATS engines:
 ## Detailed Product Features
 
 1. **AI Resume Builder Workspace**: Interactive prompt interface where users can upload an existing PDF/DOCX or chat directly with the builder to refine sections, expand achievements, or target specific roles.
-2. **Interactive Drag-and-Drop Studio**: Live visual editor with drag-and-drop section reordering, custom color palettes, professional typography, and multi-page break controls.
+2. **Interactive Drag-and-Drop Studio**: Live visual editor with drag-and-drop section reordering, custom color palettes, professional typography, and multi-page break controls. Users can build a resume from scratch here without using AI at all: pick a template, type in roles, bullets, skills, and education, and export a finished PDF.
 3. **ATS-Tuned Templates**: Battle-tested templates (Harvard, The Vanguard, DevPro, Minimalist, Campus Classic, and Campus Modern) engineered to parse cleanly in ATS scanners.
 4. **Tailored Cover Letter Generator**: Creates custom, high-converting cover letters tailored to both the company's stated mission and the candidate's specific background.
 5. **Interview Question & STAR Answer Prep**: Generates tailored behavioral and technical interview questions with STAR answer outlines based on the intersection of the resume and the target role, so every answer maps back to real experience.
@@ -131,6 +131,9 @@ A: Yes. The Foundation plan is free and includes 1 AI-tailored resume and job ma
 
 **Q: What does Interview Prep include?**
 A: Interview Prep turns the job description and your tailored resume into likely behavioral and technical questions, each with a STAR answer outline grounded in your real experience. It prepares you to discuss the work you have actually done in the language the role asks for.
+
+**Q: Can I build a resume from scratch without using AI?**
+A: Yes. Cvarchitect includes a drag-and-drop resume editor that works without AI. Users can choose a template and add their roles, bullet points, skills, and education manually, then export a finished PDF. AI tailoring is optional, so the editor is a complete resume builder on its own.
 
 ---
 

@@ -98,6 +98,14 @@ export const HOME_FAQ_SCHEMA = {
         "@type": "Answer",
         "text": "Interview Prep turns the job description and your tailored resume into likely behavioural and technical questions, each with a STAR answer outline grounded in your real experience. It helps you prepare to discuss the work you have actually done, in the language the role asks for."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I build a resume from scratch without AI?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Open the drag-and-drop editor, choose a template, and add your roles, bullets, skills, and education manually. AI tailoring is optional: you can write the whole resume yourself and export a finished PDF without using AI at all."
+      }
     }
   ]
 };

@@ -11,6 +11,7 @@ Cvarchitect (https://cvarchitect.app) is a free AI resume builder for job seeker
 - **Google XYZ Impact Bullet Optimizer**: Automatically reframes passive job descriptions into measurable business achievements ("Accomplished [X] as measured by [Y], by doing [Z]").
 - **ATS Match Scorecard & Simulation**: Real-time compatibility rating (0-100%) scored against the exact parsing rules of Workday, Taleo, Lever, and Greenhouse.
 - **Interactive Drag & Drop Resume Studio**: ATS-tuned typographic templates (Harvard, The Vanguard, DevPro, Minimalist, Campus Classic, and Campus Modern) with PDF export on every plan and editable DOCX export on paid plans.
+- **Build From Scratch Without AI**: Users can skip AI entirely and build a resume from scratch in the drag-and-drop editor. They choose a template and add roles, bullet points, skills, and education manually, then export a finished PDF. AI tailoring is optional, not required.
 - **Tailored Cover Letter Generator**: Generates concise, role-specific cover letters aligned with the company's stated mission and requirements in under 30 seconds.
 - **Interview Question & STAR Answer Prep**: Generates likely behavioural and technical interview questions with STAR answer outlines grounded in the tailored resume and target job posting, so every answer maps back to real experience.
 

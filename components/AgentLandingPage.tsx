@@ -748,13 +748,17 @@ export default function AgentLandingPage() {
       q: 'What does Interview Prep include?',
       a: 'Interview Prep turns the job description and your tailored resume into likely behavioural and technical questions, each with a STAR answer outline built from experience you actually have. You walk in ready to talk about the work you have done, in the language the role asks for.',
     },
+    {
+      q: 'Can I build a resume from scratch without AI?',
+      a: 'Yes. Open the drag-and-drop editor, choose a template, and add your roles, bullets, skills, and education manually. AI tailoring is optional: you can write the whole resume yourself and export a finished PDF without using AI at all.',
+    },
   ];
 
   const howItWorks = [
     {
       num: '01',
       title: 'Connect your resume',
-      desc: 'Upload a PDF or DOCX. Your full career history (roles, bullet points, skills, education) is read and structured in seconds.',
+      desc: 'Upload a PDF or DOCX and your career history is structured in seconds. Or start from scratch in the drag-and-drop editor with no AI required.',
     },
     {
       num: '02',
@@ -1066,7 +1070,7 @@ export default function AgentLandingPage() {
                 variants={fadeInUp}
                 className="text-base sm:text-lg text-brand-dark/60 max-w-2xl mx-auto leading-relaxed mb-10 text-balance"
               >
-                Every job asks for something different. Cvarchitect is the free AI resume builder that tailors your resume to each job description without inventing experience or stuffing keywords.
+                Every job asks for something different. Cvarchitect is the free AI resume builder that tailors your resume to each job description without inventing experience or stuffing keywords. You can also build a resume from scratch in the drag-and-drop editor, with no AI required.
               </motion.p>
 
               {/* Interactive prompt card */}
