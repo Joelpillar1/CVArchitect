@@ -211,7 +211,7 @@ export function SelectionActionsToolbar({
       case 'Expand':
         return 'Expanding';
       default:
-        return prompt.trim() ? `Asking Agent "${prompt.trim().slice(0, 15)}..."` : 'Rewriting';
+        return prompt.trim() ? `Asking Cvarchitect "${prompt.trim().slice(0, 15)}..."` : 'Rewriting';
     }
   };
 
@@ -396,7 +396,7 @@ export function SelectionActionsToolbar({
                 <span className="mx-1 h-3.5 w-px bg-white/15" />
               </div>
 
-              {/* "Ask Agent" Form with Explicit Send Button */}
+              {/* "Ask Cvarchitect" Form with Explicit Send Button */}
               <form
                 onSubmit={handlePromptSubmit}
                 className="flex items-center bg-white/10 hover:bg-white/15 border border-white/15 focus-within:border-brand-green rounded-full px-1.5 h-7 transition-colors"
@@ -407,8 +407,8 @@ export function SelectionActionsToolbar({
                   onChange={(e) => setPrompt(e.target.value)}
                   onMouseDown={(e) => e.stopPropagation()}
                   onKeyDown={(e) => e.stopPropagation()}
-                  aria-label="Ask Agent"
-                  placeholder="Ask Agent..."
+                  aria-label="Ask Cvarchitect"
+                  placeholder="Ask Cvarchitect..."
                   className="h-full w-28 md:w-36 bg-transparent px-1.5 text-[12px] text-white placeholder:text-white/40 focus:outline-none font-medium cursor-text select-text"
                 />
                 <Tooltip text="Send instruction">
@@ -525,7 +525,7 @@ export function SelectionActionsToolbar({
             {/* Suggested Text (After) */}
             <div>
               <div className="text-[10px] font-bold uppercase tracking-wider text-brand-green mb-1">
-                Suggested by Agent
+                Suggested by Cvarchitect
               </div>
               <div className="p-3 rounded-xl bg-white/5 border border-brand-green/40 text-white text-xs leading-relaxed max-h-36 overflow-y-auto select-text font-normal">
                 {suggestedText || 'Generating suggestion...'}

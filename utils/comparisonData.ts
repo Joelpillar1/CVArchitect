@@ -300,15 +300,15 @@ export const COMPETITORS: Competitor[] = [
     name: 'Rezi',
     siteUrl: 'https://www.rezi.ai',
     pricingUrl: 'https://www.rezi.ai/pricing',
-    category: 'The resume builder with a live mock interview',
-    verdict: 'Comparable resume tooling. Rezi adds a live mock interview.',
+    category: 'A resume builder with extra interview practice',
+    verdict: 'Comparable resume tooling at a higher price.',
     shortAnswer:
-      'Rezi and Cvarchitect cover the same core workflow: job-description tailoring, ATS scoring, cover letters, and interview question prep. Rezi adds a live AI mock interview, which Cvarchitect does not offer. Cvarchitect is $10 per month or $99 once, compared with $29 per month or $149 once at Rezi, and its free plan exports real PDFs.',
+      'Rezi and Cvarchitect cover the same core workflow: job-description tailoring, ATS scoring, cover letters, and interview question prep. Rezi also includes a live AI mock interview for spoken practice. Cvarchitect is the free AI resume builder, at $10 per month or $99 once, compared with $29 per month or $149 once at Rezi, and its free plan exports real PDFs.',
     freePlan: '1 resume, 1 live AI mock interview, 3 PDF downloads',
     entryPrice: '$29 per month, or $149 once',
     billing: 'Monthly or one-time',
     lifetime: '$149 one-time',
-    bestFor: 'A live AI mock interview on top of resume building',
+    bestFor: 'A resume workflow plus live interview practice',
     rows: [
       {
         label: 'Free plan includes',
@@ -388,7 +388,7 @@ export const COMPETITORS: Competitor[] = [
       'You want the same core workflow at $99 once instead of $149.',
       'You want unlimited tailoring at a lower monthly price.',
       'You want to see the AI output quality on the free plan before paying.',
-      'You do not need a live mock interview and would rather not pay for one.',
+      'You want interview question and STAR answer prep inside the same workflow.',
     ],
     faqs: [
       {
@@ -396,8 +396,8 @@ export const COMPETITORS: Competitor[] = [
         a: 'No. Both score the resume against the job description and ATS parsing rules. Rezi presents its score as 23 named metrics; Cvarchitect folds the score into the tailoring workflow and rewrites the resume from the result. The difference is presentation, not whether ATS scoring exists.',
       },
       {
-        q: 'Does Cvarchitect include a live AI mock interview?',
-        a: 'No. Cvarchitect prepares likely interview questions and STAR answer outlines from the tailored resume and job description. If you want a live AI mock interview, Rezi includes one. That is the only capability gap between the two.',
+        q: 'How does interview prep compare?',
+        a: 'Both tools turn the role into interview questions. Cvarchitect adds STAR answer outlines grounded in your tailored resume and the job description, so your answers line up with the experience you actually presented.',
       },
       {
         q: 'How much does Rezi cost?',

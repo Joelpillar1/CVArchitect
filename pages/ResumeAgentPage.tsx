@@ -1860,9 +1860,9 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
               } else if (/invalid or expired session|unauthenticated|unauthorized|jwt|401/i.test(message)) {
                 cleanMessage = isOffline
                   ? 'Network connection issue. Please check your internet connection and try sending your request again.'
-                  : 'Your session has expired. Please sign in again to continue with the AI agent.';
+                  : 'Your session has expired. Please sign in again to continue with Cvarchitect.';
               } else if (/rate_limit|429|high traffic|high demand/i.test(message)) {
-                cleanMessage = 'The AI agent is currently receiving high demand. Please wait a moment and try asking again.';
+                cleanMessage = 'Cvarchitect is currently receiving high demand. Please wait a moment and try asking again.';
               } else if (/gpt-|openai|model|500|502|503|504|server_error|invalid_request|schema|unsupported value/i.test(message)) {
                 cleanMessage = 'I encountered a temporary service hiccup while processing your request. Please try asking again.';
               }
@@ -2216,7 +2216,7 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
   const handleUndoLastAgentRun = () => {
     const baseline = lastAgentRunBaselineRef.current;
     if (!baseline) {
-      showToast('No agent run to undo yet.', 'info');
+      showToast('Nothing to undo yet.', 'info');
       return;
     }
     handleUpdateResumeData(baseline);
@@ -2228,7 +2228,7 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
         sender: 'agent',
         timestamp: Date.now(),
         type: 'text',
-        text: '↩️ Reverted all changes from the last agent run.',
+        text: '↩️ Reverted all changes from the last AI run.',
       },
     ]);
   };

@@ -16,7 +16,7 @@ export const HOME_FAQ_SCHEMA = {
       "name": "What is Cvarchitect?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Cvarchitect (cvarchitect.app) is an AI resume builder that tailors your resume to each job description, scores it against ATS parsers, writes a matching cover letter, and prepares interview questions in one workflow."
+        "text": "Cvarchitect (cvarchitect.app) is the free AI resume builder, tailored to every job. It rewrites your resume against each job description, scores it against ATS parsers, writes a matching cover letter, and prepares interview questions in one workflow."
       }
     },
     {
@@ -93,10 +93,10 @@ export const HOME_FAQ_SCHEMA = {
     },
     {
       "@type": "Question",
-      "name": "Does Cvarchitect include a live AI mock interview?",
+      "name": "What does Interview Prep include?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "No. Cvarchitect prepares likely interview questions and STAR answer outlines from the tailored resume and job description, but it does not run a live AI mock interview. Rezi includes one if that is the feature you need."
+        "text": "Interview Prep turns the job description and your tailored resume into likely behavioural and technical questions, each with a STAR answer outline grounded in your real experience. It helps you prepare to discuss the work you have actually done, in the language the role asks for."
       }
     }
   ]

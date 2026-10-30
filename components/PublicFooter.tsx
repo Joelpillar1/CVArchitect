@@ -129,7 +129,7 @@ export default function PublicFooter() {
 
     return (
         <footer className="public-footer" role="contentinfo">
-            {/* Ask AI & Agent Index Banner */}
+            {/* Ask AI & AI Resources Banner */}
             <div className="border-b border-brand-border bg-white">
                 <div className="max-w-[1200px] mx-auto px-6 py-6 sm:py-7 space-y-4">
                     {/* Top Row: Ask AI */}
@@ -156,10 +156,10 @@ export default function PublicFooter() {
                     {/* Hairline Divider */}
                     <div className="h-px w-full bg-brand-border" />
 
-                    {/* Bottom Row: For Agents */}
+                    {/* Bottom Row: AI Resources */}
                     <div className="flex flex-col sm:flex-row sm:items-baseline gap-2.5 sm:gap-4 font-mono text-xs">
                         <span className="font-bold uppercase tracking-[0.16em] text-brand-dark/75 shrink-0">
-                            FOR AGENTS
+                            AI RESOURCES
                         </span>
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-brand-dark/65">
                             {agentDocs.map((doc, idx) => (

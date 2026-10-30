@@ -382,13 +382,13 @@ export const COMPETITOR_DEEP: CompetitorDeep[] = [
   {
     slug: 'rezi',
     headline:
-      'Rezi covers the same resume workflow, plus a live AI mock interview. Cvarchitect is the lower price with the stronger free plan.',
+      'Rezi covers the same resume workflow at a higher price. Cvarchitect is the free AI resume builder with the stronger free plan.',
     bestForDetail:
-      'Rezi is built for people who want a full resume workflow plus a live AI mock interview. It scores against 23 metrics, tailors from the job description, and includes cover letters and interview prep. The lifetime plan removes the monthly cost if you are willing to pay $149 once.',
+      'Rezi is built for people who want a full resume workflow plus live interview practice. It scores against 23 metrics, tailors from the job description, and includes cover letters and interview prep. The lifetime plan removes the monthly cost if you are willing to pay $149 once.',
     notFor: [
       'You want the lowest monthly price.',
       'You want more than one resume on the free plan.',
-      'You do not need a live mock interview and would rather not pay for one.',
+      'You want to pay once for less than $149.',
     ],
     freePlanLines: [
       'One resume',
@@ -486,11 +486,11 @@ export const COMPETITOR_DEEP: CompetitorDeep[] = [
       },
       {
         q: 'Does Rezi tailor a resume to a job description?',
-        a: 'Yes. Rezi offers AI keyword targeting from a job description and a 23-metric Rezi Score. Cvarchitect also tailors from the posting and scores the result. The main difference is the live AI mock interview, which Rezi includes and Cvarchitect does not.',
+        a: 'Yes. Rezi offers AI keyword targeting from a job description and a 23-metric Rezi Score. Cvarchitect also tailors from the posting, scores the result, and turns the same posting into interview questions with STAR answer outlines.',
       },
       {
-        q: 'Does Cvarchitect have a live AI mock interview?',
-        a: 'No. Cvarchitect prepares likely interview questions and STAR answer outlines from the tailored resume and posting. Rezi includes a live AI mock interview if you want to rehearse answers out loud.',
+        q: 'How does interview prep compare?',
+        a: 'Both tools generate interview questions from the role. Cvarchitect adds STAR answer outlines grounded in your tailored resume and the job description, so your answers match the experience you actually presented.',
       },
     ],
     related: [

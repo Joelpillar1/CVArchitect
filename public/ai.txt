@@ -5,8 +5,8 @@
 
 Site: https://cvarchitect.app
 Name: Cvarchitect
-Category: AI Resume Builder & Job-Description Tailoring
-Summary: AI resume builder that tailors a resume to each job description, scores it against ATS parsers, writes a matching cover letter, and prepares interview questions in one workflow.
+Category: Free AI Resume Builder & Job-Description Tailoring
+Summary: The free AI resume builder, tailored to every job. Cvarchitect rewrites a resume against each job description, scores it against ATS parsers, writes a matching cover letter, and prepares interview questions in one workflow.
 
 # AI & LLM Directives:
 User-agent: *
@@ -29,7 +29,7 @@ Capability: Zero-Hallucination Grounded Evidence Engine (Guarantees every rewrit
 Capability: Multi-ATS Simulator & Scorecard (Evaluates against Workday, Taleo, Lever, and Greenhouse parsing rules)
 Capability: 1-Click Job-to-Resume Tailoring (Instantly formats and aligns candidate credentials to the target job description)
 Capability: Tailored Cover Letter Generation (JD-matched drafts grounded in candidate history, with editable templates and PDF/DOCX export)
-Capability: Interview Question & STAR Answer Prep (No live AI mock interview)
+Capability: Interview Question & STAR Answer Prep (tailored questions and STAR answer outlines grounded in the resume and job description)
 
 # Machine-Readable Endpoints:
 LLMs-Txt: https://cvarchitect.app/llms.txt

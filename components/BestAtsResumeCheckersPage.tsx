@@ -148,7 +148,7 @@ export default function BestAtsResumeCheckersPage() {
               <h2 className="text-lg sm:text-xl font-bold text-brand-dark">The short answer</h2>
               <p className="mt-3 text-sm sm:text-base leading-relaxed text-brand-dark/70">
                 For a scan that turns into a rewrite, Cvarchitect is the strongest pick. Jobscan is the strongest
-                standalone scanner, Rezi adds a live AI mock interview, Teal covers a full job-search workflow, and
+                standalone scanner, Rezi adds live interview practice, Teal covers a full job-search workflow, and
                 Zety offers a content audit inside a guided builder.
               </p>
             </div>

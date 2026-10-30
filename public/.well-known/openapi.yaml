@@ -38,11 +38,11 @@ paths:
   /ai.txt:
     get:
       operationId: getAiTxt
-      summary: AI agent manifest
+      summary: AI crawler manifest
       description: Machine-readable summary of Cvarchitect capabilities, canonical product URLs, and crawl directives.
       responses:
         '200':
-          description: Plain-text AI agent manifest
+          description: Plain-text AI crawler manifest
           content:
             text/plain:
               schema:

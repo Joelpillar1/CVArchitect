@@ -745,8 +745,8 @@ export default function AgentLandingPage() {
       a: 'Your resume powers your tailoring only. Nothing is shared, nothing is trained on, and you stay in control of every edit before you export.',
     },
     {
-      q: 'Does Cvarchitect include a live AI mock interview?',
-      a: 'No. Cvarchitect prepares likely interview questions and STAR answer outlines from your tailored resume and the job description. It does not run a live AI mock interview. If that is the feature you need, Rezi includes one.',
+      q: 'What does Interview Prep include?',
+      a: 'Interview Prep turns the job description and your tailored resume into likely behavioural and technical questions, each with a STAR answer outline built from experience you actually have. You walk in ready to talk about the work you have done, in the language the role asks for.',
     },
   ];
 
@@ -901,8 +901,8 @@ export default function AgentLandingPage() {
   return (
     <div className="relative min-h-screen bg-brand-bg text-brand-dark flex flex-col font-sans selection:bg-brand-green selection:text-brand-dark overflow-x-clip">
       <SEO
-        title="Cvarchitect: AI Resume Builder & Job-Description Tailoring"
-        description="Tailor your resume to any job description, score it against ATS parsers, write a matching cover letter, and prep interview questions in one workflow."
+        title="Cvarchitect: The Free AI Resume Builder, Tailored to Every Job"
+        description="The free AI resume builder, tailored to every job. Paste a job description, rewrite your resume to match, check your ATS score, write a matching cover letter, and prep interview questions."
         canonicalPath="/"
         jsonLd={[HOME_FAQ_SCHEMA, HOME_HOWTO_SCHEMA]}
       />
@@ -1043,7 +1043,7 @@ export default function AgentLandingPage() {
               <motion.div variants={fadeInUp} className="mb-8">
                 <span className="inline-flex items-center gap-2 pl-3 pr-3.5 py-2 rounded-full bg-brand-secondary border border-brand-border whitespace-nowrap max-w-full">
                   <span className="w-1.5 h-1.5 rounded-full bg-brand-green shrink-0" />
-                  <span className="text-xs sm:text-[13px] font-medium text-brand-dark/80 whitespace-nowrap truncate">AI resume builder + job-description tailoring</span>
+                  <span className="text-xs sm:text-[13px] font-medium text-brand-dark/80 whitespace-nowrap truncate">The free AI resume builder, tailored to every job</span>
                   <ArrowRight className="w-3.5 h-3.5 text-brand-dark/40 shrink-0" />
                 </span>
               </motion.div>
@@ -1066,7 +1066,7 @@ export default function AgentLandingPage() {
                 variants={fadeInUp}
                 className="text-base sm:text-lg text-brand-dark/60 max-w-2xl mx-auto leading-relaxed mb-10 text-balance"
               >
-                Every job asks for something different. Cvarchitect tailors your resume to the job description without inventing experience or stuffing keywords.
+                Every job asks for something different. Cvarchitect is the free AI resume builder that tailors your resume to each job description without inventing experience or stuffing keywords.
               </motion.p>
 
               {/* Interactive prompt card */}

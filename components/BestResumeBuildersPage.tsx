@@ -21,7 +21,7 @@ const LISTICLE_COMPETITORS = COMPETITORS.filter((competitor) =>
 const FAQS = [
   {
     q: 'What is the best AI resume builder in 2026?',
-    a: 'It depends on what you are optimising for. Cvarchitect is the strongest for rewriting a resume against a specific job posting, with 10 free AI rewrites and unlimited use at $10 per month. Teal is strongest for managing a full job search. Rezi adds a live AI mock interview and a one-time payment. Kickresume is strongest for design. Resume.io is strongest for browsing examples before you write.',
+    a: 'It depends on what you are optimising for. Cvarchitect is the strongest for rewriting a resume against a specific job posting, with 10 free AI rewrites and unlimited use at $10 per month. Teal is strongest for managing a full job search. Rezi includes interview practice and a one-time payment. Kickresume is strongest for design. Resume.io is strongest for browsing examples before you write.',
   },
   {
     q: 'Are AI resume builders worth paying for?',

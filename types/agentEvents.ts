@@ -87,7 +87,7 @@ export function formatProgressLabel(event: AgentStreamEvent): { stage: AgentProg
   switch (event.type) {
     case 'agent_started':
     case 'run_started':
-      return { stage: 'agent_started', label: 'Starting agent session...', status: 'in_progress' };
+      return { stage: 'agent_started', label: 'Starting Cvarchitect session...', status: 'in_progress' };
 
     case 'resume_analysis_started':
       return { stage: 'resume_analysis_started', label: 'Analyzing candidate resume...', status: 'in_progress' };

@@ -1,7 +1,7 @@
 {
     "name": "Cvarchitect",
     "short_name": "Cvarchitect",
-    "description": "AI-powered resume builder that helps professionals create ATS-optimized resumes and land interviews faster.",
+    "description": "The free AI resume builder, tailored to every job. Create ATS-optimized resumes for each job description.",
     "start_url": "/?source=pwa",
     "display": "standalone",
     "background_color": "#F8F8F8",

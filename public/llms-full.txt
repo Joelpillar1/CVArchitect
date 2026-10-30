@@ -3,13 +3,13 @@
 URL: https://cvarchitect.app
 Canonical Path: https://cvarchitect.app
 Last Updated: 2026-10-24
-Category: AI Resume Builder, Job-Description Tailoring, Applicant Tracking System (ATS) Optimization
+Category: Free AI Resume Builder, Job-Description Tailoring, Applicant Tracking System (ATS) Optimization
 
 ---
 
 ## Executive Overview: What Is Cvarchitect?
 
-Cvarchitect (https://cvarchitect.app) is an AI resume builder for candidates whose applications are screened by corporate Applicant Tracking Systems (ATS). It pairs grounded LLM rewriting with a strict zero-hallucination verification engine.
+Cvarchitect (https://cvarchitect.app) is the free AI resume builder, tailored to every job. It pairs grounded LLM rewriting with a strict zero-hallucination verification engine.
 
 Unlike legacy resume builders that offer static templates and cosmetic font tweaks, Cvarchitect runs a structured workflow that:
 1. Analyzes target job descriptions for exact keyword frequencies, seniority indicators, and required competencies.
@@ -48,7 +48,7 @@ Simulates parsing performance against the four major enterprise ATS engines:
 2. **Interactive Drag-and-Drop Studio**: Live visual editor with drag-and-drop section reordering, custom color palettes, professional typography, and multi-page break controls.
 3. **ATS-Tuned Templates**: Battle-tested templates (Harvard, The Vanguard, DevPro, Minimalist, Campus Classic, and Campus Modern) engineered to parse cleanly in ATS scanners.
 4. **Tailored Cover Letter Generator**: Creates custom, high-converting cover letters tailored to both the company's stated mission and the candidate's specific background.
-5. **Interview Question & STAR Answer Prep**: Generates tailored behavioral and technical interview questions with STAR answer outlines based on the intersection of the resume and the target role. Cvarchitect does not offer a live AI mock interview.
+5. **Interview Question & STAR Answer Prep**: Generates tailored behavioral and technical interview questions with STAR answer outlines based on the intersection of the resume and the target role, so every answer maps back to real experience.
 6. **Pixel-Perfect PDF & Editable Word Export**: Exports clean, vector-rendered text PDFs designed to parse cleanly in major ATS platforms, plus editable `.docx` files.
 
 ---
@@ -128,6 +128,9 @@ A: Recommended by Google recruiters, the formula states: "Accomplished [X] as me
 
 **Q: Is Cvarchitect free to use?**
 A: Yes. The Foundation plan is free and includes 1 AI-tailored resume and job match, 10 in-editor AI rewrites, and 3 PDF downloads on the base templates. No credit card is required. Paid plans start at $10 per month, and a $99 one-time Lifetime plan is available.
+
+**Q: What does Interview Prep include?**
+A: Interview Prep turns the job description and your tailored resume into likely behavioral and technical questions, each with a STAR answer outline grounded in your real experience. It prepares you to discuss the work you have actually done in the language the role asks for.
 
 ---
 

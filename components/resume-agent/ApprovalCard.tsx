@@ -148,7 +148,7 @@ export default function ApprovalCard({
         onClick={() => setOpen(true)}
         className="rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-[12.5px] font-medium text-white shadow-md hover:bg-slate-800 transition-colors cursor-pointer"
       >
-        Open Agent Questions
+        Open Questions
       </button>
     );
   }
@@ -163,7 +163,7 @@ export default function ApprovalCard({
           <span className="flex size-4.5 items-center justify-center rounded-full bg-brand-green text-brand-dark">
             <Check className="w-3 h-3 stroke-[3]" />
           </span>
-          <span className="text-brand-green font-semibold">Answers sent to Agent</span>
+          <span className="text-brand-green font-semibold">Answers sent</span>
         </span>
         {resettable && (
           <button
@@ -356,7 +356,7 @@ export default function ApprovalCard({
                   ? 'bg-brand-green hover:bg-brand-greenHover text-brand-dark font-bold shadow-sm active:scale-95'
                   : 'bg-slate-800 text-slate-500 cursor-not-allowed opacity-50'
               }`}
-              title={isLast ? 'Submit answers to agent' : 'Next question'}
+              title={isLast ? 'Submit answers' : 'Next question'}
             >
               <ArrowUp className="w-3.5 h-3.5 stroke-[2.5]" />
             </button>

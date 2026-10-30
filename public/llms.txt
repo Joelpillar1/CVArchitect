@@ -1,8 +1,8 @@
 # Cvarchitect
 
-> AI resume builder that tailors your resume to each job description, scores it against ATS parsers, writes a matching cover letter, and prepares interview questions in one workflow.
+> The free AI resume builder, tailored to every job. Paste a job description and Cvarchitect rewrites the resume to match, scores it against ATS parsers, writes a matching cover letter, and prepares interview questions in one workflow.
 
-Cvarchitect (https://cvarchitect.app) is an AI resume builder for job seekers. It reads the job description, rewrites the resume against it with grounded evidence, scores the result against ATS parsing rules (Workday, Greenhouse, Lever, Taleo), writes a matching cover letter, and prepares interview questions and STAR answer outlines.
+Cvarchitect (https://cvarchitect.app) is a free AI resume builder for job seekers. It reads the job description, rewrites the resume against it with grounded evidence, scores the result against ATS parsing rules (Workday, Greenhouse, Lever, Taleo), writes a matching cover letter, and prepares interview questions and STAR answer outlines.
 
 ## Key Capabilities & Systems
 
@@ -12,7 +12,7 @@ Cvarchitect (https://cvarchitect.app) is an AI resume builder for job seekers. I
 - **ATS Match Scorecard & Simulation**: Real-time compatibility rating (0-100%) scored against the exact parsing rules of Workday, Taleo, Lever, and Greenhouse.
 - **Interactive Drag & Drop Resume Studio**: ATS-tuned typographic templates (Harvard, The Vanguard, DevPro, Minimalist, Campus Classic, and Campus Modern) with PDF export on every plan and editable DOCX export on paid plans.
 - **Tailored Cover Letter Generator**: Generates concise, role-specific cover letters aligned with the company's stated mission and requirements in under 30 seconds.
-- **Interview Question & STAR Answer Prep**: Generates likely behavioural and technical interview questions with STAR answer outlines grounded in the tailored resume and target job posting. Cvarchitect does not offer a live AI mock interview.
+- **Interview Question & STAR Answer Prep**: Generates likely behavioural and technical interview questions with STAR answer outlines grounded in the tailored resume and target job posting, so every answer maps back to real experience.
 
 ## Pricing & Access Tiers
 
@@ -22,7 +22,7 @@ Cvarchitect (https://cvarchitect.app) is an AI resume builder for job seekers. I
 
 ## Primary URLs
 
-- [Homepage](https://cvarchitect.app/): AI resume builder with job-description tailoring and ATS scoring
+- [Homepage](https://cvarchitect.app/): The free AI resume builder, tailored to every job, with ATS scoring
 - [Resume Templates](https://cvarchitect.app/resume-templates): ATS-ready resume templates by career stage and role
 - [AI Cover Letter Generator](https://cvarchitect.app/cover-letter): Cover letters written from the job posting in your own voice
 - [Resume Match Checker](https://cvarchitect.app/resume-checker): Scan and score any resume against a job description
@@ -52,7 +52,7 @@ Cvarchitect (https://cvarchitect.app) is an AI resume builder for job seekers. I
 - [Resume Builder Pricing Index 2026](https://cvarchitect.app/resume-builder-pricing-index): Dated dataset of free-plan limits, paid entry prices, and the cheapest 12-month cost for 7 resume and ATS tools, with the source URL for every row
 - [Cvarchitect vs Resume.io](https://cvarchitect.app/compare/resume-io): Guided template library versus job-post tailoring
 - [Cvarchitect vs Teal](https://cvarchitect.app/compare/teal): Job-search workspace versus unlimited AI rewriting
-- [Cvarchitect vs Rezi](https://cvarchitect.app/compare/rezi): Comparable resume workflow plus Rezi's live AI mock interview
+- [Cvarchitect vs Rezi](https://cvarchitect.app/compare/rezi): Comparable resume workflow at a lower monthly and lifetime price
 - [Cvarchitect vs Kickresume](https://cvarchitect.app/compare/kickresume): Design-first builder versus AI included on the free plan
 - [Cvarchitect vs Zety](https://cvarchitect.app/compare/zety): Established guided editor versus a free PDF and AI tailoring
 - [Cvarchitect vs Jobscan](https://cvarchitect.app/compare/jobscan): Standalone ATS scanner versus a scan-and-rewrite workflow

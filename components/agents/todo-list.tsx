@@ -240,7 +240,7 @@ export function TodoList({
 
   return (
     <section
-      aria-label="Agent task list"
+      aria-label="AI task list"
       className={cn(
         "w-full overflow-hidden rounded-xl border border-brand-border bg-white shadow-xs",
         className,
