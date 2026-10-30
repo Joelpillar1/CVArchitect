@@ -9,7 +9,7 @@ import SEO from './SEO';
 
 const faqs = [
     {
-        q: 'Is everything the agent writes really grounded in my experience?',
+        q: 'Is everything Cvarchitect writes really grounded in my experience?',
         a: 'Yes. Every suggested edit must trace back to a real role, skill, or achievement in your history. Anything that cannot be grounded is blocked: nothing is invented, padded, or hallucinated.',
     },
     {

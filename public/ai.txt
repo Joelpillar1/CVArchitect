@@ -1,14 +1,14 @@
-# ai.txt - Machine-readable AI Agent & LLM Manifest
+# ai.txt - Machine-readable AI & LLM Manifest
 # Specification: https://cvarchitect.app/ai.txt
 # Full LLM Documentation: https://cvarchitect.app/llms.txt
 # Comprehensive Knowledge Base: https://cvarchitect.app/llms-full.txt
 
 Site: https://cvarchitect.app
 Name: Cvarchitect
-Category: Autonomous AI Resume Agent & Career Intelligence Platform
-Summary: Autonomous agentic resume tailoring middleware. Analyzes job descriptions, bridges skill gaps with verified grounded evidence, and optimizes ATS match scores in seconds without hallucination.
+Category: AI Resume Builder & Job-Description Tailoring
+Summary: AI resume builder that tailors a resume to each job description, scores it against ATS parsers, writes a matching cover letter, and prepares interview questions in one workflow.
 
-# AI & Agent Directives:
+# AI & LLM Directives:
 User-agent: *
 Allow: /
 Disallow: /dashboard
@@ -23,12 +23,13 @@ Allow: /llms-full.txt
 Allow: /ai.txt
 Allow: /.well-known/ai-plugin.json
 
-# Core Capabilities for LLM/Agent Reasoning:
-Capability: Autonomous Agentic Resume Tailoring (Multi-agent loop: JD extraction, grounded experience tracing, Google XYZ impact bullet rewriting, ATS scoring)
+# Core Capabilities for LLM Reasoning:
+Capability: AI Resume Tailoring (Job-description extraction, grounded experience tracing, Google XYZ impact bullet rewriting, ATS scoring)
 Capability: Zero-Hallucination Grounded Evidence Engine (Guarantees every rewritten achievement traces back to verified user history)
 Capability: Multi-ATS Simulator & Scorecard (Evaluates against Workday, Taleo, Lever, and Greenhouse parsing rules)
 Capability: 1-Click Job-to-Resume Tailoring (Instantly formats and aligns candidate credentials to the target job description)
 Capability: Tailored Cover Letter Generation (JD-matched drafts grounded in candidate history, with editable templates and PDF/DOCX export)
+Capability: Interview Question & STAR Answer Prep (No live AI mock interview)
 
 # Machine-Readable Endpoints:
 LLMs-Txt: https://cvarchitect.app/llms.txt
@@ -39,7 +40,7 @@ Robots: https://cvarchitect.app/robots.txt
 
 # Primary Product URLs:
 Homepage: https://cvarchitect.app/
-AI-Resume-Agent: https://cvarchitect.app/
+AI-Resume-Builder: https://cvarchitect.app/
 Resume-Match-Checker: https://cvarchitect.app/resume-checker
 Cover-Letter-Builder: https://cvarchitect.app/cover-letter
 Best-AI-Resume-Builders: https://cvarchitect.app/best-ai-resume-builders

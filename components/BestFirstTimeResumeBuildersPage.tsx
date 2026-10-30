@@ -910,7 +910,7 @@ export default function BestFirstTimeResumeBuildersPage() {
           }
           sub={
             <>
-              It needs evidence, a clean layout, and one target job. Start with the free plan and see what the agent can
+              It needs evidence, a clean layout, and one target job. Start with the free plan and see what Cvarchitect can
               build from what you already have.
             </>
           }

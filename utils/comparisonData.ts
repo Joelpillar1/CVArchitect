@@ -106,7 +106,7 @@ export const COMPETITORS: Competitor[] = [
       },
       {
         label: 'Tailoring to a job post',
-        us: 'Paste the posting, the agent rewrites the resume',
+        us: 'Paste the posting, Cvarchitect rewrites the resume',
         them: 'AI suggestions while you edit',
         edge: 'us',
       },
@@ -172,7 +172,7 @@ export const COMPETITORS: Competitor[] = [
       },
       {
         q: 'Does Resume.io tailor your resume to a job description?',
-        a: 'Resume.io offers AI writing suggestions inside its editor. Cvarchitect starts from the job posting: you paste it in and the agent rewrites the resume against that specific role.',
+        a: 'Resume.io offers AI writing suggestions inside its editor. Cvarchitect starts from the job posting: you paste it in and Cvarchitect rewrites the resume against that specific role.',
       },
       {
         q: 'Does Cvarchitect have as many templates as Resume.io?',
@@ -221,7 +221,7 @@ export const COMPETITORS: Competitor[] = [
       },
       {
         label: 'Tailoring to a job post',
-        us: 'Paste the posting, the agent rewrites the resume',
+        us: 'Paste the posting, Cvarchitect rewrites the resume',
         them: 'Keyword matching against a job description',
         edge: 'us',
       },
@@ -300,15 +300,15 @@ export const COMPETITORS: Competitor[] = [
     name: 'Rezi',
     siteUrl: 'https://www.rezi.ai',
     pricingUrl: 'https://www.rezi.ai/pricing',
-    category: 'The ATS score specialist',
-    verdict: 'Better scoring and interview prep. Higher monthly price.',
+    category: 'The resume builder with a live mock interview',
+    verdict: 'Comparable resume tooling. Rezi adds a live mock interview.',
     shortAnswer:
-      'Rezi is the better choice if you want a numeric ATS score, interview practice, and a one-time payment at any price. Cvarchitect is the better choice if you want unlimited tailoring for less per month and a free plan that exports real PDFs. Rezi Pro is $29 per month, and its lifetime plan is $149.',
-    freePlan: '1 resume, 1 AI interview, 3 PDF downloads',
+      'Rezi and Cvarchitect cover the same core workflow: job-description tailoring, ATS scoring, cover letters, and interview question prep. Rezi adds a live AI mock interview, which Cvarchitect does not offer. Cvarchitect is $10 per month or $99 once, compared with $29 per month or $149 once at Rezi, and its free plan exports real PDFs.',
+    freePlan: '1 resume, 1 live AI mock interview, 3 PDF downloads',
     entryPrice: '$29 per month, or $149 once',
     billing: 'Monthly or one-time',
     lifetime: '$149 one-time',
-    bestFor: 'ATS score optimisation and interview prep',
+    bestFor: 'A live AI mock interview on top of resume building',
     rows: [
       {
         label: 'Free plan includes',
@@ -330,20 +330,26 @@ export const COMPETITORS: Competitor[] = [
       },
       {
         label: 'Tailoring to a job post',
-        us: 'Paste the posting, the agent rewrites the resume',
+        us: 'Paste the posting, Cvarchitect rewrites the resume',
         them: 'AI keyword targeting from the job description',
         edge: 'us',
       },
       {
         label: 'ATS score',
-        us: 'Resume vs job description match checker',
+        us: 'Job-specific ATS match score',
         them: 'Rezi Score across 23 metrics',
-        edge: 'them',
+        edge: 'tie',
       },
       {
-        label: 'Interview practice',
-        us: 'Interview prep guidance',
-        them: 'AI interview practice included',
+        label: 'Interview question & STAR answer prep',
+        us: 'Included',
+        them: 'Included',
+        edge: 'tie',
+      },
+      {
+        label: 'Live AI mock interview',
+        us: 'Not offered',
+        them: 'Included',
         edge: 'them',
       },
       {
@@ -366,29 +372,34 @@ export const COMPETITORS: Competitor[] = [
       },
     ],
     theyWin: [
-      'Rezi Score is the most explicit ATS feedback loop of the four. Twenty-three metrics, scored, with fixes.',
-      'AI interview practice is included. That is a different job than resume writing, and Rezi does it.',
+      'A live AI mock interview is the one capability Rezi has that Cvarchitect does not. It is useful if you want to rehearse answers out loud.',
       'Google Drive export is a small thing that matters if your workflow lives there.',
     ],
     weWin: [
       '$10 per month versus $29. $99 lifetime versus $149.',
       'The free plan includes 10 AI rewrites, so you can judge the output quality before paying.',
       'Tailoring starts from the posting and rewrites the whole resume, not just keyword coverage.',
+      'ATS scoring, cover letters, and interview question prep are all in the same workflow.',
     ],
     chooseThem: [
-      'You want a number to optimise against and will iterate until the score moves.',
-      'You want interview practice in the same subscription.',
+      'You specifically want a live AI mock interview in the same subscription.',
+      'You want a 23-metric score breakdown alongside the rewrite.',
       'You are willing to pay $149 once for a permanent tool.',
     ],
     chooseUs: [
-      'You want the same one-time model at $99 instead of $149.',
+      'You want the same core workflow at $99 once instead of $149.',
       'You want unlimited tailoring at a lower monthly price.',
       'You want to see the AI output quality on the free plan before paying.',
+      'You do not need a live mock interview and would rather not pay for one.',
     ],
     faqs: [
       {
         q: 'Is Rezi better than Cvarchitect for ATS?',
-        a: 'Rezi gives you a more explicit score: 23 metrics with a number to improve. Cvarchitect focuses on tailoring the resume to a specific posting and checking the match against that posting. If you want a score to optimise, Rezi is stronger. If you want the rewrite, Cvarchitect is stronger.',
+        a: 'No. Both score the resume against the job description and ATS parsing rules. Rezi presents its score as 23 named metrics; Cvarchitect folds the score into the tailoring workflow and rewrites the resume from the result. The difference is presentation, not whether ATS scoring exists.',
+      },
+      {
+        q: 'Does Cvarchitect include a live AI mock interview?',
+        a: 'No. Cvarchitect prepares likely interview questions and STAR answer outlines from the tailored resume and job description. If you want a live AI mock interview, Rezi includes one. That is the only capability gap between the two.',
       },
       {
         q: 'How much does Rezi cost?',
@@ -445,7 +456,7 @@ export const COMPETITORS: Competitor[] = [
       },
       {
         label: 'Tailoring to a job post',
-        us: 'Paste the posting, the agent rewrites the resume',
+        us: 'Paste the posting, Cvarchitect rewrites the resume',
         them: 'AI writer from a job ad, Premium only',
         edge: 'us',
       },
@@ -634,9 +645,9 @@ export const COMPETITORS: Competitor[] = [
     siteUrl: 'https://www.jobscan.co',
     pricingUrl: 'https://www.jobscan.co/pricing',
     category: 'The standalone ATS scanner',
-    verdict: 'The stronger scanner. The higher monthly price.',
+    verdict: 'The standalone scanner. The higher monthly price.',
     shortAnswer:
-      'Jobscan is the better choice if you want a standalone ATS scan, a job tracker, and a scanner that sits beside your existing resume workflow. Cvarchitect is the better choice if you want the scan and the rewrite in one place, a $10 monthly plan, a $99 one-time option, and cover letters included. Jobscan gives five free scans per month; Cvarchitect gives one free resume analysis, 10 AI rewrites, and 3 PDF exports.',
+      'Jobscan is the better choice if you want a standalone ATS scan, a job tracker, and a scanner that sits beside your existing resume workflow. Cvarchitect is the better choice if you want the scan and the rewrite in one workflow, a $10 monthly plan, a $99 one-time option, and cover letters included. Jobscan gives five free scans per month; Cvarchitect gives one free resume analysis, 10 AI rewrites, and 3 PDF exports.',
     freePlan: '5 resume scans per month, 5 ATS and recruiter findings',
     entryPrice: '$49.95 per month, or $89.95 every 3 months',
     billing: 'Subscription, quarterly plan includes a 7-day trial',
@@ -669,7 +680,7 @@ export const COMPETITORS: Competitor[] = [
       },
       {
         label: 'Rewrite after the scan',
-        us: 'Agent rewrites the resume against the posting',
+        us: 'Cvarchitect rewrites the resume against the posting',
         them: 'AI Optimize and bullet generator on Premium',
         edge: 'us',
       },
@@ -789,7 +800,7 @@ export const COMPETITORS: Competitor[] = [
       },
       {
         label: 'Tailoring to a job post',
-        us: 'Paste the posting and the agent rewrites the resume around it',
+        us: 'Paste the posting and Cvarchitect rewrites the resume around it',
         them: 'Not described on the pricing page',
         edge: 'us',
       },
@@ -835,7 +846,7 @@ export const COMPETITORS: Competitor[] = [
       },
       {
         q: 'Does Novoresume tailor a resume to a job description?',
-        a: 'The Novoresume pricing page does not describe job-posting tailoring. Cvarchitect starts there: you paste the posting and the agent rewrites the resume against that role.',
+        a: 'The Novoresume pricing page does not describe job-posting tailoring. Cvarchitect starts there: you paste the posting and Cvarchitect rewrites the resume against that role.',
       },
     ],
   },
@@ -892,7 +903,7 @@ export const COMPETITORS: Competitor[] = [
       },
       {
         label: 'Tailoring to a job post',
-        us: 'Paste the posting and the agent rewrites the resume around it',
+        us: 'Paste the posting and Cvarchitect rewrites the resume around it',
         them: 'AI summary generator; posting rewriting is not described on the pricing page',
         edge: 'us',
       },
@@ -989,7 +1000,7 @@ export const COMPETITORS: Competitor[] = [
       },
       {
         label: 'Job description tailoring',
-        us: 'Paste the posting and the agent rewrites the resume around it',
+        us: 'Paste the posting and Cvarchitect rewrites the resume around it',
         them: 'Paste the job ad and Enhancv shows what to include',
         edge: 'tie',
       },
@@ -1086,7 +1097,7 @@ export const BEST_PICKS = [
     slug: null as string | null,
     href: '/',
     summary:
-      'Paste the job posting and the agent rewrites the resume around it. 10 AI rewrites are free, unlimited on the $10 monthly plan.',
+      'Paste the job posting and Cvarchitect rewrites the resume around it. 10 AI rewrites are free, unlimited on the $10 monthly plan.',
     price: 'Free to start, $10 per month, or $99 once',
     bestFor: 'First-time writers and anyone targeting a specific role',
   },
@@ -1106,9 +1117,9 @@ export const BEST_PICKS = [
     slug: 'rezi',
     href: '/compare/rezi',
     summary:
-      'A numeric ATS score across 23 metrics plus AI interview practice. The lifetime plan removes the subscription entirely.',
+      'A full resume builder with ATS scoring, cover letters, and interview prep, plus a live AI mock interview. The lifetime plan removes the subscription entirely.',
     price: '$29 per month or $149 once',
-    bestFor: 'People who want to pay once and optimise against a score',
+    bestFor: 'People who want a live mock interview and to pay once',
   },
   {
     award: 'Best for design and matching documents',

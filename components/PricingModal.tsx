@@ -189,7 +189,7 @@ export default function PricingModal({
                                     <div className="p-0.5 sm:p-1 rounded bg-brand-green/20 text-brand-dark shrink-0">
                                         <MessageSquare size={13} />
                                     </div>
-                                    <span>Cover Letters & Interview Prep</span>
+                                    <span>Cover Letters & Interview Question Prep</span>
                                 </li>
                                 <li className="flex items-center gap-2 font-medium">
                                     <div className="p-0.5 sm:p-1 rounded bg-brand-green/20 text-brand-dark shrink-0">
@@ -280,7 +280,7 @@ export default function PricingModal({
                                     <span className="h-4 w-4 rounded grid place-content-center shrink-0 bg-brand-green/20 border border-brand-green/40 text-brand-green">
                                         <CheckCheck className="h-2.5 w-2.5" strokeWidth={2.5} />
                                     </span>
-                                    <span>Cover Letters & Interview Prep</span>
+                                    <span>Cover Letters & Interview Question Prep</span>
                                 </li>
                                 <li className="flex items-center gap-2 font-medium">
                                     <span className="h-4 w-4 rounded grid place-content-center shrink-0 bg-brand-green/20 border border-brand-green/40 text-brand-green">

@@ -518,7 +518,7 @@ export default function AgentPanel({
                   msg.id.startsWith('welcome') ||
                   msg.id.startsWith('msg_welcome') ||
                   msg.id.includes('welcome') ||
-                  (typeof msg.text === 'string' && msg.text.includes('Hello! I am your AI Resume Agent'));
+                  (typeof msg.text === 'string' && msg.text.includes('Hello! I am Cvarchitect'));
 
                 const hasActiveWork =
                   isAgentRunning ||

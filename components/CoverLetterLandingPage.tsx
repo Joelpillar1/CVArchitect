@@ -100,11 +100,11 @@ const STEPS = [
   {
     icon: <FileText className="w-4 h-4 text-brand-green" />,
     title: 'Add your resume and the job',
-    body: 'Pick a saved resume or paste a job description. The agent reads both before writing a word.'
+    body: 'Pick a saved resume or paste a job description. Cvarchitect reads both before writing a word.'
   },
   {
     icon: <Sparkles className="w-4 h-4 text-brand-green" />,
-    title: 'The agent drafts the letter',
+    title: 'Cvarchitect drafts the letter',
     body: 'A one-page letter in your voice, mapped to the role and grounded in your actual experience.'
   },
   {

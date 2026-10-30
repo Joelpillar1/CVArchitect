@@ -41,7 +41,7 @@ function PricingCell({ cell, emphasize }: { cell: ComparisonCell; emphasize?: bo
 
 const comparisonSections: { title: string; rows: { label: string; cells: [ComparisonCell, ComparisonCell, ComparisonCell] }[] }[] = [
     {
-        title: 'AI Resume Agent & Matching',
+        title: 'AI Resume Building & Matching',
         rows: [
             { label: 'AI Tailored Resumes', cells: [{ type: 'text', text: '1 Resume' }, { type: 'text', text: 'Unlimited*' }, { type: 'text', text: 'Unlimited*' }] },
             { label: 'Job Description Match & Score', cells: [{ type: 'text', text: 'Basic' }, { type: 'check' }, { type: 'check' }] },
@@ -65,7 +65,7 @@ const comparisonSections: { title: string; rows: { label: string; cells: [Compar
         rows: [
             { label: 'Saved Resume Versions', cells: [{ type: 'text', text: '1 Version' }, { type: 'text', text: 'Unlimited' }, { type: 'text', text: 'Unlimited' }] },
             { label: 'Cover Letter Builder', cells: [{ type: 'dash' }, { type: 'check' }, { type: 'check' }] },
-            { label: 'Interview Prep & Q&A', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }] },
+            { label: 'Interview Question & STAR Answer Prep', cells: [{ type: 'check' }, { type: 'check' }, { type: 'check' }] },
         ],
     },
     {

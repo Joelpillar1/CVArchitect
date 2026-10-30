@@ -165,7 +165,7 @@ export const COMPETITOR_DEEP: CompetitorDeep[] = [
       },
       {
         dimension: 'Job posting tailoring',
-        us: 'Paste the posting and the agent rewrites the resume around it.',
+        us: 'Paste the posting and Cvarchitect rewrites the resume around it.',
         them: 'AI writing suggestions inside the editor.',
         edge: 'us',
       },
@@ -294,7 +294,7 @@ export const COMPETITOR_DEEP: CompetitorDeep[] = [
       },
       {
         dimension: 'Job description keyword matching',
-        us: 'Paste the posting and the agent rewrites the resume.',
+        us: 'Paste the posting and Cvarchitect rewrites the resume.',
         them: 'Top 5 keywords free, unlimited on Teal+, with a match score.',
         edge: 'tie',
       },
@@ -382,13 +382,13 @@ export const COMPETITOR_DEEP: CompetitorDeep[] = [
   {
     slug: 'rezi',
     headline:
-      'Rezi is the ATS score and interview practice specialist. Cvarchitect is the lower price with the stronger free plan. Rezi gives you a number; Cvarchitect gives you the rewrite.',
+      'Rezi covers the same resume workflow, plus a live AI mock interview. Cvarchitect is the lower price with the stronger free plan.',
     bestForDetail:
-      'Rezi is built for people who want a measurable ATS score, a structured feedback loop across 23 metrics, and interview practice in the same subscription. The lifetime plan removes the monthly cost if you are willing to pay $149 once.',
+      'Rezi is built for people who want a full resume workflow plus a live AI mock interview. It scores against 23 metrics, tailors from the job description, and includes cover letters and interview prep. The lifetime plan removes the monthly cost if you are willing to pay $149 once.',
     notFor: [
       'You want the lowest monthly price.',
       'You want more than one resume on the free plan.',
-      'You want tailoring from a job posting rather than a keyword score.',
+      'You do not need a live mock interview and would rather not pay for one.',
     ],
     freePlanLines: [
       'One resume',
@@ -416,14 +416,20 @@ export const COMPETITOR_DEEP: CompetitorDeep[] = [
     deepDives: [
       {
         dimension: 'ATS score',
-        us: 'Resume vs job description match checker.',
+        us: 'Job-specific ATS match score.',
         them: 'Rezi Score across 23 metrics, with fixes.',
-        edge: 'them',
+        edge: 'tie',
       },
       {
-        dimension: 'Interview practice',
-        us: 'Interview prep guidance.',
-        them: 'AI interview practice included.',
+        dimension: 'Interview question and STAR answer prep',
+        us: 'Included.',
+        them: 'Included.',
+        edge: 'tie',
+      },
+      {
+        dimension: 'Live AI mock interview',
+        us: 'Not offered.',
+        them: 'Included.',
         edge: 'them',
       },
       {
@@ -434,7 +440,7 @@ export const COMPETITOR_DEEP: CompetitorDeep[] = [
       },
       {
         dimension: 'Job posting tailoring',
-        us: 'Paste the posting and the agent rewrites the resume.',
+        us: 'Paste the posting and Cvarchitect rewrites the resume.',
         them: 'AI keyword targeting from the job description.',
         edge: 'us',
       },
@@ -480,7 +486,11 @@ export const COMPETITOR_DEEP: CompetitorDeep[] = [
       },
       {
         q: 'Does Rezi tailor a resume to a job description?',
-        a: 'Rezi offers AI keyword targeting from a job description and a 23-metric Rezi Score. Cvarchitect rewrites the resume against the posting instead of only scoring it.',
+        a: 'Yes. Rezi offers AI keyword targeting from a job description and a 23-metric Rezi Score. Cvarchitect also tailors from the posting and scores the result. The main difference is the live AI mock interview, which Rezi includes and Cvarchitect does not.',
+      },
+      {
+        q: 'Does Cvarchitect have a live AI mock interview?',
+        a: 'No. Cvarchitect prepares likely interview questions and STAR answer outlines from the tailored resume and posting. Rezi includes a live AI mock interview if you want to rehearse answers out loud.',
       },
     ],
     related: [
@@ -568,7 +578,7 @@ export const COMPETITOR_DEEP: CompetitorDeep[] = [
       },
       {
         dimension: 'Job posting tailoring',
-        us: 'Paste the posting and the agent rewrites the resume.',
+        us: 'Paste the posting and Cvarchitect rewrites the resume.',
         them: 'AI Writer from a job ad, Premium only.',
         edge: 'us',
       },
@@ -695,7 +705,7 @@ export const COMPETITOR_DEEP: CompetitorDeep[] = [
       },
       {
         dimension: 'Job posting tailoring',
-        us: 'Paste the posting and the agent rewrites the resume.',
+        us: 'Paste the posting and Cvarchitect rewrites the resume.',
         them: 'Instant job matches from your resume.',
         edge: 'us',
       },
@@ -771,7 +781,7 @@ export const COMPETITOR_DEEP: CompetitorDeep[] = [
   {
     slug: 'jobscan',
     headline:
-      'Jobscan is the standalone ATS scanner with the deepest diagnostics. Cvarchitect is cheaper and does the rewrite in the same place. Jobscan tells you what is missing; Cvarchitect fixes it.',
+      'Jobscan is the standalone ATS scanner. Cvarchitect is cheaper and does the rewrite in the same place. Jobscan tells you what is missing; Cvarchitect fixes it.',
     bestForDetail:
       'Jobscan is built for people who already have a resume they like and want a second opinion on how it matches a specific posting, with a job tracker, LinkedIn optimization, and Auto Apply credits on Premium.',
     notFor: [
@@ -816,7 +826,7 @@ export const COMPETITOR_DEEP: CompetitorDeep[] = [
       },
       {
         dimension: 'Rewrite after the scan',
-        us: 'The agent rewrites the resume against the posting.',
+        us: 'Cvarchitect rewrites the resume against the posting.',
         them: 'AI Optimize and a bullet generator on Premium.',
         edge: 'us',
       },
@@ -963,7 +973,7 @@ export const COMPETITOR_DEEP: CompetitorDeep[] = [
       },
       {
         dimension: 'Job posting tailoring',
-        us: 'Paste the posting and the agent rewrites the resume around it.',
+        us: 'Paste the posting and Cvarchitect rewrites the resume around it.',
         them: 'Not described on the pricing page.',
         edge: 'us',
       },
@@ -1094,7 +1104,7 @@ export const COMPETITOR_DEEP: CompetitorDeep[] = [
       },
       {
         dimension: 'Job posting tailoring',
-        us: 'Paste the posting and the agent rewrites the resume.',
+        us: 'Paste the posting and Cvarchitect rewrites the resume.',
         them: 'AI summary generator; posting rewriting is not described on the pricing page.',
         edge: 'us',
       },
@@ -1223,7 +1233,7 @@ export const COMPETITOR_DEEP: CompetitorDeep[] = [
       },
       {
         dimension: 'Job description tailoring',
-        us: 'Paste the posting and the agent rewrites the resume.',
+        us: 'Paste the posting and Cvarchitect rewrites the resume.',
         them: 'Paste the job ad and Enhancv shows what to include.',
         edge: 'tie',
       },

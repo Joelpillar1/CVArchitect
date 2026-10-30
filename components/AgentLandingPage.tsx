@@ -673,7 +673,7 @@ export default function AgentLandingPage() {
       num: '01',
       name: 'Recent Grad',
       title: 'Turn potential into proof',
-      desc: 'Coursework, internships, and projects become interview-ready bullets. The agent frames limited experience honestly and powerfully: no fluff, no filler.',
+      desc: 'Coursework, internships, and projects become interview-ready bullets. Cvarchitect frames limited experience honestly and powerfully: no fluff, no filler.',
       evidence: 'Grounded in: 6 projects · 2 internships · 1 thesis',
       workflow: [
         { tag: 'Frame', text: 'Coursework and internships become interview-ready bullets with no fluff and no filler.' },
@@ -685,7 +685,7 @@ export default function AgentLandingPage() {
       num: '02',
       name: 'Career Switcher',
       title: 'Reframe what you already know',
-      desc: 'Transferable skills get re-framed against a new field without fabricating titles. The agent bridges the gap with grounded evidence from adjacent roles.',
+      desc: 'Transferable skills get re-framed against a new field without fabricating titles. Cvarchitect bridges the gap with grounded evidence from adjacent roles.',
       evidence: 'Grounded in: 4 adjacent roles · 9 transferable skills',
       workflow: [
         { tag: 'Frame', text: 'Transferable skills are re-framed against the new field without fabricating titles.' },
@@ -721,16 +721,16 @@ export default function AgentLandingPage() {
 
   const faqs = [
     {
-      q: 'Is everything the agent writes really grounded?',
+      q: 'Is everything Cvarchitect writes really grounded?',
       a: 'Yes. Every suggested edit must trace back to a real role, skill, or number in your history. Anything that cannot be grounded is blocked: nothing is invented, padded, or hallucinated.',
     },
     {
-      q: 'Do I need a paid plan to use the Resume Agent?',
+      q: 'Do I need a paid plan to use Cvarchitect?',
       a: 'No. The Foundation plan includes one free AI-tailored resume with a full download. Paid plans unlock unlimited tailoring, every template, and unlimited exports.',
     },
     {
-      q: 'Which resume templates can the agent work with?',
-      a: 'The agent works from the resume you upload and can output it in any template in the workspace, including the ATS-tuned templates in the marquee above.',
+      q: 'Which resume templates can Cvarchitect work with?',
+      a: 'Cvarchitect works from the resume you upload and can output it in any template in the workspace, including the ATS-tuned templates in the marquee above.',
     },
     {
       q: 'What file formats can I upload?',
@@ -744,6 +744,10 @@ export default function AgentLandingPage() {
       q: 'What happens to my data?',
       a: 'Your resume powers your tailoring only. Nothing is shared, nothing is trained on, and you stay in control of every edit before you export.',
     },
+    {
+      q: 'Does Cvarchitect include a live AI mock interview?',
+      a: 'No. Cvarchitect prepares likely interview questions and STAR answer outlines from your tailored resume and the job description. It does not run a live AI mock interview. If that is the feature you need, Rezi includes one.',
+    },
   ];
 
   const howItWorks = [
@@ -755,12 +759,12 @@ export default function AgentLandingPage() {
     {
       num: '02',
       title: 'It finds the gap',
-      desc: 'Paste any job description. The agent extracts the exact requirements, keywords, and screening criteria recruiters actually use.',
+      desc: 'Paste any job description. Cvarchitect extracts the exact requirements, keywords, and screening criteria recruiters actually use.',
     },
     {
       num: '03',
       title: 'Every bullet gets grounded',
-      desc: 'Suggested edits are verified against your real history. The agent only rephrases what you have truly done, with zero hallucinated roles or skills.',
+      desc: 'Suggested edits are verified against your real history. Cvarchitect only rephrases what you have truly done, with zero hallucinated roles or skills.',
     },
     {
       num: '04',
@@ -897,8 +901,8 @@ export default function AgentLandingPage() {
   return (
     <div className="relative min-h-screen bg-brand-bg text-brand-dark flex flex-col font-sans selection:bg-brand-green selection:text-brand-dark overflow-x-clip">
       <SEO
-        title="Cvarchitect: AI Resume Agent for Job-Tailored Resumes"
-        description="Autonomous AI Agent middleware for job seekers. Analyze job descriptions, bridge skill gaps with grounded evidence, and optimize ATS scores automatically."
+        title="Cvarchitect: AI Resume Builder & Job-Description Tailoring"
+        description="Tailor your resume to any job description, score it against ATS parsers, write a matching cover letter, and prep interview questions in one workflow."
         canonicalPath="/"
         jsonLd={[HOME_FAQ_SCHEMA, HOME_HOWTO_SCHEMA]}
       />
@@ -929,7 +933,7 @@ export default function AgentLandingPage() {
                 onClick={handleGoToDashboard}
                 className="px-4 py-2 rounded-lg bg-brand-dark hover:bg-brand-dark/90 text-white font-medium text-sm shadow-sm transition-all flex items-center gap-2 cursor-pointer"
               >
-                <span>Launch Agent</span>
+                <span>Open Builder</span>
                 <ArrowRight className="w-4 h-4 text-brand-green" />
               </motion.button>
             ) : (
@@ -1039,7 +1043,7 @@ export default function AgentLandingPage() {
               <motion.div variants={fadeInUp} className="mb-8">
                 <span className="inline-flex items-center gap-2 pl-3 pr-3.5 py-2 rounded-full bg-brand-secondary border border-brand-border whitespace-nowrap max-w-full">
                   <span className="w-1.5 h-1.5 rounded-full bg-brand-green shrink-0" />
-                  <span className="text-xs sm:text-[13px] font-medium text-brand-dark/80 whitespace-nowrap truncate">Introducing Resume Agent 1.0</span>
+                  <span className="text-xs sm:text-[13px] font-medium text-brand-dark/80 whitespace-nowrap truncate">AI resume builder + job-description tailoring</span>
                   <ArrowRight className="w-3.5 h-3.5 text-brand-dark/40 shrink-0" />
                 </span>
               </motion.div>
@@ -1062,7 +1066,7 @@ export default function AgentLandingPage() {
                 variants={fadeInUp}
                 className="text-base sm:text-lg text-brand-dark/60 max-w-2xl mx-auto leading-relaxed mb-10 text-balance"
               >
-                Every job asks for something different. Resume Agent adapts your resume without inventing experience or stuffing keywords.
+                Every job asks for something different. Cvarchitect tailors your resume to the job description without inventing experience or stuffing keywords.
               </motion.p>
 
               {/* Interactive prompt card */}
@@ -1183,7 +1187,7 @@ export default function AgentLandingPage() {
               Every rewrite lands on real numbers
             </h2>
             <p className="text-base text-brand-dark/60 mt-4 max-w-2xl">
-              The agent rephrases only what you have truly done. Left and right stream up, center streams down, all grounded in verified commercial metrics.
+              Cvarchitect rephrases only what you have truly done. Left and right stream up, center streams down, all grounded in verified commercial metrics.
             </p>
           </motion.div>
 
@@ -1284,7 +1288,7 @@ export default function AgentLandingPage() {
                       Evidence-Based <em className="not-italic text-brand-green">Experience</em> Mapping
                     </h3>
                     <p className="text-sm sm:text-base text-brand-dark/60 leading-relaxed max-w-md">
-                      Every rewritten bullet traces back to a verified role in your history. Nothing is fabricated or exaggerated. The agent maps your genuine accomplishments before polishing a single word.
+                      Every rewritten bullet traces back to a verified role in your history. Nothing is fabricated or exaggerated. Cvarchitect maps your genuine accomplishments before polishing a single word.
                     </p>
                   </div>
                   {/* Right: diagnostic module  -  Readiness Checklist */}
@@ -1635,7 +1639,7 @@ export default function AgentLandingPage() {
                 data-ml-goal={user ? undefined : 'signup_click'}
                 className="inline-flex items-center gap-2 px-8 py-4 rounded-lg bg-brand-green hover:bg-brand-greenHover text-brand-dark font-medium text-sm shadow-xl transition-colors cursor-pointer"
               >
-                <span>Launch the Agent</span>
+                <span>Start building free</span>
                 <ArrowRight className="w-4 h-4" />
               </motion.button>
             </motion.div>
@@ -1661,7 +1665,7 @@ export default function AgentLandingPage() {
               </div>
               <div className="lg:col-span-7 flex items-end">
                 <p className="text-base text-brand-dark/60 max-w-xl">
-                  Whatever stage you're at, the agent knows how to frame your real history against the role, honestly and powerfully.
+                  Whatever stage you're at, Cvarchitect knows how to frame your real history against the role, honestly and powerfully.
                 </p>
               </div>
             </motion.div>
@@ -1773,7 +1777,7 @@ export default function AgentLandingPage() {
               </div>
               <div className="lg:col-span-7 lg:pb-1">
                 <p className="text-base text-brand-dark/60 leading-relaxed max-w-xl">
-                  Everything you'd want to know before you hand your resume to an agent.
+                  Everything you'd want to know before you build your resume with Cvarchitect.
                 </p>
               </div>
             </motion.div>

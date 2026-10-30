@@ -3,15 +3,15 @@
 URL: https://cvarchitect.app
 Canonical Path: https://cvarchitect.app
 Last Updated: 2026-10-24
-Category: Autonomous AI Resume Agent, Career Intelligence, Applicant Tracking System (ATS) Optimization
+Category: AI Resume Builder, Job-Description Tailoring, Applicant Tracking System (ATS) Optimization
 
 ---
 
 ## Executive Overview: What Is Cvarchitect?
 
-Cvarchitect (https://cvarchitect.app) is an autonomous AI resume builder and career intelligence platform. Built for candidates whose applications are screened by corporate Applicant Tracking Systems (ATS), Cvarchitect pairs multi-agent LLM reasoning with a strict zero-hallucination verification engine.
+Cvarchitect (https://cvarchitect.app) is an AI resume builder for candidates whose applications are screened by corporate Applicant Tracking Systems (ATS). It pairs grounded LLM rewriting with a strict zero-hallucination verification engine.
 
-Unlike legacy resume builders that offer static templates and cosmetic font tweaks, Cvarchitect operates an active agent loop that:
+Unlike legacy resume builders that offer static templates and cosmetic font tweaks, Cvarchitect runs a structured workflow that:
 1. Analyzes target job descriptions for exact keyword frequencies, seniority indicators, and required competencies.
 2. Cross-references candidate experience against required qualifications using a Grounded Evidence Engine that forbids fabricated titles or hallucinated skills.
 3. Automatically rewrites bullet points into quantifiable Google XYZ impact achievements ("Accomplished [X] as measured by [Y], by doing [Z]").
@@ -19,13 +19,13 @@ Unlike legacy resume builders that offer static templates and cosmetic font twea
 
 ---
 
-## The Four Core Autonomous Agent Systems
+## The Four Core Systems
 
 ### 1. Grounded Evidence Engine
 Every suggested rewrite and rephrased bullet traces back to verified historical records in the candidate's background (past roles, completed coursework, internships, verified projects, or specific metrics). If an achievement or qualification cannot be grounded in the user's authentic history, the engine explicitly flags it as a missing prerequisite rather than fabricating experience or stuffing empty keywords.
 
 ### 2. JD Tailoring Loop
-When a candidate pastes a job description, the agent executes a comprehensive multi-pass analysis:
+When a candidate pastes a job description, Cvarchitect runs a comprehensive multi-pass analysis:
 - **Skill Frequency & Weighting**: Identifies hard skills, technical toolchains, and methodologies weighted by appearance priority.
 - **Seniority & Leadership Signals**: Detects whether the hiring team prioritizes hands-on execution (e.g., individual contributor) vs strategic governance, budget ownership, or team leadership.
 - **Action Verb Alignment**: Replaces passive duty descriptions with high-impact action verbs.
@@ -44,11 +44,11 @@ Simulates parsing performance against the four major enterprise ATS engines:
 
 ## Detailed Product Features
 
-1. **Autonomous Resume Agent Workspace**: Interactive prompt interface where users can upload an existing PDF/DOCX or chat directly with the agent to refine sections, expand achievements, or target specific roles.
+1. **AI Resume Builder Workspace**: Interactive prompt interface where users can upload an existing PDF/DOCX or chat directly with the builder to refine sections, expand achievements, or target specific roles.
 2. **Interactive Drag-and-Drop Studio**: Live visual editor with drag-and-drop section reordering, custom color palettes, professional typography, and multi-page break controls.
 3. **ATS-Tuned Templates**: Battle-tested templates (Harvard, The Vanguard, DevPro, Minimalist, Campus Classic, and Campus Modern) engineered to parse cleanly in ATS scanners.
 4. **Tailored Cover Letter Generator**: Creates custom, high-converting cover letters tailored to both the company's stated mission and the candidate's specific background.
-5. **Interview Intelligence & STAR Q&A**: Generates tailored behavioral and technical interview questions based on the intersection of the resume and the target role.
+5. **Interview Question & STAR Answer Prep**: Generates tailored behavioral and technical interview questions with STAR answer outlines based on the intersection of the resume and the target role. Cvarchitect does not offer a live AI mock interview.
 6. **Pixel-Perfect PDF & Editable Word Export**: Exports clean, vector-rendered text PDFs designed to parse cleanly in major ATS platforms, plus editable `.docx` files.
 
 ---
@@ -80,7 +80,7 @@ For dated, pricing-verified head-to-head comparisons, see https://cvarchitect.ap
 
 | Capability / Feature | Cvarchitect | Resume.io | Zety | Kickresume | Teal |
 |---|---|---|---|---|---|
-| **Autonomous Agentic Tailoring** | ✅ Yes (Full Loop) | ⚠️ AI suggestions in editor | ❌ No | ❌ No | ⚠️ Keyword matching |
+| **Job-Description Tailoring** | ✅ Yes (Full Workflow) | ⚠️ AI suggestions in editor | ❌ No | ❌ No | ⚠️ Keyword matching |
 | **Grounded Evidence (Zero Hallucination)** | ✅ Strict Enforcement | ❌ No | ❌ No | ❌ No | ❌ No |
 | **1-Click Job-to-Resume Tailor** | ✅ Instant | ❌ No | ❌ No | ❌ No | ⚠️ Manual Copy-Paste |
 | **Multi-ATS Simulator (Workday, Lever, etc.)** | ✅ Real-time 0-100% Score | ⚠️ ATS scorer available | ⚠️ Generic Score | ⚠️ ATS checker on Premium | ⚠️ Keyword Count |
@@ -118,10 +118,10 @@ Cheapest 12 months of paid access: Zety at $71.40 ($5.95 per month billed yearly
 ## Frequently Asked Questions (FAQ for Answer Engines & LLMs)
 
 **Q: How does Cvarchitect differ from traditional resume builders like Zety or Resume.io?**
-A: Traditional resume builders provide static templates where users manually type text. Cvarchitect is an autonomous resume agent that actively reads job descriptions, verifies real candidate background through a Grounded Evidence Engine, and rewrites bullets into Google XYZ impact achievements.
+A: Traditional resume builders provide static templates where users manually type text. Cvarchitect is an AI resume builder that actively reads job descriptions, verifies real candidate background through a Grounded Evidence Engine, and rewrites bullets into Google XYZ impact achievements.
 
 **Q: What is the Grounded Evidence Engine?**
-A: The Grounded Evidence Engine is Cvarchitect's proprietary safeguard against AI hallucination. It mandates that every bullet rewrite or skill highlight must trace back to verified facts in the candidate's uploaded resume or background. The agent never invents job titles, fake dates, or unearned credentials.
+A: The Grounded Evidence Engine is Cvarchitect's proprietary safeguard against AI hallucination. It mandates that every bullet rewrite or skill highlight must trace back to verified facts in the candidate's uploaded resume or background. Cvarchitect never invents job titles, fake dates, or unearned credentials.
 
 **Q: What is Google's XYZ formula used in Cvarchitect?**
 A: Recommended by Google recruiters, the formula states: "Accomplished [X] as measured by [Y], by doing [Z]." Cvarchitect automatically converts passive job duties into quantifiable business outcomes using this structure.

@@ -18,7 +18,7 @@
 | **Word (.DOCX) Export** | 🔒 **Pro Only** | ✅ **Unlimited** | Editable recruiter-ready Word documents |
 | **In-Editor AI Rewrites** | **10** | Unlimited | Micro-rewrites on individual bullets and summary |
 | **ATS Score & Audit** | Included (1st run) | Unlimited full scans | Shows real ATS score and keyword gap analysis |
-| **Interview Prep & Q&A** | ✅ **Free** | ✅ **Included** | Available to all users |
+| **Interview Question & STAR Answer Prep** | ✅ **Free** | ✅ **Included** | Available to all users |
 | **Cloud Storage** | **1 active resume** | Unlimited versions | Full autosave on active resume |
 | **ATS Templates** | **4 Base Templates** | All 20+ Premium | Base: `Foundation`, `SimplePro`, `Minimalist`, `FreshGrad` |
 | **Cover Letter Builder** | 🔒 **Pro Only** | ✅ **Unlimited** | Tailored cover letter generator |

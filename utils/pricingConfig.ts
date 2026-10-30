@@ -7,7 +7,7 @@ import { Plan, CreditPack, PlanId } from '../types/pricing';
 export const PAID_PLAN_FEATURES = [
     'Unlimited AI tailoring & ATS scoring',
     'All 20+ ATS templates & custom styling',
-    'Cover Letters & Interview Prep',
+    'Cover Letters & Interview Question Prep',
     'Unlimited PDF & Word (DOCX) downloads',
 ];
 
@@ -15,7 +15,7 @@ export const FOUNDATION_FEATURES = [
     '1 full AI-tailored resume & job match',
     '3 PDF downloads on base templates',
     '10 in-editor AI rewrites',
-    'Interview prep & Q&A included',
+    'Interview question & STAR answer prep included',
     '1 active cloud-saved resume',
 ];
 

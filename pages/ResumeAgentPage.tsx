@@ -519,7 +519,7 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
         sender: 'agent',
         timestamp: Date.now(),
         type: 'text',
-        text: 'Hello! I am your AI Resume Agent. Paste a job description for a role you are targeting so we can analyze your fit, identify missing keywords, and tailor your resume.',
+        text: 'Hello! I am Cvarchitect. Paste a job description for a role you are targeting so we can analyze your fit, identify missing keywords, and tailor your resume.',
       },
     ];
   });
@@ -690,7 +690,7 @@ export default function ResumeAgentPage({ embedded = false }: ResumeAgentPagePro
           timestamp: Date.now(),
           type: 'text',
           text:
-            'Hello! I am your AI Resume Agent. Paste a job description for a role you are targeting so we can analyze your fit, identify missing keywords, and tailor your resume.',
+            'Hello! I am Cvarchitect. Paste a job description for a role you are targeting so we can analyze your fit, identify missing keywords, and tailor your resume.',
         },
       ];
       setMessages(defaultMsg);

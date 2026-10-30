@@ -40,14 +40,14 @@ export const ATS_CHECKER_PICKS: AtsCheckerPick[] = [
     bestFor: 'Diagnosing a resume against one posting without changing tools',
   },
   {
-    award: 'Best for a numeric ATS score',
+    award: 'Best for a live AI mock interview',
     name: 'Rezi',
     slug: 'rezi',
     href: '/compare/rezi',
     summary:
-      'Scores a resume across 23 ATS metrics, then offers AI rewriting and interview practice. The lifetime plan removes the subscription.',
+      'Scores a resume across 23 ATS metrics, rewrites from the posting, and includes interview question prep. It also has a live AI mock interview, which Cvarchitect does not offer.',
     price: '$29 per month or $149 once',
-    bestFor: 'Score-driven optimization and a one-time payment',
+    bestFor: 'Live mock interview practice and a one-time payment',
   },
   {
     award: 'Best for job-search workflow',
@@ -74,7 +74,7 @@ export const ATS_CHECKER_PICKS: AtsCheckerPick[] = [
 export const ATS_CHECKER_FAQS = [
   {
     q: 'What is the best ATS resume checker in 2026?',
-    a: 'It depends on what you need. Cvarchitect is the strongest when you want the scan and the rewrite in one workflow. Jobscan is the strongest standalone scanner. Rezi is the strongest for a numeric score and a one-time payment. Teal is the strongest for a full job-search workflow. Zety is the strongest for a detailed content audit inside a guided builder.',
+    a: 'It depends on what you need. Cvarchitect is the strongest when you want the scan and the rewrite in one workflow. Jobscan is the strongest standalone scanner. Rezi adds a live AI mock interview and a one-time payment. Teal is the strongest for a full job-search workflow. Zety is the strongest for a detailed content audit inside a guided builder.',
   },
   {
     q: 'Is Jobscan worth paying for?',

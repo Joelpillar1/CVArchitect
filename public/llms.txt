@@ -1,28 +1,28 @@
 # Cvarchitect
 
-> Autonomous AI Resume Agent Platform. Tailor your resume to any job in seconds without hallucinating experience or stuffing keywords.
+> AI resume builder that tailors your resume to each job description, scores it against ATS parsers, writes a matching cover letter, and prepares interview questions in one workflow.
 
-Cvarchitect (https://cvarchitect.app) is an agentic resume architecture platform. Unlike traditional static template builders, Cvarchitect operates an autonomous agent loop that analyzes job descriptions, verifies authentic candidate experience, frames metrics in Google XYZ format, and simulates ATS scoring (Workday, Greenhouse, Lever, Taleo).
+Cvarchitect (https://cvarchitect.app) is an AI resume builder for job seekers. It reads the job description, rewrites the resume against it with grounded evidence, scores the result against ATS parsing rules (Workday, Greenhouse, Lever, Taleo), writes a matching cover letter, and prepares interview questions and STAR answer outlines.
 
 ## Key Capabilities & Systems
 
-- **Autonomous Resume Agent**: Paste any job description. The agent extracts seniority signals, core competencies, and keyword requirements, then rewrites bullets with strict zero-hallucination guardrails.
+- **Job-Description Tailoring**: Paste any job description. Cvarchitect extracts seniority signals, core competencies, and keyword requirements, then rewrites bullets with strict zero-hallucination guardrails.
 - **Grounded Evidence Engine**: Every bullet rewrite traces to authentic user history. The engine verifies projects, roles, and metrics before editing, and it blocks invented claims, inflated titles, or keyword stuffing.
 - **Google XYZ Impact Bullet Optimizer**: Automatically reframes passive job descriptions into measurable business achievements ("Accomplished [X] as measured by [Y], by doing [Z]").
 - **ATS Match Scorecard & Simulation**: Real-time compatibility rating (0-100%) scored against the exact parsing rules of Workday, Taleo, Lever, and Greenhouse.
 - **Interactive Drag & Drop Resume Studio**: ATS-tuned typographic templates (Harvard, The Vanguard, DevPro, Minimalist, Campus Classic, and Campus Modern) with PDF export on every plan and editable DOCX export on paid plans.
 - **Tailored Cover Letter Generator**: Generates concise, role-specific cover letters aligned with the company's stated mission and requirements in under 30 seconds.
-- **Interview Intelligence**: Synthesizes likely STAR-method behavioural and technical interview questions grounded in the tailored resume and target job posting.
+- **Interview Question & STAR Answer Prep**: Generates likely behavioural and technical interview questions with STAR answer outlines grounded in the tailored resume and target job posting. Cvarchitect does not offer a live AI mock interview.
 
 ## Pricing & Access Tiers
 
 - **Foundation Free Tier**: 1 AI-tailored resume and job match, 10 in-editor AI rewrites, and 3 PDF downloads on the base templates. No credit card required.
 - **Build ($10/month)**: Unlimited tailoring, all templates, saved resume versions, cover letter generator, and unlimited PDF/DOCX exports, subject to fair use. Cancel anytime.
-- **Lifetime Pass ($99 one-time)**: Permanent unlimited access to all current and future agent models, templates, and tailoring. No renewals.
+- **Lifetime Pass ($99 one-time)**: Permanent unlimited access to all current and future AI models, templates, and tailoring. No renewals.
 
 ## Primary URLs
 
-- [Homepage](https://cvarchitect.app/): Autonomous AI Resume Agent
+- [Homepage](https://cvarchitect.app/): AI resume builder with job-description tailoring and ATS scoring
 - [Resume Templates](https://cvarchitect.app/resume-templates): ATS-ready resume templates by career stage and role
 - [AI Cover Letter Generator](https://cvarchitect.app/cover-letter): Cover letters written from the job posting in your own voice
 - [Resume Match Checker](https://cvarchitect.app/resume-checker): Scan and score any resume against a job description
@@ -52,7 +52,7 @@ Cvarchitect (https://cvarchitect.app) is an agentic resume architecture platform
 - [Resume Builder Pricing Index 2026](https://cvarchitect.app/resume-builder-pricing-index): Dated dataset of free-plan limits, paid entry prices, and the cheapest 12-month cost for 7 resume and ATS tools, with the source URL for every row
 - [Cvarchitect vs Resume.io](https://cvarchitect.app/compare/resume-io): Guided template library versus job-post tailoring
 - [Cvarchitect vs Teal](https://cvarchitect.app/compare/teal): Job-search workspace versus unlimited AI rewriting
-- [Cvarchitect vs Rezi](https://cvarchitect.app/compare/rezi): ATS scoring specialist versus lower monthly price
+- [Cvarchitect vs Rezi](https://cvarchitect.app/compare/rezi): Comparable resume workflow plus Rezi's live AI mock interview
 - [Cvarchitect vs Kickresume](https://cvarchitect.app/compare/kickresume): Design-first builder versus AI included on the free plan
 - [Cvarchitect vs Zety](https://cvarchitect.app/compare/zety): Established guided editor versus a free PDF and AI tailoring
 - [Cvarchitect vs Jobscan](https://cvarchitect.app/compare/jobscan): Standalone ATS scanner versus a scan-and-rewrite workflow
