@@ -901,8 +901,8 @@ export default function AgentLandingPage() {
   return (
     <div className="relative min-h-screen bg-brand-bg text-brand-dark flex flex-col font-sans selection:bg-brand-green selection:text-brand-dark overflow-x-clip">
       <SEO
-        title="Cvarchitect: The Free AI Resume Builder, Tailored to Every Job"
-        description="The free AI resume builder, tailored to every job. Paste a job description, rewrite your resume to match, check your ATS score, write a matching cover letter, and prep interview questions."
+        title="Cvarchitect: Free AI Resume Builder, Tailored to Every Job"
+        description="The free AI resume builder, tailored to every job. Paste a job description, tailor your resume, check your ATS score, and prep interview questions."
         canonicalPath="/"
         jsonLd={[HOME_FAQ_SCHEMA, HOME_HOWTO_SCHEMA]}
       />
