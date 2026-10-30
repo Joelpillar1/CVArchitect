@@ -373,7 +373,6 @@ export const COMPETITORS: Competitor[] = [
     ],
     theyWin: [
       'A live AI mock interview is the one capability Rezi has that Cvarchitect does not. It is useful if you want to rehearse answers out loud.',
-      'Google Drive export is a small thing that matters if your workflow lives there.',
     ],
     weWin: [
       '$10 per month versus $29. $99 lifetime versus $149.',
@@ -383,7 +382,6 @@ export const COMPETITORS: Competitor[] = [
     ],
     chooseThem: [
       'You specifically want a live AI mock interview in the same subscription.',
-      'You want a 23-metric score breakdown alongside the rewrite.',
       'You are willing to pay $149 once for a permanent tool.',
     ],
     chooseUs: [
