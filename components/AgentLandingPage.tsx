@@ -1070,7 +1070,7 @@ export default function AgentLandingPage() {
                 variants={fadeInUp}
                 className="text-base sm:text-lg text-brand-dark/60 max-w-2xl mx-auto leading-relaxed mb-10 text-balance"
               >
-                Every job asks for something different. Cvarchitect is the free AI resume builder that tailors your resume to each job description without inventing experience or stuffing keywords. You can also build a resume from scratch in the drag-and-drop editor, with no AI required.
+                Tailor your resume to any job with AI, or build one from scratch in the drag-and-drop editor. No invented experience or keyword stuffing.
               </motion.p>
 
               {/* Interactive prompt card */}
